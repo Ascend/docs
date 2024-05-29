@@ -1,4 +1,4 @@
-Welcome to torch_npu documentation!
+昇腾AI处理器快速入门指南
 ==================================================
 
 .. -----------------------------------------
@@ -8,7 +8,14 @@ Welcome to torch_npu documentation!
    :maxdepth: 2
    :hidden:
    :includehidden:
-   :caption: Demo
+   :caption: Get Started
 
-   sources/demo.rst
+   sources/quick_install.rst
 
+.. warning::
+
+   文档仍在开发中，内容可能存在错误，内容可能会随时更新，请勿将其用于生产环境。
+
+选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/quick_install>` 的安装指导进行操作。
+
+安装成功后，请参考快速开始也样例来开始使用昇腾AI处理器。
