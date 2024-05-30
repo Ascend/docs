@@ -116,23 +116,21 @@ Python   3.8, 3.9, 3.10
                                 <pre id="install_cann"></pre>
                             </div>
                         </div>
-                </section>
-                    <h3>2.4 设置环境变量</h3>
-                    <div class="highlight-default notranslate">
-                        <div class="highlight">
-                            <pre>echo "source /usr/local/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
+                        <div id="install_kernel_section">
+                            <p><b>安装算子包（可选）</b></p>
+                            <div class="highlight-default notranslate">
+                                <div class="highlight">
+                                    <pre id="install_kernel"></pre>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </section>
-                <section id="install_kernel_section">
-                    <h3>2.5 安装算子包（可选）</h3>
-                    <div class="highlight-default notranslate">
-                        <div class="highlight">
-                            <pre id="install_kernel"></pre>
+                        <p><b>设置环境变量</b></p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre>echo "source /usr/local/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
+                            </div>
                         </div>
-                    </div>
                 </section>
-                <section>
             </section>
         </div>
     </div>
