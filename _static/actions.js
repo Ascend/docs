@@ -1,19 +1,6 @@
 $(document).ready(function () {
-    // Version matches.
-    let version_map = new Map();
-    version_map.set('8.0.RC2.alpha002', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('8.0.RC2.alpha001', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('8.0.RC1.beta1', ['24.1.rc1', '7.1.0.6.220']);
-    version_map.set('8.0.RC1.alpha003', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('8.0.RC1.alpha002', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('8.0.RC1.alpha001', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('7.0.0.beta1', ['23.0.3', '7.1.0.5.220']);
-    version_map.set('7.0.0.alpha003', ['23.0.rc3', '6.4.0.4.220']);
-    version_map.set('7.0.0.alpha002', ['23.0.rc3', '6.4.0.4.220']);
-    version_map.set('7.0.RC1.beta1', ['23.0.rc3', '6.4.0.4.220']);
-
     let cann_version_select = $('#cann-version');
-    version_map.forEach((value, key) => {
+    $.each(package_info, function (key, value) {
         cann_version_select.append(new Option("CANN: " + key, key));
     });
 
@@ -36,18 +23,18 @@ $(document).ready(function () {
         // select cann, driver, formware versions.
         $.reset_selection($(this));
         $('#driver-version').text("Driver");
-        $('#driver-version').removeData("version");
         $('#firmware-version').text("Firmware");
-        $('#firmware-version').removeData("version");
 
         if ($(this).val() != "na") {
             $(this).addClass("selected");
             $('#driver-version').addClass("selected");
             $('#firmware-version').addClass("selected");
 
-            let cann_version = $(this).val();
-            let driver_version = version_map.get(cann_version)[0];
-            let firmware_version = version_map.get(cann_version)[1];
+            var npu_item = $('#row-npu').find(".selected");
+            var npu_type = npu_item.attr("id").split("-")[1];
+            var cann_version = $(this).val();
+            var driver_version = package_info[cann_version][npu_type].driver_version;
+            var firmware_version = package_info[cann_version][npu_type].firmware_version;
             $('#driver-version').text("Driver: " + driver_version);
             $('#driver-version').data("version", driver_version);
             $('#firmware-version').text("Firmware: " + firmware_version);
@@ -63,6 +50,7 @@ $(document).ready(function () {
             $('#install-instructions').show();
         } else {
             $('#install-instructions').hide();
+            return
         }
 
         var options = {};
@@ -90,13 +78,30 @@ $(document).ready(function () {
             $('#install-dependencies-openeuler').show();
         }
 
+        var driver_url = package_info[options['cann']][options['npu']][options['arch']].driver_url;
+        var firmware_url = package_info[options['cann']][options['npu']].firmware_url;
+        var cann_url = package_info[options['cann']][options['arch']].url;
+        var kernel_url = package_info[options['cann']][options['npu']].kernel_url;
+
+        var parts = driver_url.split("/");
+        var driver_name = parts[parts.length - 1];
+        parts = firmware_url.split("/");
+        var firmware_name = parts[parts.length - 1];
+        parts = cann_url.split("/");
+        var cann_name = parts[parts.length - 1];
+        parts = kernel_url.split("/");
+        var kernel_name = parts[parts.length - 1];
+
         // download and install driver
-        $('#install_drvier').html('wget "https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Ascend HDK/Ascend HDK ' + options['driver'].toUpperCase() + '/Ascend-hdk-' + options['npu'] + '-npu-driver_' + options['driver'] + '_linux-' + options['arch'].replace(/_/g, '-') + '.run"<br>sudo sh Ascend-hdk-' + options['npu'] + '-npu-driver_' + options['driver'] + '_linux-' + options['arch'].replace(/_/g, '-') + '.run --full --install-for-all');
+        $('#install_drvier').html('wget "' + driver_url + '"<br>sudo sh ' + driver_name + ' --full --install-for-all');
 
         // download and install firmware
-        $('#install_firmware').html('wget "https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Ascend HDK/Ascend HDK ' + options['driver'].toUpperCase() + '/Ascend-hdk-' + options['npu'] + '-npu-firmware_' + options['firmware'] + '.run"<br>sudo sh Ascend-hdk-' + options['npu'] + '-npu-firmware_' + options['firmware'] + '.run --full');
+        $('#install_firmware').html('wget "' + firmware_url + '"<br>sudo sh ' + firmware_name + ' --full');
 
         // download and install cann
-        $('#install_cann').html('wget "https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN ' + options['cann'] + '/Ascend-cann-toolkit_' + options['cann'] + '_linux-' + options['arch'] + '.run"<br>sh Ascend-cann-toolkit_' + options['cann'] + '_linux-' + options['arch'] + '.run --install');
+        $('#install_cann').html('wget "' + cann_url + '"<br>sh ' + cann_name + ' --install');
+
+        // download and install kernel
+        $('#install_kernel').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
     }
 });

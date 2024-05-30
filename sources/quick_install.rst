@@ -84,7 +84,7 @@ Python   3.8, 3.9, 3.10
                     <p><b>创建驱动运行用户</b></p>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
-                            <pre>groupadd -g HwHiAiUser<br>useradd -g HwHiAiUser -d /home/HwHiAiUser -m HwHiAiUser -s /bin/bash</pre>
+                            <pre>sudo groupadd -g HwHiAiUser<br>sudo useradd -g HwHiAiUser -d /home/HwHiAiUser -m HwHiAiUser -s /bin/bash<br>sudo usermod -aG HwHiAiUser $USER</pre>
                         </div>
                     </div>
                     <p><b>下载并安装</b></p>
@@ -117,6 +117,14 @@ Python   3.8, 3.9, 3.10
                         </div>
                 </section>
                 <section>
+                    <h3>2.4 安装算子包（可选）</h3>
+                    <div class="highlight-default notranslate">
+                        <div class="highlight">
+                            <pre id="install_kernel"></pre>
+                        </div>
+                    </div>
+                </section>
+                <section>
                     <h3>2.4 设置环境变量</h3>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
@@ -129,7 +137,62 @@ Python   3.8, 3.9, 3.10
     </div>
 
 
-3. 卸载
+1. 验证安装（可选）
+---------------------
+**验证驱动**
+
+确认您的驱动是否安装成功，可以通过以下命令验证：``npu-smi info``
+，若出现以下回显信息，说明驱动安装成功。
+::
+
+    +-------------------------------------------------------------------------------------------+
+    | npu-smi 23.0.2              Version: 23.0.2                                               |
+    +----------------------+---------------+----------------------------------------------------+
+    | NPU   Name           | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+    | Chip                 | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
+    +======================+===============+====================================================+
+    | 0     xxx            | OK            | 0.0         40                0    / 0             |
+    | 0                    | 0000:C1:00.0  | 0           882  / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 1     xxx            | OK            | 0.0         35                0    / 0             |
+    | 0                    | 0000:81:00.0  | 0           1603 / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 2     xxx            | OK            | 0.0         32                0    / 0             |
+    | 0                    | 0000:41:00.0  | 0           2440 / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 3     xxx            | OK            | 0.0         40                0    / 0             |
+    | 0                    | 0000:01:00.0  | 0           1014 / 15071      0    / 32768         |
+    +======================+===============+====================================================+
+    | 4     xxx            | OK            | 0.0         39                0    / 0             |
+    | 0                    | 0000:C2:00.0  | 0           457  / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 5     xxx            | OK            | 0.0         33                0    / 0             |
+    | 0                    | 0000:82:00.0  | 0           523  / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 6     xxx            | OK            | 0.0         31                0    / 0             |
+    | 0                    | 0000:42:00.0  | 0           2182 / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+    | 7     xxx            | OK            | 0.0         39                0    / 0             |
+    | 0                    | 0000:02:00.0  | 0           2771 / 15071      0    / 32768         |
+    +======================+===============+====================================================+
+
+**验证固件**
+
+安装固件后，若系统出现如下关键回显信息，表示固件安装成功。
+::
+
+    Firmware package installed successfully!
+
+**验证CANN-toolkit**
+
+安装CANN-toolkit后，若系统出现以下关键回显信息，表示CANN-toolkit安装成功。
+::
+
+    [INFO] Ascend-cann-toolkit install success
+
+
+
+4. 卸载
 ----------
 **卸载驱动**
 ::
@@ -144,8 +207,4 @@ Python   3.8, 3.9, 3.10
 **卸载CANN-toolkit**
 ::
 
-    #root用户安装
-    sudo /usr/local/Ascend/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh
-
-    #非root用户安装
-    ~/Ascend/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh
+    <path>/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh
