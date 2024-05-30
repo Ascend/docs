@@ -1,14 +1,26 @@
 $(document).ready(function () {
-    let cann_version_select = $('#cann-version');
-    $.each(package_info, function (key, value) {
-        cann_version_select.append(new Option("CANN: " + key, key));
-    });
-
     $.reset_selection = function (elem) {
         elem.parent().children().each(function () {
             $(this).removeClass("selected");
         });
     }
+
+    var cann_version_select = $('#cann-version');
+    $.update_version_list = function () {
+        var npu_item = $('#row-npu').find(".selected");
+        var npu_type = npu_item.attr("id").split("-")[1];
+        cann_version_select.empty();
+        cann_version_select.append(new Option("Select CANN Version", "na"));
+        $.each(package_info, function (key, value) {
+            if (npu_type in value)
+                cann_version_select.append(new Option("CANN: " + key, key));
+        });
+        $.reset_selection(cann_version_select);
+        $('#driver-version').text("Driver");
+        $('#firmware-version').text("Firmware");
+    }
+
+    $.update_version_list();
 
     $("#col-values").on("click", ".values-element", function () {
         fields = $(this).attr("id").split("-");
@@ -16,6 +28,7 @@ $(document).ready(function () {
             return;
         $.reset_selection($(this));
         $(this).addClass("selected");
+        $.update_version_list();
         $.gen_content($(this));
     });
 
@@ -89,8 +102,7 @@ $(document).ready(function () {
         var firmware_name = parts[parts.length - 1];
         parts = cann_url.split("/");
         var cann_name = parts[parts.length - 1];
-        parts = kernel_url.split("/");
-        var kernel_name = parts[parts.length - 1];
+
 
         // download and install driver
         $('#install_drvier').html('wget "' + driver_url + '"<br>sudo sh ' + driver_name + ' --full --install-for-all');
@@ -101,7 +113,15 @@ $(document).ready(function () {
         // download and install cann
         $('#install_cann').html('wget "' + cann_url + '"<br>sh ' + cann_name + ' --install');
 
-        // download and install kernel
-        $('#install_kernel').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
+        if (kernel_url == null) {
+            $('#install_kernel_section').hide();
+        }
+        else {
+            parts = kernel_url.split("/");
+            var kernel_name = parts[parts.length - 1];
+            $('#install_kernel_section').show();
+            // download and install kernel
+            $('#install_kernel').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
+        }
     }
 });

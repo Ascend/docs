@@ -23,7 +23,7 @@
 ======== ========================================
 软件     版本
 ======== ========================================
-操作系统  OpenEuler20.03/22.03, Ubuntu 20.04/24.04
+操作系统  openEuler20.03/22.03, Ubuntu 20.04/24.04
 Python   3.8, 3.9, 3.10
 ======== ========================================
 
@@ -45,8 +45,8 @@ Python   3.8, 3.9, 3.10
             <div class="row-element-2" id="col-values">
                 <div class="row" id="row-os">
                     <div class="mobile-headings">操作系统</div>
-                    <div class="values-element block-2 install-os selected" id="os-ubuntu">Ubuntu</div>
-                    <div class="values-element block-2 install-os" id="os-openeuler">openEuler</div>
+                    <div class="values-element block-2 install-os selected" id="os-openeuler">openEuler</div>
+                    <div class="values-element block-2 install-os" id="os-ubuntu">Ubuntu</div>
                 </div>
                 <div class="row" id="row-arch">
                     <div class="mobile-headings">CPU架构</div>
@@ -55,7 +55,8 @@ Python   3.8, 3.9, 3.10
                 </div>
                 <div class="row" id="row-npu">
                     <div class="mobile-headings">NPU型号</div>
-                    <div class="values-element block-1 install-npu selected" id="npu-910b">Atlas 300T A2 训练卡</div>
+                    <div class="values-element block-2 install-npu selected" id="npu-910b">Atlas 300T A2 训练卡</div>
+                    <div class="values-element block-2 install-npu" id="npu-310p">Atlas 300I Pro 推理卡</div>
                 </div>
                 <div class="row" id="row-version">
                     <div class="mobile-headings">版本选择</div>
@@ -78,7 +79,7 @@ Python   3.8, 3.9, 3.10
                     </div>
                     <div class="highlight-default notranslate" id="install-dependencies-openeuler">
                         <div class="highlight">
-                            <pre>yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran</pre>
+                            <pre>sudo yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran</pre>
                         </div>
                     </div>
                     <p><b>创建驱动运行用户</b></p>
@@ -116,15 +117,6 @@ Python   3.8, 3.9, 3.10
                             </div>
                         </div>
                 </section>
-                <section>
-                    <h3>2.4 安装算子包（可选）</h3>
-                    <div class="highlight-default notranslate">
-                        <div class="highlight">
-                            <pre id="install_kernel"></pre>
-                        </div>
-                    </div>
-                </section>
-                <section>
                     <h3>2.4 设置环境变量</h3>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
@@ -132,12 +124,21 @@ Python   3.8, 3.9, 3.10
                         </div>
                     </div>
                 </section>
+                <section id="install_kernel_section">
+                    <h3>2.5 安装算子包（可选）</h3>
+                    <div class="highlight-default notranslate">
+                        <div class="highlight">
+                            <pre id="install_kernel"></pre>
+                        </div>
+                    </div>
+                </section>
+                <section>
             </section>
         </div>
     </div>
 
 
-1. 验证安装（可选）
+3. 验证安装（可选）
 ---------------------
 **验证驱动**
 
@@ -189,7 +190,6 @@ Python   3.8, 3.9, 3.10
 ::
 
     [INFO] Ascend-cann-toolkit install success
-
 
 
 4. 卸载
