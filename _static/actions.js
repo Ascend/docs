@@ -167,7 +167,7 @@ $(document).ready(function () {
         $(this).addClass("selected");
 
         // if os changed, update os version.
-        if (fields[0] == "os") {
+        if (fields[0] == "os" || fields[0] == "npu") {
             $.update_os_verions();
             $.update_python_versions();
         }

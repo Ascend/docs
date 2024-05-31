@@ -37,15 +37,20 @@ Python   3.8, 3.9, 3.10
     <div id="div-installation" style="">
         <div class="row">
             <div class="row-element-1" id="col-headings">
+                <div class="headings-element">安装方式</div>
                 <div class="headings-element">操作系统</div>
                 <div class="headings-element" id="header-os_version">操作系统版本</div>
-                <div class="headings-element">安装方式</div>
                 <div class="headings-element">CPU架构</div>
                 <div class="headings-element">NPU型号</div>
                 <div class="headings-element" id="header-python_version">Python版本</div>
                 <div class="headings-element">昇腾套件版本</div>
             </div>
             <div class="row-element-2" id="col-values">
+                <div class="row" id="row-install_type">
+                    <div class="mobile-headings">安装方式</div>
+                    <div class="values-element block-2 install-type selected" id="install_type-direct">直接安装</div>
+                    <div class="values-element block-2 install-type" id="install_type-docker">Docker</div>
+                </div>
                 <div class="row" id="row-os">
                     <div class="mobile-headings">操作系统</div>
                     <div class="values-element block-2 install-os selected" id="os-openeuler">openEuler</div>
@@ -53,11 +58,6 @@ Python   3.8, 3.9, 3.10
                 </div>
                 <div class="row" id="row-os_version">
                     <div class="mobile-headings">操作系统版本</div>
-                </div>
-                <div class="row" id="row-install_type">
-                    <div class="mobile-headings">安装方式</div>
-                    <div class="values-element block-2 install-type selected" id="install_type-direct">直接安装</div>
-                    <div class="values-element block-2 install-type" id="install_type-docker">Docker</div>
                 </div>
                 <div class="row" id="row-arch">
                     <div class="mobile-headings">CPU架构</div>
