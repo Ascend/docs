@@ -24,29 +24,82 @@ $(document).ready(function () {
         return options;
     }
 
+    $.get_docker_os_versions = function (options) {
+        var os_versions = {};
+        $.each(docker_images, function (idx, image) {
+            var tag = image.split(":")[1];
+            var tag_items = tag.split("-");
+            var npu_type = tag_items[1];
+
+            var os = tag_items[2];
+            var index = os.search(/\d/);
+            var os_type = os.substring(0, index);
+            var os_version = os.substring(index);
+
+            if (options['os'] == os_type && options['npu'] == npu_type) {
+                if (!os_versions[os_type]) {
+                    os_versions[os_type] = new Set();
+                }
+                os_versions[os_type].add(os_version);
+            }
+        });
+        return os_versions;
+    }
+
+    $.get_docker_python_versions = function (options) {
+        var python_versions = new Set();
+        $.each(docker_images, function (idx, image) {
+            var tag = image.split(":")[1];
+            var tag_items = tag.split("-");
+            var npu_type = tag_items[1];
+
+            var os = tag_items[2];
+            var index = os.search(/\d/);
+            var os_type = os.substring(0, index);
+            var os_version = os.substring(index);
+            var python_version = tag_items[3].substring(2);
+
+            if (options['os'] == os_type && options['os_version'] == os_version && options['npu'] == npu_type) {
+                python_versions.add(python_version);
+            }
+
+        });
+        return python_versions;
+    }
+
     $.update_os_verions = function () {
         $("#row-os_version").find("div").not(":first").remove();
         var options = $.get_options();
         // update os_versions
-        var versions = os_versions[options['os']];
-        var version_length = versions.length;
-        for (var i = 0; i < version_length; i++) {
-            var version = versions[i];
-            $('#row-os_version').append('<div class="values-element block-' + version_length + ' install-os_version" id="os_version-' + version + '">' + version + '</div>');
+        var os_versions = $.get_docker_os_versions(options);
+        var selected_os_versions = os_versions[options['os']];
+        if (selected_os_versions == null) {
+            $('#row-os_version').append('<div class="values-element-disabled block-1 install-os_version" id="os_version-null" disabled>无可用版本</div>');
+        } else {
+            var version_length = selected_os_versions.size;
+            selected_os_versions.forEach(function (version) {
+                $('#row-os_version').append('<div class="values-element block-' + version_length + ' install-os_version" id="os_version-' + version + '">' + version + '</div>');
+            });
+            $("#row-os_version div:last-child").addClass("selected");
         }
-        $("#row-os_version div:last-child").addClass("selected");
     }
 
     $.update_python_versions = function () {
         $("#row-python_version").find("div").not(":first").remove();
         // update python_versions
-        var versions = python_versions;
-        var version_length = versions.length;
-        for (var i = 0; i < version_length; i++) {
-            var version = versions[i];
-            $('#row-python_version').append('<div class="values-element block-' + version_length + ' install-python_version" id="python_version-' + version + '">' + version + '</div>');
+        var options = $.get_options();
+        var versions = $.get_docker_python_versions(options);
+        var version_length = versions.size;
+
+        if (version_length == 0) {
+            $('#row-python_version').append('<div class="values-element-disabled block-1 install-python_version" id="python_version-null" disabled>无可用版本</div>');
+        } else {
+            versions.forEach(function (version) {
+                $('#row-python_version').append('<div class="values-element block-' + version_length + ' install-python_version" id="python_version-' + version + '">' + version + '</div>');
+            });
+            $("#row-python_version div:last-child").addClass("selected");
         }
-        $("#row-python_version div:last-child").addClass("selected");
+
     }
 
     $.change_options_visible = function () {
@@ -64,22 +117,11 @@ $(document).ready(function () {
         }
     }
 
-    $has_key = function (obj, path) {
-        const keys = path.split('|');
-        for (let key of keys) {
-            if (!obj || !obj.hasOwnProperty(key)) {
-                return false;
-            }
-            obj = obj[key];
-        }
-        return true;
-    }
-
     $.update_cann_versions = function () {
         // reset table.
         var cann_version_select = $('#cann-version');
         cann_version_select.empty();
-        cann_version_select.append(new Option("Select CANN Version", "na"));
+        cann_version_select.append(new Option("选择CANN的版本", "na"));
         $.reset_selection(cann_version_select);
         $('#driver-version').text("Driver");
         $('#firmware-version').text("Firmware");
@@ -95,14 +137,19 @@ $(document).ready(function () {
         } else {
             $.each(package_info, function (key, value) {
                 // not all version has a docker image.
-                var find_key = options['npu'] + "|docker|" + options['os'] + "|" + options['os_version'] + "|" + options['python_version'];
-                if ($has_key(value, find_key)) {
-                    cann_version_select.append(new Option("CANN: " + key, key));
+                var tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'] + "-py" + options['python_version'];
+                for (var i = 0; i < docker_images.length; i++) {
+                    if (docker_images[i].split(":")[1] == tag) {
+                        cann_version_select.append(new Option("CANN: " + key, key));
+                        break;
+                    }
                 }
             });
         }
+        if (cann_version_select.children().length === 1) {
+            cann_version_select.children().first().text('无可用版本');
+        }
         cann_version_select.trigger('change');
-
     }
 
     $.update_os_verions();
@@ -122,6 +169,12 @@ $(document).ready(function () {
         // if os changed, update os version.
         if (fields[0] == "os") {
             $.update_os_verions();
+            $.update_python_versions();
+        }
+
+        // if os version changed, update python version.
+        if (fields[0] == "os_version") {
+            $.update_python_versions();
         }
 
         // if install type changed, update options visible.
@@ -212,8 +265,13 @@ $(document).ready(function () {
             $('#use_docker_section').hide();
             $('#install_cann_section').show();
         } else {
-            var docker_image = package_info[options['cann']][options['npu']]['docker'][options['os']][options['os_version']][options['python_version']];
-            $('#use_docker').html('docker pull ' + docker_image);
+            var tag = options['cann'].toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'] + "-py" + options['python_version'];
+            for (var i = 0; i < docker_images.length; i++) {
+                if (docker_images[i].split(":")[1] == tag) {
+                    $('#use_docker').html('docker pull ' + docker_images[i]);
+                    break;
+                }
+            }
             $('#install_cann_section').hide();
             $('#use_docker_section').show();
         }

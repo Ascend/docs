@@ -16,21 +16,6 @@ const package_info = {
             },
             aarch64: {
                 driver_url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Ascend HDK/Ascend HDK 23.0.3/Ascend-hdk-910b-npu-driver_23.0.3_linux-aarch64.run',
-            },
-            docker: {
-                ubuntu: {
-                    '22.04': {
-                        '3.8': 'dockerimage38',
-                        '3.9': 'dockerimage39'
-                    }
-                },
-                openeuler: {
-                    '22.03': {
-                        '3.8': 'dockerimage38',
-                        '3.9': 'dockerimage39',
-                        '3.10': 'dockerimage310'
-                    }
-                }
             }
         },
         '310p': {
@@ -382,19 +367,11 @@ const package_info = {
     }
 };
 
-const os_versions = {
-    ubuntu: [
-        '20.04',
-        '22.04'
-    ],
-    openeuler: [
-        '20.03',
-        '22.03'
-    ]
-};
 
-const python_versions = [
-    '3.8',
-    '3.9',
-    '3.10'
+const docker_images = [
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu22.04-py3.10',
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu20.04-py3.10',
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu20.04-py3.9',
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu20.04-py3.8',
+    'cosdt/cann:8.0.rc2.alpha002-910b-openeuler22.03-py3.10',
 ];
