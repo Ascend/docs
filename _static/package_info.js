@@ -16,6 +16,21 @@ const package_info = {
             },
             aarch64: {
                 driver_url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Ascend HDK/Ascend HDK 23.0.3/Ascend-hdk-910b-npu-driver_23.0.3_linux-aarch64.run',
+            },
+            docker: {
+                ubuntu: {
+                    '22.04': {
+                        '3.8': 'dockerimage38',
+                        '3.9': 'dockerimage39'
+                    }
+                },
+                openeuler: {
+                    '22.03': {
+                        '3.8': 'dockerimage38',
+                        '3.9': 'dockerimage39',
+                        '3.10': 'dockerimage310'
+                    }
+                }
             }
         },
         '310p': {
@@ -31,7 +46,7 @@ const package_info = {
             }
         }
     },
-	'8.0.RC2.alpha001': {
+    '8.0.RC2.alpha001': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C18B800TP015/Ascend-cann-toolkit_8.0.RC2.alpha001_linux-x86_64.run'
         },
@@ -63,7 +78,7 @@ const package_info = {
             }
         }
     },
-	'8.0.RC1.beta1': {
+    '8.0.RC1.beta1': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 8.0.RC1/Ascend-cann-toolkit_8.0.RC1_linux-x86_64.run'
         },
@@ -83,7 +98,7 @@ const package_info = {
             }
         }
     },
-	'8.0.RC1.alpha003': {
+    '8.0.RC1.alpha003': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C17SPC703/Ascend-cann-toolkit_8.0.RC1.alpha003_linux-x86_64.run'
         },
@@ -115,7 +130,7 @@ const package_info = {
             }
         }
     },
-	'8.0.RC1.alpha002': {
+    '8.0.RC1.alpha002': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C17SPC702/Ascend-cann-toolkit_8.0.RC1.alpha002_linux-x86_64.run'
         },
@@ -147,7 +162,7 @@ const package_info = {
             }
         }
     },
-	'8.0.RC1.alpha001': {
+    '8.0.RC1.alpha001': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C17SPC701/Ascend-cann-toolkit_8.0.RC1.alpha001_linux-x86_64.run'
         },
@@ -179,7 +194,7 @@ const package_info = {
             }
         }
     },
-	'7.0.0.beta1': {
+    '7.0.0.beta1': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 7.0.0/Ascend-cann-toolkit_7.0.0_linux-x86_64.run'
         },
@@ -211,7 +226,7 @@ const package_info = {
             }
         }
     },
-	'7.0.0.alpha003': {
+    '7.0.0.alpha003': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C15SPC703/Ascend-cann-toolkit_7.0.0.alpha003_linux-x86_64.run'
         },
@@ -243,7 +258,7 @@ const package_info = {
             }
         }
     },
-	'7.0.0.alpha002': {
+    '7.0.0.alpha002': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/Milan-ASL/Milan-ASL V100R001C15SPC702/Ascend-cann-toolkit_7.0.0.alpha002_linux-x86_64.run'
         },
@@ -275,7 +290,7 @@ const package_info = {
             }
         }
     },
-	'7.0.RC1.beta1': {
+    '7.0.RC1.beta1': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 7.0.RC1/Ascend-cann-toolkit_7.0.RC1_linux-x86_64.run'
         },
@@ -307,7 +322,7 @@ const package_info = {
             }
         }
     },
-	'6.3.RC2.alpha005': {
+    '6.3.RC2.alpha005': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 6.3.RC2/Ascend-cann-toolkit_6.3.RC2_linux-x86_64.run'
         },
@@ -327,7 +342,7 @@ const package_info = {
             }
         }
     },
-	'6.3.RC1.alpha003': {
+    '6.3.RC1.alpha003': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN 6.3.RC1/Ascend-cann-toolkit_6.3.RC1_linux-x86_64.run'
         },
@@ -346,7 +361,7 @@ const package_info = {
             }
         }
     },
-	'6.0.RC1.alpha005': {
+    '6.0.RC1.alpha005': {
         x86_64: {
             url: 'https://ascend-repo.obs.cn-east-2.myhuaweicloud.com/CANN/CANN6.0.RC1/Ascend-cann-toolkit_6.0.RC1_linux-x86_64.run'
         },
@@ -366,3 +381,20 @@ const package_info = {
         }
     }
 };
+
+const os_versions = {
+    ubuntu: [
+        '20.04',
+        '22.04'
+    ],
+    openeuler: [
+        '20.03',
+        '22.03'
+    ]
+};
+
+const python_versions = [
+    '3.8',
+    '3.9',
+    '3.10'
+];

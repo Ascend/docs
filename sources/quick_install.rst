@@ -38,15 +38,26 @@ Python   3.8, 3.9, 3.10
         <div class="row">
             <div class="row-element-1" id="col-headings">
                 <div class="headings-element">操作系统</div>
+                <div class="headings-element" id="header-os_version">操作系统版本</div>
+                <div class="headings-element">安装方式</div>
                 <div class="headings-element">CPU架构</div>
                 <div class="headings-element">NPU型号</div>
-                <div class="headings-element">版本选择</div>
+                <div class="headings-element" id="header-python_version">Python版本</div>
+                <div class="headings-element">昇腾套件版本</div>
             </div>
             <div class="row-element-2" id="col-values">
                 <div class="row" id="row-os">
                     <div class="mobile-headings">操作系统</div>
                     <div class="values-element block-2 install-os selected" id="os-openeuler">openEuler</div>
                     <div class="values-element block-2 install-os" id="os-ubuntu">Ubuntu</div>
+                </div>
+                <div class="row" id="row-os_version">
+                    <div class="mobile-headings">操作系统版本</div>
+                </div>
+                <div class="row" id="row-install_type">
+                    <div class="mobile-headings">安装方式</div>
+                    <div class="values-element block-2 install-type selected" id="install_type-direct">直接安装</div>
+                    <div class="values-element block-2 install-type" id="install_type-docker">Docker</div>
                 </div>
                 <div class="row" id="row-arch">
                     <div class="mobile-headings">CPU架构</div>
@@ -58,8 +69,11 @@ Python   3.8, 3.9, 3.10
                     <div class="values-element block-2 install-npu selected" id="npu-910b">Atlas 300T A2 训练卡</div>
                     <div class="values-element block-2 install-npu" id="npu-310p">Atlas 300I Pro 推理卡</div>
                 </div>
-                <div class="row" id="row-version">
-                    <div class="mobile-headings">版本选择</div>
+                <div class="row" id="row-python_version">
+                    <div class="mobile-headings">Python版本</div>
+                </div>
+                <div class="row" id="row-ascend_version">
+                    <div class="mobile-headings">昇腾套件版本</div>
                     <select class="values-element block-3 install-package" id="cann-version">
                         <option value="na">Select CANN Version</option>
                     </select>
@@ -102,7 +116,7 @@ Python   3.8, 3.9, 3.10
                         </div>
                     </div>
                 </section>
-                <section>
+                <section id="install_cann_section">
                     <h3>2.3 安装CANN</h3>
                         <p><b>安装python依赖</b></p>
                         <div class="highlight-default notranslate">
@@ -128,6 +142,14 @@ Python   3.8, 3.9, 3.10
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre>echo "source /usr/local/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
+                            </div>
+                        </div>
+                </section>
+                <section id="use_docker_section">
+                    <h3>2.3 使用Docker镜像</h3>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre id="use_docker"></pre>
                             </div>
                         </div>
                 </section>
