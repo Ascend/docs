@@ -34,6 +34,7 @@ Python   3.8, 3.9, 3.10
 
 .. raw:: html
 
+    <script type="text/javascript" src="../../_static/ascend_actions.js"></script>
     <div id="div-installation" style="">
         <div class="row">
             <div class="row-element-1" id="col-headings">

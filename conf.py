@@ -65,5 +65,4 @@ html_static_path = ['_static']
 
 def setup(app):
     app.add_css_file('custom.css')
-    app.add_js_file('actions.js')
     app.add_js_file('package_info.js')

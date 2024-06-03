@@ -152,15 +152,10 @@ $(document).ready(function () {
         cann_version_select.trigger('change');
     }
 
-    $.update_os_verions();
-    $.update_python_versions();
-    $.change_options_visible();
-    $.update_cann_versions();
-
     $("#col-values").on("click", ".values-element", function () {
         id = $(this).attr("id");
         fields = id.split("-");
-        if (fields[1] == "cann_version")
+        if (id == "cann-version")
             return;
 
         $.reset_selection($(this));
@@ -276,4 +271,9 @@ $(document).ready(function () {
             $('#use_docker_section').show();
         }
     }
+
+    $.update_os_verions();
+    $.update_python_versions();
+    $.change_options_visible();
+    $.update_cann_versions();
 });
