@@ -1,4 +1,4 @@
-安装PyTorch和PyTorch-NPU
+安装
 ===========================
 
 跟随指导，安装在NPU上运行的PyTorch版本。
@@ -108,7 +108,8 @@
     import torch
     import torch_npu
 
-    torch.npu.set_device(0)
-    a = torch.randn(2,3).to('npu')
-    b = torch.randn(2,3).to('npu')
-    a + b
+    x = torch.randn(2, 2).npu()
+    y = torch.randn(2, 2).npu()
+    z = x.mm(y)
+
+    print(z)

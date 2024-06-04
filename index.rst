@@ -20,6 +20,8 @@
 
    sources/pytorch/install.rst
 
+   sources/pytorch/quick_start.rst
+
 
 .. warning::
 
