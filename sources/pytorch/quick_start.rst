@@ -22,7 +22,7 @@
 
 .. code-block:: python
     :linenos:
-    :emphasize-lines: 20,21,23,24,25,84,85,109,110,146,147,171,172
+    :emphasize-lines: 20,21,23,24,25,82,83,107,108,144,145,169,170
 
     """
     Training an image classifier

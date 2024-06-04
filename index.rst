@@ -19,9 +19,8 @@
    :caption: PyTorch
 
    sources/pytorch/install.rst
-
    sources/pytorch/quick_start.rst
-
+   sources/pytorch/api_doc.rst
 
 .. warning::
 
