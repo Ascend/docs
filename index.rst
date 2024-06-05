@@ -1,4 +1,4 @@
-昇腾AI处理器快速入门指南
+昇腾开源
 ==================================================
 
 .. -----------------------------------------
@@ -8,7 +8,7 @@
    :maxdepth: 2
    :hidden:
    :includehidden:
-   :caption: Get Started
+   :caption: 开始使用
 
    sources/ascend/quick_install.rst
 
@@ -20,6 +20,7 @@
 
    sources/pytorch/install.rst
    sources/pytorch/quick_start.rst
+   sources/pytorch/examples.rst
    sources/pytorch/api_doc.rst
 
 .. warning::
@@ -28,4 +29,4 @@
 
 选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
 
-安装成功后，请参考快速开始和样例来开始使用昇腾AI处理器。
+安装成功后，请参考各软件的快速开始和样例来开始使用昇腾AI处理器。

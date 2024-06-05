@@ -209,7 +209,7 @@
         print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
 
 2. 使用DeepSpeed多卡并行训练
----------------------------
+-------------------------------
 以下代码使用了cifar10数据集，使用DeepSpeed训练模型在多张NPU卡上进行模型训练（来自 `DeepSpeed Examples <https://github.com/microsoft/DeepSpeedExamples/blob/master/training/cifar/cifar10_deepspeed.py>`_），自DeepSpeed v0.12.6之后，代码无需任何修改，即可自动检测NPU并进行训练。
 
 .. rli:: https://raw.githubusercontent.com/microsoft/DeepSpeedExamples/master/training/cifar/cifar10_deepspeed.py

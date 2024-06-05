@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Ascend NPU for PyTorch'
+project = '昇腾开源'
 copyright = '2024, Ascend'
 author = 'Ascend'
 
