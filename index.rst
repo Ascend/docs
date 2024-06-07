@@ -16,12 +16,9 @@
    :maxdepth: 2
    :hidden:
    :includehidden:
-   :caption: PyTorch
+   :caption: 原生支持的AI项目
 
-   sources/pytorch/install.rst
-   sources/pytorch/quick_start.rst
-   sources/pytorch/examples.rst
-   sources/pytorch/api_doc.rst
+   sources/pytorch/index.rst
 
 .. warning::
 
@@ -29,4 +26,4 @@
 
 选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
 
-安装成功后，请参考各软件的快速开始和样例来开始使用昇腾AI处理器。
+安装成功后，请参考各项目的快速开始和样例来开始使用昇腾AI处理器。
