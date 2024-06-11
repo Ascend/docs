@@ -177,9 +177,15 @@ const package_info = {
 
 
 const docker_images = [
+    'cosdt/cann:7.0.0-310p-ubuntu20.04',
+    'cosdt/cann:7.0.0-310p-ubuntu22.04',
+    'cosdt/cann:7.0.0-310p-openeuler20.03',
     'cosdt/cann:7.0.0-910b-ubuntu20.04',
     'cosdt/cann:7.0.0-910b-ubuntu22.04',
     'cosdt/cann:7.0.0-910b-openeuler20.03',
+    'cosdt/cann:8.0.rc1-310p-ubuntu20.04',
+    'cosdt/cann:8.0.rc1-310p-ubuntu22.04',
+    'cosdt/cann:8.0.rc1-310p-openeuler20.03',
     'cosdt/cann:8.0.rc1-910b-ubuntu20.04',
     'cosdt/cann:8.0.rc1-910b-ubuntu22.04',
     'cosdt/cann:8.0.rc1-910b-openeuler20.03',

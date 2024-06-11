@@ -143,7 +143,10 @@ Python   3.8, 3.9, 3.10
                         </div>
                 </section>
                 <section id="use_docker_section">
-                    <h3>2.3 使用Docker镜像</h3>
+                    <h3>2.3 运行Docker容器</h3>
+                        <div>
+                        下列命令将创建一个名为'cann-container'的Docker容器，并将设备和驱动挂载到容器中。<br><br>
+                        </div>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre id="use_docker"></pre>

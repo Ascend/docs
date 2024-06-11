@@ -138,7 +138,7 @@ $(document).ready(function () {
         $('#driver-version').text("Driver");
         $('#firmware-version').text("Firmware");
 
-        if ($(this).val() != "na") {
+        if ($(this).val() !== "na") {
             $(this).addClass("selected");
             $('#driver-version').addClass("selected");
             $('#firmware-version').addClass("selected");
@@ -156,7 +156,7 @@ $(document).ready(function () {
 
     $.gen_content = function () {
         // instructions need all options selected.
-        if ($('#cann-version').val() != "na") {
+        if ($('#cann-version').val() !== "na") {
             $('#install-instructions').show();
         } else {
             $('#install-instructions').hide();
@@ -213,8 +213,23 @@ $(document).ready(function () {
         } else {
             var tag = options['cann'].toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
             for (var i = 0; i < docker_images.length; i++) {
-                if (docker_images[i].split(":")[1] == tag) {
-                    $('#use_docker').html('docker pull ' + docker_images[i]);
+                if (docker_images[i].split(":")[1] === tag) {
+                    var dockerCommand = `
+docker run \\
+    --name cann_container \\
+    --device /dev/davinci1 \\
+    --device /dev/davinci_manager \\
+    --device /dev/devmm_svm \\
+    --device /dev/hisi_hdc \\
+    -v /usr/local/dcmi:/usr/local/dcmi \\
+    -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \\
+    -v /usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/ \\
+    -v /etc/ascend_install.info:/etc/ascend_install.info \\
+    -v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \\
+    -it ${docker_images[i]} bash
+                    `;
+
+                    $('#use_docker').html(dockerCommand.trim());
                     break;
                 }
             }
