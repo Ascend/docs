@@ -43,7 +43,6 @@ Python   3.8, 3.9, 3.10
                 <div class="headings-element" id="header-os_version">操作系统版本</div>
                 <div class="headings-element">CPU架构</div>
                 <div class="headings-element">NPU型号</div>
-                <div class="headings-element" id="header-python_version">Python版本</div>
                 <div class="headings-element">昇腾套件版本</div>
             </div>
             <div class="row-element-2" id="col-values">
@@ -69,9 +68,6 @@ Python   3.8, 3.9, 3.10
                     <div class="mobile-headings">NPU型号</div>
                     <div class="values-element block-2 install-npu selected" id="npu-910b">Atlas 300T A2 训练卡</div>
                     <div class="values-element block-2 install-npu" id="npu-310p">Atlas 300I Pro 推理卡</div>
-                </div>
-                <div class="row" id="row-python_version">
-                    <div class="mobile-headings">Python版本</div>
                 </div>
                 <div class="row" id="row-ascend_version">
                     <div class="mobile-headings">昇腾套件版本</div>
