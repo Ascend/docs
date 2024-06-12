@@ -94,9 +94,11 @@ $(document).ready(function () {
         } else {
             $.each(package_info, function (key, value) {
                 // not all version has a docker image.
-                var tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
-                for (var i = 0; i < docker_images.length; i++) {
-                    if (docker_images[i].split(":")[1] === tag) {
+                const tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
+                const pkg_info = package_info[key][options['npu']];
+                for (const image of docker_images) {
+                    if (image.split(":")[1] === tag && pkg_info &&
+                        pkg_info.driver_version && pkg_info.firmware_version) {
                         cann_version_select.append(new Option("CANN: " + key, key));
                         break;
                     }
