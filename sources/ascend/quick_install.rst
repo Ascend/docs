@@ -5,7 +5,7 @@
 
 系统要求
 ----------------
-1.1 前置检查
+前置检查
 ^^^^^^^^^^^^^
 确认昇腾AI处理器已经安装妥当
 
@@ -20,7 +20,7 @@
     uname -m && cat /etc/*release
 
 
-1.2 软件要求
+软件要求
 ^^^^^^^^^^^^^
 ======== ========================================
 软件     版本
@@ -83,7 +83,7 @@ Python   3.8, 3.9, 3.10
         </div>
         <div id="install-instructions" style="display:none;">
             <section>
-                <h3>2.1 安装驱动</h3>
+                <h3>安装驱动</h3>
                     <p><b>安装依赖</b></p>
                     <div class="highlight-default notranslate" id="install-dependencies-ubuntu">
                         <div class="highlight">
@@ -108,7 +108,7 @@ Python   3.8, 3.9, 3.10
                         </div>
                     </div>
                 <section>
-                    <h3>2.2 安装固件</h3>
+                    <h3>安装固件</h3>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
                             <pre></pre>
@@ -116,7 +116,7 @@ Python   3.8, 3.9, 3.10
                     </div>
                 </section>
                 <section id="install_cann_section">
-                    <h3>2.3 安装CANN</h3>
+                    <h3>安装CANN</h3>
                         <p><b>安装python依赖</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
@@ -145,7 +145,7 @@ Python   3.8, 3.9, 3.10
                         </div>
                 </section>
                 <section id="use_docker_section">
-                    <h3>2.3 运行Docker容器</h3>
+                    <h3>运行Docker容器</h3>
                         <div>
                         下列命令将创建一个名为'cann-container'的Docker容器，并将设备和驱动挂载到容器中。<br><br>
                         </div>
