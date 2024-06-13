@@ -4,5 +4,6 @@ LLaMA-Factory
 .. toctree::
    :maxdepth: 2
 
-   install.md
-   quick_start.md
+   install.rst
+   quick_start.rst
+   faq.rst
