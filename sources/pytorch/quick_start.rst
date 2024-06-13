@@ -1,14 +1,17 @@
 快速开始
 ===========================
 
-以下说明假设您已经安装了PyTorch-NPU环境，有关环境安装，请参考 :doc:`./install`
+.. note::
+
+    在运行下述示例之前，需要您已经安装了PyTorch-NPU环境，有关环境安装，请参考 :doc:`./install`
 
 一般来说，要在代码中使用NPU进行训练推理，需要做以下更改：
 
 #. 导入torch_npu扩展包 ``import torch_npu``
 #. 将模型，以及模型输入上传到NPU上
 
-:: 
+.. code-block:: python
+    :linenos:
 
     device= torch.device("npu")
     model = model.to(device)
@@ -16,7 +19,7 @@
 
 下面的实例演示了如何使用NPU进行训练和推理任务：
 
-1. 单卡训练
+单卡训练
 -----------------------
 以下代码使用了cifar10数据集在NPU上训练模型（截取自 `PyTorch tutorials <https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html>`_），请关注高亮的内容。
 
@@ -208,7 +211,7 @@
         accuracy = 100 * float(correct_count) / total_pred[classname]
         print(f'Accuracy for class: {classname:5s} is {accuracy:.1f} %')
 
-2. 使用DeepSpeed多卡并行训练
+使用DeepSpeed多卡并行训练
 -------------------------------
 以下代码使用了cifar10数据集，使用DeepSpeed训练模型在多张NPU卡上进行模型训练（来自 `DeepSpeed Examples <https://github.com/microsoft/DeepSpeedExamples/blob/master/training/cifar/cifar10_deepspeed.py>`_），自DeepSpeed v0.12.6之后，代码无需任何修改，即可自动检测NPU并进行训练。
 
@@ -217,7 +220,7 @@
     :linenos:
 
 
-3. 使用Transforms进行模型微调
+使用Transforms进行模型微调
 ---------------------------------
 以下代码使用了Transforms对LLM进行微调（来自 `transforms examples <https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_clm.py>`_），自transforms xxx版本以及accelerator 0.21.0版本以后，代码无需任何修改，即可自动检测NPU并进行。
 
@@ -239,7 +242,7 @@
         --do_eval \
         --output_dir /tmp/test-clm
 
-4. 使用Diffusers进行模型微调
+使用Diffusers进行模型微调
 ---------------------------------
 以下代码使用了Diffusers对文生图模型进行微调（来自 `diffusers examples <https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py>`_），自diffusers v0.27.0版本以后，代码无需任何修改，即可自动检测NPU并进行。
 

@@ -4,9 +4,9 @@
 跟随指导，安装在NPU上运行的PyTorch版本。
 
 
-1. 选择需要安装的PyTorch版本
+选择需要安装的 PyTorch 版本
 ------------------------------
-根据您的需求，选择合适的PyTorch和CANN版本：
+准备安装 PyTorch：
 
 .. raw:: html
 
@@ -42,68 +42,52 @@
                 </div>
                  <div class="row" id="row-install_type">
                     <div class="mobile-headings">安装方式</div>
-                    <div class="values-element block-2 install-type selected" id="install_type-pip">pip</div>
-                    <div class="values-element block-2 install-type" id="install_type-source">源码构建</div>
+                    <div class="values-element block-3 install-type selected" id="install_type-docker">Docker</div>
+                    <div class="values-element block-3 install-type" id="install_type-pip">pip</div>
+                    <div class="values-element block-3 install-type" id="install_type-source">源码构建</div>
                 </div>
             </div>
         </div>
     </div>
 
+.. warning:: 
 
-请先根据上述表格建议的CANN-toolkit版本 :doc:`安装昇腾环境<../ascend/quick_install>`。
+    非Docker的安装方式，需要根据上述表格的建议 :doc:`安装<../ascend/quick_install>` CANN-toolkit版本。
 
 
-2. 安装PyTorch
+安装 PyTorch
 ----------------
 .. raw:: html
 
+    <section id="install-pytorch-docker-section">
+        <div class="highlight">
+            <pre></pre>
+        </div>
+    </section>
     <section id="install-pytorch-pip-section">
-        <p><b>使用pip安装</b></p>
-                <div class="highlight">
-                    <pre id="install-pytorch-pip"></pre>
-                </div>
+        <div class="highlight">
+            <pre></pre>
+        </div>
     </section>
     <div id="install-pytorch-source-section">
         <section>
-            <h3>2.1 环境依赖</h3>
-                <p>1. Python 3.8及以上<br>2. 支持C++17的编译器，例如clang 或者 gcc (9.4.0及以上)</p>
-        </section>
-        <section>
-            <h3>2.2 构建</h3>
-                <div class="highlight">
-                    <pre id="install-pytorch-source-build"></pre>
-                </div>
-        </section>
-    </div>
-
-3. 安装PyTorch-NPU
---------------------
-
-.. raw:: html
-
-    <section id="install-pytorch_npu-pip-section">
-        <p><b>使用pip安装</b></p>
-                <div class="highlight">
-                    <pre id="install-pytorch_npu-pip"></pre>
-                </div>
-    </section>
-    <div id="install-pytorch_npu-source-section">
-        <section>
-            <h3>3.1 环境依赖</h3>
+            <h3>环境依赖</h3>
                 <p>1. Python 3.8 ~ 3.10<br>2. 支持C++17的编译器，例如clang 或者 gcc (9.4.0及以上)</p>
         </section>
         <section>
-            <h3>3.2 构建</h3>
+            <h3>构建</h3>
                 <div class="highlight">
-                    <pre id="install-pytorch_npu-source-build"></pre>
+                    <pre></pre>
                 </div>
         </section>
     </div>
 
-4. 验证安装结果
+
+验证安装结果
 ------------------
 
-::
+.. code-block:: python
+    :linenos:
 
     import torch
     import torch_npu

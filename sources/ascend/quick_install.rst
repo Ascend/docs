@@ -3,17 +3,19 @@
 
 跟随指导，在您的机器上快速安装昇腾环境。
 
-1. 系统要求
+系统要求
 ----------------
 1.1 前置检查
 ^^^^^^^^^^^^^
 确认昇腾AI处理器已经安装妥当
-::
+
+.. code-block:: bash
 
     lspci | grep 'Processing accelerators'
 
 确认操作系统架构及版本
-::
+
+.. code-block:: bash
 
     uname -m && cat /etc/*release
 
@@ -28,7 +30,7 @@ Python   3.8, 3.9, 3.10
 ======== ========================================
 
 
-2. 环境安装
+环境安装
 ------------------
 根据您的需求，选择合适的软件包版本：
 
@@ -102,14 +104,14 @@ Python   3.8, 3.9, 3.10
                     <p><b>下载并安装</b></p>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
-                            <pre id="install_drvier"></pre>
+                            <pre></pre>
                         </div>
                     </div>
                 <section>
                     <h3>2.2 安装固件</h3>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
-                            <pre id="install_firmware"></pre>
+                            <pre></pre>
                         </div>
                     </div>
                 </section>
@@ -124,14 +126,14 @@ Python   3.8, 3.9, 3.10
                         <p><b>下载并安装</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre id="install_cann"></pre>
+                                <pre></pre>
                             </div>
                         </div>
                         <div id="install_kernel_section">
                             <p><b>安装算子包（可选）</b></p>
                             <div class="highlight-default notranslate">
                                 <div class="highlight">
-                                    <pre id="install_kernel"></pre>
+                                    <pre></pre>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +151,7 @@ Python   3.8, 3.9, 3.10
                         </div>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre id="use_docker"></pre>
+                                <pre></pre>
                             </div>
                         </div>
                 </section>
@@ -158,13 +160,14 @@ Python   3.8, 3.9, 3.10
     </div>
 
 
-3. 验证安装（可选）
+验证安装（可选）
 ---------------------
 **验证驱动**
 
 确认您的驱动是否安装成功，可以通过以下命令验证：``npu-smi info``
 ，若出现以下回显信息，说明驱动安装成功。
-::
+
+.. code-block:: bash
 
     +-------------------------------------------------------------------------------------------+
     | npu-smi 23.0.2              Version: 23.0.2                                               |
@@ -200,31 +203,36 @@ Python   3.8, 3.9, 3.10
 **验证固件**
 
 安装固件后，若系统出现如下关键回显信息，表示固件安装成功。
-::
+
+.. code-block:: bash
 
     Firmware package installed successfully!
 
 **验证CANN-toolkit**
 
 安装CANN-toolkit后，若系统出现以下关键回显信息，表示CANN-toolkit安装成功。
-::
+
+.. code-block:: bash
 
     [INFO] Ascend-cann-toolkit install success
 
 
-4. 卸载
+卸载
 ----------
 **卸载驱动**
-::
+
+.. code-block:: bash
 
     sudo /usr/local/Ascend/firmware/script/uninstall.sh
 
 **卸载固件**
-::
+
+.. code-block:: bash
 
     sudo /usr/local/Ascend/driver/script/uninstall.sh
 
 **卸载CANN-toolkit**
-::
+
+.. code-block:: bash
 
     <path>/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh

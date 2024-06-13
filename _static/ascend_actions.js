@@ -189,14 +189,14 @@ $(document).ready(function () {
         var cann_name = parts[parts.length - 1];
 
         // download and install driver
-        $('#install_drvier').html('wget "' + driver_url + '"<br>sudo sh ' + driver_name + ' --full --install-for-all');
+        $('#codecell5').html('wget "' + driver_url + '"<br>sudo sh ' + driver_name + ' --full --install-for-all');
 
         // download and install firmware
-        $('#install_firmware').html('wget "' + firmware_url + '"<br>sudo sh ' + firmware_name + ' --full');
+        $('#codecell6').html('wget "' + firmware_url + '"<br>sudo sh ' + firmware_name + ' --full');
 
         if (options['install_type'] === 'direct') {
             // download and install cann
-            $('#install_cann').html('wget "' + cann_url + '"<br>sh ' + cann_name + ' --install');
+            $('#codecell8').html('wget "' + cann_url + '"<br>sh ' + cann_name + ' --install');
 
             // download and install kernel if exist.
             if (kernel_url == null) {
@@ -207,7 +207,7 @@ $(document).ready(function () {
                 var kernel_name = parts[parts.length - 1];
                 $('#install_kernel_section').show();
                 // download and install kernel
-                $('#install_kernel').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
+                $('#codecell9').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
             }
 
             $('#use_docker_section').hide();
@@ -231,7 +231,7 @@ docker run \\
     -it ${docker_images[i]} bash
                     `;
 
-                    $('#use_docker').html(dockerCommand.trim());
+                    $('#codecell11').html(dockerCommand.trim());
                     break;
                 }
             }
