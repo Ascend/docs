@@ -34,6 +34,10 @@ Python   3.8, 3.9, 3.10
 ------------------
 根据您的需求，选择合适的软件包版本：
 
+.. note::
+
+    建议使用非root用户安装
+
 .. raw:: html
 
     <script type="text/javascript" src="../../_static/ascend_actions.js"></script>
@@ -87,12 +91,12 @@ Python   3.8, 3.9, 3.10
                     <p><b>安装依赖</b></p>
                     <div class="highlight-default notranslate" id="install-dependencies-ubuntu">
                         <div class="highlight">
-                            <pre>sudo apt-get install -y gcc g++ make cmake zlib1g zlib1g-dev openssl libsqlite3-dev libssl-dev libffi-dev unzip pciutils net-tools libblas-dev gfortran libblas3</pre>
+                            <pre>sudo apt-get install -y gcc g++ make cmake zlib1g zlib1g-dev openssl libsqlite3-dev libssl-dev libffi-dev unzip pciutils net-tools libblas-dev gfortran libblas3 python3-dev</pre>
                         </div>
                     </div>
                     <div class="highlight-default notranslate" id="install-dependencies-openeuler">
                         <div class="highlight">
-                            <pre>sudo yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran</pre>
+                            <pre>sudo yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran python3-devel</pre>
                         </div>
                     </div>
                     <p><b>创建驱动运行用户</b></p>
@@ -114,13 +118,17 @@ Python   3.8, 3.9, 3.10
                             <pre></pre>
                         </div>
                     </div>
+                    <div class="admonition note">
+                        <p class="admonition-title">备注</p>
+                        <p>根据提示决定是否需要重启系统</p>
+                    </div>
                 </section>
                 <section id="install_cann_section">
                     <h3>安装CANN</h3>
                         <p><b>安装python依赖</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre>pip3 install attrs numpy decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions</pre>
+                                <pre>pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs numpy decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions</pre>
                             </div>
                         </div>
                         <p><b>下载并安装</b></p>
@@ -140,7 +148,7 @@ Python   3.8, 3.9, 3.10
                         <p><b>设置环境变量</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre>echo "source /usr/local/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
+                                <pre>echo "source ~/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
                             </div>
                         </div>
                 </section>
@@ -178,27 +186,8 @@ Python   3.8, 3.9, 3.10
     | 0     xxx            | OK            | 0.0         40                0    / 0             |
     | 0                    | 0000:C1:00.0  | 0           882  / 15169      0    / 32768         |
     +======================+===============+====================================================+
-    | 1     xxx            | OK            | 0.0         35                0    / 0             |
-    | 0                    | 0000:81:00.0  | 0           1603 / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    | 2     xxx            | OK            | 0.0         32                0    / 0             |
-    | 0                    | 0000:41:00.0  | 0           2440 / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    | 3     xxx            | OK            | 0.0         40                0    / 0             |
-    | 0                    | 0000:01:00.0  | 0           1014 / 15071      0    / 32768         |
-    +======================+===============+====================================================+
-    | 4     xxx            | OK            | 0.0         39                0    / 0             |
-    | 0                    | 0000:C2:00.0  | 0           457  / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    | 5     xxx            | OK            | 0.0         33                0    / 0             |
-    | 0                    | 0000:82:00.0  | 0           523  / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    | 6     xxx            | OK            | 0.0         31                0    / 0             |
-    | 0                    | 0000:42:00.0  | 0           2182 / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    | 7     xxx            | OK            | 0.0         39                0    / 0             |
-    | 0                    | 0000:02:00.0  | 0           2771 / 15071      0    / 32768         |
-    +======================+===============+====================================================+
+    
+    ... ...
 
 **验证固件**
 
@@ -214,7 +203,13 @@ Python   3.8, 3.9, 3.10
 
 .. code-block:: bash
 
-    [INFO] Ascend-cann-toolkit install success
+    Ascend-cann-toolkit install success.
+
+安装算子包后，若系统出现以下关键回显信息，表示算子包安装成功。
+
+.. code-block:: bash
+
+    Ascend-cann-kernels install success.
 
 
 卸载
@@ -235,4 +230,4 @@ Python   3.8, 3.9, 3.10
 
 .. code-block:: bash
 
-    <path>/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh
+    ~/Ascend/ascend-toolkit/<cann_version>/{arch}-linux/script/uninstall.sh

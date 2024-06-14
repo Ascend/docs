@@ -50,31 +50,57 @@
         </div>
     </div>
 
-.. warning:: 
-
-    非Docker的安装方式，需要根据上述表格的建议 :doc:`安装<../ascend/quick_install>` CANN-toolkit版本。
-
 
 安装 PyTorch
 ----------------
 .. raw:: html
 
     <section id="install-pytorch-docker-section">
+        <div class="admonition note">
+                <p class="admonition-title">备注</p>
+                <p>请确保已经<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a>了与上述CANN-toolkit版本匹配的驱动和固件。</p>
+        </div>
         <div class="highlight">
             <pre></pre>
         </div>
     </section>
     <section id="install-pytorch-pip-section">
+        <div class="admonition note">
+                <p class="admonition-title">备注</p>
+                <p>请确保已经根据上述表格建议<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a>了对应的CANN-toolkit版本以及相应的固件和驱动，并应用了CANN-toolkit环境变量。</p>
+        </div>
         <div class="highlight">
             <pre></pre>
         </div>
     </section>
     <div id="install-pytorch-source-section">
         <section>
+            <div class="admonition note">
+                <p class="admonition-title">备注</p>
+                <p>请确保已经根据上述表格建议<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a>了对应的CANN-toolkit版本以及相应的固件和驱动，并应用了CANN-toolkit环境变量。</p>
+            </div>
             <h3>环境依赖</h3>
-                <p>1. Python 3.8 ~ 3.10<br>2. 支持C++17的编译器，例如clang 或者 gcc (9.4.0及以上)</p>
+            <ol>
+                <li>Python 3.8 ~ 3.10</li>
+                <li>支持C++17的编译器，例如clang 或者 gcc (9.4.0及以上)</li>
+                <li><a class="reference internal" href="https://docs.anaconda.com/free/miniconda/#quick-command-line-install"><span class="doc">Conda (可选)</span></a></li>
+            </ol>
+            <div class="admonition note">
+                <p class="admonition-title">备注</p>
+                <p>如果使用Conda，请确保CANN-toolkit依赖的Python包在Conda环境中已经<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a></p>
+            </div>
+            <div class="admonition warning">
+                <p class="admonition-title">警告</p>
+                <p>不建议您使用Conda提供的gcc，可能需要解决一些编译依赖问题，如果一定要使用，可参考以下命令：</p>
+            </div>
+            <div class="highlight"><pre>conda install -c conda-forge libstdcxx-ng libgcc-ng gcc=9.4 gxx=9.4</pre></div>
         </section>
         <section>
+            <div class="admonition note">
+                <p class="admonition-title">备注</p>
+                <p>请确认CXX11_ABI是关闭的，如果无法确定，建议显式关闭：</p>
+            </div>
+            <div class="highlight"><pre>export _GLIBCXX_USE_CXX11_ABI=0</pre></div>
             <h3>构建</h3>
                 <div class="highlight">
                     <pre></pre>
