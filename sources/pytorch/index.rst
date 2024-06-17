@@ -8,3 +8,4 @@ PyTorch
    quick_start.rst
    examples.rst
    api_doc.rst
+   faq.rst

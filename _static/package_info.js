@@ -196,18 +196,18 @@ const pytorch_versions = {
         torch_npu: '2.2.0',
         npu_branch: 'v2.2.0-6.0.rc1',
         cann: 'CANN 8.0.RC1',
-        docker: 'cosdt/torch:2.2.0'
+        docker: 'cosdt/pytorch:2.2.0'
     },
     '2.1.0': {
         torch_npu: '2.1.0.post3',
         npu_branch: 'v2.1.0-6.0.rc1',
         cann: 'CANN 8.0.RC1',
-        docker: 'cosdt/torch:2.1.0'
+        docker: 'cosdt/pytorch:2.1.0'
     },
     '2.0.1': {
         torch_npu: '2.0.1.post1',
         npu_branch: 'v2.1.0-5.0.0',
         cann: 'CANN 7.0.0',
-        docker: 'cosdt/torch:2.0.1'
+        docker: 'cosdt/pytorch:2.0.1'
     }
 }
