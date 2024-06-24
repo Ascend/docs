@@ -177,18 +177,18 @@ const package_info = {
 
 
 const docker_images = [
-    'cosdt/cann:7.0.0-310p-ubuntu20.04',
-    'cosdt/cann:7.0.0-310p-ubuntu22.04',
-    'cosdt/cann:7.0.0-310p-openeuler20.03',
-    'cosdt/cann:7.0.0-910b-ubuntu20.04',
-    'cosdt/cann:7.0.0-910b-ubuntu22.04',
-    'cosdt/cann:7.0.0-910b-openeuler20.03',
-    'cosdt/cann:8.0.rc1-310p-ubuntu20.04',
-    'cosdt/cann:8.0.rc1-310p-ubuntu22.04',
-    'cosdt/cann:8.0.rc1-310p-openeuler20.03',
-    'cosdt/cann:8.0.rc1-910b-ubuntu20.04',
-    'cosdt/cann:8.0.rc1-910b-ubuntu22.04',
-    'cosdt/cann:8.0.rc1-910b-openeuler20.03',
+    'cosdt/cann:7.0.1-310p-ubuntu20.04',
+    'cosdt/cann:7.0.1-310p-ubuntu22.04',
+    'cosdt/cann:7.0.1-310p-openeuler20.03',
+    'cosdt/cann:7.0.1-910b-ubuntu20.04',
+    'cosdt/cann:7.0.1-910b-ubuntu22.04',
+    'cosdt/cann:7.0.1-910b-openeuler20.03',
+    'cosdt/cann:8.0.rc2.alpha002-310p-ubuntu20.04',
+    'cosdt/cann:8.0.rc2.alpha002-310p-ubuntu22.04',
+    'cosdt/cann:8.0.rc2.alpha002-310p-openeuler20.03',
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu20.04',
+    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu22.04',
+    'cosdt/cann:8.0.rc2.alpha002-910b-openeuler20.03',
 ];
 
 const pytorch_versions = {
@@ -203,11 +203,5 @@ const pytorch_versions = {
         npu_branch: 'v2.1.0-6.0.rc1',
         cann: 'CANN 8.0.RC1',
         docker: 'cosdt/pytorch:2.1.0'
-    },
-    '2.0.1': {
-        torch_npu: '2.0.1.post1',
-        npu_branch: 'v2.1.0-5.0.0',
-        cann: 'CANN 7.0.0',
-        docker: 'cosdt/pytorch:2.0.1'
     }
 }

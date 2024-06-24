@@ -57,8 +57,9 @@ docker run \\
     -v /usr/local/dcmi:/usr/local/dcmi \\
     -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \\
     -v /usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/ \\
-    -v /etc/ascend_install.info:/etc/ascend_install.info \\
     -v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \\
+    -v /etc/ascend_install.info:/etc/ascend_install.info \\
+    -e DRIVER_PATH=/usr/local/Ascend/driver \\
     -it ${match_versions['docker']} bash
              `;
             
