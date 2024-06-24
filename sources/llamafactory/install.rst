@@ -1,10 +1,15 @@
 安装指南
 ==============
 
-本教程面向使用 LLAMA-Factory & 昇腾的开发者，帮助完成昇腾环境下 LLaMA-Factory 的安装。
+本教程面向使用 LLAMA-Factory & 昇腾的开发者，帮助完成昇腾环境下 LLaMA-Factory 的安装。此处提供 :ref:`install` 和 :ref:`docker` 两种安装方式。
+
+.. _install:
+
+直接安装
+------------
 
 昇腾环境安装
-------------
+~~~~~~~~~~~~~~~
 
 请根据已有昇腾产品型号及CPU架构等按照 :doc:`快速安装昇腾环境指引 <../ascend/quick_install>` 进行昇腾环境安装，或使用已安装好昇腾环境及 LLaMA-Factory 的 docker 镜像：
 
@@ -16,7 +21,7 @@
   安装 CANN 时，请同时安装 Kernel 算子包。
 
 Python 环境创建
-----------------------
+~~~~~~~~~~~~~~~
 
 .. note::
   如果你已经选择使用上述 docker 镜像，可忽略此步骤，直接开始使用 LLaMA-Factory。
@@ -31,7 +36,7 @@ Python 环境创建
 
 
 LLaMA-Factory 安装
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 使用以下指令安装带有 torch-npu 的 LLaMA-Factory：
 
@@ -39,6 +44,45 @@ LLaMA-Factory 安装
     :linenos:
 
     pip install -e .[torch_npu,metrics]
+
+.. _docker:
+
+使用 Docker
+------------
+
+进入 docker-npu 目录：
+
+.. code-block:: shell
+  
+  cd docker/docker-npu
+
+该目录下为 Dockerfile 及 docker compose 配置文件：
+
+Dockerfile:
+
+.. literalinclude:: ./Dockerfile
+    :language: docker
+    :linenos:
+
+docker-compose.yaml:
+
+.. literalinclude:: ./docker-compose.yaml
+    :language: yaml
+    :linenos:
+
+.. note::
+
+  默认镜像为 `cosdt/cann:8.0.rc1-910b-ubuntu22.04 <https://hub.docker.com/layers/cosdt/cann/8.0.rc1-910b-ubuntu22.04/images/sha256-29ef8aacf6b2babd292f06f00b9190c212e7c79a947411e213135e4d41a178a9?context=explore>`_。
+  更多选择见 `cosdt/cann <https://hub.docker.com/r/cosdt/cann/tags>`_.
+
+使用以下指令构建及启动 docker 容器：
+
+.. code-block:: shell
+  
+  docker build -f ./Dockerfile \
+      --build-arg INSTALL_DEEPSPEED=false \
+      --build-arg PIP_INDEX=https://pypi.org/simple \
+      -t llamafactory:latest 
 
 安装校验
 ----------------------
