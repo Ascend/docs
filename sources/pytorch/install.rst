@@ -25,7 +25,6 @@
                     <div class="mobile-headings">PyTorch版本</div>
                     <div class="values-element block-3 install-pytorch selected" id="pytorch-2.2.0">2.2.0</div>
                     <div class="values-element block-3 install-pytorch" id="pytorch-2.1.0">2.1.0</div>
-                    <div class="values-element block-3 install-pytorch" id="pytorch-2.0.1">2.0.1</div>
                 </div>
                 <div class="row" id="row-pytorch_npu">
                     <div class="mobile-headings">PyTorch-NPU版本</div>
