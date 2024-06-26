@@ -187,7 +187,10 @@ LoRA 模型合并和导出时，可通过指定 ``export_device`` 参数为 ``au
 
 在 webui 实现 Qwen1.5-7B 模型的 LoRA 模型微调、动态推理和模型导出的操作示例：
 
-TODO: 视频上传至 B 站后放链接
+.. raw:: html
+
+   <iframe width="696" height="422" src="//player.bilibili.com/player.html?bvid=BV1BM3NeAEx1&page=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+
 
 API Server的启动与调用
 --------------------------

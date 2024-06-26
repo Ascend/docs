@@ -35,8 +35,8 @@
             <div class="code">
                 <p>创建并激活 Python 环境：</p>
                 <div class="highlight">
-                  <pre>conda create -n <your_env_name> python=3.10</pre>
-                  <pre>conda activate <your_env_name></pre>
+                  <pre>conda create -n your_env_name python=3.10</pre>
+                  <pre>conda activate your_env_name</pre>
                 </div>
             </div>
         <h3>LLaMA-Factory 安装</h3>
@@ -59,17 +59,59 @@
               <p class="admonition-title">提示</p>
               <p>默认镜像为<a class="reference" href="https://hub.docker.com/layers/cosdt/cann/8.0.rc1-910b-ubuntu22.04/images/sha256-29ef8aacf6b2babd292f06f00b9190c212e7c79a947411e213135e4d41a178a9?context=explore"><span class="doc">cosdt/cann:8.0.rc1-910b-ubuntu22.04</span></a>。更多选择见<a class="reference" href="https://hub.docker.com/r/cosdt/cann/tags"><span class="doc">cosdt/cann</span></a>。</p>
             </div>
+            <p>此处提供使用 docker-compose 构建及启动 docker 容器和不使用 docker-compose 两种构建方式，请根据需求选择其一。</p>
+
             <div class="code">
+                <h3>使用 docker-compose 构建及启动 docker 容器</h3>
+
                 <p>进入存放 Dockerfile 及 docker-compose.yaml 的 docker-npu 目录：</p>
                 <div class="highlight">
                   <pre>cd docker/docker-npu</pre>
                 </div>
-            </div>
-            <div class="code">
-                <p>使用以下指令构建及启动 docker 容器：</p>
+                <p>构建 docker 镜像并启动 docker 容器：</p>
                 <div class="highlight">
-                  <pre>docker build -f ./Dockerfile --build-arg INSTALL_DEEPSPEED=false --build-arg PIP_INDEX=https://pypi.org/simple -t llamafactory:latest </pre>
+                  <pre>docker-compose up -d</pre>
                 </div>
+
+                <p>进入 docker 容器：</p>
+                <div class="highlight">
+                  <pre>docker exec -it llamafactory bash</pre>
+                </div>
+
+
+                <details>
+                  <summary><h3>不使用 docker-compose</h3></summary>
+                  <p>构建 docker 镜像：</p>
+                  <div class="highlight">
+                    <pre>docker build -f ./docker/docker-npu/Dockerfile --build-arg INSTALL_DEEPSPEED=false --build-arg PIP_INDEX=https://pypi.org/simple -t llamafactory:latest .</pre>
+                  </div>
+                  <p>启动 docker 容器：</p>
+                  <div class="highlight">
+                    <pre>docker run -dit \
+    -v ./hf_cache:/root/.cache/huggingface \
+    -v ./ms_cache:/root/.cache/modelscope \
+    -v ./data:/app/data \
+    -v ./output:/app/output \
+    -v /usr/local/dcmi:/usr/local/dcmi \
+    -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
+    -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
+    -v /etc/ascend_install.info:/etc/ascend_install.info \
+    -p 7860:7860 \
+    -p 8000:8000 \
+    --device /dev/davinci0 \
+    --device /dev/davinci_manager \
+    --device /dev/devmm_svm \
+    --device /dev/hisi_hdc \
+    --shm-size 16G \
+    --name llamafactory \
+    llamafactory:latest</pre>
+                  </div>
+                  <p>进入 docker 容器：</p>
+                  <div class="highlight">
+                    <pre>docker exec -it llamafactory bash</pre>
+                  </div>
+                </details>
+
             </div>
         </section>
     </div>
@@ -102,39 +144,3 @@ LLaMA-Factory 卸载
   :linenos:
   
   pip uninstall llamafactory
-
-附录
--------------
-
-.. warning::
-
-  使用 pip 安装请忽略本附录文件。
-
-Dockerfile 及 docker compose 配置文件：
-
-Dockerfile:
-
-.. literalinclude:: ./Dockerfile
-    :language: docker
-    :linenos:
-
-docker-compose.yaml:
-
-.. literalinclude:: ./docker-compose.yaml
-    :language: yaml
-    :linenos:
-
-    
-可通过修改或添加 docker-compose.yaml 文件中 devices 来改变指定 NPU 卡或指定多卡 NPU。如下所示为指定 0~3 四卡：
-
-.. code-block:: yaml
-    :linenos:
-
-    devices:
-      - /dev/davinci0
-      - /dev/davinci1
-      - /dev/davinci2
-      - /dev/davinci3
-      - /dev/davinci_manager
-      - /dev/devmm_svm
-      - /dev/hisi_hdc
