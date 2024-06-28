@@ -57,7 +57,7 @@ LLAMA-Factory 下载安装
             <div class="code">
                 <p>使用以下指令安装带有 torch-npu 的 LLaMA-Factory：</p>
                 <div class="highlight">
-                  <pre>pip install -e ".[torch-npu,metrics] -i https://pypi.tuna.tsinghua.edu.cn/simple"</pre>
+                  <pre>pip install -e ".[torch-npu,metrics]" -i https://pypi.tuna.tsinghua.edu.cn/simple</pre>
                 </div>
             </div>
     </section>
