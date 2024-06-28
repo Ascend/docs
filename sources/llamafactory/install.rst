@@ -1,7 +1,20 @@
 安装指南
 ==============
 
-本教程面向使用 LLAMA-Factory & 昇腾的开发者，帮助完成昇腾环境下 LLaMA-Factory 的安装。此处提供 docker 和 pip 两种安装方式:
+本教程面向使用 LLAMA-Factory & 昇腾的开发者，帮助完成昇腾环境下 LLaMA-Factory 的安装。
+
+LLAMA-Factory 下载安装
+---------------------------
+
+下载 LLAMA-Factory 并进入项目目录，本文档所有操作均在该目录下进行：
+
+.. code-block:: shell
+  :linenos:
+
+  git clone https://github.com/hiyouga/LLaMA-Factory.git
+  cd LLaMA-Factory
+
+此处提供 docker 和 pip 两种安装方式，请按需选择:
 
 .. raw:: html
 
@@ -18,6 +31,7 @@
         </div>
     </div>
 
+---------------
 
 .. raw:: html
 
@@ -43,7 +57,7 @@
             <div class="code">
                 <p>使用以下指令安装带有 torch-npu 的 LLaMA-Factory：</p>
                 <div class="highlight">
-                  <pre>pip install -e .[torch_npu,metrics]</pre>
+                  <pre>pip install -e ".[torch-npu,metrics] -i https://pypi.tuna.tsinghua.edu.cn/simple"</pre>
                 </div>
             </div>
     </section>

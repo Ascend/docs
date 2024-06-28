@@ -10,7 +10,7 @@
 
 .. code-block::
 
-  pip install -e '.[deepspeed,modelscope]'
+  pip install -e ".[deepspeed,modelscope]" -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 环境变量配置
 -------------
@@ -25,8 +25,69 @@
 基于 LoRA 的模型微调
 ------------------------
 
-.. <!-- TODO: 确认是否只有这两个是必须指定的参数 -->
 
+.. _qwen_yaml:
+
+yaml 配置文件
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+在 LLAMA-Factory 目录下，创建如下 qwen1_5_lora_sft_ds.yaml：
+
+.. raw:: html
+
+    <details>
+      <summary>展开 qwen1_5_lora_sft_ds.yaml</summary>
+      <div class="highlight">
+        <pre>### model
+    model_name_or_path: qwen/Qwen1.5-7B
+
+    ### method
+    stage: sft
+    do_train: true
+    finetuning_type: lora
+    lora_target: q_proj,v_proj
+
+    ### ddp
+    ddp_timeout: 180000000
+    deepspeed: examples/deepspeed/ds_z0_config.json
+
+    ### dataset
+    dataset: identity,alpaca_en_demo
+    template: qwen
+    cutoff_len: 1024
+    max_samples: 1000
+    overwrite_cache: true
+    preprocessing_num_workers: 16
+
+    ### output
+    output_dir: saves/Qwen1.5-7B/lora/sft
+    logging_steps: 10
+    save_steps: 500
+    plot_loss: true
+    overwrite_output_dir: true
+
+    ### train
+    per_device_train_batch_size: 1
+    gradient_accumulation_steps: 2
+    learning_rate: 0.0001
+    num_train_epochs: 3.0
+    lr_scheduler_type: cosine
+    warmup_steps: 0.1
+    fp16: true
+
+    ### eval
+    val_size: 0.1
+    per_device_eval_batch_size: 1
+    evaluation_strategy: steps
+    eval_steps: 500
+        </pre>
+      </div>
+    </details>
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+开启微调
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 使用 torchrun 启动微调，通过 ``model_name_or_path`` 指定模型， ``output_dir`` 参数指定输出文件保存路径。
 微调涉及的所有参数均在 :ref:`qwen_yaml` 中设置。
 
@@ -37,13 +98,13 @@
         --node_rank 0 \
         --master_addr 127.0.0.1 \
         --master_port 7007 \
-        src/train.py <your_path>/qwen1_5_lora_sft_ds.yaml
+        src/train.py qwen1_5_lora_sft_ds.yaml
 
 .. note::
 
   ``nproc_per_node, nnodes, node_rank, master_addr, master_port`` 为 torchrun 所需参数，其详细含义可参考 `PyTorch 官方文档 <https://pytorch.org/docs/stable/elastic/run.html>`_。
 
-NPU 多卡分布式训练请参考 :doc:`单机多卡微调 <./multi_npu>` 
+如正常输出模型加载、损失 loss 等日志，即说明成功微调。如需NPU 多卡分布式训练请参考 :doc:`单机多卡微调 <./multi_npu>` 
 
 动态合并 LoRA 的推理
 ---------------------
@@ -98,14 +159,3 @@ NPU 多卡分布式训练请参考 :doc:`单机多卡微调 <./multi_npu>`
                 --adapter_name_or_path saves/Qwen1.5-7B/lora/sft \
                 --template qwen \
                 --finetuning_type lora
-
-.. _qwen_yaml:
-
-yaml 配置文件
-~~~~~~~~~~~~~~~~
-
-完整 qwen1_5_lora_sft_ds.yaml：
-
-.. literalinclude:: ./qwen1_5_lora_sft_ds.yaml
-    :language: yaml
-    :linenos:

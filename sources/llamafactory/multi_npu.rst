@@ -8,7 +8,7 @@
 
 .. code-block::
 
-  pip install -e '.[deepspeed,modelscope]'
+  pip install -e ".[deepspeed,modelscope]" -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 多卡 NPU 指定
 --------------------------

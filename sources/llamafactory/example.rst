@@ -98,7 +98,7 @@
 .. code-block:: shell
     :linenos:
 
-    pip install jieba,rouge-chinese,nltk
+    pip install jieba,rouge-chinese,nltk -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 然后使用以下指令对微调后的模型在 alpaca_gpt4_zh 和 identity 数据集上进行批量预测和效果评估：
 
