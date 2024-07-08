@@ -102,8 +102,3 @@
     # 获取生成的响应，排除输入的部分
     response = outputs[0][input_ids.shape[-1]:]
     print(tokenizer.decode(response, skip_special_tokens=True))
-
-生成对话如下
-
-.. figure:: ./images/chat.gif
-    :align: center

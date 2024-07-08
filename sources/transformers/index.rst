@@ -1,7 +1,7 @@
-transformers
+Transformers
 ==================
 
-.. tictree::
+.. toctree::
     :maxdepth: 2
 
     install.rst

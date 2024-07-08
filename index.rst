@@ -20,6 +20,7 @@
 
    sources/pytorch/index.rst
    sources/llamafactory/index.rst
+   sources/transformers/index.rst
 
 .. warning::
 
