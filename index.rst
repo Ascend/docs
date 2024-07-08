@@ -37,6 +37,7 @@
    sources/trl/index.rst
    sources/opencompass/index.rst
    sources/lm_deploy/index.rst
+   sources/torchchat/index.rst
 
 .. warning::
 
@@ -356,6 +357,24 @@
                     <a href="sources/lm_deploy/install.html">安装指南</a>
                     <span class="split">|</span>
                     <a href="sources/lm_deploy/quick_start.html">快速上手</a>
+                </div>
+            </div>
+            <!-- Card 18 -->
+            <div class="box rounded-lg p-4 flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/pytorch.png')"></div>
+                    <div>
+                        <h2 class="text-lg font-semibold">torchchat</h2>
+                        <p class="text-gray-600 desc"></p>
+                    </div>
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4 text-blue-600">
+                    <a href="https://github.com/pytorch/torchchat">官方链接</a>
+                    <span class="split">|</span>
+                    <a href="sources/torchchat/install.html">安装指南</a>
+                    <span class="split">|</span>
+                    <a href="sources/torchchat/quick_start.html">快速上手</a>
                 </div>
             </div>
             

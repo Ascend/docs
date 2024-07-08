@@ -1,4 +1,4 @@
-Llama.cpp
+Torchchat
 ===========
 
 .. toctree::
@@ -6,5 +6,3 @@ Llama.cpp
 
    install.rst
    quick_start.rst
-
-
