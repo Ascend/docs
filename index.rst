@@ -20,6 +20,7 @@
 
    sources/pytorch/index.rst
    sources/llamafactory/index.rst
+   sources/accelerate/index.rst
 
 .. warning::
 
@@ -135,7 +136,7 @@
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
-                    <a href="#">官方链接</a>
+                    <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a>
                     <span class="split">|</span>
                     <a href="#">安装指南</a>
                     <span class="split">|</span>
@@ -185,16 +186,16 @@
                     <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/huggingface.png')"></div>
                     <div>
                         <h2 class="text-lg font-semibold">Accelerate</h2>
-                        <p class="text-gray-600 desc">图像和音频生成等扩散模型工具链</p>
+                        <p class="text-gray-600 desc">适用于Pytorch的多GPUs训练工具链</p>
                     </div>
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
-                    <a href="#">官方链接</a>
+                    <a href="https://github.com/huggingface/accelerate">官方链接</a>
                     <span class="split">|</span>
-                    <a href="#">安装指南</a>
+                    <a href="sources/accelerate/install.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="#">快速上手</a>
+                    <a href="sources/accelerate/quick_start.html">快速上手</a>
                 </div>
             </div>
         </div>
