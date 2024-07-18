@@ -7,13 +7,13 @@
 
    在运行下述示例之前，需要您已经安装了PyTorch-NPU环境，有关环境安装，请参考 :doc:`./install`
 
-数据并行
+1. 数据并行
 -----------------------
 
 PyTorch的数据并行主要分为以下几种：DP、DDP以及FSDP（HSDP变种），接下来将简单描述在Ascend NPU场景下如何实现上述数据并行。
 
-DDP
-^^^^^^
+1.1 DDP
+^^^^^^^^^^
 
 .. code-block:: python
     :linenos:
@@ -83,8 +83,8 @@ DDP
     if __name__ == "__main__":
         main()
 
-FSDP
-^^^^^^
+1.2 FSDP
+^^^^^^^^^^
 
 .. code-block:: python
     :linenos:

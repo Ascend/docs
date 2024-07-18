@@ -4,7 +4,7 @@
 跟随指导，安装在NPU上运行的PyTorch版本。
 
 
-选择需要安装的 PyTorch 版本
+1. 选择需要安装的 PyTorch 版本
 ------------------------------
 准备安装 PyTorch：
 
@@ -50,8 +50,12 @@
     </div>
 
 
-安装 PyTorch
+2. 安装 PyTorch
 ----------------
+
+.. warning:: 
+
+    如果使用了非CANN安装时的Python环境（如Conda），请确保CANN-toolkit依赖的Python包在该环境中已经 `安装 <../ascend/quick_install.html>`_ 。
 .. raw:: html
 
     <section id="install-pytorch-docker-section">
@@ -78,21 +82,12 @@
                 <p class="admonition-title">备注</p>
                 <p>请确保已经根据上述表格建议<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a>了对应的CANN-toolkit版本以及相应的固件和驱动，并应用了CANN-toolkit环境变量。</p>
             </div>
-            <h3>环境依赖</h3>
-            <ol>
+            <h3>2.1 环境依赖</h3>
+            <ul>
                 <li>Python 3.8 ~ 3.10</li>
                 <li>支持C++17的编译器，例如clang 或者 gcc (9.4.0及以上)</li>
-                <li><a class="reference internal" href="https://docs.anaconda.com/free/miniconda/#quick-command-line-install"><span class="doc">Conda (可选)</span></a></li>
-            </ol>
-            <div class="admonition note">
-                <p class="admonition-title">备注</p>
-                <p>如果使用Conda，请确保CANN-toolkit依赖的Python包在Conda环境中已经<a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装</span></a></p>
-            </div>
-            <div class="admonition warning">
-                <p class="admonition-title">警告</p>
-                <p>不建议您使用Conda提供的gcc，可能需要解决一些编译依赖问题，如果一定要使用，可参考以下命令：</p>
-            </div>
-            <div class="highlight"><pre>conda install -c conda-forge libstdcxx-ng libgcc-ng gcc=9.4 gxx=9.4</pre></div>
+                <li><a class="reference internal" href="https://docs.anaconda.com/free/miniconda/#quick-command-line-install"><span class="doc">Conda</span></a></li>
+            </ul>
         </section>
         <section>
             <div class="admonition note">
@@ -100,7 +95,7 @@
                 <p>请确认CXX11_ABI是关闭的，如果无法确定，建议显式关闭：</p>
             </div>
             <div class="highlight"><pre>export _GLIBCXX_USE_CXX11_ABI=0</pre></div>
-            <h3>构建</h3>
+            <h3>2.2 构建</h3>
                 <div class="highlight">
                     <pre></pre>
                 </div>
@@ -108,7 +103,7 @@
     </div>
 
 
-验证安装结果
+3. 验证安装结果
 ------------------
 
 .. code-block:: python

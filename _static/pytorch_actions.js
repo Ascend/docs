@@ -80,9 +80,9 @@ docker run \\
             $('#install-pytorch-docker-section').hide();
             $('#install-pytorch-pip-section').show();
         } else {
-            $("#codecell4").html("# install requirements\nconda install cmake ninja git\n\n# get torch source\ngit clone -b v"+options['pytorch']+" --recursive https://github.com/pytorch/pytorch\ncd pytorch\ngit submodule sync\ngit submodule update --init --recursive\n\n# install torch\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nexport CMAKE_PREFIX_PATH=${CONDA_PREFIX:-\"$(dirname $(which conda))/../\"}\nUSE_CUDA=0 python setup.py develop");
+            $("#codecell3").html("# install requirements\nconda install cmake ninja git\n\n# get torch source\ngit clone -b v"+options['pytorch']+" --recursive https://github.com/pytorch/pytorch\ncd pytorch\ngit submodule sync\ngit submodule update --init --recursive\n\n# install torch\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nexport CMAKE_PREFIX_PATH=${CONDA_PREFIX:-\"$(dirname $(which conda))/../\"}\nUSE_CUDA=0 python setup.py develop");
 
-            $('#codecell4').append("\n\n# get torch-npu source\ngit clone https://github.com/ascend/pytorch.git -b "+match_versions['npu_branch']+" --depth 1 pytorch_npu\ncd pytorch_npu\n\n# install torch-npu\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nbash ci/build.sh --python=$(python --version 2>&1 | awk '{print $2}' | cut -d '.' -f 1,2)\npip install dist/torch_npu*.whl");
+            $('#codecell3').append("\n\n# get torch-npu source\ngit clone https://github.com/ascend/pytorch.git -b "+match_versions['npu_branch']+" --depth 1 pytorch_npu\ncd pytorch_npu\n\n# install torch-npu\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nbash ci/build.sh --python=$(python --version 2>&1 | awk '{print $2}' | cut -d '.' -f 1,2)\npip install dist/torch_npu*.whl");
 
             $('#install-pytorch-pip-section').hide();
             $('#install-pytorch-docker-section').hide();
