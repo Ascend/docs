@@ -23,6 +23,11 @@
    sources/accelerate/index.rst
    sources/transformers/index.rst
    sources/deepspeed/index.rst
+   sources/onnxruntime/index.rst
+   sources/open_clip/index.rst
+   sources/timm/index.rst
+   sources/Diffusers/index.rst
+   sources/opencv/index.rst
 
 .. warning::
 
@@ -83,11 +88,11 @@
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
-                    <a href="#">官方链接</a>
+                    <a href="https://github.com/microsoft/onnxruntime">官方链接</a>
                     <span class="split">|</span>
-                    <a href="#">安装指南</a>
+                    <a href="sources/onnxruntime/install.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="#">快速上手</a>
+                    <a href="sources/onnxruntime/quick_start.html">快速上手</a>
                 </div>
             </div>
             <!-- Card 4 -->
@@ -120,11 +125,11 @@
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
-                    <a href="#">官方链接</a>
+                    <a href="https://github.com/opencv/opencv">官方链接</a>
                     <span class="split">|</span>
-                    <a href="#">安装指南</a>
+                    <a href="sources/opencv/install.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="#">快速上手</a>
+                    <a href="sources/opencv/quick_start.html">快速上手</a>
                 </div>
             </div>
             <!-- Card 6 -->
@@ -175,11 +180,11 @@
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
-                    <a href="#">官方链接</a>
+                    <a href="https://github.com/huggingface/diffusers">官方链接</a>
                     <span class="split">|</span>
-                    <a href="#">安装指南</a>
+                    <a href="sources/Diffusers/install.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="#">快速上手</a>
+                    <a href="sources/Diffusers/quick_start.html">快速上手</a>
                 </div>
             </div>
             <!-- Card 9 -->
@@ -198,6 +203,24 @@
                     <a href="sources/accelerate/install.html">安装指南</a>
                     <span class="split">|</span>
                     <a href="sources/accelerate/quick_start.html">快速上手</a>
+                </div>
+            </div>
+            <!-- Card 10 -->
+            <div class="box rounded-lg p-4 flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/wenet.png')"></div>
+                    <div>
+                        <h2 class="text-lg font-semibold">WeNet</h2>
+                        <p class="text-gray-600 desc">端到端的语音识别工具包</p>
+                    </div>
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4 text-blue-600">
+                    <a href="https://github.com/wenet-e2e/wenet">官方链接</a>
+                    <span class="split">|</span>
+                    <a href="#">安装指南</a>
+                    <span class="split">|</span>
+                    <a href="#">快速上手</a>
                 </div>
             </div>
         </div>

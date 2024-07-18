@@ -69,7 +69,7 @@ hf-mirror是更适合国内用户获取模型的方式，它是HuggingFace平台
 
 点击模型的下的 **↓** 图标下载文件，如下：
 
-.. figure:: ./images/image.png
+.. figure:: ./images/downloadmodel.png
     :align: center
 
 修改镜像源
