@@ -78,7 +78,6 @@ $(document).ready(function () {
         // reset table.
         var cann_version_select = $('#cann-version');
         cann_version_select.empty();
-        cann_version_select.append(new Option("选择CANN的版本", "na"));
         $.reset_selection(cann_version_select);
         $('#driver-version').text("Driver");
         $('#firmware-version').text("Firmware");
@@ -114,7 +113,7 @@ $(document).ready(function () {
     $("#col-values").on("click", ".values-element", function () {
         id = $(this).attr("id");
         fields = id.split("-");
-        if (id == "cann-version")
+        if (fields[1] == "version")
             return;
 
         $.reset_selection($(this));
@@ -189,14 +188,14 @@ $(document).ready(function () {
         var cann_name = parts[parts.length - 1];
 
         // download and install driver
-        $('#codecell5').html('wget "' + driver_url + '"<br>sudo sh ' + driver_name + ' --full --install-for-all');
+        $('#codecell6').html('wget "' + driver_url + '"\nsudo sh ' + driver_name + ' --full --install-for-all');
 
         // download and install firmware
-        $('#codecell6').html('wget "' + firmware_url + '"<br>sudo sh ' + firmware_name + ' --full');
+        $('#codecell8').html('wget "' + firmware_url + '"\nsudo sh ' + firmware_name + ' --full');
 
         if (options['install_type'] === 'direct') {
             // download and install cann
-            $('#codecell8').html('wget "' + cann_url + '"<br>sh ' + cann_name + ' --install');
+            $('#codecell11').html('wget "' + cann_url + '"\nsh ' + cann_name + ' --install');
 
             // download and install kernel if exist.
             if (kernel_url == null) {
@@ -207,7 +206,7 @@ $(document).ready(function () {
                 var kernel_name = parts[parts.length - 1];
                 $('#install_kernel_section').show();
                 // download and install kernel
-                $('#codecell9').html('wget "' + kernel_url + '"<br>sh ' + kernel_name + ' --install');
+                $('#codecell13').html('wget "' + kernel_url + '"\nsh ' + kernel_name + ' --install');
             }
 
             $('#use_docker_section').hide();
@@ -232,7 +231,7 @@ docker run \\
     -it ${docker_images[i]} bash
                     `;
 
-                    $('#codecell11').html(dockerCommand.trim());
+                    $('#codecell16').html(dockerCommand.trim());
                     break;
                 }
             }
@@ -244,4 +243,5 @@ docker run \\
     $.update_os_verions();
     $.change_options_visible();
     $.update_cann_versions();
+    
 });

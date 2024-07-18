@@ -68,21 +68,21 @@ docker run \\
             $('#install-pytorch-pip-section').hide();
             $('#install-pytorch-docker-section').show();
         } else if (options['install_type'] == "pip") {
-            $('#codecell1').html("# install torch<br>");
+            $('#codecell1').html("# install torch\n");
             if(options['arch'] == "aarch64")
                 $('#codecell1').append("pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch==" + options['pytorch']);
             else
                 $('#codecell1').append("pip3 install torch=="+options['pytorch']+"+cpu  --index-url https://download.pytorch.org/whl/cpu");
 
-            $("#codecell1").append("<br><br># install torch-npu<br>pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch-npu==" + options['pytorch_npu']);
+            $("#codecell1").append("\n\n# install torch-npu\npip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple torch-npu==" + options['pytorch_npu']);
 
             $('#install-pytorch-source-section').hide();
             $('#install-pytorch-docker-section').hide();
             $('#install-pytorch-pip-section').show();
         } else {
-            $("#codecell4").html("# install requirements<br>conda install cmake ninja git<br><br># get torch source<br>git clone -b v"+options['pytorch']+" --recursive https://github.com/pytorch/pytorch<br>cd pytorch<br>git submodule sync<br>git submodule update --init --recursive<br><br># install torch<br>pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt<br>export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-\"$(dirname $(which conda))/../\"}<br>USE_CUDA=0 python setup.py develop");
+            $("#codecell4").html("# install requirements\nconda install cmake ninja git\n\n# get torch source\ngit clone -b v"+options['pytorch']+" --recursive https://github.com/pytorch/pytorch\ncd pytorch\ngit submodule sync\ngit submodule update --init --recursive\n\n# install torch\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nexport CMAKE_PREFIX_PATH=${CONDA_PREFIX:-\"$(dirname $(which conda))/../\"}\nUSE_CUDA=0 python setup.py develop");
 
-            $('#codecell4').append("<br><br># get torch-npu source<br>git clone https://github.com/ascend/pytorch.git -b "+match_versions['npu_branch']+" --depth 1 pytorch_npu<br>cd pytorch_npu<br><br># install torch-npu<br>pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt<br>bash ci/build.sh --python=$(python --version 2>&1 | awk '{print $2}' | cut -d '.' -f 1,2)<br>pip install dist/torch_npu*.whl");
+            $('#codecell4').append("\n\n# get torch-npu source\ngit clone https://github.com/ascend/pytorch.git -b "+match_versions['npu_branch']+" --depth 1 pytorch_npu\ncd pytorch_npu\n\n# install torch-npu\npip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt\nbash ci/build.sh --python=$(python --version 2>&1 | awk '{print $2}' | cut -d '.' -f 1,2)\npip install dist/torch_npu*.whl");
 
             $('#install-pytorch-pip-section').hide();
             $('#install-pytorch-docker-section').hide();

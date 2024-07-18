@@ -3,9 +3,9 @@
 
 跟随指导，在您的机器上快速安装昇腾环境。
 
-系统要求
+1. 系统要求
 ----------------
-前置检查
+1.1 前置检查
 ^^^^^^^^^^^^^
 确认昇腾AI处理器已经安装妥当
 
@@ -19,8 +19,14 @@
 
     uname -m && cat /etc/*release
 
+确认Python版本
 
-软件要求
+.. code-block:: bash
+
+    python --version
+
+
+1.2 软件要求
 ^^^^^^^^^^^^^
 ======== ========================================
 软件     版本
@@ -30,13 +36,13 @@ Python   3.8, 3.9, 3.10
 ======== ========================================
 
 
-环境安装
+2. 环境安装
 ------------------
 根据您的需求，选择合适的软件包版本：
 
-.. note::
+.. warning:: 
 
-    建议使用非root用户安装
+    以下文档需要使用非root用户进行安装安装
 
 .. raw:: html
 
@@ -87,8 +93,8 @@ Python   3.8, 3.9, 3.10
         </div>
         <div id="install-instructions" style="display:none;">
             <section>
-                <h3>安装驱动</h3>
-                    <p><b>安装依赖</b></p>
+                <h3>2.1 安装驱动</h3>
+                    <p><b>2.1.1 安装依赖</b></p>
                     <div class="highlight-default notranslate" id="install-dependencies-ubuntu">
                         <div class="highlight">
                             <pre>sudo apt-get install -y gcc g++ make cmake zlib1g zlib1g-dev openssl libsqlite3-dev libssl-dev libffi-dev unzip pciutils net-tools libblas-dev gfortran libblas3 python3-dev</pre>
@@ -99,20 +105,39 @@ Python   3.8, 3.9, 3.10
                             <pre>sudo yum install -y gcc gcc-c++ make cmake unzip zlib-devel libffi-devel openssl-devel pciutils net-tools sqlite-devel lapack-devel gcc-gfortran python3-devel</pre>
                         </div>
                     </div>
-                    <p><b>创建驱动运行用户</b></p>
+                    <p><b>2.1.2 创建驱动运行用户</b></p>
+                    <div class="admonition note">
+                        <p class="admonition-title">备注</p>
+                        <p>请使用命令 <code class="docutils literal notranslate">id HwHiAiUser</code> 查看用户是否存在，若存在请跳过此步骤</p>
+                    </div>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
                             <pre>sudo groupadd -g HwHiAiUser<br>sudo useradd -g HwHiAiUser -d /home/HwHiAiUser -m HwHiAiUser -s /bin/bash<br>sudo usermod -aG HwHiAiUser $USER</pre>
                         </div>
                     </div>
-                    <p><b>下载并安装</b></p>
+                    <p><b>2.1.3 下载并安装</b></p>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
                             <pre></pre>
                         </div>
                     </div>
+                    <p>确认您的驱动是否安装成功，可以通过以下命令验证：<code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code>，若出现以下回显信息，说明驱动安装成功。</p>
+                    <div class="highlight-default notranslate">
+                        <div class="highlight">
+                            <pre>+-------------------------------------------------------------------------------------------+
+    | npu-smi 23.0.2              Version: 23.0.2                                               |
+    +----------------------+---------------+----------------------------------------------------+
+    | NPU   Name           | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+    | Chip                 | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
+    +======================+===============+====================================================+
+    | 0     xxx            | OK            | 0.0         40                0    / 0             |
+    | 0                    | 0000:C1:00.0  | 0           882  / 15169      0    / 32768         |
+    +======================+===============+====================================================+
+                            </pre>
+                        </div>
+                    </div>
                 <section>
-                    <h3>安装固件</h3>
+                    <h3>2.2 安装固件</h3>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
                             <pre></pre>
@@ -122,30 +147,48 @@ Python   3.8, 3.9, 3.10
                         <p class="admonition-title">备注</p>
                         <p>根据提示决定是否需要重启系统</p>
                     </div>
+                    <p>安装固件后，若系统出现如下关键回显信息，表示固件安装成功。</p>
+                    <div class="highlight-default notranslate">
+                        <div class="highlight">
+                            <pre>Firmware package installed successfully!</pre>
+                        </div>
+                    </div>
                 </section>
                 <section id="install_cann_section">
-                    <h3>安装CANN</h3>
-                        <p><b>安装python依赖</b></p>
+                    <h3>2.3 安装CANN</h3>
+                        <p><b>2.3.1 安装python依赖</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre>pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs numpy decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions</pre>
                             </div>
                         </div>
-                        <p><b>下载并安装</b></p>
+                        <p><b>2.3.2 下载并安装</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre></pre>
                             </div>
                         </div>
+                        <p>安装CANN-toolkit后，若系统出现以下关键回显信息，表示CANN-toolkit安装成功。</p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre>Ascend-cann-toolkit install success.</pre>
+                            </div>
+                        </div>
                         <div id="install_kernel_section">
-                            <p><b>安装算子包（可选）</b></p>
+                            <p><b>2.3.3 安装算子包</b></p>
                             <div class="highlight-default notranslate">
                                 <div class="highlight">
                                     <pre></pre>
                                 </div>
                             </div>
                         </div>
-                        <p><b>设置环境变量</b></p>
+                         <p>安装算子包后，若系统出现以下关键回显信息，表示算子包安装成功。</p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre>Ascend-cann-kernels install success.</pre>
+                            </div>
+                        </div>
+                        <p><b>2.3.4 设置环境变量</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre>echo "source ~/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
@@ -153,7 +196,7 @@ Python   3.8, 3.9, 3.10
                         </div>
                 </section>
                 <section id="use_docker_section">
-                    <h3>运行Docker容器</h3>
+                    <h3>2.3 运行Docker容器</h3>
                         <div>
                         下列命令将创建一个名为'cann-container'的Docker容器，并将设备和驱动挂载到容器中。<br><br>
                         </div>
@@ -168,51 +211,7 @@ Python   3.8, 3.9, 3.10
     </div>
 
 
-验证安装（可选）
----------------------
-**验证驱动**
-
-确认您的驱动是否安装成功，可以通过以下命令验证：``npu-smi info``
-，若出现以下回显信息，说明驱动安装成功。
-
-.. code-block:: bash
-
-    +-------------------------------------------------------------------------------------------+
-    | npu-smi 23.0.2              Version: 23.0.2                                               |
-    +----------------------+---------------+----------------------------------------------------+
-    | NPU   Name           | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
-    | Chip                 | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
-    +======================+===============+====================================================+
-    | 0     xxx            | OK            | 0.0         40                0    / 0             |
-    | 0                    | 0000:C1:00.0  | 0           882  / 15169      0    / 32768         |
-    +======================+===============+====================================================+
-    
-    ... ...
-
-**验证固件**
-
-安装固件后，若系统出现如下关键回显信息，表示固件安装成功。
-
-.. code-block:: bash
-
-    Firmware package installed successfully!
-
-**验证CANN-toolkit**
-
-安装CANN-toolkit后，若系统出现以下关键回显信息，表示CANN-toolkit安装成功。
-
-.. code-block:: bash
-
-    Ascend-cann-toolkit install success.
-
-安装算子包后，若系统出现以下关键回显信息，表示算子包安装成功。
-
-.. code-block:: bash
-
-    Ascend-cann-kernels install success.
-
-
-卸载
+3. 卸载
 ----------
 **卸载驱动**
 
