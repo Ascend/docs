@@ -71,7 +71,7 @@ LLAMA-Factory 下载安装
             </div>
             <div class="admonition tip">
               <p class="admonition-title">提示</p>
-              <p>默认镜像为<a class="reference" href="https://hub.docker.com/layers/cosdt/cann/8.0.rc1-910b-ubuntu22.04/images/sha256-29ef8aacf6b2babd292f06f00b9190c212e7c79a947411e213135e4d41a178a9?context=explore"><span class="doc">cosdt/cann:8.0.rc1-910b-ubuntu22.04</span></a>。更多选择见<a class="reference" href="https://hub.docker.com/r/cosdt/cann/tags"><span class="doc">cosdt/cann</span></a>。</p>
+              <p>更多 CANN 的基础镜像选择见<a class="reference" href="https://hub.docker.com/r/ascendai/cann/tags"><span class="doc">ascendai/cann</span></a>。</p>
             </div>
             <p>此处提供使用 docker-compose 构建及启动 docker 容器和不使用 docker-compose 两种构建方式，请根据需求选择其一。</p>
 
