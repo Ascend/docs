@@ -39,10 +39,9 @@
     :linenos:
 
     python run.py \
+    --models hf_internlm2_chat_1_8b hf_qwen2_1_5b_instruct \
     --datasets demo_gsm8k_chat_gen demo_math_chat_gen \
-    --hf-type chat \
-    --hf-path internlm/internlm2-chat-1_8b \
-    --debug 
+    --debug
 
 对于基座模型：
 
@@ -50,9 +49,8 @@
     :linenos:
 
     python run.py \
+    --models hf_internlm2_1_8b hf_qwen2_1_5b \
     --datasets demo_gsm8k_base_gen demo_math_base_gen \
-    --hf-type base \
-    --hf-path internlm/internlm2-1_8b \
     --debug
 
 .. list-table:: opencompass run.py 参数说明

@@ -287,7 +287,7 @@
             <!-- Card 14 -->
             <div class="box rounded-lg p-4 flex flex-col items-center">
                 <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/huggingface.png')"></div>
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/sentence_transformers.png')"></div>
                     <div>
                         <h2 class="text-lg font-semibold">Sentence Transformers</h2>
                         <p class="text-gray-600 desc">适用于文本和图像的高性能Embedding库</p>
@@ -318,6 +318,24 @@
                     <a href="sources/trl/install.html">安装指南</a>
                     <span class="split">|</span>
                     <a href="sources/trl/quick_start.html">快速上手</a>
+                </div>
+            </div>
+            <!-- Card 16 -->
+            <div class="box rounded-lg p-4 flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/opencompass.png')"></div>
+                    <div>
+                        <h2 class="text-lg font-semibold">OpenCompass</h2>
+                        <p class="text-gray-600 desc">大模型标准测试工具</p>
+                    </div>
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4 text-blue-600">
+                    <a href="https://github.com//open-compass/opencompass">官方链接</a>
+                    <span class="split">|</span>
+                    <a href="sources/opencompass/install.html">安装指南</a>
+                    <span class="split">|</span>
+                    <a href="sources/opencompass/quick_start.html">快速上手</a>
                 </div>
             </div>
         </div>
