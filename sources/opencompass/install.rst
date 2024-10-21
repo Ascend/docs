@@ -18,7 +18,7 @@ Python 环境创建
     :linenos:
   
     # 创建 python 3.10 的虚拟环境
-    conda create -y -n openclip python=3.10
+    conda create -y -n opencompass python=3.10
     # 激活虚拟环境
     conda activate opencompass
 
@@ -68,7 +68,6 @@ torch-npu 安装
     :emphasize-lines: 2
 
     import torch
-    import torch_npu
     import opencompass
 
     print("opencompass version: ", opencompass.__version__)

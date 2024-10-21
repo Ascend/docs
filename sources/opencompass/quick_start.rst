@@ -18,7 +18,7 @@
 
 可视化：评估完成后，OpenCompass 将结果整理成易读的表格，并将其保存为 CSV 和 TXT 文件。你也可以激活飞书状态上报功能，此后可以在飞书客户端中及时获得评测状态报告。
 
-接下来，我们将展示 OpenCompass 的基础用法，展示基座模型模型 ``InternLM2-1.8B`` 和对话模型 ``InternLM2-Chat-1.8B``、``Qwen2-1.5B-Instruct`` 在 GSM8K 和 MATH 下采样数据集上的评估。它们的配置文件可以在 ``configs/eval_chat_demo.py`` 和 configs/eval_base_demo.py 中找到。
+接下来，我们将展示 OpenCompass 的基础用法，展示基座模型 ``InternLM2-1.8B`` 和对话模型 ``InternLM2-Chat-1.8B``、``Qwen2-1.5B-Instruct`` 在 GSM8K 和 MATH 下采样数据集上的评估。它们的配置文件可以在 ``configs/eval_chat_demo.py`` 和 ``configs/eval_base_demo.py`` 中找到。
 
 在运行此实验之前，请确保您已在本地安装了 ``opencompass`` && ``torch-npu``。
 
