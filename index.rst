@@ -35,6 +35,7 @@
    sources/llama_cpp/index.rst
    sources/sentence_transformers/index.rst
    sources/trl/index.rst
+   sources/opencompass/index.rst
 
 .. warning::
 
