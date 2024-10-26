@@ -1,0 +1,321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API说明 &mdash; 昇腾开源 1.0 文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ec38875e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=f115507d"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=ba6af55e"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="FAQ" href="faq.html" />
+    <link rel="prev" title="功能样例" href="examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">原生支持的AI项目</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">PyTorch</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="examples.html">功能样例</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API说明</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu._npu_dropout"><code class="docutils literal notranslate"><span class="pre">_npu_dropout()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu.copy_memory_"><code class="docutils literal notranslate"><span class="pre">copy_memory_()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu.empty_with_format"><code class="docutils literal notranslate"><span class="pre">empty_with_format()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu.fast_gelu"><code class="docutils literal notranslate"><span class="pre">fast_gelu()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu.npu_alloc_float_status"><code class="docutils literal notranslate"><span class="pre">npu_alloc_float_status()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#torch_npu.npu_anchor_response_flags"><code class="docutils literal notranslate"><span class="pre">npu_anchor_response_flags()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../llamafactory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">Whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">OpenCompass</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">PyTorch</a></li>
+      <li class="breadcrumb-item active">API说明</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/pytorch/api_doc.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api">
+<h1>API说明<a class="headerlink" href="#api" title="Link to this heading"></a></h1>
+<p>PyTorch-NPU 除了提供了 PyTorch 官方算子实现之外，也提供了大量高性能的自定义算子，详细的算子信息以及描述如下所示：</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>在运行下述示例之前，需要导入torch_npu扩展包 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code></p>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu._npu_dropout">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">_npu_dropout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch_npu._npu_dropout" title="Link to this definition"></a></dt>
+<dd><p>不使用种子(seed)进行dropout结果计数,与torch.dropout相似，优化NPU设备实现</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>Tensor</em>) -- 输入张量</p></li>
+<li><p><strong>p</strong> (<em>Float</em>) -- 丢弃概率</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>(Tensor, Tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">1.</span><span class="p">,</span><span class="mf">2.</span><span class="p">,</span><span class="mf">3.</span><span class="p">,</span><span class="mf">4.</span><span class="p">])</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos"> 2</span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span>
+<span class="linenos"> 3</span><span class="go">tensor([1., 2., 3., 4.], device=&#39;npu:0&#39;)</span>
+<span class="linenos"> 4</span><span class="gp">&gt;&gt;&gt; </span><span class="n">prob</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="linenos"> 5</span><span class="gp">&gt;&gt;&gt; </span><span class="n">output</span><span class="p">,</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">_npu_dropout</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">prob</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="gp">&gt;&gt;&gt; </span><span class="n">output</span>
+<span class="linenos"> 7</span><span class="go">tensor([0.0000, 2.8571, 0.0000, 0.0000], device=&#39;npu:0&#39;)</span>
+<span class="linenos"> 8</span><span class="gp">&gt;&gt;&gt; </span><span class="n">mask</span>
+<span class="linenos"> 9</span><span class="go">tensor([ 98, 255, 188, 186, 120, 157, 175, 159,  77, 223, 127,  79, 247, 151,</span>
+<span class="linenos">10</span><span class="go">    253, 255], device=&#39;npu:0&#39;, dtype=torch.uint8)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu.copy_memory_">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">copy_memory_</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">src</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_blocking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#torch_npu.copy_memory_" title="Link to this definition"></a></dt>
+<dd><p>从src拷贝元素到self张量，并返回self</p>
+<p>约束说明:</p>
+<p>copy_memory_仅支持NPU张量,copy_memory_的输入张量应具有相同的dtype和设备index</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dst</strong> (<em>Tensor</em>) -- 拷贝源张量</p></li>
+<li><p><strong>sr</strong> (<em>Tensor</em>) -- 返回张量所需数据类型</p></li>
+<li><p><strong>non_blocking</strong> (Bool,Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) -- 如果设置为True且此拷贝位于CPU和NPU之间，则拷贝可能相对于主机异步发生,在其他情况下，此参数没有效果</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">IntTensor</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos">2</span><span class="gp">&gt;&gt;&gt; </span><span class="n">b</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">IntTensor</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos">3</span><span class="gp">&gt;&gt;&gt; </span><span class="n">a</span><span class="o">.</span><span class="n">copy_memory_</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="linenos">4</span><span class="go">tensor([1, 1, 1], device=&#39;npu:0&#39;, dtype=torch.int32)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu.empty_with_format">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">empty_with_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin_memory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">acl_format</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#torch_npu.empty_with_format" title="Link to this definition"></a></dt>
+<dd><p>返回一个填充未初始化数据的张量</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>size</strong> (<em>ListInt</em>) -- 定义输出张量shape的整数序列,可以是参数数量(可变值)，也可以是列表或元组等集合</p></li>
+<li><p><strong>dtype</strong> (torch.dtype,Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) -- 返回张量所需数据类型;如果值为None，请使用全局默认值(请参见torch.set_default_tensor_type()).</p></li>
+<li><p><strong>layout</strong> (torch.layout, Default: <code class="docutils literal notranslate"><span class="pre">torch.strided</span></code>) -- 返回张量所需布局</p></li>
+<li><p><strong>device</strong> (torch.device, Default: <code class="docutils literal notranslate"><span class="pre">None</span></code>) -- 返回张量的所需设备</p></li>
+<li><p><strong>pin_memory</strong> (Bool, Default: <code class="docutils literal notranslate"><span class="pre">False</span></code>) -- 返回张量的所需设备</p></li>
+<li><p><strong>acl_format</strong> (Int, Default: <code class="docutils literal notranslate"><span class="pre">2</span></code>) -- 返回张量所需内存格式</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="gp">&gt;&gt;&gt; </span><span class="n">torch_npu</span><span class="o">.</span><span class="n">empty_with_format</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;npu&quot;</span><span class="p">)</span>
+<span class="linenos">2</span><span class="go">tensor([[1., 1., 1.],</span>
+<span class="linenos">3</span><span class="go">        [1., 1., 1.]], device=&#39;npu:0&#39;)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu.fast_gelu">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">fast_gelu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#torch_npu.fast_gelu" title="Link to this definition"></a></dt>
+<dd><p>gelu的npu实现,支持FakeTensor模式</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>Tensor</em>) -- 输入张量(只float16、float32)</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># Normal</span>
+<span class="linenos"> 2</span><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos"> 3</span><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span>
+<span class="linenos"> 4</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.5991</span><span class="p">,</span> <span class="mf">0.4094</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">)</span>
+<span class="linenos"> 5</span><span class="o">&gt;&gt;&gt;</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">fast_gelu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.4403</span><span class="p">,</span> <span class="mf">0.2733</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">)</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1"># FakeTensorMode</span>
+<span class="linenos"> 9</span><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">torch._subclasses.fake_tensor</span> <span class="kn">import</span> <span class="n">FakeTensorMode</span>
+<span class="linenos">10</span><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="n">FakeTensorMode</span><span class="p">():</span>
+<span class="linenos">11</span><span class="o">...</span>     <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos">12</span><span class="o">...</span>     <span class="n">torch_npu</span><span class="o">.</span><span class="n">fast_gelu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="linenos">13</span><span class="o">&gt;&gt;&gt;</span> <span class="n">FakeTensor</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu.npu_alloc_float_status">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">npu_alloc_float_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#torch_npu.npu_alloc_float_status" title="Link to this definition"></a></dt>
+<dd><p>生成一个包含8个0的一维张量</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>self</strong> (<em>Tensor</em>) -- 输入张量</p>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span>    <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos">2</span><span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">npu_alloc_float_status</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+<span class="linenos">3</span><span class="gp">&gt;&gt;&gt; </span><span class="nb">input</span>
+<span class="linenos">4</span><span class="go">tensor([[[ 2.2324,  0.2478, -0.1056],</span>
+<span class="linenos">5</span><span class="go">        [ 1.1273, -0.2573,  1.0558]]], device=&#39;npu:0&#39;)</span>
+<span class="linenos">6</span><span class="gp">&gt;&gt;&gt; </span><span class="n">output</span>
+<span class="linenos">7</span><span class="go">tensor([0., 0., 0., 0., 0., 0., 0., 0.], device=&#39;npu:0&#39;)</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="torch_npu.npu_anchor_response_flags">
+<span class="sig-prename descclassname"><span class="pre">torch_npu.</span></span><span class="sig-name descname"><span class="pre">npu_anchor_response_flags</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">featmap_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_base_anchors</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#torch_npu.npu_anchor_response_flags" title="Link to this definition"></a></dt>
+<dd><p>在单个特征图中生成锚点的责任标志</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<em>Tensor</em>) -- 真值框，shape为[batch, 4]的2D张量</p></li>
+<li><p><strong>featmap_size</strong> (<em>ListInt</em><em>[</em><em>2</em><em>]</em>) -- 特征图大小</p></li>
+<li><p><strong>strides</strong> (<em>ListInt</em><em>[</em><em>2</em><em>]</em>) -- 当前水平的步长</p></li>
+<li><p><strong>num_base_anchors</strong> (<em>Int</em>) -- base anchors的数量</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回类型<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>示例:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="linenos">2</span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span> <span class="o">=</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">npu_anchor_response_flags</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="mi">9</span><span class="p">)</span>
+<span class="linenos">3</span><span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>
+<span class="linenos">4</span><span class="go">torch.Size([32400])</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="examples.html" class="btn btn-neutral float-left" title="功能样例" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="faq.html" class="btn btn-neutral float-right" title="FAQ" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
