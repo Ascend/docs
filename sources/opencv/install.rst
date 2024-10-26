@@ -6,7 +6,7 @@ OpenCV 4.9.0 版本开始，增加了图像处理相关高频接口的昇腾原�
 昇腾环境安装
 ------------
 
-请根据已有昇腾产品型号及CPU架构等按照 :doc:`快速安装昇腾环境指引 <../ascend/quick_install>` 进行昇腾环境安装，或直接获取对应产品的昇腾环境镜像 `cosdt/cann <https://hub.docker.com/r/cosdt/cann/tags>`_ 。
+请根据已有昇腾产品型号及CPU架构等按照 :doc:`快速安装昇腾环境指引 <../ascend/quick_install>` 进行昇腾环境安装，或直接获取对应产品的昇腾环境镜像 `ascendai/cann <https://hub.docker.com/r/ascendai/cann/tags>`_ 。
 
 .. warning::
   CANN 最低版本为 8.0.rc1，安装 CANN 时，请同时安装 Kernel 算子包。

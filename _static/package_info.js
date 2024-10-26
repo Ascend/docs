@@ -253,33 +253,33 @@ const package_info = {
 
 
 const docker_images = [
-    'cosdt/cann:7.0.1-310p-ubuntu20.04',
-    'cosdt/cann:7.0.1-310p-ubuntu22.04',
-    'cosdt/cann:7.0.1-310p-openeuler20.03',
-    'cosdt/cann:7.0.1-910-ubuntu20.04',
-    'cosdt/cann:7.0.1-910-ubuntu22.04',
-    'cosdt/cann:7.0.1-910-openeuler20.03',
-    'cosdt/cann:7.0.1-910b-ubuntu20.04',
-    'cosdt/cann:7.0.1-910b-ubuntu22.04',
-    'cosdt/cann:7.0.1-910b-openeuler20.03',
-    'cosdt/cann:8.0.rc1-310p-ubuntu20.04',
-    'cosdt/cann:8.0.rc1-310p-ubuntu22.04',
-    'cosdt/cann:8.0.rc1-310p-openeuler20.03',
-    'cosdt/cann:8.0.rc1-910-ubuntu20.04',
-    'cosdt/cann:8.0.rc1-910-ubuntu22.04',
-    'cosdt/cann:8.0.rc1-910-openeuler20.03',
-    'cosdt/cann:8.0.rc1-910b-ubuntu20.04',
-    'cosdt/cann:8.0.rc1-910b-ubuntu22.04',
-    'cosdt/cann:8.0.rc1-910b-openeuler20.03',
-    'cosdt/cann:8.0.rc2.alpha002-310p-ubuntu20.04',
-    'cosdt/cann:8.0.rc2.alpha002-310p-ubuntu22.04',
-    'cosdt/cann:8.0.rc2.alpha002-310p-openeuler20.03',
-    'cosdt/cann:8.0.rc2.alpha002-910-ubuntu20.04',
-    'cosdt/cann:8.0.rc2.alpha002-910-ubuntu22.04',
-    'cosdt/cann:8.0.rc2.alpha002-910-openeuler20.03',
-    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu20.04',
-    'cosdt/cann:8.0.rc2.alpha002-910b-ubuntu22.04',
-    'cosdt/cann:8.0.rc2.alpha002-910b-openeuler20.03',
+    'ascendai/cann:7.0.1-310p-ubuntu20.04',
+    'ascendai/cann:7.0.1-310p-ubuntu22.04',
+    'ascendai/cann:7.0.1-310p-openeuler20.03',
+    'ascendai/cann:7.0.1-910-ubuntu20.04',
+    'ascendai/cann:7.0.1-910-ubuntu22.04',
+    'ascendai/cann:7.0.1-910-openeuler20.03',
+    'ascendai/cann:7.0.1-910b-ubuntu20.04',
+    'ascendai/cann:7.0.1-910b-ubuntu22.04',
+    'ascendai/cann:7.0.1-910b-openeuler20.03',
+    'ascendai/cann:8.0.rc1-310p-ubuntu20.04',
+    'ascendai/cann:8.0.rc1-310p-ubuntu22.04',
+    'ascendai/cann:8.0.rc1-310p-openeuler20.03',
+    'ascendai/cann:8.0.rc1-910-ubuntu20.04',
+    'ascendai/cann:8.0.rc1-910-ubuntu22.04',
+    'ascendai/cann:8.0.rc1-910-openeuler20.03',
+    'ascendai/cann:8.0.rc1-910b-ubuntu20.04',
+    'ascendai/cann:8.0.rc1-910b-ubuntu22.04',
+    'ascendai/cann:8.0.rc1-910b-openeuler20.03',
+    'ascendai/cann:8.0.rc2.alpha002-310p-ubuntu20.04',
+    'ascendai/cann:8.0.rc2.alpha002-310p-ubuntu22.04',
+    'ascendai/cann:8.0.rc2.alpha002-310p-openeuler20.03',
+    'ascendai/cann:8.0.rc2.alpha002-910-ubuntu20.04',
+    'ascendai/cann:8.0.rc2.alpha002-910-ubuntu22.04',
+    'ascendai/cann:8.0.rc2.alpha002-910-openeuler20.03',
+    'ascendai/cann:8.0.rc2.alpha002-910b-ubuntu20.04',
+    'ascendai/cann:8.0.rc2.alpha002-910b-ubuntu22.04',
+    'ascendai/cann:8.0.rc2.alpha002-910b-openeuler20.03',
 ];
 
 const pytorch_versions = {
@@ -287,18 +287,18 @@ const pytorch_versions = {
         torch_npu: '2.3.1',
         npu_branch: 'v2.3.1-6.0.rc2',
         cann: 'CANN 8.0.RC2',
-        docker: 'cosdt/pytorch:2.3.1'
+        docker: 'ascendai/pytorch:2.3.1'
     },
     '2.2.0': {
         torch_npu: '2.2.0',
         npu_branch: 'v2.2.0-6.0.rc1',
         cann: 'CANN 8.0.RC1',
-        docker: 'cosdt/pytorch:2.2.0'
+        docker: 'ascendai/pytorch:2.2.0'
     },
     '2.1.0': {
         torch_npu: '2.1.0.post3',
         npu_branch: 'v2.1.0-6.0.rc1',
         cann: 'CANN 8.0.RC1',
-        docker: 'cosdt/pytorch:2.1.0'
+        docker: 'ascendai/pytorch:2.1.0'
     }
 }
