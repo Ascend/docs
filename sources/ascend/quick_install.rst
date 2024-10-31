@@ -78,7 +78,7 @@ Python   3.8, 3.9, 3.10
                 </div>
                 <div class="row" id="row-npu">
                     <div class="mobile-headings">NPU型号</div>
-                    <div class="values-element block-2 install-npu selected" id="npu-910b">Atlas 300T A2 训练卡</div>
+                    <div class="values-element block-2 install-npu selected" id="npu-910b">Atlas 800T A2 训练卡</div>
                     <div class="values-element block-2 install-npu" id="npu-310p">Atlas 300I Pro 推理卡</div>
                 </div>
                 <div class="row" id="row-ascend_version">
