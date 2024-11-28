@@ -87,16 +87,18 @@ $(document).ready(function () {
         if (options['install_type'] === "direct") {
             // update select list.
             $.each(package_info, function (key, value) {
-                if (options['npu'] in value)
+                if (options['npu'] in value) {
                     cann_version_select.append(new Option("CANN: " + key, key));
+                }
             });
         } else {
             $.each(package_info, function (key, value) {
                 // not all version has a docker image.
-                const tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
+                const option_tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
                 const pkg_info = package_info[key][options['npu']];
                 for (const image of docker_images) {
-                    if (image.split(":")[1] === tag && pkg_info &&
+                    const image_tag = image.split(":")[1];
+                    if (image_tag.includes(option_tag) && pkg_info &&
                         pkg_info.driver_version && pkg_info.firmware_version) {
                         cann_version_select.append(new Option("CANN: " + key, key));
                         break;
@@ -104,7 +106,7 @@ $(document).ready(function () {
                 }
             });
         }
-        if (cann_version_select.children().length === 1) {
+        if (cann_version_select.children().length < 1) {
             cann_version_select.children().first().text('无可用版本');
         }
         cann_version_select.trigger('change');
