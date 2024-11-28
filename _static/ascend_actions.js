@@ -214,10 +214,11 @@ $(document).ready(function () {
             $('#use_docker_section').hide();
             $('#install_cann_section').show();
         } else {
-            var tag = options['cann'].toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
-            for (var i = 0; i < docker_images.length; i++) {
-                if (docker_images[i].split(":")[1] === tag) {
-                    var dockerCommand = `
+            const option_tag = options['cann'].toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
+            for (let i = 0; i < docker_images.length; i++) {
+                const image_tag = docker_images[i].split(":")[1];
+                if (image_tag.includes(option_tag)) {
+                    const dockerCommand = `
 docker run \\
     --name cann_container \\
     --device /dev/davinci1 \\
@@ -229,7 +230,6 @@ docker run \\
     -v /usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/ \\
     -v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \\
     -v /etc/ascend_install.info:/etc/ascend_install.info \\
-    -e DRIVER_PATH=/usr/local/Ascend/driver \\
     -it ${docker_images[i]} bash
                     `;
 
