@@ -257,13 +257,13 @@ const docker_images = [
     '7.0.1.beta1-910b-openeuler22.03-py3.8',
     '8.0.rc1.beta1-910b-ubuntu22.04-py3.8',
     '8.0.rc1.beta1-910b-openeuler22.03-py3.8',
-    '8.0.rc2.beta1-910b-openeuler22.03-py3.8',
     '8.0.rc2.beta1-910b-ubuntu22.04-py3.9',
+    '8.0.rc2.beta1-910b-ubuntu22.04-py3.10',
+    '8.0.rc2.beta1-910b-openeuler22.03-py3.8',
     '8.0.rc2.beta1-910b-openeuler22.03-py3.9',
     '8.0.rc2.beta1-910b-openeuler22.03-py3.10',
-    '8.0.rc2.beta1-910b-ubuntu22.04-py3.10',
     '8.0.rc3.beta1-910b-ubuntu22.04-py3.10',
-    '8.0.rc3.beta1-910b-ubuntu22.04-py3.10',
+    '8.0.rc3.beta1-910b-openeuler22.03-py3.10',
 ];
 
 const pytorch_versions = {
