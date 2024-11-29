@@ -264,7 +264,6 @@ const docker_images = [
     'ascendai/cann:8.0.rc2.beta1-910b-openeuler22.03-py3.10',
     'ascendai/cann:8.0.rc3.beta1-910b-ubuntu22.04-py3.10',
     'ascendai/cann:8.0.rc3.beta1-910b-openeuler22.03-py3.10',
-    'ascendai/cann:8.0.rc3.beta1-910b-openeuler22.03-py3.10',
 
     'ascendai/cann:7.0.1-310p-openeuler22.03-py3.8',
     'ascendai/cann:7.0.1-310p-ubuntu22.04-py3.8',
