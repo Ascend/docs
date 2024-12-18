@@ -159,7 +159,7 @@ Python   3.8, 3.9, 3.10
                         <p><b>2.3.1 安装python依赖</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre>pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs numpy decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions</pre>
+                                <pre>pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple attrs numpy==1.24.0 decorator sympy cffi pyyaml pathlib2 psutil protobuf scipy requests absl-py wheel typing_extensions</pre>
                             </div>
                         </div>
                         <p><b>2.3.2 下载并安装</b></p>
