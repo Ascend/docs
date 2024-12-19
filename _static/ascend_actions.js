@@ -197,7 +197,7 @@ $(document).ready(function () {
 
         if (options['install_type'] === 'direct') {
             // download and install cann
-            $('#codecell11').html('wget "' + cann_url + '"\nsh ' + cann_name + ' --install');
+            $('#codecell11').html('wget "' + cann_url + '"\nsh ' + cann_name + ' --full');
 
             // download and install kernel if exist.
             if (kernel_url == null) {

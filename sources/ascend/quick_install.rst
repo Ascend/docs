@@ -191,7 +191,7 @@ Python   3.8, 3.9, 3.10
                         <p><b>2.3.4 设置环境变量</b></p>
                         <div class="highlight-default notranslate">
                             <div class="highlight">
-                                <pre>echo "source ~/Ascend/ascend-toolkit/set_env.sh" >> ~/.bashrc<br>source ~/.bashrc</pre>
+                                <pre>source /usr/local/Ascend/ascend-toolkit/set_env.sh</pre>
                             </div>
                         </div>
                 </section>
