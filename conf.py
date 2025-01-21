@@ -22,7 +22,7 @@ copyright = '2024, Ascend'
 author = 'Ascend'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0'
+release = ''
 
 
 # -- General configuration ---------------------------------------------------
