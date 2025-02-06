@@ -112,7 +112,7 @@ Python   3.8, 3.9, 3.10
                     </div>
                     <div class="highlight-default notranslate">
                         <div class="highlight">
-                            <pre>sudo groupadd -g HwHiAiUser<br>sudo useradd -g HwHiAiUser -d /home/HwHiAiUser -m HwHiAiUser -s /bin/bash<br>sudo usermod -aG HwHiAiUser $USER</pre>
+                            <pre>sudo groupadd HwHiAiUser<br>sudo useradd -g HwHiAiUser -d /home/HwHiAiUser -m HwHiAiUser -s /bin/bash<br>sudo usermod -aG HwHiAiUser $USER</pre>
                         </div>
                     </div>
                     <p><b>2.1.3 下载并安装</b></p>
