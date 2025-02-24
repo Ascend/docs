@@ -208,7 +208,7 @@ $(document).ready(function () {
                 var kernel_name = parts[parts.length - 1];
                 $('#install_kernel_section').show();
                 // download and install kernel
-                $('#codecell13').html('wget "' + kernel_url + '"\nsh ' + kernel_name + ' --install');
+                $('#codecell14').html('wget "' + kernel_url + '"\nsh ' + kernel_name + ' --install');
             }
 
             $('#use_docker_section').hide();

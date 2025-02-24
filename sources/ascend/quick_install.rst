@@ -174,8 +174,14 @@ Python   3.8, 3.9, 3.10
                                 <pre>Ascend-cann-toolkit install success.</pre>
                             </div>
                         </div>
+                        <p><b>2.3.3 设置环境变量</b></p>
+                        <div class="highlight-default notranslate">
+                            <div class="highlight">
+                                <pre>source /usr/local/Ascend/ascend-toolkit/set_env.sh</pre>
+                            </div>
+                        </div>
                         <div id="install_kernel_section">
-                            <p><b>2.3.3 安装算子包</b></p>
+                            <p><b>2.3.4 安装算子包</b></p>
                             <div class="highlight-default notranslate">
                                 <div class="highlight">
                                     <pre></pre>
@@ -186,12 +192,6 @@ Python   3.8, 3.9, 3.10
                         <div class="highlight-default notranslate">
                             <div class="highlight">
                                 <pre>Ascend-cann-kernels install success.</pre>
-                            </div>
-                        </div>
-                        <p><b>2.3.4 设置环境变量</b></p>
-                        <div class="highlight-default notranslate">
-                            <div class="highlight">
-                                <pre>source /usr/local/Ascend/ascend-toolkit/set_env.sh</pre>
                             </div>
                         </div>
                 </section>
