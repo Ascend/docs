@@ -158,3 +158,29 @@ yaml 配置文件
                 --adapter_name_or_path saves/Qwen1.5-7B/lora/sft \
                 --template qwen \
                 --finetuning_type lora
+
+也可以使用vllm-ascend进行推理加速：
+
+.. note::
+    先安装vllm-ascend，见`vllm-ascend 官方安装指南：<https://vllm-ascend.readthedocs.io/en/latest/installation.html>`
+
+.. code-block:: shell
+
+    # use modelscope
+    export USE_MODELSCOPE_HUB=1
+
+    # specify NPU
+    export ASCEND_RT_VISIBLE_DEVICES=0
+
+    # Set `max_split_size_mb` to reduce memory fragmentation and avoid out of memory
+    export PYTORCH_NPU_ALLOC_CONF=max_split_size_mb:256
+
+    # Since the vllm service is started by pulling up a child process, you need to use the spawn method to create a vllm-serve process
+    export VLLM_WORKER_MULTIPROC_METHOD=spawn
+
+    ### inference -- chat
+    llamafactory-cli chat --model_name_or_path qwen/Qwen1.5-7B \
+                --adapter_name_or_path saves/Qwen1.5-7B/lora/sft \
+                --template qwen \
+                --finetuning_type lora\
+                --infer_backend vllm
