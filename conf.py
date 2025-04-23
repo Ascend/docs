@@ -14,7 +14,6 @@
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-
 # -- Project information -----------------------------------------------------
 
 project = '昇腾开源'
@@ -37,6 +36,9 @@ extensions = [
     'sphinx_copybutton'
 ]
 
+# 模板路径设置
+templates_path = ['_templates']
+autosummary_generate = True
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
@@ -69,3 +71,78 @@ def setup(app):
     app.add_css_file('custom.css')
     app.add_js_file('package_info.js')
     app.add_js_file('statistics.js')
+
+
+import os , re
+from torch_npu import _op_plugin_docs
+from jinja2 import Environment, FileSystemLoader
+
+def generate_api_doc():
+    # 查找 _op_plugin_docs 中所有的 add_torch_npu_docstr 调用
+    try:
+        plugin_docs_path = _op_plugin_docs.__file__  # 获取插件文档文件路径
+    except AttributeError:
+        raise ImportError("_op_plugin_docs module not found")
+    
+    with open(plugin_docs_path, 'r') as file:
+        plugin_docs_code = file.read()
+    
+# 正则表达式查找 add_torch_npu_docstr 函数调用
+    pattern = re.compile(r'add_torch_npu_docstr\(\s*"(.*?)"\s*,\s*"""(.*?)"""', re.DOTALL)
+    matches = pattern.findall(plugin_docs_code)
+    functions_data = []
+    for func, docstring in matches:
+        # 提取第一段
+        first_section_pattern = re.compile(r'^(.*?)(?=\n功能描述|$)', re.DOTALL)
+        first_section_match = first_section_pattern.match(docstring)
+        title = first_section_match.group(1).strip() if first_section_match else ''
+
+        # 提取功能描述
+        description_pattern = re.compile(r'功能描述\n(.*?)(?=\n(参数说明|约束说明|示例)|$)', re.DOTALL)
+        description_match = description_pattern.search(docstring)
+        description = description_match.group(1).strip() if description_match else ''
+
+        # 提取参数说明
+        params_pattern = re.compile(r'参数说明\n(.*?)(?=\n(约束说明|示例)|$)', re.DOTALL)
+        params_match = params_pattern.search(docstring)
+        params = params_match.group(1).strip() if params_match else ''
+        params_list = [param.strip() for param in params.split('\n') if param.strip()]
+
+        # 提取约束说明
+        constraints_pattern = re.compile(r'约束说明\n(.*?)(?=\n示例|$)', re.DOTALL)
+        constraints_match = constraints_pattern.search(docstring)
+        constraints = constraints_match.group(1).strip() if constraints_match else ''
+
+        # 提取示例
+        example_pattern = re.compile(r'示例\n(.*)', re.DOTALL)
+        example_match = example_pattern.search(docstring)
+        example = example_match.group(1).strip() if example_match else ''
+        
+        functions_data.append({
+            'function': func,
+            'title': title,
+            'description': description,
+            'params':  params_list,
+            'constraints': constraints,
+            'example': example
+            })
+
+ # 配置模板环境
+    template_dir = os.path.join(os.path.dirname(__file__), '_templates/pytorch')
+    env = Environment(
+        loader=FileSystemLoader(template_dir),
+        autoescape=False,
+        trim_blocks=True
+    )
+
+    # 渲染模板
+    template = env.get_template('api_doc.rst.jinja')
+    rendered_content = template.render(npu_functions=functions_data)
+
+    # 将渲染后的内容写入 .rst 文件
+    rst_filename = os.path.join(os.getcwd(), 'sources', 'pytorch', 'api_doc.rst')  # 拼接成目标文件路径
+    with open(rst_filename, 'w', encoding='utf-8') as f:
+        f.write(rendered_content)
+ 
+# 在 Sphinx 构建之前调用该函数生成 API 文档
+generate_api_doc()
