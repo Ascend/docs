@@ -77,55 +77,73 @@ import os , re
 from torch_npu import _op_plugin_docs
 from jinja2 import Environment, FileSystemLoader
 
+def deal_before_example(before_example):
+     # 需要加黑的字段
+    fields = ["功能描述", "参数说明",  "参数解释", "接口原型", "约束说明", "输出说明"]
+
+    # 正则匹配这些字段
+    pattern = re.compile(r'(' + '|'.join(fields) + r')')
+
+    # 匹配之后替换
+    result = pattern.sub(r'**\1**', before_example)
+    params_list = [param.strip() for param in result.split('\n') if param.strip()]
+
+    return params_list
+
 def generate_api_doc():
     # 查找 _op_plugin_docs 中所有的 add_torch_npu_docstr 调用
     try:
-        plugin_docs_path = _op_plugin_docs.__file__  # 获取插件文档文件路径
+        # 获取插件文档路径
+        plugin_docs_path = _op_plugin_docs.__file__  
     except AttributeError:
         raise ImportError("_op_plugin_docs module not found")
-    
+
     with open(plugin_docs_path, 'r') as file:
         plugin_docs_code = file.read()
-    
-# 正则表达式查找 add_torch_npu_docstr 函数调用
+
+    # 查找所有add_torch_npu_docstr 函数调用
     pattern = re.compile(r'add_torch_npu_docstr\(\s*"(.*?)"\s*,\s*"""(.*?)"""', re.DOTALL)
     matches = pattern.findall(plugin_docs_code)
+
     functions_data = []
+
     for func, docstring in matches:
-        # 提取第一段
-        first_section_pattern = re.compile(r'^(.*?)(?=\n功能描述|$)', re.DOTALL)
-        first_section_match = first_section_pattern.match(docstring)
-        title = first_section_match.group(1).strip() if first_section_match else ''
+        # 匹配 "调用示例" 或 "示例" 部分的位置
 
-        # 提取功能描述
-        description_pattern = re.compile(r'功能描述\n(.*?)(?=\n(参数说明|约束说明|示例)|$)', re.DOTALL)
-        description_match = description_pattern.search(docstring)
-        description = description_match.group(1).strip() if description_match else ''
-
-        # 提取参数说明
-        params_pattern = re.compile(r'参数说明\n(.*?)(?=\n(约束说明|示例)|$)', re.DOTALL)
-        params_match = params_pattern.search(docstring)
-        params = params_match.group(1).strip() if params_match else ''
-        params_list = [param.strip() for param in params.split('\n') if param.strip()]
-
-        # 提取约束说明
-        constraints_pattern = re.compile(r'约束说明\n(.*?)(?=\n示例|$)', re.DOTALL)
-        constraints_match = constraints_pattern.search(docstring)
-        constraints = constraints_match.group(1).strip() if constraints_match else ''
-
-        # 提取示例
-        example_pattern = re.compile(r'示例\n(.*)', re.DOTALL)
+        example_pattern = re.compile(r'\s*(调用示例|示例)\s*[:：]?\s*\n(.*)', re.DOTALL)
         example_match = example_pattern.search(docstring)
-        example = example_match.group(1).strip() if example_match else ''
-        
+
+        before_example = docstring.split(example_match.group(0))[0].strip()  if example_match else docstring
+        params_list =  deal_before_example(before_example)
+
+        formatted_example = ''
+        if example_match:
+            # 截取示例代码部分
+            after_example = example_match.group(2).strip()
+            # 对每一行进行检查，如果没有以 '>>>' 开头，添加 '>>> ' 前缀
+            formatted_example_lines = []
+            example_lines = after_example.split('\n')
+            for line in example_lines:
+                # 如果行以多个 '>' 开头，但没有 '>>> '（即没有空格），删除所有多余的 '>' 并添加 '>>> ' 
+                if re.match(r'^>+', line.strip()) and not line.lstrip().startswith('>>> '):
+                    formatted_example_lines.append('>>> ' + line.lstrip('>').strip())
+                elif not line.strip().startswith('>>>'):
+                    # 如果没有 '>>> '，则添加 '>>> '
+                    formatted_example_lines.append('>>> ' + line.strip())
+                else:
+                    # 如果已经以 '>>> ' 开头，保持原样
+                    formatted_example_lines.append(line.strip())
+
+            # 将处理后的行重新组合成一个完整的示例
+            formatted_example = '\n'.join(formatted_example_lines)
+
         functions_data.append({
             'function': func,
-            'title': title,
-            'description': description,
             'params':  params_list,
-            'constraints': constraints,
-            'example': example
+            'example': formatted_example
             })
+
+    print("-----------------------------------------" + str(len(functions_data)))
 
  # 配置模板环境
     template_dir = os.path.join(os.path.dirname(__file__), '_templates/pytorch')
