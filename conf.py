@@ -73,8 +73,7 @@ def setup(app):
     app.add_js_file('statistics.js')
 
 
-import os , re
-from torch_npu import _op_plugin_docs
+import os, re, importlib.util
 from jinja2 import Environment, FileSystemLoader
 
 def deal_before_example(before_example):
@@ -94,7 +93,8 @@ def generate_api_doc():
     # 查找 _op_plugin_docs 中所有的 add_torch_npu_docstr 调用
     try:
         # 获取插件文档路径
-        plugin_docs_path = _op_plugin_docs.__file__  
+        torch_npu_path = os.path.dirname(importlib.util.find_spec('torch_npu').origin)
+        plugin_docs_path = os.path.join(torch_npu_path, '_op_plugin_docs.py')
     except AttributeError:
         raise ImportError("_op_plugin_docs module not found")
 
@@ -143,7 +143,6 @@ def generate_api_doc():
             'example': formatted_example
             })
 
-    print("-----------------------------------------" + str(len(functions_data)))
 
  # 配置模板环境
     template_dir = os.path.join(os.path.dirname(__file__), '_templates/pytorch')
@@ -158,7 +157,8 @@ def generate_api_doc():
     rendered_content = template.render(npu_functions=functions_data)
 
     # 将渲染后的内容写入 .rst 文件
-    rst_filename = os.path.join(os.getcwd(), 'sources', 'pytorch', 'api_doc.rst')  # 拼接成目标文件路径
+    # 拼接成目标文件路径
+    rst_filename = os.path.join(os.getcwd(), 'sources', 'pytorch', 'api_doc.rst') 
     with open(rst_filename, 'w', encoding='utf-8') as f:
         f.write(rendered_content)
  
