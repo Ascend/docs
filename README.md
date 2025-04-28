@@ -27,7 +27,7 @@ When the development is ready, you can check and test it locally by following th
 1. Install the required dependencies:  
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple --extra-index-url https://download.pytorch.org/whl/cpu
 ```
 
 2. Building:  
