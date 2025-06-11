@@ -98,8 +98,7 @@ ONNX Runtime 推理需要 ONNX 格式模型作为输入，目前有以下几种�
       result = inference(model_path, img)
       display(classes_path, result)
 
-
-1. C++推理示例
+2. C++推理示例
 -----------------------
 .. code-block:: c++
   :linenos:
