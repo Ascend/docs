@@ -78,7 +78,7 @@ yaml 配置文件
     ### eval
     val_size: 0.1
     per_device_eval_batch_size: 1
-    evaluation_strategy: steps
+    eval_strategy: steps
     eval_steps: 500
         </pre>
       </div>
