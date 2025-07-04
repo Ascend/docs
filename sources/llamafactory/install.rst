@@ -102,10 +102,9 @@ LLAMA-Factory 下载安装
                   <p>启动 docker 容器：</p>
                   <div class="highlight">
                     <pre>docker run -dit \
-    -v ./hf_cache:/root/.cache/huggingface \
-    -v ./ms_cache:/root/.cache/modelscope \
-    -v ./data:/app/data \
-    -v ./output:/app/output \
+    -v $PWD/hf_cache:/root/.cache/huggingface \
+    -v $PWD/ms_cache:/root/.cache/modelscope \
+    -v $PWD/output:/app/output \
     -v /usr/local/dcmi:/usr/local/dcmi \
     -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \
     -v /usr/local/Ascend/driver:/usr/local/Ascend/driver \
