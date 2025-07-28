@@ -40,9 +40,6 @@
    sources/torchchat/index.rst
    sources/torchtitan/index.rst
 
-.. warning::
-
-   文档仍在开发中，内容可能存在错误，内容可能会随时更新，请勿将其用于生产环境。
 
 选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
 
