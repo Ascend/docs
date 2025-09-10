@@ -23,9 +23,9 @@
             <div class="row-element-2" id="col-values">
                 <div class="row" id="row-pytorch">
                     <div class="mobile-headings">PyTorch版本</div>
-                    <div class="values-element block-3 install-pytorch selected" id="pytorch-2.4.0">2.4.0</div>
-                    <div class="values-element block-3 install-pytorch" id="pytorch-2.3.1">2.3.1</div>
-                    <div class="values-element block-3 install-pytorch" id="pytorch-2.2.0">2.2.0</div>
+                    <div class="values-element block-3 install-pytorch selected" id="pytorch-2.7.1">2.7.1</div>
+                    <div class="values-element block-3 install-pytorch" id="pytorch-2.6.0">2.6.0</div>
+                    <div class="values-element block-3 install-pytorch" id="pytorch-2.5.1">2.5.1</div>
                 </div>
                 <div class="row" id="row-pytorch_npu">
                     <div class="mobile-headings">PyTorch-NPU版本</div>
