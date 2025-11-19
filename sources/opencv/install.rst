@@ -67,6 +67,10 @@ Python 环境创建
         -D OPENCV_EXTRA_MODULES_PATH=/path/to/opencv/opencv_contrib/modules \
         -D DWITH_CUDA=0 \
         -D DWITH_CANN=1 \
+        -D ASCEND_CANN_PACKAGE_PATH=/path/to/ascend-toolkit/latest \
+        -D CANN_DIR=/path/to/ascend-toolkit/latest \
+        -D CANN_INCLUDE_DIR=/path/to/ascend-toolkit/latest/include \
+        -D CANN_LIBRARY=/path/to/ascend-toolkit/latest/lib64 \
         -D DPYTHON3_EXECUTABLE=/path/to/miniconda3/envs/opencv/bin/python \
         -D DPYTHON_LIBRARY=/path/to/miniconda3/envs/opencv \
         -D PYTHON_INCLUDE_DIR=/path/to/miniconda3/envs/opencv/include/python3.10 \
