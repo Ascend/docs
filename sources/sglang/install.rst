@@ -69,9 +69,9 @@ torch-npu 安装
     pip install torch==$PYTORCH_VERSION torchvision==$TORCHVISION_VERSION --index-url https://download.pytorch.org/whl/cpu
 
     # Install torch_npu 2.6.0 or you can just pip install torch_npu==2.6.0
-    PTA_VERSION="v7.1.0.2-pytorch2.6.0"
-    PTA_NAME="torch_npu-2.6.0.post2-cp311-cp311-manylinux_2_28_aarch64.whl"
-    PTA_URL="https://gitcode.com/ascend/pytorch/releases/download/${PTA_VERSION}/${PTA_WHL_NAME}"
+    PTA_VERSION="v7.2.0-pytorch2.6.0"
+    PTA_NAME="torch_npu-2.6.0.post3-cp311-cp311-manylinux_2_28_aarch64.whl"
+    PTA_URL="https://gitcode.com/ascend/pytorch/releases/download/${PTA_VERSION}/${PTA_NAME}"
     wget -O "${PTA_NAME}" "${PTA_URL}" && pip install "./${PTA_NAME}"
 
 安装完成后，可以通过以下代码验证 torch_npu 是否安装成功：
