@@ -17,7 +17,7 @@ Python 环境创建
 .. code-block:: shell
     :linenos:
 
-    # 创建名为 roll 的 python 3.11 的虚拟环境
+    # 创建名为 roll 的 python 3.10 的虚拟环境
     conda create -y -n roll python=3.10
     # 激活虚拟环境
     conda activate roll

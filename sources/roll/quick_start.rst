@@ -3,7 +3,7 @@
 
 .. note::
 
-    阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 verl 所需的环境。
+    阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 roll 所需的环境。
     
     本篇教程将介绍如何使用 roll 进行快速训练，帮助您快速上手 roll   。
 
@@ -216,7 +216,7 @@
 .. code-block:: bash
 
     ...
-    File "/home/coder/miniforge3/envs/roll/lib/python3.10/enum.py",
+    File ".../roll/lib/python3.10/enum.py",
        line 701, in __new__
     raise ve_exc
 
