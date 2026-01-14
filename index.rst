@@ -428,9 +428,9 @@
                 <div class="flex space-x-4 text-blue-600">
                     <a href="https://github.com/volcengine/verl ">官方链接</a>
                     <span class="split">|</span>
-                    <a href="sources/verl/install.html">安装指南</a>
+                    <a href="sources/verl/ascend_tutorial/ascend_quick_start.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="sources/verl/quick_start.html">快速上手</a>
+                    <a href="sources/verl/ascend_tutorial/ascend_quick_start.html">快速上手</a>
                 </div>
             </div>   
             <!-- Card 22 -->
