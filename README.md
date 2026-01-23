@@ -4,11 +4,25 @@ This repository is a collection of documentation for Ascend supported open sourc
 
 # Structure
 
+## New Doc
+
 - `index.rst`: the index of the opensource project doc.
 - `quick_start.rst`: **5 minutes** or **600 words**, quickstarts enable people to quickly complete a discrete, focused task by illustrating a workflow with **only essential steps**. See also in [Github quickstart guide](https://docs.github.com/en/contributing/style-guide-and-content-model/quickstart-content-type).
 - `install.rst`: installation guide, including common installation (such as binary, pypi, conda) for developers and a quick installation verification
 - `tutorial.rst`: more complex than quickstart, help people learn about **products** and solve **real world problems** by guiding them through **the entire workflow to complete a task**. See also in [Github tutorial guide](https://docs.github.com/en/contributing/style-guide-and-content-model/tutorial-content-type).
 - `faq.rst`: A frequently asked questions (FAQ) list.
+
+## Documentation Available in Open Source Projects
+
+- `index.rst`: the index of the opensource project doc.
+- Additional source files will be automatically downloaded before running `make`. For details, see the `./Makefile`.
+
+Use the following command to add a subproject:
+
+```bash
+git submodule add https://github.com/project.git docs/_repos/dir/
+
+```
 
 # Contributing
 
