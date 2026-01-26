@@ -13,6 +13,7 @@ PROJECT_CONFIGS = \
     _repos/verl/docs/ascend_tutorial:sources/verl \
     _repos/VeOmni/docs/hardware_support:sources/VeOmni \
 	_repos/VeOmni/docs/get_started/installation:sources/VeOmni \
+	_repos/LLaMA-Factory/docs/advanced:sources/LLaMA-Factory \
 
 # Put it first so that "make" without argument is like "make help".
 help:
