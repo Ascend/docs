@@ -11,7 +11,8 @@ BUILDDIR      = _build
 # Format: "source_directory:target_directory"
 PROJECT_CONFIGS = \
     _repos/verl/docs/ascend_tutorial:sources/verl \
-    _repos/VeOmni:sources/VeOmni
+    _repos/VeOmni/docs/hardware_support:sources/VeOmni \
+	_repos/VeOmni/docs/get_started/installation:sources/VeOmni \
 
 # Put it first so that "make" without argument is like "make help".
 help:
