@@ -4,5 +4,5 @@ VeOmni
 .. toctree::
    :maxdepth: 3
 
-   install_ascend.rst
-   get_started_npu.rst
+   get_started/installation/install_ascend.md
+   hardware_support/get_started_npu.md

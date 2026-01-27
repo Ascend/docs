@@ -11,9 +11,9 @@ BUILDDIR      = _build
 # Format: "source_directory:target_directory"
 PROJECT_CONFIGS = \
     _repos/verl/docs/ascend_tutorial:sources/verl \
-    _repos/VeOmni/docs/hardware_support:sources/VeOmni \
-	_repos/VeOmni/docs/get_started/installation:sources/VeOmni \
-	_repos/LLaMA-Factory/docs/advanced:sources/LLaMA-Factory \
+    _repos/VeOmni/docs:sources/VeOmni \
+	_repos/LLaMA-Factory/docs:sources/LLaMA-Factory \
+	_repos/ms-swift/docs:sources/ms-swift
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -31,6 +31,7 @@ help:
 	@for config in $(PROJECT_CONFIGS); do \
 		src=$$(echo $$config | cut -d: -f1); \
 		dst=$$(echo $$config | cut -d: -f2); \
+		find $$src -name 'index.*' -delete 2>/dev/null || true; \
 		echo "Copying $$src to $$dst"; \
 		cp -r $$src/* $$dst/ 2>/dev/null || echo "  Source directory does not exist or is empty: $$src"; \
 	done
