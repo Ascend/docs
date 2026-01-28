@@ -504,7 +504,7 @@
                     <span class="split">|</span>
                     <a href="sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="sources/ms-swift/source_en/BestPractices/NPU-support.html">快速上手</a>
+                    <a href="sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a>
                 </div>
             </div>                               
         </div>

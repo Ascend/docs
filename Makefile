@@ -31,6 +31,7 @@ help:
 	@for config in $(PROJECT_CONFIGS); do \
 		src=$$(echo $$config | cut -d: -f1); \
 		dst=$$(echo $$config | cut -d: -f2); \
+		# Removing existing index files to avoid conflicts \
 		find $$src -name 'index.*' -delete 2>/dev/null || true; \
 		echo "Copying $$src to $$dst"; \
 		cp -r $$src/* $$dst/ 2>/dev/null || echo "  Source directory does not exist or is empty: $$src"; \
