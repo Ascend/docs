@@ -15,7 +15,7 @@
 lm-evaluation-harness安装
 ----------------------------------
 
-注意：lm-evaluation-harness从0.4.3开始原生支持昇腾。
+注意：lm-evaluation-harness从0.4.3开始原生支持昇腾。当使用0.4.10以下版本时，transformers库需要小于5.0.0。
 
 - Option 1: Use the latest stable release
 
