@@ -2,7 +2,7 @@ verl
 ============
 
 .. toctree::
-   :maxdepth: 6
+   :maxdepth: 3
 
    ascend_quick_start.rst
    ascend_sglang_quick_start.rst

@@ -30,10 +30,11 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
     'recommonmark',
+    'sphinx.ext.autodoc',
     'sphinxext.remoteliteralinclude',
-    'sphinx_copybutton'
+    'sphinx_copybutton',
+    'sphinx_markdown_tables'
 ]
 
 # 模板路径设置

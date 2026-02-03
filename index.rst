@@ -19,7 +19,7 @@
    :caption: 原生支持的AI项目
 
    sources/pytorch/index.rst
-   sources/llamafactory/index.rst
+   sources/LLaMA-Factory/index.rst
    sources/accelerate/index.rst
    sources/transformers/index.rst
    sources/deepspeed/index.rst
@@ -43,6 +43,8 @@
    sources/verl/index.rst
    sources/roll/index.rst
    sources/kernels/index.rst
+   sources/VeOmni/index.rst
+   sources/ms-swift/index.rst
 
 
 选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
@@ -56,19 +58,19 @@
             <!-- Card 1 -->
             <div class="box rounded-lg p-4 flex flex-col items-center">
                 <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/llama-factory.png')"></div>
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/LLaMA-Factory.png')"></div>
                     <div>
                         <h2 class="text-lg font-semibold">LLaMA-Factory</h2>
-                        <p class="text-gray-600 desc">便捷高效的大模型微调工具。V0.7.1版本起支持昇腾。</p>
+                        <p class="text-gray-600 desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs</p>
                     </div>
                 </div>
                 <div class="flex-grow"></div>
                 <div class="flex space-x-4 text-blue-600">
                     <a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a>
                     <span class="split">|</span>
-                    <a href="sources/llamafactory/install.html">安装指南</a>
+                    <a href="sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a>
                     <span class="split">|</span>
-                    <a href="sources/llamafactory/quick_start.html">快速上手</a>
+                    <a href="sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a>
                 </div>
             </div>
             <!-- Card 2 -->
@@ -468,6 +470,42 @@
                     <span class="split">|</span>
                     <a href="sources/kernels/quick_start.html">快速上手</a>
                 </div>
-            </div>                             
+            </div>
+            <!-- Card 24 -->
+            <div class="box rounded-lg p-4 flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/VeOmni.png')"></div>
+                    <div>
+                        <h2 class="text-lg font-semibold">VeOmni</h2>
+                        <p class="text-gray-600 desc">Scaling Any Modality Model Training with Model-Centric Distributed Recipe Zoo</p>
+                    </div>
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4 text-blue-600">
+                    <a href="https://github.com/ByteDance-Seed/VeOmni ">官方链接</a>
+                    <span class="split">|</span>
+                    <a href="sources/VeOmni/get_started/installation/install_ascend.html">安装指南</a>
+                    <span class="split">|</span>
+                    <a href="sources/VeOmni/hardware_support/get_started_npu.html">快速上手</a>
+                </div>
+            </div>
+            <!-- Card 25 -->
+            <div class="box rounded-lg p-4 flex flex-col items-center">
+                <div class="flex items-center mb-4">
+                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/swift.png')"></div>
+                    <div>
+                        <h2 class="text-lg font-semibold">ms-swift</h2>
+                        <p class="text-gray-600 desc">Use PEFT or Full-parameter to CPT/SFT/DPO/GRPO 600+ LLMs and 300+ MLLMs</p>
+                    </div>
+                </div>
+                <div class="flex-grow"></div>
+                <div class="flex space-x-4 text-blue-600">
+                    <a href="https://github.com/modelscope/ms-swift ">官方链接</a>
+                    <span class="split">|</span>
+                    <a href="sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a>
+                    <span class="split">|</span>
+                    <a href="sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a>
+                </div>
+            </div>                               
         </div>
     </div>
