@@ -1,23 +1,241 @@
-昇腾开源
-============
+================
+昇腾开源文档中心
+================
+
+.. raw:: html
+
+   <style>
+      :root {
+          --ascend-blue: #0066cc; /* 与导航栏颜色严格一致 */
+          --text-main: #0066cc
+          --text-sub: #6e6e73;
+          --border-color: #e1e4e8;
+      }
+
+      /* 英雄区：颜色对齐 */
+      .hero-banner { 
+          background-color: var(--ascend-blue);
+          color: white; padding: 50px 30px; border-radius: 12px; 
+          text-align: center; margin-bottom: 40px;
+      }
+      .hero-banner h1 { color: white !important; border: none !important; margin: 0 !important; font-size: 2.6rem !important; font-weight: 700 !important; }
+      .hero-btn {
+          display: inline-block; background: white; color: var(--ascend-blue); 
+          padding: 12px 35px; border-radius: 6px; text-decoration: none; 
+          font-weight: bold; margin-top: 25px; transition: 0.3s ease;
+      }
+      .hero-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+      /* 分类标题样式 */
+      .scene-header { 
+          border-left: 5px solid var(--ascend-blue); padding-left: 15px; 
+          margin: 40px 0 25px 0; font-size: 1.6rem; font-weight: bold; color: var(--text-main);
+      }
+
+      /* 项目网格布局 */
+      .grid-container {
+          display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+          gap: 20px; margin-bottom: 50px;
+      }
+
+      /* 卡片美化 */
+      .project-card {
+          border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;
+          background: #fff; transition: all 0.3s ease; display: flex; flex-direction: column;
+          height: 100%;
+      }
+      .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,102,204,0.12); border-color: var(--ascend-blue); }
+      .card-top { display: flex; align-items: center; margin-bottom: 15px; }
+      .card-icon { width: 44px; height: 44px; margin-right: 15px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 4px; }
+      .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin: 0; }
+      .card-desc { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; height: 3.2em; overflow: hidden; }
+
+      /* 三要素居中显示 */
+      .card-footer { 
+          border-top: 1px solid #f2f2f7; padding-top: 15px; 
+          display: flex; justify-content: center; align-items: center; 
+          gap: 15px; font-size: 0.88rem; 
+      }
+      .card-footer a { text-decoration: none; color: var(--ascend-blue); font-weight: 500; }
+      .card-footer a:hover { text-decoration: underline; }
+      .split { color: #e5e5ea; }
+   </style>
+
+   <div class="hero-banner">
+      <h1>昇腾开源生态全景图</h1>
+      <p style="opacity: 0.9; margin-top: 12px; font-size: 1.1rem;">赋能全球开发者，构建极致性能的昇腾 AI 算力底座</p>
+      <a href="sources/ascend/quick_install.html" class="hero-btn">🚀 快速安装昇腾环境</a>
+   </div>
+
+   <h2 class="scene-header">🏗️ 底层 AI 框架与基础设施</h2>
+   <div class="grid-container">
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">PyTorch</h3></div>
+         <p class="card-desc">PyTorch AI 框架，2.1 版本起官方原生支持昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://pytorch.org">官方链接</a><span class="split">|</span><a href="sources/pytorch/install.html">安装指南</a><span class="split">|</span><a href="sources/pytorch/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformers</h3></div>
+         <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
+         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/fine-tune.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
+         <p class="card-desc">分布式训练优化库，V0.10.1 版本起支持昇腾。</p>
+         <div class="card-footer"><a href="https://github.com/microsoft/DeepSpeed">官方链接</a><span class="split">|</span><a href="sources/deepspeed/install.html">安装指南</a><span class="split">|</span><a href="sources/deepspeed/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Accelerate</h3></div>
+         <p class="card-desc">适用于 Pytorch 的多 GPUs/NPUs 训练工具链。</p>
+         <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/install.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">ONNX Runtime</h3></div>
+         <p class="card-desc">跨平台高性能推理和训练加速器，v1.13.1 起支持昇腾。</p>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/onnxruntime/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/kernels.png')"></div><h3 class="card-title">kernels</h3></div>
+         <p class="card-desc">从 Hugging Face Hub 加载高性能计算算子内核。</p>
+         <div class="card-footer"><a href="https://github.com/huggingface/kernels">官方链接</a><span class="split">|</span><a href="sources/kernels/install.html">安装指南</a><span class="split">|</span><a href="sources/kernels/quick_start.html">快速上手</a></div>
+      </div>
+   </div>
+
+   <h2 class="scene-header">🧠 大模型/多模态训练与微调</h2>
+   <div class="grid-container">
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/volcano.png')"></div><h3 class="card-title">verl</h3></div>
+         <p class="card-desc">用于 LLM 的强化学习训练库，适配昇腾并行计算方案。</p>
+         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/verl/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/verl/ascend_quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/VeOmni.png')"></div><h3 class="card-title">VeOmni</h3></div>
+         <p class="card-desc">Scaling Any Modality Model Training with Model-Centric Distributed Recipe Zoo。</p>
+         <div class="card-footer"><a href="https://github.com/ByteDance-Seed/VeOmni">官方链接</a><span class="split">|</span><a href="sources/VeOmni/get_started/installation/install_ascend.html">安装指南</a><span class="split">|</span><a href="sources/VeOmni/hardware_support/get_started_npu.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
+         <p class="card-desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs。</p>
+         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a><span class="split">|</span><a href="sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/swift.png')"></div><h3 class="card-title">ms-swift</h3></div>
+         <p class="card-desc">高效微调框架，支持 600+ LLM 和 300+ MLLM 适配昇腾。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a><span class="split">|</span><a href="sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">TorchTitan</h3></div>
+         <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">trl</h3></div>
+         <p class="card-desc">适用于 SFT、PPO、DPO 等方法的模型后训练库。</p>
+         <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/install.html">安装指南</a><span class="split">|</span><a href="sources/trl/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/roll.png')"></div><h3 class="card-title">ROLL</h3></div>
+         <p class="card-desc">大规模强化学习优化，针对昇腾算力平衡进行了调优。</p>
+         <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/install.html">安装指南</a><span class="split">|</span><a href="sources/roll/quick_start.html">快速上手</a></div>
+      </div>
+   </div>
+
+   <h2 class="scene-header">🚀 高性能推理与服务</h2>
+   <div class="grid-container">
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SGLang</h3></div>
+         <p class="card-desc">用于 LLM 和 VLM 的高速服务框架，极致提升昇腾吞吐量。</p>
+         <div class="card-footer"><a href="https://github.com/sgl-project/sglang">官方链接</a><span class="split">|</span><a href="sources/sglang/install.html">安装指南</a><span class="split">|</span><a href="sources/sglang/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">LMDeploy</h3></div>
+         <p class="card-desc">用于压缩、部署和服务 LLM 的工具包。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="sources/lm_deploy/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_deploy/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
+         <p class="card-desc">C/C++ 实现的 Meta LLaMa 架构，深度适配昇腾后端。</p>
+         <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchchat</h3></div>
+         <p class="card-desc">基于 PyTorch 的对话推理交互库。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/torchchat">官方链接</a><span class="split">|</span><a href="sources/torchchat/install.html">安装指南</a><span class="split">|</span><a href="sources/torchchat/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sentence_transformers.png')"></div><h3 class="card-title">Sentence Transformers</h3></div>
+         <p class="card-desc">高性能文本和图像 Embedding 库。</p>
+         <div class="card-footer"><a href="https://github.com/UKPLab/sentence-transformers">官方链接</a><span class="split">|</span><a href="sources/sentence_transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/sentence_transformers/quick_start.html">快速上手</a></div>
+      </div>
+   </div>
+
+   <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
+   <div class="grid-container">
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffusers.png')"></div><h3 class="card-title">Diffusers</h3></div>
+         <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
+         <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sd-webui.png')"></div><h3 class="card-title">SD WebUI</h3></div>
+         <p class="card-desc">Stable Diffusion 可视化工具链。</p>
+         <div class="card-footer"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a><span class="split">|</span><a href="sources/sd_webui/install.html">安装指南</a><span class="split">|</span><a href="sources/sd_webui/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Open CLIP</h3></div>
+         <p class="card-desc">开源 CLIP 模型实现，支持多模态语义对齐。</p>
+         <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencv.png')"></div><h3 class="card-title">OpenCV</h3></div>
+         <p class="card-desc">开源计算机视觉库，支持昇腾平台处理。</p>
+         <div class="card-footer"><a href="https://github.com/opencv/opencv">官方链接</a><span class="split">|</span><a href="sources/opencv/install.html">安装指南</a><span class="split">|</span><a href="sources/opencv/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/wenet.png')"></div><h3 class="card-title">WeNet</h3></div>
+         <p class="card-desc">端到端的语音识别工具包。</p>
+         <div class="card-footer"><a href="https://github.com/wenet-e2e/wenet">官方链接</a><span class="split">|</span><a href="sources/wenet/install.html">安装指南</a><span class="split">|</span><a href="sources/wenet/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/whisper_cpp.png')"></div><h3 class="card-title">Whisper.cpp</h3></div>
+         <p class="card-desc">Whisper 模型高性能推理语音识别框架。</p>
+         <div class="card-footer"><a href="https://github.com/ggerganov/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/whisper_cpp/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">timm</h3></div>
+         <p class="card-desc">PyTorch 图像模型库适配版本。</p>
+         <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/install.html">安装指南</a><span class="split">|</span><a href="sources/timm/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencompass.png')"></div><h3 class="card-title">OpenCompass</h3></div>
+         <p class="card-desc">大模型标准测试工具。</p>
+         <div class="card-footer"><a href="https://github.com/open-compass/opencompass">官方链接</a><span class="split">|</span><a href="sources/opencompass/install.html">安装指南</a><span class="split">|</span><a href="sources/opencompass/quick_start.html">快速上手</a></div>
+      </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">LM-Eval</h3></div>
+         <p class="card-desc">语言模型评测工具，支持昇腾基准。</p>
+         <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_evaluation/quick_start.html">快速上手</a></div>
+      </div>
+   </div>
 
 .. -----------------------------------------
-.. Page TOC
+.. 权威 TOC 架构：确保侧边栏持久化
 .. -----------------------------------------
+
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :includehidden:
-   :caption: 开始使用
+   :caption: 🏁 开始使用
 
    sources/ascend/quick_install.rst
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
    :hidden:
-   :includehidden:
-   :caption: 原生支持的AI项目
+   :caption: 🏗️ 基础设施与框架
 
+   sources/pytorch/index.rst
+   sources/transformers/index.rst
    sources/accelerate/index.rst
    sources/deepspeed/index.rst
    sources/Diffusers/index.rst
@@ -28,483 +246,43 @@
    sources/lm_evaluation/index.rst
    sources/ms-swift/index.rst
    sources/onnxruntime/index.rst
-   sources/open_clip/index.rst
-   sources/opencompass/index.rst
-   sources/opencv/index.rst
-   sources/pytorch/index.rst
-   sources/roll/index.rst
-   sources/sd_webui/index.rst
-   sources/sentence_transformers/index.rst
-   sources/sglang/index.rst
-   sources/timm/index.rst
-   sources/torchchat/index.rst
-   sources/torchtitan/index.rst
-   sources/transformers/index.rst
-   sources/trl/index.rst
-   sources/VeOmni/index.rst
+   sources/kernels/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: 🧠 训练与微调框架
+
    sources/verl/index.rst
+   sources/VeOmni/index.rst
+   sources/LLaMA-Factory/index.rst
+   sources/ms-swift/index.rst
+   sources/torchtitan/index.rst
+   sources/trl/index.rst
+   sources/roll/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: 🚀 推理与服务
+
+   sources/sglang/index.rst
+   sources/lm_deploy/index.rst
+   sources/llama_cpp/index.rst
+   sources/torchchat/index.rst
+   sources/sentence_transformers/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: 🎨 多模态、应用与评测
+
+   sources/Diffusers/index.rst
+   sources/sd_webui/index.rst
+   sources/open_clip/index.rst
+   sources/opencv/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
-
-选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
-
-安装成功后，请参考各项目的快速开始和样例来开始使用昇腾AI处理器。
-
-.. raw:: html
-
-   <div class="container bg-white flex flex-col items-center">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Card 1 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/LLaMA-Factory.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">LLaMA-Factory</h2>
-                        <p class="text-gray-600 desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 2 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/pytorch.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">PyTorch</h2>
-                        <p class="text-gray-600 desc">PyTorch AI框架  2.1版本官方支持昇腾</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://pytorch.org">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/pytorch/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/pytorch/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 3 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/onnxruntime.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">ONNX Runtime</h2>
-                        <p class="text-gray-600 desc">跨平台、高性能 ML 推理和训练加速器。v1.13.1版本起原生支持昇腾</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/microsoft/onnxruntime">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/onnxruntime/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/onnxruntime/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 4 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/deepspeed.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">DeepSpeed</h2>
-                        <p class="text-gray-600 desc">深度学习优化库，使得分布式训练和推理变得简单、高效、有效。
-                            V0.10.1版本起支持昇腾。</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/microsoft/DeepSpeed">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/deepspeed/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/deepspeed/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 5 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/opencv.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">OpenCV</h2>
-                        <p class="text-gray-600 desc">开源计算机视觉库</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/opencv/opencv">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/opencv/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/opencv/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 6 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/sd-webui.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Stable Diffusion web UI</h2>
-                        <p class="text-gray-600 desc">Stable diffusion可视化工具链</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/sd_webui/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/sd_webui/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 7 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/huggingface.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Transformers</h2>
-                        <p class="text-gray-600 desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库
-                            v4.32.0起支持昇腾</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://huggingface.co/docs/transformers/index">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="href=sources/transformers/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="href=sources/transformers/fine-tune.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 8 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/diffusers.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Diffusers</h2>
-                        <p class="text-gray-600 desc">图像和音频生成等扩散模型工具链</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/huggingface/diffusers">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/Diffusers/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/Diffusers/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 9 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/huggingface.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Accelerate</h2>
-                        <p class="text-gray-600 desc">适用于Pytorch的多GPUs训练工具链</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/huggingface/accelerate">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/accelerate/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/accelerate/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 10 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/wenet.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">WeNet</h2>
-                        <p class="text-gray-600 desc">端到端的语音识别工具包</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/wenet-e2e/wenet">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/wenet/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/wenet/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 11 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/lm-evalution.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">LM-Evalution-Harness</h2>
-                        <p class="text-gray-600 desc">语言模型评估工具</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/lm_evaluation/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/lm_evaluation/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 12 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/whisper_cpp.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Whisper.cpp</h2>
-                        <p class="text-gray-600 desc">Whisper 模型高性能推理语音识别框架</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/ggerganov/whisper.cpp">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/whisper_cpp/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/whisper_cpp/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 13 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/llama_cpp.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">llama.cpp</h2>
-                        <p class="text-gray-600 desc">由C/C++实现的 Meta LLaMa 架构</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/ggerganov/llama.cpp">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/llama_cpp/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/llama_cpp/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 14 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/sentence_transformers.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Sentence Transformers</h2>
-                        <p class="text-gray-600 desc">适用于文本和图像的高性能Embedding库</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/UKPLab/sentence-transformers">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/sentence_transformers/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/sentence_transformers/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 15 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/trl.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">Transformer Reinforcement Learning</h2>
-                        <p class="text-gray-600 desc">适用于SFT、PPO、DPO等方法的模型后训练库</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/huggingface/trl">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/trl/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/trl/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 16 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/opencompass.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">OpenCompass</h2>
-                        <p class="text-gray-600 desc">大模型标准测试工具</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com//open-compass/opencompass">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/opencompass/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/opencompass/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 17 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/lm-deploy.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">LMDeploy</h2>
-                        <p class="text-gray-600 desc">用于压缩、部署和服务 LLM 的工具包</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/InternLM/lmdeploy">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/lm_deploy/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/lm_deploy/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 18 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/pytorch.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">torchchat</h2>
-                        <p class="text-gray-600 desc"></p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/pytorch/torchchat">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/torchchat/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/torchchat/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 19 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/pytorch.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">TorchTitan</h2>
-                        <p class="text-gray-600 desc">用于语言大模型训练的 PyTorch 原生库</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/pytorch/torchtitan">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/torchtitan/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/torchtitan/quick_start.html">快速上手</a>
-                </div>
-            </div>   
-            <!-- Card 20 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/sglang.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">SGLang</h2>
-                        <p class="text-gray-600 desc">用于 LLM 和 VLM 的高速服务框架</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/sgl-project/sglang">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/sglang/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/sglang/quick_start.html">快速上手</a>
-                </div>
-            </div>            
-            <!-- Card 21 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/volcano.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">verl</h2>
-                        <p class="text-gray-600 desc">用于 LLM 的强化学习训练库</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/volcengine/verl ">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/verl/ascend_quick_start.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/verl/ascend_quick_start.html">快速上手</a>
-                </div>
-            </div>   
-            <!-- Card 22 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/roll.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">ROLL</h2>
-                        <p class="text-gray-600 desc">大规模学习的强化学习优化</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/alibaba/ROLL ">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/roll/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/roll/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 23 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/kernels.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">kernels</h2>
-                        <p class="text-gray-600 desc">Load compute kernels from the Hub</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/huggingface/kernels ">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/kernels/install.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/kernels/quick_start.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 24 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/VeOmni.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">VeOmni</h2>
-                        <p class="text-gray-600 desc">Scaling Any Modality Model Training with Model-Centric Distributed Recipe Zoo</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/ByteDance-Seed/VeOmni ">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/VeOmni/get_started/installation/install_ascend.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/VeOmni/hardware_support/get_started_npu.html">快速上手</a>
-                </div>
-            </div>
-            <!-- Card 25 -->
-            <div class="box rounded-lg p-4 flex flex-col items-center">
-                <div class="flex items-center mb-4">
-                    <div class="img w-16 h-16 rounded-md mr-4" style="background-image: url('_static/images/swift.png')"></div>
-                    <div>
-                        <h2 class="text-lg font-semibold">ms-swift</h2>
-                        <p class="text-gray-600 desc">Use PEFT or Full-parameter to CPT/SFT/DPO/GRPO 600+ LLMs and 300+ MLLMs</p>
-                    </div>
-                </div>
-                <div class="flex-grow"></div>
-                <div class="flex space-x-4 text-blue-600">
-                    <a href="https://github.com/modelscope/ms-swift ">官方链接</a>
-                    <span class="split">|</span>
-                    <a href="sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a>
-                    <span class="split">|</span>
-                    <a href="sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a>
-                </div>
-            </div>                               
-        </div>
-    </div>
+   sources/timm/index.rst
+   sources/opencompass/index.rst
+   sources/lm_evaluation/index.rst
