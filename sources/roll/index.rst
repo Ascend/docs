@@ -1,4 +1,4 @@
-roll
+ROLL
 ============
 
 .. toctree::

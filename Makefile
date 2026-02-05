@@ -12,8 +12,11 @@ BUILDDIR      = _build
 PROJECT_CONFIGS = \
     _repos/verl/docs/ascend_tutorial:sources/verl \
     _repos/VeOmni/docs:sources/VeOmni \
-	_repos/LLaMA-Factory/docs:sources/LLaMA-Factory \
-	_repos/ms-swift/docs:sources/ms-swift
+    _repos/LLaMA-Factory/docs:sources/LLaMA-Factory \
+    _repos/ms-swift/docs:sources/ms-swift
+
+# Configure all subprojects generated path
+GENERATED_DOCS := sources/_generated
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -25,19 +28,31 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@echo "Initializing submodules..."
-	@git submodule update --init
-	
+	@git submodule update --init --remote
+
+	@echo "Preparing generated docs directory..."
+	@mkdir -p $(GENERATED_DOCS)
+
 	@echo "Copying project documentation..."
 	@for config in $(PROJECT_CONFIGS); do \
 		src=$$(echo $$config | cut -d: -f1); \
-		dst=$$(echo $$config | cut -d: -f2); \
-		# Removing existing index files to avoid conflicts \
+		rel_dst=$$(echo $$config | cut -d: -f2); \
+		dst="$(GENERATED_DOCS)/$$rel_dst"; \
+		echo "Copying $$src -> $$dst"; \
+		\
+		# Clean destination to avoid stale files \
+		rm -rf $$dst; \
+		mkdir -p $$dst; \
+		\
+		# Remove index files from source to avoid conflicts \
 		find $$src -name 'index.*' -delete 2>/dev/null || true; \
+		\
 		echo "Copying $$src to $$dst"; \
-		cp -r $$src/* $$dst/ 2>/dev/null || echo "  Source directory does not exist or is empty: $$src"; \
+		cp -r "$$src"/* "$$dst"/ 2>/dev/null || \
+			echo "  [WARN] Source directory does not exist or is empty: $$src"; \
 	done
-	
+
 	@echo "Cleaning up submodules..."
 	@git submodule deinit -f _repos/*
-	
+
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
