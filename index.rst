@@ -13,39 +13,38 @@
    sources/ascend/quick_install.rst
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :hidden:
    :includehidden:
    :caption: 原生支持的AI项目
 
-   sources/pytorch/index.rst
-   sources/LLaMA-Factory/index.rst
    sources/accelerate/index.rst
-   sources/transformers/index.rst
    sources/deepspeed/index.rst
+   sources/Diffusers/index.rst
+   sources/kernels/index.rst
+   sources/llama_cpp/index.rst
+   sources/LLaMA-Factory/index.rst
+   sources/lm_deploy/index.rst
+   sources/lm_evaluation/index.rst
+   sources/ms-swift/index.rst
    sources/onnxruntime/index.rst
    sources/open_clip/index.rst
-   sources/timm/index.rst
-   sources/Diffusers/index.rst
-   sources/opencv/index.rst
-   sources/sd_webui/index.rst
-   sources/lm_evaluation/index.rst
-   sources/wenet/index.rst
-   sources/whisper_cpp/index.rst
-   sources/llama_cpp/index.rst
-   sources/sentence_transformers/index.rst
-   sources/trl/index.rst
    sources/opencompass/index.rst
-   sources/lm_deploy/index.rst
+   sources/opencv/index.rst
+   sources/pytorch/index.rst
+   sources/roll/index.rst
+   sources/sd_webui/index.rst
+   sources/sentence_transformers/index.rst
+   sources/sglang/index.rst
+   sources/timm/index.rst
    sources/torchchat/index.rst
    sources/torchtitan/index.rst
-   sources/sglang/index.rst
-   sources/verl/index.rst
-   sources/roll/index.rst
-   sources/kernels/index.rst
+   sources/transformers/index.rst
+   sources/trl/index.rst
    sources/VeOmni/index.rst
-   sources/ms-swift/index.rst
-
+   sources/verl/index.rst
+   sources/wenet/index.rst
+   sources/whisper_cpp/index.rst
 
 选择您的偏好，并按照 :doc:`快速安装昇腾环境<sources/ascend/quick_install>` 的安装指导进行操作。
 
