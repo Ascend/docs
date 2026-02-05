@@ -1,0 +1,339 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU Qwen3-32B GSPO Optimization Practice &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=ec38875e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=ed8c2343"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">原生支持的AI项目</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">Torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NPU Qwen3-32B GSPO Optimization Practice</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/verl/examples/gspo_optimization_practice.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu-qwen3-32b-gspo-optimization-practice">
+<h1>NPU Qwen3-32B GSPO Optimization Practice<a class="headerlink" href="#npu-qwen3-32b-gspo-optimization-practice" title="Link to this heading"></a></h1>
+<p>Last updated: 01/27/2026.</p>
+<p>本文章对应脚本地址：<a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/gspo_trainer/run_qwen3_32b_gspo_npu.sh">qwen3_32b_gspo_npu</a></p>
+<section id="id1">
+<h2>算法适配<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>GSPO通过将优化颗粒度从<strong>token级</strong>提升到<strong>sequence级</strong>，规避了GRPO会遇到的<strong>方差急剧增大</strong>导致训练不稳定的情况，增加了训练的稳定性，同时该算法也在一定程度上提升了算法的收敛速度。</p>
+<p>想要成功在verl仓库中成功调用到GSPO算法，需要进行如下的必要配置</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 核心算法配置  </span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">adv_estimator</span><span class="o">=</span><span class="n">grpo</span> \                    <span class="c1"># 使用GRPO优势估计器    </span>
+<span class="n">algorithm</span><span class="o">.</span><span class="n">use_kl_in_reward</span><span class="o">=</span><span class="kc">False</span> \                <span class="c1"># 不在奖励中添加KL惩罚    </span>
+<span class="c1"># GSPO策略损失模式  </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">policy_loss</span><span class="o">.</span><span class="n">loss_mode</span><span class="o">=</span><span class="n">gspo</span> \ <span class="c1"># 启用GSPO策略损失</span>
+<span class="c1"># 极小裁剪范围（GSPO特色）  </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">clip_ratio_low</span><span class="o">=</span><span class="mf">0.0003</span> \   <span class="c1"># 裁剪下界，论文推荐值    </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">clip_ratio_high</span><span class="o">=</span><span class="mf">0.0004</span> \  <span class="c1"># 裁剪上界，论文推荐值    </span>
+<span class="c1"># KL配置（GSPO不使用KL loss）  </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">use_kl_loss</span><span class="o">=</span><span class="kc">False</span> \       <span class="c1"># 禁用KL损失    </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">kl_loss_coef</span><span class="o">=</span><span class="mf">0.0</span> \        <span class="c1"># KL损失系数设为0    </span>
+<span class="c1"># 序列级损失聚合模式（GSPO核心）  </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">loss_agg_mode</span><span class="o">=</span><span class="n">seq</span><span class="o">-</span><span class="n">mean</span><span class="o">-</span><span class="n">token</span><span class="o">-</span><span class="n">mean</span> \ <span class="c1"># 序列级平均，GSPO论文推荐    </span>
+<span class="c1"># 批次配置  </span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">rollout</span><span class="o">.</span><span class="n">n</span><span class="o">=</span><span class="mi">16</span> \                  <span class="c1"># 每个prompt生成16个响应（组采样）</span>
+</pre></div>
+</div>
+<p>一般选择入口函数为<code class="docutils literal notranslate"><span class="pre">verl.trainer.main_ppo</span></code></p>
+</section>
+<section id="id2">
+<h2>性能调优<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>优化从训练、推理、调度和其他四个方面入手。</p>
+<section id="id3">
+<h3>训练<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="bsz">
+<h4>动态bsz<a class="headerlink" href="#bsz" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">actor_ppo_max_token_len</span><span class="o">=</span><span class="k">$((</span><span class="o">(</span><span class="nv">max_prompt_length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">max_response_length</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">sp_size</span><span class="k">))</span>
+<span class="nv">infer_ppo_max_token_len</span><span class="o">=</span><span class="k">$((</span><span class="o">(</span><span class="nv">max_prompt_length</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nv">max_response_length</span><span class="o">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="nv">sp_size</span><span class="k">))</span>
+</pre></div>
+</div>
+<p><strong>这个优化点主要调整上面这两个参数，不过需要注意这两个参数调整的太大会导致OOM</strong></p>
+<p><strong>主要调整</strong><code class="docutils literal notranslate"><span class="pre">actor_ppo_max_token_len</span></code>,调大了会降低训练的耗时，调整<code class="docutils literal notranslate"><span class="pre">infer_ppo_max_token_len</span></code>没有明显的收益，可以不动</p>
+<p><strong>这两个参数的作用介绍如下：</strong></p>
+<p><strong>这两个参数用于控制动态批处理(dynamic batch size)模式下每个GPU处理的最大token数量</strong></p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">actor_ppo_max_token_len</span></code></strong>: Actor模型在PPO更新(前向+反向传播)时每个GPU能处理的最大token数</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">infer_ppo_max_token_len</span></code></strong>: 推理阶段(Reference policy和Rollout)计算log概率时每个GPU能处理的最大token数</p></li>
+</ul>
+</section>
+</section>
+<section id="id4">
+<h3>推理<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<section id="aclgraph-full-decode-only">
+<h4>ACLgraph+FULL_DECODE_ONLY<a class="headerlink" href="#aclgraph-full-decode-only" title="Link to this heading"></a></h4>
+<p>推理算子下发方面的优化，平均能有<code class="docutils literal notranslate"><span class="pre">15%~20%</span></code>左右的性能收益。</p>
+<p>先看单开<strong>ACLgraph</strong>，如下：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 开启ACLgraph+FULL_DECODE_ONLY（注意：当设置此参数为False时，TASK_QUEUE_ENABLE必须设置为1，不然会报错）</span>
+actor_rollout_ref.rollout.enforce_eager<span class="o">=</span>False
+actor_rollout_ref.rollout.engine_kwargs.vllm.compilation_config.cudagraph_capture_sizes<span class="o">=</span><span class="s1">&#39;[8,16,32,64,128]&#39;</span><span class="w"> </span><span class="se">\ </span>
+actor_rollout_ref.rollout.engine_kwargs.vllm.compilation_config.cudagraph_mode<span class="o">=</span><span class="s1">&#39;FULL_DECODE_ONLY&#39;</span><span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">FULL_DECODE_ONLY</span></code>开启成功后有如下输出：</p>
+<p><img alt="FULL_DECODE_ONLY result" src="https://github.com/wucong25/verl-data/blob/main/ascend_acl_graph.png" /></p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">cudagraph_capture_sizes</span></code>参数设置指南</strong></p>
+<p>cudagraph_capture_sizes设置的值对应的是批大小，这里的批大小不是配置里的DP域对应的那个批次大小，这里是相较于vllm来说的批大小，单位为<strong>token</strong></p>
+<p>默认生成的算法如下，可做参考</p>
+<p><img alt="cudagraph_capture_sizes" src="https://github.com/wucong25/verl-data/blob/main/ascend_set_cudagraph_sizes.png" /></p>
+</section>
+<section id="id5">
+<h4>推理后端切换<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>使用方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_ATTENTION_BACKEND=XFORMERS</span></code></p>
+<p><img alt="VLLM_ATTENTION_BACKEND" src="https://github.com/wucong25/verl-data/blob/main/ascend_vllm_attn_backend.png" /></p>
+<p>注：需要注意某些后端在一些比较老的vllm-ascend版本内并不支持</p>
+</section>
+<section id="vllm-v1">
+<h4>使能vllm v1版本<a class="headerlink" href="#vllm-v1" title="Link to this heading"></a></h4>
+<p>使用方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_USE_V1=1</span></code></p>
+<p>可以常开，一般都是正收益。</p>
+</section>
+</section>
+<section id="id6">
+<h3>调度<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="aiv">
+<h4>AIV<a class="headerlink" href="#aiv" title="Link to this heading"></a></h4>
+<p>打开方式：设置<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">HCCL_OP_EXPANSION_MODE=&quot;AIV&quot;</span></code></p>
+<p>HCCL_OP_EXPANSION_MODE环境变量用于配置通信算法的编排展开位置，支持如下取值：</p>
+<ul class="simple">
+<li><p>AI_CPU：代表通信算法的编排展开位置在Device侧的AI CPU计算单元。</p></li>
+<li><p>AIV：代表通信算法的编排展开位置在Device侧的Vector Core计算单元。</p></li>
+<li><p>HOST：代表通信算法的编排展开位置为Host侧CPU，Device侧根据硬件型号自动选择相应的调度器。</p></li>
+<li><p>HOST_TS：代表通信算法的编排展开位置为Host侧CPU，Host向Device的Task Scheduler下发任务，Device的Task Scheduler进行任务调度执行。</p></li>
+</ul>
+<p>下面介绍两种展开机制</p>
+<section id="host">
+<h5>HOST展开<a class="headerlink" href="#host" title="Link to this heading"></a></h5>
+<img src="https://github.com/wucong25/verl-data/blob/main/ascend_task_queue1.png" alt="image-20260113194257095" style="zoom:50%;" /><ul class="simple">
+<li><p>软件栈工作在hostcpu，通信算法展开一个个task</p></li>
+<li><p>每个task调用runtime接口，下发到device的rtsqueue</p></li>
+<li><p>STARS从rstqueue上顺序拿取task</p></li>
+<li><p>根据task类型分别调用掉SDMA和RDMA引擎。
+<strong>单算子瓶颈</strong>：hostbound 每个task提交是2~5us，一个通信算子有几百个task，单算子场景不会在device上缓存，下发一个执行一个</p></li>
+</ul>
+</section>
+<section id="aicpu">
+<h5>AICpu机制展开<a class="headerlink" href="#aicpu" title="Link to this heading"></a></h5>
+<img src="https://github.com/wucong25/verl-data/blob/main/ascend_task_queue3.png" alt="image-20260113194333218" style="zoom:50%;" /><ul class="simple">
+<li><p>host侧不下发一个个task，把通信算子作为一个个kernel，放在通信算子kernel的队列上去。</p></li>
+<li><p>STARS调度kernel队列流上的kernel，把kernel放到AiCPU上去执行。</p></li>
+<li><p>AICPU调用函数（kernel），用一个线程执行kernel 函数，在函数内把通信task展开，把task放到rstqueue上，STARS调用。</p></li>
+<li><p>降低host和aicpu交互，由几百次降低为一次。</p></li>
+<li><p>task的提交在AICPU上提交，做了提交的部分合并。</p></li>
+</ul>
+</section>
+</section>
+<section id="task-queue-enable">
+<h4>TASK_QUEUE_ENABLE<a class="headerlink" href="#task-queue-enable" title="Link to this heading"></a></h4>
+<p><strong>使用方式：</strong><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">TASK_QUEUE_ENABLE=2</span></code></p>
+<p>TASK_QUEUE_ENABLE，下发优化，图模式设置为1（即开启图模式的时候这个要设置为1），非图模式设置为2</p>
+<p>示意图：</p>
+<p><img alt="ascend task queue" src="https://github.com/wucong25/verl-data/blob/main/ascend_task_queue2.png" /></p>
+</section>
+<section id="id7">
+<h4>绑核优化<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<p><strong>使用方式：</strong><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">CPU_AFFINITY_CONF=1</span></code></p>
+<p>详细设置原理可看：https://www.hiascend.com/document/detail/zh/Pytorch/600/ptmoddevg/trainingmigrguide/performance_tuning_0059.html</p>
+</section>
+</section>
+<section id="id8">
+<h3>其他<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>以下内容汇总了若干全局环境变量的调优配置。由于这些参数在训练阶段与推理阶段往往都能带来正向收益，且目前尚缺乏足够精细的消融实验来严格区分它们各自对训练或推理的贡献占比，故统一归拢在此，供后续持续监控与进一步拆解分析。</p>
+<section id="jemalloc">
+<h4>使能jemalloc<a class="headerlink" href="#jemalloc" title="Link to this heading"></a></h4>
+<p>使用方式（注意需要先安装jemalloc库）：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">LD_PRELOAD=/usr/local/lib/libjemalloc.so.2</span></code></p>
+<p><strong>安装使用教程：</strong><a class="reference external" href="https://gitcode.com/Ascend/MindSpeed-RL/blob/master/docs/install_guide.md#%E9%AB%98%E6%80%A7%E8%83%BD%E5%86%85%E5%AD%98%E5%BA%93-jemalloc-%E5%AE%89%E8%A3%85">MindSpeed-RL/docs/install_guide.md · Ascend/MindSpeed-RL - AtomGit | GitCode</a></p>
+</section>
+<section id="id9">
+<h4>多流复用<a class="headerlink" href="#id9" title="Link to this heading"></a></h4>
+<p>内存方面有优化</p>
+<p>使能方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">MULTI_STREAM_MEMORY_REUSE=1</span></code></p>
+<p>原理介绍：https://www.hiascend.com/document/detail/zh/Pytorch/600/ptmoddevg/trainingmigrguide/performance_tuning_0040.html</p>
+</section>
+<section id="vllm-ascend-enable-flashcomm">
+<h4>VLLM_ASCEND_ENABLE_FLASHCOMM<a class="headerlink" href="#vllm-ascend-enable-flashcomm" title="Link to this heading"></a></h4>
+<p>使用方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_ASCEND_ENABLE_FLASHCOMM=1</span></code></p>
+<p>启用昇腾 NPU 特有的FLASHCOMM高速通信优化技术</p>
+<p>地址：https://vllm-ascend.readthedocs.io/zh-cn/latest/user_guide/release_notes.html</p>
+</section>
+<section id="vllm-ascend-enable-dense-optimize">
+<h4>VLLM_ASCEND_ENABLE_DENSE_OPTIMIZE<a class="headerlink" href="#vllm-ascend-enable-dense-optimize" title="Link to this heading"></a></h4>
+<p>使用方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_ASCEND_ENABLE_DENSE_OPTIMIZE=1</span></code></p>
+<p>启用昇腾 NPU针对大模型推理的稠密计算优化</p>
+<p>地址：https://vllm-ascend.readthedocs.io/zh-cn/latest/user_guide/release_notes.html</p>
+</section>
+<section id="vllm-ascend-enable-prefetch-mlp">
+<h4>VLLM_ASCEND_ENABLE_PREFETCH_MLP<a class="headerlink" href="#vllm-ascend-enable-prefetch-mlp" title="Link to this heading"></a></h4>
+<p>使用方式：<code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_ASCEND_ENABLE_PREFETCH_MLP=1</span></code></p>
+<p>启用 MLP 层的权重预取机制</p>
+<img src="https://github.com/wucong25/verl-data/blob/main/ascend_prefetch.png" alt="image-20251124173132677" style="zoom:50%;" /></section>
+<section id="verl">
+<h4>verl框架参数设置<a class="headerlink" href="#verl" title="Link to this heading"></a></h4>
+<p>主要是内存方面的一些设置开关（注意，这个里面的优化都或多或少会导致吞吐量有一定程度的劣化）</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 梯度检查点 (Gradient Checkpointing)</span>
+<span class="c1"># 作用: 通过重新计算激活值来节省显存,以计算换内存。在前向传播时不保存中间激活值,反向传播时重新计算,可以显著降低显存占用,允许使用更大的batch size。</span>
+actor_rollout_ref.model.enable_gradient_checkpointing<span class="o">=</span>True
+
+<span class="c1"># 参数卸载 (Parameter Offload)</span>
+<span class="c1"># 作用: 将模型参数卸载到CPU内存,训练时再加载回GPU。</span>
+actor_rollout_ref.actor.fsdp_config.param_offload<span class="o">=</span><span class="si">${</span><span class="nv">offload</span><span class="si">}</span><span class="w">  </span><span class="c1"># True  </span>
+actor_rollout_ref.ref.fsdp_config.param_offload<span class="o">=</span><span class="si">${</span><span class="nv">offload</span><span class="si">}</span><span class="w">    </span><span class="c1"># True</span>
+
+<span class="c1"># 优化器状态卸载 (Optimizer Offload)</span>
+<span class="c1"># 作用: 将优化器状态(如Adam的动量)卸载到CPU。优化器状态通常占用大量显存(对于Adam,每个参数需要额外8字节),卸载可以节省显存。</span>
+actor_rollout_ref.actor.fsdp_config.optimizer_offload<span class="o">=</span><span class="si">${</span><span class="nv">offload</span><span class="si">}</span><span class="w">  </span><span class="c1"># True</span>
+
+<span class="c1"># 释放推理引擎缓存 (Free Cache Engine)</span>
+<span class="c1"># 作用: 在训练阶段释放推理引擎的KV cache和权重。这是3D-HybridEngine的核心优化,允许在同一GPU上交替进行推理和训练,显著降低显存需求。</span>
+actor_rollout_ref.rollout.free_cache_engine<span class="o">=</span>True
+
+<span class="c1">#  熵计算优化</span>
+<span class="c1"># entropy_checkpointing: 在训练时对熵计算启用重计算,降低显存峰值</span>
+<span class="c1"># entropy_from_logits_with_chunking: 分块处理logits张量(如2048 tokens一组),避免一次性加载整个[bsz*seq_len, vocab]张量</span>
+actor_rollout_ref.actor.entropy_checkpointing<span class="o">=</span>True<span class="w">  </span>
+actor_rollout_ref.ref.entropy_checkpointing<span class="o">=</span>True<span class="w">  </span>
+actor_rollout_ref.actor.entropy_from_logits_with_chunking<span class="o">=</span>True<span class="w">  </span>
+actor_rollout_ref.ref.entropy_from_logits_with_chunking<span class="o">=</span>True
+
+<span class="c1"># 推理引擎显存配置</span>
+<span class="c1"># gpu_memory_utilization: 控制vLLM使用的GPU显存比例(0.90 = 90%)</span>
+<span class="c1"># enforce_eager=False: 启用CUDA graphs加速推理,但会占用额外显存</span>
+actor_rollout_ref.rollout.gpu_memory_utilization<span class="o">=</span><span class="m">0</span>.90<span class="w">  </span>
+actor_rollout_ref.rollout.enforce_eager<span class="o">=</span>False
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="npu">
+<h2>NPU调优参考文章<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<p>环境变量相关：<a class="reference external" href="https://www.hiascend.com/document/detail/zh/Pytorch/600/apiref/Envvariables/Envir_001.html">环境变量列表-Ascend Extension for PyTorch6.0.0-昇腾社区</a></p>
+<p>社区性能调优教程：<a class="reference external" href="https://www.hiascend.com/document/detail/zh/Pytorch/600/ptmoddevg/trainingmigrguide/performance_tuning_0001.html">性能调优流程-Ascend Extension for PyTorch6.0.0-昇腾社区</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
