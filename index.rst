@@ -90,11 +90,6 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/install.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">ONNX Runtime</h3></div>
-         <p class="card-desc">跨平台高性能推理和训练加速器，v1.13.1 起支持昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/onnxruntime/quick_start.html">快速上手</a></div>
-      </div>
-      <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/kernels.png')"></div><h3 class="card-title">kernels</h3></div>
          <p class="card-desc">从 Hugging Face Hub 加载高性能计算算子内核。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/kernels">官方链接</a><span class="split">|</span><a href="sources/kernels/install.html">安装指南</a><span class="split">|</span><a href="sources/kernels/quick_start.html">快速上手</a></div>
@@ -167,6 +162,11 @@
          <p class="card-desc">高性能文本和图像 Embedding 库。</p>
          <div class="card-footer"><a href="https://github.com/UKPLab/sentence-transformers">官方链接</a><span class="split">|</span><a href="sources/sentence_transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/sentence_transformers/quick_start.html">快速上手</a></div>
       </div>
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">ONNX Runtime</h3></div>
+         <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/onnxruntime/quick_start.html">快速上手</a></div>
+      </div>
    </div>
 
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
@@ -238,14 +238,6 @@
    sources/transformers/index.rst
    sources/accelerate/index.rst
    sources/deepspeed/index.rst
-   sources/Diffusers/index.rst
-   sources/kernels/index.rst
-   sources/llama_cpp/index.rst
-   sources/LLaMA-Factory/index.rst
-   sources/lm_deploy/index.rst
-   sources/lm_evaluation/index.rst
-   sources/ms-swift/index.rst
-   sources/onnxruntime/index.rst
    sources/kernels/index.rst
 
 .. toctree::
@@ -271,6 +263,7 @@
    sources/llama_cpp/index.rst
    sources/torchchat/index.rst
    sources/sentence_transformers/index.rst
+   sources/onnxruntime/index.rst
 
 .. toctree::
    :maxdepth: 1
