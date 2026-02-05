@@ -4,5 +4,5 @@ ms-swift
 .. toctree::
    :maxdepth: 3
 
-   source/BestPractices/NPU-support.md
-   source_en/BestPractices/NPU-support.md
+   ../_generated/sources/ms-swift/source/BestPractices/NPU-support
+   ../_generated/sources/ms-swift/source_en/BestPractices/NPU-support
