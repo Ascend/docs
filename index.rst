@@ -45,20 +45,63 @@
           height: 100%;
       }
       .project-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,102,204,0.12); border-color: var(--ascend-blue); }
-      .card-top { display: flex; align-items: center; margin-bottom: 15px; }
-      .card-icon { width: 44px; height: 44px; margin-right: 15px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 4px; }
-      .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin: 0; }
+
+      /* 卡片顶部：logo和标题在卡片中居中显示 */
+      .card-top {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 15px;
+          gap: 16px;
+      }
+
+      /* Logo容器：固定尺寸，完美居中 */
+      .card-icon {
+          width: 56px;
+          height: 56px;
+          min-width: 56px;
+          min-height: 56px;
+          flex-shrink: 0;
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+          background-color: #f8f9fa;
+          border-radius: 8px;
+          padding: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      /* 标题：移除所有默认边距，确保垂直居中 */
+      .card-title {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: var(--text-main);
+          margin: 0 !important;
+          padding: 0 !important;
+          line-height: 56px;
+          display: flex;
+          align-items: center;
+      }
       .card-desc { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; height: 3.2em; overflow: hidden; }
 
-      /* 三要素居中显示 */
-      .card-footer { 
-          border-top: 1px solid #f2f2f7; padding-top: 15px; 
-          display: flex; justify-content: center; align-items: center; 
-          gap: 15px; font-size: 0.88rem; 
+      /* 三要素分散等距居中显示 */
+      .card-footer {
+          border-top: 1px solid #f2f2f7;
+          padding-top: 15px;
+          display: flex;
+          justify-content: space-evenly;
+          align-items: center;
+          font-size: 0.88rem;
       }
-      .card-footer a { text-decoration: none; color: var(--ascend-blue); font-weight: 500; }
+      .card-footer a {
+          text-decoration: none;
+          color: var(--ascend-blue);
+          font-weight: 500;
+      }
       .card-footer a:hover { text-decoration: underline; }
-      .split { color: #e5e5ea; }
+      .split { display: none; }
    </style>
 
    <div class="hero-banner">
