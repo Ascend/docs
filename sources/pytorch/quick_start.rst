@@ -213,16 +213,16 @@
 
 2. 使用DeepSpeed多卡并行训练
 -------------------------------
-以下代码使用了cifar10数据集，使用DeepSpeed训练模型在多张NPU卡上进行模型训练（来自 `DeepSpeed Examples <https://github.com/microsoft/DeepSpeedExamples/blob/master/training/cifar/cifar10_deepspeed.py>`_），自DeepSpeed v0.12.6之后，代码无需任何修改，即可自动检测NPU并进行训练。
+以下代码使用了cifar10数据集，使用DeepSpeed训练模型在多张NPU卡上进行模型训练（来自 `DeepSpeed Examples <https://github.com/microsoft/DeepSpeedExamples/blob/master/training/cifar/cifar10_deepspeed.py>`_），使用最新 Release 的 DeepSpeed 则代码无需修改，即可自动检测NPU并进行。
 
 .. rli:: https://raw.githubusercontent.com/microsoft/DeepSpeedExamples/master/training/cifar/cifar10_deepspeed.py
     :language: python
     :linenos:
 
 
-3. 使用Transforms进行模型微调
+3. 使用Transformers进行模型微调
 ---------------------------------
-以下代码使用了Transforms对LLM进行微调（来自 `transforms examples <https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_clm.py>`_），自transforms xxx版本以及accelerator 0.21.0版本以后，代码无需任何修改，即可自动检测NPU并进行。
+以下代码使用了Transformers对LLM进行微调（来自 `transformers examples <https://github.com/huggingface/transformers/blob/main/examples/pytorch/language-modeling/run_clm.py>`_），使用最新 Release 的 Transformers 和 Accelerator 则代码无需修改，即可自动检测NPU并进行。
 
 .. rli:: https://raw.githubusercontent.com/huggingface/transformers/main/examples/pytorch/language-modeling/run_clm.py
     :language: python
@@ -244,7 +244,7 @@
 
 4. 使用Diffusers进行模型微调
 ---------------------------------
-以下代码使用了Diffusers对文生图模型进行微调（来自 `diffusers examples <https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py>`_），自diffusers v0.27.0版本以后，代码无需任何修改，即可自动检测NPU并进行。
+以下代码使用了Diffusers对文生图模型进行微调（来自 `diffusers examples <https://github.com/huggingface/diffusers/blob/main/examples/text_to_image/train_text_to_image.py>`_），使用最新 Release 的 Diffusers 则代码无需修改，即可自动检测NPU并进行。
 
 
 .. rli:: https://raw.githubusercontent.com/huggingface/diffusers/main/examples/text_to_image/train_text_to_image.py
