@@ -34,7 +34,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxext.remoteliteralinclude',
     'sphinx_copybutton',
-    'sphinx_markdown_tables'
+    'sphinx_markdown_tables',
+    "sphinx_design",
 ]
 
 # 模板路径设置
