@@ -27,6 +27,9 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
+	@echo "Fetching ascend configuration data..."
+	@python3 scripts/fetch_ascend_data.py
+
 	@echo "Initializing submodules..."
 	@git submodule update --init --remote
 

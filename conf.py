@@ -165,4 +165,7 @@ def generate_api_doc():
         f.write(rendered_content)
  
 # 在 Sphinx 构建之前调用该函数生成 API 文档
-generate_api_doc()
+try:
+    generate_api_doc()
+except ImportError as e:
+    print(f"Warning: {e}. Skipping API documentation generation.")
