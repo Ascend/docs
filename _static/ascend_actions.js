@@ -1,253 +1,213 @@
 $(document).ready(function () {
-    $.reset_selection = function (elem) {
+    var config = null;
+    var selectedOptions = {
+        version: null,
+        product: null,
+        cpu_arch: null,
+        os: null,
+        install_method: null
+    };
+
+    function loadConfig() {
+        $.getJSON('../../_static/ascend_config.json', function(data) {
+            config = data;
+            initializeUI();
+        }).fail(function() {
+            console.error('Failed to load ascend_config.json');
+            $('#install-instructions').html('<p style="color: red;">加载配置文件失败，请检查网络连接。</p>');
+        });
+    }
+
+    function initializeUI() {
+        if (!config) return;
+
+        var versions = config.versions;
+        var versionKeys = Object.keys(versions);
+
+        var versionHtml = '<div class="mobile-headings">版本</div>';
+        versionKeys.forEach(function(key, index) {
+            var version = versions[key];
+            var selected = index === 0 ? 'selected' : '';
+            versionHtml += '<div class="values-element block-' + versionKeys.length + ' install-version ' + selected + '" id="version-' + key + '">' + version.name + '</div>';
+        });
+        $('#row-version').html(versionHtml);
+
+        if (versionKeys.length > 0) {
+            selectedOptions.version = versionKeys[0];
+            updateProductSeries();
+        }
+    }
+
+    function updateProductSeries() {
+        if (!config || !selectedOptions.version) return;
+
+        var version = config.versions[selectedOptions.version];
+        var productSeries = version.product_series;
+        var productKeys = Object.keys(productSeries);
+
+        var productHtml = '<div class="mobile-headings">产品系列</div>';
+        productKeys.forEach(function(key, index) {
+            var product = productSeries[key];
+            var selected = index === 0 ? 'selected' : '';
+            productHtml += '<div class="values-element block-' + productKeys.length + ' install-product ' + selected + '" id="product-' + key + '">' + product.name + '</div>';
+        });
+        $('#row-product').html(productHtml);
+
+        if (productKeys.length > 0) {
+            selectedOptions.product = productKeys[0];
+            updateCPUArchitectures();
+        }
+    }
+
+    function updateCPUArchitectures() {
+        if (!config || !selectedOptions.version || !selectedOptions.product) return;
+
+        var version = config.versions[selectedOptions.version];
+        var productSeries = version.product_series;
+        var product = productSeries[selectedOptions.product];
+        var cpuArchs = product.cpu_architectures;
+        var cpuArchKeys = Object.keys(cpuArchs);
+
+        var cpuArchHtml = '<div class="mobile-headings">CPU架构</div>';
+        cpuArchKeys.forEach(function(key, index) {
+            var cpuArch = cpuArchs[key];
+            var selected = index === 0 ? 'selected' : '';
+            cpuArchHtml += '<div class="values-element block-' + cpuArchKeys.length + ' install-cpu_arch ' + selected + '" id="cpu_arch-' + key + '">' + cpuArch.name + '</div>';
+        });
+        $('#row-cpu_arch').html(cpuArchHtml);
+
+        if (cpuArchKeys.length > 0) {
+            selectedOptions.cpu_arch = cpuArchKeys[0];
+            updateOperatingSystems();
+        }
+    }
+
+    function updateOperatingSystems() {
+        if (!config || !selectedOptions.version || !selectedOptions.product || !selectedOptions.cpu_arch) return;
+
+        var version = config.versions[selectedOptions.version];
+        var productSeries = version.product_series;
+        var product = productSeries[selectedOptions.product];
+        var cpuArch = product.cpu_architectures[selectedOptions.cpu_arch];
+        var operatingSystems = cpuArch.operating_systems;
+        var osKeys = Object.keys(operatingSystems);
+
+        var osHtml = '<div class="mobile-headings">操作系统</div>';
+        osKeys.forEach(function(key, index) {
+            var os = operatingSystems[key];
+            var selected = index === 0 ? 'selected' : '';
+            osHtml += '<div class="values-element block-' + osKeys.length + ' install-os ' + selected + '" id="os-' + key + '">' + os.name + '</div>';
+        });
+        $('#row-os').html(osHtml);
+
+        if (osKeys.length > 0) {
+            selectedOptions.os = osKeys[0];
+            updateInstallMethods();
+        }
+    }
+
+    function updateInstallMethods() {
+        if (!config || !selectedOptions.version || !selectedOptions.product || !selectedOptions.cpu_arch || !selectedOptions.os) return;
+
+        var version = config.versions[selectedOptions.version];
+        var productSeries = version.product_series;
+        var product = productSeries[selectedOptions.product];
+        var cpuArch = product.cpu_architectures[selectedOptions.cpu_arch];
+        var operatingSystems = cpuArch.operating_systems[selectedOptions.os];
+        var installMethods = operatingSystems.install_methods;
+        var installMethodKeys = Object.keys(installMethods);
+
+        var installMethodHtml = '<div class="mobile-headings">安装方式</div>';
+        installMethodKeys.forEach(function(key, index) {
+            var installMethod = installMethods[key];
+            var selected = index === 0 ? 'selected' : '';
+            installMethodHtml += '<div class="values-element block-' + installMethodKeys.length + ' install-install_method ' + selected + '" id="install_method-' + key + '">' + installMethod.name + '</div>';
+        });
+        $('#row-install_method').html(installMethodHtml);
+
+        if (installMethodKeys.length > 0) {
+            selectedOptions.install_method = installMethodKeys[0];
+            updateInstructions();
+        }
+    }
+
+    function updateInstructions() {
+        if (!config || !selectedOptions.version || !selectedOptions.product || !selectedOptions.cpu_arch || !selectedOptions.os || !selectedOptions.install_method) return;
+
+        var version = config.versions[selectedOptions.version];
+        var productSeries = version.product_series;
+        var product = productSeries[selectedOptions.product];
+        var cpuArch = product.cpu_architectures[selectedOptions.cpu_arch];
+        var operatingSystems = cpuArch.operating_systems[selectedOptions.os];
+        var installMethod = operatingSystems.install_methods[selectedOptions.install_method];
+        var steps = installMethod.steps;
+
+        if (!steps || steps.length === 0) {
+            $('#install-instructions').html('<p style="color: red;">暂无安装步骤</p>');
+            return;
+        }
+
+        var instructionsHtml = '';
+        steps.forEach(function(step, index) {
+            instructionsHtml += '<section>';
+            instructionsHtml += '<h3>' + (index + 1) + '. ' + step.title + '</h3>';
+            
+            if (step.commands && step.commands.length > 0) {
+                step.commands.forEach(function(command) {
+                    instructionsHtml += '<div class="highlight-default notranslate">';
+                    instructionsHtml += '<div class="highlight">';
+                    instructionsHtml += '<pre>' + escapeHtml(command) + '</pre>';
+                    instructionsHtml += '</div>';
+                    instructionsHtml += '</div>';
+                });
+            }
+            
+            instructionsHtml += '</section>';
+        });
+
+        $('#install-instructions').html(instructionsHtml);
+        $('#install-instructions').show();
+    }
+
+    function escapeHtml(text) {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function resetSelection(elem) {
         elem.parent().children().each(function () {
             $(this).removeClass("selected");
         });
     }
 
-    $.get_options = function () {
-        var options = {};
-        $('#col-values').children().each(function () {
-            var elem = $(this).find(".selected").each(function () {
-                var id = $(this).attr("id").split("-");
-                var category = id[0];
-                var value = id[1];
-                if (value === "version") {
-                    if (category === "cann")
-                        value = $(this).val();
-                    else
-                        value = $(this).data('version');
-                }
-                options[category] = value;
-            });
-        });
-        return options;
-    }
-
-    $.get_docker_os_versions = function (options) {
-        var os_versions = {};
-        $.each(docker_images, function (idx, image) {
-            var tag = image.split(":")[1];
-            var tag_items = tag.split("-");
-            var npu_type = tag_items[1];
-
-            var os = tag_items[2];
-            var index = os.search(/\d/);
-            var os_type = os.substring(0, index);
-            var os_version = os.substring(index);
-
-            if (options['os'] === os_type && options['npu'] === npu_type) {
-                if (!os_versions[os_type]) {
-                    os_versions[os_type] = new Set();
-                }
-                os_versions[os_type].add(os_version);
-            }
-        });
-        return os_versions;
-    }
-
-    $.update_os_verions = function () {
-        $("#row-os_version").find("div").not(":first").remove();
-        var options = $.get_options();
-        // update os_versions
-        var os_versions = $.get_docker_os_versions(options);
-        var selected_os_versions = os_versions[options['os']];
-        if (selected_os_versions == null) {
-            $('#row-os_version').append('<div class="values-element-disabled block-1 install-os_version" id="os_version-null" disabled>无可用版本</div>');
-        } else {
-            var version_length = selected_os_versions.size;
-            selected_os_versions.forEach(function (version) {
-                $('#row-os_version').append('<div class="values-element block-' + version_length + ' install-os_version" id="os_version-' + version + '">' + version + '</div>');
-            });
-            $("#row-os_version div:last-child").addClass("selected");
-        }
-    }
-
-    $.change_options_visible = function () {
-        var options = $.get_options();
-        if (options['install_type'] === 'direct') {
-            $("#header-os_version").hide();
-            $("#row-os_version").hide();
-        } else {
-            $("#header-os_version").show();
-            $("#row-os_version").show();
-        }
-    }
-
-    $.update_cann_versions = function () {
-        // reset table.
-        var cann_version_select = $('#cann-version');
-        cann_version_select.empty();
-        $.reset_selection(cann_version_select);
-        $('#driver-version').text("Driver");
-        $('#firmware-version').text("Firmware");
-
-        var options = $.get_options();
-        // not using docker.
-        if (options['install_type'] === "direct") {
-            // update select list.
-            $.each(package_info, function (key, value) {
-                if (options['npu'] in value) {
-                    cann_version_select.append(new Option("CANN: " + key, key));
-                }
-            });
-        } else {
-            $.each(package_info, function (key, value) {
-                // not all version has a docker image.
-                const option_tag = key.toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
-                const pkg_info = package_info[key][options['npu']];
-                for (const image of docker_images) {
-                    const image_tag = image.split(":")[1];
-                    if (image_tag.includes(option_tag) && pkg_info &&
-                        pkg_info.driver_version && pkg_info.firmware_version) {
-                        cann_version_select.append(new Option("CANN: " + key, key));
-                        break;
-                    }
-                }
-            });
-        }
-        if (cann_version_select.children().length < 1) {
-            cann_version_select.children().first().text('无可用版本');
-        }
-        cann_version_select.trigger('change');
-    }
-
     $("#col-values").on("click", ".values-element", function () {
-        id = $(this).attr("id");
-        fields = id.split("-");
-        if (fields[1] == "version")
-            return;
+        var id = $(this).attr("id");
+        var fields = id.split("-");
 
-        $.reset_selection($(this));
+        resetSelection($(this));
         $(this).addClass("selected");
 
-        // if os changed, update os version.
-        if (fields[0] === "os" || fields[0] === "npu") {
-            $.update_os_verions();
+        if (fields[0] === "version") {
+            selectedOptions.version = fields[1];
+            updateProductSeries();
+        } else if (fields[0] === "product") {
+            selectedOptions.product = fields[1];
+            updateCPUArchitectures();
+        } else if (fields[0] === "cpu_arch") {
+            selectedOptions.cpu_arch = fields[1];
+            updateOperatingSystems();
+        } else if (fields[0] === "os") {
+            selectedOptions.os = fields[1];
+            updateInstallMethods();
+        } else if (fields[0] === "install_method") {
+            selectedOptions.install_method = fields[1];
+            updateInstructions();
         }
-
-        // if install type changed, update options visible.
-        if (fields[0] === "install_type") {
-            $.change_options_visible();
-        }
-
-        // update_cann_version if any option changed.
-        $.update_cann_versions();
     });
 
-    $("#col-values").on("change", "select", function () {
-        // select cann, driver, formware versions.
-        $.reset_selection($(this));
-        $('#driver-version').text("Driver");
-        $('#firmware-version').text("Firmware");
-
-        if ($(this).val() !== "na") {
-            $(this).addClass("selected");
-            $('#driver-version').addClass("selected");
-            $('#firmware-version').addClass("selected");
-
-            var options = $.get_options();
-            var driver_version = package_info[options['cann']][options['npu']].driver_version;
-            var firmware_version = package_info[options['cann']][options['npu']].firmware_version;
-            $('#driver-version').text("Driver: " + driver_version);
-            $('#driver-version').data("version", driver_version);
-            $('#firmware-version').text("Firmware: " + firmware_version);
-            $('#firmware-version').data("version", firmware_version);
-        }
-        $.gen_content();
-    });
-
-    $.gen_content = function () {
-        // instructions need all options selected.
-        if ($('#cann-version').val() !== "na") {
-            $('#install-instructions').show();
-        } else {
-            $('#install-instructions').hide();
-            return
-        }
-
-        var options = $.get_options();
-
-        // install os dependency.
-        if (options['os'] === 'ubuntu') {
-            $('#install-dependencies-ubuntu').show();
-            $('#install-dependencies-openeuler').hide();
-        } else {
-            $('#install-dependencies-ubuntu').hide();
-            $('#install-dependencies-openeuler').show();
-        }
-
-        var driver_url = package_info[options['cann']][options['npu']][options['arch']].driver_url;
-        var firmware_url = package_info[options['cann']][options['npu']].firmware_url;
-        var cann_url = package_info[options['cann']][options['arch']].url;
-        var kernel_url = package_info[options['cann']][options['npu']].kernel_url;
-
-        if (kernel_url == undefined) {
-            kernel_url = package_info[options['cann']][options['npu']][options['arch']].kernel_url;
-        }
-
-        var parts = driver_url.split("/");
-        var driver_name = parts[parts.length - 1];
-        parts = firmware_url.split("/");
-        var firmware_name = parts[parts.length - 1];
-        parts = cann_url.split("/");
-        var cann_name = parts[parts.length - 1];
-
-        // download and install driver
-        $('#codecell6').html('wget "' + driver_url + '"\nsudo sh ' + driver_name + ' --full --install-for-all');
-
-        // download and install firmware
-        $('#codecell8').html('wget "' + firmware_url + '"\nsudo sh ' + firmware_name + ' --full');
-
-        if (options['install_type'] === 'direct') {
-            // download and install cann
-            $('#codecell11').html('wget "' + cann_url + '"\nsh ' + cann_name + ' --full');
-
-            // download and install kernel if exist.
-            if (kernel_url == null) {
-                $('#install_kernel_section').hide();
-            }
-            else {
-                parts = kernel_url.split("/");
-                var kernel_name = parts[parts.length - 1];
-                $('#install_kernel_section').show();
-                // download and install kernel
-                $('#codecell14').html('wget "' + kernel_url + '"\nsh ' + kernel_name + ' --install');
-            }
-
-            $('#use_docker_section').hide();
-            $('#install_cann_section').show();
-        } else {
-            const option_tag = options['cann'].toLowerCase() + "-" + options['npu'] + "-" + options['os'] + options['os_version'];
-            for (let i = 0; i < docker_images.length; i++) {
-                const image_tag = docker_images[i].split(":")[1];
-                if (image_tag.includes(option_tag)) {
-                    const dockerCommand = `
-docker run \\
-    --name cann_container \\
-    --device /dev/davinci1 \\
-    --device /dev/davinci_manager \\
-    --device /dev/devmm_svm \\
-    --device /dev/hisi_hdc \\
-    -v /usr/local/dcmi:/usr/local/dcmi \\
-    -v /usr/local/bin/npu-smi:/usr/local/bin/npu-smi \\
-    -v /usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/ \\
-    -v /usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info \\
-    -v /etc/ascend_install.info:/etc/ascend_install.info \\
-    -it ${docker_images[i]} bash
-                    `;
-
-                    $('#codecell16').html(dockerCommand.trim());
-                    break;
-                }
-            }
-            $('#install_cann_section').hide();
-            $('#use_docker_section').show();
-        }
-    }
-
-    $.update_os_verions();
-    $.change_options_visible();
-    $.update_cann_versions();
-    
+    loadConfig();
 });
