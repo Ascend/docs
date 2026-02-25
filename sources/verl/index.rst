@@ -4,9 +4,9 @@ verl
 .. toctree::
    :maxdepth: 3
 
-   ascend_quick_start.rst
-   ascend_sglang_quick_start.rst
-   dockerfile_build_guidance.rst
-   ascend_profiling_en.rst
-   ascend_profiling_zh.rst
-   ascend_consistency.rst
+   ../_generated/sources/verl/ascend_quick_start
+   ../_generated/sources/verl/ascend_sglang_quick_start
+   ../_generated/sources/verl/dockerfile_build_guidance
+   ../_generated/sources/verl/ascend_profiling_en
+   ../_generated/sources/verl/ascend_profiling_zh
+   ../_generated/sources/verl/ascend_consistency
