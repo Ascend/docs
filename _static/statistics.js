@@ -5,3 +5,17 @@ var _hmt = _hmt || [];
   var s = document.getElementsByTagName("script")[0]; 
   s.parentNode.insertBefore(hm, s);
 })();
+
+document.addEventListener('DOMContentLoaded', function () {
+  var aside = document.querySelector('.wy-breadcrumbs-aside');
+  if (!aside) return;
+  var anchors = aside.querySelectorAll('a');
+  if (anchors.length) {
+    anchors.forEach(function (a) {
+      a.setAttribute('href', 'https://github.com/Ascend/docs');
+      a.setAttribute('target', '_blank');
+      a.textContent = '访问 GitHub 仓库';
+    });
+  }
+});
+
