@@ -158,14 +158,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
          <p class="card-desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs。</p>
-         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a><span class="split">|</span><a href="sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a></div>
       </div>
 
       <!-- ms-swift -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/swift.png')"></div><h3 class="card-title">ms-swift</h3></div>
          <p class="card-desc">高效微调框架，支持 600+ LLM 和 300+ MLLM 适配昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a><span class="split">|</span><a href="sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/ms-swift/source/BestPractices/NPU-support.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/ms-swift/source/BestPractices/NPU-support.html">快速上手</a></div>
       </div>
 
       <!-- ROLL -->
@@ -193,14 +193,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/VeOmni.png')"></div><h3 class="card-title">VeOmni</h3></div>
          <p class="card-desc">Scaling Any Modality Model Training with Model-Centric Distributed Recipe Zoo。</p>
-         <div class="card-footer"><a href="https://github.com/ByteDance-Seed/VeOmni">官方链接</a><span class="split">|</span><a href="sources/VeOmni/get_started/installation/install_ascend.html">安装指南</a><span class="split">|</span><a href="sources/VeOmni/hardware_support/get_started_npu.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ByteDance-Seed/VeOmni">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/VeOmni/get_started/installation/install_ascend.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/VeOmni/hardware_support/get_started_npu.html">快速上手</a></div>
       </div>
 
       <!-- verl -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/volcano.png')"></div><h3 class="card-title">verl</h3></div>
          <p class="card-desc">用于 LLM 的强化学习训练库，适配昇腾并行计算方案。</p>
-         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/verl/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/verl/ascend_quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/verl/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/verl/ascend_quick_start.html">快速上手</a></div>
       </div>
 
    </div>
