@@ -1,7 +1,7 @@
 安装指南
 ===========
 
-本文将介绍如何在昇腾环境下使用transfomers，帮助开发者完成transformers的安装。
+本文将介绍如何在昇腾环境下使用 transformers，帮助开发者完成 transformers 的安装。
 
 .. note:: 
 

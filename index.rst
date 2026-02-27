@@ -7,7 +7,7 @@
    <style>
       :root {
           --ascend-blue: #0066cc; /* 与导航栏颜色严格一致 */
-          --text-main: #0066cc
+          --text-main: #0066cc;
           --text-sub: #6e6e73;
           --border-color: #e1e4e8;
       }
@@ -146,7 +146,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformers</h3></div>
          <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
-         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/fine-tune.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -179,7 +179,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">TorchTitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
-         <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速 上手</a></div>
+         <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- trl -->
@@ -212,14 +212,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
          <p class="card-desc">C/C++ 实现的 Meta LLaMa 架构，深度适配昇腾后端。</p>
-         <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速>上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- LMDeploy -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">LMDeploy</h3></div>
          <p class="card-desc">用于压缩、部署和服务 LLM 的工具包。</p>
-         <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="sources/lm_deploy/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_deploy/quick_start.html">快速上>手</a></div>
+         <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="sources/lm_deploy/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_deploy/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- ONNX Runtime -->
@@ -247,7 +247,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchchat</h3></div>
          <p class="card-desc">基于 PyTorch 的对话推理交互库。</p>
-         <div class="card-footer"><a href="https://github.com/pytorch/torchchat">官方链接</a><span class="split">|</span><a href="sources/torchchat/install.html">安装指南</a><span class="split">|</span><a href="sources/torchchat/quick_start.html">快速上>手</a></div>
+         <div class="card-footer"><a href="https://github.com/pytorch/torchchat">官方链接</a><span class="split">|</span><a href="sources/torchchat/install.html">安装指南</a><span class="split">|</span><a href="sources/torchchat/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -259,7 +259,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffusers.png')"></div><h3 class="card-title">Diffusers</h3></div>
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快>速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- LM-Eval -->
@@ -273,7 +273,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Open CLIP</h3></div>
          <p class="card-desc">开源 CLIP 模型实现，支持多模态语义对齐。</p>
-         <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/quick_start.html">>快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- OpenCompass -->
@@ -301,7 +301,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">timm</h3></div>
          <p class="card-desc">PyTorch 图像模型库适配版本。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/install.html">安装指南</a><span class="split">|</span><a href="sources/timm/quick_start.html">快 速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/install.html">安装指南</a><span class="split">|</span><a href="sources/timm/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- WeNet -->
