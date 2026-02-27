@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>微调预训练模型 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="推理" href="inference.html" />
+    <link rel="prev" title="模型获取" href="modeldownload.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Transformers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modeldownload.html">模型获取</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">微调预训练模型</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">前置准备</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">安装必要库</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">加载数据集</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">预处理数据集</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">训练</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id8">加载模型</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">超参数调优</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">模型评估</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trainer">Trainer</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">预训练全流程</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="inference.html">推理</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Transformers</a></li>
+      <li class="breadcrumb-item active">微调预训练模型</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/transformers/fine-tune.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>微调预训练模型<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>阅读本篇前，请确保已按照 <a class="reference internal" href="install.html"><span class="doc">安装指南</span></a> 准备好昇腾环境及transformers！</p>
+</div>
+<p>大模型微调本质是利用特定领域的数据集对已预训练的大模型进行进一步训练的过程。它旨在优化模型在特定任务上的性能，使模型能够更好地适应和完成特定领域的任务。
+本文在使用transformers库选定相关数据集和预训练模型的基础上，通过超参数调优完成对模型的微调。</p>
+<section id="id2">
+<h2>前置准备<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>安装必要库<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>pip<span class="w"> </span>install<span class="w"> </span>transformers<span class="w"> </span>datasets<span class="w"> </span>evaluate<span class="w"> </span>accelerate<span class="w"> </span>scikit-learn
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3>加载数据集<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>模型训练需要使用数据集，这里使用 <a class="reference external" href="https://huggingface.co/datasets/Yelp/yelp_review_full">Yelp Reviews dataset</a> ：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="c1"># load_dataset 会自动下载数据集并将其保存到本地路径中</span>
+<span class="linenos">4</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;yelp_review_full&quot;</span><span class="p">)</span>
+<span class="linenos">5</span><span class="c1">#输出数据集的第100条数据</span>
+<span class="linenos">6</span><span class="n">dataset</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="mi">100</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>输出如下:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s1">&#39;label&#39;</span>:<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="s1">&#39;text&#39;</span>:<span class="w"> </span><span class="s1">&#39;My expectations for McDonalds are t rarely high. But for one to still fail so spectacularly...that takes something special!\\n</span>
+<span class="s1">The cashier took my friends\&#39;</span>s<span class="w"> </span>order,<span class="w"> </span><span class="k">then</span><span class="w"> </span>promptly<span class="w"> </span>ignored<span class="w"> </span>me.<span class="w"> </span>I<span class="w"> </span>had<span class="w"> </span>to<span class="w"> </span>force<span class="w"> </span>myself<span class="w"> </span><span class="k">in</span><span class="w"> </span>front<span class="w"> </span>of<span class="w"> </span>a<span class="w"> </span>cashier<span class="w"> </span>who<span class="w"> </span>opened<span class="w"> </span>his<span class="w"> </span>register<span class="w"> </span>to<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>on<span class="w"> </span>the
+person<span class="w"> </span>BEHIND<span class="w"> </span>me.<span class="w"> </span>I<span class="w"> </span>waited<span class="w"> </span>over<span class="w"> </span>five<span class="w"> </span>minutes<span class="w"> </span><span class="k">for</span><span class="w"> </span>a<span class="w"> </span>gigantic<span class="w"> </span>order<span class="w"> </span>that<span class="w"> </span>included<span class="w"> </span>precisely<span class="w"> </span>one<span class="w"> </span>kid<span class="se">\&#39;</span>s<span class="w"> </span>meal.<span class="w"> </span>After<span class="w"> </span>watching<span class="w"> </span>two<span class="w"> </span>people<span class="w"> </span>who<span class="w"> </span>ordered<span class="w"> </span>after
+me<span class="w"> </span>be<span class="w"> </span>handed<span class="w"> </span>their<span class="w"> </span>food,<span class="w"> </span>I<span class="w"> </span>asked<span class="w"> </span>where<span class="w"> </span>mine<span class="w"> </span>was.<span class="w"> </span>The<span class="w"> </span>manager<span class="w"> </span>started<span class="w"> </span>yelling<span class="w"> </span>at<span class="w"> </span>the<span class="w"> </span>cashiers<span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="se">\\</span><span class="s2">&quot;serving off their orders\\&quot;</span><span class="w"> </span>when<span class="w"> </span>they<span class="w"> </span>didn<span class="se">\&#39;</span>t<span class="w"> </span>have
+their<span class="w"> </span>food.<span class="w"> </span>But<span class="w"> </span>neither<span class="w"> </span>cashier<span class="w"> </span>was<span class="w"> </span>anywhere<span class="w"> </span>near<span class="w"> </span>those<span class="w"> </span>controls,<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>manager<span class="w"> </span>was<span class="w"> </span>the<span class="w"> </span>one<span class="w"> </span>serving<span class="w"> </span>food<span class="w"> </span>to<span class="w"> </span>customers<span class="w"> </span>and<span class="w"> </span>clearing<span class="w"> </span>the<span class="w"> </span>boards.<span class="se">\\</span>nThe
+manager<span class="w"> </span>was<span class="w"> </span>rude<span class="w"> </span>when<span class="w"> </span>giving<span class="w"> </span>me<span class="w"> </span>my<span class="w"> </span>order.<span class="w"> </span>She<span class="w"> </span>didn<span class="se">\&#39;</span>t<span class="w"> </span>make<span class="w"> </span>sure<span class="w"> </span>that<span class="w"> </span>I<span class="w"> </span>had<span class="w"> </span>everything<span class="w"> </span>ON<span class="w"> </span>MY<span class="w"> </span>RECEIPT,<span class="w"> </span>and<span class="w"> </span>never<span class="w"> </span>even<span class="w"> </span>had<span class="w"> </span>the<span class="w"> </span>decency<span class="w"> </span>to<span class="w"> </span>apologize<span class="w"> </span>that
+I<span class="w"> </span>felt<span class="w"> </span>I<span class="w"> </span>was<span class="w"> </span>getting<span class="w"> </span>poor<span class="w"> </span>service.<span class="se">\\</span>nI<span class="se">\&#39;</span>ve<span class="w"> </span>eaten<span class="w"> </span>at<span class="w"> </span>various<span class="w"> </span>McDonalds<span class="w"> </span>restaurants<span class="w"> </span><span class="k">for</span><span class="w"> </span>over<span class="w"> </span><span class="m">30</span><span class="w"> </span>years.<span class="w"> </span>I<span class="se">\&#39;</span>ve<span class="w"> </span>worked<span class="w"> </span>at<span class="w"> </span>more<span class="w"> </span>than<span class="w"> </span>one<span class="w"> </span>location.<span class="w"> </span>I<span class="w"> </span>expect
+bad<span class="w"> </span>days,<span class="w"> </span>bad<span class="w"> </span>moods,<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>occasional<span class="w"> </span>mistake.<span class="w"> </span>But<span class="w"> </span>I<span class="w"> </span>have<span class="w"> </span>yet<span class="w"> </span>to<span class="w"> </span>have<span class="w"> </span>a<span class="w"> </span>decent<span class="w"> </span>experience<span class="w"> </span>at<span class="w"> </span>this<span class="w"> </span>store.<span class="w"> </span>It<span class="w"> </span>will<span class="w"> </span>remain<span class="w"> </span>a<span class="w"> </span>place<span class="w"> </span>I<span class="w"> </span>avoid<span class="w"> </span>unless<span class="w"> </span>someone
+<span class="k">in</span><span class="w"> </span>my<span class="w"> </span>party<span class="w"> </span>needs<span class="w"> </span>to<span class="w"> </span>avoid<span class="w"> </span>illness<span class="w"> </span>from<span class="w"> </span>low<span class="w"> </span>blood<span class="w"> </span>sugar.<span class="w"> </span>Perhaps<span class="w"> </span>I<span class="w"> </span>should<span class="w"> </span>go<span class="w"> </span>back<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>racially<span class="w"> </span>biased<span class="w"> </span>service<span class="w"> </span>of<span class="w"> </span>Steak<span class="w"> </span>n<span class="w"> </span>Shake<span class="w"> </span>instead!<span class="err">&#39;</span><span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>预处理数据集<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>预处理数据集需要使用AutoTokenizer，它用来自动获取与模型匹配的分词器，分词器根据规则将文本拆分为标记，并转换为张量作为模型输入，
+下面用到了Meta-Llama-3-8B-Instruct模型，下载模型请转至 <a class="reference external" href="./modeldownload.html">模型获取</a>，以下是一个示例：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoTokenizer</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="c1">#使用分词器处理文本</span>
+<span class="linenos">5</span><span class="n">encoded_input</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="s2">&quot;Do not meddle in the affairs of wizards, for they are subtle and quick to anger.&quot;</span><span class="p">)</span>
+<span class="linenos">6</span><span class="nb">print</span><span class="p">(</span><span class="n">encoded_input</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出如下:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s1">&#39;input_ids&#39;</span>:<span class="w"> </span><span class="o">[</span><span class="m">128000</span>,<span class="w"> </span><span class="m">5519</span>,<span class="w"> </span><span class="m">539</span>,<span class="w"> </span><span class="m">1812</span>,<span class="w"> </span><span class="m">91485</span>,<span class="w"> </span><span class="m">304</span>,<span class="w"> </span><span class="m">279</span>,<span class="w"> </span><span class="m">22747</span>,<span class="w"> </span><span class="m">315</span>,<span class="w"> </span><span class="m">89263</span>,<span class="w"> </span><span class="m">11</span>,<span class="w"> </span><span class="m">369</span>,<span class="w"> </span><span class="m">814</span>,<span class="w"> </span><span class="m">527</span>,<span class="w"> </span><span class="m">27545</span>,<span class="w"> </span><span class="m">323</span>,<span class="w"> </span><span class="m">4062</span>,<span class="w"> </span><span class="m">311</span>,<span class="w"> </span><span class="m">19788</span>,<span class="w"> </span><span class="m">13</span><span class="o">]</span>,
+<span class="w"> </span><span class="s1">&#39;attention_mask&#39;</span>:<span class="w"> </span><span class="o">[</span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span><span class="o">]}</span>
+</pre></div>
+</div>
+<p>接着使用dataset.map方法对数据集进行预处理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">def</span><span class="w"> </span><span class="nf">tokenize_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+<span class="linenos">2</span>    <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span><span class="n">tokenized_datasets</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>初次进行预处理需要一定时间，内容如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>Asking<span class="w"> </span>to<span class="w"> </span>pad<span class="w"> </span>to<span class="w"> </span>max_length<span class="w"> </span>but<span class="w"> </span>no<span class="w"> </span>maximum<span class="w"> </span>length<span class="w"> </span>is<span class="w"> </span>provided<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>model<span class="w"> </span>has<span class="w"> </span>no<span class="w"> </span>predefined<span class="w"> </span>maximum<span class="w"> </span>length.<span class="w"> </span>Default<span class="w"> </span>to<span class="w"> </span>no<span class="w"> </span>padding.
+<span class="linenos">2</span>Asking<span class="w"> </span>to<span class="w"> </span>truncate<span class="w"> </span>to<span class="w"> </span>max_length<span class="w"> </span>but<span class="w"> </span>no<span class="w"> </span>maximum<span class="w"> </span>length<span class="w"> </span>is<span class="w"> </span>provided<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>model<span class="w"> </span>has<span class="w"> </span>no<span class="w"> </span>predefined<span class="w"> </span>maximum<span class="w"> </span>length.<span class="w"> </span>Default<span class="w"> </span>to<span class="w"> </span>no<span class="w"> </span>truncation.
+<span class="linenos">3</span>Map:<span class="w"> </span><span class="m">100</span>%<span class="p">|</span>████████████████████████████████████████████████████████████████████████<span class="p">|</span><span class="w"> </span><span class="m">650000</span>/650000<span class="w"> </span><span class="o">[</span><span class="m">03</span>:27&lt;<span class="m">00</span>:00,<span class="w"> </span><span class="m">3139</span>.47<span class="w"> </span>examples/s<span class="o">]</span>
+<span class="linenos">4</span>Map:<span class="w"> </span><span class="m">100</span>%<span class="p">|</span>██████████████████████████████████████████████████████████████████████████<span class="p">|</span><span class="w"> </span><span class="m">50000</span>/50000<span class="w"> </span><span class="o">[</span><span class="m">00</span>:15&lt;<span class="m">00</span>:00,<span class="w"> </span><span class="m">3156</span>.92<span class="w"> </span>examples/s<span class="o">]</span>
+</pre></div>
+</div>
+<p>训练全部的数据集会耗费更长的时间，通常将其划分为较小的训练集和验证集，以提高训练速度：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">small_train_dataset</span> <span class="o">=</span> <span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="linenos">2</span><span class="n">small_eval_dataset</span> <span class="o">=</span> <span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span><span class="c1"># 下面是加载全训练集和验证集</span>
+<span class="linenos">5</span><span class="c1"># full_train_dataset = tokenized_datasets[&quot;train&quot;]</span>
+<span class="linenos">6</span><span class="c1"># full_eval_dataset = tokenized_datasets[&quot;test&quot;]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h2>训练<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<section id="id8">
+<h3>加载模型<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>使用AutoModelForCausalLM将自动加载模型：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>超参数调优<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>超参数调优用于激活不同训练选项的标志，它定义了关于模型的更高层次的概念，例如模型复杂程度或学习能力，下边使用TrainingArguments类来加载：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">TrainingArguments</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;test_trainer&quot;</span><span class="p">,</span> <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>模型评估<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>模型评估用于衡量模型在给定数据集上的表现，包括准确率，完全匹配速率，平均并交集点等，下面是使用方式：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span>
+<span class="linenos"> 2</span><span class="nn">import</span> <span class="n">sklearn</span>
+<span class="linenos"> 3</span><span class="kn">import</span><span class="w"> </span><span class="nn">evaluate</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">metric</span> <span class="o">=</span> <span class="n">evaluate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="c1">#计算预测的准确性,并将预测传递给compute</span>
+<span class="linenos"> 8</span><span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_pred</span><span class="p">):</span>
+<span class="linenos"> 9</span>    <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_pred</span>
+<span class="linenos">10</span>    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">11</span>    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="trainer">
+<h3>Trainer<a class="headerlink" href="#trainer" title="Link to this heading"></a></h3>
+<p>使用已加载的模型、训练参数、训练和测试数据集以及评估函数创建一个Trainer对象，并调用trainer.train()来微调模型：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Trainer</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+<span class="linenos"> 4</span>    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos"> 5</span>    <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+<span class="linenos"> 6</span>    <span class="n">train_dataset</span><span class="o">=</span><span class="n">small_train_dataset</span><span class="p">,</span>
+<span class="linenos"> 7</span>    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">small_eval_dataset</span><span class="p">,</span>
+<span class="linenos"> 8</span>    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>
+<span class="linenos"> 9</span><span class="p">)</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>预训练全流程<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="linenos"> 2</span><span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="linenos"> 3</span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="linenos"> 4</span><span class="kn">import</span><span class="w"> </span><span class="nn">sklearn</span>
+<span class="linenos"> 5</span><span class="kn">import</span><span class="w"> </span><span class="nn">evaluate</span>
+<span class="linenos"> 6</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">TrainingArguments</span>
+<span class="linenos"> 7</span><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span>
+<span class="linenos">10</span><span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;npu:0&quot;</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;cpu&quot;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1"># 加载分词器和模型</span>
+<span class="linenos">13</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+<span class="linenos">14</span><span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+<span class="linenos">15</span>    <span class="n">model_id</span><span class="p">,</span>
+<span class="linenos">16</span>    <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span>
+<span class="linenos">17</span>    <span class="n">device_map</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+<span class="linenos">18</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="linenos">19</span>
+<span class="linenos">20</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;yelp_review_full&quot;</span><span class="p">)</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1">#分词函数</span>
+<span class="linenos">23</span><span class="k">def</span><span class="w"> </span><span class="nf">tokenize_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+<span class="linenos">24</span>    <span class="k">return</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">&quot;max_length&quot;</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="n">tokenized_datasets</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="n">small_train_dataset</span> <span class="o">=</span> <span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="linenos">29</span><span class="n">small_eval_dataset</span> <span class="o">=</span> <span class="n">tokenized_datasets</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="c1"># 加载评估指标</span>
+<span class="linenos">32</span><span class="n">metric</span> <span class="o">=</span> <span class="n">evaluate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;accuracy&quot;</span><span class="p">)</span>
+<span class="linenos">33</span>
+<span class="linenos">34</span><span class="c1"># 定义评估指标的计算函数</span>
+<span class="linenos">35</span><span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_pred</span><span class="p">):</span>
+<span class="linenos">36</span>    <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_pred</span>
+<span class="linenos">37</span>    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="linenos">38</span>    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span> <span class="n">references</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+<span class="linenos">39</span>
+<span class="linenos">40</span><span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;test_trainer&quot;</span><span class="p">,</span> <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">&quot;epoch&quot;</span><span class="p">)</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+<span class="linenos">43</span>    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="linenos">44</span>    <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+<span class="linenos">45</span>    <span class="n">train_dataset</span><span class="o">=</span><span class="n">small_train_dataset</span><span class="p">,</span>
+<span class="linenos">46</span>    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">small_eval_dataset</span><span class="p">,</span>
+<span class="linenos">47</span>    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>
+<span class="linenos">48</span><span class="p">)</span>
+<span class="linenos">49</span>
+<span class="linenos">50</span><span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>训练完成后得到以下结果：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="p">|</span>█████████████████████████████████<span class="p">|</span><span class="w"> </span><span class="o">[</span><span class="m">375</span>/375<span class="w"> </span><span class="m">06</span>:21,<span class="w"> </span>Epoch<span class="w"> </span><span class="m">3</span>/3<span class="o">]</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="o">=====</span><span class="w">  </span><span class="o">=============</span><span class="w">  </span><span class="o">===============</span><span class="w">  </span><span class="o">======</span>
+<span class="linenos"> 4</span>Epoch<span class="w">  </span>Training<span class="w"> </span>Loss<span class="w">  </span>Validation<span class="w"> </span>Loss<span class="w">  </span><span class="nv">Accuracy</span>
+<span class="linenos"> 5</span><span class="o">=====</span><span class="w">  </span><span class="o">=============</span><span class="w">  </span><span class="o">===============</span><span class="w">  </span><span class="o">======</span>
+<span class="linenos"> 6</span><span class="m">1</span><span class="w">       </span>No<span class="w"> </span>log<span class="w">          </span><span class="m">1</span>.155628<span class="w">    </span><span class="m">0</span>.499000
+<span class="linenos"> 7</span><span class="m">2</span><span class="w">       </span>No<span class="w"> </span>log<span class="w">          </span><span class="m">0</span>.994618<span class="w">    </span><span class="m">0</span>.574000
+<span class="linenos"> 8</span><span class="m">3</span><span class="w">       </span>No<span class="w"> </span>log<span class="w">          </span><span class="m">1</span>.026123<span class="w">    </span><span class="m">0</span>.590000
+<span class="linenos"> 9</span><span class="o">=====</span><span class="w">  </span><span class="o">=============</span><span class="w">  </span><span class="o">===============</span><span class="w">  </span><span class="o">======</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span>TrainOutput<span class="o">(</span><span class="nv">global_step</span><span class="o">=</span><span class="m">375</span>,<span class="w"> </span><span class="nv">training_loss</span><span class="o">=</span><span class="m">1</span>.0557311197916666,<span class="w"> </span><span class="nv">metrics</span><span class="o">={</span><span class="s1">&#39;train_runtime&#39;</span>:<span class="w"> </span><span class="m">384</span>.55,<span class="w"> </span><span class="s1">&#39;train_samples_per_second&#39;</span>:<span class="w"> </span><span class="m">7</span>.801,
+<span class="linenos">12</span><span class="s1">&#39;train_steps_per_second&#39;</span>:<span class="w"> </span><span class="m">0</span>.975,<span class="w"> </span><span class="s1">&#39;total_flos&#39;</span>:<span class="w"> </span><span class="m">789354427392000</span>.0,<span class="w"> </span><span class="s1">&#39;train_loss&#39;</span>:<span class="w"> </span><span class="m">1</span>.0557311197916666,<span class="w"> </span><span class="s1">&#39;epoch&#39;</span>:<span class="w"> </span><span class="m">3</span>.0<span class="o">})</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="modeldownload.html" class="btn btn-neutral float-left" title="模型获取" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="inference.html" class="btn btn-neutral float-right" title="推理" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

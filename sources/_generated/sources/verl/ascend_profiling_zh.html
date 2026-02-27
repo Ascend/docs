@@ -1,0 +1,556 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" />
+    <link rel="next" title="Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)" href="ascend_consistency.html" />
+    <link rel="prev" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)" href="ascend_profiling_en.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ascend_quick_start.html">Ascend Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_sglang_quick_start.html">Ascend Quickstart with SGLang Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_en.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fsdp-mindspeed-megatron">在昇腾设备上基于 FSDP 或 MindSpeed (Megatron) 后端进行性能数据采集</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id1">配置</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">全局采集控制</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#profiler">角色profiler控制</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">示例</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">禁用采集</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">端到端采集</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">离散模式采集</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">可视化</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">进阶指南：精细化采集</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">背景与挑战</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">解决方案：关键路径采样</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rollout">1. Rollout 阶段精细化采集</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compute-log-prob-actor-ref">2. compute_log_prob (Actor &amp; Ref) 阶段精细化采集</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#update-policy-actor-critic">3. update_policy (Actor &amp; Critic) 阶段精细化采集</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_consistency.html">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/verl/ascend_profiling_zh.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performance-data-collection-based-on-fsdp-or-mindspeed-megatron-on-ascend-devices-zh">
+<h1>Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)<a class="headerlink" href="#performance-data-collection-based-on-fsdp-or-mindspeed-megatron-on-ascend-devices-zh" title="Link to this heading"></a></h1>
+<section id="fsdp-mindspeed-megatron">
+<h2>在昇腾设备上基于 FSDP 或 MindSpeed (Megatron) 后端进行性能数据采集<a class="headerlink" href="#fsdp-mindspeed-megatron" title="Link to this heading"></a></h2>
+<p>Last updated: 12/20/2025.</p>
+<p>这是一份在昇腾设备上基于FSDP或MindSpeed(Megatron)后端，使用GRPO或DAPO算法进行数据采集的教程。</p>
+</section>
+<section id="id1">
+<h2>配置<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>使用两级profile设置来控制数据采集</p>
+<ul class="simple">
+<li><p>全局采集控制：使用verl/trainer/config/ppo_trainer.yaml(FSDP)，或verl/trainer/config/ppo_megatron_trainer.yaml(MindSpeed)中的配置项控制采集的模式和步数。</p></li>
+<li><p>角色profile控制：通过每个角色中的配置项控制等参数。</p></li>
+</ul>
+<section id="id2">
+<h3>全局采集控制<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>通过 ppo_trainer.yaml 中的参数控制采集步数和模式：</p>
+<ul class="simple">
+<li><p>global_profiler: 控制采集的rank和模式</p>
+<ul>
+<li><p>tool: 使用的采集工具，选项有 nsys、npu、torch、torch_memory。</p></li>
+<li><p>steps: 此参数可以设置为包含采集步数的列表，例如 [2, 4]，表示将采集第2步和第4步。如果设置为 null，则不进行采集。</p></li>
+<li><p>save_path: 保存采集数据的路径。默认值为 &quot;outputs/profile&quot;。</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="profiler">
+<h3>角色profiler控制<a class="headerlink" href="#profiler" title="Link to this heading"></a></h3>
+<p>在每个角色的 <code class="docutils literal notranslate"><span class="pre">profiler</span></code> 字段中，您可以控制该角色的采集模式。</p>
+<ul class="simple">
+<li><p>enable: 是否为此角色启用性能分析。</p></li>
+<li><p>all_ranks: 是否从所有rank收集数据。</p></li>
+<li><p>ranks: 要收集数据的rank列表。如果为空，则不收集数据。</p></li>
+<li><p>tool_config: 此角色使用的性能分析工具的配置。</p></li>
+</ul>
+<p>通过每个角色的 <code class="docutils literal notranslate"><span class="pre">profiler.tool_config.npu</span></code> 中的参数控制具体采集行为：</p>
+<ul class="simple">
+<li><p>level: 采集级别—选项有 level_none、level0、level1 和 level2</p>
+<ul>
+<li><p>level_none: 禁用所有基于级别的数据采集（关闭 profiler_level）。</p></li>
+<li><p>level0: 采集高级应用数据、底层NPU数据和NPU上的算子执行详情。在权衡数据量和分析能力后，level0是推荐的默认配置。</p></li>
+<li><p>level1: 在level0基础上增加CANN层AscendCL数据和NPU上的AI Core性能指标。</p></li>
+<li><p>level2: 在level1基础上增加CANN层Runtime数据和AI CPU指标。</p></li>
+</ul>
+</li>
+<li><p>contents: 控制采集内容的选项列表，例如
+npu、cpu、memory、shapes、module、stack。</p>
+<ul>
+<li><p>npu: 是否采集设备端性能数据。</p></li>
+<li><p>cpu: 是否采集主机端性能数据。</p></li>
+<li><p>memory: 是否启用内存分析。</p></li>
+<li><p>shapes: 是否记录张量形状。</p></li>
+<li><p>module: 是否记录框架层Python调用栈信息。相较于stack，更推荐使用module记录调用栈信息，因其产生的性能膨胀更低。</p></li>
+<li><p>stack: 是否记录算子调用栈信息。</p></li>
+</ul>
+</li>
+<li><p>analysis: 启用自动数据解析。</p></li>
+<li><p>discrete: 使用离散模式。</p></li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>示例<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>禁用采集<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"> </span><span class="c1"># disable profile</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>端到端采集<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">save_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./outputs/profile</span>
+<span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">actor</span><span class="p">:</span><span class="w">  </span><span class="c1"># 设置 actor role 的 profiler 采集配置参数</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">               </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">npu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cpu</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 控制采集列表，默认cpu、npu，可配置memory、shapes、module等</span>
+
+<span class="w">  </span><span class="c1"># rollout &amp; ref follow actor settings</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>离散模式采集<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">save_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./outputs/profile</span>
+<span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># 设置为 True 以采集训练阶段</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">         </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 全局 Rank 0</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">               </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">npu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cpu</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">rollout</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># 设置为 True 以采集推理阶段</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">         </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># 在 Agent Loop 模式下，此处指推理实例的 Replica Rank (例如第 0 个实例)</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># Agent Loop 模式下必须开启离散模式</span>
+<span class="w">   </span><span class="c1"># ref follow actor settings</span>
+</pre></div>
+</div>
+<p><strong>Agent Loop 模式说明</strong>：</p>
+<p>在 <a class="reference external" href="../advance/agent_loop.rst">Agent Loop</a> 模式下，Rollout 阶段的性能数据 <strong>必须使用离散模式</strong> 采集，此时 Profiler 由推理引擎后端触发。</p>
+<ol class="arabic simple">
+<li><p>Rank 定义：Rollout 配置中的 ranks 指代 Replica Rank（推理实例索引），而非全局 Rank。</p></li>
+<li><p>推理引擎支持：当前支持vLLM和SGLang引擎，无需额外设置。具体说明如下：</p>
+<ul class="simple">
+<li><p>vLLM 引擎：自动采集 AsyncLLM 调度栈及推理进程性能数据。不支持设置 analysis（默认不解析，需离线解析）和 profiler_level（默认 level1）。</p></li>
+<li><p>SGLang 引擎：自动采集推理进程性能数据。不支持 contents 中的 memory 配置项。不支持设置 analysis（默认解析）和 profiler_level（默认 level0）。</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="id7">
+<h2>可视化<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>采集后的数据存放在用户设置的save_path下，可通过 <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/80RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html">MindStudio Insight</a> 工具进行可视化。</p>
+<p>另外在Linux环境下，MindStudio Insight工具提供了 <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0130.html">JupyterLab插件</a> 形态，提供更直观和交互式强的操作界面。JupyterLab插件优势如下：</p>
+<ul class="simple">
+<li><p>无缝集成：支持在Jupyter环境中直接运行MindStudio Insight工具，无需切换平台，无需拷贝服务器上的数据，实现数据即采即用。</p></li>
+<li><p>快速启动：通过JupyterLab的命令行或图形界面，可快速启动MindStudio Insight工具。</p></li>
+<li><p>运行流畅：在Linux环境下，通过JupyterLab环境启动MindStudio Insight，相较于整包通信，有效解决了运行卡顿问题，操作体验显著提升。</p></li>
+<li><p>远程访问：支持远程启动MindStudio Insight，可通过本地浏览器远程连接服务直接进行可视化分析，缓解了大模型训练或推理数据上传和下载的困难。</p></li>
+</ul>
+<p>如果analysis参数设置为False，采集之后需要进行离线解析：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="c1"># profiler_path请设置为&quot;localhost.localdomain_&lt;PID&gt;_&lt;timestamp&gt;_ascend_pt&quot;目录的上一级目录</span>
+<span class="n">torch_npu</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">analyse</span><span class="p">(</span><span class="n">profiler_path</span><span class="o">=</span><span class="n">profiler_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>进阶指南：精细化采集<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<section id="id9">
+<h3>背景与挑战<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>上述基于配置文件的采集方式虽然便捷，但在 <strong>长序列 (Long Context)</strong> 或 <strong>大全局批量 (Large Global Batch Size)</strong> 的训练场景中面临挑战。
+在一个完整的训练步 (Step) 内，模型计算呈现出高频次、重复性的特征：</p>
+<ol class="arabic simple">
+<li><p>Rollout 阶段：序列生成 (Generate Sequence) 是一个自回归过程，涉及成千上万次 Decoder 模型的前向计算。</p></li>
+<li><p>Training 阶段：为了控制显存峰值，verl 通常采用 Micro-Batch 策略，将庞大的数据流切分为多个微批次进行计算。</p></li>
+</ol>
+<blockquote>
+<div><ul class="simple">
+<li><p>compute_log_prob (Actor/Ref)：涉及多轮纯前向传播。</p></li>
+<li><p>update_policy (Actor/Critic)：涉及多轮前向与反向传播。</p></li>
+</ul>
+</div></blockquote>
+<p>这种特性会导致全量 Profiling 产生海量且重复的算子记录。如下图所示：</p>
+<img alt="https://raw.githubusercontent.com/mengchengTang/verl-data/master/verl_ascend_profiler.png" src="https://raw.githubusercontent.com/mengchengTang/verl-data/master/verl_ascend_profiler.png" />
+<p>即使使用了 <code class="docutils literal notranslate"><span class="pre">discrete</span></code> 模式，单个阶段的性能数据文件仍可能达到数 TB，导致 <strong>解析失败</strong> 或 <strong>可视化工具卡顿</strong> 。</p>
+</section>
+<section id="id10">
+<h3>解决方案：关键路径采样<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>为了解决上述问题，我们可以采用 <strong>关键路径采样</strong> 策略：基于 <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC2/devaids/auxiliarydevtool/atlasprofiling_16_0038.html">torch_npu.profiler</a> 提供的API接口，直接修改 Python 源码，仅采集具有代表性的数据片段（如特定 Decode Step 或首个 Micro-Batch）。</p>
+<blockquote>
+<div><p><strong>重要提示</strong></p>
+<ol class="arabic simple">
+<li><p>本章节涉及直接修改源码。建议修改前备份文件，调试完成后恢复。</p></li>
+<li><p>使用代码插桩采集时，请务必在 <code class="docutils literal notranslate"><span class="pre">ppo_trainer.yaml</span></code> 或 <code class="docutils literal notranslate"><span class="pre">ppo_megatron_trainer.yaml</span></code> 中**禁用全局采集** (<code class="docutils literal notranslate"><span class="pre">global_profiler:</span> <span class="pre">steps:</span> <span class="pre">null</span></code>)，以避免 Profiler 冲突。</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="rollout">
+<h3>1. Rollout 阶段精细化采集<a class="headerlink" href="#rollout" title="Link to this heading"></a></h3>
+<p>对于 vLLM 或 SGLang 推理引擎，我们可以通过控制 <code class="docutils literal notranslate"><span class="pre">schedule</span></code> 参数来控制采集模型在特定token的前向传播性能数据。</p>
+<p><strong>vLLM 引擎</strong></p>
+<ul class="simple">
+<li><p><strong>参考版本</strong>：vLLM v0.11.0, vLLM-Ascend v0.11.0rc1</p></li>
+<li><p><strong>修改文件</strong>：<code class="docutils literal notranslate"><span class="pre">vllm-ascend/vllm_ascend/worker/worker_v1.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   class NPUWorker(WorkerBase):
+
+<span class="w"> </span>       def __init__(self, *args, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+
+<span class="gi">+           # Initialize profiler</span>
+<span class="gi">+           import torch_npu</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(</span>
+<span class="gi">+               profiler_level=torch_npu.profiler.ProfilerLevel.Level1,</span>
+<span class="gi">+               export_type=torch_npu.profiler.ExportType.Db,  # 可选择torch_npu.profiler.ExportType.Text格式</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               activities=[torch_npu.profiler.ProfilerActivity.CPU, torch_npu.profiler.ProfilerActivity.NPU],</span>
+<span class="gi">+               with_modules=False,  # 采集调用栈</span>
+<span class="gi">+               profile_memory=False,  # 采集内存</span>
+<span class="gi">+               experimental_config=experimental_config,</span>
+<span class="gi">+               # 跳过第一步，warmup一步，采集3步，重复1次。如果想采集第30~70个decode step，可以设置为schedule=torch_npu.profiler.schedule(wait=29, warmup=1, active=30, repeat=1)</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/vllm_profile&quot;, analyse_flag=True)  # 采集数据保存路径，是否在线解析</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu.start()</span>
+
+<span class="w"> </span>           # ... existing code ...
+
+<span class="w"> </span>       def execute_model(self, scheduler_output=None, intermediate_tensors=None, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+<span class="w"> </span>           output = self.model_runner.execute_model(scheduler_output,
+<span class="w"> </span>                                               intermediate_tensors)
+
+<span class="gi">+           self.profiler_npu.step()  # 驱动 schedule，对部分decode step进行采集</span>
+
+<span class="w"> </span>           # ... existing code ...
+</pre></div>
+</div>
+<p><strong>SGLang 引擎</strong></p>
+<ul class="simple">
+<li><p><strong>参考版本</strong>：SGLang master 分支</p></li>
+<li><p><strong>修改文件</strong>：<code class="docutils literal notranslate"><span class="pre">sglang/python/sglang/srt/model_executor/model_runner.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... existing imports ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class ModelRunner:
+
+<span class="w"> </span>       def __init__(self, *args, **kwargs):
+<span class="w"> </span>           # ... existing init code ...
+
+<span class="gi">+           # Initialize profiler (配置同上，略)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.profiler_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # 跳过第一步，warmup一步，采集3步，重复1次。</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/sglang_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu.start()</span>
+
+<span class="w"> </span>       def forward(self, forward_batch, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+
+<span class="gi">+           self.profiler_npu.step()  # 驱动 schedule，对部分decode step进行采集</span>
+<span class="w"> </span>           return output
+</pre></div>
+</div>
+</section>
+<section id="compute-log-prob-actor-ref">
+<h3>2. compute_log_prob (Actor &amp; Ref) 阶段精细化采集<a class="headerlink" href="#compute-log-prob-actor-ref" title="Link to this heading"></a></h3>
+<p>该阶段计算新旧策略的概率分布。</p>
+<p><strong>FSDP 后端</strong></p>
+<p>FSDP 后端允许在 Micro-Batch 级别进行精细控制。</p>
+<ul class="simple">
+<li><p><strong>修改文件</strong>：<code class="docutils literal notranslate"><span class="pre">verl/workers/actor/dp_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... 引入依赖 ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class DataParallelPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def compute_log_prob(self, data: DataProto, calculate_entropy=False) -&gt; torch.Tensor:
+
+<span class="gi">+           role = &quot;Ref&quot; if self.actor_optimizer is None else &quot;Actor&quot;</span>
+<span class="gi">+           # 准备 profiler (配置同上，略)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # wait=0, warmup=0, active=1: 直接采集第一个 micro-batch</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f&quot;./outputs/{role}_compute_log_prob&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+
+
+<span class="gi">+           # 此函数ref和actor共用，设置role标志位来区分。如果想采集actor_compute_log_prob，可设置if role==&quot;Actor&quot;:</span>
+<span class="gi">+           if role==&quot;Ref&quot;:</span>
+<span class="gi">+               self.prof_npu.start()</span>
+
+<span class="w"> </span>           for micro_batch in micro_batches:
+
+<span class="w"> </span>               # ... 原始计算逻辑 ...
+<span class="w"> </span>               with torch.no_grad():
+<span class="w"> </span>                   entropy, log_probs = self._forward_micro_batch(...)
+
+<span class="gi">+                   # 驱动 schedule，对micro batch进行采集</span>
+<span class="gi">+                   if role==&quot;Ref&quot;:</span>
+<span class="gi">+                       self.prof_npu.step()</span>
+
+<span class="w"> </span>               # ...
+</pre></div>
+</div>
+<p><strong>Megatron 后端</strong></p>
+<p>Megatron 后端的 Micro-Batch 调度由框架内部管理，暂不支持通过简单的代码插桩进行 Micro-Batch 级别的精细化采集。建议使用全局配置进行采集。</p>
+</section>
+<section id="update-policy-actor-critic">
+<h3>3. update_policy (Actor &amp; Critic) 阶段精细化采集<a class="headerlink" href="#update-policy-actor-critic" title="Link to this heading"></a></h3>
+<p>Update 阶段包含前向和反向传播。</p>
+<p><strong>FSDP 后端</strong></p>
+<p>FSDP 后端支持设置对 Mini-Batch 和 Micro-Batch 的粒度进行采集。</p>
+<ul class="simple">
+<li><p><strong>修改文件</strong>：<code class="docutils literal notranslate"><span class="pre">verl/workers/actor/dp_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... 引入依赖 ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class DataParallelPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def update_policy(self, data: DataProto):
+
+<span class="gi">+           # 准备 profiler (配置同上，略)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # 仅采集第一个 Mini Batch（包含所有 Micro-Batch 的计算和一次优化器更新）</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/fsdp_actor_update_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.prof_npu.start()</span>
+
+<span class="w"> </span>           # ... PPO Epochs 循环 ...
+<span class="w"> </span>           for _ in range(self.config.ppo_epochs):
+<span class="w"> </span>               # ... Mini Batch 循环 ...
+<span class="w"> </span>               for batch_idx, mini_batch in enumerate(mini_batches):
+<span class="w"> </span>                   # ... mini_batches 切分 ...
+
+<span class="w"> </span>                   for i, micro_batch in enumerate(micro_batches):
+<span class="w"> </span>                       # ... 原始 Forward &amp; Backward 逻辑 ...
+<span class="w"> </span>                       # ... loss.backward() ...
+<span class="w"> </span>                       pass
+
+<span class="w"> </span>                   grad_norm = self._optimizer_step()
+
+<span class="gi">+                   # 驱动 schedule，对mini batch进行采集，如果想对micro batch进行，则将self.prof_npu.step()移动到micro_batch的循环内</span>
+<span class="gi">+                   self.prof_npu.step()</span>
+</pre></div>
+</div>
+<p><strong>Megatron 后端</strong></p>
+<p>Megatron 后端支持以 Mini-Batch 的粒度进行采集。</p>
+<ul class="simple">
+<li><p><strong>修改文件</strong>：<code class="docutils literal notranslate"><span class="pre">verl/workers/actor/megatron_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   class MegatronPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def update_policy(self, dataloader: Iterable[DataProto]) -&gt; dict:
+<span class="w"> </span>           # ...
+<span class="gi">+           # 准备 profiler (配置同上，略)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # 仅采集第一个 Mini Batch 的计算（含所有 Micro-Batch）和一次优化器更新</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/megatron_actor_update_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.prof_npu.start()</span>
+
+<span class="w"> </span>           for data in dataloader:
+<span class="w"> </span>               # ... 内部会调用 self.forward_backward_batch 进行计算 ...
+<span class="w"> </span>               # ... metric_micro_batch = self.forward_backward_batch(...)
+
+<span class="w"> </span>               # ... self.actor_optimizer.step() ...
+
+<span class="gi">+               # 驱动 schedule，对mini batch进行采集</span>
+<span class="gi">+               self.prof_npu.step()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="ascend_profiling_en.html" class="btn btn-neutral float-left" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="ascend_consistency.html" class="btn btn-neutral float-right" title="Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

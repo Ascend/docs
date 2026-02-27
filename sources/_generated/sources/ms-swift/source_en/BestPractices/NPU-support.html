@@ -1,0 +1,850 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU Support &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="ROLL" href="../../../../../roll/index.html" />
+    <link rel="prev" title="NPU支持" href="../../source/BestPractices/NPU-support.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../source/BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-preparation">Environment Preparation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#environment-installation">Environment Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#environment-viewing">Environment Viewing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fine-tuning">Fine-tuning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-card-training">Single Card Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-parallel-training">Data Parallel Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deepspeed-training">Deepspeed Training</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#inference">Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deployment">Deployment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-with-native-transformers">Deployment with native Transformers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-with-vllm-ascend">Deployment with vLLM-ascend</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#current-support-status">Current Support Status</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#table-1-sft-algorithms">Table 1: SFT Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#table-2-rl-algorithms">Table 2: RL Algorithms</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#table-3-modules-not-yet-supported-fully-verified-on-npus">Table 3: Modules Not Yet Supported / Fully Verified on NPUs</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#npu-wechat-group">NPU WeChat Group</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../ms-swift/index.html">ms-swift</a></li>
+      <li class="breadcrumb-item active">NPU Support</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/BestPractices/NPU-support.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu-support">
+<h1>NPU Support<a class="headerlink" href="#npu-support" title="Link to this heading"></a></h1>
+<p>We add Ascend NPU support in ms-swift, so you can fine-tune and run inference on Ascend NPUs.</p>
+<p>This document describes how to prepare the environment, fine-tune, run inference and deploy on NPUs.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>Base environment requirements:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Software</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>&gt;= 3.10, &lt; 3.12</td>
+</tr>
+<tr>
+<td>CANN</td>
+<td>== 8.3.RC1</td>
+</tr>
+<tr>
+<td>torch</td>
+<td>== 2.7.1</td>
+</tr>
+<tr>
+<td>torch_npu</td>
+<td>== 2.7.1</td>
+</tr>
+</tbody>
+</table><p>For detailed environment setup, please refer to the <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch installation guide</a>.</p>
+</section>
+<section id="environment-preparation">
+<h2>Environment Preparation<a class="headerlink" href="#environment-preparation" title="Link to this heading"></a></h2>
+<p>Experiment Environment: 8 * Ascend 910B3 64G</p>
+<section id="environment-installation">
+<h3>Environment Installation<a class="headerlink" href="#environment-installation" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda virtual environment (optional)</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>swift-npu<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>swift-npu
+
+<span class="c1"># Note: Before proceeding with subsequent operations, you need to source and activate CANN environment first</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+
+<span class="c1"># Set pip global mirror (optional, to speed up downloads)</span>
+pip<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>global.index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/
+pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U
+
+<span class="c1"># Install from source</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/ms-swift.git
+<span class="nb">cd</span><span class="w"> </span>ms-swift
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+
+<span class="c1"># Install torch-npu</span>
+pip<span class="w"> </span>install<span class="w"> </span>torch-npu<span class="w"> </span>decorator
+<span class="c1"># If you want to use deepspeed (to control memory usage, training speed might decrease)</span>
+pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+
+<span class="c1"># If you need the evaluation functionality, please install the following package</span>
+pip<span class="w"> </span>install<span class="w"> </span>evalscope<span class="o">[</span>opencompass<span class="o">]</span>
+
+<span class="c1"># If you need to use vllm-ascend for inference, please install the following packages</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.11.0
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.11.0rc3
+</pre></div>
+</div>
+<p>Check if the test environment is installed correctly and whether the NPU can be loaded properly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_torch_npu_available</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">is_torch_npu_available</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>  <span class="c1"># 8</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>If you need to use MindSpeed (Megatron-LM), please follow the guide below to install the necessary dependencies</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Obtain and switch Megatron-LM to core_v0.12.1</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/Megatron-LM.git
+<span class="nb">cd</span><span class="w"> </span>Megatron-LM
+git<span class="w"> </span>checkout<span class="w"> </span>core_v0.12.1
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 2. Install MindSpeed</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://gitcode.com/Ascend/MindSpeed.git
+<span class="nb">cd</span><span class="w"> </span>MindSpeed
+git<span class="w"> </span>checkout<span class="w"> </span><span class="m">2</span>.3.0_core_r0.12.1
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 3. Set environment variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_local_megatron_lm_path&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">MEGATRON_LM_PATH</span><span class="o">=</span>&lt;your_local_megatron_lm_path&gt;
+</pre></div>
+</div>
+<p>Run the following command to verify if MindSpeed (Megatron-LM) is configured successfully:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import mindspeed.megatron_adaptor; from swift.megatron.init import init_megatron_env; init_megatron_env(); print(&#39;✓ NPU environment Megatron-SWIFT configuration verified successfully!&#39;)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-viewing">
+<h3>Environment Viewing<a class="headerlink" href="#environment-viewing" title="Link to this heading"></a></h3>
+<p>Check the P2P connections of the NPU, where we can see that each NPU is interconnected through 7 HCCS links with other NPUs.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info<span class="w"> </span>-t<span class="w"> </span>topo
+<span class="w">       </span>NPU0<span class="w">       </span>NPU1<span class="w">       </span>NPU2<span class="w">       </span>NPU3<span class="w">       </span>NPU4<span class="w">       </span>NPU5<span class="w">       </span>NPU6<span class="w">       </span>NPU7<span class="w">       </span>CPU<span class="w"> </span>Affinity
+NPU0<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU1<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU2<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU3<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU4<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU5<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU6<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span><span class="m">48</span>-71
+NPU7<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span><span class="m">48</span>-71
+
+Legend:
+
+<span class="w">  </span><span class="nv">X</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>Self
+<span class="w">  </span><span class="nv">SYS</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>NUMA<span class="w"> </span>nodes.<span class="w"> </span>Nodes<span class="w"> </span>are<span class="w"> </span>connected<span class="w"> </span>through<span class="w"> </span>SMP,<span class="w"> </span>such<span class="w"> </span>as<span class="w"> </span>QPI,<span class="w"> </span>UPI.
+<span class="w">  </span><span class="nv">PHB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>PCIe<span class="w"> </span>host<span class="w"> </span>bridge<span class="w"> </span>of<span class="w"> </span>a<span class="w"> </span>CPU.
+<span class="w">  </span><span class="nv">PIX</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>a<span class="w"> </span>single<span class="w"> </span>PCIe<span class="w"> </span>switch
+<span class="w">  </span><span class="nv">PXB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>multiple<span class="w"> </span>PCIe<span class="w"> </span>switches
+<span class="w">  </span><span class="nv">HCCS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Connection<span class="w"> </span>traversing<span class="w"> </span>HCCS.
+<span class="w">  </span><span class="nv">NA</span><span class="w">   </span><span class="o">=</span><span class="w"> </span>Unknown<span class="w"> </span>relationship.
+</pre></div>
+</div>
+<p>Check the status of the NPU. For detailed information about the <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> command, please refer to the <a class="reference external" href="https://support.huawei.com/enterprise/en/doc/EDOC1100079287/10dcd668">official documentation</a>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info
++------------------------------------------------------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>npu-smi<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">            </span>Version:<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">                                        </span><span class="p">|</span>
++---------------------------+---------------+----------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>NPU<span class="w">   </span>Name<span class="w">                </span><span class="p">|</span><span class="w"> </span>Health<span class="w">        </span><span class="p">|</span><span class="w"> </span>Power<span class="o">(</span>W<span class="o">)</span><span class="w">    </span>Temp<span class="o">(</span>C<span class="o">)</span><span class="w">           </span>Hugepages-Usage<span class="o">(</span>page<span class="o">)</span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>Chip<span class="w">                      </span><span class="p">|</span><span class="w"> </span>Bus-Id<span class="w">        </span><span class="p">|</span><span class="w"> </span>AICore<span class="o">(</span>%<span class="o">)</span><span class="w">   </span>Memory-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">  </span>HBM-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">        </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">101</span>.8<span class="w">       </span><span class="m">43</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C1:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3318</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">92</span>.0<span class="w">        </span><span class="m">39</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C2:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">102</span>.0<span class="w">       </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:81:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.8<span class="w">        </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:82:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.6<span class="w">        </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:01:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.7<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:02:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">103</span>.8<span class="w">       </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:41:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.2<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:42:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3315</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="fine-tuning">
+<h2>Fine-tuning<a class="headerlink" href="#fine-tuning" title="Link to this heading"></a></h2>
+<p>The following introduces the fine-tuning of LoRA. To perform full-parameter fine-tuning, simply set the parameter <code class="docutils literal notranslate"><span class="pre">--tuner_type</span> <span class="pre">full</span></code>. For <strong>more training scripts</strong>, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/ascend/train">here</a>.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Model Size</th>
+<th>Number of NPUs</th>
+<th>Deepspeed Type</th>
+<th>Max Memory Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7B</td>
+<td>1</td>
+<td>None</td>
+<td>1 * 28 GB</td>
+</tr>
+<tr>
+<td>7B</td>
+<td>4</td>
+<td>None</td>
+<td>4 * 22 GB</td>
+</tr>
+<tr>
+<td>7B</td>
+<td>4</td>
+<td>zero2</td>
+<td>4 * 28 GB</td>
+</tr>
+<tr>
+<td>7B</td>
+<td>4</td>
+<td>zero3</td>
+<td>4 * 22 GB</td>
+</tr>
+<tr>
+<td>7B</td>
+<td>8</td>
+<td>None</td>
+<td>8 * 22 GB</td>
+</tr>
+<tr>
+<td>14B</td>
+<td>1</td>
+<td>None</td>
+<td>1 * 45 GB</td>
+</tr>
+<tr>
+<td>14B</td>
+<td>8</td>
+<td>None</td>
+<td>8 * 51 GB</td>
+</tr>
+<tr>
+<td>14B</td>
+<td>8</td>
+<td>zero2</td>
+<td>8 * 49 GB</td>
+</tr>
+<tr>
+<td>14B</td>
+<td>8</td>
+<td>zero3</td>
+<td>8 * 31 GB</td>
+</tr>
+</tbody>
+</table><section id="single-card-training">
+<h3>Single Card Training<a class="headerlink" href="#single-card-training" title="Link to this heading"></a></h3>
+<p>Start single card fine-tuning with the following command: (Note: If NaN occurs during fine-tuning, please set <code class="docutils literal notranslate"><span class="pre">--torch_dtype</span> <span class="pre">float32</span></code>.)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: Ascend 910B3</span>
+<span class="c1"># Memory requirement: 28 GB</span>
+<span class="c1"># Runtime: 8 hours</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+</section>
+<section id="data-parallel-training">
+<h3>Data Parallel Training<a class="headerlink" href="#data-parallel-training" title="Link to this heading"></a></h3>
+<p>We use 4 cards for DDP training.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 22 GB</span>
+<span class="c1"># Runtime: 2 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="deepspeed-training">
+<h3>Deepspeed Training<a class="headerlink" href="#deepspeed-training" title="Link to this heading"></a></h3>
+<p>ZeRO2:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 28GB</span>
+<span class="c1"># Runtime: 3.5 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p>ZeRO3:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 22 GB</span>
+<span class="c1"># Runtime: 8.5 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="inference">
+<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading"></a></h2>
+<p>Original Model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA Fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--load_data_args<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Merge LoRA and infer</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span>--load_data_args<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment">
+<h2>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h2>
+<section id="deployment-with-native-transformers">
+<h3>Deployment with native Transformers<a class="headerlink" href="#deployment-with-native-transformers" title="Link to this heading"></a></h3>
+<p>Original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Merge LoRA and deploy</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment-with-vllm-ascend">
+<h3>Deployment with vLLM-ascend<a class="headerlink" href="#deployment-with-vllm-ascend" title="Link to this heading"></a></h3>
+<p>Install via PyPI:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Install vllm-project/vllm. The newest supported version is v0.11.0.</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.11.0
+
+<span class="c1"># Install vllm-project/vllm-ascend from PyPI.</span>
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.11.0rc3
+</pre></div>
+</div>
+<p>Original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Merge LoRA and deploy</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="current-support-status">
+<h2>Current Support Status<a class="headerlink" href="#current-support-status" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Primary Feature</th>
+<th>Feature</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Training Paradigm</td>
+<td>CPT</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>SFT</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>DPO</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>RM</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Distributed</td>
+<td>DDP</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>FSDP</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>FSDP2</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>DeepSpeed</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>MindSpeed (Megatron)</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>PEFT</td>
+<td>FULL</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>LoRA</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>QLoRA</td>
+<td>Not Supported</td>
+</tr>
+<tr>
+<td>RLHF</td>
+<td>GRPO</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>PPO</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Performance Optimization</td>
+<td>Fused ops such as FA</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>Liger-Kernel</td>
+<td>Not Supported</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>PT</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>vLLM</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td></td>
+<td>SGLang</td>
+<td>Not Supported</td>
+</tr>
+</tbody>
+</table><hr class="docutils" />
+<section id="table-1-sft-algorithms">
+<h3>Table 1: SFT Algorithms<a class="headerlink" href="#table-1-sft-algorithms" title="Link to this heading"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Model Families</th>
+<th>Strategy</th>
+<th>Hardware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-0.5B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-1.5B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-7B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-VL-3B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-VL-7B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen2.5-Omni-3B</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen3-8B</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen3-32B</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen3-VL-30B-A3B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Qwen3-Omni-30B-A3B-Instruct</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>InternVL3-8B</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td>SFT</td>
+<td>Ovis2.5-2B</td>
+<td>FSDP1/FSDP2/deepspeed</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+</tbody>
+</table></section>
+<hr class="docutils" />
+<section id="table-2-rl-algorithms">
+<h3>Table 2: RL Algorithms<a class="headerlink" href="#table-2-rl-algorithms" title="Link to this heading"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Model Families</th>
+<th>Strategy</th>
+<th>Rollout Engine</th>
+<th>Hardware</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>GRPO</strong></td>
+<td>Qwen2.5-7B-Instruct</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td><strong>GRPO</strong></td>
+<td>Qwen3-8B</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td><strong>DPO</strong></td>
+<td>Qwen2.5-7B-Instruct</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td><strong>DPO</strong></td>
+<td>Qwen3-8B</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td><strong>PPO</strong></td>
+<td>Qwen2.5-7B-Instruct</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+<tr>
+<td><strong>PPO</strong></td>
+<td>Qwen3-8B</td>
+<td>deepspeed</td>
+<td>vllm-ascend</td>
+<td>Atlas 900 A2 PODc</td>
+</tr>
+</tbody>
+</table></section>
+<hr class="docutils" />
+<section id="table-3-modules-not-yet-supported-fully-verified-on-npus">
+<h3>Table 3: Modules Not Yet Supported / Fully Verified on NPUs<a class="headerlink" href="#table-3-modules-not-yet-supported-fully-verified-on-npus" title="Link to this heading"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Item</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Liger-kernel</td>
+</tr>
+<tr>
+<td>Quantization/QLoRA</td>
+</tr>
+<tr>
+<td>Using SGLang as inference engine</td>
+</tr>
+<tr>
+<td>Enable ETP for LoRA training when using Megatron</td>
+</tr>
+</tbody>
+</table></section>
+</section>
+<section id="npu-wechat-group">
+<h2>NPU WeChat Group<a class="headerlink" href="#npu-wechat-group" title="Link to this heading"></a></h2>
+<img src="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png" width="250"></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../../source/BestPractices/NPU-support.html" class="btn btn-neutral float-left" title="NPU支持" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../../../../../roll/index.html" class="btn btn-neutral float-right" title="ROLL" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

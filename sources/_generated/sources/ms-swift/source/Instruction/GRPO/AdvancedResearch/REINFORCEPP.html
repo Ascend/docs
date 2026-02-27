@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../../_sources/sources/_generated/sources/ms-swift/source/Instruction/GRPO/AdvancedResearch/REINFORCEPP.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reinforce-an-efficient-rlhf-algorithm-with-robustness-to-both-prompt-and-reward-models">
+<h1>REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models<a class="headerlink" href="#reinforce-an-efficient-rlhf-algorithm-with-robustness-to-both-prompt-and-reward-models" title="Link to this heading"></a></h1>
+<p><strong>版本依赖</strong>：ms-swift&gt;=3.10</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2501.03262">REINFORCE++ Baseline</a> 是 REINFORCE++ 算法的简化版本，适用于 outcome rewards（response-level 标量奖励）。它与 GRPO 类似，对每个prompt输入采样多条模型输出，并使用组内 baseline 来估计优势函数，主要区别在于标准化时使用的统计量不同。</p>
+<section id="id1">
+<h2>算法原理<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>为便于理解，我们基于 GRPO（Group Relative Policy Optimization）算法进行对比说明。</p>
+<p>GRPO 和 REINFORCE++ Baseline 都采用组内对比的方式来估计优势函数，主要区别在于：</p>
+<section id="id2">
+<h3>区别1：标准化时使用的统计量不同<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p><strong>GRPO (Group Relative Policy Optimization)</strong></p>
+<p>对每个 prompt 生成 $G$ 个响应样本，使用<strong>组内所有样本的均值和标准差</strong>进行标准化：</p>
+<p>$$
+\hat{A}<em>{i} = \frac{R_i - \text{mean}({R_j}</em>{j=1}^G)}{\text{std}({R_j}_{j=1}^G)}
+$$</p>
+<p>当设置 <code class="docutils literal notranslate"><span class="pre">scale_rewards='batch'</span></code> 时，使用<strong>原始奖励的批次 std</strong>：</p>
+<p>$$
+\hat{A}<em>{i} = \frac{R_i - \text{mean}({R_j}</em>{j=1}^G)}{\text{std}({R_j}_{j=1}^{N})}
+$$</p>
+<p>其中 $N$ 是批次中所有样本数。</p>
+<p><strong>REINFORCE++ Baseline</strong></p>
+<p>对每个 prompt 生成 $G$ 个响应样本，先减去组内均值，再使用<strong>减去组内均值后的奖励</strong>的标准差进行标准化：</p>
+<p>$$
+\begin{align}
+\tilde{A}<em>{i} &amp;= R_i - \text{mean}({R_j}</em>{j=1}^G) \
+\hat{A}<em>{i} &amp;= \frac{\tilde{A}</em>{i}}{\text{std}({\tilde{A}<em>k}</em>{k=1}^{N})}
+\end{align}
+$$</p>
+<p>其中 $N$ 是批次中所有样本数。</p>
+<p><strong>关键区别</strong>：</p>
+<ul class="simple">
+<li><p><strong>GRPO</strong>：标准化时使用<strong>原始奖励 $R$</strong> 的标准差</p></li>
+<li><p><strong>REINFORCE++</strong>：标准化时使用<strong>减去组内均值后的奖励 $\tilde{A}$</strong> 的标准差</p></li>
+</ul>
+</section>
+<section id="kl">
+<h3>区别2: KL 散度正则化<a class="headerlink" href="#kl" title="Link to this heading"></a></h3>
+<p>与 RLOO 类似，REINFORCE++ Baseline 将 KL 散度整合到奖励项中：</p>
+<p>$$
+R'<em>i = R_i - \beta \cdot \text{KL}(\pi</em>\theta || \pi_{\text{ref}})
+$$</p>
+<p>其中 $\beta$ 是 KL 散度的权重系数（对应参数 <code class="docutils literal notranslate"><span class="pre">beta</span></code>），$\pi_{\text{ref}}$ 是参考策略。</p>
+</section>
+</section>
+<section id="id3">
+<h2>参数设置<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>我们可以基于 <code class="docutils literal notranslate"><span class="pre">GRPOTrainer</span></code>，通过设置以下参数实现 REINFORCE++ Baseline 训练：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--advantage_estimator<span class="w"> </span>reinforce_plus_plus
+--scale_rewards<span class="w"> </span>batch
+--kl_in_reward<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>训练可以参考该<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/reinforce_plus_plus.sh">脚本</a></p>
+<section id="id4">
+<h3>重要参数说明<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--advantage_estimator</span></code></strong>：选择优势函数估计方法</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpo</span></code>（默认）：标准化时使用原始奖励的标准差</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reinforce_plus_plus</span></code>：标准化时使用减去组内均值后的奖励的标准差</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--kl_in_reward</span></code></strong>：控制 KL 散度正则化项的处理位置</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code>：KL 散度作为损失函数的独立正则化项（GRPO 默认）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code>：KL 散度直接从奖励中扣除（REINFORCE++ 原始实现）</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--scale_rewards</span></code></strong>：控制标准化方式</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code>（默认）：组内标准化</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch</span></code>：全局批次标准化（REINFORCE++原始实现）</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code>：不进行标准化</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--num_generations</span></code></strong>：每个 prompt 生成的样本数量 $G$</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--beta</span></code></strong>：KL 散度正则化系数 $\beta$</p></li>
+</ul>
+<p>其他参数参考 <a class="reference external" href="../../Command-line-parameters.md#grpo%E5%8F%82%E6%95%B0">GRPO参数</a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

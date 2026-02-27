@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ascend Quickstart with SGLang Backend &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" />
+    <link rel="next" title="Ascend Dockerfile Build Guidance" href="dockerfile_build_guidance.html" />
+    <link rel="prev" title="Ascend Quickstart" href="ascend_quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ascend_quick_start.html">Ascend Quickstart</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ascend Quickstart with SGLang Backend</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">硬件支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">安装</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">关键支持版本</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#docker">从 Docker 镜像进行安装</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">从自定义环境安装</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">快速开始</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_en.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_zh.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_consistency.html">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">Ascend Quickstart with SGLang Backend</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/verl/ascend_sglang_quick_start.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ascend-quickstart-with-sglang-backend">
+<h1>Ascend Quickstart with SGLang Backend<a class="headerlink" href="#ascend-quickstart-with-sglang-backend" title="Link to this heading"></a></h1>
+<p>Last updated: 01/27/2026.</p>
+<p>我们在 verl 上增加对华为昇腾设备的支持。</p>
+<section id="id1">
+<h2>硬件支持<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>Atlas 200T A2 Box16</p>
+<p>Atlas 900 A2 PODc</p>
+<p>Atlas 800T A3</p>
+</section>
+<section id="id2">
+<h2>安装<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>关键支持版本<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>software</p></th>
+<th class="head"><p>version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>== 3.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>HDK</p></td>
+<td><p>&gt;= 25.3.RC1</p></td>
+</tr>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>&gt;= 8.3.RC1</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch</p></td>
+<td><p>&gt;= 2.7.1</p></td>
+</tr>
+<tr class="row-even"><td><p>torch_npu</p></td>
+<td><p>&gt;= 2.7.1.post2</p></td>
+</tr>
+<tr class="row-odd"><td><p>sglang</p></td>
+<td><p>v0.5.8</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="docker">
+<h3>从 Docker 镜像进行安装<a class="headerlink" href="#docker" title="Link to this heading"></a></h3>
+<p>我们提供了DockerFile进行构建,详见 <a class="reference external" href="https://github.com/verl-project/verl/blob/main/docs/ascend_tutorial/dockerfile_build_guidance.rst">dockerfile_build_guidance</a> ，请根据设备自行选择对应构建文件</p>
+</section>
+<section id="id4">
+<h3>从自定义环境安装<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>1. 安装HDK&amp;CANN依赖并激活</strong></p>
+<p>异构计算架构CANN(Compute Architecture for Neural Networks)是昇腾针对AI场景推出的异构计算架构, 为了使训练和推理引擎能够利用更好、更快的硬件支持, 我们需要安装以下 <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/softwareinst/instg/instg_quick.html?Mode=PmIns&amp;InstallType=netconda&amp;OS=openEuler&amp;Software=cannToolKit">先决条件</a></p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>HDK</p></td>
+<td><p>&gt;= 25.3.RC1</p></td>
+</tr>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>&gt;= 8.3.RC1</p></td>
+</tr>
+</tbody>
+</table>
+<p>安装完成后请激活环境</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+</pre></div>
+</div>
+<p><strong>2. 创建conda环境</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># create conda env</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>verl-sglang<span class="w"> </span><span class="nv">python</span><span class="o">==</span><span class="m">3</span>.11
+conda<span class="w"> </span>activate<span class="w"> </span>verl-sglang
+</pre></div>
+</div>
+<p><strong>3. 然后，执行我们在 verl 中提供的脚本</strong> <a class="reference external" href="https://github.com/verl-project/verl/blob/main/scripts/install_sglang_mcore_npu.sh">install_sglang_mcore_npu.sh</a></p>
+<p>如果在此步骤中遇到错误，请检查脚本并手动按照脚本中的步骤操作。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/volcengine/verl.git
+<span class="c1"># Make sure you have activated verl conda env</span>
+<span class="c1"># NPU_DEVICE=A3 or A2 depends on your device</span>
+<span class="c1"># USE_MEGATRON=1 if you need to install megatron backend</span>
+<span class="nv">NPU_DEVICE</span><span class="o">=</span>A3<span class="w"> </span><span class="nv">USE_MEGATRON</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>bash<span class="w"> </span>verl/scripts/install_sglang_mcore_npu.sh
+</pre></div>
+</div>
+<p><strong>4. 安装verl</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>verl
+pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>-e<span class="w"> </span>.
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-npu.txt
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>快速开始<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p><strong>1.当前NPU sglang脚本一览</strong></p>
+<blockquote>
+<div><table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型</p></th>
+<th class="head"><p>推荐NPU型号</p></th>
+<th class="head"><p>节点数量</p></th>
+<th class="head"><p>训推后端</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen3moe-30b_sglang_megatron_npu.sh">Qwen3-30B</a></p></td>
+<td><p>Atlas 800T A3</p></td>
+<td><p>1</p></td>
+<td><p>SGLang + Megatron</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen2-32b_sglang_fsdp_npu.sh">Qwen2.5-32B</a></p></td>
+<td><p>Atlas 900 A2</p></td>
+<td><p>2</p></td>
+<td><p>SGLang + FSDP</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen3_8b_grpo_sglang_1k_spmd_npu.sh">Qwen3-8B-1k</a></p></td>
+<td><p>Atlas A3/A2</p></td>
+<td><p>1</p></td>
+<td><p>SGLang + FSDP</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen3_8b_grpo_sglang_32k_spmd_npu.sh">Qwen3-8B-32k</a></p></td>
+<td><p>Atlas A3/A2</p></td>
+<td><p>1</p></td>
+<td><p>SGLang + FSDP</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>2.最佳实践</strong></p>
+<p>我们提供基于verl+sglang <a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen3moe-30b_sglang_megatron_npu.sh">Qwen3-30B</a> 以及 <a class="reference external" href="https://github.com/verl-project/verl/blob/main/examples/grpo_trainer/run_qwen2-32b_sglang_fsdp_npu.sh">Qwen2.5-32B</a> 的 <a class="reference external" href="https://github.com/verl-project/verl/blob/main/docs/ascend_tutorial/examples/ascend_sglang_best_practices.rst">最佳实践</a> 作为参考</p>
+<p><strong>3.环境变量与参数</strong></p>
+<p>当前NPU上支持sglang后端必须添加以下环境变量</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#支持NPU单卡多进程 https://www.hiascend.com/document/detail/zh/canncommercial/850/commlib/hcclug/hcclug_000091.html</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_HOST_SOCKET_PORT_RANGE</span><span class="o">=</span><span class="m">60000</span>-60050
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_NPU_SOCKET_PORT_RANGE</span><span class="o">=</span><span class="m">61000</span>-61050
+<span class="c1">#规避ray在device侧调用无法根据is_npu_available接口识别设备可用性</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RAY_EXPERIMENTAL_NOSET_ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#根据当前设备和需要卡数定义</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+<span class="c1">#使能推理EP时需要</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SGLANG_DEEPEP_BF16_DISPATCH</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>当前verl已解析推理常见参数, 详见 <a class="reference external" href="https://github.com/verl-project/verl/blob/main/verl/workers/rollout/sglang_rollout/async_sglang_server.py">async_sglang_server.py</a>  中 ServerArgs初始化传参,其他 <a class="reference external" href="https://github.com/sgl-project/sglang/blob/main/docs/advanced_features/server_arguments.md">sglang参数</a> 均可通过engine_kwargs 进行参数传递</p>
+<p>vllm后端推理脚本转换为sglang, 需要添加修改以下参数</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#必须</span>
+actor_rollout_ref.rollout.name<span class="o">=</span>sglang
++actor_rollout_ref.rollout.engine_kwargs.sglang.attention_backend<span class="o">=</span><span class="s2">&quot;ascend&quot;</span>
+<span class="c1">#可选</span>
+<span class="c1">#使能推理EP，详细使用方法见 https://github.com/sgl-project/sgl-kernel-npu/blob/main/python/deep_ep/README_CN.md</span>
+++actor_rollout_ref.rollout.engine_kwargs.sglang.deepep_mode<span class="o">=</span><span class="s2">&quot;auto&quot;</span>
+++actor_rollout_ref.rollout.engine_kwargs.sglang.moe_a2a_backend<span class="o">=</span><span class="s2">&quot;deepep&quot;</span>
+<span class="c1">#Moe模型多DP时必须设置为True</span>
++actor_rollout_ref.rollout.engine_kwargs.sglang.enable_dp_attention<span class="o">=</span>False
+<span class="c1">#chunked_prefill默认关闭</span>
++actor_rollout_ref.rollout.engine_kwargs.sglang.chunked_prefill_size<span class="o">=</span>-1
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="ascend_quick_start.html" class="btn btn-neutral float-left" title="Ascend Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="dockerfile_build_guidance.html" class="btn btn-neutral float-right" title="Ascend Dockerfile Build Guidance" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

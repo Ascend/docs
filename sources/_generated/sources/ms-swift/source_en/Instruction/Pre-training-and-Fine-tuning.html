@@ -1,0 +1,598 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pre-training and Fine-tuning &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Pre-training and Fine-tuning</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/Instruction/Pre-training-and-Fine-tuning.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pre-training-and-fine-tuning">
+<h1>Pre-training and Fine-tuning<a class="headerlink" href="#pre-training-and-fine-tuning" title="Link to this heading"></a></h1>
+<p>Training Capability:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Method</th>
+<th>Full-Parameter</th>
+<th>LoRA</th>
+<th>QLoRA</th>
+<th>Deepspeed</th>
+<th>Multi-Machine</th>
+<th>Multimodal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/pretrain">Pre-training</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/lora_sft.sh">Supervised Fine-Tuning</a></td>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/full/train.sh">✅</a></td>
+<td>✅</td>
+<td><a href="https://github.com/modelscope/ms-swift/tree/main/examples/train/qlora">✅</a></td>
+<td><a href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-gpu/deepspeed">✅</a></td>
+<td><a href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-node">✅</a></td>
+<td><a href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal">✅</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/grpo">GRPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/gkd">GKD</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/gkd">✅</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/ppo">PPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/dpo">DPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/dpo">✅</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/kto.sh">KTO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/kto.sh">✅</a></td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/rm.sh">Reward Model</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/cpo.sh">CPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/simpo.sh">SimPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/orpo.sh">ORPO</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/embedding">Embedding</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/tree/main/examples/train/reranker">Reranker</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td><a href="https://github.com/modelscope/ms-swift/blob/main/examples/train/seq_cls">Sequence Classification</a></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table><section id="environment-preparation">
+<h2>Environment Preparation<a class="headerlink" href="#environment-preparation" title="Link to this heading"></a></h2>
+<p>Refer to the <a class="reference internal" href="../GetStarted/SWIFT-installation.html"><span class="doc">SWIFT installation documentation</span></a> for recommended versions of third-party libraries.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U
+
+<span class="c1"># If using deepspeed zero2/zero3</span>
+pip<span class="w"> </span>install<span class="w"> </span>deepspeed<span class="w"> </span>-U
+</pre></div>
+</div>
+</section>
+<section id="pre-training">
+<h2>Pre-training<a class="headerlink" href="#pre-training" title="Link to this heading"></a></h2>
+<p>Pre-training is done using the <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">pt</span></code> command, which will automatically use the generative template instead of the conversational template, meaning that <code class="docutils literal notranslate"><span class="pre">use_chat_template</span></code> is set to False (all other commands, such as <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">sft/rlhf/infer</span></code>, default <code class="docutils literal notranslate"><span class="pre">use_chat_template</span></code> to True). Additionally, <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">pt</span></code> has a different dataset format compared to <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">sft</span></code>, which can be referenced in the <a class="reference internal" href="../Customization/Custom-dataset.html"><span class="doc">Custom Dataset Documentation</span></a>.</p>
+<p>You can refer to the CLI script for pre-training <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/pretrain/train.sh">here</a>. For more information on training techniques, please refer to the fine-tuning section.</p>
+<p>Tips:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">pt</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">sft</span> <span class="pre">--use_chat_template</span> <span class="pre">false</span> <span class="pre">--loss_scale</span> <span class="pre">all</span></code>.</p></li>
+</ul>
+</section>
+<section id="fine-tuning">
+<h2>Fine-tuning<a class="headerlink" href="#fine-tuning" title="Link to this heading"></a></h2>
+<p>ms-swift employs a hierarchical design philosophy, allowing users to perform fine-tuning through the command line interface, Web-UI interface, or directly using Python.</p>
+<section id="using-cli">
+<h3>Using CLI<a class="headerlink" href="#using-cli" title="Link to this heading"></a></h3>
+<p>We provide best practices for self-cognition fine-tuning of Qwen2.5-7B-Instruct on a single 3090 GPU in 10 minutes; for details, refer to <a class="reference internal" href="../GetStarted/Quick-start.html"><span class="doc">here</span></a>. This can help you quickly understand SWIFT.</p>
+<p>Additionally, we offer a series of scripts to help you understand the training capabilities of SWIFT:</p>
+<ul class="simple">
+<li><p>Lightweight Training: Examples of lightweight fine-tuning supported by SWIFT can be found <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/tuners">here</a>. (Note: These methods can also be used for pre-training, but pre-training typically uses full parameter training.)</p></li>
+<li><p>Distributed Training: SWIFT supports distributed training techniques, including: DDP, device_map, DeepSpeed ZeRO2/ZeRO3, and FSDP.</p>
+<ul>
+<li><p>device_map: Simplified model parallelism. If multiple GPUs are available, device_map will be automatically enabled. This evenly partitions the model layers across visible GPUs, significantly reducing memory consumption, although training speed may decrease due to serial processing.</p></li>
+<li><p>DDP + device_map: Models will be grouped and partitioned using device_map. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multi-gpu/ddp_device_map/train.sh">here</a> for details.</p></li>
+<li><p>DeepSpeed ZeRO2/ZeRO3: Save memory resources but may reduce training speed. ZeRO2 shards optimizer states and model gradients. ZeRO3 further shards model parameters on top of ZeRO2, saving even more memory but reducing training speed further. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-gpu/deepspeed">here</a> for details.</p></li>
+<li><p>FSDP + QLoRA: Training a 70B model on two 3090 GPUs. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-gpu/fsdp_qlora/train.sh">here</a>.</p></li>
+<li><p>Multi-node Multi-GPU Training: We have provided example shell scripts for launching multi-node runs using swift, torchrun, dlc, deepspeed, and accelerate. Except for dlc and deepspeed, the other launch scripts need to be started on all nodes to run properly. Please refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multi-node">here</a> for details.</p></li>
+</ul>
+</li>
+<li><p>Quantization Training: Supports QLoRA training using quantization techniques such as GPTQ, AWQ, AQLM, BNB, HQQ, and EETQ. Fine-tuning a 7B model only requires 9GB of memory. For more details, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/qlora">here</a>.</p></li>
+<li><p>Multi-modal Training: SWIFT supports pre-training, fine-tuning, and RLHF for multi-modal models. It supports tasks such as Captioning, VQA, OCR, and <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/notebook/qwen2_5-vl-grounding/zh.ipynb">Grounding</a>. It supports three modalities: images, videos, and audio. For more details, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal">here</a>. The format for custom multi-modal datasets can be found in the <a class="reference internal" href="../Customization/Custom-dataset.html"><span class="doc">Custom Dataset Documentation</span></a>.</p>
+<ul>
+<li><p>For examples of using full-parameter training for ViT/Aligner, LoRA training for LLM, and employing different learning rates, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal/lora_llm_full_vit">here</a>.</p></li>
+<li><p>For multimodal model packing to increase training speed, refer to the example <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/packing">here</a>.</p></li>
+</ul>
+</li>
+<li><p>RLHF Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/rlhf">here</a>. For multi-modal models, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal/rlhf">here</a>. For GRPO training, refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/grpo/internal">here</a>. For reinforcement fine-tuning, see <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/rft">here</a>.</p></li>
+<li><p>Megatron Training: Supports the use of Megatron's parallelization techniques to accelerate the training of large models, including data parallelism, tensor parallelism, pipeline parallelism, sequence parallelism, and context parallelism. Refer to the <a class="reference internal" href="../Megatron-SWIFT/Quick-start.html"><span class="doc">Megatron-SWIFT Training Documentation</span></a>.</p></li>
+<li><p>Sequence Classification Model Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/seq_cls">here</a>.</p></li>
+<li><p>Embedding Model Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/embedding">here</a>.</p></li>
+<li><p>Agent Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/agent">here</a>.</p></li>
+<li><p>Any-to-Any Model Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/all_to_all">here</a>.</p></li>
+<li><p>Other Capabilities:</p>
+<ul>
+<li><p>Streaming Data Reading: Reduces memory usage when handling large datasets. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/streaming/streaming.sh">here</a>.</p></li>
+<li><p>Packing: Combines multiple sequences into one, making each training sample as close to max_length as possible to improve GPU utilization. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/packing">here</a>.</p></li>
+<li><p>Long Text Training: Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/sequence_parallel">here</a>.</p></li>
+<li><p>Lazy Tokenize: Performs tokenization during training instead of pre-training (for multi-modal models, this avoids the need to load all multi-modal resources before training), which can reduce preprocessing wait times and save memory. Refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/streaming/lazy_tokenize.sh">here</a>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="tips">
+<h3>Tips:<a class="headerlink" href="#tips" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>When fine-tuning a base model to a chat model using LoRA technology with <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">sft</span></code>, you may sometimes need to manually set the template. Add the <code class="docutils literal notranslate"><span class="pre">--template</span> <span class="pre">default</span></code> parameter to avoid issues where the base model may fail to stop correctly due to encountering special characters in the dialogue template that it has not seen before. For more details, see <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/base_to_chat">here</a>.</p></li>
+<li><p>If you need to train in an <strong>offline</strong> environment, please set <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">&lt;model_dir&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">--check_model</span> <span class="pre">false</span></code>. If the corresponding model requires <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> from GitHub repositories, such as <code class="docutils literal notranslate"><span class="pre">deepseek-ai/Janus-Pro-7B</span></code>, please manually download the repository and set <code class="docutils literal notranslate"><span class="pre">--local_repo_path</span> <span class="pre">&lt;repo_dir&gt;</span></code>. For specific parameter meanings, refer to the <a class="reference internal" href="Command-line-parameters.html"><span class="doc">command line parameter documentation</span></a>.</p></li>
+<li><p>Merging LoRA for models trained with QLoRA is not possible, so it is not recommended to use QLoRA for fine-tuning, as it cannot utilize vLLM/Sglang/LMDeploy for inference acceleration during inference and deployment. It is recommended to use LoRA or full parameter fine-tuning, merge them into complete weights, and then use GPTQ/AWQ/BNB for <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/export/quantize">quantization</a>.</p></li>
+<li><p>If you are using an NPU for training, simply change <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> in the shell to <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code>.</p></li>
+<li><p>By default, SWIFT sets <code class="docutils literal notranslate"><span class="pre">--gradient_checkpointing</span> <span class="pre">true</span></code> during training to save memory, which may slightly slow down the training speed.</p></li>
+<li><p>If you are using DDP for training and encounter the error: <code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">Expected</span> <span class="pre">to</span> <span class="pre">mark</span> <span class="pre">a</span> <span class="pre">variable</span> <span class="pre">ready</span> <span class="pre">only</span> <span class="pre">once.</span></code>, please additionally set the parameter <code class="docutils literal notranslate"><span class="pre">--gradient_checkpointing_kwargs</span> <span class="pre">'{&quot;use_reentrant&quot;:</span> <span class="pre">false}'</span></code> or use DeepSpeed for training.</p></li>
+<li><p>To use DeepSpeed, you need to install it: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">deepspeed</span> <span class="pre">-U</span></code>. Using DeepSpeed can save memory but may slightly reduce training speed.</p></li>
+<li><p>If your machine has high-performance GPUs like A100 and the model supports flash-attn, it is recommended to install <a class="reference external" href="https://github.com/Dao-AILab/flash-attention/releases">flash-attn</a> and set <code class="docutils literal notranslate"><span class="pre">--attn_impl</span> <span class="pre">flash_attn</span></code>, as this will accelerate training and inference while slightly reducing memory usage.</p></li>
+</ul>
+<p><strong>How to debug:</strong></p>
+<p>You can use the following method for debugging, which is equivalent to using the command line for fine-tuning, but this method does not support distributed training. You can refer to the entry point for the fine-tuning command line <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/swift/cli/sft.py">here</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">sft_main</span><span class="p">,</span> <span class="n">SftArguments</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">sft_main</span><span class="p">(</span><span class="n">SftArguments</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s1">&#39;Qwen/Qwen2.5-7B-Instruct&#39;</span><span class="p">,</span>
+    <span class="n">tuner_type</span><span class="o">=</span><span class="s1">&#39;lora&#39;</span><span class="p">,</span>
+    <span class="n">dataset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-zh#500&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-en#500&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;swift/self-cognition#500&#39;</span><span class="p">],</span>
+    <span class="n">torch_dtype</span><span class="o">=</span><span class="s1">&#39;bfloat16&#39;</span><span class="p">,</span>
+    <span class="c1"># ...</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="using-web-ui">
+<h3>Using Web-UI<a class="headerlink" href="#using-web-ui" title="Link to this heading"></a></h3>
+<p>If you want to use the interface for training, you can refer to the <a class="reference internal" href="../GetStarted/Web-UI.html"><span class="doc">Web-UI documentation</span></a>.</p>
+</section>
+<section id="using-python">
+<h3>Using Python<a class="headerlink" href="#using-python" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>For the Qwen2.5 self-cognition fine-tuning notebook, see <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/notebook/qwen2_5-self-cognition/self-cognition-sft.ipynb">here</a>.</p></li>
+<li><p>For the Qwen2VL OCR task notebook, see <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/notebook/qwen2vl-ocr/ocr-sft.ipynb">here</a>.</p></li>
+</ul>
+</section>
+</section>
+<section id="merge-lora">
+<h2>Merge LoRA<a class="headerlink" href="#merge-lora" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>See <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/export/merge_lora.sh">here</a>.</p></li>
+</ul>
+</section>
+<section id="inference-fine-tuned-model">
+<h2>Inference (Fine-Tuned Model)<a class="headerlink" href="#inference-fine-tuned-model" title="Link to this heading"></a></h2>
+<p>To perform inference on a LoRA-trained checkpoint using the CLI:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The adapters folder contains the trained parameter file <code class="docutils literal notranslate"><span class="pre">args.json</span></code>, so there is no need to specify <code class="docutils literal notranslate"><span class="pre">--model</span></code> or <code class="docutils literal notranslate"><span class="pre">--system</span></code> explicitly; Swift will automatically read these parameters. If you want to disable this behavior, you can set <code class="docutils literal notranslate"><span class="pre">--load_args</span> <span class="pre">false</span></code>.</p></li>
+<li><p>If you are using full parameter training, please use <code class="docutils literal notranslate"><span class="pre">--model</span></code> instead of <code class="docutils literal notranslate"><span class="pre">--adapters</span></code> to specify the training checkpoint directory. For more information, refer to the <a class="reference external" href="./Inference-and-deployment.md#Inference">Inference and Deployment documentation</a>.</p></li>
+<li><p>You can use <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">app</span></code> instead of <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">infer</span></code> for interactive inference.</p></li>
+<li><p>You can choose to merge LoRA (by additionally specifying <code class="docutils literal notranslate"><span class="pre">--merge_lora</span> <span class="pre">true</span></code>), and then specify <code class="docutils literal notranslate"><span class="pre">--infer_backend</span> <span class="pre">vllm/sglang/lmdeploy</span></code> for inference acceleration.</p></li>
+</ul>
+<p>For batch inference on the validation set of the dataset:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_data_args<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_batch_size<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>You can set <code class="docutils literal notranslate"><span class="pre">--max_batch_size</span> <span class="pre">8</span></code> to enable batch processing with <code class="docutils literal notranslate"><span class="pre">--infer_backend</span> <span class="pre">transformers</span></code>. If you use <code class="docutils literal notranslate"><span class="pre">infer_backend</span> <span class="pre">vllm/sglang/lmdeploy</span></code>, it will automatically handle batching without needing to specify.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--load_data_args</span> <span class="pre">true</span></code> will additionally read the data parameters from the training storage parameter file <code class="docutils literal notranslate"><span class="pre">args.json</span></code>.</p></li>
+</ul>
+<p>If you want to perform inference on an additional test set instead of using the training validation set, use <code class="docutils literal notranslate"><span class="pre">--val_dataset</span> <span class="pre">&lt;dataset_path&gt;</span></code> for inference:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--val_dataset<span class="w"> </span>&lt;dataset-path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_batch_size<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Example of Inference on LoRA-Trained Model Using Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.infer_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformersEngine</span><span class="p">,</span> <span class="n">RequestConfig</span><span class="p">,</span> <span class="n">InferRequest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_processor</span><span class="p">,</span> <span class="n">get_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeftModel</span>
+<span class="c1"># Please adjust the following lines</span>
+<span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;Qwen/Qwen2.5-7B-Instruct&#39;</span>
+<span class="n">lora_checkpoint</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="s1">&#39;swift/test_lora&#39;</span><span class="p">)</span>  <span class="c1"># Change to your checkpoint_dir</span>
+<span class="n">template_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None: use the default template_type of the corresponding model</span>
+<span class="n">default_system</span> <span class="o">=</span> <span class="s2">&quot;You are a helpful assistant.&quot;</span>  <span class="c1"># None: use the default system prompt of the corresponding model</span>
+
+<span class="c1"># Load model and dialogue template</span>
+<span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">get_model_processor</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">lora_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PeftModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lora_checkpoint</span><span class="p">)</span>
+<span class="n">template_type</span> <span class="o">=</span> <span class="n">template_type</span> <span class="ow">or</span> <span class="n">model</span><span class="o">.</span><span class="n">model_meta</span><span class="o">.</span><span class="n">template</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">template_type</span><span class="o">=</span><span class="n">template_type</span><span class="p">,</span> <span class="n">default_system</span><span class="o">=</span><span class="n">default_system</span><span class="p">)</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">TransformersEngine</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">max_batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Using 2 infer_requests to demonstrate batch inference</span>
+<span class="n">infer_requests</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;who are you?&#39;</span><span class="p">}]),</span>
+    <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;Where is the capital of Zhejiang?&#39;</span><span class="p">},</span>
+                           <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;assistant&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;Where is the capital of Zhejiang?&#39;</span><span class="p">},</span>
+                           <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;What is good to eat here?&#39;</span><span class="p">},]),</span>
+<span class="p">]</span>
+<span class="n">resp_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">infer_requests</span><span class="p">,</span> <span class="n">request_config</span><span class="p">)</span>
+<span class="n">query0</span> <span class="o">=</span> <span class="n">infer_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response0: </span><span class="si">{</span><span class="n">resp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response1: </span><span class="si">{</span><span class="n">resp_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example of LoRA Inference for Multi-Modal Model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.infer_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformersEngine</span><span class="p">,</span> <span class="n">RequestConfig</span><span class="p">,</span> <span class="n">InferRequest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_processor</span><span class="p">,</span> <span class="n">get_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeftModel</span>
+<span class="c1"># Please adjust the following lines</span>
+<span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;Qwen/Qwen2.5-VL-7B-Instruct&#39;</span>
+<span class="n">lora_checkpoint</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="s1">&#39;swift/test_grounding&#39;</span><span class="p">)</span>  <span class="c1"># Change to your checkpoint_dir</span>
+<span class="n">template_type</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None: use the default template_type of the corresponding model</span>
+<span class="n">default_system</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># None: use the default system prompt of the corresponding model</span>
+
+<span class="c1"># Load model and dialogue template</span>
+<span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">get_model_processor</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">lora_checkpoint</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">PeftModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lora_checkpoint</span><span class="p">)</span>
+<span class="n">template_type</span> <span class="o">=</span> <span class="n">template_type</span> <span class="ow">or</span> <span class="n">model</span><span class="o">.</span><span class="n">model_meta</span><span class="o">.</span><span class="n">template</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="n">template_type</span><span class="o">=</span><span class="n">template_type</span><span class="p">,</span> <span class="n">default_system</span><span class="o">=</span><span class="n">default_system</span><span class="p">)</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">TransformersEngine</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span> <span class="n">max_batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Using 2 infer_requests to demonstrate batch inference</span>
+<span class="n">infer_requests</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;who are you?&#39;</span><span class="p">}]),</span>
+    <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;&lt;image&gt;Task: Object Detection&#39;</span><span class="p">}],</span>
+                 <span class="n">images</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;http://modelscope-open.oss-cn-hangzhou.aliyuncs.com/images/animal.png&#39;</span><span class="p">]),</span>
+<span class="p">]</span>
+<span class="n">resp_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">(</span><span class="n">infer_requests</span><span class="p">,</span> <span class="n">request_config</span><span class="p">)</span>
+<span class="n">query0</span> <span class="o">=</span> <span class="n">infer_requests</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response0: </span><span class="si">{</span><span class="n">resp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response1: </span><span class="si">{</span><span class="n">resp_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you are using a model trained with ms-swift, you can obtain the training configuration as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span><span class="p">,</span> <span class="n">BaseArguments</span>
+
+<span class="n">lora_adapters</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="s1">&#39;swift/test_lora&#39;</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">BaseArguments</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">lora_adapters</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;args.model: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;args.model_type: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">model_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;args.template_type: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">template</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;args.default_system: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">system</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>To perform inference on a checkpoint trained with full parameters, set <code class="docutils literal notranslate"><span class="pre">model</span></code> to <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">lora_checkpoint</span></code> to <code class="docutils literal notranslate"><span class="pre">None</span></code>. For more information, refer to the <a class="reference external" href="./Inference-and-deployment.md#Inference">Inference and Deployment documentation</a>.</p></li>
+<li><p>For streaming inference and acceleration using <code class="docutils literal notranslate"><span class="pre">VllmEngine</span></code>, <code class="docutils literal notranslate"><span class="pre">SglangEngine</span></code> and <code class="docutils literal notranslate"><span class="pre">LmdeployEngine</span></code>, you can refer to the inference examples for <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo.py">large models</a> and <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_mllm.py">multi-modal large models</a>.</p></li>
+<li><p>For inference on fine-tuned models using the Hugging Face transformers/PEFT ecosystem, you can see <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_hf.py">here</a>.</p></li>
+<li><p>If you have trained multiple LoRAs and need to switch among them, refer to the <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_lora.py">inference</a> and <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/deploy/lora">deployment</a> examples.</p></li>
+<li><p>For grounding tasks in multi-modal models, you can refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_grounding.py">here</a>.</p></li>
+<li><p>For inference on a LoRA fine-tuned BERT model, see <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/infer/demo_bert.py">here</a>.</p></li>
+</ul>
+</section>
+<section id="deployment-fine-tuned-model">
+<h2>Deployment (Fine-Tuned Model)<a class="headerlink" href="#deployment-fine-tuned-model" title="Link to this heading"></a></h2>
+<p>Use the following command to start the deployment server. If the weights are trained using full parameters, please use <code class="docutils literal notranslate"><span class="pre">--model</span></code> instead of <code class="docutils literal notranslate"><span class="pre">--adapters</span></code> to specify the training checkpoint directory. You can refer to the client calling methods described in the <a class="reference external" href="./Inference-and-deployment.md#Deployment">Inference and Deployment documentation</a>: curl, OpenAI library, and Swift client.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--served_model_name<span class="w"> </span><span class="s1">&#39;&lt;model-name&gt;&#39;</span>
+</pre></div>
+</div>
+<p>Here, a complete example of deploying and calling multiple LoRAs using vLLM will be provided.</p>
+<section id="server-side">
+<h3>Server Side<a class="headerlink" href="#server-side" title="Link to this heading"></a></h3>
+<p>First, you need to install vLLM: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">vllm</span> <span class="pre">-U</span></code>, and use <code class="docutils literal notranslate"><span class="pre">--infer_backend</span> <span class="pre">vllm</span></code> when deploying, which can significantly speed up inference.</p>
+<p>We pre-trained two base models with different self-awareness LoRA incremental weights for <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-7B-Instruct</span></code> (which can run successfully). You can find relevant information in <a class="reference external" href="https://modelscope.cn/models/swift/test_lora/file/view/master">args.json</a>. You simply need to modify <code class="docutils literal notranslate"><span class="pre">--adapters</span></code> to specify the local path for the trained LoRA weights during deployment.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span><span class="nv">lora1</span><span class="o">=</span>swift/test_lora<span class="w"> </span><span class="nv">lora2</span><span class="o">=</span>swift/test_lora2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="client-side">
+<h3>Client Side<a class="headerlink" href="#client-side" title="Link to this heading"></a></h3>
+<p>Here, we will only cover calling using the OpenAI library. Examples for calling with curl and the Swift client can be referenced in the <a class="reference external" href="./Inference-and-deployment.md#Deployment">Inference and Deployment documentation</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAI</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="o">=</span><span class="s1">&#39;EMPTY&#39;</span><span class="p">,</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;http://127.0.0.1:8000/v1&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">list</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;models: </span><span class="si">{</span><span class="n">models</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">query</span> <span class="o">=</span> <span class="s1">&#39;who are you?&#39;</span>
+<span class="n">messages</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="n">query</span><span class="p">}]</span>
+
+<span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">]</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response: </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="n">gen</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">models</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;query: </span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="se">\n</span><span class="s1">response: &#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">gen</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">chunk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">models: [&#39;Qwen2.5-7B-Instruct&#39;, &#39;lora1&#39;, &#39;lora2&#39;]</span>
+<span class="sd">query: who are you?</span>
+<span class="sd">response: I am an artificial intelligence model named swift-robot, developed by swift. I can answer your questions, provide information, and engage in conversation. If you have any inquiries or need assistance, feel free to ask me at any time.</span>
+<span class="sd">query: who are you?</span>
+<span class="sd">response: I am an artificial intelligence model named Xiao Huang, developed by ModelScope. I can answer your questions, provide information, and engage in conversation. If you have any inquiries or need assistance, feel free to ask me at any time.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>推理 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="LLaMA-Factory" href="../LLaMA-Factory/index.html" />
+    <link rel="prev" title="微调预训练模型" href="fine-tune.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Transformers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quick_start.html">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modeldownload.html">模型获取</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fine-tune.html">微调预训练模型</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">推理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pipeline">pipeline 抽象类</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">pipeline 使用</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">音频</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">计算机视觉</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">自然语言处理</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">多模态</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Transformers</a></li>
+      <li class="breadcrumb-item active">推理</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/transformers/inference.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>推理<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>阅读本篇前，请确保已按照 <a class="reference internal" href="install.html"><span class="doc">安装指南</span></a> 准备好昇腾环境及transformers！</p>
+</div>
+<p>在推理阶段，训练好的模型被用于对图像、语音或文本进行分类，也可以用于语言生成、翻译等。</p>
+<p>本文的模型推理以transformers的pipeline为中心进行介绍，pipelines可以自动加载模型和能够进行任务推理的预处理类，使任何模型进行任何语言、计算机视觉、语音以及多模态任务的推理变得非常简单。</p>
+<section id="pipeline">
+<h2>pipeline 抽象类<a class="headerlink" href="#pipeline" title="Link to this heading"></a></h2>
+<p>pipeline 抽象类是所有其他 pipeline 的封装，可以像其他任何 pipeline 一样实例化。</p>
+<p>pipeline 参数由 task、tokenizer、model、optional 组成：</p>
+<ul class="simple">
+<li><p>task 将确定返回哪一个 pipeline，比如 text-classification 将会返回 TextClassificationPipeline，image-to-image 将会返回 ImageToImagePipeline。</p></li>
+<li><p>tokenizer分词器是用来将输入进行编码，str或者PreTrainedTokenizer，如果未提供将使用model参数，如果model也未提供或者非str,将使用config参数，如果config参数也未提供或者非str，将提供task的默认tokenizer。</p></li>
+<li><p>model是模型，str或者PreTrainedModel，一般为有.bin模型文件的目录。</p></li>
+<li><p>optional其他参数包括，config、feature_extractor、device、device_map等。</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>pipeline 使用<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>pipeline适用于音频、计算机视觉、自然语言处理和多模态任务，下面将介绍它在各场景的使用方式。</p>
+<section id="id3">
+<h3>音频<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<section id="id4">
+<h4>音频识别<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>用于提取某些音频中包含的文本，如下创建pipeline，并输入音频文件：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">transcriber</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;automatic-speech-recognition&quot;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">transcriber</span><span class="p">(</span><span class="s2">&quot;https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac&quot;</span><span class="p">)</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">7</span><span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="s1">&#39;I HAVE A DREAM BUT ONE DAY THIS NATION WILL RISE UP LIVE UP THE TRUE MEANING OF ITS TREES&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h4>文本转音频<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>根据输入文本和可选的其他条件输入生成音频文件：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">pipe</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;suno/bark-small&quot;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">output</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="s2">&quot;Hey it&#39;s HuggingFace on the phone!&quot;</span><span class="p">)</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="n">audio</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;audio&quot;</span><span class="p">]</span>
+<span class="linenos">7</span><span class="n">sampling_rate</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;sampling_rate&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h3>计算机视觉<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id7">
+<h4>图像分类<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<p>图像分类可以识别图片特征，并给出分类标签和置信度得分：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">classifier</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;microsoft/beit-base-patch16-224-pt22k-ft22k&quot;</span><span class="p">)</span>
+<span class="linenos">4</span><span class="n">classifier</span><span class="p">(</span><span class="s2">&quot;https://huggingface.co/datasets/Narsil/image_dummy/raw/main/parrots.png&quot;</span><span class="p">)</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">7</span><span class="p">[{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mf">0.442</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;macaw&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mf">0.088</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;popinjay&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mf">0.075</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;parrot&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mf">0.073</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;parodist, lampooner&#39;</span><span class="p">},</span> <span class="p">{</span><span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="mf">0.046</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;poll, poll_parrot&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h4>图像转图像<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<p>它可以将图像根据信息生成新图像，以下示例通过图像超分辨率模型将低分辨率图像放大并增强其细节，使其看起来更清晰：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="kn">from</span><span class="w"> </span><span class="nn">PIL</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="linenos"> 2</span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="linenos"> 3</span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">upscaler</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">&quot;image-to-image&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s2">&quot;caidas/swin2SR-classical-sr-x2-64&quot;</span><span class="p">)</span>
+<span class="linenos"> 6</span><span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;http://images.cocodataset.org/val2017/000000039769.jpg&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">raw</span><span class="p">)</span>
+<span class="linenos"> 7</span><span class="n">img</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">resize</span><span class="p">((</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">))</span>
+<span class="linenos"> 8</span><span class="n">upscaled_img</span> <span class="o">=</span> <span class="n">upscaler</span><span class="p">(</span><span class="n">img</span><span class="p">)</span> <span class="c1">#超分辨率处理</span>
+<span class="linenos"> 9</span><span class="nb">print</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="linenos">10</span><span class="nb">print</span><span class="p">(</span><span class="n">upscaled_img</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">13</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span>    <span class="c1"># 输出原图像的尺寸</span>
+<span class="linenos">14</span><span class="p">(</span><span class="mi">144</span><span class="p">,</span> <span class="mi">144</span><span class="p">)</span>  <span class="c1"># 输出处理后图像的尺寸</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id9">
+<h3>自然语言处理<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<section id="id10">
+<h4>文本分类<a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+<p>根据标签对文本进行分类:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>from<span class="w"> </span>transformers<span class="w"> </span>import<span class="w"> </span>pipeline
+<span class="linenos">2</span><span class="nv">classifier</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pipeline<span class="o">(</span><span class="nv">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="o">)</span>
+<span class="linenos">3</span>classifier<span class="o">(</span>
+<span class="linenos">4</span><span class="w">    </span><span class="s2">&quot;I have a problem with my iphone that needs to be resolved asap!!&quot;</span>,
+<span class="linenos">5</span><span class="w">    </span><span class="nv">candidate_labels</span><span class="o">=[</span><span class="s2">&quot;urgent&quot;</span>,<span class="w"> </span><span class="s2">&quot;not urgent&quot;</span>,<span class="w"> </span><span class="s2">&quot;phone&quot;</span>,<span class="w"> </span><span class="s2">&quot;tablet&quot;</span>,<span class="w"> </span><span class="s2">&quot;computer&quot;</span><span class="o">]</span>,
+<span class="linenos">6</span><span class="o">)</span>
+<span class="linenos">7</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">8</span><span class="c1">#{&#39;sequence&#39;: &#39;I have a problem with my iphone that needs to be resolved asap!!&#39;, &#39;labels&#39;: [&#39;urgent&#39;, &#39;phone&#39;, &#39;computer&#39;, &#39;not urgent&#39;, &#39;tablet&#39;], &#39;scores&#39;: [0.504, 0.479, 0.013, 0.003, 0.002]}</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h4>文本生成<a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<p>根据文本生成对话响应：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>from<span class="w"> </span>transformers<span class="w"> </span>import<span class="w"> </span>pipeline
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="nv">generator</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pipeline<span class="o">(</span><span class="nv">model</span><span class="o">=</span><span class="s2">&quot;HuggingFaceH4/zephyr-7b-beta&quot;</span><span class="o">)</span>
+<span class="linenos">4</span><span class="c1"># Zephyr-beta is a conversational model, so let&#39;s pass it a chat instead of a single string</span>
+<span class="linenos">5</span>generator<span class="o">([{</span><span class="s2">&quot;role&quot;</span>:<span class="w"> </span><span class="s2">&quot;user&quot;</span>,<span class="w"> </span><span class="s2">&quot;content&quot;</span>:<span class="w"> </span><span class="s2">&quot;What is the capital of France? Answer in one word.&quot;</span><span class="o">}]</span>,<span class="w"> </span><span class="nv">do_sample</span><span class="o">=</span>False,<span class="w"> </span><span class="nv">max_new_tokens</span><span class="o">=</span><span class="m">2</span><span class="o">)</span>
+<span class="linenos">6</span>
+<span class="linenos">7</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">8</span><span class="o">[{</span><span class="s1">&#39;generated_text&#39;</span>:<span class="w"> </span><span class="o">[{</span><span class="s1">&#39;role&#39;</span>:<span class="w"> </span><span class="s1">&#39;user&#39;</span>,<span class="w"> </span><span class="s1">&#39;content&#39;</span>:<span class="w"> </span><span class="s1">&#39;What is the capital of France? Answer in one word.&#39;</span><span class="o">}</span>,<span class="w"> </span><span class="o">{</span><span class="s1">&#39;role&#39;</span>:<span class="w"> </span><span class="s1">&#39;assistant&#39;</span>,<span class="w"> </span><span class="s1">&#39;content&#39;</span>:<span class="w"> </span><span class="s1">&#39;Paris&#39;</span><span class="o">}]}]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id12">
+<h3>多模态<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<section id="id13">
+<h4>视觉问答<a class="headerlink" href="#id13" title="Link to this heading"></a></h4>
+<p>VQA使用图像和关于该图像的问题进行提问，图像可以是URL或图像的本地路径:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span>from<span class="w"> </span>transformers<span class="w"> </span>import<span class="w"> </span>pipeline
+<span class="linenos"> 2</span><span class="nv">vqa</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pipeline<span class="o">(</span><span class="nv">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;</span><span class="o">)</span>
+<span class="linenos"> 3</span><span class="nv">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>vqa<span class="o">(</span>
+<span class="linenos"> 4</span><span class="w">    </span><span class="nv">image</span><span class="o">=</span><span class="s2">&quot;https://huggingface.co/spaces/impira/docquery/resolve/2359223c1837a7587402bda0f2643382a6eefeab/invoice.png&quot;</span>,
+<span class="linenos"> 5</span><span class="w">    </span><span class="nv">question</span><span class="o">=</span><span class="s2">&quot;What is the invoice number?&quot;</span>,
+<span class="linenos"> 6</span><span class="o">)</span>
+<span class="linenos"> 7</span>output<span class="o">[</span><span class="m">0</span><span class="o">][</span><span class="s2">&quot;score&quot;</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>round<span class="o">(</span>output<span class="o">[</span><span class="m">0</span><span class="o">][</span><span class="s2">&quot;score&quot;</span><span class="o">]</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">10</span><span class="c1">#[{&#39;score&#39;: 0.425, &#39;answer&#39;: &#39;us-001&#39;, &#39;start&#39;: 16, &#39;end&#39;: 16}]</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h4>图像转文本<a class="headerlink" href="#id14" title="Link to this heading"></a></h4>
+<p>用于预测给定图像的主题：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>from<span class="w"> </span>transformers<span class="w"> </span>import<span class="w"> </span>pipeline
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="nv">captioner</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>pipeline<span class="o">(</span><span class="nv">model</span><span class="o">=</span><span class="s2">&quot;ydshieh/vit-gpt2-coco-en&quot;</span><span class="o">)</span>
+<span class="linenos">4</span>captioner<span class="o">(</span><span class="s2">&quot;https://huggingface.co/datasets/Narsil/image_dummy/raw/main/parrots.png&quot;</span><span class="o">)</span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="c1">#以下为输出示例</span>
+<span class="linenos">7</span><span class="o">[{</span><span class="s1">&#39;generated_text&#39;</span>:<span class="w"> </span><span class="s1">&#39;two birds are standing next to each other &#39;</span><span class="o">}]</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="fine-tune.html" class="btn btn-neutral float-left" title="微调预训练模型" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../LLaMA-Factory/index.html" class="btn btn-neutral float-right" title="LLaMA-Factory" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,217 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" />
+    <link rel="next" title="Llama.cpp" href="../../../llama_cpp/index.html" />
+    <link rel="prev" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)" href="ascend_profiling_zh.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ascend_quick_start.html">Ascend Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_sglang_quick_start.html">Ascend Quickstart with SGLang Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_en.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_zh.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">环境变量配置</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vllm">vLLM初始化参数</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/verl/ascend_consistency.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="align-the-inference-results-of-the-verl-and-vllm-frameworks-on-ascend-devices-zh">
+<h1>Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)<a class="headerlink" href="#align-the-inference-results-of-the-verl-and-vllm-frameworks-on-ascend-devices-zh" title="Link to this heading"></a></h1>
+<p>在昇腾设备上对齐verl和vLLM两个框架下的推理结果。</p>
+<p>Last updated: 11/17/2025.</p>
+<p>这是一份在昇腾设备上对齐verl和vLLM两个框架下推理结果的教程。</p>
+<section id="id1">
+<h2>环境变量配置<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>在多卡通信情况下：</p>
+<ul class="simple">
+<li><p>HCCL通信下(默认场景):</p>
+<ul>
+<li><p>export CLOSE_MATMUL_K_SHIFT=1</p></li>
+<li><p>export ATB_MATMUL_SHUFFLE_K_ENABLE=0</p></li>
+<li><p>export HCCL_DETERMINISTIC=&quot;true&quot;</p></li>
+<li><p>export VLLM_ENABLE_V1_MULTIPROCESSING=0</p></li>
+</ul>
+</li>
+<li><p>LCCL通信下(通过export HCCL_OP_EXPANSION_MODE=&quot;AIV&quot;使能）:</p>
+<ul>
+<li><p>export CLOSE_MATMUL_K_SHIFT=1</p></li>
+<li><p>export ATB_MATMUL_SHUFFLE_K_ENABLE=0</p></li>
+<li><p>export LCCL_DETERMINISTIC=1</p></li>
+<li><p>export ATB_LLM_LCOC_ENABLE=0</p></li>
+<li><p>export VLLM_ENABLE_V1_MULTIPROCESSING=0</p></li>
+</ul>
+</li>
+</ul>
+<p>在单卡无通信情况下：</p>
+<ul class="simple">
+<li><p>HCCL和LCCL通信下:</p>
+<ul>
+<li><p>export CLOSE_MATMUL_K_SHIFT=1</p></li>
+<li><p>export ATB_MATMUL_SHUFFLE_K_ENABLE=0</p></li>
+<li><p>export VLLM_ENABLE_V1_MULTIPROCESSING=0</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="vllm">
+<h2>vLLM初始化参数<a class="headerlink" href="#vllm" title="Link to this heading"></a></h2>
+<p>需要对 SamplingParams 参数里单独设置seed, 保持vLLM和verl推理结果一致, 举例修改如下：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">sampling_params = SamplingParams(n=1,</span>
+<span class="w">                                 </span><span class="l l-Scalar l-Scalar-Plain">logprobs=0,</span><span class="w">  </span><span class="c1"># can be set to 0 and let actor to recompute</span>
+<span class="w">                                 </span><span class="l l-Scalar l-Scalar-Plain">max_tokens=config.response_length,</span>
+<span class="w">                                 </span><span class="l l-Scalar l-Scalar-Plain">repetition_penalty=config.get(&quot;repetition_penalty&quot;, 1.0),</span>
+<span class="w">                                 </span><span class="l l-Scalar l-Scalar-Plain">seed=1234)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="ascend_profiling_zh.html" class="btn btn-neutral float-left" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../../../llama_cpp/index.html" class="btn btn-neutral float-right" title="Llama.cpp" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

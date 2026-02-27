@@ -1,0 +1,614 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ascend Quickstart &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" />
+    <link rel="next" title="Ascend Quickstart with SGLang Backend" href="ascend_sglang_quick_start.html" />
+    <link rel="prev" title="verl" href="../../../verl/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ascend Quickstart</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">关键更新</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件支持</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">安装流程</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dockerfile">DockerFile镜像构建 &amp; 使用</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">安装基础环境</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">安装其他软件包</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vllm-vllm-ascend">安装 vllm &amp; vllm-ascend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mindspeed">安装 MindSpeed</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verl">安装verl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">昇腾暂不支持生态库说明</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">快速开始</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">算法支持现状</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id30">声明</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_sglang_quick_start.html">Ascend Quickstart with SGLang Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_en.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_zh.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_consistency.html">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">Ascend Quickstart</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/verl/ascend_quick_start.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ascend-quickstart">
+<h1>Ascend Quickstart<a class="headerlink" href="#ascend-quickstart" title="Link to this heading"></a></h1>
+<p>Last updated: 2/13/2026.</p>
+<p>我们在 verl 上增加对华为昇腾设备的支持。</p>
+<section id="id1">
+<h2>关键更新<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>2025/12/11：verl 存量场景目前支持自动识别 NPU 设备类型， GPU 脚本在昇腾上运行，原则上不再需要显式设置 trainer.device=npu 参数，新增特性通过设置 trainer.device 仍可优先使用，逐步适配自动识别能力。</p>
+<blockquote>
+<div><p>[说明] 自动识别 NPU 设备类型的前提，是运行程序所在环境包含 torch_npu 软件包。如不包含该软件包，仍需显式指定 trainer.device=npu 参数。</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>硬件支持<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>Atlas 200T A2 Box16</p>
+<p>Atlas 900 A2 PODc</p>
+<p>Atlas 800T A3</p>
+</section>
+<section id="id3">
+<h2>安装流程<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="dockerfile">
+<h3>DockerFile镜像构建 &amp; 使用<a class="headerlink" href="#dockerfile" title="Link to this heading"></a></h3>
+<p>如需要通过 DockerFile 构建镜像，或希望使用基于 verl 构建的镜像，请参考 <a class="reference external" href="https://github.com/volcengine/verl/tree/main/docs/ascend_tutorial/dockerfile_build_guidance.rst">文档</a> 。</p>
+</section>
+<section id="id5">
+<h3>安装基础环境<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>基础环境涉及以下软件包，请参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">文档</a> 安装。</p>
+<blockquote>
+<div><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>software</p></td>
+<td><p>version</p></td>
+</tr>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>&gt;= 3.10, &lt;3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>== 8.3.RC1</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>== 2.7.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>== 2.7.1</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</li>
+<li><p>（可选）在 x86 平台安装时，pip 需要配置额外的源，指令如下：</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>global.extra-index-url<span class="w"> </span><span class="s2">&quot;https://download.pytorch.org/whl/cpu/&quot;</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="id7">
+<h3>安装其他软件包<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>基础环境准备完毕后，需要通过指令安装以下软件包：</p>
+<blockquote>
+<div><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>torchvision</p></td>
+<td><p>== 0.22.1</p></td>
+</tr>
+<tr class="row-even"><td><p>triton-ascend</p></td>
+<td><p>== 3.2.0rc4</p></td>
+</tr>
+<tr class="row-odd"><td><p>transformers</p></td>
+<td><p>== 4.57.6</p></td>
+</tr>
+</tbody>
+</table>
+<p>tips: verl is not support transformers 5.0.0 or higher
+安装指令：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 安装torchvision，版本需要和torch匹配</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torchvision</span><span class="o">==</span><span class="m">0</span>.22.1
+
+<span class="c1"># 清理环境上可能存在的历史triton/triton-ascend软件包残留</span>
+pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>triton<span class="w"> </span>triton-ascend
+
+<span class="c1"># 安装triton-ascend，不需要单独安装triton</span>
+pip<span class="w"> </span>install<span class="w"> </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.0rc4
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="vllm-vllm-ascend">
+<h3>安装 vllm &amp; vllm-ascend<a class="headerlink" href="#vllm-vllm-ascend" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>需确保CANN ascend-toolkit 和 nnal 环境变量被激活，对于CANN默认安装路径 /usr/local/Ascend 而言，激活指令如下：</p>
+<blockquote>
+<div><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Ascend</span><span class="o">/</span><span class="n">ascend</span><span class="o">-</span><span class="n">toolkit</span><span class="o">/</span><span class="n">set_env</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">source</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">Ascend</span><span class="o">/</span><span class="n">nnal</span><span class="o">/</span><span class="n">atb</span><span class="o">/</span><span class="n">set_env</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>vllm 源码安装指令：</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v0.11.0<span class="w"> </span>https://github.com/vllm-project/vllm.git
+<span class="nb">cd</span><span class="w"> </span>vllm<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">VLLM_TARGET_DEVICE</span><span class="o">=</span>empty<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>..
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+<li><p>vllm-ascend 源码安装指令：</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v0.11.0rc1<span class="w"> </span>https://github.com/vllm-project/vllm-ascend.git
+<span class="nb">cd</span><span class="w"> </span>vllm-ascend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>..
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
+</section>
+<section id="mindspeed">
+<h3>安装 MindSpeed<a class="headerlink" href="#mindspeed" title="Link to this heading"></a></h3>
+<p>MindSpeed 源码安装指令：</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 下载 MindSpeed，切换到指定commit-id，并下载 Megatron-LM</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://gitcode.com/Ascend/MindSpeed.git
+<span class="nb">cd</span><span class="w"> </span>MindSpeed<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>f2b0977e<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>..
+git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>core_v0.12.1<span class="w"> </span>https://github.com/NVIDIA/Megatron-LM.git
+
+<span class="c1"># 安装 MindSpeed &amp; Megatron</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>MindSpeed
+
+<span class="c1"># 将 Megatron-LM 源码路径配置到 PYTHONPATH 环境变量中</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:<span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/Megatron-LM&quot;</span>
+
+<span class="c1"># （可选）如希望 shell 关闭，或系统重启后，PYTHONPATH 环境变量仍然生效，建议将它添加到 .bashrc 配置文件中</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export PYTHONPATH=</span><span class="nv">$PYTHONPATH</span><span class="s2">:\&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">/Megatron-LM\&quot;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+
+<span class="c1"># 安装 mbridge</span>
+pip<span class="w"> </span>install<span class="w"> </span>mbridge
+</pre></div>
+</div>
+</div></blockquote>
+<p>MindSpeed 对应 Megatron-LM 后端使用场景，使用方式如下：</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li><p>使能 verl worker 模型 <code class="docutils literal notranslate"><span class="pre">strategy</span></code> 配置为 <code class="docutils literal notranslate"><span class="pre">megatron</span></code> ，例如 <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.strategy=megatron</span></code>。</p></li>
+<li><p>MindSpeed 自定义入参可通过 <code class="docutils literal notranslate"><span class="pre">override_transformer_config</span></code> 参数传入，例如对 actor 模型开启 FA 特性可使用 <code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.megatron.override_transformer_config.use_flash_attn=True</span></code>。</p></li>
+<li><p>更多特性信息可参考 <a class="reference external" href="https://gitcode.com/Ascend/MindSpeed/blob/master/docs/user-guide/verl.md">MindSpeed &amp; verl 文档</a> 。</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="verl">
+<h3>安装verl<a class="headerlink" href="#verl" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>https://github.com/volcengine/verl.git
+<span class="nb">cd</span><span class="w"> </span>verl<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-npu.txt<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>..
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>昇腾暂不支持生态库说明<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>verl 中昇腾暂不支持生态库如下：</p>
+<blockquote>
+<div><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>software</p></td>
+<td><p>description</p></td>
+</tr>
+<tr class="row-even"><td><p>flash_attn</p></td>
+<td><p>not supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>liger-kernel</p></td>
+<td><p>not supported</p></td>
+</tr>
+</tbody>
+</table>
+<ol class="arabic simple">
+<li><p>不支持通过 flash_attn 使能 flash attention 加速，支持通过 transformers 使用。</p></li>
+<li><p>不支持 liger-kernel 使能。</p></li>
+</ol>
+</div></blockquote>
+</section>
+</section>
+<section id="id9">
+<h2>快速开始<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>正式使用前，建议您通过对Qwen2.5-0.5B GRPO的训练尝试以检验环境准备和安装的正确性。</p>
+<p>1.下载数据集并将数据集预处理为parquet格式，以便包含计算RL奖励所需的必要字段</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>examples/data_preprocess/gsm8k.py<span class="w"> </span>--local_save_dir<span class="w"> </span>~/data/gsm8k
+</pre></div>
+</div>
+</div></blockquote>
+<p>2.执行训练</p>
+<blockquote>
+<div><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-x
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_ATTENTION_BACKEND</span><span class="o">=</span>XFORMERS
+
+python3<span class="w"> </span>-m<span class="w"> </span>verl.trainer.main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>algorithm.adv_estimator<span class="o">=</span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_files<span class="o">=</span><span class="nv">$HOME</span>/data/gsm8k/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.val_files<span class="o">=</span><span class="nv">$HOME</span>/data/gsm8k/test.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_batch_size<span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_prompt_length<span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_response_length<span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.filter_overlong_prompts<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.truncation<span class="o">=</span><span class="s1">&#39;error&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.path<span class="o">=</span>Qwen/Qwen2.5-0.5B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.optim.lr<span class="o">=</span>5e-7<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.use_remove_padding<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.entropy_coeff<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_mini_batch_size<span class="o">=</span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu<span class="o">=</span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.use_kl_loss<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.kl_loss_coef<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.kl_loss_type<span class="o">=</span>low_var_kl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.enable_gradient_checkpointing<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.param_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.optimizer_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">40</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.enable_chunked_prefill<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.tensor_model_parallel_size<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.name<span class="o">=</span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.gpu_memory_utilization<span class="o">=</span><span class="m">0</span>.6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.n<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">40</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.ref.fsdp_config.param_offload<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>algorithm.kl_ctrl.kl_coef<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.critic_warmup<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.logger<span class="o">=</span>console<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.project_name<span class="o">=</span><span class="s1">&#39;verl_grpo_example_gsm8k&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.experiment_name<span class="o">=</span><span class="s1">&#39;qwen2_7b_function_rm&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.n_gpus_per_node<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.save_freq<span class="o">=</span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.test_freq<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.total_epochs<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">$@</span>
+</pre></div>
+</div>
+</div></blockquote>
+</section>
+<section id="id10">
+<h2>算法支持现状<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<p><strong>表1</strong> RL类算法</p>
+<blockquote>
+<div><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>algorithm</p></td>
+<td><p>model</p></td>
+<td><p>download link</p></td>
+<td><p>actor.strategy</p></td>
+<td><p>rollout.name</p></td>
+<td><p>shell location</p></td>
+<td><p>hardware</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO</p></td>
+<td><p>Qwen2.5-7B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct">7B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen2_5_7b_grpo_npu.sh">qwen2_5_7b_grpo_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO</p></td>
+<td><p>Qwen2.5-32B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-32B-Instruct">32B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen2_5_32b_grpo_npu.sh">qwen2_5_32b_grpo_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO</p></td>
+<td><p>Qwen2.5-VL-3B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct">3B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen2_5_vl_3b_npu.sh">qwen2_5_vl_3b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO</p></td>
+<td><p>Qwen2.5-VL-7B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct">7B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen2_5_vl_7b_npu.sh">qwen2_5_vl_7b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO</p></td>
+<td><p>Qwen2.5-VL-32B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-VL-32B-Instruct">32B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen2_5_vl_32b_npu.sh">qwen2_5_vl_32b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO</p></td>
+<td><p>Qwen3-4B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-4B">4B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3_4b_grpo_vllm_1k_npu.sh">qwen3-4B_npu</a></p></td>
+<td><p>Atlas 800T A3</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-8b_npu.sh">qwen3_8b_vllm_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>sglang</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3_8b_grpo_sglang_32k_spmd_npu.sh">qwen3_8b_sglang_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO</p></td>
+<td><p>Qwen3-32B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-32B">32B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/grpo_trainer/run_qwen3-32b_npu.sh">qwen3-32B_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO</p></td>
+<td><p>DeepSeekv3-671B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/deepseek-ai/DeepSeek-V3">671B</a></p></td>
+<td><p>Megatron</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//r1_ascend/run_deepseekv3_671b_grpo_megatron_npu.sh">deepseek_v3_megatron_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>DAPO</p></td>
+<td><p>Qwen2.5-7B-instruct</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct">7B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen2.5_7b_npu.sh">qwen2.5_7b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>DAPO</p></td>
+<td><p>Qwen2.5-32B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-32B">32B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen2.5_32b_npu.sh">qwen2.5_32b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>DAPO</p></td>
+<td><p>Qwen3-8B-base</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen3_8b_base_npu.sh">qwen3_8b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>DAPO</p></td>
+<td><p>Qwen3-14B-base</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-14B">14B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen3_14b_base_npu.sh">qwen3_14b_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>DAPO</p></td>
+<td><p>Qwen3-30B-A3B-base</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-30B-A3B">30B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen3_moe_30b_base_fsdp_npu.sh">qwen3_30b_fsdp_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-odd"><td><p>DAPO</p></td>
+<td><p>Qwen3-30B-A3B-base</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-30B-A3B">30B</a></p></td>
+<td><p>Megatron</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//dapo/run_dapo_qwen3_moe_30b_megatron_npu.sh">qwen3_30b_megatron_npu</a></p></td>
+<td><p>Atlas 200T A2 Box16</p></td>
+</tr>
+<tr class="row-even"><td><p>PPO</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/ppo_trainer/run_qwen3-8b_npu.sh">qwen3_8b_ppo_npu</a></p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>One_Step_Off_Policy</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP2</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main//one_step_off_policy/shell/grpo_qwen3_8b_gsm8k_fsdp2_8_8_npu.sh">qwen3_8b_fsdp2_npu</a></p></td>
+<td><p>Atlas 800T A3</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>表2</strong> SFT类算法</p>
+<blockquote>
+<div><table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p>algorithm</p></td>
+<td><p>model</p></td>
+<td colspan="2"><p>download link</p></td>
+<td><p>actor.strategy</p></td>
+<td><p>shell location</p></td>
+<td><p>hardware</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT-PEFT</p></td>
+<td><p>Qwen3-8B</p></td>
+<td colspan="2"><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-8B">8B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p><a class="reference external" href="https://github.com/volcengine/verl/blob/main/examples/sft/gsm8k/run_qwen3_8b_sft_peft_sp2_npu.sh">sft_peft_sp2_npu</a></p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>ReTool-SFT</p></td>
+<td><p>Qwen2-7B-instruct</p></td>
+<td colspan="2"><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2-7B-Instruct">7B</a></p></td>
+<td><p>FSDP</p></td>
+<td><p><a class="reference external" href="https://github.com/verl-project/verl-recipe/blob/main/retool/run_qwen2_7b_sft_npu.sh">qwen2_7b_sft_npu</a></p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</section>
+<section id="id30">
+<h2>声明<a class="headerlink" href="#id30" title="Link to this heading"></a></h2>
+<p>verl中提供的ascend支持代码、Dockerfile、镜像皆为参考样例，如在生产环境中使用请通过官方正式途径沟通，谢谢。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../../../verl/index.html" class="btn btn-neutral float-left" title="verl" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="ascend_sglang_quick_start.html" class="btn btn-neutral float-right" title="Ascend Quickstart with SGLang Backend" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

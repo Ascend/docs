@@ -1,0 +1,282 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage of rmpad_with_pos_ids and dyn_bsz &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage of rmpad_with_pos_ids and dyn_bsz</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/usage/rmpad_with_pos_ids_and_dyn_bsz.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage-of-rmpad-with-pos-ids-and-dyn-bsz">
+<h1>Usage of rmpad_with_pos_ids and dyn_bsz<a class="headerlink" href="#usage-of-rmpad-with-pos-ids-and-dyn-bsz" title="Link to this heading"></a></h1>
+<section id="background-of-rmpad-with-pos-ids">
+<h2>Background of rmpad_with_pos_ids<a class="headerlink" href="#background-of-rmpad-with-pos-ids" title="Link to this heading"></a></h2>
+<p>In LLM or VLM training, we usually adopt batch training, and the sequence lengths of different samples often vary, for example:</p>
+<ul class="simple">
+<li><p>S1 = [A B C D] (len 4)</p></li>
+<li><p>S2 = [E F] (len 2)</p></li>
+<li><p>S3 = [G H I] (len 3)</p></li>
+<li><p>S4 = [J] (len 1)</p></li>
+</ul>
+<p>To form a batch, a common practice is to pad all sequences to the maximum length within the batch:</p>
+<ul class="simple">
+<li><p>S1_padding = [A B C D]</p></li>
+<li><p>S2_padding = [E F PAD PAD]</p></li>
+<li><p>S3_padding = [G H I PAD]</p></li>
+<li><p>S4_padding = [J PAD PAD PAD]</p></li>
+</ul>
+<p>This approach introduces several serious problems:</p>
+<ol class="simple">
+<li><p><strong>A large amount of meaningless computation</strong>. Transformer attention and FFN layers still perform computations on PAD tokens.</p></li>
+<li><p><strong>Unnecessary memory consumption</strong>. Padding tokens also occupy GPU memory.</p></li>
+</ol>
+<p>The core idea of rmpad_with_pos_ids is:</p>
+<p>Before computation, remove padding tokens from the tensors and perform computation only on real tokens.</p>
+<p>The specific procedure is as follows:</p>
+<ol class="simple">
+<li><p>Within a batch, flatten all real tokens into a single contiguous sequence.</p></li>
+<li><p>Record the token boundaries of each sample using cu_seq_lens_q and cu_seq_lens_k.</p></li>
+<li><p>In Attention (using FlashAttention or FlexAttention) and FFN, compute only on the real tokens.</p></li>
+</ol>
+</section>
+<section id="background-of-dyn-bsz">
+<h2>Background of dyn_bsz<a class="headerlink" href="#background-of-dyn-bsz" title="Link to this heading"></a></h2>
+<p>In distributed training, rmpad_with_pos_ids may cause the sequence lengths to be different across ranks. Suppose there are two ranks: S1 and S2 are on rank0, and S3 and S4 are on rank1:</p>
+<ul class="simple">
+<li><p>Rank0: [A B C D E F]</p></li>
+<li><p>Rank1: [G H I J]</p></li>
+</ul>
+<p>Rank1 will finish the forward and backward computation earlier than rank0, and will wait for rank0 to complete before performing gradient communication. This introduces unnecessary idle time. A common solution is to introduce a dynamic batchsize (dyn_bsz), where different numbers of samples are concatenated according to a target budget so that the total sequence length of a batch is around the target budget. This approach is very common in pretraining.</p>
+<p>However, for SFT tasks, we care more about how many epochs are completed. In this case, it is recommended to disable dyn_bsz.</p>
+<p>So the difference is:</p>
+<p><strong>dyn_bsz ON: batch size varies to hit a token budget.</strong></p>
+<p><strong>dyn_bsz OFF: batch size is fixed, but still uses position_ids packing (no padding) when rmpad_with_pos_ids.</strong></p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<section id="rmpad-with-pos-ids-true-dyn-bsz-on-recommended-for-pretraining">
+<h3>rmpad_with_pos_ids = True, dyn_bsz = ON (Recommended for Pretraining)<a class="headerlink" href="#rmpad-with-pos-ids-true-dyn-bsz-on-recommended-for-pretraining" title="Link to this heading"></a></h3>
+<p>Goal: pack multiple samples into one long sequence and choose how many samples to fit per batch based on token budget.</p>
+<p>Example packed batch (one micro‑batch):</p>
+<ul class="simple">
+<li><p>input_ids = [A B C D E F G H I J]</p></li>
+<li><p>position_ids = [0 1 2 3 0 1 0 1 2 0]</p></li>
+<li><p>(No padding added.)</p></li>
+</ul>
+<p>dyn_bsz decides how many samples to pack so total tokens ~ target budget. If your target is, say, 10 tokens, it packs all 4 here.</p>
+</section>
+<section id="rmpad-with-pos-ids-true-dyn-bsz-off-recommended-for-sft">
+<h3>rmpad_with_pos_ids = True, dyn_bsz = OFF (Recommended for SFT)<a class="headerlink" href="#rmpad-with-pos-ids-true-dyn-bsz-off-recommended-for-sft" title="Link to this heading"></a></h3>
+<p>Goal: still pack with position_ids, but batch size is fixed in number of samples, not by tokens.</p>
+<p>Example fixed batch size = 2 samples:</p>
+<ul class="simple">
+<li><p>Batch 1: S1 + S2</p></li>
+<li><p>input_ids = [A B C D E F]</p></li>
+<li><p>position_ids = [0 1 2 3 0 1]</p></li>
+<li><p>Batch 2: S3 + S4</p></li>
+<li><p>input_ids = [G H I J]</p></li>
+<li><p>position_ids = [0 1 2 0]</p></li>
+</ul>
+</section>
+</section>
+<section id="padding-packed-inputs-pad-packed-input">
+<h2>Padding packed inputs (pad_packed_input)<a class="headerlink" href="#padding-packed-inputs-pad-packed-input" title="Link to this heading"></a></h2>
+<p>When <code class="docutils literal notranslate"><span class="pre">rmpad_with_pos_ids</span></code> is enabled, <code class="docutils literal notranslate"><span class="pre">pad_packed_input</span></code> can pad the packed sequence to a fixed length
+(<code class="docutils literal notranslate"><span class="pre">pad_packed_to_length</span></code>). This is useful to avoid uneven lengths that can trigger kernel recompilation.</p>
+<ul class="simple">
+<li><p>Related GitHub issue: <a class="reference external" href="https://github.com/ByteDance-Seed/VeOmni/issues/402">#402</a></p></li>
+</ul>
+<p>Important details:</p>
+<ul class="simple">
+<li><p>Padding is applied only after packing; labels are padded with <code class="docutils literal notranslate"><span class="pre">IGNORE_INDEX</span></code>.</p></li>
+<li><p>FlashAttention kwargs (<code class="docutils literal notranslate"><span class="pre">cu_seq_lens_q/k</span></code> and <code class="docutils literal notranslate"><span class="pre">max_length_q/k</span></code>) are recomputed after padding so they match
+the padded length and avoid numerical instability.</p></li>
+</ul>
+<p>Examples (data level):</p>
+<ol class="simple">
+<li><p>SFT-style packing with fixed-length padding:</p></li>
+</ol>
+<ul class="simple">
+<li><p>Packed tokens (two samples): input_ids = [A B C D E F], position_ids = [0 1 2 3 0 1]</p></li>
+<li><p>cu_seqlens (from position_ids): [0 4 6]</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">pad_packed_to_length=8</span></code>:</p>
+<ul>
+<li><p>input_ids = [A B C D E F 0 0]</p></li>
+<li><p>position_ids = [0 1 2 3 0 1 0 1]</p></li>
+<li><p>cu_seqlens (padded): [0 4 6 8]</p></li>
+<li><p>labels padded with <code class="docutils literal notranslate"><span class="pre">IGNORE_INDEX</span></code> for the last 2 positions</p></li>
+</ul>
+</li>
+</ul>
+<ol class="simple">
+<li><p>dyn_bsz packing with fixed-length padding:</p></li>
+</ol>
+<ul class="simple">
+<li><p>Packed tokens (three samples): input_ids = [A B C D E F G], position_ids = [0 1 2 0 1 0 1]</p></li>
+<li><p>cu_seqlens (from position_ids): [0 3 5 7]</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">pad_packed_to_length=10</span></code>:</p>
+<ul>
+<li><p>input_ids = [A B C D E F G 0 0 0]</p></li>
+<li><p>position_ids = [0 1 2 0 1 0 1 0 1 2]</p></li>
+<li><p>cu_seqlens (padded): [0 3 5 7 10]</p></li>
+<li><p>labels padded with <code class="docutils literal notranslate"><span class="pre">IGNORE_INDEX</span></code> for the last 3 positions</p></li>
+</ul>
+</li>
+</ul>
+<ol class="simple">
+<li><p>Inferred pad length (micro_batch_size * max_seq_len):</p></li>
+</ol>
+<ul class="simple">
+<li><p>micro_batch_size=2, max_seq_len=4 -&gt; pad_packed_to_length=8</p></li>
+<li><p>Packed tokens (two samples): input_ids = [A B C D E], position_ids = [0 1 2 3 0]</p></li>
+<li><p>cu_seqlens (from position_ids): [0 4 5]</p></li>
+<li><p>After padding:</p>
+<ul>
+<li><p>input_ids = [A B C D E 0 0 0]</p></li>
+<li><p>position_ids = [0 1 2 3 0 1 2 3]</p></li>
+<li><p>cu_seqlens (padded): [0 4 5 8]</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

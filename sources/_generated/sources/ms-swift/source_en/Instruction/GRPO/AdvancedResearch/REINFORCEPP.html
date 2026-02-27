@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/Instruction/GRPO/AdvancedResearch/REINFORCEPP.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reinforce-an-efficient-rlhf-algorithm-with-robustness-to-both-prompt-and-reward-models">
+<h1>REINFORCE++: An Efficient RLHF Algorithm with Robustness to Both Prompt and Reward Models<a class="headerlink" href="#reinforce-an-efficient-rlhf-algorithm-with-robustness-to-both-prompt-and-reward-models" title="Link to this heading"></a></h1>
+<p><strong>Version requirement</strong>: ms-swift&gt;=3.10</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2501.03262">REINFORCE++ Baseline</a> is a simplified version of the REINFORCE++ algorithm, designed for outcome rewards (response-level scalar rewards). Similar to GRPO, it samples multiple model outputs for each prompt and uses an intra-group baseline to estimate advantages. The key difference lies in the statistics used for normalization.</p>
+<section id="algorithm-overview">
+<h2>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h2>
+<p>For clarity, we explain REINFORCE++ Baseline by contrasting it with GRPO (Group Relative Policy Optimization).</p>
+<p>Both GRPO and REINFORCE++ Baseline estimate advantages via intra-group comparisons. Their main differences are:</p>
+<section id="difference-1-statistics-used-for-normalization">
+<h3>Difference 1: Statistics Used for Normalization<a class="headerlink" href="#difference-1-statistics-used-for-normalization" title="Link to this heading"></a></h3>
+<p><strong>GRPO (Group Relative Policy Optimization)</strong></p>
+<p>For each prompt, GRPO generates $G$ response samples and normalizes using the <strong>mean and standard deviation of all samples within the group</strong>:</p>
+<p>$$
+\hat{A}<em>{i} = \frac{R_i - \text{mean}({R_j}</em>{j=1}^G)}{\text{std}({R_j}_{j=1}^G)}
+$$</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">scale_rewards='batch'</span></code> is set, it uses the <strong>batch-level std of original rewards</strong>:</p>
+<p>$$
+\hat{A}<em>{i} = \frac{R_i - \text{mean}({R_j}</em>{j=1}^G)}{\text{std}({R_j}_{j=1}^{N})}
+$$</p>
+<p>where $N$ is the total number of samples in the batch.</p>
+<p><strong>REINFORCE++ Baseline</strong></p>
+<p>For each prompt, REINFORCE++ generates $G$ response samples, subtracts the group mean, and then normalizes using the <strong>standard deviation of the group-mean-subtracted rewards</strong>:</p>
+<p>$$
+\begin{align}
+\tilde{A}<em>{i} &amp;= R_i - \text{mean}({R_j}</em>{j=1}^G) \
+\hat{A}<em>{i} &amp;= \frac{\tilde{A}</em>{i}}{\text{std}({\tilde{A}<em>k}</em>{k=1}^{N})}
+\end{align}
+$$</p>
+<p>where $N$ is the total number of samples in the batch.</p>
+<p><strong>Key Difference</strong>:</p>
+<ul class="simple">
+<li><p><strong>GRPO</strong>: Uses the std of <strong>original rewards $R$</strong> for normalization</p></li>
+<li><p><strong>REINFORCE++</strong>: Uses the std of <strong>group-mean-subtracted rewards $\tilde{A}$</strong> for normalization</p></li>
+</ul>
+</section>
+<section id="difference-2-kl-divergence-regularization">
+<h3>Difference 2: KL Divergence Regularization<a class="headerlink" href="#difference-2-kl-divergence-regularization" title="Link to this heading"></a></h3>
+<p>Similar to RLOO, REINFORCE++ Baseline integrates KL divergence directly into the reward:</p>
+<p>$$
+R'<em>i = R_i - \beta \cdot \text{KL}(\pi</em>\theta || \pi_{\text{ref}})
+$$</p>
+<p>where $\beta$ is the KL divergence weight coefficient (corresponding to the parameter <code class="docutils literal notranslate"><span class="pre">beta</span></code>), and $\pi_{\text{ref}}$ is the reference policy.</p>
+</section>
+</section>
+<section id="parameter-configuration">
+<h2>Parameter Configuration<a class="headerlink" href="#parameter-configuration" title="Link to this heading"></a></h2>
+<p>We can implement REINFORCE++ Baseline training by configuring the following parameters with <code class="docutils literal notranslate"><span class="pre">GRPOTrainer</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--advantage_estimator<span class="w"> </span>reinforce_plus_plus
+--scale_rewards<span class="w"> </span>batch
+--kl_in_reward<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>For training examples, please refer to this <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/reinforce_plus_plus.sh">script</a></p>
+<section id="key-parameter-descriptions">
+<h3>Key Parameter Descriptions<a class="headerlink" href="#key-parameter-descriptions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--advantage_estimator</span></code></strong>: Selects the advantage estimation method</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpo</span></code> (default): Uses the std of original rewards for normalization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reinforce_plus_plus</span></code>: Uses the std of group-mean-subtracted rewards for normalization</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--kl_in_reward</span></code></strong>: Controls where the KL divergence regularization term is applied</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code>: KL divergence is an independent regularization term in the loss function (GRPO default)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code>: KL divergence is subtracted directly from the reward (REINFORCE++ original implementation)</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--scale_rewards</span></code></strong>: Controls the normalization method</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">group</span></code> (default): Intra-group normalization</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch</span></code>: Global batch-level normalization (REINFORCE++ original implementation)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code>: No normalization</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--num_generations</span></code></strong>: Number of samples generated per prompt ($G$)</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--beta</span></code></strong>: KL divergence regularization coefficient ($\beta$)</p></li>
+</ul>
+<p>For other parameters, please refer to <a class="reference external" href="../../Command-line-parameters.md#grpo-arguments">GRPO Parameters</a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

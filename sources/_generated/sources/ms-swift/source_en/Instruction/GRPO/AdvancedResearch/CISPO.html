@@ -1,0 +1,203 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clipped Importance Sampling Policy Optimization (CISPO) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Clipped Importance Sampling Policy Optimization (CISPO)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/Instruction/GRPO/AdvancedResearch/CISPO.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="clipped-importance-sampling-policy-optimization-cispo">
+<h1>Clipped Importance Sampling Policy Optimization (CISPO)<a class="headerlink" href="#clipped-importance-sampling-policy-optimization-cispo" title="Link to this heading"></a></h1>
+<p><strong>Version requirement</strong>: ms-swift&gt;=3.11</p>
+<p>Clipped Importance Sampling Policy Optimization (CISPO) is a reinforcement learning algorithm proposed in the <a class="reference external" href="https://arxiv.org/abs/2506.13585">MiniMax-M1</a> paper. Compared to GRPO (Group Relative Policy Optimization), CISPO clips the importance sampling weights themselves.</p>
+<section id="algorithm-overview">
+<h2>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h2>
+<p>For clarity, we explain CISPO by contrasting it with GRPO.</p>
+<p>GRPO limits the magnitude of policy updates by clipping the policy ratio. Its loss function is:</p>
+<p>$$
+\mathcal{L}_{\text{GRPO}}(\theta) = -\mathbb{E}\left[\min\left(r_t(\theta) \cdot \hat{A}_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) \cdot \hat{A}_t\right)\right]
+$$</p>
+<p>where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$ is the importance sampling ratio.</p>
+<p>When handling long reasoning chains, this clipping approach can lead to the following issues:</p>
+<p><strong>Gradient Suppression of Critical Tokens</strong>: In complex reasoning tasks, certain critical low-probability tokens (such as <em>However, Recheck, Wait, Aha</em>) are crucial for triggering deep thinking and reasoning error correction. These tokens have low probability in the old policy $\pi_{\theta_{\text{old}}}$. When the new policy attempts to increase their probability, it results in a large policy ratio $r_t(\theta)$, and GRPO's clipping mechanism will discard these tokens.</p>
+<section id="cispo-s-solution">
+<h3>CISPO's Solution<a class="headerlink" href="#cispo-s-solution" title="Link to this heading"></a></h3>
+<p>The core idea of CISPO is to clip the importance sampling weights while preserving gradient updates. Specifically, CISPO's loss function is:</p>
+<p>$$
+\mathcal{L}<em>{\text{CISPO}}(\theta) = -\mathbb{E}\left[\text{detach}\left(\min(r_t(\theta), \epsilon</em>{\text{high}})\right) \cdot \hat{A}<em>t \cdot \log \pi</em>\theta(a_t|s_t)\right]
+$$</p>
+<p>where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\theta_{\text{old}}}(a_t|s_t)}$ is the importance sampling ratio.</p>
+<p><strong>Key Mechanisms</strong>:</p>
+<ul class="simple">
+<li><p>Clip the importance sampling weights: $\min(r_t(\theta), \epsilon_{\text{high}})$</p></li>
+<li><p><strong>Detach operation</strong>: The clipped weights do not participate in gradient computation and serve as constant coefficients</p></li>
+<li><p>Gradients come from the $\log \pi_\theta(a_t|s_t)$ term, ensuring all tokens contribute gradients</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Link to this heading"></a></h2>
+<p>The pseudo-code implementation of CISPO is as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">log_ratio</span> <span class="o">=</span> <span class="n">per_token_logps</span> <span class="o">-</span> <span class="n">old_per_token_logps</span>
+<span class="n">importance_weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_ratio</span><span class="p">)</span>  <span class="c1"># r_t(θ) = π_θ / π_θ_old</span>
+
+<span class="n">clamped_ratios</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">importance_weights</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">epsilon_high</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+<span class="n">per_token_loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">clamped_ratios</span> <span class="o">*</span> <span class="n">advantages</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">per_token_logps</span>
+</pre></div>
+</div>
+</section>
+<section id="parameter-configuration">
+<h2>Parameter Configuration<a class="headerlink" href="#parameter-configuration" title="Link to this heading"></a></h2>
+<p>CISPO training can be enabled based on <code class="docutils literal notranslate"><span class="pre">GRPOTrainer</span></code> by setting the following parameters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--loss_type<span class="w"> </span>cispo
+--epsilon_high<span class="w"> </span><span class="m">5</span>.0
+</pre></div>
+</div>
+<blockquote>
+<div><p>Compared to other algorithms, cispo generally uses a larger value for epsilon_high. The minimax paper does not provide specific parameter settings; the value used here refers to the experimental setup in the paper <a class="reference external" href="https://arxiv.org/pdf/2510.13786">ScaleRL</a>.</p>
+</div></blockquote>
+<p>For other training parameters, refer to the <a class="reference external" href="../../Command-line-parameters.md#grpo-arguments">GRPO parameter documentation</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

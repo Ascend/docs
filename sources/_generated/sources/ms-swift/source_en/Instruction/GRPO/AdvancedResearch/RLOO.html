@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REINFORCE Leave-One-Out (RLOO) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">REINFORCE Leave-One-Out (RLOO)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/Instruction/GRPO/AdvancedResearch/RLOO.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="reinforce-leave-one-out-rloo">
+<h1>REINFORCE Leave-One-Out (RLOO)<a class="headerlink" href="#reinforce-leave-one-out-rloo" title="Link to this heading"></a></h1>
+<p><strong>Version requirement</strong>: ms-swift&gt;=3.10</p>
+<p><a class="reference external" href="https://arxiv.org/abs/2402.14740">REINFORCE Leave-One-Out (RLOO)</a> is a reinforcement learning algorithm based on the classic REINFORCE policy-gradient method. It constructs an unbiased advantage baseline via the Leave-One-Out (LOO) technique.</p>
+<section id="algorithm-overview">
+<h2>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h2>
+<p>For clarity, we explain RLOO by contrasting it with GRPO (Group Relative Policy Optimization).</p>
+<p>Both GRPO and RLOO estimate advantages via intra-group comparisons to avoid the high variance of a global baseline. Their core differences are mainly in the following aspects:</p>
+<section id="difference-1-how-the-advantage-baseline-is-constructed">
+<h3>Difference 1: How the Advantage Baseline Is Constructed<a class="headerlink" href="#difference-1-how-the-advantage-baseline-is-constructed" title="Link to this heading"></a></h3>
+<p><strong>1. GRPO (Group Relative Policy Optimization)</strong></p>
+<p>For each prompt, GRPO generates $G$ response samples and normalizes rewards using the group mean and standard deviation:</p>
+<p>$$
+\hat{A}<em>{i} = \frac{R_i - \text{mean}({R_j}</em>{j=1}^G)}{\text{std}({R_j}_{j=1}^G)}
+$$</p>
+<p>Where:</p>
+<ul class="simple">
+<li><p>$R_i$ is the reward of the $i$-th sample</p></li>
+<li><p>$\text{mean}({R_j}<em>{j=1}^G) = \frac{1}{G}\sum</em>{j=1}^G R_j$ is the group mean</p></li>
+<li><p>$\text{std}({R_j}_{j=1}^G)$ is the group standard deviation</p></li>
+</ul>
+<p><strong>2. RLOO (REINFORCE Leave-One-Out)</strong></p>
+<p>For each prompt, RLOO generates $K$ response samples and constructs the baseline via Leave-One-Out, i.e., for the $i$-th sample, the baseline is the mean of the other $K-1$ samples:</p>
+<p>$$
+\hat{A}<em>{i} = R_i - \frac{1}{K-1}\sum</em>{j \neq i} R_j
+$$</p>
+<p>This can be equivalently rewritten as:</p>
+<p>$$
+\hat{A}_{i} = \frac{K}{K-1} \left(R_i - \bar{R}\right)
+$$</p>
+<p>where $\bar{R} = \frac{1}{K}\sum_{j=1}^K R_j$ is the group mean reward.</p>
+<blockquote>
+<div><p>Note: We use $K$ here to match the notation in the paper. It has the same meaning as $G$ in GRPO and corresponds to the configuration parameter <code class="docutils literal notranslate"><span class="pre">num_generations</span></code>.</p>
+</div></blockquote>
+<p><strong>Why Leave-One-Out?</strong></p>
+<p>The key advantage is unbiasedness. For the $i$-th sample, its reward $R_i$ is independent of the baseline $\frac{1}{K-1}\sum_{j \neq i} R_j$, hence the advantage estimate is unbiased. In contrast, using the mean including itself as the baseline introduces bias.</p>
+</section>
+<section id="difference-2-how-kl-regularization-is-applied">
+<h3>Difference 2: How KL Regularization Is Applied<a class="headerlink" href="#difference-2-how-kl-regularization-is-applied" title="Link to this heading"></a></h3>
+<p>To prevent the policy from drifting too far from the reference policy, both algorithms introduce KL divergence regularization, but in different ways:</p>
+<p><strong>GRPO</strong>: Adds KL divergence as an independent regularization term to the <a class="reference external" href="../GetStarted/GRPO.md#algorithm-overview">loss</a>:</p>
+<p>$$
+\mathcal{L}(\theta) = -\mathbb{E}\left[\hat{A}<em>i \log \pi</em>\theta(a_i|s_i)\right] + \beta \cdot \text{KL}(\pi_\theta \Vert \pi_{\text{ref}})
+$$</p>
+<p><strong>RLOO</strong>: Integrates KL divergence directly into the reward, constructing a modified reward:</p>
+<p>$$
+R'<em>i = R_i - \beta \cdot \text{KL}(\pi</em>\theta \Vert \pi_{\text{ref}})
+$$</p>
+<p>where $\beta$ is the KL coefficient (parameter <code class="docutils literal notranslate"><span class="pre">beta</span></code>), and $\pi_{\text{ref}}$ is the reference policy (typically an SFT model or the initial policy).</p>
+</section>
+</section>
+<section id="parameter-configuration">
+<h2>Parameter Configuration<a class="headerlink" href="#parameter-configuration" title="Link to this heading"></a></h2>
+<p>RLOO training can be enabled based on <code class="docutils literal notranslate"><span class="pre">GRPOTrainer</span></code> by setting the following parameters:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic RLOO configuration</span>
+--advantage_estimator<span class="w"> </span>rloo<span class="w">  </span><span class="c1"># Use RLOO&#39;s leave-one-out advantage estimator</span>
+--kl_in_reward<span class="w"> </span><span class="nb">true</span><span class="w">         </span><span class="c1"># Integrate KL divergence into the reward (default for RLOO)</span>
+</pre></div>
+</div>
+<p>You can refer to this <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/rloo.sh">script</a> for training.</p>
+<section id="important-parameters">
+<h3>Important Parameters<a class="headerlink" href="#important-parameters" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--advantage_estimator</span></code></strong>: Choose the advantage estimator</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">grpo</span></code> (default): standardize using group mean and standard deviation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rloo</span></code>: construct the baseline via Leave-One-Out</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--kl_in_reward</span></code></strong>: Controls where the KL term is applied</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code>: KL as a separate regularization term in the loss (GRPO style)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code>: subtract KL directly from the reward to form a modified reward (RLOO style)</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--num_generations</span></code></strong>: Number of samples per prompt, i.e., $K$</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">--beta</span></code></strong>: KL regularization coefficient $\beta$</p>
+<ul>
+<li><p>Controls how conservatively the policy updates</p></li>
+</ul>
+</li>
+</ul>
+<p>Other parameters are consistent with the <a class="reference external" href="../../Command-line-parameters.md#grpo-arguments">GRPO arguments</a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU训练 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="分布训练" href="distributed.html" />
+    <link rel="prev" title="NPU安装及配置" href="npu_installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="npu_installation.html">NPU安装及配置</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU训练</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">支持设备</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">支持功能</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">快速开始</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">分布式训练</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id5">关键环境变量</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id6">单机训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">多机训练</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">训练方式</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#pt">预训练 (PT)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sft">监督微调 (SFT)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rm">奖励模型 (RM)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dpo">DPO 训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#full">全参数微调 (Full)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">性能优化</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id10">融合算子</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id11">算子下发优化</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="distributed.html">分布训练</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+      <li class="breadcrumb-item active">NPU训练</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/LLaMA-Factory/source/advanced/npu_training.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu">
+<h1>NPU训练<a class="headerlink" href="#npu" title="Link to this heading"></a></h1>
+<p>本文档介绍如何在华为昇腾 NPU 上进行 LLaMA-Factory 模型训练。</p>
+<section id="id1">
+<h2>支持设备<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>LLaMA-Factory 当前已适配以下昇腾 NPU 设备：</p>
+<ul class="simple">
+<li><p><strong>Atlas A2 训练系列</strong></p></li>
+<li><p><strong>Atlas A3 训练系列</strong></p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>支持功能<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"></th>
+<th class="head"><p>功能</p></th>
+<th class="head"><p>支持情况</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>训练范式</strong></p></td>
+<td><p>PT</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>SFT</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>RM</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>DPO</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>参数范式</strong></p></td>
+<td><p>Full</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>Freeze</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>LoRA</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>模型合并</strong></p></td>
+<td><p>LoRA权重合并</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>分布式</strong></p></td>
+<td><p>DDP</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>FSDP</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>FSDP2</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>DeepSpeed</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>加速</strong></p></td>
+<td><p>融合算子</p></td>
+<td><p>当前已支持NpuFusedRMSNorm，NpuFusedSwiGlu，NpuFusedRoPE，NpuFusedMoE</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>NPU 的大部分使用方式与 GPU 保持一致。关于通用的安装步骤，请参考 <a class="reference internal" href="npu_installation.html"><span class="doc">NPU 安装及配置</span></a>；关于通用的分布式训练（如 FSDP、FSDP2，DeepSpeed）配置，请参考 <a class="reference internal" href="distributed.html"><span class="doc">分布式训练</span></a>。</p>
+</div>
+</section>
+<section id="id3">
+<h2>快速开始<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>为了快速上手，建议直接使用 LLaMA-Factory 提供的 Docker 镜像。</p>
+<ol class="arabic">
+<li><p><strong>启动容器</strong> (请根据实际情况修改 <code class="docutils literal notranslate"><span class="pre">device</span></code> 映射)：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-itd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--net<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci_manager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/devmm_svm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shm-size<span class="o">=</span>1200g<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/Ascend/driver:/usr/local/Ascend/driver<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--name<span class="w"> </span>llama_factory_npu<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>hiyouga/llamafactory:latest-npu-a2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/bin/bash
+</pre></div>
+</div>
+</li>
+<li><p><strong>配置环境变量</strong>：</p>
+<p>进入容器后，<strong>务必</strong> 先加载 Ascend 环境配置，否则无法识别 NPU 设备：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</li>
+<li><p><strong>开始训练</strong>：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_sft.yaml
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="id4">
+<h2>分布式训练<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>NPU 的分布式训练配置与 <a class="reference internal" href="distributed.html"><span class="doc">分布式训练</span></a> 文档描述的基本一致。本节主要介绍 NPU 环境下的特定配置，包括设备指定和多机通信设置。</p>
+<section id="id5">
+<h3>关键环境变量<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>在启动训练前，请注意以下环境变量的设置：</p>
+<ul>
+<li><p><strong>ASCEND_RT_VISIBLE_DEVICES</strong> (单机/多机均需关注)</p>
+<p>用于指定参与训练的 NPU 设备。</p>
+<ul>
+<li><p><strong>默认行为</strong>：如果不设置此变量，程序将尝试使用当前节点上的**所有** NPU 设备。</p></li>
+<li><p><strong>指定设备</strong>：如果需要限定特定的 NPU 卡（例如仅使用卡 0 和卡 1），则**必须**显式设置此变量：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><strong>HCCL_SOCKET_IFNAME</strong> (仅多机训练必需)</p>
+<p>指定 HCCL 集合通信使用的网卡接口名称。</p>
+<ul>
+<li><p><strong>获取方式</strong>：在终端运行 <code class="docutils literal notranslate"><span class="pre">ifconfig</span></code> 命令查看网卡列表，选择用于通信的网卡名称（如 <code class="docutils literal notranslate"><span class="pre">eth0</span></code>, <code class="docutils literal notranslate"><span class="pre">enp1s0</span></code> 等）。</p></li>
+<li><p><strong>设置示例</strong>：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_SOCKET_IFNAME</span><span class="o">=</span>eth0
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id6">
+<h3>单机训练<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>单机训练（单卡或多卡）的启动方式与标准流程一致。</p>
+<p><strong>单机多卡示例</strong>：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_sft.yaml
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>多机训练<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>在 NPU 环境下，推荐使用 <code class="docutils literal notranslate"><span class="pre">accelerate</span> <span class="pre">launch</span></code> 配合 FSDP 1/2 进行多机训练，这种方式在 NPU 上通信和计算效率更优。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>其他启动方式（如 <code class="docutils literal notranslate"><span class="pre">torchrun/deepspeed</span></code>）及更多详细配置请参考 <a class="reference internal" href="distributed.html"><span class="doc">分布式训练</span></a> 文档。</p>
+</div>
+<p><strong>1. 准备 Accelerate 配置文件</strong></p>
+<p>创建或修改 <code class="docutils literal notranslate"><span class="pre">examples/accelerate/fsdp_config.yaml</span></code>，关键参数如下（请根据实际节点数和 IP 修改）：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">compute_environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">LOCAL_MACHINE</span>
+<span class="nt">debug</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">distributed_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FSDP</span>
+<span class="nt">downcast_bf16</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;no&#39;</span>
+<span class="nt">fsdp_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">fsdp_auto_wrap_policy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">TRANSFORMER_BASED_WRAP</span>
+<span class="w">  </span><span class="nt">fsdp_backward_prefetch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">BACKWARD_PRE</span>
+<span class="w">  </span><span class="nt">fsdp_forward_prefetch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">fsdp_cpu_ram_efficient_loading</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fsdp_offload_params</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">fsdp_sharding_strategy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FULL_SHARD</span>
+<span class="w">  </span><span class="nt">fsdp_state_dict_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FULL_STATE_DICT</span>
+<span class="w">  </span><span class="nt">fsdp_sync_module_states</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fsdp_use_orig_params</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">machine_rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">main_training_function</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="nt">mixed_precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bf16</span>
+<span class="nt">main_process_ip</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">192.168.0.1</span>
+<span class="nt">main_process_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">29500</span>
+<span class="nt">num_machines</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">num_processes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="nt">rdzv_backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static</span>
+<span class="nt">same_network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">use_cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>关键多机参数说明：</p>
+<ul class="simple">
+<li><p>num_machines: 节点总数</p></li>
+<li><p>num_processes: 总进程数（总卡数） = num_machines * 每台机器卡数</p></li>
+<li><p>main_process_ip: 主节点 IP 地址（所有节点需保持一致）</p></li>
+<li><p>main_process_port: 主节点端口（所有节点需保持一致）</p></li>
+<li><p>machine_rank: 当前节点编号（主节点为0，从节点依次递增）</p></li>
+</ul>
+</div>
+<p><strong>2. 启动训练</strong></p>
+<p>在所有节点上执行相同的启动命令（确保 <code class="docutils literal notranslate"><span class="pre">machine_rank</span></code> 在 yaml 中已正确配置）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_SOCKET_IFNAME</span><span class="o">=</span>eth0
+
+accelerate<span class="w"> </span>launch<span class="w"> </span>--config_file<span class="w"> </span>examples/accelerate/fsdp_config_multiple_nodes.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>src/train.py<span class="w"> </span>examples/train_lora/llama3_lora_sft.yaml
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h2>训练方式<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>以下是常见训练场景的启动命令参考，具体参数配置文件请根据实际需求调整。</p>
+<section id="pt">
+<h3>预训练 (PT)<a class="headerlink" href="#pt" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_pretrain.yaml
+</pre></div>
+</div>
+</section>
+<section id="sft">
+<h3>监督微调 (SFT)<a class="headerlink" href="#sft" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_sft.yaml
+</pre></div>
+</div>
+</section>
+<section id="rm">
+<h3>奖励模型 (RM)<a class="headerlink" href="#rm" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_reward.yaml
+</pre></div>
+</div>
+</section>
+<section id="dpo">
+<h3>DPO 训练<a class="headerlink" href="#dpo" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_lora/llama3_lora_dpo.yaml
+</pre></div>
+</div>
+</section>
+<section id="full">
+<h3>全参数微调 (Full)<a class="headerlink" href="#full" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>llamafactory-cli<span class="w"> </span>train<span class="w"> </span>examples/train_full/llama3_full_sft.yaml
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id9">
+<h2>性能优化<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<section id="id10">
+<h3>融合算子<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>LLaMA-Factory 支持FA，NpuFusedRMSNorm，NpuFusedSwiGlu，NpuFusedRoPE和NpuFusedMoE融合算子。</p>
+<p>可在训练脚本中配置如下参数，模型加载后替换对应模型结构，使能NpuFusedRMSNorm，NpuFusedSwiGlu，NpuFusedRoPE和NpuFusedMoE融合算子，提升训练效率。该接口使能后，代码内部自动识别是否满足模型结构替换的要求，满足的情况对应模型结构会被替换为融合算子形式。</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">use_v1_kernels</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>同时LLaMA-Factory 支持昇腾 NPU 的 FA 融合算子，代码内部自动识别是否满足模型结构替换的要求，满足的情况对应模型结构会被替换为融合算子形式。在训练配置文件中设置如下参数即可使能：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">flash_attn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fa2</span>
+</pre></div>
+</div>
+<p>当前融合算子对模型的支持程度受限，该功能正在持续迭代开发中，以提升泛化性和适用性。</p>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>融合算子</p></th>
+<th class="head"><p>支持模型系列</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>FA</p></td>
+<td><p>Qwen3, Qwen3-MOE, Qwen3-VL, Qwen3-VL-MOE</p></td>
+</tr>
+<tr class="row-odd"><td><p>NpuFusedRMSNorm</p></td>
+<td><p>Qwen3, Qwen3-MOE, Qwen3-VL, Qwen3-VL-MOE</p></td>
+</tr>
+<tr class="row-even"><td><p>NpuFusedSwiGlu</p></td>
+<td><p>Qwen3, Qwen3-MOE, Qwen3-VL, Qwen3-VL-MOE</p></td>
+</tr>
+<tr class="row-odd"><td><p>NpuFusedRoPE</p></td>
+<td><p>Qwen3, Qwen3-MOE, Qwen3-VL, Qwen3-VL-MOE</p></td>
+</tr>
+<tr class="row-even"><td><p>NpuFusedMoE</p></td>
+<td><p>Qwen3-MOE，Qwen3-VL-MOE</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id11">
+<h3>算子下发优化<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>通过设置 <code class="docutils literal notranslate"><span class="pre">TASK_QUEUE_ENABLE</span></code> 环境变量优化算子下发性能（推荐 Level 2）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TASK_QUEUE_ENABLE</span><span class="o">=</span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="npu_installation.html" class="btn btn-neutral float-left" title="NPU安装及配置" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="distributed.html" class="btn btn-neutral float-right" title="分布训练" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

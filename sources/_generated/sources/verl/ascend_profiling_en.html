@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" />
+    <link rel="next" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)" href="ascend_profiling_zh.html" />
+    <link rel="prev" title="Ascend Dockerfile Build Guidance" href="dockerfile_build_guidance.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="ascend_quick_start.html">Ascend Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_sglang_quick_start.html">Ascend Quickstart with SGLang Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#global-collection-control">Global collection control</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#role-collection-control">Role collection control</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#disabling-collection">Disabling collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#end-to-end-collection">End-to-End collection</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#discrete-mode-collection">Discrete Mode Collection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#visualization">Visualization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-guide-fine-grained-collection">Advanced Guide: Fine-grained Collection</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#background-and-challenges">Background and Challenges</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#solution-critical-path-sampling">Solution: Critical Path Sampling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine-grained-collection-in-rollout-phase">1. Fine-grained Collection in Rollout Phase</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine-grained-collection-in-compute-log-prob-actor-ref-phase">2. Fine-grained Collection in compute_log_prob (Actor &amp; Ref) Phase</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fine-grained-collection-in-update-policy-actor-critic-phase">3. Fine-grained Collection in update_policy (Actor &amp; Critic) Phase</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_profiling_zh.html">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_consistency.html">Align the Inference results of the verl and vLLM frameworks on Ascend devices(zh)</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/verl/ascend_profiling_en.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performance-data-collection-based-on-fsdp-or-mindspeed-megatron-on-ascend-devices-en">
+<h1>Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(en)<a class="headerlink" href="#performance-data-collection-based-on-fsdp-or-mindspeed-megatron-on-ascend-devices-en" title="Link to this heading"></a></h1>
+<p>Last updated: 12/20/2025.</p>
+<p>This is a tutorial for data collection using the GRPO or DAPO algorithm
+based on FSDP or MindSpeed(Megatron) on Ascend devices.</p>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Leverage two levels of configuration to control data collection:</p>
+<ul class="simple">
+<li><p><strong>Global profiler control</strong>: Use parameters in <code class="docutils literal notranslate"><span class="pre">verl/trainer/config/ppo_trainer.yaml</span></code> (FSDP) or <code class="docutils literal notranslate"><span class="pre">verl/trainer/config/ppo_megatron_trainer.yaml</span></code> (MindSpeed) to control the collection mode and steps.</p></li>
+<li><p><strong>Role profile control</strong>: Use parameters in each role's <code class="docutils literal notranslate"><span class="pre">profile</span></code> field to control various parameters.</p></li>
+</ul>
+<section id="global-collection-control">
+<h3>Global collection control<a class="headerlink" href="#global-collection-control" title="Link to this heading"></a></h3>
+<p>Use parameters in ppo_trainer.yaml to control the collection mode
+and steps.</p>
+<ul class="simple">
+<li><p>global_profiler: Control the ranks and mode of profiling</p>
+<ul>
+<li><p>tool: The profiling tool to use, options are nsys, npu, torch,
+torch_memory.</p></li>
+<li><p>steps: This parameter can be set as a list that has
+collection steps, such as [2, 4], which means it will collect steps 2
+and 4. If set to null, no collection occurs.</p></li>
+<li><p>save_path: The path to save the collected data. Default is
+&quot;outputs/profile&quot;.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="role-collection-control">
+<h3>Role collection control<a class="headerlink" href="#role-collection-control" title="Link to this heading"></a></h3>
+<p>In each role's <code class="docutils literal notranslate"><span class="pre">profiler</span></code> field, you can control the collection mode for that role.</p>
+<ul class="simple">
+<li><p>enable: Whether to enable profiling for this role.</p></li>
+<li><p>all_ranks: Whether to collect data from all ranks.</p></li>
+<li><p>ranks: A list of ranks to collect data from. If empty, no data is collected.</p></li>
+<li><p>tool_config: Configuration for the profiling tool used by this role.</p></li>
+</ul>
+<p>Use parameters in each role's <code class="docutils literal notranslate"><span class="pre">profiler.tool_config.npu</span></code> to control npu profiler behavior:</p>
+<ul class="simple">
+<li><p>level: Collection level—options are level_none, level0, level1, and
+level2</p>
+<ul>
+<li><p>level_none: Disables all level-based data collection (turns off profiler_level).</p></li>
+<li><p>level0: Collect high-level application data, underlying NPU data, and operator execution details on NPU. After balancing data volume and analytical capability, Level 0 is recommended as the default configuration.</p></li>
+<li><p>level1: Extends level0 by adding CANN-layer AscendCL data and AI Core performance metrics on NPU.</p></li>
+<li><p>level2: Extends level1 by adding CANN-layer Runtime data and AI CPU metrics.</p></li>
+</ul>
+</li>
+<li><p>contents: A list of options to control the collection content, such as
+npu, cpu, memory, shapes, module, stack.</p>
+<ul>
+<li><p>npu: Whether to collect device-side performance data.</p></li>
+<li><p>cpu: Whether to collect host-side performance data.</p></li>
+<li><p>memory: Whether to enable memory analysis.</p></li>
+<li><p>shapes: Whether to record tensor shapes.</p></li>
+<li><p>module: Whether to record framework-layer Python call stack information. It is recommended to use 'module' instead of 'stack' for recording call stack information, as it costs less performance overhead.</p></li>
+<li><p>stack: Whether to record operator call stack information.</p></li>
+</ul>
+</li>
+<li><p>analysis: Enables automatic data parsing.</p></li>
+<li><p>discrete: Whether to enable discrete mode.</p></li>
+</ul>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<section id="disabling-collection">
+<h3>Disabling collection<a class="headerlink" href="#disabling-collection" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"> </span><span class="c1"># disable profile</span>
+</pre></div>
+</div>
+</section>
+<section id="end-to-end-collection">
+<h3>End-to-End collection<a class="headerlink" href="#end-to-end-collection" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">save_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./outputs/profile</span>
+<span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">actor</span><span class="p">:</span><span class="w">  </span><span class="c1"># Set actor role profiler collection configuration parameters</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">               </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">npu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cpu</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Control collection list, default cpu, npu, can configure memory, shapes, module, etc.</span>
+<span class="w">  </span><span class="c1"># rollout &amp; ref follow actor settings</span>
+</pre></div>
+</div>
+</section>
+<section id="discrete-mode-collection">
+<h3>Discrete Mode Collection<a class="headerlink" href="#discrete-mode-collection" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">save_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./outputs/profile</span>
+<span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">   </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># Set to True to profile training</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">         </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Global Rank 0</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">               </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">npu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cpu</span><span class="p p-Indicator">]</span>
+<span class="w">   </span><span class="nt">rollout</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># Set to True to profile inference</span>
+<span class="w">         </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">         </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># In Agent Loop mode, this is the Replica Rank (e.g., 0-th instance)</span>
+<span class="w">         </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">npu</span><span class="p">:</span>
+<span class="w">               </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">  </span><span class="c1"># Must be enabled in Agent Loop mode</span>
+<span class="w">   </span><span class="c1"># ref follow actor settings</span>
+</pre></div>
+</div>
+<p><strong>Agent Loop Mode Description</strong>:</p>
+<p>When Rollout runs in <a class="reference external" href="../advance/agent_loop.rst">Agent Loop</a> mode, performance data for the Rollout phase <strong>must be collected using discrete mode</strong>. In this case, the Profiler is triggered by the inference engine backend.</p>
+<ol class="arabic simple">
+<li><p>Rank Definition: ranks in the Rollout configuration refers to Replica Rank (inference instance index), not Global Rank.</p></li>
+<li><p>Inference Engine Support: Currently, vLLM and SGLang engines are supported without additional settings. Specific details are as follows:</p>
+<ul class="simple">
+<li><p>vLLM Engine: Automatically collects AsyncLLM scheduling stacks and inference process performance data. Does not support setting analysis (defaults to no analysis, requires offline analysis) and profiler_level (defaults to level1).</p></li>
+<li><p>SGLang Engine: Automatically collects inference process performance data. Does not support the memory option in contents. Does not support setting analysis (defaults to enabled) and profiler_level (defaults to level0).</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
+<p>Collected data is stored in the user-defined save_path and can be
+visualized by using the <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/80RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html">MindStudio Insight</a> tool.</p>
+<p>Additionally, in a Linux environment, the MindStudio Insight tool is provided in the form of a <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0130.html">JupyterLab Plugin</a> ，offering a more intuitive and highly interactive user interface. The advantages of the JupyterLab plugin are as follows:</p>
+<ul class="simple">
+<li><p>Seamless integration: Supports running the MindStudio Insight tool directly within the Jupyter environment, eliminating the need to switch platforms or copy data from the server, enabling data to be collected and used immediately.</p></li>
+<li><p>Fast startup: Allows MindStudio Insight to be launched quickly via the JupyterLab command line or graphical interface.</p></li>
+<li><p>Smooth operation: In a Linux environment, launching MindStudio Insight through JupyterLab effectively alleviates performance lag compared to the full-package communication mode, significantly improving the user experience.</p></li>
+<li><p>Remote access: Supports remotely launching MindStudio Insight. Users can connect to the service via a local browser for direct visual analysis, reducing the difficulty of uploading and downloading data during large-model training or inference.</p></li>
+</ul>
+<p>If the analysis parameter is set to False, offline parsing is required after data collection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="c1"># Set profiler_path to the parent directory of the &quot;localhost.localdomain_&lt;PID&gt;_&lt;timestamp&gt;_ascend_pt&quot; folder</span>
+<span class="n">torch_npu</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">profiler</span><span class="o">.</span><span class="n">analyse</span><span class="p">(</span><span class="n">profiler_path</span><span class="o">=</span><span class="n">profiler_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-guide-fine-grained-collection">
+<h2>Advanced Guide: Fine-grained Collection<a class="headerlink" href="#advanced-guide-fine-grained-collection" title="Link to this heading"></a></h2>
+<section id="background-and-challenges">
+<h3>Background and Challenges<a class="headerlink" href="#background-and-challenges" title="Link to this heading"></a></h3>
+<p>Although the configuration-based collection method mentioned above is convenient, it faces challenges in training scenarios with <strong>long sequences (Long Context)</strong> or <strong>large global batch sizes (Large Global Batch Size)</strong>. Within a complete training step (Step), model computation exhibits high-frequency and repetitive characteristics:</p>
+<ol class="arabic simple">
+<li><p><strong>Rollout phase</strong>: Sequence generation (Generate Sequence) is an autoregressive process involving thousands of forward computations of the Decoder model.</p></li>
+<li><p><strong>Training phase</strong>: To control peak memory usage, verl typically adopts a Micro-Batch strategy, dividing large data streams into multiple micro-batches for computation.</p>
+<ul class="simple">
+<li><p><strong>compute_log_prob (Actor/Ref)</strong>: Involves multiple rounds of pure forward propagation.</p></li>
+<li><p><strong>update_policy (Actor/Critic)</strong>: Involves multiple rounds of forward and backward propagation.</p></li>
+</ul>
+</li>
+</ol>
+<p>This characteristic leads to massive and repetitive operator records from full profiling. As shown in the image below:</p>
+<img alt="https://raw.githubusercontent.com/mengchengTang/verl-data/master/verl_ascend_profiler.png" src="https://raw.githubusercontent.com/mengchengTang/verl-data/master/verl_ascend_profiler.png" />
+<p>Even with <code class="docutils literal notranslate"><span class="pre">discrete</span></code> mode enabled, performance data files for a single stage can still reach several TB, leading to <strong>parsing failures</strong> or <strong>visualization tool lag</strong>.</p>
+</section>
+<section id="solution-critical-path-sampling">
+<h3>Solution: Critical Path Sampling<a class="headerlink" href="#solution-critical-path-sampling" title="Link to this heading"></a></h3>
+<p>To solve the above problems, we can adopt a <strong>critical path sampling</strong> strategy: Based on the API interface provided by <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/80RC2/devaids/auxiliarydevtool/atlasprofiling_16_0038.html">torch_npu.profiler</a>, directly modify Python source code to collect only representative data segments (such as specific Decode Steps or the first Micro-Batch).</p>
+<blockquote>
+<div><p><strong>Important Notes</strong></p>
+<ol class="arabic simple">
+<li><p>This chapter involves direct source code modification. It is recommended to back up files before modification and restore them after debugging.</p></li>
+<li><p>When using code instrumentation for collection, be sure to <strong>disable global collection</strong> (<code class="docutils literal notranslate"><span class="pre">global_profiler:</span> <span class="pre">steps:</span> <span class="pre">null</span></code>) in <code class="docutils literal notranslate"><span class="pre">ppo_trainer.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">ppo_megatron_trainer.yaml</span></code> to avoid Profiler conflicts.</p></li>
+</ol>
+</div></blockquote>
+</section>
+<section id="fine-grained-collection-in-rollout-phase">
+<h3>1. Fine-grained Collection in Rollout Phase<a class="headerlink" href="#fine-grained-collection-in-rollout-phase" title="Link to this heading"></a></h3>
+<p>For vLLM or SGLang inference engines, we can control the <code class="docutils literal notranslate"><span class="pre">schedule</span></code> parameter to collect model forward propagation performance data for specific tokens.</p>
+<p><strong>vLLM Engine</strong></p>
+<ul class="simple">
+<li><p><strong>Reference Version</strong>: vLLM v0.11.0, vLLM-Ascend v0.11.0rc1</p></li>
+<li><p><strong>Modified File</strong>: <code class="docutils literal notranslate"><span class="pre">vllm-ascend/vllm_ascend/worker/worker_v1.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   class NPUWorker(WorkerBase):
+
+<span class="w"> </span>       def __init__(self, *args, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+
+<span class="gi">+           # Initialize profiler</span>
+<span class="gi">+           import torch_npu</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(</span>
+<span class="gi">+               profiler_level=torch_npu.profiler.ProfilerLevel.Level1,</span>
+<span class="gi">+               export_type=torch_npu.profiler.ExportType.Db,  # You can choose torch_npu.profiler.ExportType.Text format</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               activities=[torch_npu.profiler.ProfilerActivity.CPU, torch_npu.profiler.ProfilerActivity.NPU],</span>
+<span class="gi">+               with_modules=False,  # Collect call stack</span>
+<span class="gi">+               profile_memory=False,  # Collect memory</span>
+<span class="gi">+               experimental_config=experimental_config,</span>
+<span class="gi">+               # Skip first step, warmup one step, collect 3 steps, repeat 1 time. If you want to collect decode steps 30~70, set schedule=torch_npu.profiler.schedule(wait=29, warmup=1, active=30, repeat=1)</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/vllm_profile&quot;, analyse_flag=True)  # Data save path and whether to parse online</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu.start()</span>
+
+<span class="w"> </span>           # ... existing code ...
+
+<span class="w"> </span>       def execute_model(self, scheduler_output=None, intermediate_tensors=None, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+<span class="w"> </span>           output = self.model_runner.execute_model(scheduler_output,
+<span class="w"> </span>                                               intermediate_tensors)
+
+<span class="gi">+           self.profiler_npu.step()  # Drive schedule to collect partial decode steps</span>
+
+<span class="w"> </span>           # ... existing code ...
+</pre></div>
+</div>
+<p><strong>SGLang Engine</strong></p>
+<ul class="simple">
+<li><p><strong>Reference Version</strong>: SGLang master branch</p></li>
+<li><p><strong>Modified File</strong>: <code class="docutils literal notranslate"><span class="pre">sglang/python/sglang/srt/model_executor/model_runner.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... existing imports ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class ModelRunner:
+
+<span class="w"> </span>       def __init__(self, *args, **kwargs):
+<span class="w"> </span>           # ... existing init code ...
+
+<span class="gi">+           # Initialize profiler (same configuration as above, omitted)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.profiler_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # Skip first step, warmup one step, collect 3 steps, repeat 1 time.</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=1, warmup=1, active=3, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/sglang_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.profiler_npu.start()</span>
+
+<span class="w"> </span>       def forward(self, forward_batch, **kwargs):
+<span class="w"> </span>           # ... existing code ...
+
+<span class="gi">+           self.profiler_npu.step()  # Drive schedule to collect partial decode steps</span>
+<span class="w"> </span>           return output
+</pre></div>
+</div>
+</section>
+<section id="fine-grained-collection-in-compute-log-prob-actor-ref-phase">
+<h3>2. Fine-grained Collection in compute_log_prob (Actor &amp; Ref) Phase<a class="headerlink" href="#fine-grained-collection-in-compute-log-prob-actor-ref-phase" title="Link to this heading"></a></h3>
+<p>This phase computes probability distributions for new and old policies.</p>
+<p><strong>FSDP Backend</strong></p>
+<p>The FSDP backend allows fine-grained control at the Micro-Batch level.</p>
+<ul class="simple">
+<li><p><strong>Modified File</strong>: <code class="docutils literal notranslate"><span class="pre">verl/workers/actor/dp_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... import dependencies ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class DataParallelPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def compute_log_prob(self, data: DataProto, calculate_entropy=False) -&gt; torch.Tensor:
+
+<span class="gi">+           role = &quot;Ref&quot; if self.actor_optimizer is None else &quot;Actor&quot;</span>
+<span class="gi">+           # Prepare profiler (same configuration as above, omitted)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # wait=0, warmup=0, active=1: directly collect first micro-batch</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(f&quot;./outputs/{role}_compute_log_prob&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+
+
+<span class="gi">+           # This function is shared by ref and actor, set role flag to distinguish. If you want to collect actor_compute_log_prob, set if role==&quot;Actor&quot;:</span>
+<span class="gi">+           if role==&quot;Ref&quot;:</span>
+<span class="gi">+               self.prof_npu.start()</span>
+
+<span class="w"> </span>           for micro_batch in micro_batches:
+
+<span class="w"> </span>               # ... original computation logic ...
+<span class="w"> </span>               with torch.no_grad():
+<span class="w"> </span>                   entropy, log_probs = self._forward_micro_batch(...)
+
+<span class="gi">+                   # Drive schedule to collect micro batch</span>
+<span class="gi">+                   if role==&quot;Ref&quot;:</span>
+<span class="gi">+                       self.prof_npu.step()</span>
+
+<span class="w"> </span>               # ...
+</pre></div>
+</div>
+<p><strong>Megatron Backend</strong></p>
+<p>The Micro-Batch scheduling in the Megatron backend is managed internally by the framework and does not currently support fine-grained collection at the Micro-Batch level through simple code instrumentation. It is recommended to use global configuration for collection.</p>
+</section>
+<section id="fine-grained-collection-in-update-policy-actor-critic-phase">
+<h3>3. Fine-grained Collection in update_policy (Actor &amp; Critic) Phase<a class="headerlink" href="#fine-grained-collection-in-update-policy-actor-critic-phase" title="Link to this heading"></a></h3>
+<p>The Update phase includes forward and backward propagation.</p>
+<p><strong>FSDP Backend</strong></p>
+<p>The FSDP backend supports collection at both Mini-Batch and Micro-Batch granularities.</p>
+<ul class="simple">
+<li><p><strong>Modified File</strong>: <code class="docutils literal notranslate"><span class="pre">verl/workers/actor/dp_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   # ... import dependencies ...
+<span class="gi">+   import torch_npu</span>
+
+<span class="w"> </span>   class DataParallelPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def update_policy(self, data: DataProto):
+
+<span class="gi">+           # Prepare profiler (same configuration as above, omitted)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # Only collect first Mini Batch (including all Micro-Batch computations and one optimizer update)</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/fsdp_actor_update_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.prof_npu.start()</span>
+
+<span class="w"> </span>           # ... PPO Epochs loop ...
+<span class="w"> </span>           for _ in range(self.config.ppo_epochs):
+<span class="w"> </span>               # ... Mini Batch loop ...
+<span class="w"> </span>               for batch_idx, mini_batch in enumerate(mini_batches):
+<span class="w"> </span>                   # ... mini_batches split ...
+
+<span class="w"> </span>                   for i, micro_batch in enumerate(micro_batches):
+<span class="w"> </span>                       # ... Original Forward &amp; Backward logic ...
+<span class="w"> </span>                       # ... loss.backward() ...
+<span class="w"> </span>                       pass
+
+<span class="w"> </span>                   grad_norm = self._optimizer_step()
+
+<span class="gi">+                   # Drive schedule to collect mini batch, if you want micro batch collection, move self.prof_npu.step() inside the micro_batch loop</span>
+<span class="gi">+                   self.prof_npu.step()</span>
+</pre></div>
+</div>
+<p><strong>Megatron Backend</strong></p>
+<p>The Megatron backend supports collection at the Mini-Batch granularity.</p>
+<ul class="simple">
+<li><p><strong>Modified File</strong>: <code class="docutils literal notranslate"><span class="pre">verl/workers/actor/megatron_actor.py</span></code></p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="w"> </span>   class MegatronPPOActor(BasePPOActor):
+
+<span class="w"> </span>       def update_policy(self, dataloader: Iterable[DataProto]) -&gt; dict:
+<span class="w"> </span>           # ...
+<span class="gi">+           # Prepare profiler (same configuration as above, omitted)</span>
+<span class="gi">+           experimental_config = torch_npu.profiler._ExperimentalConfig(...)</span>
+<span class="gi">+           self.prof_npu = torch_npu.profiler.profile(</span>
+<span class="gi">+               # ...</span>
+<span class="gi">+               # Only collect computation of first Mini Batch (including all Micro-Batches) and one optimizer update</span>
+<span class="gi">+               schedule=torch_npu.profiler.schedule(wait=0, warmup=0, active=1, repeat=1),</span>
+<span class="gi">+               on_trace_ready=torch_npu.profiler.tensorboard_trace_handler(&quot;./outputs/megatron_actor_update_profile&quot;, analyse_flag=True)</span>
+<span class="gi">+           )</span>
+<span class="gi">+           self.prof_npu.start()</span>
+
+<span class="w"> </span>           for data in dataloader:
+<span class="w"> </span>               # ... internally calls self.forward_backward_batch for computation ...
+<span class="w"> </span>               # ... metric_micro_batch = self.forward_backward_batch(...)
+
+<span class="w"> </span>               # ... self.actor_optimizer.step() ...
+
+<span class="gi">+               # Drive schedule to collect mini batch</span>
+<span class="gi">+               self.prof_npu.step()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="dockerfile_build_guidance.html" class="btn btn-neutral float-left" title="Ascend Dockerfile Build Guidance" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="ascend_profiling_zh.html" class="btn btn-neutral float-right" title="Performance data collection based on FSDP or MindSpeed(Megatron) on Ascend devices(zh)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

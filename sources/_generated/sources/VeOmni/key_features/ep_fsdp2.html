@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EP+FSDP2 for Large-scale MoE Model Training &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=f2aa3e58" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">Accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">Transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">TorchTitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">Llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">LMDeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">ONNX Runtime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">Sentence Transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">SGLang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">Torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">LM-Evalution-Harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">OpenCompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">OpenCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">Stable-Diffusion-WebUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">timm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">WeNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">Whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">EP+FSDP2 for Large-scale MoE Model Training</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/key_features/ep_fsdp2.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ep-fsdp2-for-large-scale-moe-model-training">
+<h1>EP+FSDP2 for Large-scale MoE Model Training<a class="headerlink" href="#ep-fsdp2-for-large-scale-moe-model-training" title="Link to this heading"></a></h1>
+<p><strong>Author</strong>: Tianle Zhong</p>
+<blockquote>
+<div><p>TL;DR: VeOmni now supports EP+FSDP2 from v0.1.0; Simply try it out by setting <code class="docutils literal notranslate"><span class="pre">data_parallel_mode</span></code> to <code class="docutils literal notranslate"><span class="pre">fsdp2</span></code> and <code class="docutils literal notranslate"><span class="pre">expert_parallel_size</span></code> to larger than 1.</p>
+</div></blockquote>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h2>
+<p>EP+FSDP1 is supported in VeOmni in the first day.
+However, with the <a class="reference external" href="https://docs.pytorch.org/tutorials/intermediate/FSDP1_tutorial.html">deprecation of FSDP1</a>, FSDP2 becomes a necessary upgrade, which also introduces several benefits besides maintainability:</p>
+<ul class="simple">
+<li><p>Flexibility of per-parameter sharding (along any dimension of the tensor)</p></li>
+<li><p>Easier to configure prefetching to overlap communication and computation</p></li>
+<li><p>Simpler to manipulate hooks (no complicated <code class="docutils literal notranslate"><span class="pre">FSDPExtension</span></code>)</p></li>
+<li><p>Avoid use of annoying <code class="docutils literal notranslate"><span class="pre">FlattenParamter</span></code> in FSDP1 which has many side-effects.</p></li>
+</ul>
+<p>For more info, please look up the official <a class="reference external" href="https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html">FSDP2 tutorial</a>.</p>
+</section>
+<section id="design-overview">
+<h2>Design Overview<a class="headerlink" href="#design-overview" title="Link to this heading"></a></h2>
+<p>In this section, we introduce the overall design of EP+FSDP2 in VeOmni so that you can understand the logical flow for correct setting up the expert parallel size in your training config.</p>
+<section id="sharding-dimension">
+<h3>Sharding Dimension<a class="headerlink" href="#sharding-dimension" title="Link to this heading"></a></h3>
+<p>In VeOmni, experts module is defined as tensors of [E, H, I] (Expert number, hidden dim, intermediate size) for down projection weights, and [E, I, H] for gate projection and up projection.</p>
+<blockquote>
+<div><p>please see <a class="reference internal" href="../examples/qwen3_moe.html"><span class="doc">example of how we merge the Qwen3-MoE expert weight</span></a></p>
+</div></blockquote>
+<p>The expert parallelism (EP) is applied on dim-0 (expert number), while FSDP2 is applied on dim-1 instead of default dim-0.</p>
+<p>This is to enable more flexible parallelism setup. Otherwise, if we also choose dim-0 for FSDP2, EP size x FSDP2 size needs to be exact expert number.</p>
+</section>
+<section id="parallelism-setup">
+<h3>Parallelism Setup<a class="headerlink" href="#parallelism-setup" title="Link to this heading"></a></h3>
+<p><img alt="ep_fsdp2" src="../../../../../_images/ep_fsdp2.png" /></p>
+<p>Let's take Qwen3-MoE-30B-A3B model for example, which has 128 experts, hidden dim size of 2048, and intermediate size of 768. So, we can view expert weights as</p>
+<ul class="simple">
+<li><p>Gate projection: [128, 768, 768]</p></li>
+<li><p>Up projection: [128, 768, 2048]</p></li>
+<li><p>Down projection: [128, 2048, 768]</p></li>
+</ul>
+<p>Next, let's understand how they are sharded by EP and FSDP2 in logical view.</p>
+<p>First consider a case of 2 x 8-GPU instances (16 GPUs in total), and we set FSDP2 size to 16 (always same as #GPU), EP size to 8. For clearity, we focus on down projection layer</p>
+<ul class="simple">
+<li><p>Inside one instance, sharded by EP first -&gt; [128/8=16, 2048, 768], assigned device mesh of [0, 1, 2, 3, 4, 5, 6, 7] for EP.</p>
+<ul>
+<li><p>Same on the other instance, which is assign with EP device mesh of [8, 9, 10, 11, 12, 13, 14, 15].</p></li>
+</ul>
+</li>
+<li><p>Since for rank 0 and 8, they hold the same partition of experts (first 16 experts), they become a FSDP2 group (FSDP degree of 2), sharded along dim-1 -&gt; [16, 2048/2=1024, 768], assigned with FSDP2 device mesh of [0, 8].</p>
+<ul>
+<li><p>Same for other rank pairs that hold the same partition of experts.</p></li>
+</ul>
+</li>
+</ul>
+<p>In summary,</p>
+<ul class="simple">
+<li><p>For expert module, EP size x FSDP2 size = world size</p>
+<ul>
+<li><p>Logically they have 2-dim device mesh of [EP, EP_FSDP].</p></li>
+</ul>
+</li>
+<li><p>For non-expert module, since EP does not affect them, they only have FSDP2, where FSDP2 size = world size.</p>
+<ul>
+<li><p>Only 1-dim device mesh of [FSDP, ]</p></li>
+</ul>
+</li>
+</ul>
+<p>At this step, you already understand how EP+FSDP2 is designed in VeOmni which is sufficient to setup the training! If you are not interested in the implementation details, you can skip the following sections.</p>
+<p>The methods discussed in the following sections are transparent to the end users and automatically applied by VeOmni, without any additional efforts to configure.</p>
+</section>
+</section>
+<section id="expert-parallelism-details">
+<h2>Expert Parallelism Details<a class="headerlink" href="#expert-parallelism-details" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>File: veomni/distributed/parallel_plan.py</p>
+</div></blockquote>
+<p>As a model-centric framework, VeOmni registers leaf expert weight keys, i.e, &quot;fully qualified name&quot; (fqn) in the model's definition as an attribute. (see <code class="docutils literal notranslate"><span class="pre">veomni/models/transformers/qwen3_moe/parallel_plan.py</span></code> for example.)</p>
+<p>In this way, each model exposes <code class="docutils literal notranslate"><span class="pre">get_parallel_plan()</span></code> method which returns a <code class="docutils literal notranslate"><span class="pre">ParallelPlan</span></code> containing an <code class="docutils literal notranslate"><span class="pre">ep_plan</span></code> dict. Keys are parameter FQN patterns that identify expert weights; values are <code class="docutils literal notranslate"><span class="pre">Shard(dim=...)</span></code> telling which tensor dimension is sharded across EP ranks (in this case always dim-0 to shard expert number).</p>
+<p>After applying EP sharding on these registered modules, we immediately drop their device mesh info by replacing the parameter with its local shard. This is because we do not want to gather them back during experts computation like FSDP, we would manually control how EP ranks interact with each other in the model's fused MoE implementation.</p>
+<blockquote>
+<div><p>In this way, we also avoid using experimental APIs like TorchTitan to override TP-oriented <code class="docutils literal notranslate"><span class="pre">parallelize_module</span></code> to implement EP.</p>
+</div></blockquote>
+</section>
+<section id="fsdp2-details">
+<h2>FSDP2 Details<a class="headerlink" href="#fsdp2-details" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>File: veomni/distributed/torch_parallelize.py</p>
+</div></blockquote>
+<section id="sharding-from-the-bottom-up">
+<h3>Sharding from the bottom up<a class="headerlink" href="#sharding-from-the-bottom-up" title="Link to this heading"></a></h3>
+<p>FSDP2 relies on <code class="docutils literal notranslate"><span class="pre">fully_shard</span></code>, which should be applied in a bottom-up fashion.</p>
+<p>For EP+FSDP2, a simplified view looks like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">layers</span> <span class="ow">in</span> <span class="n">model</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">layers</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">experts</span><span class="p">:</span>
+        <span class="n">fully_shard</span><span class="p">(</span><span class="n">layers</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">experts</span><span class="p">)</span> <span class="c1"># along dim-1 by placement_fn</span>
+    <span class="n">fully_shard</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+<span class="n">fully_shard</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sharding-modules-with-correct-dimensions">
+<h3>Sharding Modules with Correct Dimensions<a class="headerlink" href="#sharding-modules-with-correct-dimensions" title="Link to this heading"></a></h3>
+<p>Since we have different sharding strategy for experts and non-experts module, we need to distinguish them so that we can apply FSDP2 on them correctly.</p>
+<p>In VeOmni, the decoder layers are passed as <code class="docutils literal notranslate"><span class="pre">basic_modules</span></code> to the model parallelization method, so that we can find the layers in the model.</p>
+<p>Then, we need to find the experts inside the layers if they exist. We cannot rely on a predefined naming pattern like <code class="docutils literal notranslate"><span class="pre">layer.mlp.experts</span></code> since different model may have different naming patterns. Similar to EP, we derive the expert module from the EP plan keys that are registered in the model definition.</p>
+</section>
+<section id="configuring-proper-prefetching">
+<h3>Configuring Proper Prefetching<a class="headerlink" href="#configuring-proper-prefetching" title="Link to this heading"></a></h3>
+<p>Due to the nested sharding of EP+FSDP2, the default prefetching configuration of FSDP2 is no longer efficient, and we need to set the prefetching manually.</p>
+<p>In short words, each decoder layer need to prefetch the next/prev decoder layer's attention and expert module explicitly during forward/backward.</p>
+<p>Otherwise, the attention and expert modules are treated as separate layers. In this case, the time of attention computation often cannot fully overlap the AllGather for expert module.</p>
+</section>
+<section id="consequences-of-mixed-sharding-strategy">
+<h3>Consequences of Mixed Sharding Strategy<a class="headerlink" href="#consequences-of-mixed-sharding-strategy" title="Link to this heading"></a></h3>
+<p>Due to today's PyTorch DTensor limitation, we need to separate optimizers for experts and non-experts module, same for LR schedulers and grad norm clipping method.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiOptimizer</span></code> class: <code class="docutils literal notranslate"><span class="pre">veomni/optim/optimizer.py</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiLRScheduler</span></code> class: <code class="docutils literal notranslate"><span class="pre">veomni/optim/lr_scheduler.py</span></code></p></li>
+<li><p>EP-aware grad norm clipping: <code class="docutils literal notranslate"><span class="pre">veomni/distributed/fsdp2/clip_grad_norm.py</span></code></p></li>
+</ul>
+<p>These consequences like the parallelization method, are transparent to the end users and do not need additional efforts to configure.</p>
+</section>
+</section>
+<section id="pytorch-distributed-checkpoint-dcp-support">
+<h2>PyTorch Distributed Checkpoint (DCP) Support<a class="headerlink" href="#pytorch-distributed-checkpoint-dcp-support" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>File: veomni/checkpoint/checkpointer.py</p>
+</div></blockquote>
+<p>Since EP-dim is dropped for expert modules, the DCP has no way to be aware about the EP rank infomations.</p>
+<p>To address this issue, we temporarily restore EP-dim when saving model state dicts to DCP checkpoints. This ensures we can restore model state dicts correctly when load them back.</p>
+<p>After loading process, we drop EP-dim again to avoid confusing the FSDP process of expert module again.</p>
+<p>Note that this is implemented in <code class="docutils literal notranslate"><span class="pre">ModelState</span></code> class, which is used for saving checkpoints only. So, the other calls of <code class="docutils literal notranslate"><span class="pre">model.state_dict()</span></code> is not affected.</p>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
+<p>We largely refer the implementations in <a class="reference external" href="https://github.com/pytorch/torchtitan">TorchTitan</a> to address the consequences of mixed sharding.</p>
+<p>Big thanks to ByteDance Seed and AML team: Qianli Ma, Bin Jia, Yifan Pi, Xiao Yu</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
