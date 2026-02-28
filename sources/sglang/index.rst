@@ -1,4 +1,4 @@
-SGLang
+sglang
 ============
 
 .. toctree::

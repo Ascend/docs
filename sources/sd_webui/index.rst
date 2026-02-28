@@ -1,4 +1,4 @@
-Stable-Diffusion-WebUI
+stable-diffusion-webui
 ============================
 
 .. toctree::

@@ -48,11 +48,15 @@
 
       /* 卡片顶部：logo和标题在卡片中居中显示 */
       .card-top {
-          display: flex;
+           display: grid;
+           grid-template-columns: 56px minmax(0, 1fr);
           align-items: center;
-          justify-content: center;
+           justify-content: center;
           margin-bottom: 15px;
           gap: 16px;
+          width: min(100%, 360px);
+           margin-left: auto;
+           margin-right: auto;
       }
 
       /* Logo容器：固定尺寸，完美居中 */
@@ -80,9 +84,12 @@
           color: var(--text-main);
           margin: 0 !important;
           padding: 0 !important;
-          line-height: 56px;
+           line-height: 1.3;
           display: flex;
           align-items: center;
+           min-height: 56px;
+          justify-content: flex-start;
+          text-align: left;
       }
       .card-desc { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; height: 3.2em; overflow: hidden; }
 
@@ -115,7 +122,7 @@
 
       <!-- Accelerate -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Accelerate</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">accelerate</h3></div>
          <p class="card-desc">适用于 Pytorch 的多 GPUs/NPUs 训练工具链。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/install.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
@@ -137,14 +144,14 @@
 
       <!-- PyTorch -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">PyTorch</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">pytorch</h3></div>
          <p class="card-desc">PyTorch AI 框架，2.1 版本起官方原生支持昇腾 NPU。</p>
          <div class="card-footer"><a href="https://pytorch.org">官方链接</a><span class="split">|</span><a href="sources/pytorch/install.html">安装指南</a><span class="split">|</span><a href="sources/pytorch/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Transformers -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformers</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">transformers</h3></div>
          <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
          <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
       </div>
@@ -177,7 +184,7 @@
 
       <!-- TorchTitan -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">TorchTitan</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
       </div>
@@ -217,28 +224,28 @@
 
       <!-- LMDeploy -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">LMDeploy</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">lmdeploy</h3></div>
          <p class="card-desc">用于压缩、部署和服务 LLM 的工具包。</p>
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="sources/lm_deploy/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_deploy/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- ONNX Runtime -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">ONNX Runtime</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
          <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
          <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/onnxruntime/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Sentence Transformers -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sentence_transformers.png')"></div><h3 class="card-title">Sentence Transformers</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sentence_transformers.png')"></div><h3 class="card-title">sentence-transformers</h3></div>
          <p class="card-desc">高性能文本和图像 Embedding 库。</p>
          <div class="card-footer"><a href="https://github.com/UKPLab/sentence-transformers">官方链接</a><span class="split">|</span><a href="sources/sentence_transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/sentence_transformers/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- SGLang -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SGLang</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">sglang</h3></div>
          <p class="card-desc">用于 LLM 和 VLM 的高速服务框架，极致提升昇腾吞吐量。</p>
          <div class="card-footer"><a href="https://github.com/sgl-project/sglang">官方链接</a><span class="split">|</span><a href="sources/sglang/install.html">安装指南</a><span class="split">|</span><a href="sources/sglang/quick_start.html">快速上手</a></div>
       </div>
@@ -257,63 +264,63 @@
 
       <!-- Diffusers -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffusers.png')"></div><h3 class="card-title">Diffusers</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffusers.png')"></div><h3 class="card-title">diffusers</h3></div>
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- LM-Eval -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">LM-Eval</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">lm-evaluation-harness</h3></div>
          <p class="card-desc">语言模型评测工具，支持昇腾基准。</p>
          <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_evaluation/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Open CLIP -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Open CLIP</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">open_clip</h3></div>
          <p class="card-desc">开源 CLIP 模型实现，支持多模态语义对齐。</p>
          <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- OpenCompass -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencompass.png')"></div><h3 class="card-title">OpenCompass</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencompass.png')"></div><h3 class="card-title">opencompass</h3></div>
          <p class="card-desc">大模型标准测试工具。</p>
          <div class="card-footer"><a href="https://github.com/open-compass/opencompass">官方链接</a><span class="split">|</span><a href="sources/opencompass/install.html">安装指南</a><span class="split">|</span><a href="sources/opencompass/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- OpenCV -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencv.png')"></div><h3 class="card-title">OpenCV</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencv.png')"></div><h3 class="card-title">opencv</h3></div>
          <p class="card-desc">开源计算机视觉库，支持昇腾平台处理。</p>
          <div class="card-footer"><a href="https://github.com/opencv/opencv">官方链接</a><span class="split">|</span><a href="sources/opencv/install.html">安装指南</a><span class="split">|</span><a href="sources/opencv/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- SD WebUI -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sd-webui.png')"></div><h3 class="card-title">SD WebUI</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sd-webui.png')"></div><h3 class="card-title">stable-diffusion-webui</h3></div>
          <p class="card-desc">Stable Diffusion 可视化工具链。</p>
          <div class="card-footer"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a><span class="split">|</span><a href="sources/sd_webui/install.html">安装指南</a><span class="split">|</span><a href="sources/sd_webui/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- timm -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">timm</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">pytorch-image-models</h3></div>
          <p class="card-desc">PyTorch 图像模型库适配版本。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/install.html">安装指南</a><span class="split">|</span><a href="sources/timm/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- WeNet -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/wenet.png')"></div><h3 class="card-title">WeNet</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/wenet.png')"></div><h3 class="card-title">wenet</h3></div>
          <p class="card-desc">端到端的语音识别工具包。</p>
          <div class="card-footer"><a href="https://github.com/wenet-e2e/wenet">官方链接</a><span class="split">|</span><a href="sources/wenet/install.html">安装指南</a><span class="split">|</span><a href="sources/wenet/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Whisper.cpp -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/whisper_cpp.png')"></div><h3 class="card-title">Whisper.cpp</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/whisper_cpp.png')"></div><h3 class="card-title">whisper.cpp</h3></div>
          <p class="card-desc">Whisper 模型高性能推理语音识别框架。</p>
          <div class="card-footer"><a href="https://github.com/ggerganov/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/whisper_cpp/quick_start.html">快速上手</a></div>
       </div>

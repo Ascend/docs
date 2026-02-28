@@ -1,4 +1,4 @@
-Whisper.cpp
+whisper.cpp
 ===========
 
 .. toctree::

@@ -1,4 +1,4 @@
-WeNet
+wenet
 ===========
 
 .. toctree::
