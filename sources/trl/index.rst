@@ -1,4 +1,4 @@
-trl
+Transformer Reinforcement Learning
 ===================================================
 
 .. toctree::
