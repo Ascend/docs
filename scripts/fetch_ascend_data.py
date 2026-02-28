@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import json
+import os
 import re
 import subprocess
 import sys
+import threading
+import queue
 from html.parser import HTMLParser
 
 class HTMLStepParser(HTMLParser):
@@ -117,6 +120,134 @@ def get_installation_steps(version_id, hardware_id, cpu_arch_id, os_id, install_
             return parse_html_steps(html_content)
     return []
 
+def worker(task_queue, config, config_lock, thread_count, active_threads):
+    """工作线程，从队列获取任务并处理"""
+    while True:
+        try:
+            task = task_queue.get(timeout=1)
+        except queue.Empty:
+            break
+        
+        task_type = task['type']
+        
+        if task_type == 'product_series':
+            version_id = task['version_id']
+            product_series = get_product_series(version_id)
+            print(f"  [{threading.current_thread().name}] Found {len(product_series)} product series for version {version_id}")
+            
+            with config_lock:
+                for product in product_series:
+                    hardware_id = product['id']
+                    product_name = product['name']
+                    version_config = config['versions'][version_id]
+                    version_config['product_series'][hardware_id] = {
+                        'id': hardware_id,
+                        'name': product_name,
+                        'cpu_architectures': {}
+                    }
+                    task_queue.put({
+                        'type': 'cpu_architectures',
+                        'version_id': version_id,
+                        'hardware_id': hardware_id
+                    })
+        
+        elif task_type == 'cpu_architectures':
+            version_id = task['version_id']
+            hardware_id = task['hardware_id']
+            cpu_archs = get_cpu_architectures(version_id, hardware_id)
+            print(f"    [{threading.current_thread().name}] Found {len(cpu_archs)} CPU architectures for {hardware_id}")
+            
+            with config_lock:
+                for cpu_arch in cpu_archs:
+                    cpu_arch_id = cpu_arch['id']
+                    cpu_arch_name = cpu_arch['name']
+                    version_config = config['versions'][version_id]
+                    product_config = version_config['product_series'][hardware_id]
+                    product_config['cpu_architectures'][cpu_arch_id] = {
+                        'id': cpu_arch_id,
+                        'name': cpu_arch_name,
+                        'operating_systems': {}
+                    }
+                    task_queue.put({
+                        'type': 'operating_systems',
+                        'version_id': version_id,
+                        'hardware_id': hardware_id,
+                        'cpu_arch_id': cpu_arch_id
+                    })
+        
+        elif task_type == 'operating_systems':
+            version_id = task['version_id']
+            hardware_id = task['hardware_id']
+            cpu_arch_id = task['cpu_arch_id']
+            os_list = get_operating_systems(version_id, hardware_id, cpu_arch_id)
+            print(f"      [{threading.current_thread().name}] Found {len(os_list)} OS for {cpu_arch_id}")
+            
+            with config_lock:
+                for os_info in os_list:
+                    os_id = os_info['id']
+                    os_name = os_info['name']
+                    version_config = config['versions'][version_id]
+                    product_config = version_config['product_series'][hardware_id]
+                    cpu_config = product_config['cpu_architectures'][cpu_arch_id]
+                    cpu_config['operating_systems'][os_id] = {
+                        'id': os_id,
+                        'name': os_name,
+                        'install_methods': {}
+                    }
+                    task_queue.put({
+                        'type': 'install_methods',
+                        'version_id': version_id,
+                        'hardware_id': hardware_id,
+                        'cpu_arch_id': cpu_arch_id,
+                        'os_id': os_id
+                    })
+        
+        elif task_type == 'install_methods':
+            version_id = task['version_id']
+            hardware_id = task['hardware_id']
+            cpu_arch_id = task['cpu_arch_id']
+            os_id = task['os_id']
+            install_methods = get_install_methods(version_id, hardware_id, cpu_arch_id, os_id)
+            print(f"        [{threading.current_thread().name}] Found {len(install_methods)} install methods for {os_id}")
+            
+            with config_lock:
+                for install_method in install_methods:
+                    install_method_id = install_method['id']
+                    install_method_name = install_method['name']
+                    task_queue.put({
+                        'type': 'installation_steps',
+                        'version_id': version_id,
+                        'hardware_id': hardware_id,
+                        'cpu_arch_id': cpu_arch_id,
+                        'os_id': os_id,
+                        'install_method_id': install_method_id,
+                        'install_method_name': install_method_name
+                    })
+        
+        elif task_type == 'installation_steps':
+            version_id = task['version_id']
+            hardware_id = task['hardware_id']
+            cpu_arch_id = task['cpu_arch_id']
+            os_id = task['os_id']
+            install_method_id = task['install_method_id']
+            install_method_name = task['install_method_name']
+            
+            steps = get_installation_steps(version_id, hardware_id, cpu_arch_id, os_id, install_method_id)
+            
+            if steps:
+                with config_lock:
+                    version_config = config['versions'][version_id]
+                    product_config = version_config['product_series'][hardware_id]
+                    cpu_config = product_config['cpu_architectures'][cpu_arch_id]
+                    os_config = cpu_config['operating_systems'][os_id]
+                    os_config['install_methods'][install_method_id] = {
+                        'id': install_method_id,
+                        'name': install_method_name,
+                        'steps': steps
+                    }
+        
+        task_queue.task_done()
+
 def main():
     # 版本列表（手动记录）
     versions = [
@@ -130,88 +261,45 @@ def main():
         'versions': {}
     }
     
+    # 初始化配置结构
     for version_info in versions:
         version_id = version_info['id']
         version_name = version_info['name']
         print(f"Processing version {version_name} ({version_id})...")
-        
-        version_config = {
+        config['versions'][version_id] = {
             'id': version_id,
             'name': version_name,
             'product_series': {}
         }
-        
-        product_series = get_product_series(version_id)
-        print(f"  Found {len(product_series)} product series")
-        
-        for product in product_series:
-            hardware_id = product['id']
-            product_name = product['name']
-            print(f"    Processing product: {product_name} ({hardware_id})")
-            
-            product_config = {
-                'id': hardware_id,
-                'name': product_name,
-                'cpu_architectures': {}
-            }
-            
-            cpu_archs = get_cpu_architectures(version_id, hardware_id)
-            print(f"      Found {len(cpu_archs)} CPU architectures")
-            
-            for cpu_arch in cpu_archs:
-                cpu_arch_id = cpu_arch['id']
-                cpu_arch_name = cpu_arch['name']
-                print(f"        Processing CPU: {cpu_arch_name} ({cpu_arch_id})")
-                
-                cpu_config = {
-                    'id': cpu_arch_id,
-                    'name': cpu_arch_name,
-                    'operating_systems': {}
-                }
-                
-                os_list = get_operating_systems(version_id, hardware_id, cpu_arch_id)
-                print(f"          Found {len(os_list)} operating systems")
-                
-                for os_info in os_list:
-                    os_id = os_info['id']
-                    os_name = os_info['name']
-                    print(f"            Processing OS: {os_name} ({os_id})")
-                    
-                    os_config = {
-                        'id': os_id,
-                        'name': os_name,
-                        'install_methods': {}
-                    }
-                    
-                    install_methods = get_install_methods(version_id, hardware_id, cpu_arch_id, os_id)
-                    print(f"              Found {len(install_methods)} install methods")
-                    
-                    for install_method in install_methods:
-                        install_method_id = install_method['id']
-                        install_method_name = install_method['name']
-                        print(f"                Processing install method: {install_method_name} ({install_method_id})")
-                        
-                        steps = get_installation_steps(version_id, hardware_id, cpu_arch_id, os_id, install_method_id)
-                        
-                        if steps:
-                            install_config = {
-                                'id': install_method_id,
-                                'name': install_method_name,
-                                'steps': steps
-                            }
-                            
-                            os_config['install_methods'][install_method_id] = install_config
-                    
-                    cpu_config['operating_systems'][os_id] = os_config
-                
-                product_config['cpu_architectures'][cpu_arch_id] = cpu_config
-            
-            version_config['product_series'][hardware_id] = product_config
-        
-        config['versions'][version_id] = version_config
+    
+    # 创建任务队列
+    task_queue = queue.Queue()
+    config_lock = threading.Lock()
+    
+    # 将初始任务放入队列
+    for version_info in versions:
+        task_queue.put({
+            'type': 'product_series',
+            'version_id': version_info['id']
+        })
+    
+    # 创建工作线程
+    num_threads = os.cpu_count() or 4
+    threads = []
+    for i in range(num_threads):
+        t = threading.Thread(target=worker, args=(task_queue, config, config_lock, num_threads, threads), name=f"Worker-{i}")
+        t.start()
+        threads.append(t)
+    
+    # 等待所有任务完成
+    task_queue.join()
+    
+    # 等待所有线程结束
+    for t in threads:
+        t.join()
     
     # 保存配置文件
-    output_file = '/Users/hua/code/docs/_static/ascend_config.json'
+    output_file = os.path.join(os.path.dirname(__file__), '..', '_static', 'ascend_config.json')
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
     
