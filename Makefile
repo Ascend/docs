@@ -18,18 +18,30 @@ PROJECT_CONFIGS = \
 # Configure all subprojects generated path
 GENERATED_DOCS := sources/_generated
 
+# Ascend config file path
+ASCEND_CONFIG := _static/ascend_config.json
+
+# Fetch script
+FETCH_SCRIPT := scripts/fetch_ascend_data.py
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile
+.PHONY: help Makefile copy-docs clean-submodules
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+# Fetch ascend config if not exists
+$(ASCEND_CONFIG):
+	@echo "Fetching ascend configuration data..."
+	@python3 $(FETCH_SCRIPT)
+
+# Initialize submodules if not exists
+_repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift:
 	@echo "Initializing submodules..."
 	@git submodule update --init --remote
 
+# Copy documentation from submodules
+copy-docs: _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift
 	@echo "Preparing generated docs directory..."
 	@mkdir -p $(GENERATED_DOCS)
 
@@ -39,20 +51,19 @@ help:
 		rel_dst=$$(echo $$config | cut -d: -f2); \
 		dst="$(GENERATED_DOCS)/$$rel_dst"; \
 		echo "Copying $$src -> $$dst"; \
-		\
-		# Clean destination to avoid stale files \
 		rm -rf $$dst; \
 		mkdir -p $$dst; \
-		\
-		# Remove index files from source to avoid conflicts \
 		find $$src -name 'index.*' -delete 2>/dev/null || true; \
-		\
 		echo "Copying $$src to $$dst"; \
-		cp -r "$$src"/* "$$dst"/ 2>/dev/null || \
-			echo "  [WARN] Source directory does not exist or is empty: $$src"; \
+		cp -r "$$src"/* "$$dst"/ 2>/dev/null || echo "  [WARN] Source directory does not exist or is empty: $$src"; \
 	done
 
+# Clean up submodules
+clean-submodules:
 	@echo "Cleaning up submodules..."
 	@git submodule deinit -f _repos/*
 
+# Catch-all target: route all unknown targets to Sphinx using the new
+# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
+%: Makefile $(ASCEND_CONFIG) copy-docs
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
