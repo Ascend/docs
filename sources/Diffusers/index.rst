@@ -1,4 +1,4 @@
-Diffusers
+diffusers
 ===========
 
 .. toctree::

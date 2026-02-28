@@ -1,4 +1,4 @@
-OpenCompass
+opencompass
 ============
 
 .. toctree::

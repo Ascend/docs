@@ -1,4 +1,4 @@
-LMDeploy
+lmdeploy
 ===========
 
 .. toctree::
