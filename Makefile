@@ -42,17 +42,11 @@ help:
 		rel_dst=$$(echo $$config | cut -d: -f2); \
 		dst="$(GENERATED_DOCS)/$$rel_dst"; \
 		echo "Copying $$src -> $$dst"; \
-		\
-		# Clean destination to avoid stale files \
 		rm -rf $$dst; \
 		mkdir -p $$dst; \
-		\
-		# Remove index files from source to avoid conflicts \
 		find $$src -name 'index.*' -delete 2>/dev/null || true; \
-		\
 		echo "Copying $$src to $$dst"; \
-		cp -r "$$src"/* "$$dst"/ 2>/dev/null || \
-			echo "  [WARN] Source directory does not exist or is empty: $$src"; \
+		cp -r "$$src"/* "$$dst"/ 2>/dev/null || echo "  [WARN] Source directory does not exist or is empty: $$src"; \
 	done
 
 	@echo "Cleaning up submodules..."
