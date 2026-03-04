@@ -48,15 +48,15 @@
 
       /* 卡片顶部：logo和标题在卡片中居中显示 */
       .card-top {
-           display: grid;
-           grid-template-columns: 56px minmax(0, 1fr);
+          display: grid;
+          grid-template-columns: 56px minmax(0, 1fr);
           align-items: center;
-           justify-content: center;
+          justify-content: center;
           margin-bottom: 15px;
           gap: 16px;
           width: min(100%, 360px);
-           margin-left: auto;
-           margin-right: auto;
+          margin-left: auto;
+          margin-right: auto;
       }
 
       /* Logo容器：固定尺寸，完美居中 */
@@ -84,10 +84,10 @@
           color: var(--text-main);
           margin: 0 !important;
           padding: 0 !important;
-           line-height: 1.3;
+          line-height: 1.3;
           display: flex;
           align-items: center;
-           min-height: 56px;
+          min-height: 56px;
           justify-content: flex-start;
           text-align: left;
       }
