@@ -1,4 +1,4 @@
-Transformers
+transformers
 ==================
 
 .. toctree::

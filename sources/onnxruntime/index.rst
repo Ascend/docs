@@ -1,4 +1,4 @@
-ONNX Runtime
+onnxruntime
 ============
 
 .. toctree::

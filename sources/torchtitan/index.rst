@@ -1,4 +1,4 @@
-TorchTitan
+torchtitan
 ============
 
 .. toctree::
