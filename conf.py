@@ -30,13 +30,32 @@ release = ''
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'recommonmark',
+    # 'recommonmark',
     'sphinx.ext.autodoc',
     'sphinxext.remoteliteralinclude',
     'sphinx_copybutton',
     'sphinx_markdown_tables',
     "sphinx_design",
+    'myst_parser',
 ]
+
+# 这一行非常重要，它允许 MyST 处理复杂的标题层级
+myst_heading_anchors = 3
+
+# 允许在 RST 中嵌入 Markdown 内容
+myst_enable_extensions = [
+    "colon_fence",
+    "html_image",
+]
+
+# conf.py
+html_theme_options = {
+    # 仅显示当前页面所属的导航树，不显示全局无关节点
+    'collapse_navigation': True,
+    'navigation_depth': 4,
+    'includehidden': True,
+    'titles_only': False,
+}
 
 # 模板路径设置
 templates_path = ['_templates']
@@ -179,6 +198,57 @@ def generate_api_doc():
     with open(rst_filename, 'w', encoding='utf-8') as f:
         f.write(rendered_content)
  
+# =========================================================
+# 独立社区页面全局配置 (核心机制：高度可配置化)
+# =========================================================
+html_context = {
+    'independent_communities': {
+        'verl': {
+            'display_name': 'verl',
+            'sidebar_mapping': {
+                'onboarding_getting_started': '🚀 启航入门',
+                'core_features_application_guide': '📚 应用指南',
+                'porting_performance_tuning': '⚡ 适配与调优',
+                'faq':'🔆 故障排查(FAQ)',
+                'open_source_development': '🔧 开源开发'
+            }
+        },
+        # 未来增加 sglang，只需在这里解除注释即可，不用改代码
+        # 'sglang': {
+        #     'display_name': 'SGLANG',
+        #     'sidebar_mapping': {
+        #         'quick_start': '🚀 快速开始',
+        #         'api_reference': '📖 API 参考'
+        #     }
+        # }
+    }
+}
+
+# 【新增核心代码】：Sphinx 页面上下文注入 Hook
+def update_page_context(app, pagename, templatename, context, doctree):
+    """
+    拦截页面渲染，判断当前路径是否属于独立社区。
+    如果是，向 Jinja 模板注入 is_independent 和对应的 comm_config 变量。
+    """
+    communities = context.get('independent_communities', {})
+    context['is_independent'] = False
+    
+    # 根据路径匹配，如 'sources/verl/index'
+    for comm_id, comm_info in communities.items():
+        if pagename.startswith(f"sources/{comm_id}"):
+            context['is_independent'] = True
+            context['current_community_id'] = comm_id
+            context['comm_config'] = comm_info
+            break
+
+def setup(app):
+    app.add_css_file('custom.css')
+    app.add_js_file('package_info.js')
+    app.add_js_file('statistics.js')
+    
+    # 【新增 Hook 注册】
+    app.connect('html-page-context', update_page_context)
+
 # 在 Sphinx 构建之前调用该函数生成 API 文档
 try:
     generate_api_doc()
