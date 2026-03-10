@@ -39,7 +39,8 @@ fetch-config:
 # Initialize submodules if not exists (use pinned commits for reproducibility)
 _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift:
 	@echo "Initializing submodules..."
-	@git submodule update --init
+	@git submodule sync --recursive
+	@git submodule update --init --remote
 
 # Copy documentation from submodules
 copy-docs: _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift

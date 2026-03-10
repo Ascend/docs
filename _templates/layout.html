@@ -1,0 +1,115 @@
+{% extends "!layout.html" %}
+
+{% block menu %}
+{% if is_independent %}
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        {{ super() }}
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {{ comm_config.get('sidebar_mapping', {}) | tojson | safe }};
+        const commId = '{{ current_community_id }}';
+        
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+            
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                const items = Array.from(subMenu.children);
+                items.forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 匹配 conf.py 中配置的文件夹路径
+                    for (const folder in mapping) {
+                        if (fullUrl.includes('/' + folder + '/')) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 如果有的文件放在根目录没匹配到，归入 default
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 D: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 E: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    // 找出该节点及其内部所有的级联列表项
+                    const allTocItems = [item, ...item.querySelectorAll('[class*="toctree-l"]')];
+                    allTocItems.forEach(el => {
+                        // 将 toctree-l(X) 动态替换为 toctree-l(X-1)
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            const newLevel = parseInt(level, 10) - 1;
+                            return 'toctree-l' + newLevel;
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 F: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+{% else %}
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    {{ super() }}
+{% endif %}
+{% endblock %}
