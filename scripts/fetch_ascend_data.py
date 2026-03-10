@@ -6,7 +6,19 @@ import subprocess
 import sys
 import threading
 import queue
+from datetime import datetime
 from html.parser import HTMLParser
+
+# 进度追踪
+progress_lock = threading.Lock()
+progress_count = 0
+
+def update_progress():
+    """更新并显示进度"""
+    global progress_count
+    with progress_lock:
+        progress_count += 1
+        print(f"\rFetched: {progress_count}", end='', flush=True)
 
 class HTMLStepParser(HTMLParser):
     """解析HTML内容，提取步骤和命令"""
@@ -120,7 +132,7 @@ def get_installation_steps(version_id, hardware_id, cpu_arch_id, os_id, install_
             return parse_html_steps(html_content)
     return []
 
-def worker(task_queue, config, config_lock, thread_count, active_threads):
+def worker(task_queue, config, config_lock):
     """工作线程，从队列获取任务并处理"""
     while True:
         try:
@@ -133,8 +145,7 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
         if task_type == 'product_series':
             version_id = task['version_id']
             product_series = get_product_series(version_id)
-            print(f"  [{threading.current_thread().name}] Found {len(product_series)} product series for version {version_id}")
-            
+
             with config_lock:
                 for product in product_series:
                     hardware_id = product['id']
@@ -155,8 +166,7 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
             version_id = task['version_id']
             hardware_id = task['hardware_id']
             cpu_archs = get_cpu_architectures(version_id, hardware_id)
-            print(f"    [{threading.current_thread().name}] Found {len(cpu_archs)} CPU architectures for {hardware_id}")
-            
+
             with config_lock:
                 for cpu_arch in cpu_archs:
                     cpu_arch_id = cpu_arch['id']
@@ -180,8 +190,7 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
             hardware_id = task['hardware_id']
             cpu_arch_id = task['cpu_arch_id']
             os_list = get_operating_systems(version_id, hardware_id, cpu_arch_id)
-            print(f"      [{threading.current_thread().name}] Found {len(os_list)} OS for {cpu_arch_id}")
-            
+
             with config_lock:
                 for os_info in os_list:
                     os_id = os_info['id']
@@ -208,8 +217,7 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
             cpu_arch_id = task['cpu_arch_id']
             os_id = task['os_id']
             install_methods = get_install_methods(version_id, hardware_id, cpu_arch_id, os_id)
-            print(f"        [{threading.current_thread().name}] Found {len(install_methods)} install methods for {os_id}")
-            
+
             with config_lock:
                 for install_method in install_methods:
                     install_method_id = install_method['id']
@@ -231,9 +239,9 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
             os_id = task['os_id']
             install_method_id = task['install_method_id']
             install_method_name = task['install_method_name']
-            
+
             steps = get_installation_steps(version_id, hardware_id, cpu_arch_id, os_id, install_method_id)
-            
+
             if steps:
                 with config_lock:
                     version_config = config['versions'][version_id]
@@ -245,65 +253,80 @@ def worker(task_queue, config, config_lock, thread_count, active_threads):
                         'name': install_method_name,
                         'steps': steps
                     }
+
+            update_progress()
         
         task_queue.task_done()
+
+def get_git_short_hash():
+    """获取短的 git hash"""
+    try:
+        result = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'],
+                              capture_output=True, text=True, cwd=os.path.dirname(__file__))
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except:
+        pass
+    return 'unknown'
 
 def main():
     # 版本列表（手动记录）
     versions = [
+        {'id': '673', 'name': '9.0.0-beta.1'},
         {'id': '657', 'name': '8.5.0'},
         {'id': '630', 'name': '8.5.0.alpha002'}
     ]
-    
+
     config = {
-        'version': '1.0.0',
-        'updated_at': '2025-02-25',
+        'version': get_git_short_hash(),
+        'updated_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'versions': {}
     }
-    
+
     # 初始化配置结构
     for version_info in versions:
         version_id = version_info['id']
         version_name = version_info['name']
-        print(f"Processing version {version_name} ({version_id})...")
         config['versions'][version_id] = {
             'id': version_id,
             'name': version_name,
             'product_series': {}
         }
-    
+
+    print(f"Fetching data for {len(versions)} versions...")
+
     # 创建任务队列
     task_queue = queue.Queue()
     config_lock = threading.Lock()
-    
+
     # 将初始任务放入队列
     for version_info in versions:
         task_queue.put({
             'type': 'product_series',
             'version_id': version_info['id']
         })
-    
+
     # 创建工作线程
     num_threads = os.cpu_count() or 4
     threads = []
     for i in range(num_threads):
-        t = threading.Thread(target=worker, args=(task_queue, config, config_lock, num_threads, threads), name=f"Worker-{i}")
+        t = threading.Thread(target=worker, args=(task_queue, config, config_lock), name=f"Worker-{i}")
         t.start()
         threads.append(t)
-    
+
     # 等待所有任务完成
     task_queue.join()
-    
+
     # 等待所有线程结束
     for t in threads:
         t.join()
-    
+
     # 保存配置文件
     output_file = os.path.join(os.path.dirname(__file__), '..', '_static', 'ascend_config.json')
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
-    
-    print(f"\nConfiguration saved to {output_file}")
+
+    print(f"\nDone! Saved to {output_file}")
 
 if __name__ == '__main__':
     main()

@@ -151,7 +151,7 @@ $(document).ready(function () {
         steps.forEach(function(step, index) {
             instructionsHtml += '<section>';
             instructionsHtml += '<h3>' + (index + 1) + '. ' + step.title + '</h3>';
-            
+
             if (step.commands && step.commands.length > 0) {
                 step.commands.forEach(function(command) {
                     instructionsHtml += '<div class="highlight-default notranslate">';
@@ -161,9 +161,18 @@ $(document).ready(function () {
                     instructionsHtml += '</div>';
                 });
             }
-            
+
             instructionsHtml += '</section>';
         });
+
+        // 添加底部提示信息
+        instructionsHtml += '<section class="install-footer">';
+        instructionsHtml += '<p>若您需要详细的操作步骤请参考';
+        instructionsHtml += '<a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/850/quickstart/instg_quick.html" target="_blank">《CANN快速开始》</a>';
+        instructionsHtml += '或';
+        instructionsHtml += '<a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/850/softwareinst/instg/instg_0000.html?Mode=PmIns&InstallType=netconda&OS=openEuler" target="_blank">《CANN安装指南》</a>。';
+        instructionsHtml += '</p>';
+        instructionsHtml += '</section>';
 
         $('#install-instructions').html(instructionsHtml);
         $('#install-instructions').show();

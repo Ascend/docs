@@ -3,10 +3,6 @@
 
 跟随指导，在您的机器上快速安装昇腾环境。
 
-.. warning:: 
-
-    以下文档需要使用非root用户进行安装安装
-
 .. raw:: html
 
     <script type="text/javascript" src="../../_static/ascend_actions.js"></script>
@@ -36,6 +32,9 @@
                     <div class="mobile-headings">安装方式</div>
                 </div>
             </div>
+        </div>
+        <div style="text-align: right; margin-top: 10px;">
+            <a href="https://www.hiascend.com/developer/download/community/result?module=cann" target="_blank" class="more-versions-btn">更多版本 →</a>
         </div>
         <div id="install-instructions" style="display:none;">
         </div>
