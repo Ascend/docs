@@ -15,6 +15,7 @@ $(document).ready(function () {
         }).fail(function() {
             console.error('Failed to load ascend_config.json');
             $('#install-instructions').html('<p style="color: red;">加载配置文件失败，请检查网络连接。</p>');
+            $('#install-instructions').show();
         });
     }
 
@@ -28,7 +29,8 @@ $(document).ready(function () {
         versionKeys.forEach(function(key, index) {
             var version = versions[key];
             var selected = index === 0 ? 'selected' : '';
-            versionHtml += '<div class="values-element block-' + versionKeys.length + ' install-version ' + selected + '" id="version-' + key + '">' + version.name + '</div>';
+            var blockClass = 'block-' + Math.min(versionKeys.length, 5);
+            versionHtml += '<div class="values-element ' + blockClass + ' install-version ' + selected + '" id="version-' + key + '">' + escapeHtml(version.name) + '</div>';
         });
         $('#row-version').html(versionHtml);
 
@@ -49,7 +51,8 @@ $(document).ready(function () {
         productKeys.forEach(function(key, index) {
             var product = productSeries[key];
             var selected = index === 0 ? 'selected' : '';
-            productHtml += '<div class="values-element block-' + productKeys.length + ' install-product ' + selected + '" id="product-' + key + '">' + product.name + '</div>';
+            var blockClass = 'block-' + Math.min(productKeys.length, 5);
+            productHtml += '<div class="values-element ' + blockClass + ' install-product ' + selected + '" id="product-' + key + '">' + escapeHtml(product.name) + '</div>';
         });
         $('#row-product').html(productHtml);
 
@@ -72,7 +75,8 @@ $(document).ready(function () {
         cpuArchKeys.forEach(function(key, index) {
             var cpuArch = cpuArchs[key];
             var selected = index === 0 ? 'selected' : '';
-            cpuArchHtml += '<div class="values-element block-' + cpuArchKeys.length + ' install-cpu_arch ' + selected + '" id="cpu_arch-' + key + '">' + cpuArch.name + '</div>';
+            var blockClass = 'block-' + Math.min(cpuArchKeys.length, 5);
+            cpuArchHtml += '<div class="values-element ' + blockClass + ' install-cpu_arch ' + selected + '" id="cpu_arch-' + key + '">' + escapeHtml(cpuArch.name) + '</div>';
         });
         $('#row-cpu_arch').html(cpuArchHtml);
 
@@ -96,7 +100,8 @@ $(document).ready(function () {
         osKeys.forEach(function(key, index) {
             var os = operatingSystems[key];
             var selected = index === 0 ? 'selected' : '';
-            osHtml += '<div class="values-element block-' + osKeys.length + ' install-os ' + selected + '" id="os-' + key + '">' + os.name + '</div>';
+            var blockClass = 'block-' + Math.min(osKeys.length, 5);
+            osHtml += '<div class="values-element ' + blockClass + ' install-os ' + selected + '" id="os-' + key + '">' + escapeHtml(os.name) + '</div>';
         });
         $('#row-os').html(osHtml);
 
@@ -121,7 +126,8 @@ $(document).ready(function () {
         installMethodKeys.forEach(function(key, index) {
             var installMethod = installMethods[key];
             var selected = index === 0 ? 'selected' : '';
-            installMethodHtml += '<div class="values-element block-' + installMethodKeys.length + ' install-install_method ' + selected + '" id="install_method-' + key + '">' + installMethod.name + '</div>';
+            var blockClass = 'block-' + Math.min(installMethodKeys.length, 5);
+            installMethodHtml += '<div class="values-element ' + blockClass + ' install-install_method ' + selected + '" id="install_method-' + key + '">' + escapeHtml(installMethod.name) + '</div>';
         });
         $('#row-install_method').html(installMethodHtml);
 
@@ -144,13 +150,14 @@ $(document).ready(function () {
 
         if (!steps || steps.length === 0) {
             $('#install-instructions').html('<p style="color: red;">暂无安装步骤</p>');
+            $('#install-instructions').show();
             return;
         }
 
         var instructionsHtml = '';
         steps.forEach(function(step, index) {
             instructionsHtml += '<section>';
-            instructionsHtml += '<h3>' + (index + 1) + '. ' + step.title + '</h3>';
+            instructionsHtml += '<h3>' + (index + 1) + '. ' + escapeHtml(step.title) + '</h3>';
 
             if (step.commands && step.commands.length > 0) {
                 step.commands.forEach(function(command) {

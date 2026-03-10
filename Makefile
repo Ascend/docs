@@ -28,17 +28,18 @@ FETCH_SCRIPT := scripts/fetch_ascend_data.py
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile copy-docs clean-submodules
+.PHONY: help Makefile copy-docs clean-submodules fetch-config
 
-# Fetch ascend config if not exists
-$(ASCEND_CONFIG):
+# Fetch ascend config (always run to ensure freshness)
+.PHONY: $(ASCEND_CONFIG)
+fetch-config:
 	@echo "Fetching ascend configuration data..."
 	@python3 $(FETCH_SCRIPT)
 
-# Initialize submodules if not exists
+# Initialize submodules if not exists (use pinned commits for reproducibility)
 _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift:
 	@echo "Initializing submodules..."
-	@git submodule update --init --remote
+	@git submodule update --init
 
 # Copy documentation from submodules
 copy-docs: _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift
@@ -63,7 +64,10 @@ clean-submodules:
 	@echo "Cleaning up submodules..."
 	@git submodule deinit -f _repos/*
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile $(ASCEND_CONFIG) copy-docs
+# Explicit build targets with prerequisites
+html dirhtml singlehtml latex pdf: fetch-config copy-docs
+	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+# Catch-all target for other Sphinx targets (clean, help, etc.)
+%: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

@@ -74,6 +74,21 @@ def setup(app):
     app.add_js_file('package_info.js')
     app.add_js_file('statistics.js')
 
+    # Generate ascend_config.json if it doesn't exist (for RTD/CI builds)
+    import os.path
+    ascend_config_path = os.path.join(os.path.dirname(__file__), '_static', 'ascend_config.json')
+    if not os.path.exists(ascend_config_path):
+        print("ascend_config.json not found, generating...")
+        fetch_script = os.path.join(os.path.dirname(__file__), 'scripts', 'fetch_ascend_data.py')
+        if os.path.exists(fetch_script):
+            import subprocess
+            try:
+                subprocess.run(['python3', fetch_script], check=True)
+            except Exception as e:
+                print(f"Warning: Failed to generate ascend_config.json: {e}")
+        else:
+            print(f"Warning: fetch script not found at {fetch_script}")
+
 
 import os, re, importlib.util
 from jinja2 import Environment, FileSystemLoader

@@ -5,6 +5,15 @@
 
 .. raw:: html
 
+    <noscript>
+        <div style="padding: 20px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; margin-bottom: 20px;">
+            <p style="margin: 0; color: #856404;">
+                <strong>注意：</strong>此页面需要 JavaScript 来显示安装步骤。
+                请启用 JavaScript 或访问
+                <a href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/850/quickstart/instg_quick.html" target="_blank">CANN 官方安装文档</a>。
+            </p>
+        </div>
+    </noscript>
     <script type="text/javascript" src="../../_static/ascend_actions.js"></script>
     <div id="div-installation" style="">
         <div class="row">
