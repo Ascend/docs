@@ -12,7 +12,7 @@
           --border-color: #e1e4e8;
       }
 
-      /* 英雄区：颜色对齐 */
+      /* ：颜色对齐 */
       .hero-banner {
           background-color: var(--ascend-blue);
           color: white; padding: 50px 30px; border-radius: 12px;
@@ -191,7 +191,7 @@
 
       <!-- trl -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">trl</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformer Reinforcement Learning</h3></div>
          <p class="card-desc">适用于 SFT、PPO、DPO 等方法的模型后训练库。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/install.html">安装指南</a><span class="split">|</span><a href="sources/trl/quick_start.html">快速上手</a></div>
       </div>
