@@ -1,4 +1,4 @@
-Sentence Transformers
+sentence-transformers
 =============================
 
 .. toctree::

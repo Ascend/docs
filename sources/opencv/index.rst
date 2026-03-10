@@ -1,4 +1,4 @@
-OpenCV
+opencv
 ===========
 
 .. toctree::

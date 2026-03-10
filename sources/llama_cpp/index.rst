@@ -1,4 +1,4 @@
-Llama.cpp
+llama.cpp
 ===========
 
 .. toctree::

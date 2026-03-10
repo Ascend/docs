@@ -1,4 +1,4 @@
-timm
+pytorch-image-models
 ===========
 
 .. toctree::

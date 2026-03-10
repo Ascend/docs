@@ -1,4 +1,4 @@
-LM-Evalution-Harness
+lm-evaluation-harness
 ===============================
 
 .. toctree::

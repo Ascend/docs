@@ -38,7 +38,8 @@
 .. code-block:: shell
     :linenos:
 
-    git clone --branch dev https://github.com/AUTOMATIC1111/stable-diffusion-webui.gitcd stable-diffusion-webui
+    git clone --branch dev https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+    cd stable-diffusion-webui
 
     #此命令将在首次安装时自动在 Ascend 设备上安装 torch 和 torch_npu。
     ./webui.sh --listen --skip-torch-cuda-test --no-half
@@ -59,7 +60,7 @@
     pip install https://github.com/openai/CLIP/archive/d50d76daa670286dd6cacf3bcd80b5e4823fc8e1.zip --prefer-binary
     pip install https://github.com/mlfoundations/open_clip/archive/bb6e834e9c70d9c27d0dc3ecedeebeaeb1ffad6b.zip 
     pip install -U -I --no-deps xformers==0.0.23.post1 
-    pip install install ngrok
+    pip install ngrok
     mkdir repositories 
     git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git stable-diffusion-webui-assets
     git -C stable-diffusion-webui-assets checkout 6f7db241d2f8ba7457bac5ca9753331f0c266917 

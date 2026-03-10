@@ -1,4 +1,4 @@
-Torchchat
+torchchat
 ===========
 
 .. toctree::

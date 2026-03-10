@@ -1,4 +1,4 @@
-Accelerate
+accelerate
 ==============
 
 .. toctree::
