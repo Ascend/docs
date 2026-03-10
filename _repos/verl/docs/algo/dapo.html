@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe: Decoupled Clip and Dynamic Sampling Policy Optimization (DAPO) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=9b9611a2" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Recipe: Decoupled Clip and Dynamic Sampling Policy Optimization (DAPO)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/algo/dapo.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="recipe-decoupled-clip-and-dynamic-sampling-policy-optimization-dapo">
+<h1>Recipe: Decoupled Clip and Dynamic Sampling Policy Optimization (DAPO)<a class="headerlink" href="#recipe-decoupled-clip-and-dynamic-sampling-policy-optimization-dapo" title="Link to this heading"></a></h1>
+<p>Last updated: 06/19/2025.</p>
+<blockquote>
+<div><p>Open-Source Algorithm Implementation &amp; Expriement Running: <a class="reference external" href="https://tongyx361.github.io/">Yuxuan Tong</a>, <a class="reference external" href="https://hk.linkedin.com/in/guangming-sheng-b50640211">Guangming Sheng</a></p>
+</div></blockquote>
+<p>🏠 <a class="reference external" href="https://dapo-sia.github.io/">Homepage</a> | 📝 <a class="reference external" href="https://arxiv.org/abs/2503.14476">Paper&#64;arXiv</a> | 🤗 <a class="reference external" href="https://huggingface.co/collections/BytedTsinghua-SIA/dapo-67d7f1517ee33c8aed059da0">Datasets&amp;Models&#64;HF</a> | 🐱 <a class="reference external" href="https://github.com/verl-project/verl-recipe/tree/main/dapo/recipe/dapo">Code&#64;GitHub</a> | 🐱 <a class="reference external" href="https://github.com/BytedTsinghua-SIA/DAPO">Repo&#64;GitHub</a></p>
+<blockquote>
+<div><p>We propose the <strong>D</strong>ecoupled Clip and Dynamic s<strong>A</strong>mpling <strong>P</strong>olicy <strong>O</strong>ptimization (DAPO) algorithm. By making our work publicly available, we provide the broader research community and society with practical access to scalable reinforcement learning, enabling all to benefit from these advancements. Our system is based on the awesome <a class="reference external" href="https://github.com/volcengine/verl">verl</a> framework. Thanks for their great work! Applying DAPO training to Qwen2.5-32B base model proves to outperform the previous state-of-the-art DeepSeek-R1-Zero-Qwen-32B on AIME 2024, achieving <strong>50%</strong> accuracy with <strong>50%</strong> less training steps.</p>
+<p><img alt="dapo-main-result" src="https://dapo-sia.github.io/static/images/score.png" /></p>
+</div></blockquote>
+<section id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Link to this heading"></a></h2>
+<ol class="simple">
+<li><p>Prepare the datasets <strong>on the Ray cluster</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>prepare_dapo_data.sh<span class="w"> </span><span class="c1"># This downloads the datasets to ${HOME}/verl/data by default</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Submit the job to the Ray cluster <strong>from any machine</strong>:</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>verl<span class="w"> </span><span class="c1"># Repo root</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RAY_ADDRESS</span><span class="o">=</span><span class="s2">&quot;http://</span><span class="si">${</span><span class="nv">RAY_IP</span><span class="k">:-</span><span class="nv">localhost</span><span class="si">}</span><span class="s2">:8265&quot;</span><span class="w"> </span><span class="c1"># The Ray cluster address to connect to</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">WORKING_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="c1"># The local directory to package to the Ray cluster</span>
+<span class="c1"># Set the runtime environment like env vars and pip packages for the Ray cluster in yaml</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RUNTIME_ENV</span><span class="o">=</span><span class="s2">&quot;./recipe/dapo/runtime_env.yaml&quot;</span><span class="w"> </span><span class="c1"># This sets environment variables for the Ray cluster</span>
+bash<span class="w"> </span>recipe/dapo/run_dapo_qwen2.5_32b.sh<span class="w"> </span><span class="c1"># or other scripts</span>
+</pre></div>
+</div>
+</section>
+<section id="reproduction-runs">
+<h2>Reproduction Runs<a class="headerlink" href="#reproduction-runs" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Setup</th>
+<th>AIME 2024 Acc.</th>
+<th>Hardware</th>
+<th>Image</th>
+<th>Commit</th>
+<th>Environment Variables</th>
+<th>Training Script</th>
+<th>Training Record</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DAPO</td>
+<td>52%</td>
+<td>16x8xH800</td>
+<td><code>hiyouga/verl:ngc-th2.6.0-cu126-vllm0.8.3-flashinfer0.2.2-cxx11abi0</code></td>
+<td><a href="https://github.com/volcengine/verl/tree/4f80e465c2ec79ab9c3c30ec74b9745de61d0490"><code>4f80e4</code></a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/runtime_env.yaml">runtime_env.yaml</a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/run_dapo_qwen2.5_32b.sh">run_dapo_qwen2.5_32b.sh</a></td>
+<td><a href="https://wandb.ai/verl-org/DAPO%20Reproduction%20on%20verl/workspace?nw=wmb4qxfht0n">W&amp;B</a></td>
+</tr>
+<tr>
+<td>DAPO w/o Dynamic Sampling</td>
+<td>50%</td>
+<td>16x8xH800</td>
+<td><code>hiyouga/verl:ngc-th2.6.0-cu126-vllm0.8.3-flashinfer0.2.2-cxx11abi0</code></td>
+<td><a href="https://github.com/volcengine/verl/tree/4f80e465c2ec79ab9c3c30ec74b9745de61d0490"><code>4f80e4</code></a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/runtime_env.yaml">runtime_env.yaml</a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/run_dapo_wo_ds_qwen2.5_32b.sh">run_dapo_wo_ds_qwen2.5_32b.sh</a></td>
+<td><a href="https://wandb.ai/verl-org/DAPO%20Reproduction%20on%20verl/workspace?nw=wmb4qxfht0n">W&amp;B</a></td>
+</tr>
+<tr>
+<td>DAPO w/o Token-level Loss &amp; Dynamic Sampling</td>
+<td>44%</td>
+<td>16x8xH20</td>
+<td><code>hiyouga/verl:ngc-th2.5.1-cu120-vllm0.7.4-hotfix</code></td>
+<td><a href="https://github.com/volcengine/verl/tree/4f80e465c2ec79ab9c3c30ec74b9745de61d0490"><code>4f80e4</code></a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/runtime_env.yaml">runtime_env.yaml</a></td>
+<td><a href="https://github.com/volcengine/verl/blob/4f80e465c2ec79ab9c3c30ec74b9745de61d0490/recipe/dapo/run_dapo_early_qwen2.5_32b.sh">run_dapo_early_qwen2.5_32b.sh</a></td>
+<td><a href="https://wandb.ai/verl-org/DAPO%20Reproduction%20on%20verl/workspace?nw=wmb4qxfht0n">W&amp;B</a></td>
+</tr>
+</tbody>
+</table><blockquote>
+<div><p>[!IMPORTANT]</p>
+<p><strong>📢 Call for Contribution!</strong></p>
+<p>Welcome to submit your reproduction runs and setups!</p>
+</div></blockquote>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<section id="separated-clip-epsilons-clip-higher">
+<h3>Separated Clip Epsilons (-&gt; Clip-Higher)<a class="headerlink" href="#separated-clip-epsilons-clip-higher" title="Link to this heading"></a></h3>
+<p>An example configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">clip_ratio_low</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2</span>
+<span class="w">    </span><span class="nt">clip_ratio_high</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.28</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">clip_ratio_low</span></code> and <code class="docutils literal notranslate"><span class="pre">clip_ratio_high</span></code> specify the $\varepsilon_{\text {low }}$ and $\varepsilon_{\text {high }}$ in the DAPO objective.</p>
+<p>Core relevant code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pg_losses1</span> <span class="o">=</span> <span class="o">-</span><span class="n">advantages</span> <span class="o">*</span> <span class="n">ratio</span>
+<span class="n">pg_losses2</span> <span class="o">=</span> <span class="o">-</span><span class="n">advantages</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">clamp</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">cliprange_low</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">cliprange_high</span><span class="p">)</span>
+<span class="n">pg_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">pg_losses1</span><span class="p">,</span> <span class="n">pg_losses2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="dynamic-sampling-with-group-filtering">
+<h3>Dynamic Sampling (with Group Filtering)<a class="headerlink" href="#dynamic-sampling-with-group-filtering" title="Link to this heading"></a></h3>
+<p>An example configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">gen_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1536</span>
+<span class="w">  </span><span class="nt">train_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="nt">algorithm</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">filter_groups</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">metric</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">acc</span><span class="w"> </span><span class="c1"># score / seq_reward / seq_final_reward / ...</span>
+<span class="w">    </span><span class="nt">max_num_gen_batches</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span><span class="w"> </span><span class="c1"># Non-positive values mean no upper limit</span>
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">filter_groups.enable</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> will filter out groups whose outputs' <code class="docutils literal notranslate"><span class="pre">metric</span></code> are all the same, e.g., for <code class="docutils literal notranslate"><span class="pre">acc</span></code>, groups whose outputs' accuracies are all 1 or 0.</p>
+<p>The trainer will repeat sampling with <code class="docutils literal notranslate"><span class="pre">gen_batch_size</span></code> until there are enough qualified groups for <code class="docutils literal notranslate"><span class="pre">train_batch_size</span></code> or reaching the upper limit specified by <code class="docutils literal notranslate"><span class="pre">max_num_gen_batches</span></code>.</p>
+<p>Core relevant code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prompt_bsz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">train_batch_size</span>
+<span class="k">if</span> <span class="n">num_prompt_in_batch</span> <span class="o">&lt;</span> <span class="n">prompt_bsz</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num_prompt_in_batch</span><span class="si">=}</span><span class="s1"> &lt; </span><span class="si">{</span><span class="n">prompt_bsz</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">num_gen_batches</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">max_num_gen_batches</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">algorithm</span><span class="o">.</span><span class="n">filter_groups</span><span class="o">.</span><span class="n">max_num_gen_batches</span>
+    <span class="k">if</span> <span class="n">max_num_gen_batches</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">num_gen_batches</span> <span class="o">&lt;</span> <span class="n">max_num_gen_batches</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num_gen_batches</span><span class="si">=}</span><span class="s1"> &lt; </span><span class="si">{</span><span class="n">max_num_gen_batches</span><span class="si">=}</span><span class="s1">. Keep generating...&#39;</span><span class="p">)</span>
+        <span class="k">continue</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">num_gen_batches</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="n">max_num_gen_batches</span><span class="si">=}</span><span class="s1">. Generated too many. Please check your data.&#39;</span>
+        <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Align the batch</span>
+    <span class="n">traj_bsz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">train_batch_size</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">rollout</span><span class="o">.</span><span class="n">n</span>
+    <span class="n">batch</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[:</span><span class="n">traj_bsz</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="flexible-loss-aggregation-mode-token-level-loss">
+<h3>Flexible Loss Aggregation Mode (-&gt; Token-level Loss)<a class="headerlink" href="#flexible-loss-aggregation-mode-token-level-loss" title="Link to this heading"></a></h3>
+<p>An example configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">loss_agg_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;token-mean&quot;</span><span class="w"> </span><span class="c1"># / &quot;seq-mean-token-sum&quot; / &quot;seq-mean-token-mean&quot;</span>
+<span class="w">    </span><span class="c1"># NOTE: &quot;token-mean&quot; is the default behavior</span>
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">loss_agg_mode</span></code> to <code class="docutils literal notranslate"><span class="pre">token-mean</span></code> will mean the (policy gradient) loss across all the tokens in all the sequences in a mini-batch.</p>
+<p>Core relevant code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">loss_agg_mode</span> <span class="o">==</span> <span class="s2">&quot;token-mean&quot;</span><span class="p">:</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">verl_F</span><span class="o">.</span><span class="n">masked_mean</span><span class="p">(</span><span class="n">loss_mat</span><span class="p">,</span> <span class="n">loss_mask</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">loss_agg_mode</span> <span class="o">==</span> <span class="s2">&quot;seq-mean-token-sum&quot;</span><span class="p">:</span>
+    <span class="n">seq_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss_mat</span> <span class="o">*</span> <span class="n">loss_mask</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># token-sum</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">seq_losses</span><span class="p">)</span>  <span class="c1"># seq-mean</span>
+<span class="k">elif</span> <span class="n">loss_agg_mode</span> <span class="o">==</span> <span class="s2">&quot;seq-mean-token-mean&quot;</span><span class="p">:</span>
+    <span class="n">seq_losses</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss_mat</span> <span class="o">*</span> <span class="n">loss_mask</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">loss_mask</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># token-mean</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">seq_losses</span><span class="p">)</span>  <span class="c1"># seq-mean</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid loss_agg_mode: </span><span class="si">{</span><span class="n">loss_agg_mode</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="overlong-reward-shaping">
+<h3>Overlong Reward Shaping<a class="headerlink" href="#overlong-reward-shaping" title="Link to this heading"></a></h3>
+<p>An example configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">max_response_length</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20480</span><span class="w"> </span><span class="c1"># 16384 + 4096</span>
+<span class="nt">reward_model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">overlong_buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">    </span><span class="nt">len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4096</span>
+<span class="w">    </span><span class="nt">penalty_factor</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span>
+</pre></div>
+</div>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">overlong_buffer.enable</span></code> to <code class="docutils literal notranslate"><span class="pre">True</span></code> will penalize the outputs whose lengths are overlong but still within the hard context limit.</p>
+<p>Specifically, the penalty increases linearly from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">overlong_buffer.penalty_factor</span></code> when the length of the output exceeds the <code class="docutils literal notranslate"><span class="pre">max_response_length</span> <span class="pre">-</span> <span class="pre">overlong_buffer.len</span></code> by <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">overlong_buffer.len</span></code> tokens.</p>
+<p>Core relevant code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlong_buffer_cfg</span><span class="o">.</span><span class="n">enable</span><span class="p">:</span>
+    <span class="n">overlong_buffer_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlong_buffer_cfg</span><span class="o">.</span><span class="n">len</span>
+    <span class="n">expected_len</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_resp_len</span> <span class="o">-</span> <span class="n">overlong_buffer_len</span>
+    <span class="n">exceed_len</span> <span class="o">=</span> <span class="n">valid_response_length</span> <span class="o">-</span> <span class="n">expected_len</span>
+    <span class="n">overlong_penalty_factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">overlong_buffer_cfg</span><span class="o">.</span><span class="n">penalty_factor</span>
+    <span class="n">overlong_reward</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="o">-</span><span class="n">exceed_len</span> <span class="o">/</span> <span class="n">overlong_buffer_len</span> <span class="o">*</span> <span class="n">overlong_penalty_factor</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">reward</span> <span class="o">+=</span> <span class="n">overlong_reward</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
+<section id="where-is-the-overlong-filtering-in-the-paper">
+<h3>Where is the &quot;Overlong Filtering&quot; in the paper?<a class="headerlink" href="#where-is-the-overlong-filtering-in-the-paper" title="Link to this heading"></a></h3>
+<p>Most experiments in the paper, including the best-performant one, are run without Overlong Filtering because it's somehow overlapping with Overlong Reward Shaping in terms of properly learning from the longest outputs. So we don't implement it here.</p>
+</section>
+<section id="what-s-the-difference-between-the-recipe-dapo-directory-in-the-main-branch-and-the-recipe-dapo-branch">
+<h3>What's the difference between <a class="reference external" href="https://github.com/volcengine/verl-recipe/tree/main/dapo">the <code class="docutils literal notranslate"><span class="pre">recipe/dapo</span></code> directory in the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch</a> and the <a class="reference external" href="https://github.com/verl-project/verl-recipe/tree/main/dapo/recipe/dapo"><code class="docutils literal notranslate"><span class="pre">recipe/dapo</span></code> branch</a>?<a class="headerlink" href="#what-s-the-difference-between-the-recipe-dapo-directory-in-the-main-branch-and-the-recipe-dapo-branch" title="Link to this heading"></a></h3>
+<p><a class="reference external" href="https://github.com/verl-project/verl-recipe/tree/main/dapo/recipe/dapo">The <code class="docutils literal notranslate"><span class="pre">recipe/dapo</span></code> branch</a> is for <strong>as-is reproduction</strong> and thus won't be updated with new features.</p>
+<p><a class="reference external" href="https://github.com/volcengine/verl-recipe/tree/main/dapo">The <code class="docutils literal notranslate"><span class="pre">recipe/dapo</span></code> directory in the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch</a> works as an example of how to extend the latest <code class="docutils literal notranslate"><span class="pre">verl</span></code> to implement an algorithm recipe, which will be maintained with new features.</p>
+</section>
+<section id="why-can-t-i-produce-similar-results-after-modifications">
+<h3>Why can't I produce similar results after modifications?<a class="headerlink" href="#why-can-t-i-produce-similar-results-after-modifications" title="Link to this heading"></a></h3>
+<p>RL infrastructures nowadays still have inherent unrobustness, on which we are still working hard to improve.</p>
+<p>We strongly recommend to only modify one thing at a time.</p>
+<p>We also list some known problems here:</p>
+<ol class="simple">
+<li><p>Enabling CUDA graph (<code class="docutils literal notranslate"><span class="pre">enforce_eager=False</span></code>) might cause model performance degradation, whose cause is still under investigation.</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

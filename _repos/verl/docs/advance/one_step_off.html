@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe: One Step Off Policy Async Trainer &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=9b9611a2" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Recipe: One Step Off Policy Async Trainer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/advance/one_step_off.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="recipe-one-step-off-policy-async-trainer">
+<h1>Recipe: One Step Off Policy Async Trainer<a class="headerlink" href="#recipe-one-step-off-policy-async-trainer" title="Link to this heading"></a></h1>
+<p><strong>Author:</strong> <code class="docutils literal notranslate"><span class="pre">https://github.com/meituan-search</span></code></p>
+<p>Last updated: 07/17/2025.</p>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<section id="background">
+<h3>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h3>
+<p>The current reinforcement learning training process implemented by verl is synchronous, adhering to the algorithmic
+workflows of established methods like PPO, GRPO, and DAPO. In each step, training samples are generated by the latest
+model, and the model is updated after training completes. While this approach aligns with off-policy reinforcement
+learning and stabilizes RL training, but it suffers from severe efficiency issues.
+Model updates must wait for the longest output in the generation phase to complete.
+During the generation of long-tail samples, GPUs remain idle, resulting in significant underutilization.
+The more severe the long-tail problem in sample generation, the lower the overall training efficiency.
+For example, in DAPO 32B training, the Rollout phase accounts for approximately 70% of the total time,
+and increasing resources does not reduce the Rollout duration.</p>
+<p><img alt="DAPO 32B Math Performance" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/dapo_32b_math.png" /></p>
+<blockquote>
+<div><p>source data: https://wandb.ai/verl-org/DAPO%20Reproduction%20on%20verl/workspace?nw=nwusertongyuxuan361</p>
+</div></blockquote>
+</section>
+<section id="solution">
+<h3>Solution<a class="headerlink" href="#solution" title="Link to this heading"></a></h3>
+<p>We have implemented the <strong>One Step Off Async Trainer</strong> to help alleviate this issue. This approach parallelizes the
+generation and training processes, utilizing samples generated in the previous step for current training.
+It also involves appropriately partitioning resources, allocating dedicated resources for generation while automatically
+assigning the remainder to training. By reducing resources allocated to the generation phase, we mitigate GPU idle time
+during long-tail sample generation. Throughout this process, generation and training parameters maintain a one-step off
+policy.</p>
+<p><img alt="One Step Off Policy Diagram" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/one_step_off_policy.png" /></p>
+<blockquote>
+<div><p>reference: <a class="reference external" href="https://arxiv.org/abs/2505.24298">AReaL: A Large-Scale Asynchronous Reinforcement Learning System for Language Reasoning</a></p>
+</div></blockquote>
+<p>Our core contributions include:</p>
+<ol class="simple">
+<li><p><strong>Parallel Generation and Training</strong>:
+Samples for the next batch are asynchronously generated while the current batch is being trained.</p></li>
+<li><p><strong>Resource Isolation</strong>:
+Unlike <code class="docutils literal notranslate"><span class="pre">hybrid_engine</span></code>, this method requires explicit resource allocation for rollout, with remaining resources
+automatically assigned to training.</p></li>
+<li><p><strong>NCCL Parameter Synchronization</strong>:
+Employs NCCL communication primitives for seamless parameter transfer between generation and training modules.</p></li>
+</ol>
+</section>
+<section id="experimental-results">
+<h3>Experimental Results<a class="headerlink" href="#experimental-results" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Machine Configuration</strong>: 2 nodes with 16 H20 GPUs each</p>
+<ul>
+<li><p>Generation: 4 GPUs</p></li>
+<li><p>Training: 12 GPUs</p></li>
+</ul>
+</li>
+<li><p><strong>Model</strong>: Qwen2.5-Math-7B</p></li>
+<li><p><strong>Rollout Configuration</strong>:</p></li>
+<li><p><strong>Max Response Length</strong>: FSDP2: 20,480 tokens; Megatron: 8,192 tokens</p></li>
+<li><p><strong>Algorithm</strong>: DAPO</p></li>
+<li><p><strong>Rollout Engine</strong>: vLLM</p></li>
+</ul>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>training mode</th>
+<th>engine</th>
+<th>step</th>
+<th>gen</th>
+<th>wait_prev_gen</th>
+<th>generate_sequences</th>
+<th>old_log_prob</th>
+<th>update_actor</th>
+<th>total time</th>
+<th>acc/best@32/mean</th>
+<th>acc/maj@32/mean</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>colocate sync</td>
+<td>VLLM+FSDP2</td>
+<td>749</td>
+<td>321</td>
+<td>-</td>
+<td>247</td>
+<td>88</td>
+<td>286</td>
+<td>19h18m</td>
+<td>0.5948</td>
+<td>0.417</td>
+</tr>
+<tr>
+<td>one-step-overlap async</td>
+<td>VLLM+FSDP2</td>
+<td>520</td>
+<td>-</td>
+<td>45</td>
+<td>458</td>
+<td>108</td>
+<td>337</td>
+<td>15h34m（+23%）</td>
+<td>0.6165</td>
+<td>0.494</td>
+</tr>
+<tr>
+<td>colocate sync</td>
+<td>VLLM+Megatron</td>
+<td>699</td>
+<td>207</td>
+<td>-</td>
+<td>162</td>
+<td>119</td>
+<td>344</td>
+<td>18h21m</td>
+<td>0.605</td>
+<td>0.4217</td>
+</tr>
+<tr>
+<td>one-step-overlap async</td>
+<td>VLLM+Megatron</td>
+<td>566</td>
+<td>-</td>
+<td>59</td>
+<td>501</td>
+<td>120</td>
+<td>347</td>
+<td>13h06m (+40%)</td>
+<td>0.6569</td>
+<td>0.4038</td>
+</tr>
+</tbody>
+</table><ul class="simple">
+<li><p>colocate sync: step ≈ gen + old_log_prob + update_actor</p></li>
+<li><p>one-step-overlap async: step ≈ wait_prev_gen + old_log_prob + update_actor</p></li>
+</ul>
+<p><img alt="One Step Off Megatron Performance" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/one_step_off_megatron.png" /></p>
+<blockquote>
+<div><p>source data: https://wandb.ai/hou-zg-meituan/one-step-off-policy?nw=nwuserhouzg</p>
+</div></blockquote>
+</section>
+</section>
+<section id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Link to this heading"></a></h2>
+<section id="one-step-off-policy-async-pipeline">
+<h3>One Step Off Policy Async Pipeline<a class="headerlink" href="#one-step-off-policy-async-pipeline" title="Link to this heading"></a></h3>
+<p>Our implemented <strong>One Step Off Policy Async Pipeline</strong> integrates seamlessly into existing training logic at minimal
+cost,
+eliminating the need for additional sample storage management. The core mechanism uses <code class="docutils literal notranslate"><span class="pre">async_gen_next_batch</span></code>
+for asynchronous rollout generation while maintaining continuous operation during epoch transitions
+via <code class="docutils literal notranslate"><span class="pre">create_continuous_iterator</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># iterator generator, simplify one-step integration of the training process</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_create_continuous_iterator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">total_epochs</span><span class="p">):</span>
+      <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">train_dataloader</span><span class="p">)</span>
+      <span class="k">for</span> <span class="n">batch_dict</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+         <span class="k">yield</span> <span class="n">epoch</span><span class="p">,</span> <span class="n">batch_dict</span>
+
+
+<span class="c1"># read next batch samples, parameters sync and launch asyn gen_seq</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_async_gen_next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continuous_iterator</span><span class="p">):</span>
+   <span class="c1"># read train_data</span>
+   <span class="k">try</span><span class="p">:</span>
+      <span class="n">epoch</span><span class="p">,</span> <span class="n">batch_dict</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">continuous_iterator</span><span class="p">)</span>
+   <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kc">None</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">DataProto</span><span class="o">.</span><span class="n">from_single_dict</span><span class="p">(</span><span class="n">batch_dict</span><span class="p">)</span>
+   <span class="n">gen_batch</span> <span class="o">=</span> <span class="n">batch_pocess</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+   <span class="c1"># sync weights from actor to rollout</span>
+   <span class="bp">self</span><span class="o">.</span><span class="n">sync_rollout_weights</span><span class="p">()</span>
+   <span class="c1"># async generation</span>
+   <span class="n">gen_batch_output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rollout_wg</span><span class="o">.</span><span class="n">async_generate_sequences</span><span class="p">(</span><span class="n">gen_batch</span><span class="p">)</span>
+   <span class="c1"># future encapsulated</span>
+   <span class="k">return</span> <span class="n">GenerationBatchFuture</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">gen_batch_output</span><span class="p">)</span>
+
+
+<span class="n">continuous_iterator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_continuous_iterator</span><span class="p">()</span>
+<span class="c1"># run rollout first to achieve one-step-off</span>
+<span class="n">batch_data_future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_gen_next_batch</span><span class="p">(</span><span class="n">continuous_iterator</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="n">batch_data_future</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+   <span class="c1"># wait for the gen_seq result from the previous step</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">batch_data_future</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+   <span class="c1"># launch the next async call to generate sequences</span>
+   <span class="n">batch_data_future</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_gen_next_batch</span><span class="p">(</span><span class="n">continuous_iterator</span><span class="p">)</span>
+
+   <span class="c1"># compute advantages</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">compute_values</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">reference</span><span class="o">.</span><span class="n">compute_log_prob</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">reward</span><span class="o">.</span><span class="n">compute_reward</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+   <span class="n">batch</span> <span class="o">=</span> <span class="n">compute_advantages</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+
+   <span class="c1"># model update</span>
+   <span class="n">critic_metrics</span> <span class="o">=</span> <span class="n">critic</span><span class="o">.</span><span class="n">update_critic</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+   <span class="n">actor_metrics</span> <span class="o">=</span> <span class="n">actor</span><span class="o">.</span><span class="n">update_actor</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="parameter-synchronization">
+<h3>Parameter Synchronization<a class="headerlink" href="#parameter-synchronization" title="Link to this heading"></a></h3>
+<p>The exciting point is that our nccl based weights updating for rollout model has great performance.
+At most of time, the latency is under 300ms, which is negligible for RLHF.</p>
+<blockquote>
+<div><p><strong>sync_rollout_weights</strong>：The time for synchronizing parameters from actor to rollout is extremely fast and can almost
+be ignored because it is implemented with nccl.</p>
+</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ActorRolloutRefWorker</span><span class="p">:</span>
+   <span class="c1"># actor acquires the meta-info of model parameters for parameter sync</span>
+   <span class="nd">@register</span><span class="p">(</span><span class="n">dispatch_mode</span><span class="o">=</span><span class="n">Dispatch</span><span class="o">.</span><span class="n">ONE_TO_ALL</span><span class="p">)</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">get_actor_weights_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_actor_params</span><span class="p">()</span>
+      <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+      <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+         <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">tensor</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">tensor</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_weights_info</span> <span class="o">=</span> <span class="n">ret</span>
+      <span class="k">return</span> <span class="n">ret</span>
+
+   <span class="c1"># rollout sets the meta-info of model parameters for parameter sync</span>
+   <span class="nd">@register</span><span class="p">(</span><span class="n">dispatch_mode</span><span class="o">=</span><span class="n">Dispatch</span><span class="o">.</span><span class="n">ONE_TO_ALL</span><span class="p">)</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">set_actor_weights_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights_info</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_weights_info</span> <span class="o">=</span> <span class="n">weights_info</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">AsyncRayPPOTrainer</span><span class="p">(</span><span class="n">RayPPOTrainer</span><span class="p">):</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">init_workers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="o">...</span>
+      <span class="c1"># rollout obtains the meta-info of model parameters from the actor for parameter sync</span>
+      <span class="n">weights_info</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">get_actor_weights_info</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">rollout_wg</span><span class="o">.</span><span class="n">set_actor_weights_info</span><span class="p">(</span><span class="n">weights_info</span><span class="p">)</span>
+
+      <span class="c1"># Create an actor-rollout communication group for parameter sync</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">create_weight_sync_group</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The driving process invokes the actor and rollout respectively to create a weight synchronization group based on nccl/hccl.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_weight_sync_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="n">master_address</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">workers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_get_node_ip</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+   <span class="n">master_port</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">workers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_get_free_port</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+   <span class="n">world_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">workers</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rollout_wg</span><span class="o">.</span><span class="n">workers</span><span class="p">)</span>
+   <span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">create_weight_sync_group</span><span class="p">(</span>
+      <span class="n">master_address</span><span class="p">,</span>
+      <span class="n">master_port</span><span class="p">,</span>
+      <span class="mi">0</span><span class="p">,</span>
+      <span class="n">world_size</span><span class="p">,</span>
+   <span class="p">)</span>
+   <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">rollout_wg</span><span class="o">.</span><span class="n">create_weight_sync_group</span><span class="p">(</span>
+            <span class="n">master_address</span><span class="p">,</span>
+            <span class="n">master_port</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">workers</span><span class="p">),</span>
+            <span class="n">world_size</span><span class="p">,</span>
+      <span class="p">)</span>
+   <span class="p">)</span>
+
+<span class="c1"># drive process call the actor and rollout respectively to sync parameters by nccl</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_rollout_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="bp">self</span><span class="o">.</span><span class="n">actor_wg</span><span class="o">.</span><span class="n">sync_rollout_weights</span><span class="p">()</span>
+   <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rollout_wg</span><span class="o">.</span><span class="n">sync_rollout_weights</span><span class="p">())</span>
+
+
+<span class="c1"># fsdp model parameter sync</span>
+<span class="nd">@register</span><span class="p">(</span><span class="n">dispatch_mode</span><span class="o">=</span><span class="n">Dispatch</span><span class="o">.</span><span class="n">ONE_TO_ALL</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_rollout_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_actor_params</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_actor</span> <span class="k">else</span> <span class="kc">None</span>
+   <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_rollout</span><span class="p">:</span>
+      <span class="n">inference_model</span> <span class="o">=</span> <span class="p">(</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">rollout</span><span class="o">.</span><span class="n">inference_engine</span><span class="o">.</span><span class="n">llm_engine</span><span class="o">.</span><span class="n">model_executor</span><span class="o">.</span><span class="n">driver_worker</span><span class="o">.</span><span class="n">worker</span><span class="o">.</span><span class="n">model_runner</span><span class="o">.</span><span class="n">model</span>
+      <span class="p">)</span>
+      <span class="kn">from</span><span class="w"> </span><span class="nn">verl.utils.vllm.patch</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_vllm_moe_model_weight_loader</span>
+      <span class="n">patch_vllm_moe_model_weight_loader</span><span class="p">(</span><span class="n">inference_model</span><span class="p">)</span>
+   <span class="c1"># Model parameters are broadcast tensor-by-tensor from actor to rollout</span>
+   <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights_info</span><span class="p">:</span>
+      <span class="n">tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">get_torch_device</span><span class="p">()</span><span class="o">.</span><span class="n">current_device</span><span class="p">())</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_actor</span><span class="p">:</span>
+         <span class="k">assert</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">params</span>
+         <span class="n">origin_data</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">origin_data</span><span class="p">,</span> <span class="s2">&quot;full_tensor&quot;</span><span class="p">):</span>
+            <span class="n">origin_data</span> <span class="o">=</span> <span class="n">origin_data</span><span class="o">.</span><span class="n">full_tensor</span><span class="p">()</span>
+         <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">tensor</span><span class="o">.</span><span class="n">copy_</span><span class="p">(</span><span class="n">origin_data</span><span class="p">)</span>
+      <span class="kn">from</span><span class="w"> </span><span class="nn">ray.util.collective</span><span class="w"> </span><span class="kn">import</span> <span class="n">collective</span>
+
+      <span class="n">collective</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="n">tensor</span><span class="p">,</span> <span class="n">src_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">group_name</span><span class="o">=</span><span class="s2">&quot;actor_rollout&quot;</span><span class="p">)</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_rollout</span><span class="p">:</span>
+         <span class="n">inference_model</span><span class="o">.</span><span class="n">load_weights</span><span class="p">([(</span><span class="n">key</span><span class="p">,</span> <span class="n">tensor</span><span class="p">)])</span>
+</pre></div>
+</div>
+</section>
+<section id="ppo-correctness">
+<h3>PPO Correctness<a class="headerlink" href="#ppo-correctness" title="Link to this heading"></a></h3>
+<p>To ensure the correctness of the PPO algorithm, we use rollout log_probs for PPO importance sampling.
+For the related algorithm details, please refer to: https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html
+The default mode is <code class="docutils literal notranslate"><span class="pre">bypass_ppo_clip</span></code>, but other modification strategies can also be explored.</p>
+</section>
+<section id="agentloop">
+<h3>AgentLoop<a class="headerlink" href="#agentloop" title="Link to this heading"></a></h3>
+<p>In the current implementation, we no longer provide SPMD model rollout mode.
+Instead, we have switched to AgentLoop mode, which also supports multi-turn tool calling.</p>
+</section>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<section id="fsdp2-configuration-example">
+<h3>FSDP2 Configuration Example<a class="headerlink" href="#fsdp2-configuration-example" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>verl.experimental.one_step_off_policy.async_main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config-path<span class="o">=</span>config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config-name<span class="o">=</span><span class="s1">&#39;one_step_off_ppo_trainer.yaml&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.strategy<span class="o">=</span>fsdp2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="c1"># actor and rollout are placed separately</span>
+<span class="w">    </span>actor_rollout_ref.hybrid_engine<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="c1"># actor and rollout resource</span>
+<span class="w">    </span>trainer.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.n_gpus_per_node<span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>rollout.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>rollout.n_gpus_per_node<span class="o">=</span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
+<section id="megatron-configuration-example">
+<h3>Megatron Configuration Example<a class="headerlink" href="#megatron-configuration-example" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>verl.experimental.one_step_off_policy.async_main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config-path<span class="o">=</span>config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config-name<span class="o">=</span><span class="s1">&#39;one_step_off_ppo_megatron_trainer.yaml&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.strategy<span class="o">=</span>megatron<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="c1"># actor and rollout are placed separately</span>
+<span class="w">    </span>actor_rollout_ref.hybrid_engine<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="c1"># actor and rollout resource</span>
+<span class="w">    </span>trainer.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.n_gpus_per_node<span class="o">=</span><span class="m">6</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>rollout.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>rollout.n_gpus_per_node<span class="o">=</span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
+<section id="configuration-guidelines">
+<h3>Configuration Guidelines<a class="headerlink" href="#configuration-guidelines" title="Link to this heading"></a></h3>
+<ol>
+<li><p><strong>Card Number Relationships</strong>
+Maintain either of these relationships for optimal batch distribution:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.n</span></code> should be an integer divisor of:
+<code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">*</span> <span class="pre">trainer.nnodes</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.n</span> <span class="pre">*</span> <span class="pre">data.train_batch_size</span></code> should be evenly divisible by:
+<code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">*</span> <span class="pre">trainer.nnodes</span></code></p></li>
+</ul>
+<blockquote>
+<div><p>Rationale: Ensures training samples can be evenly distributed across training GPUs when using partial resources for
+generation.</p>
+</div></blockquote>
+</li>
+<li><p><strong>Dynamic Resource Tuning</strong>
+Adjust <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span></code> <code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span></code> <code class="docutils literal notranslate"><span class="pre">rollout.nnodes</span></code> <code class="docutils literal notranslate"><span class="pre">rollout.n_gpus_per_node</span></code> based on phase
+durations:</p>
+<ul>
+<li><p><strong>Ideal state</strong>: Rollout and training phases have comparable durations</p></li>
+<li><p><strong>Diagnostic metrics</strong>:</p>
+<ul class="simple">
+<li><p>Monitor <code class="docutils literal notranslate"><span class="pre">wait_prev_gen</span></code> duration</p></li>
+<li><p>Analyze <code class="docutils literal notranslate"><span class="pre">sequence_length</span></code> distribution</p></li>
+</ul>
+</li>
+<li><p><strong>Adjustment strategy</strong>:</p>
+<ul>
+<li><p>High <code class="docutils literal notranslate"><span class="pre">wait_prev_gen</span></code> + uniform sequence lengths → Increase rollout resources</p></li>
+<li><p>High <code class="docutils literal notranslate"><span class="pre">wait_prev_gen</span></code> + long-tail sequences → Optimize stopping criteria (resource increase won't help)</p>
+<blockquote>
+<div><p><strong>wait_prev_gen</strong>：The time consumed waiting for the previous rollout to end (the part that is not fully
+overlapped).
+<strong>Resource Configuration Strategies:</strong></p>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p><strong>Resource-constrained scenario</strong>: Optimize resource utilization by adjusting GPU allocation ratios,
+keeping the number of nodes equal to allow training and rollout to share nodes;</p>
+<ul class="simple">
+<li><p>Configure <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span> <span class="pre">=</span> <span class="pre">rollout.nnodes</span></code> with
+<code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">+</span> <span class="pre">rollout.n_gpus_per_node</span> <span class="pre">=</span> <span class="pre">physical_gpus_per_node</span></code>. Control rollout resource
+allocation by adjusting <code class="docutils literal notranslate"><span class="pre">n_gpus_per_node</span></code>.</p></li>
+</ul>
+</li>
+<li><p><strong>Resource-abundant scenario</strong>: Optimize performance by adjusting the number of nodes,
+keeping the number of GPUs per node equal to enable independent scaling of training and rollout
+parallelism.</p>
+<ul>
+<li><p>Configure <code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">=</span> <span class="pre">rollout.n_gpus_per_node</span></code> and control rollout resource allocation by
+adjusting <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span></code> and <code class="docutils literal notranslate"><span class="pre">rollout.nnodes</span></code>to achieve optimal performance.</p>
+<blockquote>
+<div><p><strong>Note</strong>: The total number of nodes required by the system is not simply <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span> <span class="pre">+</span> <span class="pre">rollout.nnodes</span></code>. The
+actual calculation depends on GPU capacity:</p>
+<ul class="simple">
+<li><p>When <code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">+</span> <span class="pre">rollout.n_gpus_per_node</span> <span class="pre">&lt;=</span> <span class="pre">physical_gpus_per_node</span></code>,
+the required node count is <code class="docutils literal notranslate"><span class="pre">max(trainer.nnodes,</span> <span class="pre">rollout.nnodes)</span></code></p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span> <span class="pre">+</span> <span class="pre">rollout.n_gpus_per_node</span> <span class="pre">&gt;</span> <span class="pre">physical_gpus_per_node</span></code>,
+the required node count is <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span> <span class="pre">+</span> <span class="pre">rollout.nnodes</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="functional-support">
+<h2>Functional Support<a class="headerlink" href="#functional-support" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Category</th>
+<th>Support Situation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>train engine</td>
+<td>FSDP2 <br/> Megatron</td>
+</tr>
+<tr>
+<td>rollout engine</td>
+<td>vLLM</td>
+</tr>
+<tr>
+<td>AdvantageEstimator</td>
+<td>GRPO <br/> GRPO_PASSK <br/> REINFORCE_PLUS_PLUS <br/> RLOO <br/> OPO <br/> REINFORCE_PLUS_PLUS_BASELINE<br/>GPG</td>
+</tr>
+<tr>
+<td>Reward</td>
+<td>all</td>
+</tr>
+</tbody>
+</table></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

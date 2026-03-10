@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe: Async On-Policy Knowledge Distillation Trainer &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=9b9611a2" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Recipe: Async On-Policy Knowledge Distillation Trainer</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/advance/async-on-policy-distill.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="recipe-async-on-policy-knowledge-distillation-trainer">
+<h1>Recipe: Async On-Policy Knowledge Distillation Trainer<a class="headerlink" href="#recipe-async-on-policy-knowledge-distillation-trainer" title="Link to this heading"></a></h1>
+<p><strong>Authors:</strong> Brilliant Hanabi, furunding</p>
+<p><strong>Last updated:</strong> 2025-11-08</p>
+<section id="background">
+<h2>1. Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<p>On-policy knowledge distillation (KD) trains a student policy to imitate a stronger teacher using samples drawn from the student's current policy. For each on-policy rollout the teacher returns soft, top-k token distributions and the student is optimized with a token-wise sparse KL objective that focuses learning on the teacher's high-probability modes. Because training examples come from the student's own state distribution, KD reduces distributional mismatch relative to off-policy distillation or supervised fine-tuning (SFT), improving stability and sample efficiency. Compared with reinforcement learning, KD avoids high-variance reward-based optimization and complex reward design by providing dense, informative per-token targets, which typically yields faster convergence and simpler scaling. Recent empirical and implementation-focused writeups (e.g., <a class="reference external" href="https://thinkingmachines.ai/blog/on-policy-distillation/">ThinkingMachines' blog on on-policy distillation</a>) also demonstrate that on-policy distillation can deliver high-quality behavior with substantially lower compute and data requirements than many alternative approaches.</p>
+<p>Built on verl’s Ray-based single-controller components, we initially assembled a strictly on-policy KD pipeline where rollout generation, teacher knowledge acquisition, and policy optimization ran in lockstep. In practice, this synchronous design proved highly inefficient: the three stages had to wait for one another, creating pipeline bubbles and underutilized GPUs. To address this, we extend the asynchronous schedulers introduced by the One-Step-Off Policy pipeline to overlap these phases. This overlap preserves the same distillation objective while trading some strict on-policy guarantees for substantial gains in end-to-end throughput and hardware utilization.</p>
+</section>
+<section id="distillation-overview-and-objective">
+<h2>2. Distillation Overview and Objective<a class="headerlink" href="#distillation-overview-and-objective" title="Link to this heading"></a></h2>
+<p>This recipe centers on on-policy knowledge distillation: the student policy learns from a stronger teacher on samples generated by the current policy (on-policy). For each input prompt, the student (actor) generates responses; the teacher provides top-k token distributions, and the student is trained to match them token-wise.</p>
+<p>Core components:</p>
+<ol class="simple">
+<li><p>Teacher signal: top-k log-probabilities and token indices per valid token position.</p></li>
+<li><p>Student objective: sparse, token-level KL divergence between student logits and teacher top-k distribution.</p></li>
+</ol>
+<p>Objective: encourage student probabilities $Q$ to cover teacher modes $P$ using token-wise $\mathrm{KL}(P,|,Q)$ computed on the teacher's top-k support.</p>
+</section>
+<section id="efficient-system-design">
+<h2>3. Efficient System Design<a class="headerlink" href="#efficient-system-design" title="Link to this heading"></a></h2>
+<section id="schedulers-one-step-two-step-off-policy">
+<h3>3.1 Schedulers (One-Step / Two-Step Off-Policy)<a class="headerlink" href="#schedulers-one-step-two-step-off-policy" title="Link to this heading"></a></h3>
+<p>The native (serial) on-policy distillation process is shown in the figure below.</p>
+<p><img alt="Zero-Step-Off Scheduler" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/zero-step-off-distill.png" /></p>
+<p>This recipe supports optional schedulers that overlap generation, teacher querying, and updates to improve throughput without changing the distillation objective.</p>
+<section id="one-step-off-policy">
+<h4>3.1.1 One-Step-Off-Policy<a class="headerlink" href="#one-step-off-policy" title="Link to this heading"></a></h4>
+<p><img alt="One-Step-Off Scheduler" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/one-step-off-distill.png" /></p>
+<ul class="simple">
+<li><p>Warm-up: 2 steps.</p></li>
+<li><p>Overlap pattern: rollout while actor update; weight sync while teacher retrieving.</p></li>
+<li><p>Timing keys: <code class="docutils literal notranslate"><span class="pre">sync_rollout_weights</span></code>, <code class="docutils literal notranslate"><span class="pre">wait_prev_gen</span></code>, <code class="docutils literal notranslate"><span class="pre">wait_prev_teacher</span></code>.</p></li>
+</ul>
+</section>
+<section id="two-step-off-policy">
+<h4>3.1.2 Two-Step-Off-Policy<a class="headerlink" href="#two-step-off-policy" title="Link to this heading"></a></h4>
+<p><img alt="Two-Step-Off Scheduler" src="https://raw.githubusercontent.com/eric-haibin-lin/verl-community/refs/heads/main/docs/two-step-off-distill.png" /></p>
+<ul class="simple">
+<li><p>Warm-up: 3 steps.</p></li>
+<li><p>Overlap pattern: rollout, actor update while teacher retrieving; interleave weight sync.</p></li>
+<li><p>Timing keys: <code class="docutils literal notranslate"><span class="pre">sync_rollout_weights</span></code>, <code class="docutils literal notranslate"><span class="pre">max(wait_prev_gen,</span> <span class="pre">wait_prev_prev_teacher)</span></code>.</p></li>
+</ul>
+<p>Tip: Use <code class="docutils literal notranslate"><span class="pre">two_step_off</span></code> when teacher takes much more time than sync; <code class="docutils literal notranslate"><span class="pre">one_step_off</span></code> for simpler overlapping.</p>
+<p>Practical details:</p>
+<ul class="simple">
+<li><p>Inputs per batch: <code class="docutils literal notranslate"><span class="pre">teacher_topk_logps</span></code>, <code class="docutils literal notranslate"><span class="pre">teacher_topk_indices</span></code>, <code class="docutils literal notranslate"><span class="pre">attention_mask</span></code> (to select valid token positions).</p></li>
+<li><p>Loss injection: last pipeline stage computes KL via a logits processor; earlier stages remain unchanged.</p></li>
+<li><p>Optional dynamic micro-batching groups sequences by density to reduce padding overhead.</p></li>
+</ul>
+<p>The pipeline:</p>
+<ol class="simple">
+<li><p>Actor parameters are synchronized to a rollout worker group (nccl broadcast) with a little bit latency.</p></li>
+<li><p>Rollout workers (vLLM-backed) generate sequences asynchronously (<code class="docutils literal notranslate"><span class="pre">async_generate_sequences</span></code>).</p></li>
+<li><p>Teacher client service (ZeroMQ based) returns top-k log-probabilities + token indices for each sequence (batched micro-requests), enabling KL-based guidance.</p></li>
+<li><p>Megatron actor performs a KL divergence computation between student logits and teacher top-k distributions (custom TP-aware kernel in <code class="docutils literal notranslate"><span class="pre">megatron_kl_loss.py</span></code>).</p></li>
+<li><p>Scheduling strategies (<code class="docutils literal notranslate"><span class="pre">one_step_off_scheduler</span></code>, <code class="docutils literal notranslate"><span class="pre">two_step_off_scheduler</span></code>) can overlap phases (optional for throughput):</p></li>
+</ol>
+</section>
+</section>
+<section id="weights-sync-between-actor-and-rollout">
+<h3>3.2 Weights sync between actor and rollout<a class="headerlink" href="#weights-sync-between-actor-and-rollout" title="Link to this heading"></a></h3>
+<p>We initially followed the weight synchronization path from the One-Step-Off-Policy recipe (Ray collective broadcast across all actor and rollout ranks, plus Megatron-side allgather of parameter shards). In practice this became the dominant bottleneck, so we made three changes:</p>
+<ol class="simple">
+<li><p>Batch-and-bulk load on the rollout side: instead of streaming tensors one-by-one (in one-step-off-policy recipe), we stage a bundle of parameter tensors and issue a single batched load into the rollout engine. In our setup this reduced the weight-loading time by roughly 3×.</p></li>
+<li><p>Batch-and-bulk broadcast between the actor and rollout: instead of streaming tensors one-by-one (in one-step-off-policy recipe), we stage a bundle of parameter tensors and issue a single batched broadcast between the actor and rollout workers.</p></li>
+<li><p>Replace allgather with gather-to-root in Megatron: parameter shards are gathered to actor rank 0 (rather than allgathered to everyone), and that root then serves as the single source for broadcasting to rollout ranks. On top of the previous change, 2 and 3 changes delivered an additional ~4× speedup in the synchronization phase.</p></li>
+</ol>
+</section>
+</section>
+<section id="high-level-data-control-flow">
+<h2>4. High-Level Data &amp; Control Flow<a class="headerlink" href="#high-level-data-control-flow" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Driver (TaskRunner)
+  ├─ Initialize Ray, tokenizer, datasets, worker groups
+  ├─ Build ResourcePoolManager (actor vs rollout GPU layouts)
+  ├─ Trainer.fit()
+      ├─ init_workers(): build actor + rollout groups, broadcast weight metadata, create nccl collective group
+      ├─ continuous_iterator(): epochs → batches
+      ├─ scheduler (see Section 6)
+        • _async_gen_next_batch(): optional weight sync + non-blocking rollout
+        • _async_get_teacher_knowledge(): submit teacher requests, store future
+        ├─ For each step:
+            • Sync rollout weights
+            • Retrieve (batch, gen_output, teacher_output) from futures
+            • Merge gen + teacher outputs → DataProto
+            • Compute metrics (response length stats, timing, throughput)
+            • Update actor (forward_backward_batch + KL loss + optimizer step)
+            • (Optional) save checkpoint
+</pre></div>
+</div>
+<blockquote>
+<div><p>Note: Schedulers are optional and explained later; the distillation objective is independent of how phases are overlapped.</p>
+</div></blockquote>
+</section>
+<section id="key-components">
+<h2>5. Key Components<a class="headerlink" href="#key-components" title="Link to this heading"></a></h2>
+<section id="onpolicydistilltrainer-ray-trainer-py">
+<h3>5.1 <code class="docutils literal notranslate"><span class="pre">OnPolicyDistillTrainer</span></code> (<code class="docutils literal notranslate"><span class="pre">ray_trainer.py</span></code>)<a class="headerlink" href="#onpolicydistilltrainer-ray-trainer-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Creates <code class="docutils literal notranslate"><span class="pre">GenerationBatchFuture</span></code> objects holding rollout and (later) teacher futures.</p></li>
+<li><p>Adds scheduling + teacher integration + modified metric emission (KL, timing, MFU).</p></li>
+</ul>
+</section>
+<section id="actor-worker-megatron">
+<h3>5.2 Actor Worker (Megatron)<a class="headerlink" href="#actor-worker-megatron" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OnPolicyDistillActor.update_policy()</span></code> orchestrates micro-batch forward/backward.</p></li>
+<li><p>KL Loss injection via <code class="docutils literal notranslate"><span class="pre">logits_processor</span></code> during forward on pipeline last stage.</p></li>
+</ul>
+</section>
+<section id="rollout-worker-vllm-sglang">
+<h3>5.3 Rollout Worker (vLLM / SGLang)<a class="headerlink" href="#rollout-worker-vllm-sglang" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Pure inference mode (<code class="docutils literal notranslate"><span class="pre">init_model</span></code> builds model; no optimizer).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">async_generate_sequences</span></code> returns a Ray future for overlapping.</p></li>
+</ul>
+</section>
+<section id="teacher-service-teacher">
+<h3>5.4 Teacher Service (<code class="docutils literal notranslate"><span class="pre">teacher/</span></code>)<a class="headerlink" href="#teacher-service-teacher" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Proxy + worker architecture (ZMQ REQ/REP) for batched top-k retrieval.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TeacherClient.submit()</span></code> returns a <code class="docutils literal notranslate"><span class="pre">Future</span></code>; aggregator composes micro-batches.</p></li>
+<li><p>Configurable temperature, max tokens, only-response mode.</p></li>
+</ul>
+</section>
+<section id="kl-loss-megatron-kl-loss-py">
+<h3>5.5 KL Loss (<code class="docutils literal notranslate"><span class="pre">megatron_kl_loss.py</span></code>)<a class="headerlink" href="#kl-loss-megatron-kl-loss-py" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Performs normalization &amp; stable per-token probability construction across TP shards.</p></li>
+<li><p>Gradient is (student_probs - teacher_sparse_probs) scaled by upstream grad.</p></li>
+</ul>
+</section>
+</section>
+<section id="configuration-highlights-on-policy-distill-trainer-yaml">
+<h2>6. Configuration Highlights (<code class="docutils literal notranslate"><span class="pre">on_policy_distill_trainer.yaml</span></code>)<a class="headerlink" href="#configuration-highlights-on-policy-distill-trainer-yaml" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Section</th>
+<th>Purpose</th>
+<th>Notable Keys</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>actor_rollout_ref.teacher</td>
+<td>Teacher server</td>
+<td>server_ip, server_port, n_server_workers</td>
+</tr>
+<tr>
+<td>trainer</td>
+<td>Global training control</td>
+<td>total_epochs, save_freq, scheduler (one_step_off</td>
+</tr>
+<tr>
+<td>rollout</td>
+<td>Resource split for rollout</td>
+<td>n_gpus_per_node, nnodes</td>
+</tr>
+</tbody>
+</table><p><strong>Remember to set <code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span></code>, <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span></code>, <code class="docutils literal notranslate"><span class="pre">rollout.n_gpus_per_node</span></code> and <code class="docutils literal notranslate"><span class="pre">rollout.nnodes</span></code> to allocate GPU resources.</strong></p>
+<section id="dynamic-batch-size">
+<h3>Dynamic Batch Size<a class="headerlink" href="#dynamic-batch-size" title="Link to this heading"></a></h3>
+<p>Enable by:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">use_dynamic_bsz</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">actor_rollout_ref</span><span class="o">.</span><span class="n">actor</span><span class="o">.</span><span class="n">max_token_len</span><span class="o">=</span><span class="mi">6000</span>  <span class="c1"># cap post-group token length</span>
+</pre></div>
+</div>
+<p>Improves utilization under variable sequence lengths.</p>
+</section>
+<section id="resource-guidelines">
+<h3>Resource Guidelines<a class="headerlink" href="#resource-guidelines" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Actor pool: <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span> <span class="pre">*</span> <span class="pre">trainer.n_gpus_per_node</span></code> GPUs.</p></li>
+<li><p>Rollout pool: <code class="docutils literal notranslate"><span class="pre">rollout.nnodes</span> <span class="pre">*</span> <span class="pre">rollout.n_gpus_per_node</span></code> GPUs.</p></li>
+<li><p>Ensure teacher server capacity ≈ <code class="docutils literal notranslate"><span class="pre">n_server_workers</span></code> to avoid stalls (monitor <code class="docutils literal notranslate"><span class="pre">wait_prev_teacher</span></code>).</p></li>
+</ul>
+</section>
+</section>
+<section id="usage-examples">
+<h2>7. Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading"></a></h2>
+<section id="launch-teacher-server">
+<h3>7.1 Launch Teacher Server<a class="headerlink" href="#launch-teacher-server" title="Link to this heading"></a></h3>
+<p>Before training process, you should have a teacher server to provide logp information.</p>
+<p>We provide a toy teacher server example with vLLM. It needs <code class="docutils literal notranslate"><span class="pre">telnet</span></code> to check proxy status, and <code class="docutils literal notranslate"><span class="pre">python</span></code> command to run. So if you have not installed <code class="docutils literal notranslate"><span class="pre">telnet</span></code>, you can just delete these code in <code class="docutils literal notranslate"><span class="pre">start_server.sh</span></code>. And some OS use <code class="docutils literal notranslate"><span class="pre">python3</span></code> rather than <code class="docutils literal notranslate"><span class="pre">python</span></code>, so you also need to modify it. Also you can change the port of teacher if you meet port conflict.</p>
+<p>There are 3 arguments can be set for vllm backend <code class="docutils literal notranslate"><span class="pre">--tp-size</span></code>, <code class="docutils literal notranslate"><span class="pre">--n-logprobs</span></code> and <code class="docutils literal notranslate"><span class="pre">--ckpt-path</span></code> in <code class="docutils literal notranslate"><span class="pre">start_server.sh</span></code> / <code class="docutils literal notranslate"><span class="pre">worker.py</span></code>. You should set before you start server.</p>
+<p>We also provide a toy multi-node teacher server. You can start the main node using <code class="docutils literal notranslate"><span class="pre">start_server.sh</span></code> and start the slave nodes using <code class="docutils literal notranslate"><span class="pre">join_server.sh</span></code>. Still remember to set args in <code class="docutils literal notranslate"><span class="pre">join_server.sh</span></code>, especially the <code class="docutils literal notranslate"><span class="pre">$PROXY_IP</span></code> and <code class="docutils literal notranslate"><span class="pre">$PROXY_BACKEND_PORT</span></code> of main node.</p>
+<p>When training, student will automatically use the teacher's topk (n-logprobs) to set its own topk argument at line 83 of <code class="docutils literal notranslate"><span class="pre">recipe/gkd/megatron_kl_loss.py</span></code>, so you don't need to set student's topk argument.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>recipe/gkd/teacher
+bash<span class="w"> </span>start_server.sh
+<span class="c1"># Exports ports and launches proxy + worker (default vLLM backend)</span>
+</pre></div>
+</div>
+<p>Verify with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>telnet<span class="w"> </span>localhost<span class="w"> </span><span class="m">15555</span>
+</pre></div>
+</div>
+</section>
+<section id="minimal-local-megatron-vllm-run">
+<h3>7.2 Minimal Local (Megatron + vLLM) Run<a class="headerlink" href="#minimal-local-megatron-vllm-run" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>recipe.gkd.main_gkd<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config-path<span class="o">=</span>recipe/gkd/config<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config-name<span class="o">=</span>on_policy_distill_trainer<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>actor_rollout_ref.model.path<span class="o">=</span>/path/to/MODEL<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>data.train_files<span class="o">=</span>/path/to/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>trainer.total_epochs<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>trainer.n_gpus_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>rollout.n_gpus_per_node<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>actor_rollout_ref.teacher.server_ip<span class="o">=</span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>actor_rollout_ref.teacher.server_port<span class="o">=</span><span class="m">15555</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>trainer.scheduler<span class="o">=</span>one_step_off
+</pre></div>
+</div>
+<p>(Requires a running teacher server).</p>
+</section>
+<section id="ray-job-submission-distilled-16b-example">
+<h3>7.3 Ray Job Submission (Distilled 16B Example)<a class="headerlink" href="#ray-job-submission-distilled-16b-example" title="Link to this heading"></a></h3>
+<p>See <code class="docutils literal notranslate"><span class="pre">run_moonlight_dsv3_training.sh</span></code> for a full script including:</p>
+<ul class="simple">
+<li><p>Dist ckpt path setup (<code class="docutils literal notranslate"><span class="pre">dist_checkpointing_path</span></code>)</p></li>
+<li><p>Expert parallel sizing (EP / ETP)</p></li>
+<li><p>Dynamic batch sizing</p></li>
+<li><p>Two-step-off scheduling for deeper overlap.</p></li>
+</ul>
+<p>Submit (after adjusting paths):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>recipe/gkd/run_moonlight_dsv3_training.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="metrics-monitoring">
+<h2>8. Metrics &amp; Monitoring<a class="headerlink" href="#metrics-monitoring" title="Link to this heading"></a></h2>
+<p>Emitted metrics include (prefixes may vary):</p>
+<ul class="simple">
+<li><p>Timing: <code class="docutils literal notranslate"><span class="pre">timing/wait_prev_gen</span></code>, <code class="docutils literal notranslate"><span class="pre">timing/sync_rollout_weights</span></code>, <code class="docutils literal notranslate"><span class="pre">timing/get_teacher_knowledge</span></code>, <code class="docutils literal notranslate"><span class="pre">timing/update_actor</span></code>.</p></li>
+<li><p>Sequence stats: <code class="docutils literal notranslate"><span class="pre">response_seq_len/*</span></code> (avg, max, min, counts).</p></li>
+<li><p>Performance: <code class="docutils literal notranslate"><span class="pre">perf/mfu/actor</span></code>, <code class="docutils literal notranslate"><span class="pre">perf/max_memory_allocated_gb</span></code>, <code class="docutils literal notranslate"><span class="pre">perf/cpu_memory_used_gb</span></code>.</p></li>
+<li><p>Distillation: <code class="docutils literal notranslate"><span class="pre">actor/kl_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">actor/grad_norm</span></code>, <code class="docutils literal notranslate"><span class="pre">actor/lr</span></code>.</p></li>
+</ul>
+<p>Interpretation Tips:</p>
+<ul class="simple">
+<li><p>High <code class="docutils literal notranslate"><span class="pre">wait_prev_teacher</span></code> → scale <code class="docutils literal notranslate"><span class="pre">n_server_workers</span></code> and allocate more teacher GPUs or reduce per-request batch size, or just use <code class="docutils literal notranslate"><span class="pre">two_step_off</span></code>.</p></li>
+<li><p>High <code class="docutils literal notranslate"><span class="pre">wait_prev_gen</span></code> with uniform lengths → allocate more rollout GPUs.</p></li>
+<li><p>High <code class="docutils literal notranslate"><span class="pre">sync_rollout_weights</span></code> → check NCCL env / network congestion and try to modify <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.update_weights_bucket_megabytes</span></code>.</p></li>
+</ul>
+</section>
+<section id="extensibility-notes">
+<h2>9. Extensibility Notes<a class="headerlink" href="#extensibility-notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Add new schedulers by following interface returning <code class="docutils literal notranslate"><span class="pre">(epoch,</span> <span class="pre">batch,</span> <span class="pre">gen_output,</span> <span class="pre">teacher_output,</span> <span class="pre">timing_dict)</span></code>.</p></li>
+<li><p>Integrate different distillation signals (e.g., hidden states, intermediate reasoning tokens) by extending <code class="docutils literal notranslate"><span class="pre">teacher_utils.get_teacher_knowledge</span></code> and modifying <code class="docutils literal notranslate"><span class="pre">logits_processor</span></code>.</p></li>
+</ul>
+</section>
+<section id="functional-support-summary">
+<h2>10. Functional Support Summary<a class="headerlink" href="#functional-support-summary" title="Link to this heading"></a></h2>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Category</th>
+<th>Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Train engine</td>
+<td>Megatron</td>
+</tr>
+<tr>
+<td>Rollout engine</td>
+<td>vLLM</td>
+</tr>
+<tr>
+<td>Distillation signal</td>
+<td>Teacher top-k logprobs &amp; indices</td>
+</tr>
+<tr>
+<td>Scheduling</td>
+<td>one_step_off, two_step_off</td>
+</tr>
+</tbody>
+</table></section>
+<section id="quick-checklist-before-running">
+<h2>11. Quick Checklist Before Running<a class="headerlink" href="#quick-checklist-before-running" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Teacher server reachable (<code class="docutils literal notranslate"><span class="pre">telnet</span> <span class="pre">&lt;ip&gt;</span> <span class="pre">&lt;port&gt;</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model.path</span></code> contains the correct Megatron/HF config artifacts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">train_files</span></code> points to a parquet dataset compatible with this recipe's dataset loader.</p></li>
+<li><p>NCCL environment vars set (see <code class="docutils literal notranslate"><span class="pre">config/runtime_env.yaml</span></code>).</p></li>
+</ul>
+<hr class="docutils" />
+<p>Feel free to open issues or PRs to extend scheduler variants, add new distillation objectives, or broaden engine support, and more improvement.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

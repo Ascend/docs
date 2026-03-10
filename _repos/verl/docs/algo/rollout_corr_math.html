@@ -1,0 +1,1308 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathematical Formulations of Rollout Correction Methods in verl &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=9b9611a2" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Mathematical Formulations of Rollout Correction Methods in <code class="docutils literal notranslate"><span class="pre">verl</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/algo/rollout_corr_math.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mathematical-formulations-of-rollout-correction-methods-in-verl">
+<h1>Mathematical Formulations of Rollout Correction Methods in <code class="docutils literal notranslate"><span class="pre">verl</span></code><a class="headerlink" href="#mathematical-formulations-of-rollout-correction-methods-in-verl" title="Link to this heading"></a></h1>
+<p><strong>Author:</strong> <a class="reference external" href="https://richardli.xyz">Yingru Li</a>
+<strong>Last updated:</strong> 2025-11-04</p>
+<hr class="docutils" />
+<blockquote>
+<div><p><strong>📖 Documentation Structure</strong></p>
+<ul class="simple">
+<li><p><strong>This document</strong> - Mathematical theory: formulations, derivations, and algorithmic foundations</p></li>
+<li><p><strong><a class="reference internal" href="rollout_corr.html"><span class="doc">Rollout Correction Usage Guide</span></a></strong> - Practical implementation: configurations, presets, troubleshooting</p></li>
+</ul>
+<p>Start here for theory and design rationale, refer to the usage guide for implementation.</p>
+</div></blockquote>
+<hr class="docutils" />
+<section id="bibtex-citation">
+<h2>BibTeX Citation<a class="headerlink" href="#bibtex-citation" title="Link to this heading"></a></h2>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@online</span><span class="p">{</span><span class="nl">liu-li-2025-rl-collapse</span><span class="p">,</span>
+<span class="w">  </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{When Speed Kills Stability: Demystifying {RL} Collapse from the Training-Inference Mismatch}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Liu, Jiacai and Li, Yingru and Fu, Yuqian and Wang, Jiawei and Liu, Qian and Shen, Yu}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2025}</span><span class="p">,</span>
+<span class="w">  </span><span class="na">month</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nv">sep</span><span class="p">,</span>
+<span class="w">  </span><span class="na">url</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://richardli.xyz/rl-collapse}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="blog-series">
+<h2>Blog Series<a class="headerlink" href="#blog-series" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Main blog post: https://richardli.xyz/rl-collapse</p></li>
+<li><p><a class="reference external" href="https://richardli.xyz/rl-collapse-1">Part 1: Why Mismatch Breaks LLM-RL</a> (analytical framework using TV distance for bias and χ²-divergence for variance)</p></li>
+<li><p><a class="reference external" href="https://richardli.xyz/rl-collapse-2">Part 2: The Gradient Estimator Trials</a> (token-level vs sequence-level correction bias-variance tradeoff)</p></li>
+<li><p><a class="reference external" href="https://richardli.xyz/rl-collapse-3">Part 3: When Math Meets Reality—Toxic Tails and Length Traps</a> (why rejection over clipping, and geometric-level RS)</p></li>
+</ul>
+</section>
+<section id="abstract">
+<h2>Abstract<a class="headerlink" href="#abstract" title="Link to this heading"></a></h2>
+<p>This document provides the definitive mathematical formulations for rollout correction methods in <code class="docutils literal notranslate"><span class="pre">verl</span></code>, following the natural progression from <strong>REINFORCE</strong> to <strong>PPO</strong> to <strong>Decoupled PPO</strong>.</p>
+<p>Rollout correction provides a unified framework to handle <strong>general off-policy problems</strong> in RL training - any scenario where the data collection distribution differs from the training distribution.</p>
+<p><strong>Applicable scenarios include:</strong></p>
+<ul class="simple">
+<li><p><strong>Policy mismatch</strong>: Different precision (FP8 vs FP16 vs BF16 vs FP32), different backends (vLLM vs SGLang vs FSDP vs Megatron)</p></li>
+<li><p><strong>Temporal lag</strong>: Model staleness, asynchronous rollout workers</p></li>
+<li><p><strong>Replay buffers</strong>: Training on historical trajectories from earlier policy versions</p></li>
+<li><p><strong>Off-policy algorithms</strong>: Behavioral cloning, DAPO, expert demonstrations</p></li>
+<li><p><strong>Data filtering</strong>: Reweighting, preference learning, curriculum learning</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<ol class="simple">
+<li><p><a class="reference external" href="#1-theoretical-foundation-from-reinforce-to-decoupled-ppo">Theoretical Foundation: From REINFORCE to Decoupled PPO</a></p></li>
+<li><p><a class="reference external" href="#2-implementation-in-verl-the-three-policy-framework">Implementation in verl: The Three-Policy Framework</a></p></li>
+<li><p><a class="reference external" href="#3-algorithmic-components-and-combinations">Algorithmic Components and Combinations</a></p></li>
+<li><p><a class="reference external" href="#4-off-policy-diagnostic-metrics">Off-Policy Diagnostic Metrics</a></p></li>
+<li><p><a class="reference external" href="#5-summary-and-decision-guide">Summary and Decision Guide</a></p></li>
+<li><p><a class="reference external" href="#6-implementation-references">Implementation References</a></p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="theoretical-foundation-from-reinforce-to-decoupled-ppo">
+<h2>1. Theoretical Foundation: From REINFORCE to Decoupled PPO<a class="headerlink" href="#theoretical-foundation-from-reinforce-to-decoupled-ppo" title="Link to this heading"></a></h2>
+<p>This section establishes the theoretical progression that <code class="docutils literal notranslate"><span class="pre">verl</span></code> implements.</p>
+<section id="reinforce-policy-gradient-baseline">
+<h3>1.1 REINFORCE: Policy Gradient Baseline<a class="headerlink" href="#reinforce-policy-gradient-baseline" title="Link to this heading"></a></h3>
+<p>The REINFORCE algorithm (<a class="reference external" href="https://doi.org/10.1007/BF00992696">Williams, 1992</a>) is the foundation of policy gradient methods.</p>
+<p><strong>Vanilla REINFORCE (On-Policy)</strong></p>
+<p>For trajectories $\tau = (s_0, a_0, s_1, a_1, \ldots, s_T, a_T)$ sampled from the current policy $\pi_\theta$, the policy gradient is:</p>
+<p>$$
+\nabla_\theta J(\theta) = \mathbb{E}<em>{\tau \sim \pi</em>\theta} \left[ \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where $A_t$ is the advantage function at timestep $t$.</p>
+<p><strong>Off-Policy REINFORCE</strong></p>
+<p>When trajectories are sampled from a different behavior policy $\mu$, we apply importance sampling over the <strong>joint trajectory distribution</strong>:</p>
+<p>$$
+\nabla_\theta J(\theta) = \mathbb{E}<em>{\tau \sim \mu} \left[ \frac{P</em>{\pi_\theta}(\tau)}{P_\mu(\tau)} \sum_{t=0}^T \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where the trajectory-level importance weight is:</p>
+<p>$$
+\frac{P_{\pi_\theta}(\tau)}{P_\mu(\tau)} = \frac{p(s_0) \prod_{t=0}^T \pi_\theta(a_t|s_t) p(s_{t+1}|s_t, a_t)}{p(s_0) \prod_{t=0}^T \mu(a_t|s_t) p(s_{t+1}|s_t, a_t)} = \prod_{t=0}^T \frac{\pi_\theta(a_t|s_t)}{\mu(a_t|s_t)}
+$$</p>
+<p>The transition dynamics $p(s_{t+1}|s_t, a_t)$ and initial state $p(s_0)$ cancel out, leaving only the product of per-step action probability ratios.</p>
+<p><strong>Key properties:</strong></p>
+<ul class="simple">
+<li><p><strong>Off-policy capable</strong>: Can learn from any behavior policy via importance sampling</p></li>
+<li><p><strong>No trust region</strong>: Policy updates not constrained</p></li>
+</ul>
+<p><strong>Implementation in verl:</strong> The <code class="docutils literal notranslate"><span class="pre">bypass_pg_is</span></code> preset implements off-policy REINFORCE with truncated importance sampling.</p>
+</section>
+<section id="ppo-adding-trust-region-control">
+<h3>1.2 PPO: Adding Trust Region Control<a class="headerlink" href="#ppo-adding-trust-region-control" title="Link to this heading"></a></h3>
+<p>Proximal Policy Optimization (<a class="reference external" href="https://arxiv.org/abs/1707.06347">Schulman et al., 2017</a>) adds a clipped surrogate objective:</p>
+<p>$$
+L_{\text{PPO}}(\theta) = -\mathbb{E}_{(s,a) \sim \mu} \left[ \min\left( r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]
+$$</p>
+<p>where $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\mu(a_t|s_t)}$ and $\epsilon$ is the clip range (typically 0.2).</p>
+<p><strong>Key properties:</strong></p>
+<ul class="simple">
+<li><p><strong>Two policies</strong>: $\mu$ (reference for clipping) and $\pi_\theta$ (being updated)</p></li>
+<li><p><strong>Trust region via clipping</strong>: Limits policy update magnitude via ratio $r_t(\theta) = \frac{\pi_\theta}{\mu}$</p></li>
+</ul>
+</section>
+<section id="decoupled-ppo-achieving-batch-size-invariance">
+<h3>1.3 Decoupled PPO: Achieving Batch Size Invariance<a class="headerlink" href="#decoupled-ppo-achieving-batch-size-invariance" title="Link to this heading"></a></h3>
+<p>Decoupled PPO (<a class="reference external" href="https://arxiv.org/abs/2110.00641">Hilton et al., 2021</a>) solves PPO's batch size sensitivity by <strong>decoupling two roles</strong>:</p>
+<ol class="simple">
+<li><p><strong>Proximal policy</strong> $\pi_{\text{prox}}$: The anchor policy for PPO clipping (controls policy update size)</p></li>
+<li><p><strong>Behavior policy</strong> $\mu$: The policy that collected the data (for off-policy correction via importance sampling)</p></li>
+</ol>
+<p><strong>The problem</strong>: Standard PPO controls policy update size via the ratio $\frac{\pi_\theta}{\pi_{\text{old}}}$, where $\pi_{\text{old}}$ is assumed to be both the proximal policy <em>and</em> the behavior policy. This coupling makes the algorithm sensitive to batch size because aggregating data from multiple workers or using replay buffers changes the effective behavior policy.</p>
+<p><strong>The solution</strong>: Decouple these two roles, leading to a <strong>three-policy formulation</strong>:</p>
+<p>$$
+L_{\text{DecoupledPPO}}(\theta) = -\mathbb{E}_{(s,a) \sim \mu} \left[ w_t \cdot \min\left( r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]
+$$</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>$w_t = \frac{\pi_{\text{prox}}(a_t|s_t)}{\mu(a_t|s_t)}$: Importance sampling weight (corrects for behavior policy $\mu$). Here $\pi_{\text{prox}}$ is frozen during training, so $w_t$ is constant (no stopgrad operator needed).</p></li>
+<li><p>$r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\text{prox}}(a_t|s_t)}$: PPO ratio (controls policy update size against proximal policy $\pi_{\text{prox}}$)</p></li>
+</ul>
+<p><strong>Key properties</strong>: By decoupling:</p>
+<ul class="simple">
+<li><p><strong>Batch size invariance</strong>: Policy update control (via $\pi_{\text{prox}}$) is independent of data aggregation</p></li>
+<li><p><strong>Flexible behavior policy</strong>: Any $\mu$ can be used (different workers, replay buffers, or stale checkpoints)</p></li>
+<li><p><strong>Stale data utilization</strong>: Older trajectories can be corrected via importance sampling</p></li>
+<li><p><strong>Clipping preserved</strong>: Clipping against $\pi_{\text{prox}}$ limits update magnitude</p></li>
+</ul>
+<p><strong>This is the algorithm that <code class="docutils literal notranslate"><span class="pre">verl</span></code> implements via its three-policy framework.</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-in-verl-the-three-policy-framework">
+<h2>2. Implementation in verl: The Three-Policy Framework<a class="headerlink" href="#implementation-in-verl-the-three-policy-framework" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">verl</span></code> library implements decoupled PPO using three distinct policies, each serving a specific role.</p>
+<section id="policy-roles-and-notation">
+<h3>2.1 Policy Roles and Notation<a class="headerlink" href="#policy-roles-and-notation" title="Link to this heading"></a></h3>
+<p><strong>$\pi_{\text{rollout}}$ (Behavior Policy $\mu$)</strong>
+The policy used for data collection. This is the behavior distribution $\mu$ from theory.</p>
+<ul class="simple">
+<li><p><strong>When created</strong>: During rollout/data collection phase</p></li>
+<li><p><strong>Purpose</strong>: Generate trajectories for training</p></li>
+<li><p><strong>Common sources</strong>:</p>
+<ul>
+<li><p>Policy mismatch: Same weights, different implementation (precision, backend)</p></li>
+<li><p>Temporal lag: Stale checkpoint from async workers</p></li>
+<li><p>Replay buffer: Historical data from earlier iterations</p></li>
+<li><p>Off-policy algorithms: Expert demonstrations, auxiliary policies (DAPO)</p></li>
+<li><p>Data filtering: Reweighted or filtered data</p></li>
+</ul>
+</li>
+<li><p><strong>Fixed</strong>: Frozen during training on a batch</p></li>
+</ul>
+<p><strong>$\pi_{\text{old}}$ (Proximal Policy $\pi_{\text{prox}}$)</strong>
+The reference policy for PPO clipping. This is the &quot;proximal policy&quot; from decoupled PPO theory.</p>
+<ul class="simple">
+<li><p><strong>When created</strong>:</p>
+<ul>
+<li><p><strong>Decoupled mode</strong>: Computed at start of training epoch via <code class="docutils literal notranslate"><span class="pre">actor.compute_log_prob()</span></code></p></li>
+<li><p><strong>Bypass mode</strong>: Set equal to $\pi_{\text{rollout}}$ (skips separate computation)</p></li>
+</ul>
+</li>
+<li><p><strong>Purpose</strong>:</p>
+<ul>
+<li><p>Anchor point for PPO clipping (controls policy update size)</p></li>
+<li><p>When separate from $\pi_{\text{rollout}}$: Enables batch size invariance and efficient use of stale data</p></li>
+</ul>
+</li>
+<li><p><strong>Fixed</strong>: Frozen during all PPO update epochs on the same batch</p></li>
+</ul>
+<p><strong>$\pi_{\theta}$ (Current Policy)</strong>
+The policy being actively optimized during training.</p>
+<ul class="simple">
+<li><p><strong>Updated</strong>: Every gradient step</p></li>
+<li><p><strong>Purpose</strong>: The policy we're improving</p></li>
+</ul>
+</section>
+<section id="operating-modes">
+<h3>2.2 Operating Modes<a class="headerlink" href="#operating-modes" title="Link to this heading"></a></h3>
+<p>The three-policy framework can operate in two modes:</p>
+<p><strong>Decoupled Mode (Three Policies)</strong></p>
+<ul class="simple">
+<li><p>Computes $\pi_{\text{old}}$ separately at the start of each training epoch</p></li>
+<li><p><strong>Algorithm</strong>: Full decoupled PPO with three policies (mathematically correct)</p></li>
+<li><p><strong>Properties</strong>: Achieves batch size invariance; separately corrects Drift 1 (rollout→old) and Drift 2 (old→current)</p></li>
+</ul>
+<p><strong>Bypass Mode (Two Policies)</strong></p>
+<ul class="simple">
+<li><p>Sets $\pi_{\text{old}} = \pi_{\text{rollout}}$ (skips separate computation)</p></li>
+<li><p><strong>Algorithm</strong>: Uses $\pi_{\text{rollout}}$ as both behavior policy and proximal policy (mathematically correct)</p></li>
+<li><p><strong>Key difference</strong>: Proximal policy equals behavior policy, so no IS correction needed between them</p></li>
+<li><p><strong>Properties</strong>: Faster (skips <code class="docutils literal notranslate"><span class="pre">actor.compute_log_prob()</span></code> call); does not achieve batch size invariance</p></li>
+</ul>
+</section>
+<section id="two-distribution-shifts">
+<h3>2.3 Two Distribution Shifts<a class="headerlink" href="#two-distribution-shifts" title="Link to this heading"></a></h3>
+<p>The three-policy framework handles two types of distribution drift:</p>
+<p><strong>Drift 1: $\pi_{\text{rollout}} \to \pi_{\text{old}}$ (Off-Policy Gap)</strong></p>
+<p>This is the distribution shift between the data collection policy and the training reference policy.</p>
+<ul class="simple">
+<li><p><strong>Nature</strong>: Ranges from negligible (same checkpoint, minor differences) to severe (replay buffers, expert data)</p></li>
+<li><p><strong>Correction</strong>: Importance sampling weight $w_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$</p></li>
+<li><p><strong>Optional</strong>: Can be ignored (bypass mode) when negligible</p></li>
+</ul>
+<p><strong>Drift 2: $\pi_{\text{old}} \to \pi_{\theta}$ (Policy Update Drift)</strong></p>
+<p>This is the drift from policy parameter updates during training.</p>
+<ul class="simple">
+<li><p><strong>Nature</strong>: Occurs as $\pi_\theta$ is updated via gradient descent</p></li>
+<li><p><strong>Correction</strong>: PPO clipping on ratio $r_t(\theta) = \frac{\pi_\theta(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)}$</p></li>
+<li><p><strong>Universal</strong>: Applies to both on-policy and off-policy training</p></li>
+</ul>
+</section>
+<section id="notation-summary">
+<h3>2.4 Notation Summary<a class="headerlink" href="#notation-summary" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>$\pi_{\text{rollout}}$: Behavior policy (data collection)</p></li>
+<li><p>$\pi_{\text{old}}$: Proximal policy (PPO anchor)</p></li>
+<li><p>$\pi_{\theta}$: Current policy (being updated)</p></li>
+<li><p>$\rho_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$: Per-token IS ratio (corrects Drift 1)</p></li>
+<li><p>$r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)}$: PPO ratio (corrects Drift 2)</p></li>
+<li><p>$A_t$: Advantage at token $t$</p></li>
+<li><p>$T$: Set of valid tokens in a sequence</p></li>
+<li><p>$C_{\text{IS}}$: Upper threshold for IS weights (e.g., 2.0)</p></li>
+<li><p>$C_{\text{RS-upper}}$: Upper threshold for RS mask (e.g., 2.0)</p></li>
+<li><p>$C_{\text{RS-lower}}$: Lower threshold for RS mask (typically $1/C_{\text{RS-upper}}$)</p></li>
+<li><p>$\epsilon$: PPO clip range (typically 0.2)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="algorithmic-components-and-combinations">
+<h2>3. Algorithmic Components and Combinations<a class="headerlink" href="#algorithmic-components-and-combinations" title="Link to this heading"></a></h2>
+<p>The rollout correction framework in <code class="docutils literal notranslate"><span class="pre">verl</span></code> is built from <strong>orthogonal components</strong> that can be combined flexibly:</p>
+<ol class="simple">
+<li><p><strong>Operating Mode</strong>: How $\pi_{\text{old}}$ is computed (Decoupled vs Bypass)</p></li>
+<li><p><strong>Loss Function</strong>: PPO (with clipping) vs Pure IS (policy gradient only)</p></li>
+<li><p><strong>IS/RS Aggregation Level</strong>: Token, Sequence, or Geometric</p></li>
+<li><p><strong>Safety Mechanisms</strong>: Veto for catastrophic outliers</p></li>
+</ol>
+<p>This section explains each component and their valid combinations.</p>
+<section id="operating-modes-decoupled-vs-bypass">
+<h3>3.1 Operating Modes: Decoupled vs Bypass<a class="headerlink" href="#operating-modes-decoupled-vs-bypass" title="Link to this heading"></a></h3>
+<p>The operating mode determines how the proximal policy $\pi_{\text{old}}$ is computed.</p>
+<section id="decoupled-mode-three-policies">
+<h4>3.1.1 Decoupled Mode (Three Policies)<a class="headerlink" href="#decoupled-mode-three-policies" title="Link to this heading"></a></h4>
+<p><strong>Configuration:</strong> <code class="docutils literal notranslate"><span class="pre">bypass_mode</span> <span class="pre">=</span> <span class="pre">false</span></code></p>
+<p><strong>Policy setup:</strong></p>
+<ul class="simple">
+<li><p>$\pi_{\text{rollout}}$: Behavior policy (data collection)</p></li>
+<li><p>$\pi_{\text{old}}$: Proximal policy (computed via <code class="docutils literal notranslate"><span class="pre">actor.compute_log_prob()</span></code> at start of training epoch)</p></li>
+<li><p>$\pi_{\theta}$: Current policy (being updated)</p></li>
+</ul>
+<p><strong>IS ratio:</strong> $\rho_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$ (corrects Drift 1: rollout→old)</p>
+<p><strong>PPO ratio:</strong> $r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)}$ (corrects Drift 2: old→current)</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>✅ Achieves batch size invariance</p></li>
+<li><p>✅ Separately corrects two distribution drifts</p></li>
+<li><p>✅ Efficient stale data utilization</p></li>
+<li><p>❌ Extra forward pass needed (<code class="docutils literal notranslate"><span class="pre">actor.compute_log_prob()</span></code>)</p></li>
+</ul>
+</section>
+<section id="bypass-mode-two-policies">
+<h4>3.1.2 Bypass Mode (Two Policies)<a class="headerlink" href="#bypass-mode-two-policies" title="Link to this heading"></a></h4>
+<p><strong>Configuration:</strong> <code class="docutils literal notranslate"><span class="pre">bypass_mode</span> <span class="pre">=</span> <span class="pre">true</span></code></p>
+<p><strong>Policy setup:</strong></p>
+<ul class="simple">
+<li><p>$\pi_{\text{rollout}}$: Behavior policy (data collection)</p></li>
+<li><p>$\pi_{\text{old}} = \pi_{\text{rollout}}$: Proximal policy equals behavior policy</p></li>
+<li><p>$\pi_{\theta}$: Current policy (being updated)</p></li>
+</ul>
+<p><strong>Ratios:</strong></p>
+<ul class="simple">
+<li><p><strong>With PPO-clip loss</strong> (<code class="docutils literal notranslate"><span class="pre">loss_type</span> <span class="pre">=</span> <span class="pre">&quot;ppo_clip&quot;</span></code>, default): PPO ratio $r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$ clips against rollout policy (IS handled by ratio)</p></li>
+<li><p><strong>With REINFORCE loss</strong> (<code class="docutils literal notranslate"><span class="pre">loss_type</span> <span class="pre">=</span> <span class="pre">&quot;reinforce&quot;</span></code>): IS ratio $\rho_t = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$ computed on-the-fly in loss function</p></li>
+</ul>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>✅ Skips <code class="docutils literal notranslate"><span class="pre">actor.compute_log_prob()</span></code> call (faster)</p></li>
+<li><p>✅ Handles off-policy correction via IS/RS (when using policy gradient with IS/RS)</p></li>
+<li><p>✅ Uses two policies instead of three (π_rollout = π_old)</p></li>
+<li><p>⚠️ Does not separate proximal policy from behavior policy (unlike decoupled mode)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="loss-functions-ppo-vs-policy-gradient">
+<h3>3.2 Loss Functions: PPO vs Policy Gradient<a class="headerlink" href="#loss-functions-ppo-vs-policy-gradient" title="Link to this heading"></a></h3>
+<section id="ppo-loss-with-clipping">
+<h4>3.2.1 PPO Loss (with Clipping)<a class="headerlink" href="#ppo-loss-with-clipping" title="Link to this heading"></a></h4>
+<p><strong>Configuration:</strong> <code class="docutils literal notranslate"><span class="pre">loss_type</span> <span class="pre">=</span> <span class="pre">&quot;ppo_clip&quot;</span></code> (default in bypass mode)</p>
+<p><strong>Loss function:</strong></p>
+<p>$$
+L_{\text{PPO}}(\theta) = -\mathbb{E}_t \left[ w_t \cdot \min\left( r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]
+$$</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>$w_t$: IS weight (depends on aggregation level, see Section 3.3). In decoupled mode, $w_t = \frac{\pi_{\text{old}}}{\pi_{\text{rollout}}}$ where $\pi_{\text{old}}$ is frozen, so $w_t$ is constant (no stopgrad needed). In bypass mode with PPO loss, no separate IS weights are typically computed.</p></li>
+<li><p>$r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)}$: PPO ratio</p></li>
+<li><p>$\epsilon$: Clip range (typically 0.2)</p></li>
+</ul>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Trust region control via clipping</p></li>
+<li><p>Limits policy update magnitude</p></li>
+<li><p>Standard in RL training</p></li>
+</ul>
+</section>
+<section id="policy-gradient-loss-with-is-rs-correction">
+<h4>3.2.2 Policy Gradient Loss (with IS/RS Correction)<a class="headerlink" href="#policy-gradient-loss-with-is-rs-correction" title="Link to this heading"></a></h4>
+<p><strong>Configuration:</strong> <code class="docutils literal notranslate"><span class="pre">loss_type</span> <span class="pre">=</span> <span class="pre">&quot;reinforce&quot;</span></code> (requires <code class="docutils literal notranslate"><span class="pre">bypass_mode</span> <span class="pre">=</span> <span class="pre">true</span></code>)</p>
+<p><strong>Loss function</strong> (example with sequence-level IS):</p>
+<p>$$
+L_{\text{PG}}(\theta) = -\mathbb{E}<em>{(s,a) \sim \pi</em>{\text{rollout}}} \left[ \text{stopgrad}(w_{\text{seq}}(\theta)) \cdot \sum_{t \in T} \log \pi_{\theta}(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>$w_{\text{seq}}(\theta)$: Sample weight (IS or RS, see §3.3-3.4 for details)</p></li>
+<li><p>For IS: $w_{\text{seq}}(\theta) = \min\left( \prod_{t \in T} \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}, C_{\text{IS}} \right)$</p></li>
+<li><p>For RS: $w_{\text{seq}}(\theta) \in {0, 1}$ (binary rejection mask)</p></li>
+<li><p><strong>stopgrad operator</strong>: The weight $w_{\text{seq}}(\theta)$ is computed using $\pi_\theta$ but treated as a <strong>constant coefficient</strong> when computing $\nabla_\theta L$. This is essential for importance sampling correctness (see theoretical justification below).</p></li>
+</ul>
+<p><strong>Effective gradient:</strong></p>
+<p>$$
+\nabla_\theta L_{\text{PG}} = -\mathbb{E}<em>{(s,a) \sim \pi</em>{\text{rollout}}} \left[ \text{stopgrad}(w_{\text{seq}}(\theta)) \cdot \sum_{t \in T} \nabla_\theta \log \pi_{\theta}(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p><strong>Theoretical Justification for stopgrad:</strong></p>
+<p>The stopgrad operator is <strong>mathematically required</strong> by importance sampling theory, not an implementation detail. Here's why:</p>
+<p><strong>The fundamental principle</strong>: Importance sampling is a technique to <strong>change the measure</strong> (reweight samples from one distribution to estimate expectations under another), not to optimize the reweighting function itself.</p>
+<p><strong>Formal derivation</strong>:</p>
+<ol>
+<li><p><strong>Original objective</strong>: We want to optimize $J(\theta) = \mathbb{E}<em>{\tau \sim \pi</em>\theta}[\sum_t A_t]$.</p></li>
+<li><p><strong>Off-policy setting</strong>: We only have samples from $\pi_{\text{rollout}}$, so we use importance sampling:
+$$
+J(\theta) = \mathbb{E}<em>{\tau \sim \pi</em>{\text{rollout}}} \left[ \underbrace{\frac{P_{\pi_\theta}(\tau)}{P_{\pi_{\text{rollout}}}(\tau)}}_{w(\tau;\theta)} \sum_t A_t \right]
+$$</p></li>
+<li><p><strong>Computing the policy gradient</strong>: The correct gradient uses the <strong>policy gradient theorem BEFORE importance sampling</strong>:
+$$
+\begin{aligned}
+\nabla_\theta J(\theta) &amp;= \nabla_\theta \mathbb{E}<em>{\tau \sim \pi</em>\theta}\left[\sum_t A_t\right] \
+&amp;= \mathbb{E}<em>{\tau \sim \pi</em>\theta} \left[\sum_t A_t \nabla_\theta \log \pi_\theta(a_t|s_t) \right] \quad \text{(policy gradient theorem)} \
+&amp;= \mathbb{E}<em>{\tau \sim \pi</em>{\text{rollout}}} \left[ w(\tau;\theta) \sum_t A_t \nabla_\theta \log \pi_\theta(a_t|s_t) \right] \quad \text{(change of measure)}
+\end{aligned}
+$$</p>
+<p>In the final line, $w(\tau;\theta)$ appears as a <strong>multiplicative coefficient</strong> from the change of measure, not as something we differentiate.</p>
+</li>
+<li><p><strong>What goes wrong without stopgrad</strong>: If we naively compute $\nabla_\theta \left[w(\theta) \log \pi_\theta \right]$ in the loss, we get:
+$$
+\nabla_\theta \left[w(\theta) \log \pi_\theta \right] = \underbrace{\log \pi_\theta \cdot \nabla_\theta w(\theta)}<em>{\text{WRONG: bias term}} + \underbrace{w(\theta) \cdot \nabla</em>\theta \log \pi_\theta}_{\text{CORRECT: IS-weighted gradient}}
+$$</p>
+<p>The first term $\log \pi_\theta \cdot \nabla_\theta w(\theta)$ is an artifact of the computational trick (using loss times log-prob), not part of the true policy gradient. It biases the gradient estimator and optimizes a different objective than $J(\theta)$.</p>
+</li>
+<li><p><strong>Implementation requirement</strong>: In PyTorch, to compute only the second term, we must use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">loss</span> <span class="o">=</span> <span class="o">-</span><span class="n">advantages</span> <span class="o">*</span> <span class="n">log_prob</span> <span class="o">*</span> <span class="n">rollout_is_weights</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>  <span class="c1"># stopgrad on weights</span>
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">.detach()</span></code>, autograd computes both terms, giving an incorrect gradient.</p>
+</li>
+</ol>
+<p><strong>Intuition</strong>: The IS weight $w(\theta)$ tells us &quot;how much to trust this sample&quot; for estimating the gradient under $\pi_\theta$. We update $\theta$ to maximize the reweighted objective, but we don't update $\theta$ to maximize the weight itself—that would be circular reasoning (optimizing the correction factor instead of the actual objective).</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p><strong>Algorithm</strong>: Off-policy policy gradient with IS/RS correction</p></li>
+<li><p><strong>Loss types</strong> (<code class="docutils literal notranslate"><span class="pre">loss_type</span></code> config option in bypass mode):</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ppo_clip&quot;</span></code> (default): PPO clipped objective</p>
+<ul>
+<li><p>$L = -\mathbb{E}[\min(r \cdot A, \text{clip}(r) \cdot A)]$ where $r = \pi_\theta / \pi_{\text{rollout}}$</p></li>
+<li><p>Note: IS weights NOT applied (PPO ratio already handles it; would be double-counting)</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;reinforce&quot;</span></code>: Pure policy gradient with explicit IS weights, no PPO clipping</p>
+<ul>
+<li><p>$L = -\mathbb{E}[w \cdot \log \pi_\theta(a|s) \cdot A]$ where $w = \pi_\theta / \pi_{\text{rollout}}$</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Always uses bypass mode</strong>: Direct $\pi_\theta$ to $\pi_{\text{rollout}}$ comparison</p></li>
+<li><p><strong>Fast</strong>: Single forward pass</p></li>
+</ul>
+<p><strong>Implementation:</strong> <code class="docutils literal notranslate"><span class="pre">compute_policy_loss_bypass_mode()</span></code> and <code class="docutils literal notranslate"><span class="pre">compute_policy_loss_reinforce()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/core_algos.py">core_algos.py</a></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="is-rs-aggregation-levels">
+<h3>3.3 IS/RS Aggregation Levels<a class="headerlink" href="#is-rs-aggregation-levels" title="Link to this heading"></a></h3>
+<p>The aggregation level determines how per-token probability ratios are combined into IS weights and/or rejection masks. This choice is <strong>orthogonal to the operating mode</strong> - you can use any aggregation level in either decoupled or bypass mode.</p>
+<section id="token-level-aggregation">
+<h4>3.3.1 Token-Level Aggregation<a class="headerlink" href="#token-level-aggregation" title="Link to this heading"></a></h4>
+<p><strong>IS weights:</strong> $w_t = \min(\rho_t, C_{\text{IS}})$ where $\rho_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$ (decoupled) or $\rho_t = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$ (bypass/pure IS)</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_is</span> <span class="o">=</span> <span class="s2">&quot;token&quot;</span>  <span class="c1"># IS weights</span>
+<span class="n">rollout_rs</span> <span class="o">=</span> <span class="s2">&quot;token&quot;</span>  <span class="c1"># Optional: rejection sampling</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Independent truncation per token</p></li>
+<li><p>Lower variance than sequence-level (product of ratios bounded individually)</p></li>
+<li><p><strong>Bias-variance tradeoff</strong>: Token-level correction has $O(T^2 \Delta_{\max})$ bias where $T$ is sequence length and $\Delta_{\max}$ is maximum per-token policy divergence. This bias becomes significant when the rollout policy deviates substantially from the training policy. Sequence-level correction is unbiased but has higher variance.</p></li>
+<li><p>Typical threshold: 1.5 - 5.0</p></li>
+<li><p>Optional batch normalization (§3.6): Normalizes over all token weights to ensure $\mathbb{E}[\tilde{w}_t] = 1$ (reduces variance)</p></li>
+<li><p><strong>When to use</strong>: Token-level works well when rollout policy stays within the trust region of training policy. When mismatch is significant, the bias becomes intolerable and sequence-level correction is preferred.</p></li>
+</ul>
+<p><strong>Loss function (REINFORCE + Token IS):</strong></p>
+<p>$$
+L_{\text{REINFORCE+TIS}}(\theta) = -\mathbb{E}<em>t \left[ \text{stopgrad}(w_t) \cdot \log \pi</em>\theta(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where $w_t = \min(\rho_t, C_{\text{IS}})$ are the truncated token-level IS weights. The stopgrad operator ensures that when computing $\nabla_\theta L$, the weights are treated as constants (see §3.2.2 for theoretical justification). This formulation can also be combined with PPO clipping by replacing the REINFORCE gradient with the clipped surrogate objective.</p>
+<p><strong>Implementation:</strong></p>
+<ul class="simple">
+<li><p>IS weights: <code class="docutils literal notranslate"><span class="pre">compute_rollout_correction_weights()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py#L325-L402">rollout_corr_helper.py</a></p></li>
+<li><p>Loss: <code class="docutils literal notranslate"><span class="pre">compute_policy_loss()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/core_algos.py#L812-L884">core_algos.py</a></p></li>
+</ul>
+</section>
+<section id="sequence-level-aggregation">
+<h4>3.3.2 Sequence-Level Aggregation<a class="headerlink" href="#sequence-level-aggregation" title="Link to this heading"></a></h4>
+<p><strong>IS weights:</strong> $w_{\text{seq}} = \min\left( \prod_{t \in T} \rho_t, C_{\text{IS}} \right) = \min\left( \exp\left(\sum_{t \in T} \log \rho_t\right), C_{\text{IS}} \right)$ (broadcast to all tokens)</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_is</span> <span class="o">=</span> <span class="s2">&quot;sequence&quot;</span>  <span class="c1"># IS weights</span>
+<span class="n">rollout_rs</span> <span class="o">=</span> <span class="s2">&quot;sequence&quot;</span>  <span class="c1"># Optional: rejection sampling</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Multiplicative aggregation across sequence</p></li>
+<li><p>More sensitive to outliers than token-level</p></li>
+<li><p>Typical threshold: 2.0 - 10.0</p></li>
+<li><p>Optional batch normalization (§3.6): Normalizes over sequence means (one weight per sequence)</p></li>
+</ul>
+<p><strong>Terminology Note:</strong></p>
+<ul class="simple">
+<li><p><strong>Seq-TIS (Sequence-Level Truncated IS)</strong>: Clips the sequence ratio $\rho(\tau) \to \min(\rho(\tau), C)$. Maximizes information efficiency by extracting signal from all samples. Best for clean data with moderate mismatch.</p></li>
+<li><p><strong>Seq-MIS (Sequence-Level Masked IS)</strong>: Rejects (masks) sequences with $\rho(\tau) &gt; C$ instead of clipping. Acts as a hard trust region filter. Best for severe mismatch or when the distribution tail is &quot;toxic&quot; (contains garbage/adversarial samples rather than signal).</p></li>
+</ul>
+<p><strong>Loss function (REINFORCE + Sequence IS):</strong></p>
+<p>$$
+L_{\text{REINFORCE+SeqIS}}(\theta) = -\mathbb{E}<em>t \left[ \text{stopgrad}(w</em>{\text{seq}}) \cdot \log \pi_\theta(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where $w_{\text{seq}}$ is broadcast to all tokens in the sequence. The stopgrad operator ensures correct IS gradient computation (see §3.2.2). This formulation can also be combined with PPO clipping.</p>
+</section>
+<section id="geometric-aggregation-geo-rs">
+<h4>3.3.3 Geometric Aggregation (Geo-RS)<a class="headerlink" href="#geometric-aggregation-geo-rs" title="Link to this heading"></a></h4>
+<p><strong>IS weights (for rejection only):</strong> $\rho_{\text{geo}} = \exp\left( \frac{1}{|T|} \sum_{t \in T} \log \rho_t \right) = \left(\prod_{t \in T} \rho_t\right)^{1/|T|}$ (broadcast to all tokens)</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_is</span> <span class="o">=</span> <span class="n">null</span>  <span class="c1"># No IS weights, pure rejection</span>
+<span class="n">rollout_rs</span> <span class="o">=</span> <span class="s2">&quot;geometric&quot;</span>  <span class="c1"># Rejection sampling only</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Geometric mean of per-token ratios</p></li>
+<li><p>More sensitive than arithmetic product (sequence-level)</p></li>
+<li><p>Typical threshold: 1.0001 - 1.001 (tighter than sequence/token level)</p></li>
+<li><p><strong>Used for rejection sampling only, not IS weighting</strong></p></li>
+</ul>
+<p><strong>The Length Trap Problem:</strong></p>
+<p>Standard IS estimators have a systematic <strong>length bias</strong> that penalizes long sequences. The importance ratio $\rho(y)$ is multiplicative:</p>
+<p>$$
+\rho(y) = \prod_{t=1}^T \frac{\pi(y_t|y_{&lt;t})}{\mu(y_t|y_{&lt;t})}
+$$</p>
+<p>Assume the new policy $\pi$ differs slightly from $\mu$, with average per-token ratio $\approx 1.1$:</p>
+<ul class="simple">
+<li><p><strong>Short sequence (10 tokens):</strong> $\rho \approx 1.1^{10} \approx 2.6$ → fits within threshold, <strong>kept</strong></p></li>
+<li><p><strong>Long sequence (100 tokens):</strong> $\rho \approx 1.1^{100} \approx 13,780$ → explodes past threshold, <strong>rejected</strong></p></li>
+</ul>
+<p>This creates <strong>Context Collapse</strong>: the model preferentially learns from short, shallow answers and rejects long chains of thought—even if per-step quality is identical. For reasoning models (CoT) and agents, this effectively penalizes &quot;thinking too long.&quot;</p>
+<p><strong>Geo-RS Solution:</strong></p>
+<p>Geometric-level rejection normalizes by sequence length, converting the extensive property (total probability product) to an intensive property (average per-token drift):</p>
+<p>$$
+\rho_{\text{geo}}(y) = \rho(y)^{1/T}
+$$</p>
+<p>Now both sequences have the same &quot;trust score&quot;:</p>
+<ul class="simple">
+<li><p><strong>Short (10 tokens):</strong> $(1.1^{10})^{1/10} = 1.1$</p></li>
+<li><p><strong>Long (100 tokens):</strong> $(1.1^{100})^{1/100} = 1.1$</p></li>
+</ul>
+<p><strong>Why tight thresholds?</strong>
+For 100 tokens with $\rho_t = 1.01$ each:</p>
+<ul class="simple">
+<li><p>Arithmetic product: $\prod_{t=1}^{100} \rho_t = 1.01^{100} \approx 2.7$</p></li>
+<li><p>Geometric mean: $(1.01)^{1} = 1.01$</p></li>
+</ul>
+<p>A threshold of 1.001 means rejecting sequences with average per-token deviation &gt; 0.1%.</p>
+<p><strong>Loss function (REINFORCE + Geometric RS):</strong></p>
+<p>$$
+L_{\text{GeoRS}}(\theta) = -\mathbb{E}<em>{(s,a) \mid \text{seq} \in \mathcal{A}</em>{\text{geo}}} \left[ \sum_{t \in T} \log \pi_\theta(a_t|s_t) \cdot A_t \right]
+$$</p>
+<p>where $\mathcal{A}<em>{\text{geo}} = { \text{seq} : C</em>{\text{RS-lower}} \leq \rho_{\text{geo}} \leq C_{\text{RS-upper}} }$ is the acceptance set (rejection mask). No IS weights are used, so no stopgrad needed. This formulation can also be combined with PPO clipping.</p>
+<p><strong>Combined Estimator (Geo-RS-Seq-TIS):</strong></p>
+<p>For best results, combine the <strong>Geometric Filter</strong> (length-invariant validity check) with <strong>Clipped Sequence Weight</strong> (debiasing):</p>
+<p>$$
+\hat{g}<em>{\text{geo-rs-seq-tis}}(y) = \underbrace{\mathbb{I}\left( C</em>{\text{low}} \le \rho(y)^{1/T} \le C_{\text{high}} \right)}_{\text{Geometric Filter}} \cdot \min(\rho(y), C) \cdot f(y)
+$$</p>
+<p>This is implemented by combining <code class="docutils literal notranslate"><span class="pre">rollout_rs=&quot;geometric&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">rollout_is=&quot;sequence&quot;</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="rejection-sampling-rs">
+<h3>3.4 Rejection Sampling (RS)<a class="headerlink" href="#rejection-sampling-rs" title="Link to this heading"></a></h3>
+<p>Rejection sampling can be added to <strong>any combination</strong> of operating mode and aggregation level. It modifies the <code class="docutils literal notranslate"><span class="pre">response_mask</span></code> to exclude outlier tokens/sequences.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_rs</span> <span class="o">=</span> <span class="s2">&quot;token&quot;</span>  <span class="c1"># or &quot;sequence&quot; or &quot;geometric&quot;</span>
+<span class="n">rollout_rs_threshold</span> <span class="o">=</span> <span class="mf">2.0</span>  <span class="c1"># Upper threshold</span>
+<span class="n">rollout_rs_threshold_lower</span> <span class="o">=</span> <span class="mf">0.5</span>  <span class="c1"># Lower threshold (auto-reciprocal if null)</span>
+</pre></div>
+</div>
+<p><strong>Acceptance set:</strong></p>
+<ul class="simple">
+<li><p><strong>Token-level</strong>: $\mathcal{A}<em>{\text{token}} = { t : C</em>{\text{RS-lower}} \leq \rho_t \leq C_{\text{RS-upper}} }$</p></li>
+<li><p><strong>Sequence-level</strong>: $\mathcal{A}<em>{\text{seq}} = { \text{seq} : C</em>{\text{RS-lower}} \leq \prod_{t \in T} \rho_t \leq C_{\text{RS-upper}} }$</p></li>
+<li><p><strong>Geometric</strong>: $\mathcal{A}<em>{\text{geo}} = { \text{seq} : C</em>{\text{RS-lower}} \leq \rho_{\text{geo}} \leq C_{\text{RS-upper}} }$</p></li>
+</ul>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Separate from IS weighting (can use RS without IS)</p></li>
+<li><p>Reduces effective sample size</p></li>
+<li><p>Filters extreme outliers</p></li>
+</ul>
+<p><strong>Implementation:</strong> <code class="docutils literal notranslate"><span class="pre">compute_rollout_rejection_mask()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py#L80-L188">rollout_corr_helper.py</a></p>
+</section>
+<hr class="docutils" />
+<section id="veto-mechanism">
+<h3>3.5 Veto Mechanism<a class="headerlink" href="#veto-mechanism" title="Link to this heading"></a></h3>
+<p>An <strong>independent</strong> safety layer that rejects sequences with catastrophically low token probabilities.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_token_veto_threshold</span> <span class="o">=</span> <span class="mf">1e-4</span>  <span class="c1"># null = disabled</span>
+</pre></div>
+</div>
+<p><strong>Veto condition:</strong></p>
+<p>$$
+\text{Reject entire sequence if } \exists t \in T \text{ such that } \rho_t &lt; C_{\text{veto}}
+$$</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Prevents catastrophic updates from tokens with near-zero probability</p></li>
+<li><p><strong>Independent</strong> of IS/RS settings (always applied if enabled)</p></li>
+<li><p>Checks <strong>unclamped per-token ratios</strong> before safety bounds</p></li>
+<li><p>Typical values: $10^{-4}$ to $10^{-6}$</p></li>
+</ul>
+<p><strong>Implementation:</strong> <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py#L620-L640">rollout_corr_helper.py</a></p>
+</section>
+<hr class="docutils" />
+<section id="batch-normalization">
+<h3>3.6 Batch Normalization<a class="headerlink" href="#batch-normalization" title="Link to this heading"></a></h3>
+<p>An optional variance reduction technique that normalizes IS weights to have mean 1.0 within each batch.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout_is_batch_normalize</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Default: False</span>
+</pre></div>
+</div>
+<p><strong>Normalization formula (aggregation-aware):</strong></p>
+<p>For <strong>token-level IS</strong> (§3.3.1):</p>
+<p>$$
+\tilde{w}<em>t = \frac{w_t}{\frac{1}{\sum</em>{i,t} m_{i,t}} \sum_{i,t} w_{i,t} \cdot m_{i,t}}
+$$</p>
+<p>where $w_{i,t}$ are truncated token IS weights, $m_{i,t}$ is the response mask, and normalization is over <strong>all tokens</strong>.</p>
+<p>For <strong>sequence-level IS</strong> (§3.3.2):</p>
+<p>$$
+\tilde{w}<em>i = \frac{w_i}{\frac{1}{B}\sum</em>{j=1}^B \bar{w}_j}
+$$</p>
+<p>where $\bar{w}<em>j = \frac{1}{T_j}\sum</em>{t=1}^{T_j} w_{j,t} \cdot m_{j,t}$ is the per-sequence mean (all tokens in a sequence have the same weight), and normalization is over <strong>sequences</strong>.</p>
+<p><strong>Properties:</strong></p>
+<ul class="simple">
+<li><p>Applied <strong>after</strong> truncation to preserve truncation semantics</p></li>
+<li><p>Ensures $\mathbb{E}[\tilde{w}] = 1$ within each batch</p></li>
+<li><p><strong>Aggregation-aware</strong>: Token-level normalizes over tokens; sequence-level normalizes over sequences</p></li>
+<li><p>Uses <code class="docutils literal notranslate"><span class="pre">masked_mean</span></code> to respect padding tokens</p></li>
+<li><p>Reduces gradient magnitude variance by removing random batch-level scale fluctuations</p></li>
+</ul>
+<p><strong>Metrics:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rollout_is_batch_norm_factor</span></code>: The normalization factor applied (batch mean before normalization)</p></li>
+</ul>
+<p><strong>Implementation:</strong> <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py#L401-L421">rollout_corr_helper.py</a></p>
+</section>
+<hr class="docutils" />
+<section id="combination-matrix">
+<h3>3.7 Combination Matrix<a class="headerlink" href="#combination-matrix" title="Link to this heading"></a></h3>
+<p><strong>Key insight:</strong> Estimators (how IS/RS is computed) and operating modes (decoupled PPO vs bypass PG) are <strong>orthogonal</strong>. Any estimator can be combined with any operating mode.</p>
+<section id="estimator-operating-mode">
+<h4>Estimator × Operating Mode<a class="headerlink" href="#estimator-operating-mode" title="Link to this heading"></a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Estimator</th>
+<th>Configuration</th>
+<th>Compatible Modes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Token-TIS</strong></td>
+<td><code>rollout_is="token"</code></td>
+<td>Decoupled PPO, Bypass PG</td>
+</tr>
+<tr>
+<td><strong>Seq-TIS</strong></td>
+<td><code>rollout_is="sequence"</code></td>
+<td>Decoupled PPO, Bypass PG</td>
+</tr>
+<tr>
+<td><strong>Seq-MIS</strong></td>
+<td><code>rollout_is="sequence"</code> + <code>rollout_rs="sequence"</code></td>
+<td>Decoupled PPO, Bypass PG</td>
+</tr>
+<tr>
+<td><strong>Geo-RS</strong></td>
+<td><code>rollout_rs="geometric"</code></td>
+<td>Decoupled PPO, Bypass PG</td>
+</tr>
+<tr>
+<td><strong>Geo-RS-Seq-TIS</strong></td>
+<td><code>rollout_is="sequence"</code> + <code>rollout_rs="geometric"</code></td>
+<td>Decoupled PPO, Bypass PG</td>
+</tr>
+</tbody>
+</table><p><strong>Note:</strong> In bypass mode, <code class="docutils literal notranslate"><span class="pre">loss_type</span></code> controls the loss function. Use &quot;ppo_clip&quot; (default) or &quot;reinforce&quot;.</p>
+</section>
+<section id="available-preset-methods">
+<h4>Available Preset Methods<a class="headerlink" href="#available-preset-methods" title="Link to this heading"></a></h4>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Preset Method</th>
+<th>Estimator</th>
+<th>Mode</th>
+<th>Properties</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Decoupled PPO Mode</strong> (3 policies: π_rollout, π_old, π_θ)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>decoupled_token_is()</code></td>
+<td>Token-TIS</td>
+<td>Decoupled PPO</td>
+<td>Per-token IS weights</td>
+</tr>
+<tr>
+<td><code>decoupled_seq_is()</code></td>
+<td>Seq-TIS</td>
+<td>Decoupled PPO</td>
+<td>Sequence-level IS weights</td>
+</tr>
+<tr>
+<td><code>decoupled_seq_is_rs()</code></td>
+<td>Seq-MIS</td>
+<td>Decoupled PPO</td>
+<td>Sequence IS + sequence RS</td>
+</tr>
+<tr>
+<td><code>decoupled_geo_rs()</code></td>
+<td>Geo-RS</td>
+<td>Decoupled PPO</td>
+<td>Geometric RS + veto</td>
+</tr>
+<tr>
+<td><code>geo_rs_seq_tis()</code></td>
+<td>Geo-RS-Seq-TIS</td>
+<td>Decoupled PPO</td>
+<td>Geometric filter + seq IS</td>
+</tr>
+<tr>
+<td><strong>Bypass Mode (PPO-clip)</strong> (ratio handles IS, RS masks outliers)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>bypass_ppo_clip()</code></td>
+<td>-</td>
+<td>Bypass (PPO-clip)</td>
+<td>PPO-clip only</td>
+</tr>
+<tr>
+<td><code>bypass_ppo_clip_geo_rs()</code></td>
+<td>Geo-RS</td>
+<td>Bypass (PPO-clip)</td>
+<td>PPO-clip + Geo-RS</td>
+</tr>
+<tr>
+<td><strong>Bypass Mode (REINFORCE)</strong> (explicit IS weights, no PPO clipping)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>bypass_pg_is()</code></td>
+<td>Seq-TIS</td>
+<td>Bypass (REINFORCE)</td>
+<td>REINFORCE + Seq IS</td>
+</tr>
+<tr>
+<td><code>bypass_pg_rs()</code></td>
+<td>Geo-RS</td>
+<td>Bypass (REINFORCE)</td>
+<td>REINFORCE + Geo-RS</td>
+</tr>
+<tr>
+<td><code>bypass_pg_geo_rs_seq_tis()</code></td>
+<td>Geo-RS-Seq-TIS</td>
+<td>Bypass (REINFORCE)</td>
+<td>REINFORCE + Geo filter + seq IS</td>
+</tr>
+<tr>
+<td><strong>Other</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>disabled()</code></td>
+<td>-</td>
+<td>-</td>
+<td>Metrics only</td>
+</tr>
+</tbody>
+</table><p><strong>Note:</strong> Bypass mode sets π_old = π_rollout and uses <code class="docutils literal notranslate"><span class="pre">loss_type</span></code> to select the loss function.</p>
+</section>
+<section id="additional-supported-combinations-manual-configuration">
+<h4>Additional Supported Combinations (Manual Configuration)<a class="headerlink" href="#additional-supported-combinations-manual-configuration" title="Link to this heading"></a></h4>
+<p>These combinations are <strong>fully supported</strong> but require manual configuration:</p>
+<p><strong>1. Token IS + Token RS</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">RolloutCorrectionConfig</span><span class="p">(</span>
+    <span class="n">rollout_is</span><span class="o">=</span><span class="s2">&quot;token&quot;</span><span class="p">,</span>
+    <span class="n">rollout_is_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">rollout_rs</span><span class="o">=</span><span class="s2">&quot;token&quot;</span><span class="p">,</span>
+    <span class="n">rollout_rs_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong> Token-level IS weights + token-level RS mask.</p>
+<p><strong>2. Pure Token RS</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">RolloutCorrectionConfig</span><span class="p">(</span>
+    <span class="n">rollout_is</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rollout_rs</span><span class="o">=</span><span class="s2">&quot;token&quot;</span><span class="p">,</span>
+    <span class="n">rollout_rs_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong> Token-level RS mask only, no IS weights.</p>
+<p><strong>3. Pure Sequence RS</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">RolloutCorrectionConfig</span><span class="p">(</span>
+    <span class="n">rollout_is</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">rollout_rs</span><span class="o">=</span><span class="s2">&quot;sequence&quot;</span><span class="p">,</span>
+    <span class="n">rollout_rs_threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Properties:</strong> Sequence-level RS mask only, no IS weights.</p>
+<p><strong>Key properties:</strong></p>
+<ul class="simple">
+<li><p>Any IS aggregation level (token/sequence) can be used in either decoupled or bypass mode</p></li>
+<li><p>Rejection sampling can be added to any combination</p></li>
+<li><p>Veto is independent and can be added to any combination</p></li>
+<li><p>Geometric aggregation is typically used for RS only (not IS weighting)</p></li>
+<li><p>Pure RS (<code class="docutils literal notranslate"><span class="pre">bypass_pg_rs</span></code>) uses bypass + geometric RS with <code class="docutils literal notranslate"><span class="pre">loss_type=&quot;reinforce&quot;</span></code> for REINFORCE (no IS weights)</p></li>
+<li><p>All combinations in the table above are valid and supported by the implementation</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="common-implementation-mistake">
+<h3>3.8 Common Implementation Mistake<a class="headerlink" href="#common-implementation-mistake" title="Link to this heading"></a></h3>
+<section id="incorrect-llm-rl-implementation-ppo-without-rollout-correction">
+<h4>Incorrect LLM-RL Implementation (PPO Without Rollout Correction)<a class="headerlink" href="#incorrect-llm-rl-implementation-ppo-without-rollout-correction" title="Link to this heading"></a></h4>
+<p><strong>Theory:</strong> Naive LLM-RL implementation that incorrectly applies PPO by <strong>ignoring the actual rollout policy</strong> and assuming $\pi_{\text{old}} = \pi_{\text{rollout}}$.</p>
+<p><strong>Note:</strong> This incorrect implementation pattern was identified in <a class="reference external" href="https://richardli.xyz/rl-collapse">Liu, Li, et al. (2025)</a> as a key cause of training instability in LLM-RL systems, motivating the development of this rollout correction framework.</p>
+<p><strong>Loss Function:</strong></p>
+<p>$$
+L_{\text{PPO}}(\theta) = -\mathbb{E}_t \left[ \min\left( r_t(\theta) A_t, \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]
+$$</p>
+<p>where $r_t(\theta) = \frac{\pi_{\theta}(a_t|s_t)}{\pi_{\text{old}}(a_t|s_t)}$ (ignores $\pi_{\text{rollout}}$).</p>
+<p><strong>Why it's wrong:</strong></p>
+<ul class="simple">
+<li><p><strong>Ignores $\pi_{\text{rollout}}$</strong>: Uses $\pi_{\text{old}}$ as behavior policy instead of actual $\pi_{\text{rollout}}$</p></li>
+<li><p><strong>Policy mismatch</strong>: In LLM-RL, rollout typically uses different precision/backend/checkpoint than training, causing $\pi_{\text{rollout}} \neq \pi_{\text{old}}$ even with same model weights</p></li>
+<li><p><strong>Not PPO's fault</strong>: PPO itself is correct; the issue is the incorrect assumption</p></li>
+</ul>
+<p><strong>Correct alternatives:</strong></p>
+<ol class="simple">
+<li><p><strong>Decoupled mode</strong>: Three policies with IS correction from $\pi_{\text{rollout}}$ to $\pi_{\text{old}}$</p></li>
+<li><p><strong>Bypass mode</strong>: Two policies using $\pi_{\text{rollout}}$ as both behavior policy and proximal policy</p></li>
+<li><p><strong>Bypass + Policy Gradient mode</strong>: Two policies with IS/RS correction and no PPO clipping</p></li>
+</ol>
+<p><strong>Implementation:</strong> <code class="docutils literal notranslate"><span class="pre">compute_policy_loss()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/core_algos.py#L812-L884">core_algos.py</a></p>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="off-policy-diagnostic-metrics">
+<h2>4. Off-Policy Diagnostic Metrics<a class="headerlink" href="#off-policy-diagnostic-metrics" title="Link to this heading"></a></h2>
+<p>These metrics quantify the severity of off-policy drift.</p>
+<p><strong>Note on notation:</strong> Metrics use $\rho_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$. In bypass mode, $\pi_{\text{old}} = \pi_{\text{rollout}}$, so metrics measure rollout→current drift using $\rho_t = \frac{\pi_{\theta}}{\pi_{\text{rollout}}}$ instead.</p>
+<section id="kl-divergence">
+<h3>4.1 KL Divergence<a class="headerlink" href="#kl-divergence" title="Link to this heading"></a></h3>
+<p><strong>Direct KL estimator:</strong></p>
+<p>$$
+\text{KL}(\pi_{\text{rollout}} | \pi_{\text{old}}) = \mathbb{E}<em>{t \sim \pi</em>{\text{rollout}}} \left[ \log \pi_{\text{rollout}}(a_t|s_t) - \log \pi_{\text{old}}(a_t|s_t) \right]
+$$</p>
+<p><strong>K3 KL estimator</strong> (alternative formulation):</p>
+<p>$$
+\text{KL}<em>{\text{K3}} = \mathbb{E}</em>{t \sim \pi_{\text{rollout}}} \left[ \rho_t - \log \rho_t - 1 \right]
+$$</p>
+<p>where $\rho_t = \frac{\pi_{\text{old}}(a_t|s_t)}{\pi_{\text{rollout}}(a_t|s_t)}$.</p>
+</section>
+<section id="perplexity">
+<h3>4.2 Perplexity<a class="headerlink" href="#perplexity" title="Link to this heading"></a></h3>
+<p><strong>Old policy perplexity:</strong></p>
+<p>$$
+\text{PPL}<em>{\text{old}} = \exp\left( -\frac{1}{|T|} \sum</em>{t \in T} \log \pi_{\text{old}}(a_t|s_t) \right)
+$$</p>
+<p><strong>Rollout policy perplexity:</strong></p>
+<p>$$
+\text{PPL}<em>{\text{rollout}} = \exp\left( -\frac{1}{|T|} \sum</em>{t \in T} \log \pi_{\text{rollout}}(a_t|s_t) \right)
+$$</p>
+<p><strong>PPL ratio</strong> (inverse of geometric mean IS weight):</p>
+<p>$$
+\text{PPL}<em>{\text{ratio}} = \frac{\text{PPL}</em>{\text{old}}}{\text{PPL}<em>{\text{rollout}}} = \exp\left( -\frac{1}{|T|} \sum</em>{t \in T} \log \rho_t \right) = \left(\prod_{t \in T} \rho_t\right)^{-1/|T|}
+$$</p>
+<p><strong>Interpretation:</strong> Values &gt; 1 mean $\pi_{\text{old}}$ assigns lower probability than $\pi_{\text{rollout}}$ to the observed actions (distribution shift).</p>
+</section>
+<section id="chi-squared-divergence">
+<h3>4.3 Chi-squared Divergence<a class="headerlink" href="#chi-squared-divergence" title="Link to this heading"></a></h3>
+<p>Measures the second moment of the IS weight distribution.</p>
+<p><strong>Token-level:</strong></p>
+<p>$$
+\chi^2_{\text{token}} = \mathbb{E}<em>{t \sim \pi</em>{\text{rollout}}} \left[ \rho_t^2 \right] - 1
+$$</p>
+<p><strong>Sequence-level:</strong></p>
+<p>$$
+\chi^2_{\text{seq}} = \mathbb{E}<em>{\text{seq} \sim \pi</em>{\text{rollout}}} \left[ \left(\prod_{t \in T} \rho_t\right)^2 \right] - 1
+$$</p>
+<p><strong>Interpretation:</strong></p>
+<ul class="simple">
+<li><p>$\chi^2 = 0$: Policies are identical</p></li>
+<li><p>$\chi^2 &gt; 0$: Higher values indicate more severe off-policy distribution shift</p></li>
+</ul>
+<p><strong>Implementation:</strong> <code class="docutils literal notranslate"><span class="pre">compute_offpolicy_metrics()</span></code> in <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py#L670-L776">rollout_corr_helper.py</a></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="summary-and-decision-guide">
+<h2>5. Summary and Decision Guide<a class="headerlink" href="#summary-and-decision-guide" title="Link to this heading"></a></h2>
+<section id="method-summary-table">
+<h3>5.1 Method Summary Table<a class="headerlink" href="#method-summary-table" title="Link to this heading"></a></h3>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Method</th>
+<th>Theory</th>
+<th>Policies</th>
+<th>PPO Clip</th>
+<th>IS Correction</th>
+<th>Correctness</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bypass Mode</strong> (π_old = π_rollout, <code>loss_type</code> selects algorithm)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>loss_type="ppo_clip"</code> (default)</td>
+<td>PPO (ratio = π_θ/π_rollout)</td>
+<td>2 (rollout, θ)</td>
+<td>✅</td>
+<td>RS mask only (ratio handles IS)</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><code>loss_type="reinforce"</code></td>
+<td>Off-policy REINFORCE</td>
+<td>2 (rollout, θ)</td>
+<td>❌</td>
+<td>✅ (explicit IS weights)</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><strong>Bypass Mode Presets (PPO-clip)</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>bypass_ppo_clip</code></td>
+<td>PPO only</td>
+<td>2 (rollout, θ)</td>
+<td>✅</td>
+<td>-</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><code>bypass_ppo_clip_geo_rs</code></td>
+<td>PPO + Geo-RS</td>
+<td>2 (rollout, θ)</td>
+<td>✅</td>
+<td>Geo-RS mask</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><strong>Bypass Mode Presets (REINFORCE)</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>bypass_pg_is</code></td>
+<td>REINFORCE + Seq-TIS</td>
+<td>2 (rollout, θ)</td>
+<td>❌</td>
+<td>✅ Seq-TIS</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><code>bypass_pg_rs</code></td>
+<td>REINFORCE + Geo RS</td>
+<td>2 (rollout, θ)</td>
+<td>❌</td>
+<td>Geo-RS only</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><code>bypass_pg_geo_rs_seq_tis</code></td>
+<td>REINFORCE + Geo RS + Seq IS</td>
+<td>2 (rollout, θ)</td>
+<td>❌</td>
+<td>✅ Geo-RS-Seq-TIS</td>
+<td>✅ Correct</td>
+<td><strong>Fast</strong></td>
+</tr>
+<tr>
+<td><strong>Decoupled PPO Mode</strong> (IS weights = π_old / π_rollout)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>decoupled_token_is</code></td>
+<td>Decoupled PPO</td>
+<td>3 (rollout, old, θ)</td>
+<td>✅</td>
+<td>✅ Token-TIS</td>
+<td>✅ Correct</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td><code>decoupled_seq_is</code></td>
+<td>Decoupled PPO</td>
+<td>3 (rollout, old, θ)</td>
+<td>✅</td>
+<td>✅ Seq-TIS</td>
+<td>✅ Correct</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td><code>decoupled_seq_is_rs</code></td>
+<td>Decoupled PPO + RS</td>
+<td>3 (rollout, old, θ)</td>
+<td>✅</td>
+<td>✅ Seq-MIS</td>
+<td>✅ Correct</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td><code>decoupled_geo_rs</code></td>
+<td>Decoupled PPO + Geo RS</td>
+<td>3 (rollout, old, θ)</td>
+<td>✅</td>
+<td>Geo-RS only</td>
+<td>✅ Correct</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td><code>geo_rs_seq_tis</code></td>
+<td>Decoupled PPO + Geo RS + Seq IS</td>
+<td>3 (rollout, old, θ)</td>
+<td>✅</td>
+<td>✅ Geo-RS-Seq-TIS</td>
+<td>✅ Correct</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td><strong>Incorrect (for reference)</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Naive LLM-RL</td>
+<td>Incorrect PPO usage</td>
+<td>2 (old, θ)</td>
+<td>✅</td>
+<td>❌</td>
+<td>⚠️ Incorrect</td>
+<td>Standard</td>
+</tr>
+</tbody>
+</table><p><strong>Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Bypass mode</strong> sets π_old = π_rollout and uses <code class="docutils literal notranslate"><span class="pre">loss_type</span></code> to select the loss function:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ppo_clip&quot;</span></code> (default): PPO clipped ratio (IS handled by ratio = π_θ/π_rollout, no explicit IS weights to avoid double-counting)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;reinforce&quot;</span></code>: Explicit IS weights applied as $w \cdot \log \pi \cdot A$</p></li>
+</ul>
+</li>
+<li><p>Both loss types benefit from rejection sampling (RS) which masks out-of-distribution samples</p></li>
+</ul>
+</section>
+<section id="estimator-hierarchy">
+<h3>5.2 Estimator Hierarchy<a class="headerlink" href="#estimator-hierarchy" title="Link to this heading"></a></h3>
+<p>These estimators define <strong>how IS weights and rejection masks are computed</strong>. They are orthogonal to the operating mode (decoupled PPO vs bypass policy gradient) and can be combined with either.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>Estimator</th>
+<th>Configuration</th>
+<th>Mechanism</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Token-TIS</strong></td>
+<td><code>rollout_is="token"</code></td>
+<td>Clips per-token ratios</td>
+<td>Legacy; stable but biased ($O(T^2\Delta_{\max})$)</td>
+</tr>
+<tr>
+<td><strong>Seq-TIS</strong></td>
+<td><code>rollout_is="sequence"</code></td>
+<td>Clips sequence ratio $\rho(\tau) \to \min(\rho(\tau), C)$</td>
+<td>Clean data with moderate mismatch; optimal bias/variance</td>
+</tr>
+<tr>
+<td><strong>Seq-MIS</strong></td>
+<td><code>rollout_is="sequence"</code> + <code>rollout_rs="sequence"</code></td>
+<td>Rejects sequences with $\rho(\tau) &gt; C$</td>
+<td>Severe mismatch; filters "toxic tail" (garbage data)</td>
+</tr>
+<tr>
+<td><strong>Geo-RS</strong></td>
+<td><code>rollout_rs="geometric"</code></td>
+<td>Rejects on per-token geometric mean drift</td>
+<td>Long sequences (CoT, agents); solves Length Trap</td>
+</tr>
+<tr>
+<td><strong>Geo-RS-Seq-TIS</strong></td>
+<td><code>rollout_is="sequence"</code> + <code>rollout_rs="geometric"</code></td>
+<td>Geometric filter + clipped weight</td>
+<td>Length-invariant safety + correct debiasing</td>
+</tr>
+</tbody>
+</table><p><strong>Note:</strong> Each estimator can be used with either:</p>
+<ul class="simple">
+<li><p><strong>Decoupled PPO</strong> (<code class="docutils literal notranslate"><span class="pre">bypass_mode=false</span></code>): Three policies with PPO clipping</p></li>
+<li><p><strong>Bypass Mode</strong> (<code class="docutils literal notranslate"><span class="pre">bypass_mode=true</span></code>): Two policies with configurable loss type</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">loss_type=&quot;ppo_clip&quot;</span></code> (default): PPO clipped objective (IS via ratio, RS mask applied)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">loss_type=&quot;reinforce&quot;</span></code>: REINFORCE with explicit IS weights</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="method-characteristics-by-scenario">
+<h3>5.3 Method Characteristics by Scenario<a class="headerlink" href="#method-characteristics-by-scenario" title="Link to this heading"></a></h3>
+<p><strong>Choosing estimator by off-policy severity:</strong></p>
+<ul class="simple">
+<li><p><strong>Negligible</strong> (same checkpoint, minor differences): No IS correction needed; use bypass mode for efficiency</p></li>
+<li><p><strong>Moderate</strong> (async workers, slight staleness): Token-TIS provides per-token IS correction with lower variance</p></li>
+<li><p><strong>Severe</strong> (replay buffers, old data): Seq-TIS or Seq-MIS provides sequence-level IS correction; use Seq-MIS when high-weight samples are likely garbage</p></li>
+</ul>
+<p><strong>Choosing estimator by sequence length:</strong></p>
+<ul class="simple">
+<li><p><strong>Short sequences</strong> (standard chat): Seq-TIS is optimal</p></li>
+<li><p><strong>Long sequences</strong> (CoT, agents): Geo-RS or Geo-RS-Seq-TIS to avoid Length Trap</p></li>
+</ul>
+<p><strong>Choosing operating mode:</strong></p>
+<ul class="simple">
+<li><p><strong>Batch size invariance needed</strong>: Use decoupled mode (<code class="docutils literal notranslate"><span class="pre">bypass_mode=false</span></code>)</p></li>
+<li><p><strong>Computational efficiency needed</strong>: Use bypass mode (<code class="docutils literal notranslate"><span class="pre">bypass_mode=true</span></code>) to skip <code class="docutils literal notranslate"><span class="pre">old_log_prob</span></code> computation</p></li>
+<li><p><strong>No PPO clipping</strong>: Use bypass mode with <code class="docutils literal notranslate"><span class="pre">loss_type=&quot;reinforce&quot;</span></code></p></li>
+</ul>
+</section>
+<section id="decoupled-mode-vs-bypass-mode">
+<h3>5.4 Decoupled Mode vs Bypass Mode<a class="headerlink" href="#decoupled-mode-vs-bypass-mode" title="Link to this heading"></a></h3>
+<p><strong>Decoupled mode</strong> (computes <code class="docutils literal notranslate"><span class="pre">old_log_prob</span></code> separately):</p>
+<ul class="simple">
+<li><p>Implements full decoupled PPO with three policies (mathematically correct)</p></li>
+<li><p>Separately measures and corrects Drift 1 (rollout→old) and Drift 2 (old→current)</p></li>
+<li><p>Achieves batch size invariance and efficient stale data utilization</p></li>
+<li><p>Enables accurate off-policy metrics monitoring</p></li>
+</ul>
+<p><strong>Bypass mode</strong> (sets $\pi_{\text{old}} = \pi_{\text{rollout}}$):</p>
+<ul class="simple">
+<li><p>Uses $\pi_{\text{rollout}}$ as both behavior policy and proximal policy (mathematically correct)</p></li>
+<li><p>Computational efficiency: Skips separate <code class="docutils literal notranslate"><span class="pre">old_log_prob</span></code> computation</p></li>
+<li><p>Does not achieve batch size invariance (proximal policy depends on data collection)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-references">
+<h2>6. Implementation References<a class="headerlink" href="#implementation-references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="rollout_corr.html"><span class="doc">Rollout Correction Usage Guide</span></a></strong> - Practical configuration and troubleshooting</p></li>
+<li><p><strong>Config:</strong> <a class="reference external" href="../../verl/trainer/config/algorithm.py">verl/trainer/config/algorithm.py</a></p></li>
+<li><p><strong>IS/RS Helper:</strong> <a class="reference external" href="../../verl/trainer/ppo/rollout_corr_helper.py">verl/trainer/ppo/rollout_corr_helper.py</a></p></li>
+<li><p><strong>PPO Loss:</strong> <a class="reference external" href="../../verl/trainer/ppo/core_algos.py">verl/trainer/ppo/core_algos.py</a></p></li>
+<li><p><strong>Tests:</strong> <a class="reference external" href="../../tests/trainer/ppo/test_rollout_corr.py">tests/trainer/ppo/test_rollout_corr.py</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Williams, R. J. (1992).</strong> &quot;Simple statistical gradient-following algorithms for connectionist reinforcement learning.&quot; <em>Machine Learning</em>, 8(3-4), 229-256. https://doi.org/10.1007/BF00992696</p></li>
+<li><p><strong>Schulman, J., Wolski, F., Dhariwal, P., Radford, A., &amp; Klimov, O. (2017).</strong> &quot;Proximal policy optimization algorithms.&quot; <em>arXiv preprint arXiv:1707.06347.</em> https://arxiv.org/abs/1707.06347</p></li>
+<li><p><strong>Hilton, J., Cobbe, K., &amp; Schulman, J. (2021).</strong> &quot;Batch size-invariance for policy optimization.&quot; <em>arXiv preprint arXiv:2110.00641.</em> https://arxiv.org/abs/2110.00641</p>
+<ul>
+<li><p>Introduced decoupled PPO: separating proximal policy (for controlling policy update size) from behavior policy (for off-policy correction) to achieve batch size invariance</p></li>
+</ul>
+</li>
+<li><p><strong>Liu, J., Li, Y., et al. (2025).</strong> &quot;When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch&quot;</p>
+<ul>
+<li><p>Blog post: https://richardli.xyz/rl-collapse (see Blog Series above for parts 1-3)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

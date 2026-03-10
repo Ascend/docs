@@ -1,0 +1,436 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Design of verl.single_controller &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=9b9611a2" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/torchchat/index.html">torchchat</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The Design of <code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/_repos/verl/docs/single_controller.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-design-of-verl-single-controller">
+<h1>The Design of <code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code><a class="headerlink" href="#the-design-of-verl-single-controller" title="Link to this heading"></a></h1>
+<p>Last updated: 05/21/2025.</p>
+<p><strong>Author:</strong> <a class="reference external" href="https://github.com/zw0610">Wang Zhang</a></p>
+<section id="preface">
+<h2>Preface<a class="headerlink" href="#preface" title="Link to this heading"></a></h2>
+<p>We prepared this document for developers of <code class="docutils literal notranslate"><span class="pre">verl</span></code>, particularly those
+interested in understanding or contributing to the
+<code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code> module. It is not intended for end users, but
+for contributors seeking to understand the architectural rationale and
+internal mechanics.</p>
+</section>
+<hr class="docutils" />
+<section id="origin">
+<h2>Origin<a class="headerlink" href="#origin" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">single_controller</span></code> module originated from a request I received —
+to adapt a toy single-process RLHF script into a distributed system with
+minimal changes, while maintaining ease of debugging.</p>
+<p>Common practice — such as using PyTorch’s Distributed Data Parallel
+(DDP) — typically involves wrapping <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> and launching multiple
+processes that execute the same function under different ranks. However,
+this approach presents two main limitations in the context of
+distributed RLHF: - Difficulty representing multiple DAGs as required by
+PPO; - Difficulty inspecting intermediate tensors during training.</p>
+<p>To maintain debuggability, we opted for a different approach — breaking
+the training loop into well-defined stages like <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code>,
+<code class="docutils literal notranslate"><span class="pre">compute_advantages</span></code>, and so on.</p>
+<p>We selected <a class="reference external" href="https://www.ray.io/">Ray</a> as the initial backend for
+<code class="docutils literal notranslate"><span class="pre">verl</span></code> due to its ability to expose Python class methods as RPC
+endpoints. However, Ray’s default model only supports <strong>one method call,
+one RPC</strong>, while training LLMs typically requires coordination across
+multiple processes.</p>
+<p>To hide this multi-Ray actors invocation for a single method from users,
+we introduced the following components:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code> – manages a group of remote workers and provides
+a unified interface for multi-process distributed computation;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ResourcePool</span></code> – binds computational resources to worker
+processes;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ClassWithArgs</span></code> – enables delayed remote instantiation with
+specified initialization arguments.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="a-running-example-generate-sequences">
+<h2>A Running Example: <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code><a class="headerlink" href="#a-running-example-generate-sequences" title="Link to this heading"></a></h2>
+<p>To illustrate the design, we walk through how the <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code>
+method in the <code class="docutils literal notranslate"><span class="pre">ActorRolloutRefWorker</span></code> class is registered and invoked
+across distributed workers.</p>
+<hr class="docutils" />
+<section id="step-1-register-with-a-decorator">
+<h3>Step 1: Register with a Decorator<a class="headerlink" href="#step-1-register-with-a-decorator" title="Link to this heading"></a></h3>
+<p>The first step is to define the <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code> and decorate it
+with <code class="docutils literal notranslate"><span class="pre">&#64;register</span></code> as it will be called in driver script.</p>
+<p><strong>Source:</strong>
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/workers/fsdp_workers.py#L528">fsdp_workers.py</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ActorRolloutRefWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="nd">@register</span><span class="p">(</span><span class="n">dispatch_mode</span><span class="o">=</span><span class="n">Dispatch</span><span class="o">.</span><span class="n">DP_COMPUTE_PROTO</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_sequences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prompts</span><span class="p">:</span> <span class="n">DataProto</span><span class="p">):</span>
+        <span class="n">prompts</span> <span class="o">=</span> <span class="n">prompts</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">())</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">&#64;register</span></code> decorator adds metadata to the <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code>
+method. Currently, it doesn’t alter functionality, but attaches
+attributes via a magic key (<code class="docutils literal notranslate"><span class="pre">MAGIC_ATTR</span></code>):</p>
+<p><strong>Source:</strong>
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/base/decorator.py#L411">decorator.py</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="n">dispatch_mode</span><span class="o">=</span><span class="n">Dispatch</span><span class="o">.</span><span class="n">ALL_TO_ALL</span><span class="p">,</span> <span class="n">execute_mode</span><span class="o">=</span><span class="n">Execute</span><span class="o">.</span><span class="n">ALL</span><span class="p">,</span> <span class="n">blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">materialize_futures</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">materialize_futures</span><span class="p">:</span>
+                <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">_materialize_futures</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dispatch_mode&quot;</span><span class="p">:</span> <span class="n">dispatch_mode</span><span class="p">,</span> <span class="s2">&quot;execute_mode&quot;</span><span class="p">:</span> <span class="n">execute_mode</span><span class="p">,</span> <span class="s2">&quot;blocking&quot;</span><span class="p">:</span> <span class="n">blocking</span><span class="p">}</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="n">MAGIC_ATTR</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inner</span>
+
+    <span class="k">return</span> <span class="n">decorator</span>
+</pre></div>
+</div>
+<p>As the code shows, values of <code class="docutils literal notranslate"><span class="pre">dispatch_mode</span></code>, <code class="docutils literal notranslate"><span class="pre">execute_mode</span></code> and
+<code class="docutils literal notranslate"><span class="pre">blocking</span></code> is attached the <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code> method.</p>
+</section>
+<hr class="docutils" />
+<section id="step-2-binding-during-initialization">
+<h3>Step 2: Binding During Initialization<a class="headerlink" href="#step-2-binding-during-initialization" title="Link to this heading"></a></h3>
+<p>These attached attributes are extracted and utilized when
+<code class="docutils literal notranslate"><span class="pre">ActorRolloutRefWorker</span></code>, wrapped in a <code class="docutils literal notranslate"><span class="pre">RayClassWithArgs</span></code>, is passed
+into a <code class="docutils literal notranslate"><span class="pre">RayWorkerGroup</span></code>.</p>
+<p><strong>Source:</strong>
+<a class="reference external" href="https://github.com/volcengine/verl/blob/4ae9a0fdab229f75f080e9478807783ed4c97154/verl/trainer/main_generation.py#L82">main_generation.py</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ray_cls_with_init</span> <span class="o">=</span> <span class="n">RayClassWithInitArgs</span><span class="p">(</span><span class="bp">cls</span><span class="o">=</span><span class="n">ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">ActorRolloutRefWorker</span><span class="p">),</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">role</span><span class="o">=</span><span class="s2">&quot;rollout&quot;</span><span class="p">)</span>
+<span class="n">resource_pool</span> <span class="o">=</span> <span class="n">RayResourcePool</span><span class="p">(</span><span class="n">process_on_nodes</span><span class="o">=</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">n_gpus_per_node</span><span class="p">]</span> <span class="o">*</span> <span class="n">config</span><span class="o">.</span><span class="n">trainer</span><span class="o">.</span><span class="n">nnodes</span><span class="p">)</span>
+<span class="n">wg</span> <span class="o">=</span> <span class="n">RayWorkerGroup</span><span class="p">(</span><span class="n">resource_pool</span><span class="o">=</span><span class="n">resource_pool</span><span class="p">,</span> <span class="n">ray_cls_with_init</span><span class="o">=</span><span class="n">ray_cls_with_init</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>During the
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/ray/base.py#L184">initialization</a>
+of <code class="docutils literal notranslate"><span class="pre">RayWorkerGroup</span></code>, two key steps occur:</p>
+<ol class="arabic simple">
+<li><p>Worker instances (Ray actors) are created:
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/ray/base.py#L211">RayWorkerGroup._init_with_resource_pool</a></p></li>
+<li><p>Methods decorated with <code class="docutils literal notranslate"><span class="pre">&#64;register</span></code> are bound to <code class="docutils literal notranslate"><span class="pre">RayWorkerGroup</span></code>:
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/ray/base.py#L214">RayWorkerGroup._bind_worker_method</a></p></li>
+</ol>
+<figure class="align-default" id="id1">
+<img alt="initialization_and_binding_of_worker_group" src="https://github.com/eric-haibin-lin/verl-community/blob/main/docs/worker_group_init.png?raw=true" />
+<figcaption>
+<p><span class="caption-text">initialization_and_binding_of_worker_group</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The binding procedure is the heart of <code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code>.</p>
+<p><strong>Key function:</strong>
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/base/worker_group.py#L143">WorkerGroup._bind_worker_method</a></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_bind_worker_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_defined_cls</span><span class="p">,</span> <span class="n">func_generator</span><span class="p">):</span>
+    <span class="o">...</span>
+    <span class="k">for</span> <span class="n">method_name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">user_defined_cls</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">user_defined_cls</span><span class="p">,</span> <span class="n">method_name</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Skip properties</span>
+        <span class="o">&lt;&lt;&lt;</span><span class="n">to</span> <span class="n">be</span> <span class="k">continue</span> <span class="mi">1</span><span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>When a method has the <code class="docutils literal notranslate"><span class="pre">MAGIC_ATTR</span></code>, the attributes set by
+<code class="docutils literal notranslate"><span class="pre">&#64;register</span></code> are extracted:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;&lt;</span><span class="k">continue</span> <span class="mi">1</span><span class="o">&gt;&gt;&gt;</span>
+<span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">MAGIC_ATTR</span><span class="p">):</span>
+    <span class="n">attribute</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">MAGIC_ATTR</span><span class="p">)</span>
+    <span class="n">dispatch_mode</span> <span class="o">=</span> <span class="n">attribute</span><span class="p">[</span><span class="s2">&quot;dispatch_mode&quot;</span><span class="p">]</span>
+    <span class="n">execute_mode</span> <span class="o">=</span> <span class="n">attribute</span><span class="p">[</span><span class="s2">&quot;execute_mode&quot;</span><span class="p">]</span>
+    <span class="n">blocking</span> <span class="o">=</span> <span class="n">attribute</span><span class="p">[</span><span class="s2">&quot;blocking&quot;</span><span class="p">]</span>
+
+    <span class="o">&lt;&lt;&lt;</span><span class="n">to</span> <span class="n">be</span> <span class="k">continue</span> <span class="mi">2</span><span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>As show in the flow chart above, these attributes are fed into
+<code class="docutils literal notranslate"><span class="pre">func_generator</span></code>. However, <code class="docutils literal notranslate"><span class="pre">func_generator</span></code> takes <code class="docutils literal notranslate"><span class="pre">method_name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code>, <code class="docutils literal notranslate"><span class="pre">collect_fn</span></code>, <code class="docutils literal notranslate"><span class="pre">execute_fn</span></code>, <code class="docutils literal notranslate"><span class="pre">blocking</span></code>. We need
+to find the corresponding <code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> and <code class="docutils literal notranslate"><span class="pre">collect_fn</span></code> associated
+with the <code class="docutils literal notranslate"><span class="pre">dispatch_mode</span></code> (<code class="docutils literal notranslate"><span class="pre">DP_COMPUTE_PROTO</span></code>) from
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/base/decorator.py#L387">DISPATCH_MODE_FN_REGISTRY</a>:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="n">DISPATCH_MODE_FN_REGISTRY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">Dispatch</span><span class="o">.</span><span class="n">ONE_TO_ALL</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dispatch_fn&quot;</span><span class="p">:</span> <span class="n">dispatch_one_to_all</span><span class="p">,</span>
+        <span class="s2">&quot;collect_fn&quot;</span><span class="p">:</span> <span class="n">collect_all_to_all</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+    <span class="n">Dispatch</span><span class="o">.</span><span class="n">DP_COMPUTE_PROTO</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dispatch_fn&quot;</span><span class="p">:</span> <span class="n">dispatch_dp_compute_data_proto</span><span class="p">,</span>
+        <span class="s2">&quot;collect_fn&quot;</span><span class="p">:</span> <span class="n">collect_dp_compute_data_proto</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Similarly, the <code class="docutils literal notranslate"><span class="pre">execute_fn</span></code> is selected by <code class="docutils literal notranslate"><span class="pre">execute_mode</span></code> and
+extracted by:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;&lt;</span><span class="k">continue</span> <span class="mi">2</span><span class="o">&gt;&gt;&gt;</span>
+<span class="c1"># get execute_fn_name</span>
+<span class="n">execute_mode</span> <span class="o">=</span> <span class="n">get_predefined_execute_fn</span><span class="p">(</span><span class="n">execute_mode</span><span class="o">=</span><span class="n">execute_mode</span><span class="p">)</span>
+<span class="n">wg_execute_fn_name</span> <span class="o">=</span> <span class="n">execute_mode</span><span class="p">[</span><span class="s2">&quot;execute_fn_name&quot;</span><span class="p">]</span>
+
+<span class="c1"># get execute_fn from string</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">execute_fn</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wg_execute_fn_name</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">execute_fn</span><span class="p">),</span> <span class="s2">&quot;execute_fn must be callable&quot;</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;execute_fn </span><span class="si">{</span><span class="n">wg_execute_fn_name</span><span class="si">}</span><span class="s2"> is invalid&quot;</span><span class="p">)</span>
+    <span class="k">raise</span>
+<span class="o">&lt;&lt;&lt;</span><span class="n">to</span> <span class="n">be</span> <span class="k">continue</span> <span class="mi">3</span><span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>In this <code class="docutils literal notranslate"><span class="pre">generate_sequences</span></code> cases: -
+<code class="docutils literal notranslate"><span class="pre">dispatch_mode</span> <span class="pre">=</span> <span class="pre">Dispatch.DP_COMPUTE_PROTO</span></code> -
+<code class="docutils literal notranslate"><span class="pre">dispatch_fn</span> <span class="pre">=</span> <span class="pre">dispatch_dp_compute_data_proto</span></code> -
+<code class="docutils literal notranslate"><span class="pre">collect_fn</span> <span class="pre">=</span> <span class="pre">collect_dp_compute_data_proto</span></code> -
+<code class="docutils literal notranslate"><span class="pre">execute_fn</span> <span class="pre">=</span> <span class="pre">RayWorkerGroup.execute_all</span></code></p>
+<section id="one-to-all-v-s-dp-compute-proto">
+<h4>ONE_TO_ALL v.s. DP_COMPUTE_PROTO<a class="headerlink" href="#one-to-all-v-s-dp-compute-proto" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">dispatch_mode</span></code> is associated with a <code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> and a
+<code class="docutils literal notranslate"><span class="pre">collect_fn</span></code>. As the name implies, <code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> processes the input
+arguments in <code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code> and generate a batch (list) of input
+arguments, each of which will be fed into a worker attached to the
+<code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> of <code class="docutils literal notranslate"><span class="pre">ONE_TO_ALL</span></code> is
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/base/decorator.py#L119">dispatch_one_to_all</a>,
+which just duplicates all the input arguments into N replicas, where N
+equals the number of Workers attached to the <code class="docutils literal notranslate"><span class="pre">worker_group</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dispatch_one_to_all</span><span class="p">(</span><span class="n">worker_group</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">arg</span><span class="p">]</span> <span class="o">*</span> <span class="n">worker_group</span><span class="o">.</span><span class="n">world_size</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">*</span> <span class="n">worker_group</span><span class="o">.</span><span class="n">world_size</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">return</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> of <code class="docutils literal notranslate"><span class="pre">DP_COMPUTE_PROTO</span></code> is
+<a class="reference external" href="https://github.com/volcengine/verl/blob/c59ab2f4788f9a910836a9f2f53dcdb62dfa314e/verl/single_controller/base/decorator.py#L350">dispatch_dp_compute_data_proto</a>,
+which uses <code class="docutils literal notranslate"><span class="pre">DataProto.chunk</span></code> to split a large <code class="docutils literal notranslate"><span class="pre">DataProto</span></code> into N
+smaller <code class="docutils literal notranslate"><span class="pre">DataProto</span></code>, where N equals the world_size (number of the
+workers) of the <code class="docutils literal notranslate"><span class="pre">worker_group</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">dispatch_dp_compute_data_proto</span><span class="p">(</span><span class="n">worker_group</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">verl.single_controller.base.worker_group</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkerGroup</span>
+
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">worker_group</span><span class="p">,</span> <span class="n">WorkerGroup</span><span class="p">)</span>
+    <span class="c1"># Note: enable auto padding for dp compute DatapProto</span>
+    <span class="n">splitted_args</span><span class="p">,</span> <span class="n">splitted_kwargs</span> <span class="o">=</span> <span class="n">_split_args_kwargs_data_proto_with_auto_padding</span><span class="p">(</span>
+        <span class="n">worker_group</span><span class="o">.</span><span class="n">world_size</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">splitted_args</span><span class="p">,</span> <span class="n">splitted_kwargs</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">collect_fn</span></code> follows the same pattern and process a batch (list)
+of returned value from all workers of a <code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code> and merge it
+into a list as <code class="docutils literal notranslate"><span class="pre">collect_all_to_all</span></code> does or a large <code class="docutils literal notranslate"><span class="pre">DataProto</span></code> as
+<code class="docutils literal notranslate"><span class="pre">collect_dp_compute_data_proto</span></code> does.</p>
+<p>Finally, a new method is dynamically generated using <code class="docutils literal notranslate"><span class="pre">func_generator</span></code>
+and added to the <code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code> instance:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;&lt;&lt;</span><span class="k">continue</span> <span class="mi">3</span><span class="o">&gt;&gt;&gt;</span>
+<span class="c1"># bind a new method to the RayWorkerGroup</span>
+<span class="n">func</span> <span class="o">=</span> <span class="n">func_generator</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">method_name</span><span class="p">,</span>
+    <span class="n">dispatch_fn</span><span class="o">=</span><span class="n">dispatch_fn</span><span class="p">,</span>
+    <span class="n">collect_fn</span><span class="o">=</span><span class="n">collect_fn</span><span class="p">,</span>
+    <span class="n">execute_fn</span><span class="o">=</span><span class="n">execute_fn</span><span class="p">,</span>
+    <span class="n">blocking</span><span class="o">=</span><span class="n">blocking</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+    <span class="n">method_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method_name</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fail to set method_name </span><span class="si">{</span><span class="n">method_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+</pre></div>
+</div>
+<p>This makes the method invocable via the <code class="docutils literal notranslate"><span class="pre">WorkerGroup</span></code> interface.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="step-3-call-chain">
+<h3>Step 3: Call Chain<a class="headerlink" href="#step-3-call-chain" title="Link to this heading"></a></h3>
+<p>All the machinery above ensures that distributed calls feel identical to
+single-process ones. In the original single-process script, the code
+looks like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout</span> <span class="o">=</span> <span class="n">Rollout</span><span class="p">()</span>
+<span class="n">rollout</span><span class="o">.</span><span class="n">generate_sequences</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">verl</span></code>, the multiprocess program becomes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rollout</span> <span class="o">=</span> <span class="n">RayWorkerGroup</span><span class="p">(</span><span class="n">resource_pool</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">RayClassWithArgs</span><span class="p">(</span><span class="n">Rollout</span><span class="p">))</span>
+<span class="n">rollout</span><span class="o">.</span><span class="n">generate_sequences</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+</pre></div>
+</div>
+<figure class="align-default" id="id2">
+<img alt="call_chain_of_generate_sequences" src="https://github.com/eric-haibin-lin/verl-community/blob/main/docs/call_generate_sequences.png?raw=true" />
+<figcaption>
+<p><span class="caption-text">call_chain_of_generate_sequences</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>Behind this simple call: - <code class="docutils literal notranslate"><span class="pre">dispatch_fn</span></code> splits input across workers -
+<code class="docutils literal notranslate"><span class="pre">execute_fn</span></code> performs the actual remote invocation - <code class="docutils literal notranslate"><span class="pre">collect_fn</span></code>
+gathers the results</p>
+<p>All of this is abstracted away, enabling developers to write distributed
+code with minimal changes to their existing logic.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="beyond-rl-post-training-generalizing-verl-single-controller">
+<h2>Beyond RL Post-Training: Generalizing <code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code><a class="headerlink" href="#beyond-rl-post-training-generalizing-verl-single-controller" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code> module generalizes well beyond
+reinforcement learning. It provides a clean abstraction to batch-process
+remote method calls, with automatic input/output handling.</p>
+<p>By minimizing the gap between single-process and multi-process scripts,
+<code class="docutils literal notranslate"><span class="pre">verl.single_controller</span></code> opens the door to distributed computing in
+broader domains — not limited to RL post-training.</p>
+<p>We hope this design inspires more examples and extensions from the
+community.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
