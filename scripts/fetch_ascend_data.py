@@ -316,7 +316,7 @@ def main():
         })
 
     # 创建工作线程（限制最大线程数为32，避免API限流）
-    num_threads = min(os.cpu_count() or 4, 32)
+    num_threads = 32
     threads = []
     for i in range(num_threads):
         t = threading.Thread(target=worker, args=(task_queue, config, config_lock), name=f"Worker-{i}")
