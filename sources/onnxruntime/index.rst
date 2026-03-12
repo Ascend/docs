@@ -5,4 +5,4 @@ onnxruntime
    :maxdepth: 2
 
    install.rst
-   quick_start.rst
+   ../_generated/sources/onnxruntime/quick_start
