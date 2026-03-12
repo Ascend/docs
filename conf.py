@@ -73,6 +73,7 @@ def setup(app):
     app.add_css_file('custom.css')
     app.add_js_file('package_info.js')
     app.add_js_file('statistics.js')
+    app.add_js_file('onnxruntime_quickstart.js')
 
     # Generate ascend_config.json if it doesn't exist (for RTD/CI builds)
     import os.path
