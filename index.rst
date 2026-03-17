@@ -207,7 +207,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/volcano.png')"></div><h3 class="card-title">verl</h3></div>
          <p class="card-desc">用于 LLM 的强化学习训练库，适配昇腾并行计算方案。</p>
-         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/verl/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/verl/ascend_quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/verl/quick_start/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/verl/quick_start/ascend_quick_start.html">快速上手</a></div>
       </div>
 
    </div>
