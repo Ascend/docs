@@ -1,4 +1,4 @@
-verl - 大模型强化学习训练框架
+verl
 ============================================
 
 .. raw:: html
@@ -38,64 +38,46 @@ verl - 大模型强化学习训练框架
       .verl-btn-secondary { background: transparent; color: white !important; }
       .verl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 
-      /* 核心特性 - 恢复原版 6 卡片风格 */
-      .verl-section-title { text-align: center; color: var(--v-primary); margin: 50px 0 30px 0; font-size: 2rem; border: none !important; }
-      .verl-features {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-          gap: 25px; margin-bottom: 50px;
-      }
-      .verl-feature-card {
-          background: white; border: 1px solid var(--v-border);
-          border-radius: 10px; padding: 25px; transition: all 0.3s ease;
-      }
-      .verl-feature-card:hover { border-color: var(--v-primary); transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0, 102, 204, 0.1); }
-      .verl-feature-icon { font-size: 2.5rem; margin-bottom: 15px; }
-      .verl-feature-card h3 { color: var(--v-primary); margin: 0 0 12px 0 !important; font-size: 1.3rem !important; border: none !important; }
-      .verl-feature-card p { color: var(--v-text-sub); line-height: 1.6; margin: 0; font-size: 0.95rem; }
-
-      /* 开发者路径 */
-      .verl-path-wrapper {
-          background: var(--v-bg-light); border-radius: 12px;
-          padding: 40px 25px; margin: 50px 0;
-      }
-      .verl-path-container {
-          display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
-      }
-      .verl-path-step {
-          background: white; border-top: 4px solid var(--v-primary);
-          padding: 20px; border-radius: 8px; flex: 1 1 220px; max-width: 280px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.3s;
-      }
-      .verl-path-step:nth-child(2) { border-top-color: var(--v-secondary); }
-      .verl-path-step:nth-child(3) { border-top-color: var(--v-accent); }
-      .verl-path-step:nth-child(4) { border-top-color: var(--v-purple); }
-      .verl-path-step:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
-      .verl-step-num {
-          display: inline-block; width: 30px; height: 30px; background: var(--v-primary);
-          color: white; border-radius: 50%; text-align: center; line-height: 30px;
-          font-weight: bold; margin-bottom: 15px;
-      }
-      .verl-path-step:nth-child(2) .verl-step-num { background: var(--v-secondary); }
-      .verl-path-step:nth-child(3) .verl-step-num { background: var(--v-accent); }
-      .verl-path-step:nth-child(4) .verl-step-num { background: var(--v-purple); }
-      .verl-path-step h4 { margin: 0 0 10px 0 !important; border: none !important; font-size: 1.1rem !important; }
-      .verl-path-step p { color: var(--v-text-sub); font-size: 0.9rem; line-height: 1.5; margin: 0; }
-
-      /* 快速开始卡片跳转 */
+      /* 快速开始卡片 */
+      .verl-section-title { text-align: center; color: var(--v-primary); margin: 40px 0 25px 0; font-size: 1.8rem; border: none !important; }
       .verl-quick-grid {
-          display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-          gap: 20px; margin-top: 30px;
+          display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 20px; margin-bottom: 50px;
       }
       .verl-quick-card {
           text-decoration: none !important; border: 1px solid var(--v-border);
-          padding: 25px; border-radius: 10px; text-align: center; transition: 0.3s; background: white;
+          padding: 28px 20px; border-radius: 10px; text-align: center; transition: 0.3s; background: white;
       }
       .verl-quick-card:hover { border-color: var(--v-primary); transform: scale(1.03); box-shadow: 0 10px 20px rgba(0,102,204,0.1); }
-      .verl-quick-card h4 { color: var(--v-primary); margin: 15px 0 0 0 !important; border: none !important; }
+      .verl-quick-card-icon { font-size: 2.2rem; margin-bottom: 12px; }
+      .verl-quick-card h4 { color: var(--v-primary); margin: 0 0 8px 0 !important; border: none !important; font-size: 1.1rem !important; }
+      .verl-quick-card p { color: var(--v-text-sub); font-size: 0.85rem; margin: 0; line-height: 1.4; }
+
+      /* 核心特性 - 紧凑标签行 */
+      .verl-features-compact {
+          background: var(--v-bg-light); border-radius: 12px;
+          padding: 30px 25px; margin-bottom: 20px;
+      }
+      .verl-features-compact-title {
+          text-align: center; color: var(--v-primary); margin: 0 0 20px 0;
+          font-size: 1.1rem; font-weight: 600; border: none !important;
+      }
+      .verl-feature-tags {
+          display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+      }
+      .verl-feature-tag {
+          display: flex; align-items: center; gap: 8px;
+          background: white; border: 1px solid var(--v-border);
+          border-radius: 20px; padding: 8px 16px;
+          font-size: 0.9rem; color: var(--v-text-main);
+          white-space: nowrap;
+      }
+      .verl-feature-tag span { font-size: 1.1rem; }
 
       @media (max-width: 768px) {
           .verl-hero h1 { font-size: 2rem !important; }
           .verl-quick-grid { grid-template-columns: 1fr 1fr; }
+          .verl-feature-tags { gap: 8px; }
       }
    </style>
 
@@ -109,87 +91,42 @@ verl - 大模型强化学习训练框架
          </div>
       </div>
 
-      <!-- 核心特性 -->
-      <h2 class="verl-section-title">✨ 核心特性</h2>
-      <div class="verl-features">
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">🧬</div>
-            <h3>多样化 RL 算法</h3>
-            <p>混合编程模型结合单控制器和多控制器范式，实现灵活表示和高效复杂后训练数据流执行</p>
-         </div>
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">🔗</div>
-            <h3>无缝框架集成</h3>
-            <p>解耦计算和数据依赖，支持 PyTorch FSDP、Megatron-LM、vLLM 和 SGLang</p>
-         </div>
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">📊</div>
-            <h3>灵活设备映射</h3>
-            <p>支持将模型放置在不同的 GPU/NPU 集合上，实现高效的资源利用和并行化</p>
-         </div>
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">⚡</div>
-            <h3>业界领先吞吐量</h3>
-            <p>通过集成 SOTA LLM 训练和推理框架，实现高生成和训练吞吐量</p>
-         </div>
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">🤗</div>
-            <h3>HuggingFace 集成</h3>
-            <p>与 HuggingFace 生态无缝适配，支持 600+ 开源模型即用</p>
-         </div>
-         <div class="verl-feature-card">
-            <div class="verl-feature-icon">🎯</div>
-            <h3>昇腾 NPU 支持</h3>
-            <p>深度适配华为昇腾设备，充分发挥国产芯片性能</p>
-         </div>
-      </div>
-
-      <!-- 开发者路径 -->
-      <div class="verl-path-wrapper">
-         <h2 style="text-align:center; color:var(--v-primary); margin-bottom:35px; border:none !important;">🎓 RL 后训练开发者学习路径</h2>
-         <div class="verl-path-container">
-            <div class="verl-path-step">
-               <span class="verl-step-num">1</span>
-               <h4>基础概念</h4>
-               <p>理解 RLHF, PPO/DPO 算法原理及奖励模型设计基础</p>
-            </div>
-            <div class="verl-path-step">
-               <span class="verl-step-num">2</span>
-               <h4>快速上手</h4>
-               <p>昇腾环境搭建、模型加载与基础微调单卡示例</p>
-            </div>
-            <div class="verl-path-step">
-               <span class="verl-step-num">3</span>
-               <h4>高级特性</h4>
-               <p>多卡分布式训练调优、性能瓶颈分析与自定义算法</p>
-            </div>
-            <div class="verl-path-step">
-               <span class="verl-step-num">4</span>
-               <h4>生产部署</h4>
-               <p>推理优化加速、模型评估基准与生产环境发布策略</p>
-            </div>
-         </div>
-      </div>
-
       <!-- 快速开始 -->
       <h2 class="verl-section-title">🚀 快速开始</h2>
       <div class="verl-quick-grid">
          <a href="../_generated/sources/verl/quick_start/ascend_quick_start.html" class="verl-quick-card">
-            <div style="font-size: 2rem;">📚</div>
+            <div class="verl-quick-card-icon">📚</div>
             <h4>快速入门</h4>
+            <p>昇腾环境搭建与基础训练示例</p>
          </a>
          <a href="../_generated/sources/verl/features/ascend_backend_features.html" class="verl-quick-card">
-            <div style="font-size: 2rem;">🔧</div>
+            <div class="verl-quick-card-icon">🔧</div>
             <h4>特性指南</h4>
+            <p>昇腾后端特性与一致性说明</p>
          </a>
          <a href="../_generated/sources/verl/examples/ascend_performance_analysis_guide.html" class="verl-quick-card">
-            <div style="font-size: 2rem;">⚙️</div>
+            <div class="verl-quick-card-icon">⚙️</div>
             <h4>应用实践</h4>
+            <p>性能分析与最佳实践案例</p>
          </a>
          <a href="../_generated/sources/verl/contribution_guide/ascend_ci_guide_zh.html" class="verl-quick-card">
-            <div style="font-size: 2rem;">👨‍💻</div>
+            <div class="verl-quick-card-icon">👨‍💻</div>
             <h4>开源开发</h4>
+            <p>CI 流程与贡献指南</p>
          </a>
+      </div>
+
+      <!-- 核心特性（紧凑标签） -->
+      <div class="verl-features-compact">
+         <p class="verl-features-compact-title">✨ 核心特性</p>
+         <div class="verl-feature-tags">
+            <div class="verl-feature-tag"><span>🧬</span> 多样化 RL 算法</div>
+            <div class="verl-feature-tag"><span>🔗</span> 无缝框架集成</div>
+            <div class="verl-feature-tag"><span>📊</span> 灵活设备映射</div>
+            <div class="verl-feature-tag"><span>⚡</span> 业界领先吞吐量</div>
+            <div class="verl-feature-tag"><span>🤗</span> HuggingFace 集成</div>
+            <div class="verl-feature-tag"><span>🎯</span> 昇腾 NPU 支持</div>
+         </div>
       </div>
    </div>
 
