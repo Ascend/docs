@@ -348,6 +348,7 @@
    sources/kernels/index.rst
    sources/pytorch/index.rst
    sources/transformers/index.rst
+   sources/ascend/ray.rst
 
 .. toctree::
    :maxdepth: 1
