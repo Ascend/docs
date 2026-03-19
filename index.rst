@@ -233,7 +233,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
          <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/onnxruntime/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/onnxruntime/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Sentence Transformers -->

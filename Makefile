@@ -24,17 +24,39 @@ ASCEND_CONFIG := _static/ascend_config.json
 # Fetch script
 FETCH_SCRIPT := scripts/fetch_ascend_data.py
 
+# Official ONNX Runtime CANN EP quick start source
+ONNXRUNTIME_CANN_MD_URL := https://raw.githubusercontent.com/microsoft/onnxruntime/gh-pages/docs/execution-providers/community-maintained/CANN-ExecutionProvider.md
+ONNXRUNTIME_CANN_MD_LOCAL := sources/_generated/sources/onnxruntime/quick_start.md
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile copy-docs clean-submodules fetch-config
+.PHONY: help Makefile copy-docs clean-submodules fetch-config sync-onnxruntime-doc
 
 # Fetch ascend config (always run to ensure freshness)
 .PHONY: $(ASCEND_CONFIG)
 fetch-config:
 	@echo "Fetching ascend configuration data..."
 	@python3 $(FETCH_SCRIPT)
+
+# Sync latest ONNX Runtime CANN EP doc from official gh-pages branch
+sync-onnxruntime-doc:
+	@echo "Syncing ONNX Runtime CANN quick start from upstream..."
+	@mkdir -p $(dir $(ONNXRUNTIME_CANN_MD_LOCAL))
+	@curl -fsSL "$(ONNXRUNTIME_CANN_MD_URL)" -o "$(ONNXRUNTIME_CANN_MD_LOCAL).tmp"
+	@awk 'BEGIN{in_fm=0} \
+		{sub(/\r$$/, "", $$0)} \
+		NR==1 && $$0=="---" {in_fm=1; next} \
+		in_fm && $$0=="---" {in_fm=0; next} \
+		in_fm {next} \
+		$$0 ~ /^##[[:space:]]+Contents[[:space:]]*$$/ {next} \
+		$$0 ~ /^\{:[[:space:]]*\.no_toc[[:space:]]*\}$$/ {next} \
+		$$0 ~ /^\{:[[:space:]]*toc[[:space:]]*\}$$/ {next} \
+		$$0 ~ /^\*[[:space:]]*TOC[[:space:]]+placeholder[[:space:]]*$$/ {next} \
+		{print}' "$(ONNXRUNTIME_CANN_MD_LOCAL).tmp" > "$(ONNXRUNTIME_CANN_MD_LOCAL)"
+	@rm -f "$(ONNXRUNTIME_CANN_MD_LOCAL).tmp"
+	@echo "Synced to $(ONNXRUNTIME_CANN_MD_LOCAL)"
 
 # Initialize submodules if not exists (use pinned commits for reproducibility)
 _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift:
@@ -65,7 +87,7 @@ clean-submodules:
 	@git submodule deinit -f _repos/*
 
 # Explicit build targets with prerequisites
-html dirhtml singlehtml latex pdf: fetch-config copy-docs
+html dirhtml singlehtml latex pdf: fetch-config copy-docs sync-onnxruntime-doc
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 # Catch-all target for other Sphinx targets (clean, help, etc.)
