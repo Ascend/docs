@@ -32,7 +32,7 @@ ONNXRUNTIME_CANN_MD_LOCAL := sources/_generated/sources/onnxruntime/quick_start.
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile copy-docs clean-submodules fetch-config sync-onnxruntime-doc
+.PHONY: help Makefile copy-docs clean-submodules fetch-config sync-onnxruntime-doc init-submodules
 
 # Fetch ascend config (always run to ensure freshness)
 .PHONY: $(ASCEND_CONFIG)
@@ -58,14 +58,13 @@ sync-onnxruntime-doc:
 	@rm -f "$(ONNXRUNTIME_CANN_MD_LOCAL).tmp"
 	@echo "Synced to $(ONNXRUNTIME_CANN_MD_LOCAL)"
 
-# Initialize submodules if not exists (use pinned commits for reproducibility)
-_repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift:
-	@echo "Initializing submodules..."
+# Initialize submodules (always run to handle empty dirs left by git clone)
+init-submodules:
 	@git submodule sync --recursive
 	@git submodule update --init --remote
 
 # Copy documentation from submodules
-copy-docs: _repos/verl _repos/VeOmni _repos/LLaMA-Factory _repos/ms-swift
+copy-docs: init-submodules
 	@echo "Preparing generated docs directory..."
 	@mkdir -p $(GENERATED_DOCS)
 
