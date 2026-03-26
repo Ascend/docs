@@ -229,6 +229,31 @@ html_context = {
                 },
             }
         },
+        'triton-ascend': {
+            'display_name': 'Triton-Ascend',
+            'sidebar_mapping': {
+                'migration_guide': 'Triton 算子迁移指南',
+                'examples': '典型算子样例',
+                'debug_guide': '算子调试与调优',
+                'triton_api': 'Triton API 接口说明',
+                'triton_api_extention': '昇腾扩展 API 接口说明',
+                'quick_start_group': '快速开始',
+                'install_group': '安装指南',
+                'arch_group': '架构设计与核心特性',
+                'dev_guide_group': 'Triton 算子开发指南',
+                'env_group': '环境变量',
+                'faq_group': '常见问题',
+                '__root_files__': {
+                    'quick_start': 'quick_start_group',
+                    'installation_guide': 'install_group',
+                    'architecture_design_and_core_features': 'arch_group',
+                    'programming_guide': 'dev_guide_group',
+                    'environment_variable_reference': 'env_group',
+                    'FAQ': 'faq_group',
+                    'release_note': 'faq_group',
+                },
+            }
+        },
     }
 }
 
