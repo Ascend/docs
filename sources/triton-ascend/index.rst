@@ -71,6 +71,7 @@ Triton-Ascend
    <div id="triton-ascend-portal">
 
       <div class="ta-hero">
+         <img src="../../_static/images/triton-ascend.png" alt="Triton-Ascend Logo" style="height: 60px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
          <h1>Triton-Ascend</h1>
          <p class="ta-hero-subtitle">
             适配昇腾 NPU 的 Triton 语言后端 · 高性能算子开发与迁移
