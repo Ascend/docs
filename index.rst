@@ -257,6 +257,13 @@
          <div class="card-footer"><a href="https://github.com/pytorch/torchchat">官方链接</a><span class="split">|</span><a href="sources/torchchat/install.html">安装指南</a><span class="split">|</span><a href="sources/torchchat/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- vllm-ascend -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">vLLM-Ascend</h3></div>
+         <p class="card-desc">面向昇腾 NPU 的 vLLM 社区插件，支持主流大模型高性能推理加速。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/vllm-ascend/installation.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/vllm-ascend/quick_start.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
@@ -373,6 +380,7 @@
    sources/sentence_transformers/index.rst
    sources/sglang/index.rst
    sources/torchchat/index.rst
+   sources/vllm-ascend/index.rst
 
 .. toctree::
    :maxdepth: 1

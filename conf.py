@@ -33,7 +33,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxext.remoteliteralinclude',
     'sphinx_copybutton',
-    'sphinx_markdown_tables',
     "sphinx_design",
     'myst_parser',
 ]
@@ -212,6 +211,22 @@ html_context = {
                 'examples': '📊 应用与调优实践',
                 'faq': '🔆 故障排查(FAQ)',
                 'contribution_guide': '🔧 开源开发'
+            }
+        },
+        'vllm-ascend': {
+            'display_name': 'vllm-ascend',
+            'sidebar_mapping': {
+                'getting_started': 'Getting Started',
+                'user_guide': 'User Guide',
+                'developer_guide': 'Developer Guide',
+                'community': 'Community',
+                # __root_files__: 根目录下无子目录的文件需显式映射到所属分组
+                # 否则侧边栏无法按目录路径自动归类
+                '__root_files__': {
+                    'quick_start': 'getting_started',
+                    'installation': 'getting_started',
+                    'faqs': 'getting_started',
+                },
             }
         },
     }

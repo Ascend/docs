@@ -14,7 +14,9 @@
     document.addEventListener('DOMContentLoaded', function() {
         const mapping = {{ comm_config.get('sidebar_mapping', {}) | tojson | safe }};
         const commId = '{{ current_community_id }}';
-        
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
         // 获取数据源和目标容器
         const globalMenu = document.getElementById('temp-menu-holder');
         const targetContainer = document.getElementById('independent-sidebar');
@@ -38,14 +40,13 @@
         if (activeL1) {
             // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
             const subMenu = activeL1.querySelector('ul');
-            
+
             if (subMenu && subMenu.children.length > 0) {
                 let currentGroup = null;
                 let currentUl = null;
 
                 // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
-                const items = Array.from(subMenu.children);
-                items.forEach(item => {
+                Array.from(subMenu.children).forEach(item => {
                     if (item.tagName.toLowerCase() !== 'li') return;
 
                     const link = item.querySelector('a');
@@ -54,9 +55,9 @@
                     const fullUrl = link.href;
                     let matchedFolder = null;
 
-                    // 匹配 conf.py 中配置的文件夹路径
-                    // 使用更精确的匹配：sources/{commId}/{folder}/ 或 sources/_generated/sources/{commId}/{folder}/
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
                     for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
                         const pattern1 = `/sources/${commId}/${folder}/`;
                         const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
                         if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
@@ -65,12 +66,23 @@
                         }
                     }
 
-                    // 如果有的文件放在根目录没匹配到，归入 default
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
                     if (!matchedFolder) {
                         matchedFolder = currentGroup || 'default';
                     }
 
-                    // 步骤 D: 遇到新分组时，创建大标题和新的 <ul>
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
                     if (currentGroup !== matchedFolder) {
                         if (mapping[matchedFolder]) {
                             const caption = document.createElement('p');
@@ -78,20 +90,15 @@
                             caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
                             targetContainer.appendChild(caption);
                         }
-
                         currentUl = document.createElement('ul');
                         targetContainer.appendChild(currentUl);
                         currentGroup = matchedFolder;
                     }
 
-                    // 步骤 E: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
-                    // 找出该节点及其内部所有的级联列表项
-                    const allTocItems = [item, ...item.querySelectorAll('[class*="toctree-l"]')];
-                    allTocItems.forEach(el => {
-                        // 将 toctree-l(X) 动态替换为 toctree-l(X-1)
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
                         el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
-                            const newLevel = parseInt(level, 10) - 1;
-                            return 'toctree-l' + newLevel;
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
                         });
                     });
 
@@ -101,7 +108,7 @@
                     }
                 });
 
-                // 步骤 F: 彻底删除隐蔽的全局菜单
+                // 步骤 G: 彻底删除隐蔽的全局菜单
                 globalMenu.remove();
                 return;
             }
