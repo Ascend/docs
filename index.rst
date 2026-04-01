@@ -266,6 +266,18 @@
 
    </div>
 
+   <h2 class="scene-header">⚙️ 算子开发与编程</h2>
+   <div class="grid-container">
+
+      <!-- Triton-Ascend -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/triton-ascend.png')"></div><h3 class="card-title">Triton-Ascend</h3></div>
+         <p class="card-desc">适配昇腾 NPU 的 Triton 语言后端，支持高性能算子开发与迁移。</p>
+         <div class="card-footer"><a href="https://gitcode.com/Ascend/triton-ascend">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/triton-ascend/installation_guide.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/triton-ascend/quick_start.html">快速上手</a></div>
+      </div>
+
+   </div>
+
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
    <div class="grid-container">
 
@@ -381,6 +393,13 @@
    sources/sglang/index.rst
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: ⚙️ 算子开发与编程
+
+   sources/triton-ascend/index.rst
 
 .. toctree::
    :maxdepth: 1

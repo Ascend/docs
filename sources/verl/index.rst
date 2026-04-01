@@ -121,8 +121,6 @@ verl
          <p class="verl-features-compact-title">✨ 核心特性</p>
          <div class="verl-feature-tags">
             <div class="verl-feature-tag"><span>🧬</span> 多样化 RL 算法</div>
-            <div class="verl-feature-tag"><span>🔗</span> 无缝框架集成</div>
-            <div class="verl-feature-tag"><span>📊</span> 灵活设备映射</div>
             <div class="verl-feature-tag"><span>⚡</span> 业界领先吞吐量</div>
             <div class="verl-feature-tag"><span>🤗</span> HuggingFace 集成</div>
             <div class="verl-feature-tag"><span>🎯</span> 昇腾 NPU 支持</div>

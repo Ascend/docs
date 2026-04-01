@@ -60,7 +60,7 @@ vLLM-Ascend
           display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 20px;
       }
       .va-feature-tag {
-          display: inline-flex; align-items: center; gap: 6px;
+          display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
           background: white; border: 1px solid var(--va-border); border-radius: 20px;
           padding: 8px 18px; font-size: 0.9rem; color: var(--va-text-main);
           transition: all 0.3s ease;
