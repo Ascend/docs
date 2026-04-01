@@ -144,6 +144,13 @@
 
       <!-- PyTorch -->
       <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ray.png')"></div><h3 class="card-title">Ray</h3></div>
+         <p class="card-desc">Ray is a unified framework for scaling AI and Python applications. </p>
+         <div class="card-footer"><a href="https://github.com/ray-project/ray">官方链接</a><span class="split">|</span><a href="sources/Ray/quick_start.html">安装指南</a><span class="split">|</span><a href="sources/Ray/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- Ray -->
+      <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">pytorch</h3></div>
          <p class="card-desc">PyTorch AI 框架，2.1 版本起官方原生支持昇腾 NPU。</p>
          <div class="card-footer"><a href="https://pytorch.org">官方链接</a><span class="split">|</span><a href="sources/pytorch/install.html">安装指南</a><span class="split">|</span><a href="sources/pytorch/quick_start.html">快速上手</a></div>
@@ -347,8 +354,8 @@
    sources/deepspeed/index.rst
    sources/kernels/index.rst
    sources/pytorch/index.rst
+   sources/Ray/index.rst
    sources/transformers/index.rst
-   sources/ascend/ray.rst
 
 .. toctree::
    :maxdepth: 1
