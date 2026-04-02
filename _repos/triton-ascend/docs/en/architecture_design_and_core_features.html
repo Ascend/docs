@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture Design and Core Features &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Architecture Design and Core Features</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/triton-ascend/docs/en/architecture_design_and_core_features.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="architecture-design-and-core-features">
+<h1>Architecture Design and Core Features<a class="headerlink" href="#architecture-design-and-core-features" title="Link to this heading"></a></h1>
+<section id="logical-architecture">
+<h2>1. Logical Architecture<a class="headerlink" href="#logical-architecture" title="Link to this heading"></a></h2>
+<p><img alt="Image" src="../../../../_images/architectural_diagram.png" />
+<strong>Triton-Ascend Architecture Description</strong></p>
+<p><strong>Core components:</strong></p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Ascend</span> <span class="pre">language</span> <span class="pre">extension</span></code></strong>: Triton language extension for Ascend</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">compiler</span></code></strong>: Triton compiler for Ascend</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">driver</span></code></strong>: Ascend device driver API</p></li>
+</ul>
+<p><strong>Component functions:</strong></p>
+<ul>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Ascend</span> <span class="pre">language</span> <span class="pre">extension</span></code></strong><br />
+Syntax and semantic extensions for the Ascend NPU architecture are introduced based on the standard Triton language.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">compiler</span></code></strong><br />
+Receives the Triton IR <code class="docutils literal notranslate"><span class="pre">(TTIR)</span></code> file generated by the upper-layer Triton compiler and performs a series of transformations to adapt to Ascend hardware.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Triton IR → Linalg IR → AscendNPU IR → triton_xxx_kernel.o
+</pre></div>
+</div>
+<p>Converts the Triton IR into the Linalg IR, and then generates the executable binary file <code class="docutils literal notranslate"><span class="pre">triton_xxx_kernel.o</span></code> for the Ascend NPU through the BiSheng Compiler.</p>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">driver</span></code></strong><br />
+Provides the interconnection capability between the Triton runtime and the Ascend software stack (CANN), and loads the executable kernel file <code class="docutils literal notranslate"><span class="pre">triton_xxx_kernel.o</span></code> generated by the BiSheng Compiler on the device side.</p></li>
+</ul>
+</section>
+<section id="code-structure">
+<h2>2. Code Structure<a class="headerlink" href="#code-structure" title="Link to this heading"></a></h2>
+<section id="code-structure-principles">
+<h3>2.1 Code Structure Principles<a class="headerlink" href="#code-structure-principles" title="Link to this heading"></a></h3>
+<p>This project extends the support for Huawei Ascend NPU (using the CANN software stack) based on the standard Triton. The overall design complies with the following <strong>code principles</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>If the modification is target independent</strong>, it should be retained in the <strong>Triton core</strong> part (such as general modifications to the language and runtime).</p></li>
+<li><p><strong>If the modification is target affinitive</strong>, it should be placed in the <strong>Triton-Ascend</strong> part.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="directory-structure-and-function-description">
+<h3>2.2 Directory Structure and Function Description<a class="headerlink" href="#directory-structure-and-function-description" title="Link to this heading"></a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">include/</span></code> and <code class="docutils literal notranslate"><span class="pre">lib/</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>Content</strong>: <strong>MLIR Passes</strong>, <strong>dialects</strong>, and related tools for Ascend NPUs.</p></li>
+<li><p><strong>Description</strong>: Represents and optimizes Ascend-specific computational graphs in the MLIR compilation process.</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">libdevice.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>Content</strong>: <code class="docutils literal notranslate"><span class="pre">libdevice</span></code> API adaptable to Ascend NPUs.</p></li>
+<li><p><strong>Description</strong>: Provides underlying implementation support for the Ascend NPU hardware, which is called by Triton operators.</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">backend/compiler.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>Content</strong>: Main entry of the <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> compiler.</p></li>
+<li><p><strong>Description</strong>: Compiles the high-level DSL code of Triton into an <strong>executable binary file</strong> (such as the<code class="docutils literal notranslate"><span class="pre">.o</span></code> file) that can be executed on the Ascend NPU.</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">backend/driver.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>Content</strong>: <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> driver module.</p></li>
+<li><p><strong>Description</strong>: Loads and starts the compiled executable binary file.</p></li>
+</ul>
+</section>
+</section>
+<section id="modules">
+<h2>3. Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h2>
+<section id="triton-core-enhancement">
+<h3>3.1 Triton Core Enhancement<a class="headerlink" href="#triton-core-enhancement" title="Link to this heading"></a></h3>
+<section id="language-extension">
+<h4>3.1.1 Language Extension<a class="headerlink" href="#language-extension" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>No.</p></th>
+<th class="head text-left"><p>Operator</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>1</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.insert_slice(full,</span> <span class="pre">src,</span> <span class="pre">offsets,</span> <span class="pre">sizes,</span> <span class="pre">strides)</span></code></p></td>
+<td class="text-left"><p>Inserts a tensor into another tensor according to the specified offset, size, and stride.<br><strong>Returns</strong>: target tensor.<br><strong>full</strong>: target tensor. The source tensor will be inserted into this tensor.<br><strong>src</strong>: source tensor.<br><strong>offsets</strong>: offset (integer tuple) on the target tensor.<br><strong>sizes</strong>: size (integer tuple) on the source tensor.<br><strong>strides</strong>: stride (integer tuple) on the target tensor.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>2</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.extract_slice(full,</span> <span class="pre">offsets,</span> <span class="pre">sizes,</span> <span class="pre">strides)</span></code></p></td>
+<td class="text-left"><p>Extracts a slice tensor from another tensor according to the specified offset, size, and stride.<br><strong>Returns</strong>: slice tensor.<br><strong>full</strong>: source tensor. The slice is extracted from this tensor.<br><strong>offsets</strong>: offset (integer tuple) on the source tensor.<br><strong>sizes</strong>: size (integer tuple) of the slice tensor.<br><strong>strides</strong>: stride (integer tuple) on the source tensor.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>3</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.get_element(source,</span> <span class="pre">offset)</span></code></p></td>
+<td class="text-left"><p>Reads a tensor with dimensions and returns a single element at the specified offset.<br><strong>source</strong>: source tensor.<br><strong>offset</strong>: offset (integer tuple) of the element to be extracted.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="triton-ascend">
+<h2>3.2 Triton-Ascend<a class="headerlink" href="#triton-ascend" title="Link to this heading"></a></h2>
+<section id="compiler-options">
+<h3>3.2.1 Compiler Options<a class="headerlink" href="#compiler-options" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>No.</p></th>
+<th class="head"><p>NPU Option</p></th>
+<th class="head"><p>Hardware Platform</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>multibuffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables the ping-pong pipeline.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>enable_auto_bind_sub_block</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables auto-binding of sub-blocks.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>enable_hivm_auto_cv_balance</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables automatic CV balancing.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>sync_solver</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables the synchronization solver.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>unit_flag</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables the sync unit flag.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>inject_barrier_all</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables automatic injection of barriers for all operations.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>inject_block_all</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables automatic injection of blocks for all operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>limit_auto_multi_buffer_only_for_local_buffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It restricts automatic multi-buffering only to local buffers.</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>limit_auto_multi_buffer_of_local_buffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables automatic multi-buffering for local buffers.</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>set_workspace_multibuffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables multi-buffering for the workspace.</p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>tile_mix_vector_loop</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables tiling for vector loops.</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>tile_mix_cube_loop</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables tiling for cube loops.</p></td>
+</tr>
+<tr class="row-even"><td><p>13</p></td>
+<td><p>disable_auto_inject_block_sync</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables automatic injection of block synchronizations.</p></td>
+</tr>
+<tr class="row-odd"><td><p>14</p></td>
+<td><p>stream</p></td>
+<td><p>NPU</p></td>
+<td><p>(Optional) Informs the compiler about the NPU stream to use.</p></td>
+</tr>
+<tr class="row-even"><td><p>15</p></td>
+<td><p>enable_linearize</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables the linearization pass.</p></td>
+</tr>
+<tr class="row-odd"><td><p>16</p></td>
+<td><p>enable_nd2nz_on_vector</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only). It enables or disables the ND (n-dimensional) to NZ (non-zero) layout transformation.</p></td>
+</tr>
+<tr class="row-even"><td><p>17</p></td>
+<td><p>auto_blockify_size</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option. It enables or disables AutoBlockify pass. It is ignored when TRITON_ALL_BLOCKS_PARALLEL is not set</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="simd-compiler">
+<h3>3.2.2 SIMD Compiler<a class="headerlink" href="#simd-compiler" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>No.</p></th>
+<th class="head"><p>Pass</p></th>
+<th class="head"><p>Purpose</p></th>
+<th class="head"><p>IR Conversion</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>triton-to-structured</p></td>
+<td><p>linearize</p></td>
+<td><p>ttir-&gt;ttir</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>triton-to-unstructured</p></td>
+<td><p>convert indirect axis to loop</p></td>
+<td><p>ttir-&gt;ttir</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>triton-to-linalg</p></td>
+<td><p>memory/reduction/view/creation/math/arith/linear algebra to linalgir</p></td>
+<td><p>ttir-&gt;linalgir</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>triton-to-other</p></td>
+<td><p>ttir-&gt;hivm/hfusion/llvm</p></td>
+<td><p>ttir-&gt;hivm/hfusion/llvm</p></td>
+</tr>
+</tbody>
+</table>
+<section id="tritontostructured">
+<h4>3.2.2.1 TritonToStructured<a class="headerlink" href="#tritontostructured" title="Link to this heading"></a></h4>
+<p>The integer division and modulo operations in pointer expressions and mask expressions are converted to tensor operations to regenerate OPs such as load and store.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Limitation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RewriteAddPtrOp</p></td>
+<td><p>Analyzes the pointer expression (<code class="docutils literal notranslate"><span class="pre">AddPtrOp</span></code>) in operations such as <code class="docutils literal notranslate"><span class="pre">tl.load</span></code> and <code class="docutils literal notranslate"><span class="pre">tl.store</span></code>. The original pointer offset is calculated and modeled into a <code class="docutils literal notranslate"><span class="pre">PtrState</span></code> object that contains the specific offset information of each dimension (axis). For example, for an expression like <code class="docutils literal notranslate"><span class="pre">ptr</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">//</span> <span class="pre">1024</span> <span class="pre">*</span> <span class="pre">4096</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">%</span> <span class="pre">1024</span> <span class="pre">*</span> <span class="pre">4</span> <span class="pre">+</span> <span class="pre">y</span></code>, the contributions and relationships of the <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> axes are analyzed.</p></td>
+<td><p>1. The original iteration axis (such as <code class="docutils literal notranslate"><span class="pre">x</span></code>) must be exactly divisible by the split axis (such as <code class="docutils literal notranslate"><span class="pre">1024</span></code>).<br>2. The size of the external <code class="docutils literal notranslate"><span class="pre">XBLOCK</span></code> must be an integer multiple or divisor of the split axis <code class="docutils literal notranslate"><span class="pre">divisor</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>CreateAddpr</p></td>
+<td><p>Reconstructs a new <code class="docutils literal notranslate"><span class="pre">AddPtrOp</span></code> pointer calculation operation based on the analyzed <code class="docutils literal notranslate"><span class="pre">PtrState</span></code> object to eliminate the integer division (<code class="docutils literal notranslate"><span class="pre">//</span></code>) and modulo (<code class="docutils literal notranslate"><span class="pre">%</span></code>) operations in the original expression.</p></td>
+<td><p>It depends on the valid <code class="docutils literal notranslate"><span class="pre">PtrState</span></code> object successfully generated by <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteLoadOp</p></td>
+<td><p>Analyzes the <code class="docutils literal notranslate"><span class="pre">mask</span></code> expression in the <code class="docutils literal notranslate"><span class="pre">tl.load</span></code> operation and decomposes and models the complex mask conditions involving integer division and modulo into a <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> object that contains the boundary information of each dimension. For example, for <code class="docutils literal notranslate"><span class="pre">mask</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">//</span> <span class="pre">1024</span> <span class="pre">&lt;</span> <span class="pre">8</span> <span class="pre">and</span> <span class="pre">x</span> <span class="pre">%</span> <span class="pre">1024</span> <span class="pre">&lt;</span> <span class="pre">1024</span> <span class="pre">and</span> <span class="pre">y</span> <span class="pre">&lt;</span> <span class="pre">4</span></code>, an independent constraint condition of each dimension is obtained through analysis.</p></td>
+<td><p>1. The original iteration axis (such as <code class="docutils literal notranslate"><span class="pre">x</span></code>) must be exactly divisible by the split axis (such as <code class="docutils literal notranslate"><span class="pre">1024</span></code>).<br>2. The size of the external <code class="docutils literal notranslate"><span class="pre">XBLOCK</span></code> must be an integer multiple or divisor of the split axis <code class="docutils literal notranslate"><span class="pre">divisor</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BuildMask</p></td>
+<td><p>Reconstructs a new <code class="docutils literal notranslate"><span class="pre">mask</span></code> expression based on the analyzed <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> object to eliminate the integer division (<code class="docutils literal notranslate"><span class="pre">//</span></code>) and modulo (<code class="docutils literal notranslate"><span class="pre">%</span></code>) operations in the original expression.</p></td>
+<td><p>Only the <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> object generated by <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code> or <code class="docutils literal notranslate"><span class="pre">RewriteStoreOp</span></code> is processed. Any complex and non-standardized mask expressions cannot be processed.</p></td>
+</tr>
+<tr class="row-even"><td><p>CreateLoad</p></td>
+<td><p>Re-creates/Replaces the original <code class="docutils literal notranslate"><span class="pre">tl.load</span></code> operation using the new pointer expression generated by <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code> and the new mask expression generated by <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> to complete instruction rewriting.</p></td>
+<td><p>The prerequisite steps, such as <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>, <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code>, <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code>, <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code>, must have been successfully executed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteStoreOp</p></td>
+<td><p>Analyzes the <code class="docutils literal notranslate"><span class="pre">mask</span></code> expression in the <code class="docutils literal notranslate"><span class="pre">tl.store</span></code> operation. Its function is similar to that of <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code>. It decomposes and models the complex mask conditions involving integer division and modulo into a <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> object.</p></td>
+<td><p>Same as <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>CreateStore</p></td>
+<td><p>Re-creates/Replaces the original <code class="docutils literal notranslate"><span class="pre">tl.store</span></code> operation using the new pointer expression generated by <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code> and the new mask expression generated by <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> to complete instruction rewriting.</p></td>
+<td><p>The prerequisite steps, such as <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>, <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code>, <code class="docutils literal notranslate"><span class="pre">RewriteStoreOp</span></code>, <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code>, must have been successfully executed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteAtomicRWMOp</p></td>
+<td><p>Handles pointer issues in atomic read/write/modify operations (such as <code class="docutils literal notranslate"><span class="pre">atomic.add</span></code> and <code class="docutils literal notranslate"><span class="pre">atomic.max</span></code>).</p></td>
+<td><p>Generally, it inherits the same limitations as <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>. Some special, non-contiguous, or conditional atomic operation modes may not be supported.</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteAtomicCASOp</p></td>
+<td><p>Handles pointer linearization issues in atomic compare-and-swap operations (such as <code class="docutils literal notranslate"><span class="pre">atomic.cas</span></code>) and analyzes the pointer expression to eliminate the integer division and modulo operations by tensorization to meet the addressing requirements of hardware atomic instructions.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteWhile</p></td>
+<td><p>Handles pointer overlapping operations in the <code class="docutils literal notranslate"><span class="pre">while</span></code> loop body.</p></td>
+<td><p>Complex pointer path transformation that contains conditional branches (<code class="docutils literal notranslate"><span class="pre">if</span></code>) in the loop body is not supported.</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteFor</p></td>
+<td><p>Handles pointer overlapping operations in the <code class="docutils literal notranslate"><span class="pre">for</span></code> loop body.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tritontounstructured">
+<h4>3.2.2.2 TritonToUnstructured<a class="headerlink" href="#tritontounstructured" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>No.</p></th>
+<th class="head"><p>Pass/Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>discrete-mask-access-conversion</p></td>
+<td><p>Analyzes and converts the memory access pattern based on the discrete index mask in Triton (for example, <code class="docutils literal notranslate"><span class="pre">triton.language.load</span></code> with a non-contiguous mask) to prepare for the subsequent expansion of discrete axes into loops. This pass identifies irregular or sparse access patterns that cannot be efficiently processed by the backend hardware.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>triton-to-unstructured</p></td>
+<td><p>Converts the tensor operations identified by <code class="docutils literal notranslate"><span class="pre">discrete-mask-access-conversion</span></code> and containing discrete axes into scalar memory access based on explicit scalar loops.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>bubble-up-operation</p></td>
+<td><p>Bubbles up <code class="docutils literal notranslate"><span class="pre">extract</span> <span class="pre">op/extract_slice</span></code> for optimization. This can optimize data locality. In some scenarios, unnecessary loops generated after the transformation can be eliminated, thereby improving the execution efficiency of the generated code.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="discrete-mask-access-conversion">
+<h5>3.2.2.2.1 discrete-mask-access-conversion<a class="headerlink" href="#discrete-mask-access-conversion" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>DiscreteMaskStoreConversion</p></td>
+<td><p>Analyzes the mask and converts the original store operation into the following sequences if it is non-contiguous:<br>1. load (loading the content at the target address)<br>2. select (selecting the target content and the value to be stored based on the mask)<br>3. store (storing the select result back to the target address)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DiscreteMaskLoadConversion</p></td>
+<td><p>Analyzes the mask and converts the original load operation into the following sequences if it is non-contiguous:<br>1. load (loading all content of the source tensor)<br>2. select (selecting the source tensor content based on the mask, and setting the masked part to the other value)</p></td>
+</tr>
+<tr class="row-even"><td><p>DiscreteMaskAtomicAddConversion</p></td>
+<td><p>Analyzes the mask and converts the original atomic_add operation into the following sequences if it is non-contiguous:<br>1. select (selecting the value based on the mask and setting the masked part to <strong>0</strong>)<br>2. atomic_add (regenerating the atomic_add operation using the select result)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="triton-to-unstructured">
+<h5>3.2.2.2.2 triton-to-unstructured<a class="headerlink" href="#triton-to-unstructured" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>TritonToUnstructured Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>UnstructuredMemAccessConverter&lt;triton::LoadOp&gt;</p></td>
+<td><p>Converts LoadOp into a multi-loop scalar load operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>UnstructuredMemAccessConverter&lt;triton::StoreOp&gt;</p></td>
+<td><p>Converts StoreOp into a multi-loop scalar store operation.</p></td>
+</tr>
+<tr class="row-even"><td><p>UnstructuredMemAccessConverter&lt;triton::AtomicRMWOp&gt;</p></td>
+<td><p>Converts AtomicRMWOp into a multi-loop scalar atomic operation.</p></td>
+</tr>
+<tr class="row-odd"><td><p>UnstructuredMemAccessConverter&lt;triton::AtomicCASOp&gt;</p></td>
+<td><p>Converts AtomicCASOp into a multi-loop scalar atomic operation.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bubble-up-operation">
+<h5>3.2.2.2.3 bubble-up-operation<a class="headerlink" href="#bubble-up-operation" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BubbleUpExtract&lt;tensor::ExtractOp&gt;</p></td>
+<td><p>Bubbles up extract op, avoiding unnecessary loops in some scenarios.</p></td>
+</tr>
+<tr class="row-odd"><td><p>BubbleUpExtract&lt;tensor::ExtractSliceOp&gt;</p></td>
+<td><p>Bubbles up extract op/extract_slice, avoiding unnecessary loops in some scenarios.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="tritontolinalg">
+<h4>3.2.2.3 TritonToLinalg<a class="headerlink" href="#tritontolinalg" title="Link to this heading"></a></h4>
+<section id="triton-to-linalg">
+<h5>3.2.2.3.1 triton-to-linalg<a class="headerlink" href="#triton-to-linalg" title="Link to this heading"></a></h5>
+<p>TritonToLinalg converts ttir to linalg ir.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>StoreConverter</p></td>
+<td><p>triton::StoreOp to memref::copy</p></td>
+</tr>
+<tr class="row-odd"><td><p>AddPtrConverter</p></td>
+<td><p>triton::AddPtrOp to memref::ReinterpretCast</p></td>
+</tr>
+<tr class="row-even"><td><p>GetProgramIDConverter</p></td>
+<td><p>triton::GetProgramIdOp to a param in functionOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>GetNumProgramsConverter</p></td>
+<td><p>triton::GetNumProgramsOp to a param in functionOp</p></td>
+</tr>
+<tr class="row-even"><td><p>LoadConverter</p></td>
+<td><p>triton::LoadOp to memref::copy and bufferization::ToTensorOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>AtomicRMWConverter</p></td>
+<td><p>triton::AtomicRMWOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-even"><td><p>AtomicCASConverter</p></td>
+<td><p>triton::AtomicCASOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MakeRangeConverter</p></td>
+<td><p>triton::MakeRangeOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SplatConverter</p></td>
+<td><p>triton::SplatOp to linalg::FillOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ClampFConverter</p></td>
+<td><p>triton::ClampFOp to tensor::EmptyOp, linalg::FillOp</p></td>
+</tr>
+<tr class="row-even"><td><p>PreciseDivConverter</p></td>
+<td><p>triton::PreciseDivFOp to arith::DivFOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ArgMinConverter</p></td>
+<td><p>triton::ArgMinOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ArgMaxConverter</p></td>
+<td><p>triton::ArgMaxOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ReduceConverter</p></td>
+<td><p>triton::ReduceOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ScanConverter</p></td>
+<td><p>triton::ScanOp to func::CallOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ReshapeConverter</p></td>
+<td><p>triton::ReshapeOp to tensor::ReshapeOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ExpandDimsConverter</p></td>
+<td><p>triton::ExpandDimsOp to tensor::ExpandShapeOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>BroadcastConverter</p></td>
+<td><p>triton::BroadcastOp to linalg::BroadcastOp</p></td>
+</tr>
+<tr class="row-even"><td><p>DenseConstantConverter</p></td>
+<td><p>arith::ConstantOp to linalg::FillOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ExternElementwiseClOpConverter</p></td>
+<td><p>triton::ExternElementwiseOp to linalg::MapOp</p></td>
+</tr>
+<tr class="row-even"><td><p>TritonMulhiuiConverter</p></td>
+<td><p>triton::MulhiUIOp to arith::MulSIExtendedOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>TritonPreciseSqrtConverter</p></td>
+<td><p>triton::PreciseSqrtOp to math::SqrtOp</p></td>
+</tr>
+<tr class="row-even"><td><p>AdvanceConverter</p></td>
+<td><p>triton::AdvanceOp to memref::ReinterpretCastOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>TransposeConverter</p></td>
+<td><p>triton::TransOp to linalg::TransposeOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SplitConverter</p></td>
+<td><p>triton::SplitOp to tensor::ExtractSliceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>JoinConverter</p></td>
+<td><p>triton::JoinOp to tensor::InsertSliceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>CatConverter</p></td>
+<td><p>triton::CatOp to tensor::InsertSliceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>BitcastConverter</p></td>
+<td><p>triton::BitcastOp to arith::BitcastOp</p></td>
+</tr>
+<tr class="row-even"><td><p>LoopConverter&lt;scf::ForOp&gt;</p></td>
+<td><p>scf::ForOp to scf::ForOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>LoopConverter&lt;scf::WhileOp&gt;</p></td>
+<td><p>scf::WhileOp to scf::WhileOp</p></td>
+</tr>
+<tr class="row-even"><td><p>YieldConverter</p></td>
+<td><p>scf::YieldOp to scf::YieldOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>GatherConverter</p></td>
+<td><p>triton::GatherOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-even"><td><p>GatherLoadConverter</p></td>
+<td><p>triton::GatherLoadOp to scf::ForOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>DeviceAssertConverter</p></td>
+<td><p>triton::AssertOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-even"><td><p>DevicePrintConverter</p></td>
+<td><p>triton::PrintOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MatmulConverter</p></td>
+<td><p>triton::DotOp to linalg::MatmulOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SortOpConverter</p></td>
+<td><p>triton::SortOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>DotScaledConverter</p></td>
+<td><p>triton::DotScaledOp to linalg::MatmulOp</p></td>
+</tr>
+<tr class="row-even"><td><p>PtrToIntConverter</p></td>
+<td><p>triton::PtrToIntOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MakeTensorPtrConverter</p></td>
+<td><p>triton::PtrToIntOp to arith::IndexCastOp</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="other-passes">
+<h4>3.2.2.4 other passes<a class="headerlink" href="#other-passes" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Pass</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Core Converter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>triton-to-annotation</p></td>
+<td><p>Converts Ascend NPU-specific compilation hint (<code class="docutils literal notranslate"><span class="pre">tl.compile_hint</span></code>) into backend annotation dialects, which are used to guide subsequent hardware-specific optimization or resource configuration.</p></td>
+<td><p>TritonAnnotationConversion</p></td>
+<td><p>Converts <code class="docutils literal notranslate"><span class="pre">triton::AnnotationOp</span></code> into <code class="docutils literal notranslate"><span class="pre">annotation::MarkOp</span></code> to transfer advanced compilation hints to the underlying annotation marks.</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton-to-hfusion</p></td>
+<td><p>Converts <code class="docutils literal notranslate"><span class="pre">TTIR</span></code> in Triton into the corresponding operation in the <code class="docutils literal notranslate"><span class="pre">HFusion</span></code> dialect of the Ascend NPU hardware accelerator.</p></td>
+<td><p>TritonHistogramToHFusionConversion</p></td>
+<td><p>Converts <code class="docutils literal notranslate"><span class="pre">triton::HistogramOp</span></code> into <code class="docutils literal notranslate"><span class="pre">hfusion::HistogramOp</span></code> to enable efficient execution on the dedicated NPU hardware.</p></td>
+</tr>
+<tr class="row-even"><td><p>triton-to-hivm</p></td>
+<td><p>Processes the block synchronization operations (<code class="docutils literal notranslate"><span class="pre">tl.sync_block_all</span></code>, <code class="docutils literal notranslate"><span class="pre">tl.sync_block_set</span></code>, and <code class="docutils literal notranslate"><span class="pre">tl.sync_block_wait</span></code>) of Triton and converts them into the cross-core synchronization instruction in the <code class="docutils literal notranslate"><span class="pre">HIVM</span></code> dialect of Ascend NPU. These instructions are used to manage synchronization and data dependencies in the multi-core pipeline, which is the key to pipeline optimization.</p></td>
+<td><p>TritonCustomOpToHIVMSyncOpConversion</p></td>
+<td><p>Converts Triton synchronization instructions to HIVM synchronization instructions.<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_all</span></code>: synchronizes blocks globally.<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_set</span></code>: sets a synchronization point.<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_wait</span></code>: waits for a synchronization point.</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton-to-llvm</p></td>
+<td><p>Converts the inline assembly operation (<code class="docutils literal notranslate"><span class="pre">tl.inline_assembly</span></code>) in Triton to the inline assembly in the LLVM dialect, and finally maps it to a CCE hardware intrinsic function of Ascend NPU.</p></td>
+<td><p>ElementwiseInlineAsmOpConversion</p></td>
+<td><p>Converts <code class="docutils literal notranslate"><span class="pre">triton::ElementwiseInlineAsmOp</span></code> to <code class="docutils literal notranslate"><span class="pre">LLVM::InlineAsmOp</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="ascend-affinitive-operators">
+<h3>3.2.3 Ascend affinitive Operators<a class="headerlink" href="#ascend-affinitive-operators" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>No.</p></th>
+<th class="head"><p>Operator</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>tl.custom_op</p></td>
+<td><p>A set of custom operators extended by Ascend NPU, used to support hardware-specific memory access and data movement patterns. For example:<br>• <code class="docutils literal notranslate"><span class="pre">index_select</span></code>: selects data based on an index.<br>• <code class="docutils literal notranslate"><span class="pre">index_put</span></code>: places data based on an index.<br>• <code class="docutils literal notranslate"><span class="pre">gather_out_to_ub</span></code>: collects external data to the unified buffer (UB).<br>• <code class="docutils literal notranslate"><span class="pre">scatter_ub_to_out</span></code>: scatters data from the UB to the output.<br>• <code class="docutils literal notranslate"><span class="pre">indirect_load</span></code>: loads content from an indirect address.<br>• <code class="docutils literal notranslate"><span class="pre">indirect_store</span></code>: stores content to an indirect address.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>tl.compile_hint</p></td>
+<td><p>Provides hardware-specific compilation hints to the compiler, which are used to guide the backend optimization policy, resource allocation, or kernel configuration.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>tl.sync_block_wait(<code class="docutils literal notranslate"><span class="pre">sender,</span> <span class="pre">receiver,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>Waits for block synchronization. The <code class="docutils literal notranslate"><span class="pre">receiver</span></code> waits for the event signal (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>) sent by the <code class="docutils literal notranslate"><span class="pre">sender</span></code>, which is used to manage data dependencies and execution sequence in the cross-core pipeline.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>tl.sync_block_set(<code class="docutils literal notranslate"><span class="pre">sender,</span> <span class="pre">receiver,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>Sets block synchronization. The <code class="docutils literal notranslate"><span class="pre">sender</span></code> sends an event signal (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>) to the <code class="docutils literal notranslate"><span class="pre">receiver</span></code>, indicating that an execution phase or data is ready.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>tl.sync_block_all(<code class="docutils literal notranslate"><span class="pre">mode,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>Globally synchronizes blocks. The sender broadcasts an event signal (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>) to all related receivers according to the specified synchronization mode (<code class="docutils literal notranslate"><span class="pre">mode</span></code>) to implement full-core synchronization or collective synchronization in a specific mode.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

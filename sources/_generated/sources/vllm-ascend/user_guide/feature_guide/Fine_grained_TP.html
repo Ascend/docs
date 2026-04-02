@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fine-Grained Tensor Parallelism (Finegrained TP) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="Layer Sharding Linear Guide" href="layer_sharding.html" />
+    <link rel="prev" title="UCM-Enhanced Prefix Caching Deployment Guide" href="ucm_deployment.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/features/index.html">Feature Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Feature Guide</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="graph_mode.html">Graph Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpu_binding.html">CPU Binding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantization.html">Quantization Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleep_mode.html">Sleep Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="structured_output.html">Structured Output Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lora.html">LoRA Adapters Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eplb_swift_balancer.html">Expert Load Balance (EPLB)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="netloader.html">Netloader Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rfork.html">RFork Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Multi_Token_Prediction.html">Multi Token Prediction (MTP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic_batch.html">Dynamic Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="epd_disaggregation.html">Disaggregated-encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kv_pool.html">Ascend Store Deployment Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_dp.html">External DP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="large_scale_ep.html">Distributed DP Server With Large-Scale Expert Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ucm_deployment.html">UCM-Enhanced Prefix Caching Deployment Guide</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Fine-Grained Tensor Parallelism (Finegrained TP)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benefits-of-finegrained-tp">Benefits of Finegrained TP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#supported-scenarios">Supported Scenarios</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-use-finegrained-tp">How to Use Finegrained TP</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#experimental-results">Experimental Results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-recommendations">✅ Deployment Recommendations</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="layer_sharding.html">Layer Sharding Linear Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="speculative_decoding.html">Speculative Decoding Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="context_parallel.html">Context Parallel Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="npugraph_ex.html">Npugraph_ex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="weight_prefetch.html">Weight Prefetch Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sequence_parallelism.html">Sequence Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batch_invariance.html">Batch Invariance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lmcache_ascend_deployment.html">LMCache-Ascend Deployment Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/performance_and_debug/index.html">Performance and Debug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Feature Guide</a></li>
+      <li class="breadcrumb-item active">Fine-Grained Tensor Parallelism (Finegrained TP)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/user_guide/feature_guide/Fine_grained_TP.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="fine-grained-tensor-parallelism-finegrained-tp">
+<h1>Fine-Grained Tensor Parallelism (Finegrained TP)<a class="headerlink" href="#fine-grained-tensor-parallelism-finegrained-tp" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Fine-Grained Tensor Parallelism (Fine-grained TP) extends standard tensor parallelism by enabling <strong>independent tensor-parallel sizes for different model components</strong>. Instead of applying a single global <code class="docutils literal notranslate"><span class="pre">tensor_parallel_size</span></code> to all layers, Fine-grained TP allows users to configure separate TP sizes for key modules—such as embedding, language model head (lm_head), attention output projection (o_proj), and MLP blocks—via the <code class="docutils literal notranslate"><span class="pre">finegrained_tp_config</span></code> parameter.</p>
+<p>This capability supports heterogeneous parallelism strategies within a single model, providing finer control over weight distribution, memory layout, and communication patterns across devices. The feature is compatible with standard dense transformer architectures and integrates seamlessly into vLLM’s serving pipeline.</p>
+</section>
+<hr class="docutils" />
+<section id="benefits-of-finegrained-tp">
+<h2>Benefits of Finegrained TP<a class="headerlink" href="#benefits-of-finegrained-tp" title="Link to this heading"></a></h2>
+<p>Fine-Grained Tensor Parallelism delivers two primary performance advantages through targeted weight sharding:</p>
+<ul class="simple">
+<li><p><strong>Reduced Per-Device Memory Footprint</strong>:<br />
+Fine-grained TP shards large weight matrices(如 LM Head, o_proj)across devices, lowering peak memory usage and enabling larger batches or deployment on memory-limited hardware—without quantization.</p></li>
+<li><p><strong>Faster Memory Access in GEMMs</strong>:<br />
+In decode-heavy workloads, GEMM performance is often memory-bound. Weight sharding reduces per-device weight fetch volume, cutting DRAM traffic and improving bandwidth efficiency—especially for latency-sensitive layers like LM Head and o_proj.</p></li>
+</ul>
+<p>Together, these effects allow practitioners to better balance memory, communication, and compute—particularly in high-concurrency serving scenarios—while maintaining compatibility with standard dense transformer models.</p>
+</section>
+<hr class="docutils" />
+<section id="supported-scenarios">
+<h2>Supported Scenarios<a class="headerlink" href="#supported-scenarios" title="Link to this heading"></a></h2>
+<section id="models">
+<h3>Models<a class="headerlink" href="#models" title="Link to this heading"></a></h3>
+<p>Fine-grained TP is <strong>model-agnostic</strong> and supports all standard dense transformer architectures, including Llama, Qwen, DeepSeek (base/dense variants), and others.</p>
+</section>
+<section id="component-execution-mode-support">
+<h3>Component &amp; Execution Mode Support<a class="headerlink" href="#component-execution-mode-support" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>TP config</p></th>
+<th class="head"><p>Eager</p></th>
+<th class="head"><p>Graph</p></th>
+<th class="head"><p>Hybrid</p></th>
+<th class="head"><p>Prefill</p></th>
+<th class="head"><p>Decode</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>embedding</strong></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>o_proj</strong></p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>mlp</strong></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>LMhead</strong></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>⚠️ Note:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">o_proj</span></code> TP is only supported in Graph mode during Decode, because dummy_run in eager mode will not trigger o_proj.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mlp</span></code> TP supports dense models, or dense layers in MoE models. For example, the first three dense layers of DeepSeek-R1.</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="configuration-limit">
+<h3>Configuration Limit<a class="headerlink" href="#configuration-limit" title="Link to this heading"></a></h3>
+<p>The Fine-Grained TP size for any component must:</p>
+<ul class="simple">
+<li><p>Be <strong>≤ the data-parallel (DP) size</strong>, and</p></li>
+<li><p><strong>Evenly divide the DP size</strong> (i.e., <code class="docutils literal notranslate"><span class="pre">dp_size</span> <span class="pre">%</span> <span class="pre">tp_size</span> <span class="pre">==</span> <span class="pre">0</span></code>) to ensure valid device assignment and communication grouping.</p></li>
+</ul>
+<blockquote>
+<div><p>⚠️ Violating these constraints will result in runtime errors or undefined behavior.</p>
+</div></blockquote>
+</section>
+</section>
+<hr class="docutils" />
+<section id="how-to-use-finegrained-tp">
+<h2>How to Use Finegrained TP<a class="headerlink" href="#how-to-use-finegrained-tp" title="Link to this heading"></a></h2>
+<section id="configuration-format">
+<h3>Configuration Format<a class="headerlink" href="#configuration-format" title="Link to this heading"></a></h3>
+<p>Fine-grained TP is controlled via the <code class="docutils literal notranslate"><span class="pre">finegrained_tp_config</span></code> field inside <code class="docutils literal notranslate"><span class="pre">--additional-config</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>--additional-config<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;finegrained_tp_config&quot;: {</span>
+<span class="s1">        &quot;embedding_tensor_parallel_size&quot;: 8,</span>
+<span class="s1">        &quot;lmhead_tensor_parallel_size&quot;: 8,</span>
+<span class="s1">        &quot;oproj_tensor_parallel_size&quot;: 8,</span>
+<span class="s1">        &quot;mlp_tensor_parallel_size&quot;: 8</span>
+<span class="s1">    }</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="example-usage">
+<h3>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vllm<span class="w"> </span>serve<span class="w"> </span>deepseek-ai/DeepSeek-R1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-parallel-size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable-expert-parallel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--additional-config<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">        &quot;finegrained_tp_config&quot;: {</span>
+<span class="s1">            &quot;embedding_tensor_parallel_size&quot;: 8,</span>
+<span class="s1">            &quot;lmhead_tensor_parallel_size&quot;: 8,</span>
+<span class="s1">            &quot;mlp_tensor_parallel_size&quot;: 8</span>
+<span class="s1">        }</span>
+<span class="s1">    }&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="experimental-results">
+<h2>Experimental Results<a class="headerlink" href="#experimental-results" title="Link to this heading"></a></h2>
+<p>To evaluate the effectiveness of fine-grained TP in large-scale service scenarios, we use the model <strong>DeepSeek-R1-W8A8</strong>, deploy PD separated decode instances in an environment of 32 cards Ascend 910B*64G (A2), with parallel configuration as DP32+EP32, and fine-grained TP size of 8; the performance data is as follows.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Memory Savings</p></th>
+<th class="head"><p>TPOT Impact (batch=24)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>o_proj TP = 8</p></td>
+<td><p>5.8 GB</p></td>
+<td><p><strong>+1.5 ms</strong> (degradation)</p></td>
+</tr>
+<tr class="row-odd"><td><p>LM head TP = 8</p></td>
+<td><p>1.51 GB</p></td>
+<td><p><strong>−1.2 ms</strong> (improvement)</p></td>
+</tr>
+<tr class="row-even"><td><p>FFN TP = 8</p></td>
+<td><p>0.9 GB</p></td>
+<td><p><strong>−1.0 ms</strong> (improvement)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Embedding TP = 8</p></td>
+<td><p>1.51 GB</p></td>
+<td><p><strong>−1.0 ms</strong> (improvement)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Total</strong></p></td>
+<td><p><strong>9.72 GB</strong></p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>We achieved significant gains in terms of high memory capacity on a single card, as well as the benefits of TPOT.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="deployment-recommendations">
+<h2>✅ Deployment Recommendations<a class="headerlink" href="#deployment-recommendations" title="Link to this heading"></a></h2>
+<p>Fine-grained TP is the <strong>most effective</strong> in the <strong>decode instance</strong> of PD separation, where models are typically deployed in all-DP mode. In this setup, sharding weight-heavy layers reduces redundant storage and memory pressure.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="ucm_deployment.html" class="btn btn-neutral float-left" title="UCM-Enhanced Prefix Caching Deployment Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="layer_sharding.html" class="btn btn-neutral float-right" title="Layer Sharding Linear Guide" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

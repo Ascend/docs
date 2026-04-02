@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe: Self-Play Fine-Tuning (SPIN) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Recipe: Self-Play Fine-Tuning (SPIN)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/algo/spin.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="recipe-self-play-fine-tuning-spin">
+<h1>Recipe: Self-Play Fine-Tuning (SPIN)<a class="headerlink" href="#recipe-self-play-fine-tuning-spin" title="Link to this heading"></a></h1>
+<p>Last updated: 05/31/2025.</p>
+<p><code class="docutils literal notranslate"><span class="pre">verl</span></code> provides a recipe inspired by the paper <strong>&quot;Self-Play Fine-Tuning Converts Weak Language Models to Strong Language Models&quot;</strong> (SPIN). SPIN is a language model finetuning algorithm that enables iterative self-improvement through a self-play mechanism inspired by game theory.</p>
+<p><strong>Core Idea:</strong> Models learn by playing against themselves, reducing reliance on external preference datasets or stronger teacher models:</p>
+<ol class="arabic simple">
+<li><p><strong>Synthetic Data Generation:</strong> The current model generates responses, creating its own training data from previous iterations.</p></li>
+<li><p><strong>Two-Player Game Setup:</strong> A game involving two players acted by a single LLM.</p></li>
+<li><p><strong>Iterative Training:</strong> The model progressively improves by refining its policy, with each iteration's model becoming the opponent for the next iteration.</p></li>
+</ol>
+<p>Paper Authors: <a class="reference external" href="https://github.com/uclaml/SPIN">Zixiang Chen</a>*, <a class="reference external" href="https://github.com/uclaml/SPIN">Yihe Deng</a>*, <a class="reference external" href="https://scholar.google.com/citations?user=8foZzX4AAAAJ">Huizhuo Yuan</a>*, <a class="reference external" href="https://scholar.google.com/citations?user=FOoKDukAAAAJ">Kaixuan Ji</a>, <a class="reference external" href="https://web.cs.ucla.edu/~qgu/">Quanquan Gu</a></p>
+<p>[<a class="reference external" href="https://uclaml.github.io/SPIN/">Webpage</a>] [<a class="reference external" href="https://huggingface.co/papers/2401.01335">Huggingface</a>] [<a class="reference external" href="https://arxiv.org/abs/2401.01335">Paper</a>] [<a class="reference external" href="https://github.com/uclaml/SPIN">Original Implementation</a>]</p>
+<p>verl Implementation Authors: <a class="reference external" href="https://cdwang96.github.io/">Chendong Wang</a>, <a class="reference external" href="https://github.com/zhaochenyang20">Chenyang Zhao</a></p>
+<hr class="docutils" />
+<section id="key-function-compute-online-dpo-loss-and-related-works">
+<h2>Key Function (compute_online_dpo_loss) and Related works<a class="headerlink" href="#key-function-compute-online-dpo-loss-and-related-works" title="Link to this heading"></a></h2>
+<p>SPIN (Chen et al., 2024) proposes an iterative self-play mechanism to fine-tune language models. In each iteration, SPIN's training objective, when using a logistic loss function, is equivalent to Direct Preference Optimization (DPO) loss (Rafailov et al., 2023).</p>
+<p>This <code class="docutils literal notranslate"><span class="pre">verl</span></code> recipe realizes SPIN's core concept by using DPO loss iteratively (Xu et al., 2023; Xiong et al., 2023; Snorkel AI, 2024). This means that in each iteration, we fine-tune the LLM using DPO loss for preference optimization. Notably, Xu et al. (2023) explored iterative preference optimization with pairwise cringe loss, while Xiong et al. (2023) discussed how to bridge theory and practice for RLHF under KL constraints using iterative training. The concept of iterative preference learning was also explored in online DPO (Guo et al., 2024), which focuses on direct alignment from online AI feedback. In online DPO, preference data is dynamically updated during training, allowing the model to learn from its own generated data.</p>
+<p>Specifically, we developed the <strong><code class="docutils literal notranslate"><span class="pre">compute_online_dpo_loss</span></code></strong> function and built this SPIN recipe on top of it. By incorporating online preference generation, this approach enables continuously refining language models without relying on fixed external preference datasets.</p>
+<p><strong>Reference Papers:</strong></p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/abs/2401.01335">Self-Play Fine-Tuning Converts Weak Language Models to Strong Language Models</a> (Chen et al., 2024)</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization: Your Language Model is Secretly a Reward Model</a> (Rafailov et al., 2023)</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2312.16682">Somethings are more cringe than others: Preference optimization with the pairwise cringe loss</a> (Xu et al., 2023)</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2312.11456">Iterative preference learning from human feedback: Bridging theory and practice for rlhf under kl-constraint</a> (Xiong et al., 2023)</p></li>
+<li><p><a class="reference external" href="https://huggingface.co/snorkelai/Snorkel-Mistral-PairRM-DPO">Snorkel-Mistral-PairRM-DPO</a> (Snorkel AI, 2024)</p></li>
+<li><p><a class="reference external" href="https://arxiv.org/abs/2402.04792">Direct language model alignment from online ai feedback</a> (Guo et al., 2024)</p></li>
+</ul>
+</section>
+<section id="our-online-dpo-implementation">
+<h2>Our Online DPO Implementation<a class="headerlink" href="#our-online-dpo-implementation" title="Link to this heading"></a></h2>
+<p>Our <code class="docutils literal notranslate"><span class="pre">compute_online_dpo_loss</span></code> function adapts <code class="docutils literal notranslate"><span class="pre">verl</span></code>'s existing PPO infrastructure (based on <code class="docutils literal notranslate"><span class="pre">verl</span></code> v0.3.0.post1) for this iterative online DPO. Key aspects of our implementation include:</p>
+<ul class="simple">
+<li><p><strong>No Critic:</strong> Unlike PPO, we omit the value function critic.</p></li>
+<li><p><strong>Dynamic Reference Model:</strong> An explicit reference policy (<code class="docutils literal notranslate"><span class="pre">ref_policy_wg</span></code>) is used for DPO loss. This reference model's weights can be periodically updated from the actor (<code class="docutils literal notranslate"><span class="pre">ref_update_freq</span></code>), providing a dynamic baseline.</p></li>
+<li><p><strong>Online Preference Generation:</strong> The <code class="docutils literal notranslate"><span class="pre">compute_onlineDPO_pref</span></code> function (in <code class="docutils literal notranslate"><span class="pre">core_algos.py</span></code>) dynamically creates chosen/rejected pairs based on a reward source (e.g., rule-based ranking for math problems).</p></li>
+<li><p><strong>DPO Loss Integration:</strong> We replace PPO's policy loss with our <code class="docutils literal notranslate"><span class="pre">compute_online_dpo_loss</span></code> (in <code class="docutils literal notranslate"><span class="pre">core_algos.py</span></code>) within the actor update (<code class="docutils literal notranslate"><span class="pre">dp_actor.py</span></code>), directly optimizing the policy using the generated preferences.</p></li>
+<li><p><strong>Iterative Training Orchestration:</strong> The <code class="docutils literal notranslate"><span class="pre">SpinTrainer</span></code> (in <code class="docutils literal notranslate"><span class="pre">spin_trainer.py</span></code>) manages the entire self-play loop: generation, preference labeling, optional reference model updates, and policy updates, enabling continuous self-improvement aligned with SPIN's principles.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="algorithm">
+<h2>Algorithm<a class="headerlink" href="#algorithm" title="Link to this heading"></a></h2>
+<p>This recipe implements an Online algorithm adapted to the <code class="docutils literal notranslate"><span class="pre">verl</span></code> Reinforcement Learning framework, which provides an alternative to PPO for fine-tuning language models.</p>
+<p><strong>Online Loop:</strong> Instead of maximizing a scalar reward signal in PPO, this approach directly optimizes the policy model to align with preference data generated <em>online</em> during training:</p>
+<ol class="arabic simple">
+<li><p><strong>Generation:</strong> The current model generates multiple responses for each prompt in a batch.</p></li>
+<li><p><strong>Preference Labeling:</strong> A function evaluates these generated responses to determine which one is preferred (chosen) and which is dispreferred (rejected). This can be done using a reward function or implicit ranking based on specific rules. (In this recipe, we use rule-based ranking on the math problem).</p></li>
+<li><p><strong>Update:</strong> This preference tuple (<code class="docutils literal notranslate"><span class="pre">prompt</span></code>, <code class="docutils literal notranslate"><span class="pre">chosen_response</span></code>, <code class="docutils literal notranslate"><span class="pre">rejected_response</span></code>) is used to update the actor model using <code class="docutils literal notranslate"><span class="pre">compute_online_dpo_loss</span></code>, comparing against a reference model.</p></li>
+</ol>
+<p><strong>Connection with SPIN:</strong>
+Instead of only using a fixed target data distribution, the online generation loop in step 2 will dynamically change the target data distribution by using a certain Preference Labeling method (rule-based ranking on the math problem by selecting the better one in this recipe). This explores the direction mentioned in SPIN's paper Section 7 about &quot;dynamically changing target data distribution&quot; to potentially elevate LLM performance beyond the fixed human-annotated data ceiling.</p>
+</section>
+<hr class="docutils" />
+<section id="reproduce-the-experiment-example-setup">
+<h2>Reproduce the Experiment (Example Setup)<a class="headerlink" href="#reproduce-the-experiment-example-setup" title="Link to this heading"></a></h2>
+<p>The following steps outline how to set up the environment and run the SPIN recipe, based on the provided test log using GSM8K and Qwen2.5-3B-Instruct.</p>
+<ol class="arabic">
+<li><p><strong>Setup Environment (Example using Docker):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Start a container with GPU access and shared memory</span>
+docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--name<span class="w"> </span>spin_test<span class="w"> </span>--gpus<span class="w"> </span>all<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shm-size<span class="o">=</span>32g<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ipc<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/path/to/host/.cache:/root/.cache<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-e<span class="w"> </span><span class="nv">HF_TOKEN</span><span class="o">=</span>&lt;YOUR_HUGGINGFACE_TOKEN&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>lmsysorg/sglang:latest<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/bin/bash
+
+<span class="c1"># Inside the container or on your host machine:</span>
+<span class="c1"># Ensure /tmp is writable</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp
+chmod<span class="w"> </span><span class="m">1777</span><span class="w"> </span>/tmp
+
+<span class="c1"># Install Python 3.10 (if not present) and venv</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>python3.10<span class="w"> </span>python3.10-venv<span class="w"> </span>tmux
+python3<span class="w"> </span>-m<span class="w"> </span>ensurepip<span class="w"> </span>--upgrade
+
+<span class="c1"># Create and activate a virtual environment</span>
+python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>~/.python/spin_env
+<span class="nb">source</span><span class="w"> </span>~/.python/spin_env/bin/activate
+
+<span class="c1"># Install uv (fast package installer)</span>
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>uv
+</pre></div>
+</div>
+</li>
+<li><p><strong>Install verl and Dependencies:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clone the verl repository and checkout the spin branch</span>
+<span class="nb">cd</span><span class="w"> </span>~
+git<span class="w"> </span>clone<span class="w"> </span>git@github.com:volcengine/verl.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>verl
+
+<span class="c1"># Install flash-attn (handle potential build issues)</span>
+python3<span class="w"> </span>-m<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>wheel<span class="w"> </span>packaging
+python3<span class="w"> </span>-m<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>flash-attn<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps
+
+<span class="c1"># Install verl with sglang extras</span>
+python3<span class="w"> </span>-m<span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[sglang]&quot;</span>
+</pre></div>
+</div>
+<p><em>Note: If <code class="docutils literal notranslate"><span class="pre">flash-attn</span></code> installation fails, try the manual steps again or consult its documentation.</em></p>
+</li>
+<li><p><strong>Login &amp; Download Data/Model:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Login to Weights &amp; Biases (optional, for logging)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">WANDB_API_KEY</span><span class="o">=</span>&lt;YOUR_WANDB_API_KEY&gt;
+<span class="c1"># wandb login</span>
+
+<span class="c1"># Download the GSM8K dataset</span>
+python3<span class="w"> </span>examples/data_preprocess/gsm8k.py<span class="w"> </span>--local_save_dir<span class="w"> </span>~/data/gsm8k<span class="w"> </span><span class="c1"># Adjusted path</span>
+
+<span class="c1"># Download the base model (Example: Qwen2.5-3B-Instruct)</span>
+hf<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen2.5-3B-Instruct<span class="w"> </span>--local-dir<span class="w"> </span><span class="nv">$HOME</span>/models/Qwen2.5-3B-Instruct
+</pre></div>
+</div>
+</li>
+<li><p><strong>Configure:</strong></p>
+<ul class="simple">
+<li><p>Modify the configuration file (e.g., <code class="docutils literal notranslate"><span class="pre">config/spin_trainer.yaml</span></code> or the one specified in the run script) with correct paths to your downloaded model, data, desired hyperparameters (<code class="docutils literal notranslate"><span class="pre">dpo_beta</span></code>, learning rate, etc.), and distributed training settings (nodes, GPUs per node).</p></li>
+<li><p>Pay attention to <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> paths, <code class="docutils literal notranslate"><span class="pre">reward_model</span></code> config (if using one), and <code class="docutils literal notranslate"><span class="pre">trainer.ref_update_freq</span></code>.</p></li>
+</ul>
+</li>
+<li><p><strong>Run Training:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set CUDA visible devices (adjust based on your hardware and config)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3
+
+<span class="c1"># Launch the training script (e.g., test.sh or a custom script)</span>
+<span class="c1"># Ensure test.sh points to the correct config and main script</span>
+bash<span class="w"> </span>recipe/spin/run_spin.sh
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The primary configuration is typically managed through a YAML file specified in the launch script (e.g., <code class="docutils literal notranslate"><span class="pre">config/spin_trainer.yaml</span></code>).</p></li>
+<li><p>Key configuration sections:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: Paths to training/validation prompt files, batch sizes, sequence lengths.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref</span></code>: Paths to the base model (used for actor and initial reference), FSDP settings, optimization parameters (learning rate, scheduler).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reward_model</span></code>: Configuration for the reward model used for online preference labeling (path, batch size, etc.). Can be omitted if using a simpler reward function.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm</span></code>: DPO-specific hyperparameters like <code class="docutils literal notranslate"><span class="pre">dpo_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">dpo_loss_type</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer</span></code>: Distributed training settings (nodes, GPUs per node), logging (WandB), checkpointing frequency, and <code class="docutils literal notranslate"><span class="pre">ref_update_freq</span></code> (set &gt; 0 to enable periodic reference model updates from the actor).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="key-files">
+<h2>Key Files<a class="headerlink" href="#key-files" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">main_spin.py</span></code>: Main entry point using Hydra to load the config and launch the <code class="docutils literal notranslate"><span class="pre">SpinTrainer</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">spin_trainer.py</span></code>: Defines the <code class="docutils literal notranslate"><span class="pre">SpinTrainer</span></code> class, orchestrating the Online DPO training loop.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fsdp_workers.py</span></code>: Implements Ray workers (Actor, Reference) potentially using FSDP.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dp_actor.py</span></code>: Contains the actor class, including the DPO policy update logic.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">core_algos.py</span></code>: Includes helper functions for <code class="docutils literal notranslate"><span class="pre">compute_online_dpo_loss</span></code> and <code class="docutils literal notranslate"><span class="pre">compute_onlineDPO_pref</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config/spin_trainer.yaml</span></code> (or similar): Main Hydra configuration file for the recipe.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_spin.sh</span></code> (or similar): Example bash script for launching a training run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">README.md</span></code>: This file.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="acknowledgement">
+<h2>Acknowledgement<a class="headerlink" href="#acknowledgement" title="Link to this heading"></a></h2>
+<p>We sincerely thank the contribution and guidance from the <code class="docutils literal notranslate"><span class="pre">verl</span></code> community and advisors, including (adapted from SPPO):</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://sites.google.com/view/zxchen">Zixiang Chen</a></p></li>
+<li><p><a class="reference external" href="https://github.com/yhyang201">Yuhao Yang</a></p></li>
+<li><p><a class="reference external" href="https://github.com/yifanzhang-pro">Yifan Zhang</a></p></li>
+<li><p><a class="reference external" href="https://github.com/BearBiscuit05">Yongan Xiang</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ocss884">Junrong Lin</a></p></li>
+<li><p><a class="reference external" href="https://github.com/tongyx361">Yuxuan Tong</a></p></li>
+<li><p><a class="reference external" href="https://github.com/PeterSH6">Guangming Shen</a></p></li>
+<li><p><a class="reference external" href="https://www.linkedin.com/in/biao-he/">Biao He</a></p></li>
+<li><p><a class="reference external" href="https://qingquansong.github.io/">Qingquan Song</a></p></li>
+<li><p><a class="reference external" href="https://zhaochenyang20.github.io/Chayenne/">Chenyang Zhao</a></p></li>
+<li><p><a class="reference external" href="https://web.cs.ucla.edu/~qgu/">Quanquan Gu</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verl LLM Best Practices (DAPO + Qwen3-235B) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Verl LLM Best Practices (DAPO + Qwen3-235B)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/perf/best_practices.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="verl-llm-best-practices-dapo-qwen3-235b">
+<h1>Verl LLM Best Practices (DAPO + Qwen3-235B)<a class="headerlink" href="#verl-llm-best-practices-dapo-qwen3-235b" title="Link to this heading"></a></h1>
+<p>Last updated: 11/03/2025.</p>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>This guide uses DAPO training on Qwen3-235B as a concrete example. We unpack every parameter that appears in the optimization objective, map it to Verl configuration entries, and share field-tested recommendations so you can derive sensible settings for your own workloads.</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<ol class="arabic simple">
+<li><p>The guide only covers the subset of parameters required to reproduce the DAPO experiments discussed here. For the full list, refer to the <code class="docutils literal notranslate"><span class="pre">config</span></code> components in the Verl source tree: <a class="reference external" href="https://github.com/volcengine/verl/tree/main/verl/trainer/config">https://github.com/volcengine/verl/tree/main/verl/trainer/config</a></p></li>
+<li><p>PPO and GRPO introduce KL-constrained policies. We therefore include that setup in the explanations below. You can treat all configurations mentioned here as a DAPO pipeline augmented with a KL penalty.</p></li>
+</ol>
+</div>
+</section>
+<section id="optimization-objectives">
+<h2>Optimization Objectives<a class="headerlink" href="#optimization-objectives" title="Link to this heading"></a></h2>
+<section id="dapo-objective">
+<h3>DAPO objective<a class="headerlink" href="#dapo-objective" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mathcal{J}_{\mathrm{DAPO}}(\theta)= &amp; \mathbb{E}_{(q, a) \sim \mathcal{D},\left\{o_i\right\}_{i=1}^G \sim \pi_{\theta_{\text {old }}}(\cdot \mid q)} \
+ {\left[\frac{1}{\sum_{i=1}^G\left|o_i\right|} \sum_{i=1}^G \sum_{t=1}^{\left|o_i\right|} \min \left(r_{i, t}(\theta) \hat{A}_{i, t}, \operatorname{clip}\left(r_{i, t}(\theta), 1-\varepsilon_{\text {low }}, 1+\varepsilon_{\text {high }}\right) \hat{A}_{i, t}\right)\right] } \\
+\end{aligned}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\text { s.t. } \quad 0&lt;\mid\left\{o_i \mid \text { is_equivalent }\left(a, o_i\right)\right\} \mid&lt;G,\]</div>
+<div class="math notranslate nohighlight">
+\[\text {where} \quad r_{i, t}(\theta)=\frac{\pi_\theta\left(o_{i, t} \mid q, o_{i,&lt;t}\right)}{\pi_{\theta_{\text {old }}}\left(o_{i, t} \mid q, o_{i,&lt;t}\right)}, \quad \hat{A}_{i, t}=\frac{R_i-\operatorname{mean}\left(\left\{R_i\right\}_{i=1}^G\right)}{\operatorname{std}\left(\left\{R_i\right\}_{i=1}^G\right)}\]</div>
+</section>
+<section id="grpo-objective">
+<h3>GRPO objective<a class="headerlink" href="#grpo-objective" title="Link to this heading"></a></h3>
+<div class="math notranslate nohighlight">
+\[\begin{aligned}
+\mathcal{J}_{G R P O}(\theta) &amp; =\mathbb{E}_{q \sim P(Q),\left\{o_i\right\}_{i=1}^G \sim \pi_{\theta_{\text {old }}}(O \mid q)} \
+\frac{1}{G} \sum_{i=1}^G \frac{1}{\left|o_i\right|} \sum_{t=1}^{\left|o_i\right|}\left\{\min \left[\frac{\pi_\theta\left(o_{i, t} \mid q, o_{i,&lt;t}\right)}{\pi_{\theta_{\text {old }}}\left(o_{i, t} \mid q, o_{i,&lt;t}\right)} \hat{A}_{i, t}, \operatorname{clip}\left(\frac{\pi_\theta\left(o_{i, t} \mid q, o_{i,&lt;t}\right)}{\pi_{\theta_{\text {old }}}\left(o_{i, t} \mid q, o_{i,&lt;t}\right)}, 1-\varepsilon, 1+\varepsilon\right) \hat{A}_{i, t}\right]-\beta \mathbb{D}_{K L}\left[\pi_\theta \| \pi_{r e f}\right]\right\},
+\end{aligned}\]</div>
+</section>
+</section>
+<section id="notation-overview">
+<h2>Notation Overview<a class="headerlink" href="#notation-overview" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><span class="math notranslate nohighlight">\((q,a)\sim D\)</span></dt><dd><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(D\)</span> denotes the training dataset. For each sample, <span class="math notranslate nohighlight">\(q\)</span> is the input prompt (for math tasks, the question) and <span class="math notranslate nohighlight">\(a\)</span> is the target output—typically the final answer without intermediate reasoning steps.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(G\)</span></dt><dd><ul class="simple">
+<li><p>Group size. For every prompt we sample <span class="math notranslate nohighlight">\(G\)</span> independent responses.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\theta\)</span></dt><dd><ul class="simple">
+<li><p>Actor model parameters.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi\)</span></dt><dd><ul class="simple">
+<li><p>Sampling strategy that bundles the rollout backend (vLLM, sglang, etc.) and all generation hyperparameters. Because LLMs generate tokens autoregressively, rollout dominates runtime, so backend-specific tuning is critical.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_\theta\)</span></dt><dd><ul class="simple">
+<li><p>Actor policy obtained by instantiating <span class="math notranslate nohighlight">\(\pi\)</span> with parameters <span class="math notranslate nohighlight">\(\theta\)</span>.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\hat{A}_{i,t}\)</span></dt><dd><ul class="simple">
+<li><p>Advantage of the <span class="math notranslate nohighlight">\(i\)</span>-th sample within the group at timestep <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(R_i\)</span></dt><dd><ul class="simple">
+<li><p>Reward assigned to the <span class="math notranslate nohighlight">\(i\)</span>-th sample in the group.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\mathbb{D}_{KL}\)</span></dt><dd><ul class="simple">
+<li><p>KL divergence between two policies.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\beta\)</span></dt><dd><ul class="simple">
+<li><p>Coefficient that weights the KL term.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_{old}\)</span></dt><dd><ul class="simple">
+<li><p>Frozen “old” policy, updated after every <span class="math notranslate nohighlight">\(\texttt{train_batch_size}\)</span> samples.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_{ref}\)</span></dt><dd><ul class="simple">
+<li><p>Reference policy used to compute the KL divergence.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(o_i, |o_i|\)</span></dt><dd><ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(o_i\)</span> is the generated output sequence for the <span class="math notranslate nohighlight">\(i\)</span>-th prompt; <span class="math notranslate nohighlight">\(|o_i|\)</span> is its token length.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_\theta(o_{i,t} \mid q_i, o_{i,&lt;t})\)</span></dt><dd><ul class="simple">
+<li><p>Probability of emitting token <span class="math notranslate nohighlight">\(o_{i,t}\)</span> at timestep <span class="math notranslate nohighlight">\(t\)</span> given prompt <span class="math notranslate nohighlight">\(q_i\)</span> and the previously generated prefix under parameters <span class="math notranslate nohighlight">\(\theta\)</span>. In practice, the rollout engine first generates full responses, then concatenates prompts and outputs for each model; with attention masks we can compute all token probabilities in one pass.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\varepsilon_{low}\)</span> and <span class="math notranslate nohighlight">\(\varepsilon_{high}\)</span></dt><dd><ul class="simple">
+<li><p>Lower and upper clipping bounds for importance sampling. DAPO adopts a clip-higher strategy, so the upper bound is different from the lower bound to prevent overly large policy updates.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="parameter-reference">
+<h2>Parameter Reference<a class="headerlink" href="#parameter-reference" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><span class="math notranslate nohighlight">\((q,a)\sim D\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data.train_files</span></code> / <code class="docutils literal notranslate"><span class="pre">data.val_files</span></code>:
+Training and validation datasets. They must be stored as <code class="docutils literal notranslate"><span class="pre">.parquet</span></code>. Use the conversion scripts under <code class="docutils literal notranslate"><span class="pre">examples/data_preprocess</span></code> and make sure your <code class="docutils literal notranslate"><span class="pre">data_source</span></code> implements the matching reward function. You can also reuse the HuggingFace dataset <code class="docutils literal notranslate"><span class="pre">BytedTsinghua-SIA/DAPO-Math-17k</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.prompt_key</span></code>:
+Column name for prompts. Keep the default <code class="docutils literal notranslate"><span class="pre">prompt</span></code> unless you have a clearer schema.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.max_prompt_length</span></code>:
+Upper bound on prompt length. Set it to cover the longest prompt in the corpus; when long-tail samples make it too large, lower the value and combine with <code class="docutils literal notranslate"><span class="pre">data.truncation</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.truncation</span></code>:
+Policy for over-length inputs (truncate-left/right or raise). <code class="docutils literal notranslate"><span class="pre">left</span></code> works for most runs. If training logs show large <code class="docutils literal notranslate"><span class="pre">clip_ratio</span></code> and poor metrics, increase <code class="docutils literal notranslate"><span class="pre">data.max_prompt_length</span></code> or clean the data. Set to <code class="docutils literal notranslate"><span class="pre">error</span></code> when strict validation is required.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(G\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.n</span></code>:
+Number of generations per prompt. Typical values: GRPO 64, DAPO 16.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\theta\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model.path</span></code>:
+Path to the actor checkpoint in HuggingFace-compatible format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.use_mbridge</span></code>:
+Enable mbridge format conversion when the model was trained with Megatron. Use the latest mbridge release: <a class="reference external" href="https://github.com/ISEEKYAN/mbridge">https://github.com/ISEEKYAN/mbridge</a>.
+Now it must be True.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.vanilla_mbridge</span></code>:
+If set to True, use mbridge, else use Megatron-Bridge <a class="reference external" href="https://github.com/NVIDIA-NeMo/Megatron-Bridge">https://github.com/NVIDIA-NeMo/Megatron-Bridge</a>.
+Now it is True by default. and it will defaultly be set to False in the future(v0.8).</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.name</span></code>:
+Rollout backend. Verl currently supports <code class="docutils literal notranslate"><span class="pre">vllm</span></code> and <code class="docutils literal notranslate"><span class="pre">sglang</span></code>—benchmark and tune according to your infrastructure.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.response_length</span></code> / <code class="docutils literal notranslate"><span class="pre">data.max_response_length</span></code>:
+Maximum generated tokens (rollout setting takes precedence). Larger values improve quality but consume more memory and latency. Monitor <code class="docutils literal notranslate"><span class="pre">clip_ratio</span></code>; values above 0.1 often mean you are truncating too much.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.gpu_memory_utilization</span></code>:
+Target GPU memory usage during rollout. Push it as high as possible without triggering OOM; with parameter/gradient/optimizer offload enabled, 0.8–0.9 is common.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.tensor_model_parallel_size</span></code>:
+Tensor parallel degree for the inference engine. Ensure <code class="docutils literal notranslate"><span class="pre">(memory_per_gpu</span> <span class="pre">*</span> <span class="pre">gpu_memory_utilization</span> <span class="pre">*</span> <span class="pre">TP)</span> <span class="pre">&gt;</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">model_parameters</span></code> (bf16/fp16). Increase TP gradually to expand KV cache capacity while watching communication cost—especially once TP &gt; 8.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.temperature</span></code> / <code class="docutils literal notranslate"><span class="pre">top_p</span></code> / <code class="docutils literal notranslate"><span class="pre">top_k</span></code>:
+Sampling knobs for rollout. Keep enough randomness; <code class="docutils literal notranslate"><span class="pre">temperature=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">top_p=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">top_k=-1</span></code> are good defaults.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.val_kwargs.temperature</span></code> / <code class="docutils literal notranslate"><span class="pre">top_p</span></code> / <code class="docutils literal notranslate"><span class="pre">top_k</span></code> / <code class="docutils literal notranslate"><span class="pre">do_sample</span></code> / <code class="docutils literal notranslate"><span class="pre">n</span></code>:
+Sampling options for validation. Set <code class="docutils literal notranslate"><span class="pre">temperature</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> to prevent repetitive thinking chains. For small test sets (e.g., AIME24) raise <code class="docutils literal notranslate"><span class="pre">n</span></code> (64 is a common choice) to reduce variance. A practical starting point is <code class="docutils literal notranslate"><span class="pre">temperature=1.0</span></code>, <code class="docutils literal notranslate"><span class="pre">top_p=0.7</span></code>, <code class="docutils literal notranslate"><span class="pre">top_k=-1</span></code>, <code class="docutils literal notranslate"><span class="pre">do_sample=True</span></code>, <code class="docutils literal notranslate"><span class="pre">n=1</span></code> and then increase <code class="docutils literal notranslate"><span class="pre">n</span></code> as needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.rollout.engine_kwargs.vllm.*</span></code> / <code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.rollout.engine_kwargs.sglang.*</span></code>:
+Extra backend options injected via the <code class="docutils literal notranslate"><span class="pre">+</span></code> syntax. Consult backend docs for exact semantics. Some switches (for example <code class="docutils literal notranslate"><span class="pre">pipeline_parallel_size</span></code>) may not be supported yet; when TP=32, <code class="docutils literal notranslate"><span class="pre">enable_expert_parallel=True</span></code> can even slow down DeepSeek-V3 rollout, so benchmark carefully.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_\theta\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data.train_batch_size</span></code>:
+Total batch size per training iteration. Each rollout produces <code class="docutils literal notranslate"><span class="pre">train_batch_size</span> <span class="pre">*</span> <span class="pre">n</span></code> samples. Larger values reduce the number of rollouts but increase off-policy drift.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.ppo_mini_batch_size</span></code>:
+Mini-batch size per optimization step. Tune it the same way you would for standard deep learning workloads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu</span></code>:
+Samples processed per forward pass on one GPU group (a Megatron group contains TP * PP * CP GPUs). Keep it ≤ <code class="docutils literal notranslate"><span class="pre">ppo_mini_batch_size</span></code> and as large as memory allows.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.use_dynamic_bsz</span></code>:
+Enable dynamic batch sizing to adapt to sequence length and improve throughput.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.log_prob_max_token_len_per_gpu</span></code>:
+Maximum tokens per GPU when computing log probabilities under dynamic batching. Set it to at least a multiple of <code class="docutils literal notranslate"><span class="pre">max_prompt_length</span> <span class="pre">+</span> <span class="pre">max_response_length</span></code> to prevent truncation.</p></li>
+<li><p>Megatron parallelism parameters (<code class="docutils literal notranslate"><span class="pre">pipeline_model_parallel_size</span></code> / <code class="docutils literal notranslate"><span class="pre">tensor_model_parallel_size</span></code> / <code class="docutils literal notranslate"><span class="pre">expert_model_parallel_size</span></code> / <code class="docutils literal notranslate"><span class="pre">expert_tensor_parallel_size</span></code> / <code class="docutils literal notranslate"><span class="pre">context_parallel_size</span></code>):
+Balance PP/TP/EP/ETP/CP to match memory and network constraints. In bf16/fp16, each parameter consumes roughly <code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">/</span> <span class="pre">TP</span></code> bytes; if you keep FP32 master weights or skip optimizer offload, reserve another 4–8 bytes for Adam. Activations scale with <code class="docutils literal notranslate"><span class="pre">micro_batch_size</span> <span class="pre">×</span> <span class="pre">sequence_length</span> <span class="pre">×</span> <span class="pre">hidden_size</span></code> and can be mitigated with gradient checkpointing, dynamic batches, or offload. Prefer increasing TP first, add PP when necessary, extend sequence capacity with CP, align EP/ETP with TP for MoE models, and keep DP minimal on constrained clusters while combining with offload. Always align the setup with hardware topology and communication cost.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model.use_fused_kernels</span></code>:
+Enable Verl’s fused kernels for supported models to squeeze out additional performance.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\hat{A}_{i,t}\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm.adv_estimator</span></code>:
+Advantage estimator. Set to <code class="docutils literal notranslate"><span class="pre">grpo</span></code> for DAPO/GRPO.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(R_i\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">reward_model.reward_manager</span></code>:
+Reward aggregation strategy. Use <code class="docutils literal notranslate"><span class="pre">dapo</span></code> for DAPO and <code class="docutils literal notranslate"><span class="pre">naive</span></code> for GRPO.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(D_{KL}\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm.use_kl_in_reward</span></code>:
+Whether to add a KL term to the reward. <code class="docutils literal notranslate"><span class="pre">True</span></code> for PPO, <code class="docutils literal notranslate"><span class="pre">False</span></code> for GRPO and DAPO.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.use_kl_loss</span></code>:
+Whether to include a KL loss term. <code class="docutils literal notranslate"><span class="pre">False</span></code> for PPO, <code class="docutils literal notranslate"><span class="pre">True</span></code> for GRPO, <code class="docutils literal notranslate"><span class="pre">False</span></code> for DAPO.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\beta\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.kl_loss_coef</span></code>:
+Weight of the KL loss. Start around 0.001. Larger values curb reward hacking but reduce exploration.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">algorithm.kl_ctrl.kl_coef</span></code>:
+KL coefficient applied within the reward. Adjust to match your tolerance for divergence.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_{old}\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.log_prob_use_dynamic_bsz</span></code>:
+Enable dynamic batching when the old policy computes log-probabilities. Recommended.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_{ref}\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.ref.log_prob_use_dynamic_bsz</span></code>:
+Enable dynamic batching for the reference policy. Recommended.</p></li>
+<li><p>Reference Megatron parallelism:
+Keep <code class="docutils literal notranslate"><span class="pre">pipeline_model_parallel_size</span></code>, <code class="docutils literal notranslate"><span class="pre">tensor_model_parallel_size</span></code>, <code class="docutils literal notranslate"><span class="pre">expert_model_parallel_size</span></code>, <code class="docutils literal notranslate"><span class="pre">expert_tensor_parallel_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">context_parallel_size</span></code> in sync with the actor.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.ref.megatron.param_offload</span></code>:
+Offload reference parameters to CPU when the actor does so. Even without gradients or optimizer states, parity helps with capacity planning.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(o_i\)</span> / <span class="math notranslate nohighlight">\(|o_i|\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.loss_agg_mode</span></code>:
+Loss aggregation mode. Token-level <code class="docutils literal notranslate"><span class="pre">token-mean</span></code> matches the recommendations from Dr.GRPO and DAPO; use <code class="docutils literal notranslate"><span class="pre">seq-mean-token-mean</span></code> to reproduce the original GRPO behavior.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\pi_\theta(o_{i,t} \mid q_i,o_{i,&lt;t})\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu</span></code> / <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu</span></code>:
+Batch size while computing token probabilities. Rollout engines generate outputs and then concatenate inputs for each model, so balance memory against throughput.</p></li>
+</ul>
+</dd>
+<dt><span class="math notranslate nohighlight">\(\epsilon_{low}\)</span> / <span class="math notranslate nohighlight">\(\epsilon_{high}\)</span></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.clip_ratio_low</span></code> / <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.clip_ratio_high</span></code>:
+Importance sampling clipping bounds. For DAPO, use <code class="docutils literal notranslate"><span class="pre">clip_ratio_low=0.2</span></code> and <code class="docutils literal notranslate"><span class="pre">clip_ratio_high=0.28</span></code>.</p></li>
+</ul>
+</dd>
+<dt>vLLM inference optimizations</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.enable_chunked_prefill</span></code>:
+Enables chunked prefill to boost GPU utilization (vLLM only). Tune together with <code class="docutils literal notranslate"><span class="pre">max_num_batched_tokens</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.max_num_batched_tokens</span></code>:
+Maximum tokens per batch. A practical rule of thumb is <code class="docutils literal notranslate"><span class="pre">max(8192,</span> <span class="pre">max_prompt_length</span> <span class="pre">+</span> <span class="pre">max_response_length,</span> <span class="pre">max_model_len)</span></code>; see the vLLM docs for details.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.enforce_eager</span></code>:
+Disables CUDA graphs. By default vLLM leverages CUDA graphs for speed at the cost of extra memory (not limited by <code class="docutils literal notranslate"><span class="pre">gpu_memory_utilization</span></code>); set this to <code class="docutils literal notranslate"><span class="pre">True</span></code> when memory is tight.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.cudagraph_capture_sizes</span></code>:
+Explicit capture batch sizes for CUDA graphs. Default is <code class="docutils literal notranslate"><span class="pre">null</span></code>; on memory-constrained systems try <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">4,</span> <span class="pre">8,</span> <span class="pre">16,</span> <span class="pre">32]</span></code>.</p></li>
+</ul>
+</dd>
+<dt>Optimizer settings</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.optim.lr</span></code>:
+Learning rate. Start around <code class="docutils literal notranslate"><span class="pre">1e-5</span></code> or <code class="docutils literal notranslate"><span class="pre">1e-6</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.optim.lr_warmup_steps</span></code>:
+Number of warmup steps (e.g., 10).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.optim.weight_decay</span></code>:
+Weight decay coefficient, typically 0.1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.optim.clip_grad</span></code>:
+Gradient clipping threshold, commonly 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.optim.override_optimizer_config.optimizer_offload_fraction</span></code>:
+Portion of optimizer updates executed on CPU. Large models such as DeepSeek benefit from enabling it with value 1.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.optim.override_optimizer_config.overlap_cpu_optimizer_d2h_h2d</span></code> / <code class="docutils literal notranslate"><span class="pre">+...use_precision_aware_optimizer</span></code> / <code class="docutils literal notranslate"><span class="pre">+...optimizer_cpu_offload</span></code>:
+Companion switches for hybrid optimizers. Turn them on alongside CPU offload.</p></li>
+</ul>
+</dd>
+<dt>Megatron-related parameters</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.param_offload</span></code> / <code class="docutils literal notranslate"><span class="pre">optimizer_offload</span></code> / <code class="docutils literal notranslate"><span class="pre">grad_offload</span></code>:
+Offload parameters, optimizer states, and gradients to CPU when GPU memory is insufficient.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.megatron.override_transformer_config.recompute_method</span></code> / <code class="docutils literal notranslate"><span class="pre">recompute_granularity</span></code> / <code class="docutils literal notranslate"><span class="pre">recompute_num_layers</span></code>:
+Gradient checkpointing controls. Enable (e.g., <code class="docutils literal notranslate"><span class="pre">uniform</span></code>, <code class="docutils literal notranslate"><span class="pre">full</span></code>, <code class="docutils literal notranslate"><span class="pre">1</span></code>) to trade computation for memory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.megatron.override_transformer_config.moe_router_dtype</span></code> / <code class="docutils literal notranslate"><span class="pre">moe_shared_expert_overlap</span></code> / <code class="docutils literal notranslate"><span class="pre">moe_permute_fusion</span></code> / <code class="docutils literal notranslate"><span class="pre">moe_enable_deepep</span></code> / <code class="docutils literal notranslate"><span class="pre">moe_token_dispatcher_type</span></code>:
+Recommended MoE knobs (sample values: <code class="docutils literal notranslate"><span class="pre">fp32</span></code>, <code class="docutils literal notranslate"><span class="pre">False</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">flex</span></code>) for stable performance.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.megatron.override_transformer_config.gradient_accumulation_fusion</span></code>:
+Enables fused gradient accumulation for additional speedup.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">+actor_rollout_ref.actor.megatron.override_transformer_config.account_for_embedding_in_pipeline_split</span></code> / <code class="docutils literal notranslate"><span class="pre">account_for_loss_in_pipeline_split</span></code> / <code class="docutils literal notranslate"><span class="pre">num_layers_in_last_pipeline_stage</span></code>:
+Pipeline-parallel adjustments when layer counts do not divide evenly. Treat embedding and loss as standalone stages and set <code class="docutils literal notranslate"><span class="pre">num_layers_in_last_pipeline_stage</span></code> (0 or <code class="docutils literal notranslate"><span class="pre">${LAST_LAYER}</span></code>) when you need manual control.</p></li>
+</ul>
+</dd>
+<dt>Trainer</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.logger</span></code>:
+Logging backends. Use <code class="docutils literal notranslate"><span class="pre">['console',</span> <span class="pre">'wandb']</span></code> or, on Volcano Engine ML Platform, <code class="docutils literal notranslate"><span class="pre">['console',</span> <span class="pre">'vemlp_wandb']</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.project_name</span></code> / <code class="docutils literal notranslate"><span class="pre">trainer.experiment_name</span></code>:
+Hierarchical naming for projects and experiments so you can locate runs quickly.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.n_gpus_per_node</span></code> / <code class="docutils literal notranslate"><span class="pre">trainer.nnodes</span></code>:
+Number of GPUs per node and total node count. Match your cluster allocation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.test_freq</span></code> / <code class="docutils literal notranslate"><span class="pre">trainer.save_freq</span></code> / <code class="docutils literal notranslate"><span class="pre">trainer.total_epochs</span></code>:
+Evaluation interval, checkpoint interval, and total epochs—configure for your SLA.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.log_val_generations</span></code>:
+Number of validation samples stored in logs. Start with 10 and adjust as needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.val_before_train</span></code>:
+Run validation before training begins when you require a baseline checkpoint.</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

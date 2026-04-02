@@ -1,0 +1,976 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SWIFT (Scalable lightWeight Infrastructure for Fine-Tuning) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SWIFT (Scalable lightWeight Infrastructure for Fine-Tuning)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_repos/ms-swift/README.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="swift-scalable-lightweight-infrastructure-for-fine-tuning">
+<h1>SWIFT (Scalable lightWeight Infrastructure for Fine-Tuning)<a class="headerlink" href="#swift-scalable-lightweight-infrastructure-for-fine-tuning" title="Link to this heading"></a></h1>
+<p align="center">
+    <br>
+    <img src="asset/banner.png"/>
+    <br>
+<p>
+<p align="center">
+<a href="https://modelscope.cn/home">ModelScope Community Website</a>
+<br>
+        <a href="README_CN.md">中文</a> &nbsp ｜ &nbsp English &nbsp
+</p>
+<p align="center">
+<img src="https://img.shields.io/badge/python-3.11-5be.svg">
+<img src="https://img.shields.io/badge/pytorch-%E2%89%A52.0-orange.svg">
+<a href="https://github.com/modelscope/modelscope/"><img src="https://img.shields.io/badge/modelscope-%E2%89%A51.23-5D91D4.svg"></a>
+<a href="https://pypi.org/project/ms-swift/"><img src="https://badge.fury.io/py/ms-swift.svg"></a>
+<a href="https://github.com/modelscope/ms-swift/blob/main/LICENSE"><img src="https://img.shields.io/github/license/modelscope/ms-swift"></a>
+<a href="https://pepy.tech/project/ms-swift"><img src="https://pepy.tech/badge/ms-swift"></a>
+<a href="https://github.com/modelscope/ms-swift/pulls"><img src="https://img.shields.io/badge/PR-welcome-55EB99.svg"></a>
+</p>
+<p align="center">
+<a href="https://trendshift.io/repositories/6427" target="_blank"><img src="https://trendshift.io/api/badge/repositories/6427" alt="modelscope%2Fswift | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+</p>
+<p align="center">
+        <a href="https://arxiv.org/abs/2408.05517">Paper</a> &nbsp ｜ <a href="https://swift.readthedocs.io/en/latest/">English Documentation</a> &nbsp ｜ &nbsp <a href="https://swift.readthedocs.io/zh-cn/latest/">中文文档</a> &nbsp
+</p>
+<section id="table-of-contents">
+<h2>📖 Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#-Groups"><span class="xref myst">Groups</span></a></p></li>
+<li><p><a class="reference internal" href="#introduction">Introduction</a></p></li>
+<li><p><a class="reference internal" href="#news">News</a></p></li>
+<li><p><a class="reference internal" href="#%EF%B8%8F-installation"><span class="xref myst">Installation</span></a></p></li>
+<li><p><a class="reference internal" href="#-quick-Start"><span class="xref myst">Quick Start</span></a></p></li>
+<li><p><a class="reference internal" href="#-Usage"><span class="xref myst">Usage</span></a></p></li>
+<li><p><a class="reference internal" href="#-License"><span class="xref myst">License</span></a></p></li>
+<li><p><a class="reference internal" href="#citation">Citation</a></p></li>
+</ul>
+</section>
+<section id="groups">
+<h2>☎ Groups<a class="headerlink" href="#groups" title="Link to this heading"></a></h2>
+<p>You can contact us and communicate with us by adding our group:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p><a class="reference external" href="https://discord.com/invite/D27yfEFVz5">Discord Group</a></p></th>
+<th class="head text-center"><p>WeChat Group</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference internal" href="../../_images/discord_qr.jpg"><img alt="../../_images/discord_qr.jpg" src="../../_images/discord_qr.jpg" style="width: 200px; height: 200px;" /></a></p></td>
+<td class="text-center"><p><a class="reference internal" href="../../_images/wechat.png"><img alt="../../_images/wechat.png" src="../../_images/wechat.png" style="width: 200px; height: 200px;" /></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="introduction">
+<h2>📝 Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>🍲 <strong>ms-swift</strong> is a large model and multimodal large model fine-tuning and deployment framework provided by the ModelScope community. It now supports training (pre-training, fine-tuning, human alignment), inference, evaluation, quantization, and deployment for 600+ text-only large models and 400+ multimodal large models. Large models include: Qwen3, Qwen3.5, InternLM3, GLM4.5, Mistral, DeepSeek-R1, Llama4, etc. Multimodal large models include: Qwen3-VL, Qwen3-Omni, Llava, InternVL3.5, MiniCPM-V-4, Ovis2.5, GLM4.5-V, DeepSeek-VL2, etc.</p>
+<p>🍔 In addition, ms-swift integrates the latest training technologies, including Megatron parallelism techniques such as TP, PP, CP, EP to accelerate training, as well as numerous GRPO algorithm family reinforcement learning algorithms including: GRPO, DAPO, GSPO, SAPO, CISPO, RLOO, Reinforce++, etc. to enhance model intelligence. ms-swift supports a wide range of training tasks, including preference learning algorithms such as DPO, KTO, RM, CPO, SimPO, ORPO, as well as Embedding, Reranker, and sequence classification tasks. ms-swift provides full-pipeline support for large model training, including acceleration for inference, evaluation, and deployment modules using vLLM, SGLang, and LMDeploy, as well as model quantization using GPTQ, AWQ, BNB, and FP8 technologies.</p>
+<p><strong>Why Choose ms-swift?</strong></p>
+<ul class="simple">
+<li><p>🍎 <strong>Model Types</strong>: Supports <strong>600+ text-only large models</strong>, <strong>400+ multimodal large models</strong>, and All-to-All full modality models from training to deployment full pipeline, with Day-0 support for popular models.</p></li>
+<li><p><strong>Dataset Types</strong>: Built-in 150+ datasets for pre-training, fine-tuning, human alignment, multimodal and various other tasks, with support for custom datasets. Users only need to prepare datasets for one-click training.</p></li>
+<li><p><strong>Hardware Support</strong>: Supports A10/A100/H100, RTX series, T4/V100, CPU, MPS, and domestic hardware Ascend NPU, etc.</p></li>
+<li><p><strong>Lightweight Training</strong>: Supports lightweight fine-tuning methods such as LoRA, QLoRA, DoRA, LoRA+, LLaMAPro, LongLoRA, LoRA-GA, ReFT, RS-LoRA, Adapter, LISA, etc.</p></li>
+<li><p><strong>Quantized Training</strong>: Supports training on BNB, AWQ, GPTQ, AQLM, HQQ, EETQ quantized models, requiring only 9GB training resources for 7B models.</p></li>
+<li><p><strong>Memory Optimization</strong>: GaLore, Q-Galore, UnSloth, Liger-Kernel, Flash-Attention 2/3, and <strong>Ulysses and Ring-Attention sequence parallelism techniques</strong> support, reducing memory consumption for long-text training.</p></li>
+<li><p><strong>Distributed Training</strong>: Supports distributed data parallelism (DDP), device_map simple model parallelism, DeepSpeed ZeRO2 ZeRO3, FSDP/FSDP2, and Megatron distributed training technologies.</p></li>
+<li><p>🍓 <strong>Multimodal Training</strong>: Supports multimodal packing technology to improve training speed by 100%+, supports mixed modality data training with text, images, video and audio, and supports independent control of vit/aligner/llm.</p></li>
+<li><p><strong>Agent Training</strong>: Supports Agent templates, allowing one dataset to be used for training different models.</p></li>
+<li><p>🍊 <strong>Training Tasks</strong>: Supports pre-training and instruction fine-tuning, as well as training tasks such as DPO, GKD, KTO, RM, CPO, SimPO, ORPO, and supports <strong>Embedding/Reranker</strong> and sequence classification tasks.</p></li>
+<li><p>🥥 <strong>Megatron Parallelism</strong>: Provides TP/PP/SP/CP/ETP/EP/VPP parallel strategies to significantly boost <strong>MoE model training speed</strong>. Supports full-parameter and LoRA training methods for 300+ pure text large models and 100+ multimodal large models. Supports CPT/SFT/GRPO/DPO/KTO/RM training tasks.</p></li>
+<li><p>🍉 <strong>Reinforcement Learning</strong>: Built-in <strong>rich GRPO family algorithms</strong>, including GRPO, DAPO, GSPO, SAPO, CISPO, CHORD, RLOO, Reinforce++, etc. Supports synchronous and asynchronous vLLM engine inference acceleration, with extensible reward functions, multi-turn inference Schedulers, and environments through plugins.</p></li>
+<li><p><strong>Full-Pipeline Capabilities</strong>: Covers the entire workflow of training, inference, evaluation, quantization, and deployment.</p></li>
+<li><p><strong>UI Training</strong>: Provides Web-UI interface for training, inference, evaluation, and quantization, completing the full pipeline for large models.</p></li>
+<li><p><strong>Inference Acceleration</strong>: Supports Transformers, vLLM, SGLang, and LmDeploy inference acceleration engines, providing OpenAI interfaces for accelerating inference, deployment, and evaluation modules.</p></li>
+<li><p><strong>Model Evaluation</strong>: Uses EvalScope as the evaluation backend, supporting 100+ evaluation datasets for evaluating text-only and multimodal models.</p></li>
+<li><p><strong>Model Quantization</strong>: Supports quantization export for AWQ, GPTQ, FP8, and BNB. Exported models support inference acceleration using vLLM/SGLang/LmDeploy.</p></li>
+</ul>
+</section>
+<section id="news">
+<h2>🎉 News<a class="headerlink" href="#news" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>🎁 2026.03.03: <strong>ms-swift v4.0</strong> major version is officially released. For release notes, please refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/releases/tag/v4.0.0">here</a>. You can provide your suggestions to us in <a class="reference external" href="https://github.com/modelscope/ms-swift/issues/7250">this issue</a>. Thank you for your support.</p></li>
+<li><p>🎁 2025.11.14: Megatron GRPO is now available!  Check out the <a class="reference internal" href="docs/source_en/Megatron-SWIFT/GRPO.html"><span class="std std-doc">docs</span></a> and <a class="reference internal" href="#examples/megatron/grpo"><span class="xref myst">examples</span></a>.</p></li>
+<li><p>🎁 2025.11.04: Support for <a class="reference internal" href="docs/source_en/Megatron-SWIFT/Mcore-Bridge.html"><span class="std std-doc">Mcore-Bridge</span></a>, making Megatron training as simple and easy to use as transformers.</p></li>
+<li><p>🎁 2025.10.28: Ray <a class="reference internal" href="docs/source_en/Instruction/Ray.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>🎁 2025.09.07: Added support for CHORD training algorithm. See the <a class="reference internal" href="docs/source_en/Instruction/GRPO/AdvancedResearch/CHORD.html"><span class="std std-doc">documentation</span></a>.</p></li>
+<li><p>🎁 2025.09.06: Ulysses can now be used with ring-attention, allowing sequences to be sharded into any number of chunks (no longer limited by the number of heads). The argument remains <code class="docutils literal notranslate"><span class="pre">--sequence_parallel_size</span> <span class="pre">N</span></code>.</p></li>
+<li><p>🎁 2025.09.02: Megatron-SWIFT now supports multimodal model training. Documentation can be found <a class="reference internal" href="docs/source_en/Megatron-SWIFT/Multimodal-Model.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>🎁 2025.08.12: Support <a class="reference external" href="https://arxiv.org/abs/2508.05629">Dynamic Fine-Tuning</a>(DFT) in SFT training, use parameter <code class="docutils literal notranslate"><span class="pre">--enable_dft_loss</span> <span class="pre">true</span></code>. Training scripts can be found <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/full/dft.sh">here</a>.</p></li>
+<li><p>🎁 2025.07.09: Megatron-SWIFT supports LoRA training. Compared to ms-swift, it achieves significant speedup on MoE models. Training scripts can be found <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/megatron/lora">here</a>.</p></li>
+<li><p>🎁 2025.06.23: Fine-tuning of reranker models is supported. Training scripts can be found here: <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/reranker/train_reranker.sh">Reranker</a>.</p></li>
+<li><p>🎁 2025.06.15: Support for GKD training on both pure text large models and multimodal models. Training scripts can be found here: <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/gkd">Pure Text</a>, <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/gkd">Multimodal</a>.</p></li>
+</ul>
+<details><summary>More</summary>
+<ul class="simple">
+<li><p>🎁 2025.06.11: Support for using Megatron parallelism techniques for RLHF training. The training script can be found <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf">here</a>.</p></li>
+<li><p>🎁 2025.05.29: Support sequence parallel in pretrain, sft, dpo and grpo, check script <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/sequence_parallel">here</a>.</p></li>
+<li><p>🎁 2025.05.11: GRPO now supports custom processing logic for reward models. See the GenRM example <a class="reference internal" href="docs/source_en/Instruction/GRPO/DeveloperGuide/reward_model.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>🎁 2025.04.15: The ms-swift paper has been accepted by AAAI 2025. You can find the paper at <a class="reference external" href="https://ojs.aaai.org/index.php/AAAI/article/view/35383">this link</a>.</p></li>
+<li><p>🎁 2025.03.23: Multi-round GRPO is now supported for training multi-turn dialogue scenarios (e.g., agent tool calling). Please refer to the <a class="reference internal" href="docs/source_en/Instruction/GRPO/DeveloperGuide/multi_turn.html"><span class="std std-doc">doc</span></a>.</p></li>
+<li><p>🎁 2025.03.16: Support for Megatron's parallel training techniques is now available. Please see the <a class="reference external" href="https://swift.readthedocs.io/en/latest/Megatron-SWIFT/Quick-start.html">Megatron-SWIFT training documentation</a>.</p></li>
+<li><p>🎁 2025.03.15: Fine-tuning of embedding models for both pure text and multimodal models is supported. Please check the <a class="reference internal" href="#examples/train/embedding"><span class="xref myst">training script</span></a>.</p></li>
+<li><p>🎁 2025.03.05: The hybrid mode for GRPO is supported, with a script for training a 72B model on 4 GPUs (4*80G) available <a class="reference download internal" download="" href="../../_downloads/5f2059ed2143d17c71b91a6d57015e5e/vllm_72b_4gpu.sh"><span class="xref download myst">here</span></a>. Tensor parallelism with vllm is also supported, with the training script available <a class="reference internal" href="#examples/train/grpo/internal"><span class="xref myst">here</span></a>.</p></li>
+<li><p>🎁 2025.02.21: The GRPO algorithm now supports LMDeploy, with the training script available <a class="reference download internal" download="" href="../../_downloads/a92573dae2e02ef84d99b220e9daa046/full_lmdeploy.sh"><span class="xref download myst">here</span></a>. Additionally, the performance of the GRPO algorithm has been tested, achieving a training speed increase of up to 300% using various tricks. Please check the WanDB table <a class="reference external" href="https://wandb.ai/tastelikefeet/grpo_perf_test?nw=nwuseryuzezyz">here</a>.</p></li>
+<li><p>🎁 2025.02.21: The <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">sample</span></code> command is now supported. The reinforcement fine-tuning script can be found <a class="reference internal" href="docs/source_en/Instruction/Reinforced-Fine-tuning.html"><span class="std std-doc">here</span></a>, and the large model API distillation sampling script is available <a class="reference download internal" download="" href="../../_downloads/cbd67591365181f59d75978611471555/distill.sh"><span class="xref download myst">here</span></a>.</p></li>
+<li><p>🔥 2025.02.12: Support for the GRPO (Group Relative Policy Optimization) training algorithm has been added. Documentation is available <a class="reference internal" href="docs/source_en/Instruction/GRPO/GetStarted/GRPO.html"><span class="std std-doc">here</span></a>.</p></li>
+<li><p>🎁 2024.12.04: Major update to <strong>ms-swift 3.0</strong>. Please refer to the <a class="reference internal" href="#docs/source_en/Instruction/ReleaseNote3.0.md"><span class="xref myst">release notes and changes</span></a>.</p></li>
+<li><p>🎉 2024.08.12: The ms-swift paper has been published on arXiv and can be read <a class="reference external" href="https://arxiv.org/abs/2408.05517">here</a>.</p></li>
+<li><p>🔥 2024.08.05: Support for using <a class="reference external" href="https://github.com/modelscope/evalscope/">evalscope</a> as a backend for evaluating large models and multimodal models.</p></li>
+<li><p>🔥 2024.07.29: Support for using <a class="reference external" href="https://github.com/vllm-project/vllm">vllm</a> and <a class="reference external" href="https://github.com/InternLM/lmdeploy">lmdeploy</a> to accelerate inference for large models and multimodal models. When performing infer/deploy/eval, you can specify <code class="docutils literal notranslate"><span class="pre">--infer_backend</span> <span class="pre">vllm/lmdeploy</span></code>.</p></li>
+<li><p>🔥 2024.07.24: Support for human preference alignment training for multimodal large models, including DPO/ORPO/SimPO/CPO/KTO/RM/PPO.</p></li>
+<li><p>🔥 2024.02.01: Support for Agent training! The training algorithm is derived from <a class="reference external" href="https://arxiv.org/pdf/2309.00986.pdf">this paper</a>.</p></li>
+</ul>
+</details>
+</section>
+<section id="installation">
+<h2>🛠️ Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>To install using pip:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U
+
+<span class="c1"># Using uv</span>
+pip<span class="w"> </span>install<span class="w"> </span>uv
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U<span class="w"> </span>--torch-backend<span class="o">=</span>auto
+</pre></div>
+</div>
+<p>To install from source:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># pip install git+https://github.com/modelscope/ms-swift.git</span>
+
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/ms-swift.git
+<span class="nb">cd</span><span class="w"> </span>ms-swift
+<span class="c1"># The main branch is for swift 4.x. To install swift 3.x, please run the following command:</span>
+<span class="c1"># git checkout release/3.12</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+
+<span class="c1"># Using uv</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--torch-backend<span class="o">=</span>auto
+</pre></div>
+</div>
+<p>Running Environment:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Range</p></th>
+<th class="head"><p>Recommended</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>python</p></td>
+<td><p>&gt;=3.9</p></td>
+<td><p>3.11/3.12</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>cuda</p></td>
+<td><p></p></td>
+<td><p>cuda12</p></td>
+<td><p>No need to install if using CPU, NPU, MPS</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>&gt;=2.0</p></td>
+<td><p>2.8.0/2.10.0</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>transformers</p></td>
+<td><p>&gt;=4.33</p></td>
+<td><p>4.57.6/5.2.0</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>modelscope</p></td>
+<td><p>&gt;=1.23</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>peft</p></td>
+<td><p>&gt;=0.11,&lt;0.19</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>flash_attn</p></td>
+<td><p></p></td>
+<td><p>2.8.3/3.0.0b1</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>trl</p></td>
+<td><p>&gt;=0.15,&lt;0.30</p></td>
+<td><p>0.28.0</p></td>
+<td><p>RLHF</p></td>
+</tr>
+<tr class="row-even"><td><p>deepspeed</p></td>
+<td><p>&gt;=0.14</p></td>
+<td><p>0.18.8</p></td>
+<td><p>Training</p></td>
+</tr>
+<tr class="row-odd"><td><p>vllm</p></td>
+<td><p>&gt;=0.5.1</p></td>
+<td><p>0.11.0/0.17.1</p></td>
+<td><p>Inference/Deployment</p></td>
+</tr>
+<tr class="row-even"><td><p>sglang</p></td>
+<td><p>&gt;=0.4.6</p></td>
+<td><p></p></td>
+<td><p>Inference/Deployment</p></td>
+</tr>
+<tr class="row-odd"><td><p>lmdeploy</p></td>
+<td><p>&gt;=0.5</p></td>
+<td><p>0.10.1</p></td>
+<td><p>Inference/Deployment</p></td>
+</tr>
+<tr class="row-even"><td><p>evalscope</p></td>
+<td><p>&gt;=1.0</p></td>
+<td><p></p></td>
+<td><p>Evaluation</p></td>
+</tr>
+<tr class="row-odd"><td><p>gradio</p></td>
+<td><p></p></td>
+<td><p>5.32.1</p></td>
+<td><p>Web-UI/App</p></td>
+</tr>
+</tbody>
+</table>
+<p>For more optional dependencies, you can refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/requirements/install_all.sh">here</a>.</p>
+</section>
+<section id="quick-start">
+<h2>🚀 Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<p>10 minutes of self-cognition fine-tuning of Qwen3-4B-Instruct-2507 on a single 3090 GPU:</p>
+<section id="command-line-interface-recommended">
+<h3>Command Line Interface (Recommended)<a class="headerlink" href="#command-line-interface-recommended" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 13GB</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3-4B-Instruct-2507<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-zh#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-en#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;swift/self-cognition#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--warmup_ratio<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_author<span class="w"> </span>swift<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span>swift-robot
+</pre></div>
+</div>
+<p>Tips:</p>
+<ul class="simple">
+<li><p>If you want to train with a custom dataset, you can refer to <a class="reference external" href="https://swift.readthedocs.io/en/latest/Customization/Custom-dataset.html">this guide</a> to organize your dataset format and specify <code class="docutils literal notranslate"><span class="pre">--dataset</span> <span class="pre">&lt;dataset_path&gt;</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--model_author</span></code> and <code class="docutils literal notranslate"><span class="pre">--model_name</span></code> parameters are only effective when the dataset includes <code class="docutils literal notranslate"><span class="pre">swift/self-cognition</span></code>.</p></li>
+<li><p>To train with a different model, simply modify <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">&lt;model_id/model_path&gt;</span></code>.</p></li>
+<li><p>By default, <strong>ModelScope</strong> is used for downloading models and datasets. If you want to use HuggingFace, simply specify <code class="docutils literal notranslate"><span class="pre">--use_hf</span> <span class="pre">true</span></code>.</p></li>
+</ul>
+<p>After training is complete, use the following command to infer with the trained weights:</p>
+<ul class="simple">
+<li><p>Here, <code class="docutils literal notranslate"><span class="pre">--adapters</span></code> should be replaced with the last checkpoint folder generated during training. Since the adapters folder contains the training parameter file <code class="docutils literal notranslate"><span class="pre">args.json</span></code>, there is no need to specify <code class="docutils literal notranslate"><span class="pre">--model</span></code>, <code class="docutils literal notranslate"><span class="pre">--system</span></code> separately; Swift will automatically read these parameters. To disable this behavior, you can set <code class="docutils literal notranslate"><span class="pre">--load_args</span> <span class="pre">false</span></code>.</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using an interactive command line for inference.</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># merge-lora and use vLLM for inference acceleration</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_max_model_len<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>Finally, use the following command to push the model to ModelScope:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--push_to_hub<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--hub_model_id<span class="w"> </span><span class="s1">&#39;&lt;your-model-id&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--hub_token<span class="w"> </span><span class="s1">&#39;&lt;your-sdk-token&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_hf<span class="w"> </span><span class="nb">false</span>
+</pre></div>
+</div>
+</section>
+<section id="web-ui">
+<h3>Web-UI<a class="headerlink" href="#web-ui" title="Link to this heading"></a></h3>
+<p>The Web-UI is a <strong>zero-threshold</strong> training and deployment interface solution based on Gradio interface technology. For more details, you can check <a class="reference external" href="https://swift.readthedocs.io/en/latest/GetStarted/Web-UI.html">here</a>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">SWIFT_UI_LANG</span><span class="o">=</span>en<span class="w"> </span>swift<span class="w"> </span>web-ui
+</pre></div>
+</div>
+<p><img alt="image.png" src="../../_images/web-ui-en.jpg" /></p>
+</section>
+<section id="using-python">
+<h3>Using Python<a class="headerlink" href="#using-python" title="Link to this heading"></a></h3>
+<p>ms-swift also supports training and inference using Python. Below is pseudocode for training and inference. For more details, you can refer to <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/notebook/qwen2_5-self-cognition/self-cognition-sft.ipynb">here</a>.</p>
+<p>Training:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">get_peft_model</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_processor</span><span class="p">,</span> <span class="n">get_template</span><span class="p">,</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">EncodePreprocessor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.trainers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Seq2SeqTrainer</span><span class="p">,</span> <span class="n">Seq2SeqTrainingArguments</span>
+<span class="c1"># Retrieve the model and template, and add a trainable LoRA module</span>
+<span class="n">model</span><span class="p">,</span> <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">get_model_processor</span><span class="p">(</span><span class="n">model_id_or_path</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">lora_config</span> <span class="o">=</span> <span class="n">LoraConfig</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">get_peft_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">lora_config</span><span class="p">)</span>
+
+<span class="c1"># Download and load the dataset, and encode the text into tokens</span>
+<span class="n">train_dataset</span><span class="p">,</span> <span class="n">val_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="n">dataset_id_or_path</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">EncodePreprocessor</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">)(</span><span class="n">train_dataset</span><span class="p">,</span> <span class="n">num_proc</span><span class="o">=</span><span class="n">num_proc</span><span class="p">)</span>
+<span class="n">val_dataset</span> <span class="o">=</span> <span class="n">EncodePreprocessor</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">)(</span><span class="n">val_dataset</span><span class="p">,</span> <span class="n">num_proc</span><span class="o">=</span><span class="n">num_proc</span><span class="p">)</span>
+
+<span class="c1"># Train the model</span>
+<span class="n">training_args</span> <span class="o">=</span> <span class="n">Seq2SeqTrainingArguments</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Seq2SeqTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+    <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Inference:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformersEngine</span><span class="p">,</span> <span class="n">InferRequest</span><span class="p">,</span> <span class="n">RequestConfig</span>
+<span class="c1"># Perform inference using the native Transformers engine</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">TransformersEngine</span><span class="p">(</span><span class="n">model_id_or_path</span><span class="p">,</span> <span class="n">adapters</span><span class="o">=</span><span class="p">[</span><span class="n">lora_checkpoint</span><span class="p">])</span>
+<span class="n">infer_request</span> <span class="o">=</span> <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;who are you?&#39;</span><span class="p">}])</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="n">max_new_tokens</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">)</span>
+
+<span class="n">resp_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">([</span><span class="n">infer_request</span><span class="p">],</span> <span class="n">request_config</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;response: </span><span class="si">{</span><span class="n">resp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="usage">
+<h2>✨ Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>Here is a minimal example of training to deployment using ms-swift. For more details, you can check the <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples">examples</a>.</p>
+<ul class="simple">
+<li><p>If you want to use other models or datasets (including multimodal models and datasets), you only need to modify <code class="docutils literal notranslate"><span class="pre">--model</span></code> to specify the corresponding model's ID or path, and modify <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> to specify the corresponding dataset's ID or path.</p></li>
+<li><p>By default, ModelScope is used for downloading models and datasets. If you want to use HuggingFace, simply specify <code class="docutils literal notranslate"><span class="pre">--use_hf</span> <span class="pre">true</span></code>.</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Useful Links</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/Command-line-parameters.html">🔥Command Line Parameters</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Megatron-SWIFT/Quick-start.html">Megatron-SWIFT</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/GetStarted/GRPO.html">GRPO</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/Supported-models-and-datasets.html">Supported Models and Datasets</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Customization/Custom-model.html">Custom Models</a>, <a class="reference external" href="https://swift.readthedocs.io/en/latest/Customization/Custom-dataset.html">🔥Custom Datasets</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/modelscope-classroom/tree/main/LLM-tutorial">LLM Tutorial</a></p></td>
+</tr>
+</tbody>
+</table>
+<section id="training">
+<h3>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h3>
+<p>Supported Training Methods:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Full-Parameter</p></th>
+<th class="head"><p>LoRA</p></th>
+<th class="head"><p>QLoRA</p></th>
+<th class="head"><p>Deepspeed</p></th>
+<th class="head"><p>Multi-Machine</p></th>
+<th class="head"><p>Multimodal</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/pretrain">Pre-training</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/lora_sft.sh">Supervised Fine-Tuning</a></p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/full/train.sh">✅</a></p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/qlora">✅</a></p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-gpu/deepspeed">✅</a></p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multi-node">✅</a></p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal">✅</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/grpo">GRPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/gkd">GKD</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/gkd">✅</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/ppo">PPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/dpo">DPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/dpo">✅</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/kto.sh">KTO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/multimodal/rlhf/kto.sh">✅</a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/rm.sh">Reward Model</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/cpo.sh">CPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/simpo.sh">SimPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/orpo.sh">ORPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/embedding">Embedding</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/reranker">Reranker</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/seq_cls">Sequence Classification</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+<p>Pre-training:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 8*A100</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>pt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>swift/chinese-c4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--streaming<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_steps<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p>Fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-en<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p>RLHF:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>dpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>hjh0119/shareAI-Llama3-DPO-zh-en-emoji<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="megatron-swift">
+<h3>Megatron-SWIFT<a class="headerlink" href="#megatron-swift" title="Link to this heading"></a></h3>
+<p>ms-swift supports using Megatron parallelism techniques to accelerate training, including large-scale cluster training and MoE model training. The following training methods are supported:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Full-Parameter</p></th>
+<th class="head"><p>LoRA</p></th>
+<th class="head"><p>MoE</p></th>
+<th class="head"><p>Multimodal</p></th>
+<th class="head"><p>FP8</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Pre-training</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron">Supervised Fine-Tuning</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/grpo">GRPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/gkd">GKD</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/dpo">DPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/kto">KTO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/rm">RM</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/embedding">Embedding</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/reranker">Reranker</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/seq_cls">Sequence Classification</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>megatron<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_safetensors<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="reinforcement-learning">
+<h3>Reinforcement Learning<a class="headerlink" href="#reinforcement-learning" title="Link to this heading"></a></h3>
+<p>ms-swift supports a rich set of GRPO family algorithms:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Full-Parameter</p></th>
+<th class="head"><p>LoRA</p></th>
+<th class="head"><p>Multimodal</p></th>
+<th class="head"><p>Multi-Machine</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/GetStarted/GRPO.html">GRPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/DAPO.html">DAPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/GSPO.html">GSPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/SAPO.html">SAPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/CISPO.html">CISPO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/CHORD.html">CHORD</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/RLOO.html">RLOO</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://swift.readthedocs.io/en/latest/Instruction/GRPO/AdvancedResearch/REINFORCEPP.html">Reinforce++</a></p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_vllm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_mode<span class="w"> </span>colocate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-MO/NuminaMath-TIR#10000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="inference">
+<h3>Inference<a class="headerlink" href="#inference" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># LoRA</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>swift/test_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="interface-inference">
+<h3>Interface Inference<a class="headerlink" href="#interface-inference" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>app<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment">
+<h3>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm
+</pre></div>
+</div>
+</section>
+<section id="sampling">
+<h3>Sampling<a class="headerlink" href="#sampling" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>sample<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>LLM-Research/Meta-Llama-3.1-8B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sampler_engine<span class="w"> </span>transformers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_return_sequences<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh#5
+</pre></div>
+</div>
+</section>
+<section id="evaluation">
+<h3>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>lmdeploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_backend<span class="w"> </span>OpenCompass<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_dataset<span class="w"> </span>ARC_c
+</pre></div>
+</div>
+</section>
+<section id="quantization">
+<h3>Quantization<a class="headerlink" href="#quantization" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--quant_bits<span class="w"> </span><span class="m">4</span><span class="w"> </span>--quant_method<span class="w"> </span>awq<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>Qwen2.5-7B-Instruct-AWQ
+</pre></div>
+</div>
+</section>
+<section id="push-model">
+<h3>Push Model<a class="headerlink" href="#push-model" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>&lt;model-path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--push_to_hub<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--hub_model_id<span class="w"> </span><span class="s1">&#39;&lt;model-id&gt;&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--hub_token<span class="w"> </span><span class="s1">&#39;&lt;sdk-token&gt;&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="license">
+<h2>🏛 License<a class="headerlink" href="#license" title="Link to this heading"></a></h2>
+<p>This framework is licensed under the <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/master/LICENSE">Apache License (Version 2.0)</a>. For models and datasets, please refer to the original resource page and follow the corresponding License.</p>
+</section>
+<section id="citation">
+<h2>📎 Citation<a class="headerlink" href="#citation" title="Link to this heading"></a></h2>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@misc</span><span class="p">{</span><span class="nl">zhao2024swiftascalablelightweightinfrastructure</span><span class="p">,</span>
+<span class="w">      </span><span class="na">title</span><span class="p">=</span><span class="s">{SWIFT:A Scalable lightWeight Infrastructure for Fine-Tuning}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">author</span><span class="p">=</span><span class="s">{Yuze Zhao and Jintao Huang and Jinghan Hu and Xingjun Wang and Yunlin Mao and Daoze Zhang and Zeyinzi Jiang and Zhikai Wu and Baole Ai and Ang Wang and Wenmeng Zhou and Yingda Chen}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">year</span><span class="p">=</span><span class="s">{2024}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">eprint</span><span class="p">=</span><span class="s">{2408.05517}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">archivePrefix</span><span class="p">=</span><span class="s">{arXiv}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">primaryClass</span><span class="p">=</span><span class="s">{cs.CL}</span><span class="p">,</span>
+<span class="w">      </span><span class="na">url</span><span class="p">=</span><span class="s">{https://arxiv.org/abs/2408.05517}</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="star-history">
+<h2>Star History<a class="headerlink" href="#star-history" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://star-history.com/#modelscope/ms-swift&amp;amp;Date"><img alt="Star History Chart" src="https://api.star-history.com/svg?repos=modelscope/ms-swift&amp;type=Date" /></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

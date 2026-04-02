@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton-Ascend Performance Analysis Method &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Triton-Ascend Performance Analysis Method</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/_repos/triton-ascend/docs/en/debug_guide/profiling.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="triton-ascend-performance-analysis-method">
+<h1>Triton-Ascend Performance Analysis Method<a class="headerlink" href="#triton-ascend-performance-analysis-method" title="Link to this heading"></a></h1>
+<section id="obtaining-performance-data">
+<h2>Obtaining Performance Data<a class="headerlink" href="#obtaining-performance-data" title="Link to this heading"></a></h2>
+<p>Before performance optimization, you need to obtain accurate performance data, understand the current performance status, and analyze the next optimization direction based on the current performance status. MindStudio provides multiple methods for testing the performance of the Triton operator, including board profiling and single-operator performance simulation pipeline.</p>
+<section id="board-profiling">
+<h3>Board Profiling<a class="headerlink" href="#board-profiling" title="Link to this heading"></a></h3>
+<p>The msProf performance analysis tool is used to collect and analyze key performance metrics of operators running on Ascend AI Processors. You can efficiently locate software and hardware performance bottlenecks of operators based on the output performance data, thereby enhancing the overall efficiency of operator performance analysis.</p>
+<ul class="simple">
+<li><p>Note: The msProf tool depends on the msopprof executable file in the CANN package. The interface functions in this file are the same as those in msprof op. This file is provided by the CANN package and does not need to be installed separately. For details about common msProf commands, see <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/ODtools/Operatordevelopmenttools/atlasopdev_16_0082.html">Common msProf Commands</a>.</p></li>
+</ul>
+<p>The following command is an example of collecting performance data of an operator on a board. You can flexibly combine and configure parameters as required. In the example, <strong>--output</strong> is an optional parameter for specifying the path for storing the collected performance data. <strong>--kernel-name</strong> is an optional parameter for specifying the performance data of a single kernel to be collected. If you want to collect the performance data of all operators, you do not need to specify <strong>--kernel-name</strong>. <strong>$HOME/projects/test_op.py</strong> is the executable script of the operator.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>msprof op --kernel-name=target_kernel_name --output=$HOME/projects/output python3 $HOME/projects/test_op.py
+</pre></div>
+</div>
+<p>The following uses the <a class="reference download internal" download="" href="../../../../../_downloads/8ceb619029d50e327fd21842ada19c49/03-layer-norm.py"><span class="xref download myst">03-layer-norm.py</span></a> test case as an example (the generated data file is saved in the current path when <strong>if --output</strong> is not specified):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msprof</span> <span class="n">op</span> <span class="o">--</span><span class="n">kernel</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">_layer_norm_fwd_fused</span> <span class="n">python3</span> <span class="mi">03</span><span class="o">-</span><span class="n">layer</span><span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Note: For details about the result data of all the following collection items, see <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/devaids/Profiling/atlasprofiling_16_0067.html">op_summary (Operator Details)</a> in the <em>CANN Performance Optimization Tool User Guide</em>.
+<strong>Figure 1</strong> PipeUtilization.csv (ratios of time taken by compute units and MTEs)
+<img alt="alt text" src="../../../../../_images/time_consumed.png" /></p></li>
+</ul>
+</section>
+<section id="operator-simulation-pipeline-diagram">
+<h3>Operator Simulation Pipeline Diagram<a class="headerlink" href="#operator-simulation-pipeline-diagram" title="Link to this heading"></a></h3>
+<p>The operator optimization tool msProf supports profile data collection and automatic parsing in a simulation environment. For details about how to obtain the simulation pipeline diagram by using the msProf tool, see <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/devaids/optool/atlasopdev_16_0087.html">Pipeline diagram</a>.
+The command for generating the operator simulation pipeline diagram is similar to that for collecting operator board performance data. The preceding <code class="docutils literal notranslate"><span class="pre">03-layer-norm.py</span></code> is used as an example. <code class="docutils literal notranslate"><span class="pre">--soc-version</span></code> is used to specify the hardware version of the current machine. You can enter <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> in the terminal to view the hardware version.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Path of the source simulator
+export LD_LIBRARY_PATH=/root/CANN/Install_CANN/Ascend/ascend_toolkit/latest/tools/simulator/{soc-version}/lib:$LD_LIBRARY_PATH
+# Collecting the operator simulation pipeline diagram
+msprof op simulator --kernel-name=_layer_norm_fwd_fused --soc-version={soc-version} python3 03-layer-norm.py
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Note: In the preceding example, <code class="docutils literal notranslate"><span class="pre">soc-version=Ascend910B3</span></code>.</p></li>
+</ul>
+<p>|Soc-Version|
+| :---: | :---: | :---: |
+|Ascend910A|Ascend310|Ascend310B1|
+|Ascend910B|Ascend310P1|Ascend310B2|
+|Ascend910B1|Ascend310P2|Ascend310B3|
+|Ascend910B2|Ascend310P3|Ascend310B4|
+|Ascend910B2C|Ascend310P4|-|
+|Ascend910B3|Ascend310P5|-|
+|Ascend910B4|Ascend310P7|-|</p>
+<p>The following two files save the obtained performance data:</p>
+<ul class="simple">
+<li><p>trace.json</p></li>
+<li><p>visualize_data.bin</p></li>
+</ul>
+<p>The trace.json file supports the following two visualized display modes:</p>
+<ul class="simple">
+<li><p>Chrome browser
+Enter the <code class="docutils literal notranslate"><span class="pre">chrome://tracing</span></code> address in the address box of the Chrome browser, drag the instruction pipeline file (<strong>trace.json</strong>) generated by msprof op simulator to the blank area, and press the shortcut keys on the keyboard (<strong>W</strong>: zoom in; <strong>S</strong>: zoom out; <strong>A</strong>: move left; <strong>D</strong>: move right) to view the file.
+<strong>Figure 2</strong> Timeline page on Chrome
+<img alt="alt text" src="../../../../../_images/trace_json_with_chrome.png" /></p></li>
+<li><p><a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0005.html">MindStudio Insight</a> visualized display
+MindStudio Insight provides the running status of instructions on the Ascend AI Processor in a sequence diagram. Users can identify the sequence optimization points of micro instructions by analyzing the instruction details, instruction execution time, call stack of the code associated with the instruction, and synchronization lines between instructions and pipelines in the sequence diagram.
+<strong>Figure 3</strong> Timeline page on MindStudio Insight
+<img alt="alt text" src="../../../../../_images/trace_json_with_insight.png" /></p></li>
+</ul>
+<p>The <strong>visualize_data.bin</strong> file can be visualized on MindStudio Insight.</p>
+<ul class="simple">
+<li><p>In addition to collecting performance data like <strong>trace.json</strong>, <strong>visualize_data.bin</strong> also provides an instruction association dashboard corresponding to the source code (for example, <strong>03-layer-norm.py</strong>).
+<strong>Figure 4</strong> MindStudio Insight-visualize_data.bin instruction association</p>
+<ul>
+<li><p>Note: For details about the result data of the following collection items, see <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0068.html">Operator Optimization</a> in <em>MindStudio Insight</em>.
+<img alt="alt text" src="../../../../../_images/visualize_data_with_insight.png" /></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="analyzing-performance-data">
+<h2>Analyzing Performance Data<a class="headerlink" href="#analyzing-performance-data" title="Link to this heading"></a></h2>
+<section id="theoretical-parameters">
+<h3>Theoretical Parameters<a class="headerlink" href="#theoretical-parameters" title="Link to this heading"></a></h3>
+<p>The theoretical performance is the ideal objective of the actual performance of the operator. Different hardware platforms have different hardware specifications. Theoretical performance helps us understand the potential of hardware and set performance optimization objectives.</p>
+<ul class="simple">
+<li><p>Theoretical time required for transfer-related pipelines (such as MTE1, MTE2, and MTE3) = Data volume (unit: byte)/Theoretical bandwidth. For example, if the peak GM bandwidth of an AI processor is about 1.8 TB/s, the theoretical time required for transferring a float-type matrix of size 4096 x 4096 is sizeof(float) x 4096 x 4096/1.8 TB/s = 37.28 μs (calculated based on 1 TB = 10<sup>12</sup> Byte).</p></li>
+</ul>
+<blockquote>
+<div><p>Note:</p>
+<ul class="simple">
+<li><p>If multiple transfer instructions exist at the same time, the bandwidth is shared. Data cannot be moved at a rate close to the theoretical bandwidth. For example, if the MTE2 and MTE3 read and write the GM at the same time, the time consumed by the transfer pipeline is (MTE2 transfer volume + MTE3 transfer volume)/GM bandwidth.</p></li>
+<li><p>The bandwidth usage (effective bandwidth/theoretical bandwidth) varies according to the size of data blocks to be transferred. If the amount of data transferred each time is small, the actual performance cannot reach the theoretical bandwidth.</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>Theoretical time required for compute-related pipelines (such as Cube, Vector, and Scalar) = Data volume (unit: element)/Theoretical computing power. For example, if the theoretical peak computing power of a certain AI processor for float data type vectors is 11.06 TOPS, the theoretical time required for performing a single instruction computation of 32K float elements is 32K/11.06 TOPS = 0.003 μs (calculated based on 1K = 1000).</p></li>
+</ul>
+</section>
+<section id="locating-bottlenecks">
+<h3>Locating Bottlenecks<a class="headerlink" href="#locating-bottlenecks" title="Link to this heading"></a></h3>
+<p>After the performance data is obtained, processes that deviate significantly from theoretical values or consume excessive time are identified as &quot;bottlenecks.&quot; The following describes how to find bottlenecks and corresponding optimization directions based on performance data.</p>
+<ul>
+<li><p>Method 1: Use board profiling to analyze the pipeline.
+View the <strong>op_summary_*.csv</strong> file parsed by board profiling to analyze the pipeline. Note that &quot;*&quot; indicates the timestamp.
+<img alt="analyse_data_op_summary" src="../../../../../_images/performance_analysis_analyse_data_op_summary.png" /></p>
+<p>In ideal cases, the utilization rate of each pipeline should be 100%. Any pipeline falling short of this target represents room for improvement. The preceding figure shows the data obtained from an AI processor. In the first scenario of the Vector operator _layer_norm_fwd_fused, the Vector pipeline utilization <strong>aiv_vec_ratio</strong> is less than 10%, indicating that the computing power is not fully utilized. The Scalar pipeline utilization <strong>aiv_scalar_ratio</strong> is about 60%, indicating that Scalar is the longest pipeline. <br />
+When Scalar is the longest pipeline, analyze whether complex operations are performed on scalar values in the operator source code. The SIMD microarchitecture of Ascend is more suitable for multi-data parallel computing. Another possibility is that the Triton software stack degrades vector computing to scalar computing because some instructions do not support specific data types on the hardware. Optimization should involve both pipeline and scalar optimization methods. For details, see method 3 to view the simulation pipeline diagram and method 4 to view the code hotspots for further analysis. <br />
+For more general cases such as MTE2 data transfer and actual scenarios: The shapes of the three input matrices are (128,128), (128,1), and (128,1), respectively, and the data type is float16. The current algorithm uses the two-pass method. Therefore, X is moved in for three times, and W and B are moved in for one time. The total amount of data to be transferred can be calculated accordingly. The theoretical value calculated based on the method described in the <a class="reference internal" href="#theoretical-parameters">Theoretical Parameters</a> section is sizeof(float16) * (128 * 128 * 3 + 128 + 128)/1.8 TB/s ≈ 0.1991 μs (calculated based on 1 TB = 10<sup>12</sup> Byte), which is greatly different from the actual performance data aiv_mte2_time. Analysis shows the total input size is smaller than the Unified Buffer (UB) capacity (192 KB for the A2 model). Therefore, if the MTE2 time is excessive, the basic block obtained through tiling computation may be too small, triggering redundant transfer instructions. In this case, pipeline optimization and tiling optimization are required, you can refer to method 3 to view the simulation pipeline diagram and analyze each pipeline for further analysis.</p>
+</li>
+<li><p>Method 2: Use board profiling to analyze the tiling.
+The AI processor used in the previous example has 48 vector cores. The _layer_norm_fwd_fused operator is a pure vector operator. However, in some scenarios, too many blocks (Block Dim &gt; 48) are delivered, causing excessive host scheduling overhead. In this case, the next step is to optimize the tiling.</p></li>
+<li><p>Method 3: Use the simulation pipeline diagram to analyze the pipeline.
+<img alt="analyse_data_waveform" src="../../../../../_images/performance_analysis_analyse_data_waveform.png" /> <br />
+The preceding figure shows the data obtained from an AI processor simulator. It can be seen that the SCALAR and FLOWCTRL instructions of the Vector core are saturated. You can analyze the operator logic to check whether there are too many scalar computations and unsupported vectorization operations. The next step is to optimize scalar computation. On the other hand, the related pipelines (such as MTE2 and VECTOR of veccore0) of the Vector core are regularly interrupted, that is, there are a large number of blank segments without operations. You can analyze the operator logic to check whether the stream interruption is caused by small basic block splitting. The main optimization direction is pipeline optimization. In addition, the vector pipeline utilization is further improved using tiling optimization and memory optimization.</p></li>
+<li><p>Method 4: Analyze the code hotspot.
+<img alt="analyse_data_code_mapping" src="../../../../../_images/performance_analysis_analyse_data_code_mapping.png" /> <br />
+The preceding figure shows the data obtained from an AI processor simulator. The load interface on the left corresponds to a group of assembly instructions on the right (only instructions related to code lines are displayed and sorted in descending order by cycle count). The high proportion of scalar instructions is inconsistent with the scenario where the MTE proportion should be high when load is used as the memory access interface. Therefore, the main optimization direction is scalar calculation.</p></li>
+</ul>
+</section>
+<section id="example-i64-i32-comparison-failing-to-vectorize-on-npu-leading-to-scalar-fallback">
+<h3>Example: i64/i32 Comparison Failing to Vectorize on NPU, Leading to Scalar Fallback<a class="headerlink" href="#example-i64-i32-comparison-failing-to-vectorize-on-npu-leading-to-scalar-fallback" title="Link to this heading"></a></h3>
+<p>[Description] The i64/i32 comparison (cmp) cannot enable Vector on the NPU, causing them to degenerate into scalar computation and reducing efficiency. The i64/i32 cmp is converted to fp32 to accelerate vector operations by using vec_cast and vec_cmp.
+[Note] When cmp is used within a mask in tl.load or tl.save, the compiler can typically auto-vectorize the operation. In this example, tl.where requires manual intervention to ensure vectorization.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import triton
+import triton.language as tl
+
+<span class="gu">@triton.jit</span>
+def npu_vector_cmp_kernel(
+<span class="w"> </span>   X,                 # [Tensor] input tensor (row x col)
+<span class="w"> </span>   Out,               # [Tensor] output tensor (row x col)
+<span class="w"> </span>   Mean,              # [Vector] mean tensor (row, ) of X
+<span class="w"> </span>   Rstd,              # [Vector] std tensor (row, ) of X
+<span class="w"> </span>   stride_x_row,      # [Scalar] stride of row in X
+<span class="w"> </span>   stride_out_row,    # [Scalar] stride of row in Out, normally equals to stride_x_row
+<span class="w"> </span>   M,                 # [Scalar] row number
+<span class="w"> </span>   N,                 # [Scalar] col number
+<span class="w"> </span>   eps,               # [Scalar] epsilon to aviod division by zeros
+<span class="w"> </span>   BLOCK_M: tl.constexpr,
+<span class="w"> </span>   BLOCK_N: tl.constexpr
+):
+<span class="w"> </span>   &quot;&quot;&quot;
+<span class="w"> </span>   an example of layernorm to checkout Vector Cmp
+<span class="w"> </span>   Out = ((X - E[X]) / sqrt(V[X] + eps)) on dim -1
+<span class="w"> </span>   
+<span class="w"> </span>   just for easy case, we assume that:
+<span class="w"> </span>   1. BLOCK_N &gt;= X.shape(-1), group_n = 0 only
+<span class="w"> </span>   2. BLOCK_M = 1, group_m = range(0, row, 1)
+<span class="w"> </span>   &quot;&quot;&quot;
+<span class="w"> </span>   group_m = tl.program_id(0)
+<span class="w"> </span>   group_n = tl.program_id(1)
+<span class="w"> </span>   row = group_m
+
+<span class="w"> </span>   # calculate index &amp; offset
+<span class="w"> </span>   Mean = Mean + group_n * M
+<span class="w"> </span>   Rstd = Rstd + group_n * M
+<span class="w"> </span>   X = X + row * stride_x_row + group_n * N
+<span class="w"> </span>   Out = Out + row * stride_out_row + group_n * N
+
+<span class="w"> </span>   cols = tl.arange(0, BLOCK_N)  # cols is int64
+<span class="w"> </span>   x = tl.load(X + cols, mask=cols &lt; N, other=0.0).to(tl.float32)
+
+<span class="w"> </span>   # calculate mean &amp; rstd
+<span class="w"> </span>   mean = tl.sum(x, axis=0) / N
+<span class="w"> </span>   tl.store(Mean + row, mean)
+<span class="w"> </span>   
+<span class="gd">-   xbar = tl.where(cols &lt; N, x - mean, 0.0) # N is a scalar value.</span>
+
+<span class="gi">+   # change cols(i64) into cols_cmp(f32) to enable vector processing</span>
+<span class="gi">+   cols_cmp = cols.to(tl.float32)</span>
+<span class="gi">+   xbar = tl.where(cols_cmp &lt; N, x - mean, 0.0)</span>
+
+<span class="w"> </span>   var = tl.sum(xbar * xbar, axis=0) / N
+<span class="w"> </span>   rstd = 1 / tl.sqrt(var + eps)
+<span class="w"> </span>   tl.store(Rstd + row, rstd)
+
+<span class="w"> </span>   # calculate Out
+<span class="w"> </span>   mask = cols &lt; N
+<span class="w"> </span>   out = (x - mean) * rstd
+<span class="w"> </span>   tl.store(Out + cols, out, mask=mask)
+</pre></div>
+</div>
+<p><strong>Example</strong> Data comparison before and after optimization
+<img alt="Figure 2 optimization2" src="../../../../../_images/optimization.png" />
+According to the data in the figure, the values of <strong>aiv_scalar_time</strong> (in μs) and <strong>aiv_scalar_ratio</strong> before and after optimization are greatly different, indicating that the performance is poor due to many scalar operations.
+You can obtain <strong>visualize_data.bin</strong> by collecting the <a class="reference internal" href="#operator-simulation-pipeline-diagram">operator simulation pipeline diagram</a>. Then, use MindStudio Insight to parse <strong>visualize_data.bin</strong>. It is found that <strong>xbar = tl.where(cols &lt; N, x - mean, 0.0)</strong> contains many scalar operations, which can be reduced through the preceding optimization.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

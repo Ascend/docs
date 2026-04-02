@@ -1,0 +1,935 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started with AMD (ROCM Kernel) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting started with AMD (ROCM Kernel)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/amd_tutorial/amd_build_dockerfile_page.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started-with-amd-rocm-kernel">
+<h1>Getting started with AMD (ROCM Kernel)<a class="headerlink" href="#getting-started-with-amd-rocm-kernel" title="Link to this heading"></a></h1>
+<p>Last updated: 07/06/2025.</p>
+<p>Author: <a class="reference external" href="https://yushengsu-thu.github.io/">Yusheng Su</a></p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading"></a></h2>
+<p>If you run on AMD GPUs (MI300) with ROCM platform, you cannot use the previous quickstart to run verl. You should follow the following steps to build a docker and set <code class="docutils literal notranslate"><span class="pre">RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES</span></code> or <code class="docutils literal notranslate"><span class="pre">RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES</span></code> when starting ray in verl's RLHF training.</p>
+<section id="docker-dockerfile-rocm">
+<h3>docker/Dockerfile.rocm<a class="headerlink" href="#docker-dockerfile-rocm" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>FROM<span class="w"> </span><span class="s2">&quot;rlsys/rocm-6.3.4-patch:rocm6.3.4-numa-patch_ubuntu-22.04&quot;</span>
+
+SHELL<span class="w"> </span><span class="o">[</span><span class="s2">&quot;/bin/bash&quot;</span>,<span class="w"> </span><span class="s2">&quot;-ceuxo&quot;</span>,<span class="w"> </span><span class="s2">&quot;pipefail&quot;</span><span class="o">]</span>
+
+ENV<span class="w"> </span><span class="nv">MAX_JOBS</span><span class="o">=</span><span class="m">512</span>
+
+ENV<span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;/usr/local/python3.12/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+RUN<span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span>/usr/bin/python3.12<span class="w"> </span>/usr/bin/python<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>ln<span class="w"> </span>-sf<span class="w"> </span>/usr/bin/pip3.12<span class="w"> </span>/usr/bin/pip
+
+<span class="c1">############################################</span>
+RUN<span class="w"> </span>apt-get<span class="w"> </span>update
+RUN<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>pkg-config<span class="w"> </span>liblzma-dev
+<span class="c1">############################################</span>
+
+<span class="c1">###########################################</span>
+<span class="c1">##########Install TransformerEngine########</span>
+<span class="c1">###########################################</span>
+WORKDIR<span class="w"> </span>/workspace/
+<span class="c1"># transformer-engine install</span>
+<span class="c1"># https://github.com/ROCm/TransformerEngine</span>
+RUN<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>TransformerEngine
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--recursive<span class="w"> </span>https://github.com/ROCm/TransformerEngine.git
+WORKDIR<span class="w"> </span>/workspace/TransformerEngine
+git<span class="w"> </span>checkout<span class="w"> </span>236178e5
+<span class="c1"># git checkout bb061ade</span>
+<span class="c1"># git checkout 864405c</span>
+ENV<span class="w"> </span><span class="nv">NVTE_FRAMEWORK</span><span class="o">=</span>pytorch
+ENV<span class="w"> </span><span class="nv">NVTE_ROCM_ARCH</span><span class="o">=</span>gfx942
+ENV<span class="w"> </span><span class="nv">NVTE_USE_HIPBLASLT</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">NVTE_USE_ROCM</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># export CMAKE_PREFIX_PATH=&quot;/opt/rocm:/opt/rocm/hip:/usr/local:/usr:${CMAKE_PREFIX_PATH:-}&quot;</span>
+ENV<span class="w"> </span><span class="nv">CMAKE_PREFIX_PATH</span><span class="o">=</span><span class="s2">&quot;/opt/rocm:/opt/rocm/hip:/usr/local:/usr&quot;</span>
+RUN<span class="w"> </span><span class="nv">MAX_JOBS</span><span class="o">=</span><span class="k">$(</span>MAX_JOBS<span class="k">)</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="w"> </span>-vvv
+WORKDIR<span class="w"> </span>/workspace/
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+
+
+
+
+
+<span class="c1">####################################################################################</span>
+<span class="c1">################Install vllm - sglang require vllm 0.6.7 dependency#################</span>
+<span class="c1">####################################################################################</span>
+<span class="c1">#### Require vllm 0.6.7 - checkout 113274a0</span>
+WORKDIR<span class="w"> </span>/workspace/
+RUN<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>vllm
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>vllm
+<span class="c1"># Refer to here (down-grade vllm to 0.6.3): https://docs.vllm.ai/en/v0.6.3/getting_started/amd-installation.html</span>
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ROCm/vllm.git
+<span class="c1"># git clone https://github.com/vllm-project/vllm.git</span>
+WORKDIR<span class="w"> </span>/workspace/vllm
+RUN<span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>113274a0
+ENV<span class="w"> </span><span class="nv">PYTORCH_ROCM_ARCH</span><span class="o">=</span><span class="s2">&quot;gfx90a;gfx942&quot;</span>
+<span class="c1">#ENV MAX_JOBS=512</span>
+ENV<span class="w"> </span><span class="nv">MAX_JOBS</span><span class="o">=</span><span class="si">${</span><span class="nv">MAX_JOBS</span><span class="si">}</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;boto3&gt;=1.26.0&quot;</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>setuptools_scm
+<span class="c1"># will add src into py. You can delete the repo</span>
+RUN<span class="w"> </span>python3<span class="w"> </span>setup.py<span class="w"> </span>install
+WORKDIR<span class="w"> </span>/workspace/
+<span class="c1">####################################################################################</span>
+<span class="c1">####################################################################################</span>
+<span class="c1">####################################################################################</span>
+
+
+
+<span class="c1">###########################################</span>
+<span class="c1">############For hack docker################</span>
+<span class="c1">###########################################</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">setuptools</span><span class="o">==</span><span class="m">75</span>.8.0
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+
+
+
+<span class="c1">###########################################</span>
+<span class="c1">############build sgalng###################</span>
+<span class="c1">###########################################</span>
+<span class="c1"># Set environment variables</span>
+ENV<span class="w"> </span><span class="nv">BASE_DIR</span><span class="o">=</span>/sgl-workspace
+ENV<span class="w"> </span><span class="nv">BUILD_TYPE</span><span class="o">=</span>all
+ENV<span class="w"> </span><span class="nv">SGL_REPO</span><span class="o">=</span>https://github.com/sgl-project/sglang
+ENV<span class="w"> </span><span class="nv">SGL_BRANCH</span><span class="o">=</span>v0.4.6.post5
+ENV<span class="w"> </span><span class="nv">TRITON_REPO</span><span class="o">=</span>https://github.com/ROCm/triton.git
+ENV<span class="w"> </span><span class="nv">TRITON_COMMIT</span><span class="o">=</span>improve_fa_decode_3.0.0
+ENV<span class="w"> </span><span class="nv">AITER_REPO</span><span class="o">=</span>https://github.com/ROCm/aiter.git
+ENV<span class="w"> </span><span class="nv">AITER_COMMIT</span><span class="o">=</span>v0.1.2
+<span class="c1"># v0.1.2 version - commit id: 9d11f47</span>
+<span class="c1"># ENV AITER_COMMIT=9d11f47</span>
+ENV<span class="w"> </span><span class="nv">HIP_FORCE_DEV_KERNARG</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">HSA_NO_SCRATCH_RECLAIM</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">SGLANG_SET_CPU_AFFINITY</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">NCCL_MIN_NCHANNELS</span><span class="o">=</span><span class="m">112</span>
+ENV<span class="w"> </span><span class="nv">MOE_PADDING</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">VLLM_FP8_PADDING</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">VLLM_FP8_ACT_PADDING</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">VLLM_FP8_WEIGHT_PADDING</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">VLLM_FP8_REDUCE_CONV</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">TORCHINDUCTOR_MAX_AUTOTUNE</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">TORCHINDUCTOR_MAX_AUTOTUNE_POINTWISE</span><span class="o">=</span><span class="m">1</span>
+ENV<span class="w"> </span><span class="nv">HIPCC_COMPILE_FLAGS_APPEND</span><span class="o">=</span><span class="s2">&quot;--offload-arch=gfx942&quot;</span>
+ENV<span class="w"> </span><span class="nv">AMDGPU_TARGETS</span><span class="o">=</span>gfx942
+ENV<span class="w"> </span><span class="nv">ROCM_ARCH</span><span class="o">=</span>gfx942
+ENV<span class="w"> </span><span class="nv">PYTORCH_ROCM_ARCH</span><span class="o">=</span><span class="s2">&quot;gfx90a;gfx942&quot;</span>
+<span class="c1"># Switch to working directory</span>
+WORKDIR<span class="w"> </span>/sgl-workspace
+<span class="c1"># Clean and create directory</span>
+RUN<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/sgl-workspace<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/sgl-workspace
+
+<span class="c1"># Clone and build sglang</span>
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span><span class="si">${</span><span class="nv">SGL_REPO</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sglang<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span><span class="si">${</span><span class="nv">SGL_BRANCH</span><span class="si">}</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Using default branch&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>sgl-kernel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-f<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>mv<span class="w"> </span>pyproject_rocm.toml<span class="w"> </span>pyproject.toml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>setup_rocm.py<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>..<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$BUILD_TYPE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;srt&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>--no-cache-dir<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;python[srt_hip]&quot;</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>--no-cache-dir<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;python[all_hip]&quot;</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="k">fi</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/sgl-workspace<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>cp<span class="w"> </span>-r<span class="w"> </span>/sgl-workspace/sglang<span class="w"> </span>/sglang<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>cache<span class="w"> </span>purge
+
+<span class="c1"># Install common Python packages</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>IPython<span class="w"> </span>orjson<span class="w"> </span>python-multipart<span class="w"> </span>torchao<span class="w"> </span>pybind11
+<span class="c1"># Rebuild Triton</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>triton<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span><span class="si">${</span><span class="nv">TRITON_REPO</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>triton<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span><span class="si">${</span><span class="nv">TRITON_COMMIT</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>python<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>python3<span class="w"> </span>setup.py<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/sgl-workspace
+<span class="c1"># ENV HIPCC_COMPILE_FLAGS_APPEND=&quot;--offload-arch=gfx942 --amdgpu-lower-module-lds-strategy=1&quot;</span>
+<span class="c1"># ENV HIPCC_COMPILE_FLAGS_APPEND=&quot;--offload-arch=gfx942&quot;</span>
+
+<span class="c1"># Build aiter</span>
+<span class="c1">#version: Commit 9d11f47</span>
+<span class="w">    </span><span class="c1"># &amp;&amp; git checkout ${AITER_COMMIT} \</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>aiter<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span><span class="si">${</span><span class="nv">AITER_REPO</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>aiter<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span><span class="si">${</span><span class="nv">AITER_COMMIT</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>sync<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">PREBUILD_KERNELS</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">GPU_ARCHS</span><span class="o">=</span>gfx942<span class="w"> </span>python3<span class="w"> </span>setup.py<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>/sgl-workspace
+
+<span class="c1"># Copy MI300X config</span>
+RUN<span class="w"> </span>find<span class="w"> </span>/sgl-workspace/sglang/python/sglang/srt/layers/quantization/configs/<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>/sgl-workspace/sglang/python/sglang/srt/layers/moe/fused_moe_triton/configs/<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>-type<span class="w"> </span>f<span class="w"> </span>-name<span class="w"> </span><span class="s1">&#39;*MI300X*&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;vf_config=$(echo &quot;$1&quot; | sed &quot;s/MI300X/MI300X_VF/&quot;); cp &quot;$1&quot; &quot;$vf_config&quot;&#39;</span><span class="w"> </span>--<span class="w"> </span><span class="o">{}</span>
+
+<span class="c1"># Environment setup complete.</span>
+RUN<span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Environment setup complete.&quot;</span>
+
+WORKDIR<span class="w"> </span>/workspace/
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+
+
+
+
+
+
+<span class="c1">###########################################</span>
+<span class="c1">###############vllm v0.8.5#################</span>
+<span class="c1">###########################################</span>
+WORKDIR<span class="w"> </span>/workspace/
+
+ENV<span class="w"> </span><span class="nv">VLLM_TARGET_DEVICE</span><span class="o">=</span>rocm
+ENV<span class="w"> </span><span class="nv">ROCM_PATH</span><span class="o">=</span>/opt/rocm
+ENV<span class="w"> </span><span class="nv">SETUPTOOLS_SCM_PRETEND_VERSION</span><span class="o">=</span><span class="m">0</span>.8.5.dev
+<span class="c1"># Find the repo path in: DockerFile/Dockerfile.rocm_yang</span>
+<span class="c1"># RUN git clone https://github.com/RLFoundation/vllm-patch.git</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>vllm<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+RUN<span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>vllm-patch
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/RLFoundation/vllm-patch.git<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>vllm-patch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>checkout<span class="w"> </span>v0.8.5-sleep-numa<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>build/<span class="w"> </span>dist/<span class="w"> </span>*.egg-info<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span>ln<span class="w"> </span>-sf<span class="w"> </span>/opt/rocm/lib/libamdhip64.so<span class="w"> </span>/usr/lib/libamdhip64.so<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">SETUPTOOLS_SCM_PRETEND_VERSION</span><span class="o">=</span><span class="m">0</span>.8.5.dev<span class="w"> </span><span class="nv">PYTORCH_ROCM_ARCH</span><span class="o">=</span><span class="s2">&quot;gfx90a;gfx942&quot;</span><span class="w"> </span><span class="nv">MAX_JOBS</span><span class="o">=</span><span class="si">${</span><span class="nv">MAX_JOBS</span><span class="si">}</span><span class="w"> </span>python3<span class="w"> </span>setup.py<span class="w"> </span>install
+<span class="w">    </span><span class="c1"># RUN SETUPTOOLS_SCM_PRETEND_VERSION=0.8.5.dev PYTORCH_ROCM_ARCH=&quot;gfx90a;gfx942&quot; MAX_JOBS=${MAX_JOBS} python3 setup.py develop</span>
+WORKDIR<span class="w"> </span>/workspace/
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+<span class="c1">###########################################</span>
+
+
+
+
+<span class="c1">#########################################</span>
+<span class="c1">#### Install megatron-core###############</span>
+<span class="c1">#########################################</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>megatron-core<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yushengsu-thu/Megatron-LM-amd_version.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>Megatron-LM-amd_version<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>-vvv<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>/workspace/
+<span class="c1">#########################################</span>
+<span class="c1">#########################################</span>
+<span class="c1">#########################################</span>
+
+
+
+
+<span class="c1">#######################################</span>
+<span class="c1">################apex###################</span>
+<span class="c1">#######################################</span>
+WORKDIR<span class="w"> </span>/workspace/
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>apex<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:ROCm/apex.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>apex<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python<span class="w"> </span>setup.py<span class="w"> </span>install<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>/workspace/
+<span class="c1">#######################################</span>
+<span class="c1">#######################################</span>
+<span class="c1">#######################################</span>
+
+
+<span class="c1">################################################################################</span>
+<span class="c1">###########################Add torch_memory_saver###############################</span>
+<span class="c1">################################################################################</span>
+<span class="c1"># Set environment variables</span>
+ENV<span class="w"> </span><span class="nv">HIPCC_COMPILE_FLAGS_APPEND</span><span class="o">=</span><span class="s2">&quot;--amdgpu-target=gfx90a;gfx942 -D__HIP_PLATFORM_AMD__&quot;</span>
+ENV<span class="w"> </span><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&quot;-D__HIP_PLATFORM_AMD__&quot;</span>
+ENV<span class="w"> </span><span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">&quot;-D__HIP_PLATFORM_AMD__&quot;</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;git+https://github.com/YangWang92/torch_memory_saver_numa.git@numa&quot;</span>
+<span class="c1">################################################################################</span>
+<span class="c1">################################################################################</span>
+<span class="c1">################################################################################</span>
+
+
+
+<span class="c1">########################################</span>
+<span class="c1">######Install ray#######################</span>
+<span class="c1">########################################</span>
+<span class="c1"># need to add this patch: https://github.com/ray-project/ray/pull/53531/files</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>ray<span class="w"> </span>-y
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;ray[data,train,tune,serve]&gt;=2.47.0&quot;</span>
+<span class="c1">########################################</span>
+<span class="c1">########################################</span>
+<span class="c1">########################################</span>
+
+
+<span class="c1">##########################################</span>
+<span class="c1">#######Install other dependencies#########</span>
+<span class="c1">##########################################</span>
+RUN<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;tensordict==0.6.2&quot;</span><span class="w"> </span>--no-deps<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>accelerate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>codetiming<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>datasets<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>dill<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>hydra-core<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>liger-kernel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>numpy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pandas<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>peft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;pyarrow&gt;=15.0.0&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pylatexenc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>torchdata<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>wandb<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>orjson<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pybind11
+
+WORKDIR<span class="w"> </span>/workspace/
+RUN<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/volcengine/verl.git<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>verl<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="c1">##########################################</span>
+<span class="c1">##########################################</span>
+<span class="c1">##########################################</span>
+
+WORKDIR<span class="w"> </span>/workspace/
+CMD<span class="w"> </span><span class="o">[</span><span class="s2">&quot;/usr/bin/bash&quot;</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="build-the-image">
+<h3>Build the image:<a class="headerlink" href="#build-the-image" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>docker/build<span class="w"> </span>-t<span class="w"> </span>verl-rocm<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="run-the-container">
+<h3>Run the container<a class="headerlink" href="#run-the-container" title="Link to this heading"></a></h3>
+<p>Note: You can pull the docker from this DockerHub: [RLSys Foundation](<a class="reference external" href="https://hub.docker.com/u/yushengsuthu">https://hub.docker.com/u/yushengsuthu</a>)
+Pull the image:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>rlsys/verl:verl-0.4.1_ubuntu-22.04_rocm6.3.4-numa-patch_vllm0.8.5_sglang0.4.6.post4
+
+docker<span class="w"> </span>tag<span class="w"> </span>rlsys/verl:verl-0.4.1_ubuntu-22.04_rocm6.3.4-numa-patch_vllm0.8.5_sglang0.4.6.post4<span class="w"> </span>verl-rocm:latest
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>Run the container<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<section id="optional-running-without-root-and-with-user-permissions">
+<h4>Optional: Running without root and with user permissions<a class="headerlink" href="#optional-running-without-root-and-with-user-permissions" title="Link to this heading"></a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="w"> </span>/dev/dri<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="w"> </span>/dev/kfd<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-p<span class="w"> </span><span class="m">8265</span>:8265<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--group-add<span class="w"> </span>video<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cap-add<span class="w"> </span>SYS_PTRACE<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--security-opt<span class="w"> </span><span class="nv">seccomp</span><span class="o">=</span>unconfined<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--privileged<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="nv">$HOME</span>/.ssh:/root/.ssh<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="nv">$HOME</span>:<span class="nv">$HOME</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--shm-size<span class="w"> </span>128G<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-w<span class="w"> </span><span class="nv">$PWD</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>verl-rocm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/bin/bash
+</pre></div>
+</div>
+<p>(Optional): If you do not want to root mode and require assign yourself as the user
+Please add <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">HOST_UID=$(id</span> <span class="pre">-u)</span></code> and <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">HOST_GID=$(id</span> <span class="pre">-g)</span></code> into the above docker launch script.</p>
+</section>
+</section>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h2>
+<p>Due to to special setting in AMD (ROCM) torch,
+1. If your <code class="docutils literal notranslate"><span class="pre">ray&gt;=2.45.0</span></code> (default), you need to set <code class="docutils literal notranslate"><span class="pre">RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES</span></code> when starting ray in verl's RLHF training and add this [patch](<a class="reference external" href="https://github.com/ray-project/ray/pull/53531/files">https://github.com/ray-project/ray/pull/53531/files</a>).
+2. If your <code class="docutils literal notranslate"><span class="pre">ray&lt;2.45.0</span></code>, you need to set <code class="docutils literal notranslate"><span class="pre">RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES</span></code> when starting ray in verl's RLHF training.
+Inference <code class="docutils literal notranslate"><span class="pre">$ENGINE</span></code> can be <code class="docutils literal notranslate"><span class="pre">vllm</span></code> or <code class="docutils literal notranslate"><span class="pre">sglang</span></code>. We choose <code class="docutils literal notranslate"><span class="pre">vllm</span></code> as default in the following examples.</p>
+<section id="ppo">
+<h3>PPO<a class="headerlink" href="#ppo" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">YOUR_PROJECT_NAME</span><span class="o">=</span>r1-verl-ppo-upstream
+<span class="nv">YOUR_RUN_NAME</span><span class="o">=</span>r1-training_ppo-upstream
+<span class="c1"># export HYDRA_FULL_ERROR=1</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">HIP_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7
+
+<span class="c1"># [ray] &lt; 2.45.0</span>
+<span class="c1">#export RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES=1</span>
+
+<span class="c1"># [ray] &gt;= 2.45.0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># Patch with https://github.com/ray-project/ray/pull/52794</span>
+
+<span class="nv">GPUS_PER_NODE</span><span class="o">=</span><span class="m">8</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span>Qwen/Qwen2.5-0.5B-Instruct
+python3<span class="w"> </span>examples/data_preprocess/gsm8k.py<span class="w"> </span>--local_save_dir<span class="w"> </span>data/gsm8k
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import transformers; transformers.pipeline(&#39;text-generation&#39;, model=&#39;</span><span class="nv">$MODEL_PATH</span><span class="s2">&#39;)&quot;</span>
+<span class="nv">ENGINE</span><span class="o">=</span>vllm<span class="w"> </span><span class="c1">#sglang</span>
+
+<span class="nv">PYTHONUNBUFFERED</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>verl.trainer.main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.train_files<span class="o">=</span>data/gsm8k/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.val_files<span class="o">=</span>data/gsm8k/test.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.train_batch_size<span class="o">=</span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.val_batch_size<span class="o">=</span><span class="m">1312</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.max_prompt_length<span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>data.max_response_length<span class="o">=</span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.model.path<span class="o">=</span><span class="nv">$MODEL_PATH</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.actor.optim.lr<span class="o">=</span>1e-6<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.actor.ppo_mini_batch_size<span class="o">=</span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.rollout.tensor_model_parallel_size<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.rollout.name<span class="o">=</span><span class="nv">$ENGINE</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.rollout.gpu_memory_utilization<span class="o">=</span><span class="m">0</span>.8<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>critic.optim.lr<span class="o">=</span>1e-5<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>critic.model.path<span class="o">=</span><span class="nv">$MODEL_PATH</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>critic.ppo_micro_batch_size_per_gpu<span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>algorithm.kl_ctrl.kl_coef<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.logger<span class="o">=</span>console<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.project_name<span class="o">=</span><span class="nv">$YOUR_PROJECT_NAME</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.experiment_name<span class="o">=</span><span class="nv">$YOUR_RUN_NAME</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.val_before_train<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.n_gpus_per_node<span class="o">=</span><span class="nv">$GPUS_PER_NODE</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.save_freq<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.test_freq<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w"> </span>trainer.total_epochs<span class="o">=</span><span class="m">15</span><span class="w"> </span><span class="c1">#2&gt;&amp;1 | tee verl_demo.log</span>
+</pre></div>
+</div>
+</section>
+<section id="grpo">
+<h3>GRPO<a class="headerlink" href="#grpo" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">YOUR_PROJECT_NAME</span><span class="o">=</span>r1-verl-grpo-upstream
+<span class="nv">YOUR_RUN_NAME</span><span class="o">=</span>r1-training_grpo-upstream
+<span class="c1"># export HYDRA_FULL_ERROR=1</span>
+<span class="c1"># export FSDP_VERBOSE=1</span>
+
+<span class="c1">#export HIP_VISIBLE_DEVICES=0,1,2,3,4,5,6,7</span>
+
+<span class="c1"># [ray] &lt; 2.45.0</span>
+<span class="c1">#export RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES=1</span>
+
+<span class="c1"># [ray] &gt;= 2.45.0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># Patch with https://github.com/ray-project/ray/pull/52794</span>
+
+<span class="nv">GPUS_PER_NODE</span><span class="o">=</span><span class="m">8</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span>Qwen/Qwen2.5-0.5B-Instruct
+<span class="c1"># MODEL_PATH=Qwen/Qwen2-7B-Instruct</span>
+python3<span class="w"> </span>examples/data_preprocess/gsm8k.py<span class="w"> </span>--local_save_dir<span class="w"> </span>data/gsm8k
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import transformers; transformers.pipeline(&#39;text-generation&#39;, model=&#39;</span><span class="nv">$MODEL_PATH</span><span class="s2">&#39;)&quot;</span>
+<span class="nv">ENGINE</span><span class="o">=</span>vllm<span class="w"> </span><span class="c1">#sglang</span>
+
+python3<span class="w"> </span>-m<span class="w"> </span>verl.trainer.main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>algorithm.adv_estimator<span class="o">=</span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_files<span class="o">=</span>data/gsm8k/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.val_files<span class="o">=</span>data/gsm8k/test.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_batch_size<span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.val_batch_size<span class="o">=</span><span class="m">1312</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_prompt_length<span class="o">=</span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_response_length<span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.path<span class="o">=</span><span class="nv">$MODEL_PATH</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.optim.lr<span class="o">=</span>1e-6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.use_remove_padding<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_mini_batch_size<span class="o">=</span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.use_dynamic_bsz<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_max_token_len_per_gpu<span class="o">=</span><span class="m">24000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.use_kl_loss<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.kl_loss_coef<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.kl_loss_type<span class="o">=</span>low_var_kl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.enable_gradient_checkpointing<span class="o">=</span>Flase<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.param_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.optimizer_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.tensor_model_parallel_size<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.name<span class="o">=</span><span class="nv">$ENGINE</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.gpu_memory_utilization<span class="o">=</span><span class="m">0</span>.8<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.n<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.ref.fsdp_config.param_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>algorithm.kl_ctrl.kl_coef<span class="o">=</span><span class="m">0</span>.001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.critic_warmup<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.logger<span class="o">=</span>console<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.project_name<span class="o">=</span><span class="nv">$YOUR_PROJECT_NAME</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.experiment_name<span class="o">=</span><span class="nv">$YOUR_RUN_NAME</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.n_gpus_per_node<span class="o">=</span><span class="nv">$GPUS_PER_NODE</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.val_before_train<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.save_freq<span class="o">=</span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.test_freq<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.total_epochs<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="multi-node-training-slurm-with-docker-podman-container">
+<h2>Multi-node training: slurm with Docker/Podman container<a class="headerlink" href="#multi-node-training-slurm-with-docker-podman-container" title="Link to this heading"></a></h2>
+<p>If you want to run multi-node training with slurm, you can use the following script.</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<ol class="arabic simple">
+<li><p>You need to use <code class="docutils literal notranslate"><span class="pre">podman</span></code> or <code class="docutils literal notranslate"><span class="pre">docker</span></code> in the following script. We will release the apptainer script later.</p></li>
+<li><p>If you want to use <code class="docutils literal notranslate"><span class="pre">podman</span></code>, you just replace <code class="docutils literal notranslate"><span class="pre">docker</span></code> with <code class="docutils literal notranslate"><span class="pre">podman</span></code> in the following script.</p></li>
+</ol>
+</div>
+<p>The script includes the following steps:</p>
+<ol class="arabic simple">
+<li><p>SLURM Configuration</p></li>
+<li><p>Environment Setup</p></li>
+<li><p>Docker/Podman Container Setup</p></li>
+<li><p>Ray Cluster Initialization</p></li>
+<li><p>Data Preprocessing</p></li>
+<li><p>Model Setup</p></li>
+<li><p>Training Launch</p></li>
+</ol>
+<section id="slurm-script-sh">
+<h3>slurm_script.sh<a class="headerlink" href="#slurm-script-sh" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --job-name=verl-ray-on-slurm</span>
+<span class="c1">#SBATCH --nodes=2</span>
+<span class="c1">#SBATCH --ntasks-per-node=2</span>
+<span class="c1">#SBATCH --mem=200G</span>
+<span class="c1">#SBATCH --time=30-00:00:00</span>
+<span class="c1">#SBATCH --gpus-per-node=8</span>
+<span class="c1">#SBATCH --cpus-per-task=28</span>
+<span class="c1">#SBATCH --output=../verl_log/slurm-%j.out</span>
+<span class="c1">#SBATCH --error=../verl_log/slurm-%j.err</span>
+<span class="c1">#SBATCH --nodelist=gpu-[0,1]</span>
+
+
+<span class="c1"># load necessary modules</span>
+<span class="c1">### Run this setup</span>
+<span class="c1"># [Cluster]: Use docker</span>
+<span class="c1"># docker pull docker.io/rocm/vllm:rocm6.2_mi300_ubuntu20.04_py3.9_vllm_0.6.4</span>
+
+
+<span class="c1">##########################################################################</span>
+<span class="c1">###The following setting should be set in different project and cluster###</span>
+<span class="c1">##########################################################################</span>
+
+<span class="c1">### Project</span>
+<span class="nv">CONTAINER_NAME</span><span class="o">=</span><span class="s2">&quot;multinode_verl_training&quot;</span>
+<span class="nv">IMG</span><span class="o">=</span><span class="s2">&quot;verl.rocm&quot;</span>
+<span class="nv">DOCKERFILE</span><span class="o">=</span><span class="s2">&quot;docker/Dockerfile.rocm&quot;</span>
+<span class="c1"># echo $PWD</span>
+<span class="nv">verl_workdir</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/projects/verl_upstream&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRANSFORMERS_CACHE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span><span class="s2">/.cache/huggingface&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HF_HOME</span><span class="o">=</span><span class="nv">$TRANSFORMERS_CACHE</span>
+
+<span class="c1">### Cluster Network Setting</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_DEBUG</span><span class="o">=</span>TRACE
+<span class="nb">export</span><span class="w"> </span><span class="nv">GPU_MAX_HW_QUEUES</span><span class="o">=</span><span class="m">2</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TORCH_NCCL_HIGH_PRIORITY</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_CHECKS_DISABLE</span><span class="o">=</span><span class="m">1</span>
+<span class="c1"># export NCCL_IB_HCA=rdma0,rdma1,rdma2,rdma3,rdma4,rdma5,rdma6,rdma7</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_IB_HCA</span><span class="o">=</span>mlx5_0,mlx5_1,mlx5_2,mlx5_3,mlx5_4,mlx5_5,mlx5_8,mlx5_9
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_IB_GID_INDEX</span><span class="o">=</span><span class="m">3</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_CROSS_NIC</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CUDA_DEVICE_MAX_CONNECTIONS</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NCCL_PROTO</span><span class="o">=</span>Simple
+<span class="nb">export</span><span class="w"> </span><span class="nv">RCCL_MSCCL_ENABLE</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TOKENIZERS_PARALLELISM</span><span class="o">=</span><span class="nb">false</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HSA_NO_SCRATCH_RECLAIM</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">##########################################################################</span>
+
+<span class="c1">## Assign using GPUs</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HIP_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7
+
+<span class="c1">### For rocm and training script</span>
+<span class="c1"># [ray] &lt; 2.45.0</span>
+<span class="c1">#export RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES=1</span>
+
+<span class="c1"># [ray] &gt;= 2.45.0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="c1"># Patch with https://github.com/ray-project/ray/pull/52794</span>
+
+
+<span class="c1"># Build and launch the Docker container</span>
+srun<span class="w"> </span>bash<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">    # Exit on any error</span>
+<span class="s2">    set -e</span>
+
+<span class="s2">    # Clean up dangling images (images with &lt;none&gt; tag)</span>
+<span class="s2">    docker image prune -f</span>
+
+<span class="s2">    # Need to pull the docker first</span>
+<span class="s2">    docker pull rlsys/verl:verl-0.4.1_ubuntu-22.04_rocm6.3.4-numa-patch_vllm0.8.5_sglang0.4.6.post4</span>
+
+<span class="s2">    if ! docker images --format &quot;</span><span class="o">{{</span>.Repository<span class="o">}}</span>:<span class="o">{{</span>.Tag<span class="o">}}</span><span class="s2">&quot; | grep -q &quot;</span><span class="si">${</span><span class="nv">IMG</span><span class="si">}</span><span class="s2">&quot;; then</span>
+<span class="s2">        echo \&quot;Building </span><span class="si">${</span><span class="nv">IMG</span><span class="si">}</span><span class="s2"> image...\&quot;</span>
+<span class="s2">        docker build -f \&quot;</span><span class="si">${</span><span class="nv">DOCKERFILE</span><span class="si">}</span><span class="s2">\&quot; -t \&quot;</span><span class="si">${</span><span class="nv">IMG</span><span class="si">}</span><span class="s2">\&quot; .</span>
+<span class="s2">    else</span>
+<span class="s2">        echo \&quot;</span><span class="si">${</span><span class="nv">IMG</span><span class="si">}</span><span class="s2"> image already exists, skipping build\&quot;</span>
+<span class="s2">    fi</span>
+
+<span class="s2">    # Removing old container if exists</span>
+<span class="s2">    docker rm \&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">\&quot; 2&gt;/dev/null || true</span>
+
+<span class="s2">    # Checking network devices</span>
+<span class="s2">    ibdev2netdev</span>
+
+<span class="s2">    # Launch the docker</span>
+<span class="s2">    docker run --rm -d \</span>
+<span class="s2">    -e HYDRA_FULL_ERROR=1 \</span>
+<span class="s2">    -e RAY_EXPERIMENTAL_NOSET_ROCR_VISIBLE_DEVICES=1 \</span>
+<span class="s2">    -e RAY_EXPERIMENTAL_NOSET_HIP_VISIBLE_DEVICES=1 \</span>
+<span class="s2">    -e NCCL_DEBUG=</span><span class="si">${</span><span class="nv">NCCL_DEBUG</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e GPU_MAX_HW_QUEUES=</span><span class="si">${</span><span class="nv">GPU_MAX_HW_QUEUES</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e TORCH_NCCL_HIGH_PRIORITY=</span><span class="si">${</span><span class="nv">TORCH_NCCL_HIGH_PRIORITY</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e NCCL_CHECKS_DISABLE=</span><span class="si">${</span><span class="nv">NCCL_CHECKS_DISABLE</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e NCCL_IB_HCA=</span><span class="si">${</span><span class="nv">NCCL_IB_HCA</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e NCCL_IB_GID_INDEX=</span><span class="si">${</span><span class="nv">NCCL_IB_GID_INDEX</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e NCCL_CROSS_NIC=</span><span class="si">${</span><span class="nv">NCCL_CROSS_NIC</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e CUDA_DEVICE_MAX_CONNECTIONS=</span><span class="si">${</span><span class="nv">CUDA_DEVICE_MAX_CONNECTIONS</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e NCCL_PROTO=</span><span class="si">${</span><span class="nv">NCCL_PROTO</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e RCCL_MSCCL_ENABLE=</span><span class="si">${</span><span class="nv">RCCL_MSCCL_ENABLE</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e TOKENIZERS_PARALLELISM=</span><span class="si">${</span><span class="nv">TOKENIZERS_PARALLELISM</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e HSA_NO_SCRATCH_RECLAIM=</span><span class="si">${</span><span class="nv">HSA_NO_SCRATCH_RECLAIM</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e TRANSFORMERS_CACHE=</span><span class="si">${</span><span class="nv">TRANSFORMERS_CACHE</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    -e HF_HOME=</span><span class="si">${</span><span class="nv">HF_HOME</span><span class="si">}</span><span class="s2"> \</span>
+<span class="s2">    --network host \</span>
+<span class="s2">    --device /dev/dri \</span>
+<span class="s2">    --device /dev/kfd \</span>
+<span class="s2">    --device /dev/infiniband \</span>
+<span class="s2">    --group-add video \</span>
+<span class="s2">    --cap-add SYS_PTRACE \</span>
+<span class="s2">    --security-opt seccomp=unconfined \</span>
+<span class="s2">    --privileged \</span>
+<span class="s2">    -v \${HOME}:\${HOME} \</span>
+<span class="s2">    -v \${HOME}/.ssh:/root/.ssh \</span>
+<span class="s2">    -w &quot;</span><span class="si">${</span><span class="nv">verl_workdir</span><span class="si">}</span><span class="s2">&quot; \</span>
+<span class="s2">    --shm-size 128G \</span>
+<span class="s2">    --name \&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">\&quot; \</span>
+<span class="s2">    \&quot;</span><span class="si">${</span><span class="nv">IMG</span><span class="si">}</span><span class="s2">\&quot; \</span>
+<span class="s2">    tail -f /dev/null</span>
+
+<span class="s2">    echo \&quot;Container setup completed\&quot;</span>
+<span class="s2">&quot;</span>
+<span class="w">    </span><span class="c1"># (Optional): If you do not want to root mode and require assign yuorself as the user</span>
+<span class="w">    </span><span class="c1"># Please add `-e HOST_UID=$(id -u)` and `-e HOST_GID=$(id -g)` into the above docker launch script.</span>
+
+
+
+
+
+<span class="c1">### Ray launch the nodes before training</span>
+
+<span class="c1"># Getting the node names</span>
+<span class="nv">nodes_array</span><span class="o">=(</span><span class="k">$(</span>scontrol<span class="w"> </span>show<span class="w"> </span>hostnames<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SLURM_JOB_NODELIST</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;\n&#39;</span><span class="w"> </span><span class="s1">&#39; &#39;</span><span class="k">)</span><span class="o">)</span>
+
+<span class="nv">head_node</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[0]</span><span class="si">}</span>
+<span class="nv">head_node_ip</span><span class="o">=</span><span class="k">$(</span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span>hostname<span class="w"> </span>--ip-address<span class="k">)</span>
+
+<span class="c1"># if we detect a space character in the head node IP, we&#39;ll</span>
+<span class="c1"># convert it to an ipv4 address. This step is optional.</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span>*<span class="s2">&quot; &quot;</span>*<span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">IFS</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>-ra<span class="w"> </span>ADDR<span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="s2">&quot;</span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[[</span><span class="w"> </span><span class="si">${#</span><span class="nv">ADDR</span><span class="p">[0]</span><span class="si">}</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="o">]]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">head_node_ip</span><span class="o">=</span><span class="si">${</span><span class="nv">ADDR</span><span class="p">[1]</span><span class="si">}</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">head_node_ip</span><span class="o">=</span><span class="si">${</span><span class="nv">ADDR</span><span class="p">[0]</span><span class="si">}</span>
+<span class="k">fi</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;IPV6 address detected. We split the IPV4 address as </span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span>
+<span class="k">fi</span>
+
+<span class="nv">port</span><span class="o">=</span><span class="m">6379</span>
+<span class="nv">ip_head</span><span class="o">=</span><span class="nv">$head_node_ip</span>:<span class="nv">$port</span>
+<span class="nb">export</span><span class="w"> </span>ip_head
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;IP Head: </span><span class="nv">$ip_head</span><span class="s2">&quot;</span>
+
+<span class="c1"># make sure we set environment variables before Ray initialization</span>
+
+<span class="c1"># Print out all env variables</span>
+printenv
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting HEAD at </span><span class="nv">$head_node</span><span class="s2">&quot;</span>
+srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>ray<span class="w"> </span>start<span class="w"> </span>--head<span class="w"> </span>--node-ip-address<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$head_node_ip</span><span class="s2">&quot;</span><span class="w"> </span>--port<span class="o">=</span><span class="nv">$port</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--dashboard-port<span class="o">=</span><span class="m">8266</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--num-cpus<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLURM_CPUS_PER_TASK</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--num-gpus<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLURM_GPUS_PER_NODE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--block<span class="w"> </span><span class="p">&amp;</span>
+<span class="c1"># optional, though may be useful in certain versions of Ray &lt; 1.0.</span>
+sleep<span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># number of nodes other than the head node</span>
+<span class="nv">worker_num</span><span class="o">=</span><span class="k">$((</span><span class="nv">SLURM_JOB_NUM_NODES</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="k">))</span>
+
+<span class="k">for</span><span class="w"> </span><span class="o">((</span><span class="nv">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span>i<span class="w"> </span>&lt;<span class="o">=</span><span class="w"> </span>worker_num<span class="p">;</span><span class="w"> </span>i++<span class="o">))</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">node_i</span><span class="o">=</span><span class="si">${</span><span class="nv">nodes_array</span><span class="p">[</span><span class="nv">$i</span><span class="p">]</span><span class="si">}</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Debug: Starting worker on node_i = </span><span class="si">${</span><span class="nv">node_i</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node_i</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: Empty node name for worker </span><span class="nv">$i</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">continue</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting WORKER </span><span class="nv">$i</span><span class="s2"> at </span><span class="nv">$node_i</span><span class="s2">&quot;</span>
+<span class="w">    </span>srun<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node_i</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">            </span>ray<span class="w"> </span>start<span class="w"> </span>--address<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ip_head</span><span class="s2">&quot;</span><span class="w"> </span>--num-cpus<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLURM_CPUS_PER_TASK</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--num-gpus<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SLURM_GPUS_PER_NODE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--block<span class="w"> </span><span class="p">&amp;</span>
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="k">done</span>
+
+
+
+
+<span class="c1"># Ray initlization test (See whether any error in the above execution)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing Ray initialization in the slurm nodes...&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">import ray</span>
+<span class="s1">try:</span>
+<span class="s1">    ray.init(address=&quot;auto&quot;)</span>
+<span class="s1">    print(&quot;\n=== Ray Cluster Status ===&quot;)</span>
+<span class="s1">    print(f&quot;Number of nodes: {len(ray.nodes())}&quot;)</span>
+<span class="s1">    for node in ray.nodes():</span>
+<span class="s1">        print(&quot;Node: {}, Status: {}&quot;.format(node[&quot;NodeManagerHostname&quot;], node[&quot;Alive&quot;]))</span>
+<span class="s1">        # print(f&quot;Node: {node}&quot;)</span>
+<span class="s1">    ray.shutdown()</span>
+<span class="s1">    print(&quot;Ray initialization successful!&quot;)</span>
+<span class="s1">except Exception as e:</span>
+<span class="s1">    print(f&quot;Ray initialization failed: {str(e)}&quot;)</span>
+<span class="s1">&#39;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Ray test completed ===&quot;</span>
+<span class="c1">######</span>
+
+
+
+<span class="c1"># Run data preprocessing</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting data preprocessing...&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span><span class="s2">&quot;examples/data_preprocess/gsm8k.py&quot;</span><span class="w"> </span><span class="s2">&quot;--local_save_dir&quot;</span><span class="w"> </span><span class="s2">&quot;../data/gsm8k&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting data preprocessing...&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span><span class="s2">&quot;examples/data_preprocess/math_dataset.py&quot;</span><span class="w"> </span><span class="s2">&quot;--local_dir&quot;</span><span class="w"> </span><span class="s2">&quot;../data/math&quot;</span>
+
+<span class="nv">train_files</span><span class="o">=</span><span class="s2">&quot;../data/gsm8k/train.parquet&quot;</span>
+<span class="nv">val_files</span><span class="o">=</span><span class="s2">&quot;../data/gsm8k/test.parquet&quot;</span>
+
+<span class="c1"># Download and test model</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Loading model...&quot;</span>
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import transformers; transformers.pipeline(&#39;text-generation&#39;, model=&#39;Qwen/Qwen2-7B-Instruct&#39;)&quot;</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span><span class="s2">&quot;Qwen/Qwen2-7B-Instruct&quot;</span>
+
+<span class="c1"># Set model path after pipeline test</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span><span class="s2">&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;== Data and model loading Done ==&quot;</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Start to train...&quot;</span>
+
+docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import transformers; transformers.pipeline(&#39;text-generation&#39;, model=&#39;Qwen/Qwen2-7B-Instruct&#39;)&quot;</span>
+<span class="nv">MODEL_PATH</span><span class="o">=</span><span class="s2">&quot;Qwen/Qwen2-7B-Instruct&quot;</span>
+
+
+<span class="nv">PYTHONUNBUFFERED</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>srun<span class="w"> </span>--overlap<span class="w"> </span>--nodes<span class="o">=</span><span class="si">${</span><span class="nv">SLURM_NNODES</span><span class="si">}</span><span class="w"> </span>--ntasks<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$head_node</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CONTAINER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>python3<span class="w"> </span>-m<span class="w"> </span>verl.trainer.main_ppo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_files<span class="o">=</span><span class="nv">$train_files</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.val_files<span class="o">=</span><span class="nv">$val_files</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.train_batch_size<span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_prompt_length<span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>data.max_response_length<span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.path<span class="o">=</span><span class="nv">$MODEL_PATH</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.enable_gradient_checkpointing<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.optim.lr<span class="o">=</span>1e-6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.use_remove_padding<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_mini_batch_size<span class="o">=</span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.model.enable_gradient_checkpointing<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.param_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.actor.fsdp_config.optimizer_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.tensor_model_parallel_size<span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.name<span class="o">=</span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.rollout.gpu_memory_utilization<span class="o">=</span><span class="m">0</span>.9<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu<span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>actor_rollout_ref.ref.fsdp_config.param_offload<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.optim.lr<span class="o">=</span>1e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.model.use_remove_padding<span class="o">=</span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.model.path<span class="o">=</span><span class="nv">$MODEL_PATH</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.model.enable_gradient_checkpointing<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.ppo_micro_batch_size_per_gpu<span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.model.fsdp_config.param_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>critic.model.fsdp_config.optimizer_offload<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>algorithm.kl_ctrl.kl_coef<span class="o">=</span><span class="m">0</span>.0001<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.critic_warmup<span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.logger<span class="o">=</span><span class="s1">&#39;[&quot;console&quot;,&quot;wandb&quot;]&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.project_name<span class="o">=</span><span class="s1">&#39;verl_example&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.experiment_name<span class="o">=</span><span class="s1">&#39;Qwen2.5-32B-Instruct_function_rm&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.n_gpus_per_node<span class="o">=</span><span class="si">${</span><span class="nv">SLURM_GPUS_PER_NODE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.val_before_train<span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.nnodes<span class="o">=</span><span class="si">${</span><span class="nv">SLURM_NNODES</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.save_freq<span class="o">=</span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.test_freq<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>trainer.total_epochs<span class="o">=</span><span class="m">15</span>
+</pre></div>
+</div>
+</section>
+<section id="run-slurm-script-sh">
+<h3>Run slurm_script.sh<a class="headerlink" href="#run-slurm-script-sh" title="Link to this heading"></a></h3>
+<p>Just sbatch your slurm_script.sh</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sbatch<span class="w"> </span>slurm_script.sh
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,766 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton-Ascend Debugging Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Triton-Ascend Debugging Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/_repos/triton-ascend/docs/en/debug_guide/debugging.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="triton-ascend-debugging-guide">
+<h1>Triton-Ascend Debugging Guide<a class="headerlink" href="#triton-ascend-debugging-guide" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>1 Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This document is the <strong>Triton-Ascend Debugging Guide</strong>, which is intended for engineers who participate in adapting Triton to Ascend NPU. It systematically describes the common debugging methods and tools used during Triton-Ascend compilation and running.</p>
+<p>The contents of this document are as follows:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>1. Overview</strong></p></td>
+<td><p>Describes the core objectives of debugging (focusing on the <code class="docutils literal notranslate"><span class="pre">ttir.mlir</span></code> → <code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code> conversion) and provides guidance on common issues.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>2. Compilation Process Overview</strong></p></td>
+<td><p>Describes the key phases of the Triton-Ascend end-to-end compilation chain, providing a context basis for subsequent debugging.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>3. Temporary File Guide</strong></p></td>
+<td><p>Describes the storage locations and functions of intermediate files (such as the <code class="docutils literal notranslate"><span class="pre">.mlir</span></code>, <code class="docutils literal notranslate"><span class="pre">.ll</span></code>, and<code class="docutils literal notranslate"><span class="pre">.o</span></code> files) generated during the compilation, facilitating manual check.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>4. Interpreter Mode</strong></p></td>
+<td><p>Describes how to set <code class="docutils literal notranslate"><span class="pre">TRITON_INTERPRET</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> to run the kernel on the CPU and use the result as the accuracy benchmark of the NPU computing result.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>5. Debugging Methods</strong></p></td>
+<td><p>The following practical debugging methods are provided:<br>• Static/Runtime printing<br>• Compilation error debugging<br></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Appendix A</strong></p></td>
+<td><p>Provides a quick reference table of common environment variables to improve debugging efficiency.</p></td>
+</tr>
+</tbody>
+</table>
+<p>You are advised to refer to the corresponding sections as required to efficiently locate and resolve various exceptions in Triton-Ascend integration.</p>
+<section id="triton-ascend-common-issue-classification-and-debugging-guide">
+<h3>1.1 Triton-Ascend Common Issue Classification and Debugging Guide<a class="headerlink" href="#triton-ascend-common-issue-classification-and-debugging-guide" title="Link to this heading"></a></h3>
+<p>During development, issues can be classified into different types. The following table provides guidance for quickly identifying issue types and preferred debugging methods.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Issue Type</p></th>
+<th class="head text-left"><p>Typical Symptom/Description</p></th>
+<th class="head text-left"><p>Preferred Debugging Method</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>Accuracy issue</strong></p></td>
+<td class="text-left"><p>The NPU running result is different from the benchmark reference result (such as the PyTorch or Triton CPU interpreter).</p></td>
+<td class="text-left"><p>4. Interpreter mode<br> 5.1 Debugging by printing</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Compilation error (MLIRCompileError)</strong></p></td>
+<td class="text-left"><p>If the compilation fails in the conversion phase, <code class="docutils literal notranslate"><span class="pre">MLIRCompileError</span></code> is thrown on the Python side.</p></td>
+<td class="text-left"><p>5.2 Compilation error debugging</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="triton-ascend-compilation-process-overview">
+<h2>2 Triton-Ascend Compilation Process Overview<a class="headerlink" href="#triton-ascend-compilation-process-overview" title="Link to this heading"></a></h2>
+<p>Understanding the complete compilation chain is the basis for effective debugging. The compilation process of Triton-Ascend consists of the following phases:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Phase</p></th>
+<th class="head text-left"><p>Input</p></th>
+<th class="head text-left"><p>Output</p></th>
+<th class="head text-left"><p>Tool/Component</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>Python Kernel compilation</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">triton_kernel.py</span></code> (Python)</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ttir.mlir</span></code> (MLIR)</p></td>
+<td class="text-left"><p>Triton JIT compiler</p></td>
+<td class="text-left"><p>Compiles the Triton Python kernel written by users into the standard Triton IR (TTIR).</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Triton IR adaptation and transformation</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ttir.mlir</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code></p></td>
+<td class="text-left"><p>Ascend-adapted Triton backend</p></td>
+<td class="text-left"><p><strong>Key debugging phase</strong>. Converts TTIR into the adapter IR for the Ascend NPU backend.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>MLIR compilation and code generation</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">.o</span></code> (executable object file)</p></td>
+<td class="text-left"><p>BiSheng compiler (<code class="docutils literal notranslate"><span class="pre">bishengir-compile</span></code>)</p></td>
+<td class="text-left"><p>The adapter IR is further compiled and optimized to generate binary code that can be executed on the NPU.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Triton-Ascend compilation process</span>
+<span class="o">[</span>Python<span class="w"> </span>Kernel<span class="o">]</span>
+<span class="w">     </span>↓<span class="w"> </span><span class="o">(</span>triton.compile<span class="o">)</span>
+<span class="o">[</span>ttir.mlir<span class="o">]</span>
+<span class="w">     </span>↓<span class="w">        </span>│<span class="w"> </span><span class="o">(</span><span class="nv">TRITON_DEBUG</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>→<span class="w"> </span>~/.triton/dump/<span class="o">)</span>
+<span class="o">[</span>ttadapter.mlir<span class="o">]</span>
+<span class="w">     </span>↓<span class="w"> </span><span class="o">(</span>bishengir-compile<span class="o">)</span>
+<span class="o">[</span>NPU<span class="w"> </span>executable<span class="w"> </span>file.o<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>This guide focuses on</strong> the second phase, that is, the <code class="docutils literal notranslate"><span class="pre">ttir.mlir</span></code> → <code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code> conversion. This phase is the main function of Triton-Ascend.</p>
+</section>
+<section id="triton-ascend-temporary-file-guide">
+<h2>3 Triton-Ascend Temporary File Guide<a class="headerlink" href="#triton-ascend-temporary-file-guide" title="Link to this heading"></a></h2>
+<p>During the compilation of Triton-Ascend, the system generates multiple temporary files for caching and debugging. Understanding the location and usage of these files is critical for efficient debugging.</p>
+<section id="cache">
+<h3>3.1 Cache<a class="headerlink" href="#cache" title="Link to this heading"></a></h3>
+<p>Triton uses the cache mechanism to accelerate the repeated compilation process. Intermediate files generated during compilation are cached in the user directory to avoid repeated compilation of the same kernel.</p>
+<p>Cache directory structure:</p>
+<ul class="simple">
+<li><p>Default path: <strong>~/.triton/cache/</strong></p></li>
+</ul>
+<p>Main cache content:</p>
+<ul class="simple">
+<li><p>Input file cache: ttir.mlir file generated by the original Triton kernel</p></li>
+<li><p>Output file cache: ttadapter.mlir file converted to adapt to Ascend</p></li>
+<li><p>Compilation product cache: executable file generated after compilation</p></li>
+</ul>
+<p>Naming conventions of cache files:
+Cache files are usually named using MD5 hash values to ensure that the same kernel code corresponds to the same cache file.</p>
+<p><strong>Recommendations for cache management:</strong></p>
+<p>Periodic clearing: Cache files may occupy a large amount of disk space. You can periodically clear the cache files.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-rf<span class="w"> </span>~/.triton/cache
+</pre></div>
+</div>
+<p>Disabling cache during debugging: You are advised to temporarily disable the cache to ensure that the compilation is performed each time when debugging compilation issues.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DISABLE_CACHE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Cache verification: If you suspect that the issue is caused by the cache, delete related cache files and perform the test again.</p>
+</section>
+<section id="dump-files">
+<h3>3.2 Dump Files<a class="headerlink" href="#dump-files" title="Link to this heading"></a></h3>
+<p>You can set the environment variable <strong>TRITON_DEBUG</strong> to <strong>1</strong> to dump intermediate representation files to disks during compilation. These files are key resources for debugging compilation issues.</p>
+<p>Dump directory structure:</p>
+<ul class="simple">
+<li><p>Default path: <strong>~/.triton/dump/</strong></p></li>
+</ul>
+<p>Directory naming: A subdirectory named by a timestamp or unique ID is generated for each compilation session.</p>
+<p>Main dump files:</p>
+<ul class="simple">
+<li><p>kernel.ttir.mlir: Triton IR file (compilation input)</p></li>
+<li><p>kernel.ttadapter.mlir: adapter IR file (conversion output)</p></li>
+</ul>
+<p>Enabling debug dump:
+Even if the cache is enabled, the system still generates dump files (overriding files in the directory with the same name) each time the system runs as long as <strong>TRITON_DEBUG=1</strong> is set. However, if the cache is hit and compilation is skipped, IR conversion may not be triggered. As a result, no new dump file is generated. Therefore, during debugging, you are advised to set as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set environment variables before running the Triton program.</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DEBUG</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DISABLE_CACHE</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Run Triton kernel.</span>
+python<span class="w"> </span>your_triton_program.py
+</pre></div>
+</div>
+</section>
+<section id="file-lifecycle-management">
+<h3>3.3 File Lifecycle Management<a class="headerlink" href="#file-lifecycle-management" title="Link to this heading"></a></h3>
+<p>Understanding when these temporary files are generated and how they are cleared helps you better manage the debugging environment.</p>
+<p>File generation time table</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File Type</p></th>
+<th class="head"><p>Generation Phase</p></th>
+<th class="head"><p>Triggering Condition</p></th>
+<th class="head"><p>Clearance Suggestion</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Cache file</p></td>
+<td><p>During each compilation</p></td>
+<td><p>Generated when the cache is not hit</p></td>
+<td><p>Periodic clearing or clearing during troubleshooting</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dump file</p></td>
+<td><p>After <strong>TRITON_DEBUG=1</strong> is set</p></td>
+<td><p>Generated during each compilation</p></td>
+<td><p>Manual clearing after debugging</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>In the production environment, debug dump should be disabled (that is, <strong>TRITON_DEBUG=1</strong> is not set).</p></li>
+<li><p>The cache mechanism can significantly improve performance and should not be disabled.</p></li>
+</ul>
+<p>By properly using these temporary files, developers can efficiently locate and solve issues encountered during Triton-Ascend compilation.</p>
+</section>
+<section id="ir-file-parsing">
+<h3>3.4 IR File Parsing<a class="headerlink" href="#ir-file-parsing" title="Link to this heading"></a></h3>
+<p>The following uses the <a class="reference download internal" download="" href="../../../../../_downloads/be4f5dfcce02551fc210f93dbd7e6418/01-vector-add.py"><span class="xref download myst">01-vector-add.py</span></a> test case as an example to describe the compilation process:
+This is a simple addition calculation of two tensors. For the calculation logic, see the comments in the sample case.
+You can enable the dump file output by setting <strong>TRITON_DEBUG=1</strong> and <strong>TRITON_DISABLE_CACHE=1</strong> to obtain <strong>kernel.ttir.mlir</strong> and <strong>kernel.ttadapter.mlir</strong>.</p>
+<ul class="simple">
+<li><p>Run the test case.</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TRITON_DEBUG</span><span class="o">=</span><span class="mi">1</span> <span class="n">TRITON_DISABLE_CACHE</span><span class="o">=</span><span class="mi">1</span> <span class="n">python</span> <span class="mi">01</span><span class="o">-</span><span class="n">vector</span><span class="o">-</span><span class="n">add</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>After the test case is executed, the dump file path is displayed. The default path is <strong>~/.triton/dump</strong>. The following information is displayed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Dumping</span> <span class="n">intermediate</span> <span class="n">results</span> <span class="n">to</span> <span class="o">~/.</span><span class="n">triton</span><span class="o">/</span><span class="n">dump</span><span class="o">/</span><span class="n">xxx</span> 
+<span class="c1"># xxx is a unique hash identifier.</span>
+</pre></div>
+</div>
+<p>Go to the dump path and view <strong>kernel.ttir.mlir</strong> and <strong>kernel.ttadapter.mlir</strong>.</p>
+<section id="triton-intermediate-representation-ttir">
+<h4>3.4.1 Triton Intermediate Representation (TTIR)<a class="headerlink" href="#triton-intermediate-representation-ttir" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>TTIR example
+The <strong>kernel.ttir.mlir</strong> file is as follows:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>module {
+  tt.func public @add_kernel(%arg0: !tt.ptr&lt;f32&gt; {tt.divisibility = 16 : i32} , %arg1: !tt.ptr&lt;f32&gt; {tt.divisibility = 16 : i32} , %arg2: !tt.ptr&lt;f32&gt; {tt.divisibility = 16 : i32} , %arg3: i32 {tt.divisibility = 16 : i32} ) attributes {noinline = false} {
+    %cst = arith.constant dense&lt;0.000000e+00&gt; : tensor&lt;1024xf32&gt; loc(#loc1)
+    %c1024_i32 = arith.constant 1024 : i32 loc(#loc1)
+    %0 = tt.get_program_id x : i32 loc(#loc2)
+    %1 = arith.muli %0, %c1024_i32 : i32 loc(#loc3)
+    %2 = tt.make_range {end = 1024 : i32, start = 0 : i32} : tensor&lt;1024xi32&gt; loc(#loc4)
+    %3 = tt.splat %1 : i32 -&gt; tensor&lt;1024xi32&gt; loc(#loc5)
+    %4 = arith.addi %3, %2 : tensor&lt;1024xi32&gt; loc(#loc5)
+    %5 = tt.splat %arg3 : i32 -&gt; tensor&lt;1024xi32&gt; loc(#loc6)
+    %6 = arith.cmpi slt, %4, %5 : tensor&lt;1024xi32&gt; loc(#loc6)
+    %7 = tt.splat %arg0 : !tt.ptr&lt;f32&gt; -&gt; tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc7)
+    %8 = tt.addptr %7, %4 : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt;, tensor&lt;1024xi32&gt; loc(#loc7)
+    %9 = tt.load %8, %6, %cst : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc8)
+    %10 = tt.splat %arg1 : !tt.ptr&lt;f32&gt; -&gt; tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc9)
+    %11 = tt.addptr %10, %4 : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt;, tensor&lt;1024xi32&gt; loc(#loc9)
+    %12 = tt.load %11, %6, %cst : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc10)
+    %13 = arith.addf %9, %12 : tensor&lt;1024xf32&gt; loc(#loc11)
+    %14 = tt.splat %arg2 : !tt.ptr&lt;f32&gt; -&gt; tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc12)
+    %15 = tt.addptr %14, %4 : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt;, tensor&lt;1024xi32&gt; loc(#loc12)
+    tt.store %15, %13, %6 : tensor&lt;1024x!tt.ptr&lt;f32&gt;&gt; loc(#loc13)
+    tt.return loc(#loc14)}}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>TTIR analysis</p></li>
+</ul>
+<p>TTIR is an intermediate representation generated by the frontend of the Triton compiler. It is expressed in the Multi-Level IR (MLIR) format and retains the semantic structure of the original Triton Python kernel. In <code class="docutils literal notranslate"><span class="pre">kernel.ttir.mlir</span></code>:</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">&#64;add_kernel</span></code> function receives three pointer parameters (corresponding to the device memory addresses of input A, input B, and output C respectively) and an integer parameter <code class="docutils literal notranslate"><span class="pre">n</span></code> indicating the vector length.</p></li>
+<li><p>Each triton program (vectorized execution unit) processes 1024 elements (represented by the <code class="docutils literal notranslate"><span class="pre">%c1024_i32</span></code> constant), obtains the ID of the current block through the <code class="docutils literal notranslate"><span class="pre">tt.get_program_id</span> <span class="pre">x</span></code>, and calculates the global offset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tt.make_range</span></code> and <code class="docutils literal notranslate"><span class="pre">tt.splat</span></code> are used to construct a SIMD-style index tensor and they are used together with <code class="docutils literal notranslate"><span class="pre">arith.addi</span></code> to generate the global address offset processed by each thread.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tt.addptr</span></code> and <code class="docutils literal notranslate"><span class="pre">tt.load</span></code> are used to implement vectorized loading, and the mask <code class="docutils literal notranslate"><span class="pre">%6</span></code> (generated by <code class="docutils literal notranslate"><span class="pre">arith.cmpi</span> <span class="pre">slt</span></code>) is used to prevent out-of-bounds access.</p></li>
+<li><p>The element-wise floating-point addition <code class="docutils literal notranslate"><span class="pre">arith.addf</span></code> is executed, and the result is returned to the global memory by using <code class="docutils literal notranslate"><span class="pre">tt.store</span></code>.</p></li>
+</ul>
+<p>The TTIR layer is still based on the native abstraction (such as <code class="docutils literal notranslate"><span class="pre">!tt.ptr&lt;f32&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">tt.load</span></code>, and <code class="docutils literal notranslate"><span class="pre">tt.store</span></code>) of Triton and has not been mapped to the specific memory model or execution unit of the underlying hardware. It is a platform-independent high-level IR.</p>
+</section>
+<section id="target-specific-adapter-representation-ttadapter-ir">
+<h4>3.4.1 Target-Specific Adapter Representation (TTAdapter IR)<a class="headerlink" href="#target-specific-adapter-representation-ttadapter-ir" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>TTAdapter IR example
+The <strong>kernel.ttadapter.mlir</strong> file is as follows:</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>module {
+  func.func @add_kernel(%arg0: memref&lt;?xi8&gt;, %arg1: memref&lt;?xi8&gt;, %arg2: memref&lt;?xf32&gt; {tt.divisibility = 16 : i32, tt.tensor_kind = 0 : i32}, %arg3: memref&lt;?xf32&gt; {tt.divisibility = 16 : i32, tt.tensor_kind = 0 : i32}, %arg4: memref&lt;?xf32&gt; {tt.divisibility = 16 : i32, tt.tensor_kind = 1 : i32}, %arg5: i32 {tt.divisibility = 16 : i32}, %arg6: i32, %arg7: i32, %arg8: i32, %arg9: i32, %arg10: i32, %arg11: i32) attributes {SyncBlockLockArgIdx = 0 : i64, WorkspaceArgIdx = 1 : i64, global_kernel = &quot;local&quot;, mix_mode = &quot;aiv&quot;, parallel_mode = &quot;simd&quot;} {
+    %cst = arith.constant 0.000000e+00 : f32
+    %c1024 = arith.constant 1024 : index
+    %c1024_i32 = arith.constant 1024 : i32
+    %0 = arith.muli %arg9, %c1024_i32 : i32
+    %1 = arith.index_cast %0 : i32 to index
+    %reinterpret_cast = memref.reinterpret_cast %arg2 to offset: [%1], sizes: [1024], strides: [1] : memref&lt;?xf32&gt; to memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt;
+    %alloc = memref.alloc() : memref&lt;1024xf32&gt;
+    %2 = arith.addi %1, %c1024 : index
+    %3 = arith.index_cast %arg5 : i32 to index
+    %4 = arith.maxsi %1, %3 : index
+    %5 = arith.minsi %2, %4 : index
+    %6 = arith.subi %5, %1 : index
+    %7 = arith.cmpi slt, %6, %c1024 : index
+    scf.if %7 {
+      linalg.fill ins(%cst : f32) outs(%alloc : memref&lt;1024xf32&gt;)
+    } {hivm.unlikely_condition}
+    %subview = memref.subview %reinterpret_cast[0] [%6] [1] : memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt; to memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt;
+    %subview_0 = memref.subview %alloc[0] [%6] [1] : memref&lt;1024xf32&gt; to memref&lt;?xf32, strided&lt;[1]&gt;&gt;
+    memref.copy %subview, %subview_0 : memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt; to memref&lt;?xf32, strided&lt;[1]&gt;&gt;
+    %8 = bufferization.to_tensor %alloc restrict writable : memref&lt;1024xf32&gt;
+    %reinterpret_cast_1 = memref.reinterpret_cast %arg3 to offset: [%1], sizes: [1024], strides: [1] : memref&lt;?xf32&gt; to memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt;
+    %alloc_2 = memref.alloc() : memref&lt;1024xf32&gt;
+    scf.if %7 {
+      linalg.fill ins(%cst : f32) outs(%alloc_2 : memref&lt;1024xf32&gt;)
+    } {hivm.unlikely_condition}
+    %subview_3 = memref.subview %reinterpret_cast_1[0] [%6] [1] : memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt; to memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt;
+    %subview_4 = memref.subview %alloc_2[0] [%6] [1] : memref&lt;1024xf32&gt; to memref&lt;?xf32, strided&lt;[1]&gt;&gt;
+    memref.copy %subview_3, %subview_4 : memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt; to memref&lt;?xf32, strided&lt;[1]&gt;&gt;
+    %9 = bufferization.to_tensor %alloc_2 restrict writable : memref&lt;1024xf32&gt;
+    %10 = arith.addf %8, %9 : tensor&lt;1024xf32&gt;
+    %reinterpret_cast_5 = memref.reinterpret_cast %arg4 to offset: [%1], sizes: [1024], strides: [1] : memref&lt;?xf32&gt; to memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt;
+    %extracted_slice = tensor.extract_slice %10[0] [%6] [1] : tensor&lt;1024xf32&gt; to tensor&lt;?xf32&gt;
+    %subview_6 = memref.subview %reinterpret_cast_5[0] [%6] [1] : memref&lt;1024xf32, strided&lt;[1], offset: ?&gt;&gt; to memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt;
+    bufferization.materialize_in_destination %extracted_slice in writable %subview_6 : (tensor&lt;?xf32&gt;, memref&lt;?xf32, strided&lt;[1], offset: ?&gt;&gt;) -&gt; ()
+    return
+  }
+}
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>TTAdapter IR parsing</p></li>
+</ul>
+<p>TTIR is converted to TTAdapter IR to adapt to the Ascend NPU architecture in the Triton-Ascend compilation process. TTAdapter IR uses standard MLIR dialect (such as <code class="docutils literal notranslate"><span class="pre">memref</span></code>, <code class="docutils literal notranslate"><span class="pre">linalg</span></code>, and <code class="docutils literal notranslate"><span class="pre">scf</span></code>) and introduces NPU-specific constraints and optimization policies. In <code class="docutils literal notranslate"><span class="pre">kernel.ttadapter.mlir</span></code>:</p>
+<ul class="simple">
+<li><p>The function signature has been converted from the Triton pointer type to <code class="docutils literal notranslate"><span class="pre">memref&lt;?xi8&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">memref&lt;?xf32&gt;</span></code> with attributes. <code class="docutils literal notranslate"><span class="pre">tt.divisibility</span> <span class="pre">=</span> <span class="pre">16</span></code> indicates the memory alignment requirement, and <code class="docutils literal notranslate"><span class="pre">tt.tensor_kind</span></code> distinguishes input (marked with <strong>0</strong>) and output (marked with <strong>1</strong>).</p></li>
+<li><p>The global offset is reconstructed as a local view of a fixed size (1024) by using <code class="docutils literal notranslate"><span class="pre">memref.reinterpret_cast</span></code> for subsequent vectorization.</p></li>
+<li><p>The boundary check logic is introduced to calculate the number of valid elements <code class="docutils literal notranslate"><span class="pre">%6</span></code> and use <code class="docutils literal notranslate"><span class="pre">scf.if</span></code> to control whether to fill zeros (<code class="docutils literal notranslate"><span class="pre">linalg.fill</span></code>) at the end to ensure that the SIMD width is aligned and does not exceed the boundary.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">memref.alloc</span></code> is used to allocate a local buffer, <code class="docutils literal notranslate"><span class="pre">memref.copy</span></code> is used to securely copy the global memory data to the local host, and <code class="docutils literal notranslate"><span class="pre">bufferization.to_tensor</span></code> is used to convert the data into tensors for operators.</p></li>
+<li><p>The addition operation is performed by <code class="docutils literal notranslate"><span class="pre">arith.addf</span></code> on the tensor. The valid part of the result is truncated by <code class="docutils literal notranslate"><span class="pre">tensor.extract_slice</span></code> and written back to the target memref by <code class="docutils literal notranslate"><span class="pre">bufferization.materialize_in_destination</span></code>.</p></li>
+</ul>
+<p>TTAdapter IR has been abstracted from Triton to adapt to the Ascend NPU format.</p>
+</section>
+</section>
+</section>
+<section id="interpreter-mode">
+<h2>4 Interpreter Mode<a class="headerlink" href="#interpreter-mode" title="Link to this heading"></a></h2>
+<p>The core value of the interpreter is to <strong>isolate hardware differences</strong>. You can set the environment variable <code class="docutils literal notranslate"><span class="pre">TRITON_INTERPRET</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> to forcibly execute kernel computation on the CPU. The result of the kernel computation can be used as the benchmark for determining the NPU computation accuracy.</p>
+<p><strong>Usage:</strong></p>
+<ol class="arabic">
+<li><p>Set the environment variable <code class="docutils literal notranslate"><span class="pre">TRITON_INTERPRET</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> and run the program so that the Triton kernel is executed on the CPU interpreter.</p></li>
+<li><p>Insert a Python breakpoint at the position to be checked in the Triton kernel source code.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">breakpoint</span><span class="p">()</span>  <span class="c1"># Python built-in breakpoint function</span>
+</pre></div>
+</div>
+</li>
+<li><p>The program execution is paused and you enter the Python debugger (<code class="docutils literal notranslate"><span class="pre">Pdb</span></code>). You can print and check the value of any intermediate variable.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">p</span> <span class="n">tmp0</span>  <span class="c1"># Print the value of variable tmp0.</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<ul class="simple">
+<li><p>Note: The interpreter mode performs all computations on the CPU, which significantly reduces the running efficiency. Therefore, after debugging or verification, you must cancel the setting of the environment variable <strong>TRITON_INTERPRET</strong> or explicitly set it to <strong>0</strong> to ensure that the system performance is not affected.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cancel the environment variable.</span>
+<span class="nb">unset</span><span class="w"> </span>TRITON_INTERPRET
+
+<span class="c1"># Explicitly set it to 0.</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_INTERPRET</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging-methods">
+<h2>5 Debugging Methods<a class="headerlink" href="#debugging-methods" title="Link to this heading"></a></h2>
+<section id="debugging-by-printing">
+<h3>5.1 Debugging by Printing<a class="headerlink" href="#debugging-by-printing" title="Link to this heading"></a></h3>
+</section>
+<section id="static-printing-debugging">
+<h3>5.1.1 Static Printing Debugging<a class="headerlink" href="#static-printing-debugging" title="Link to this heading"></a></h3>
+<p>This method uses <code class="docutils literal notranslate"><span class="pre">tl.static_print</span></code> to print the value of a constant expression during compilation. It is applicable to debugging configuration parameters and constants that are known during compilation.</p>
+<p>Setting the environment variable <code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> can enable the <code class="docutils literal notranslate"><span class="pre">tl.static_print</span></code> function. This function allows constant values to be printed during kernel compilation. It is an effective method for verifying configuration parameters and constant expressions.</p>
+<p>Features:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tl.static_print</span></code> is executed during compilation, not during runtime.</p></li>
+<li><p>Only compilation constants (<strong>tl.constexpr</strong> parameters and constant expressions) can be printed.</p></li>
+<li><p>The output is displayed in the standard output of the compiler.</p></li>
+</ul>
+<p>Usage:</p>
+<ol class="arabic simple">
+<li><p>In the Triton kernel, add the <code class="docutils literal notranslate"><span class="pre">tl.static_print</span></code> statement for the constant parameters to be debugged.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">triton.language</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tl</span>
+
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">triton_kernel</span><span class="p">(</span>
+    <span class="n">out_ptr0</span><span class="p">,</span> 
+    <span class="n">in_ptr0</span><span class="p">,</span> 
+    <span class="n">in_ptr1</span><span class="p">,</span> 
+    <span class="n">XBLOCK</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>  <span class="c1"># Constant parameter during compilation</span>
+    <span class="n">USE_FP16</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span>  <span class="c1"># Constant parameter during compilation</span>
+<span class="p">):</span>
+    <span class="c1"># Print constant parameters during compilation.</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">static_print</span><span class="p">(</span><span class="s2">&quot;XBLOCK = &quot;</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">)</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">static_print</span><span class="p">(</span><span class="s2">&quot;USE_FP16 = &quot;</span><span class="p">,</span> <span class="n">USE_FP16</span><span class="p">)</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">)</span>
+    <span class="n">tmp0</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr1</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+    
+    <span class="c1"># Print the constant calculation result.</span>
+    <span class="n">elements_per_thread</span> <span class="o">=</span> <span class="n">XBLOCK</span> <span class="o">//</span> <span class="mi">32</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">static_print</span><span class="p">(</span><span class="s2">&quot;Elements per thread = &quot;</span><span class="p">,</span> <span class="n">elements_per_thread</span><span class="p">)</span>
+    
+    <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmp0</span> <span class="o">+</span> <span class="n">tmp1</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tmp2</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Set the environment variable and run the program for compilation.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable Triton debugging output (including static_print).</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DEVICE_PRINT</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Run the Python program. The output is displayed in the compilation phase.</span>
+python<span class="w"> </span>your_program.py
+</pre></div>
+</div>
+</section>
+<section id="runtime-debugging">
+<h3>5.1.2 Runtime Debugging<a class="headerlink" href="#runtime-debugging" title="Link to this heading"></a></h3>
+<p>You can use <code class="docutils literal notranslate"><span class="pre">tl.device_print</span></code> to flexibly print the values of the variables to be observed.
+Setting the environment variable <code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> can enable the <code class="docutils literal notranslate"><span class="pre">tl.device_print</span></code> function. This function allows tensor values to be printed in the kernel. It is an efficient method for verifying the computation accuracy by phase.</p>
+<p><strong>Usage:</strong></p>
+<ol class="arabic simple">
+<li><p>In the Triton kernel, add the <code class="docutils literal notranslate"><span class="pre">tl.device_print</span></code> statement for the variables to be printed.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">triton.language</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tl</span>
+
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">triton_kernel</span><span class="p">(</span><span class="n">out_ptr0</span><span class="p">,</span> <span class="n">in_ptr0</span><span class="p">,</span> <span class="n">in_ptr1</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">):</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">)</span>
+    <span class="n">tmp0</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr1</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmp0</span> <span class="o">+</span> <span class="n">tmp1</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">device_print</span><span class="p">(</span><span class="s2">&quot;tmp2 after addition = &quot;</span><span class="p">,</span> <span class="n">tmp2</span><span class="p">)</span>  <span class="c1"># Print the intermediate result.</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tmp2</span><span class="p">)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Set the environment variable <code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> and run the program. The window displays the value of the variable.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Enable Triton debugging output (including device_print).</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DEVICE_PRINT</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Run the Python program. The output is displayed in the compilation phase.</span>
+python<span class="w"> </span>your_program.py
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Note: The print length is limited.
+The length of the tensor printed by <code class="docutils literal notranslate"><span class="pre">tl.device_print</span></code> is limited. When the tensor length exceeds a certain threshold, the output is truncated.</p></li>
+</ul>
+</section>
+<section id="comparing-the-two-printing-methods">
+<h3>5.1.3 Comparing the Two Printing Methods<a class="headerlink" href="#comparing-the-two-printing-methods" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">tl.device_print</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">tl.static_print</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Execution time</strong></p></td>
+<td><p>Runtime (kernel execution)</p></td>
+<td><p>Compilation (kernel compilation)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Output location</strong></p></td>
+<td><p>Runtime standard output</p></td>
+<td><p>Compiler standard output</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Print content</strong></p></td>
+<td><p>Runtime tensor values and variables</p></td>
+<td><p>Compilation constants and constant expressions</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Impact on performance</strong></p></td>
+<td><p>There is runtime overhead.</p></td>
+<td><p>No runtime overhead.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Enabling environment variables</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT=1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT=1</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>Description of environment variables:</p>
+<p><strong>TRITON_DEVICE_PRINT=1</strong>: enables runtime printing and compilation printing.</p>
+<p><strong>TRITON_DEBUG=1</strong>: enables all debugging outputs (including compilation and runtime printing).</p>
+</section>
+<section id="compilation-error-debugging">
+<h3>5.2 Compilation Error Debugging<a class="headerlink" href="#compilation-error-debugging" title="Link to this heading"></a></h3>
+<p>When the <code class="docutils literal notranslate"><span class="pre">ttir.mlir</span></code> → <code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code> conversion fails, the <code class="docutils literal notranslate"><span class="pre">ttadapter.mlir</span></code> cannot be generated and the <code class="docutils literal notranslate"><span class="pre">MLIRCompileError</span></code> error is reported.
+You need to locate the fault at the Triton-Ascend code layer. Triton-Ascend contains the Python and C++ code layers. You need to locate the error code segment based on the call stack information in the error log and use the corresponding debugging method.</p>
+</section>
+<section id="debugging-python-code">
+<h3>5.2.1 Debugging Python Code<a class="headerlink" href="#debugging-python-code" title="Link to this heading"></a></h3>
+<p>When the call stack information shows that the error is caused by the Python layer code of Triton-Ascend, you can use the built-in debugger pdb of Python for interactive debugging. As an effective tool for locating Python code logic errors, pdb allows you to set breakpoints, perform step-by-step execution, and check variable status.</p>
+<p>Procedure:</p>
+<p>Locating faults
+In the error log, find the Python call stack information closest to the user code, which is usually near the top of the stack. For example:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>File &quot;/path/to/triton/ascend/compiler.py&quot;, line 123, in compile_fn
+    result = lower_function(...)
+</pre></div>
+</div>
+<p>Inserting a debugging breakpoint
+Insert a pdb breakpoint in the Python source file that is suspected to be faulty.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compile_fn</span><span class="p">(</span><span class="n">ttir</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>  <span class="c1"># Compatible with all Python versions</span>
+</pre></div>
+</div>
+<p><strong>Example:</strong>
+Assume that a breakpoint is set in line 123 of <code class="docutils literal notranslate"><span class="pre">compiler.py</span></code>. After the program is suspended, the following information is displayed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">l</span>  <span class="c1"># View the current code context.</span>
+<span class="mi">118</span>     <span class="k">def</span><span class="w"> </span><span class="nf">compile_fn</span><span class="p">(</span><span class="n">ttir</span><span class="p">):</span>
+<span class="mi">120</span>         <span class="kn">import</span><span class="w"> </span><span class="nn">pdb</span><span class="p">;</span> <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+<span class="mi">121</span>         <span class="c1"># Check the input parameter.</span>
+<span class="mi">122</span>         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ttir type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ttir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="mi">123</span>         <span class="n">result</span> <span class="o">=</span> <span class="n">lower_function</span><span class="p">(</span><span class="n">ttir</span><span class="p">)</span>  <span class="c1"># &lt;-- The current suspension position.</span>
+
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">p</span> <span class="n">ttir</span>  <span class="c1"># Check the input parameter.</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">n</span> <span class="c1"># Execute the next line of code.</span>
+<span class="p">(</span><span class="n">Pdb</span><span class="p">)</span> <span class="n">p</span> <span class="n">result</span>  <span class="c1"># View the result.</span>
+</pre></div>
+</div>
+</section>
+<section id="debugging-environment-variables">
+<h3>5.2.2 Debugging Environment Variables<a class="headerlink" href="#debugging-environment-variables" title="Link to this heading"></a></h3>
+<p>When developing or debugging Triton operators, you can set the following environment variables to enable IR printing in different phases, which helps locate faults. The following describes the two key debugging switches.</p>
+<section id="mlir-enable-dump-1">
+<h4>5.2.2.1 <code class="docutils literal notranslate"><span class="pre">MLIR_ENABLE_DUMP=1</span></code><a class="headerlink" href="#mlir-enable-dump-1" title="Link to this heading"></a></h4>
+<p><strong>Function:</strong>
+Enables <strong>automatic dump of the MLIR high-level IR</strong> and outputs the IR of the current function in readable text to <code class="docutils literal notranslate"><span class="pre">stderr</span></code> before and after each MLIR pass is executed.</p>
+<p><strong>Feature:</strong>
+Small log size: usually dozens to hundreds of lines, which are easy to read.
+Focus on high-level logic: applicable to debugging operator conversion, memory layout, and parallel policies.</p>
+<p><strong>Suggestion:</strong>
+First choice for routine debugging: This log can be used to locate 90% of Triton operator issues.
+It can be used together with <code class="docutils literal notranslate"><span class="pre">TRITON_DEBUG=1</span></code> to further enhance information.</p>
+<p><strong>Enabling method:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MLIR_ENABLE_DUMP</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_DEBUG</span><span class="o">=</span><span class="m">1</span>
+python<span class="w"> </span>your_triton_script.py
+</pre></div>
+</div>
+</section>
+<section id="triton-enable-llvm-debug-1">
+<h4>5.2.2.2 <code class="docutils literal notranslate"><span class="pre">TRITON_ENABLE_LLVM_DEBUG=1</span></code><a class="headerlink" href="#triton-enable-llvm-debug-1" title="Link to this heading"></a></h4>
+<p><strong>Function:</strong>
+Enables full debugging logs in the LLVM backend CodeGen phase, including instruction selection, register allocation, instruction scheduling, and machine code generation.</p>
+<p><strong>Feature:</strong>
+Large log size: A single kernel can generate tens of thousands of lines of output.
+Bottom-layer details: Register name, physical/virtual register mapping, and stack frame layout are included.
+Only for LLVM experts: For common Triton developers, this is considered &quot;noise.&quot;</p>
+<p><strong>Suggestion:</strong>
+Enable this function only when LLVM backend bugs are suspected (for example, invalid instructions are generated or performance exceptions occur).
+It can be used together with LLVM_DEBUG_ONLY to limit the output scope.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">TRITON_ENABLE_LLVM_DEBUG=1</span></code> is enabled, you can use the <code class="docutils literal notranslate"><span class="pre">LLVM_DEBUG_ONLY</span></code> environment variable to specify the module for which the logs will be output. The following is a brief description of the common <code class="docutils literal notranslate"><span class="pre">DEBUG_TYPE</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">## `isel` (Instruction Selection)</span>
+-<span class="w"> </span>**Function**:<span class="w"> </span>Converts<span class="w"> </span>LLVM<span class="w"> </span>IR<span class="w"> </span>instructions<span class="w"> </span>into<span class="w"> </span>machine<span class="w"> </span>instructions<span class="w"> </span><span class="o">(</span>MachineInstr<span class="o">)</span><span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>target<span class="w"> </span>architecture.
+-<span class="w"> </span>**Debugging<span class="w"> </span>content**:<span class="w"> </span>Displays<span class="w"> </span>the<span class="w"> </span>mapping<span class="w"> </span>process<span class="w"> </span>and<span class="w"> </span>pattern<span class="w"> </span>matching<span class="w"> </span>result<span class="w"> </span>between<span class="w"> </span>IR<span class="w"> </span>and<span class="w"> </span>machine<span class="w"> </span>instructions.
+-<span class="w"> </span>**Application<span class="w"> </span>scenario**:<span class="w"> </span>The<span class="w"> </span>instruction<span class="w"> </span>selection<span class="w"> </span>is<span class="w"> </span>suspected<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>incorrect<span class="w"> </span><span class="o">(</span><span class="k">for</span><span class="w"> </span>example,<span class="w"> </span>invalid<span class="w"> </span>instructions<span class="w"> </span>or<span class="w"> </span>inefficient<span class="w"> </span>instruction<span class="w"> </span>sequences<span class="w"> </span>are<span class="w"> </span>generated<span class="o">)</span>.
+
+<span class="c1">## `regalloc` (Register Allocation)</span>
+-<span class="w"> </span>**Function**:<span class="w"> </span>Allocates<span class="w"> </span>physical<span class="w"> </span>registers<span class="w"> </span>to<span class="w"> </span>virtual<span class="w"> </span>registers<span class="w"> </span>and<span class="w"> </span>processes<span class="w"> </span>spilling.
+-<span class="w"> </span>**Debugging<span class="w"> </span>content**:<span class="w"> </span>Status<span class="w"> </span>before<span class="w"> </span>and<span class="w"> </span>after<span class="w"> </span>register<span class="w"> </span>allocation,<span class="w"> </span>conflict<span class="w"> </span>graph,<span class="w"> </span>and<span class="w"> </span>active<span class="w"> </span>interval<span class="w"> </span>analysis.
+-<span class="w"> </span>**Application<span class="w"> </span>scenario**:<span class="w"> </span>The<span class="w"> </span>register<span class="w"> </span>pressure<span class="w"> </span>is<span class="w"> </span>high,<span class="w"> </span>the<span class="w"> </span>performance<span class="w"> </span>deteriorates,<span class="w"> </span>or<span class="w"> </span>unexpected<span class="w"> </span>memory<span class="w"> </span>access<span class="w"> </span>occurs.
+
+<span class="c1">## `spiller` (Spiller)</span>
+-<span class="w"> </span>**Function**:<span class="w"> </span>Spills<span class="w"> </span>some<span class="w"> </span>values<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>stack<span class="w"> </span>memory<span class="w"> </span>when<span class="w"> </span>registers<span class="w"> </span>are<span class="w"> </span>insufficient.
+-<span class="w"> </span>**Debugging<span class="w"> </span>content**:<span class="w"> </span>Which<span class="w"> </span>virtual<span class="w"> </span>registers<span class="w"> </span>are<span class="w"> </span>spilled<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>positions<span class="w"> </span>of<span class="w"> </span>inserted<span class="w"> </span>load/store<span class="w"> </span>instructions.
+-<span class="w"> </span>**Application<span class="w"> </span>scenario**:<span class="w"> </span>The<span class="w"> </span>performance<span class="w"> </span>deteriorates<span class="w"> </span>due<span class="w"> </span>to<span class="w"> </span>frequent<span class="w"> </span>memory<span class="w"> </span>access,<span class="w"> </span>and<span class="w"> </span>register<span class="w"> </span>usage<span class="w"> </span>needs<span class="w"> </span>to<span class="w"> </span>be<span class="w"> </span>optimized.
+
+<span class="c1">## `peephole` (Peephole Optimizer)</span>
+-<span class="w"> </span>**Function**:<span class="w"> </span>Performs<span class="w"> </span>partial<span class="w"> </span>optimization<span class="w"> </span><span class="o">(</span>such<span class="w"> </span>as<span class="w"> </span>constant<span class="w"> </span>folding<span class="w"> </span>and<span class="w"> </span>redundant<span class="w"> </span>instruction<span class="w"> </span>elimination<span class="o">)</span><span class="w"> </span>at<span class="w"> </span>the<span class="w"> </span>machine<span class="w"> </span>code<span class="w"> </span>layer.
+-<span class="w"> </span>**Debugging<span class="w"> </span>content**:<span class="w"> </span>Comparison<span class="w"> </span>of<span class="w"> </span>instructions<span class="w"> </span>before<span class="w"> </span>and<span class="w"> </span>after<span class="w"> </span>optimization.
+-<span class="w"> </span>**Application<span class="w"> </span>scenario**:<span class="w"> </span>The<span class="w"> </span>generated<span class="w"> </span>code<span class="w"> </span>is<span class="w"> </span>redundant,<span class="w"> </span>but<span class="w"> </span>high-level<span class="w"> </span>optimization<span class="w"> </span>is<span class="w"> </span>not<span class="w"> </span>overriding.
+
+<span class="c1">## `asm-printer` (Assembly Printer)</span>
+-<span class="w"> </span>**Function**:<span class="w"> </span>Converts<span class="w"> </span>MachineInstr<span class="w"> </span>into<span class="w"> </span>the<span class="w"> </span>final<span class="w"> </span>assembly<span class="w"> </span>text<span class="w"> </span><span class="o">(</span>such<span class="w"> </span>as<span class="w"> </span>PTX,<span class="w"> </span>AMDGCN,<span class="w"> </span>and<span class="w"> </span>CCE<span class="o">)</span>.
+-<span class="w"> </span>**Debugging<span class="w"> </span>content**:<span class="w"> </span>Generated<span class="w"> </span>assembly<span class="w"> </span>code,<span class="w"> </span>symbol<span class="w"> </span>references,<span class="w"> </span>and<span class="w"> </span>instruction<span class="w"> </span>encoding.
+-<span class="w"> </span>**Application<span class="w"> </span>scenario**:<span class="w"> </span>Assembly<span class="w"> </span>syntax<span class="w"> </span>errors,<span class="w"> </span>tag<span class="w"> </span>mismatch,<span class="w"> </span>or<span class="w"> </span>viewing<span class="w"> </span>final<span class="w"> </span>output.
+</pre></div>
+</div>
+<p><strong>Enabling method:</strong>
+In the following example, it is specified that only <code class="docutils literal notranslate"><span class="pre">isel</span></code> is output.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TRITON_ENABLE_LLVM_DEBUG</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">LLVM_DEBUG_ONLY</span><span class="o">=</span><span class="s2">&quot;isel&quot;</span>
+python<span class="w"> </span>your_triton_script.py
+</pre></div>
+</div>
+<p><strong>Recommended debugging process:</strong>
+Enable <code class="docutils literal notranslate"><span class="pre">MLIR_ENABLE_DUMP=1</span></code> first.
+→ Check whether the conversion at the MLIR layer is correct (for example, ReduceOp → scf.for).
+If the MLIR is normal but the result is incorrect:
+→ It is suspected that the LLVM is faulty. Enable <code class="docutils literal notranslate"><span class="pre">TRITON_ENABLE_LLVM_DEBUG=1</span> <span class="pre">+</span> <span class="pre">LLVM_DEBUG_ONLY</span></code>.
+Do not directly enable <code class="docutils literal notranslate"><span class="pre">TRITON_ENABLE_LLVM_DEBUG=1</span></code>.
+→ Large log size may mask key information and severely affect the running speed.</p>
+</section>
+</section>
+</section>
+<section id="appendix-a-quick-reference-table-for-common-environment-variables">
+<h2>Appendix A: Quick Reference Table for Common Environment Variables<a class="headerlink" href="#appendix-a-quick-reference-table-for-common-environment-variables" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TRITON_DEBUG=1</span></code></p></td>
+<td><p>Enables intermediate IR dump.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TRITON_DISABLE_CACHE=1</span></code></p></td>
+<td><p>Disables compilation cache.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TRITON_INTERPRET=1</span></code></p></td>
+<td><p>Uses the CPU interpreter to execute the kernel.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TRITON_DEVICE_PRINT=1</span></code></p></td>
+<td><p>Enables runtime print output and compilation print output.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MLIR_ENABLE_DUMP=1</span></code></p></td>
+<td><p>Enables automatic dump of the MLIR high-level IR. Outputs the IR of the current function in readable text before and after each MLIR pass is executed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">TRITON_ENABLE_LLVM_DEBUG=1</span></code></p></td>
+<td><p>Enables full debugging logs in the LLVM backend CodeGen phase, including instruction selection, register allocation, instruction scheduling, and machine code generation.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

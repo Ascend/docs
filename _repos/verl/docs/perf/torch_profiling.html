@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PyTorch Profiling in verl &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">PyTorch Profiling in verl</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/perf/torch_profiling.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pytorch-profiling-in-verl">
+<h1>PyTorch Profiling in verl<a class="headerlink" href="#pytorch-profiling-in-verl" title="Link to this heading"></a></h1>
+<p>Last updated: 01/13/2026.</p>
+<p>This guide explains how to use the native <a class="reference external" href="https://pytorch.org/tutorials/recipes/recipes/profiler_recipe.html">PyTorch Profiler</a> for profiling verl training runs.</p>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>Profiling in verl can be configured through parameters in the trainer configuration file (e.g., <code class="docutils literal notranslate"><span class="pre">ppo_trainer.yaml</span></code>).</p>
+<section id="global-profiling-control">
+<h3>Global Profiling Control<a class="headerlink" href="#global-profiling-control" title="Link to this heading"></a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">global_profiler</span></code>, you can control when and how profiling occurs globally:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">global_profiler.steps</span></code></strong>: List of step numbers to profile. E.g., <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">2,</span> <span class="pre">5]</span></code> profiles steps 1, 2, and 5. Set to <code class="docutils literal notranslate"><span class="pre">null</span></code> to disable.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">global_profiler.save_path</span></code></strong>: Directory to save the profiling results. Default is <code class="docutils literal notranslate"><span class="pre">outputs/profile</span></code>.</p></li>
+</ul>
+</section>
+<section id="role-profiling-control">
+<h3>Role Profiling Control<a class="headerlink" href="#role-profiling-control" title="Link to this heading"></a></h3>
+<p>Each RL role (Actor, Critic, etc.) has its own <code class="docutils literal notranslate"><span class="pre">profiler</span></code> configuration:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">enable</span></code></strong>: Whether to enable profiling for this role.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">all_ranks</span></code></strong>: If <code class="docutils literal notranslate"><span class="pre">True</span></code>, profiles all ranks.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ranks</span></code></strong>: List of specific ranks to profile if <code class="docutils literal notranslate"><span class="pre">all_ranks</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">tool_config.torch</span></code></strong>: Configuration specific to the PyTorch Profiler.</p></li>
+</ul>
+<section id="pytorch-profiler-options-tool-config-torch">
+<h4>PyTorch Profiler Options (<code class="docutils literal notranslate"><span class="pre">tool_config.torch</span></code>)<a class="headerlink" href="#pytorch-profiler-options-tool-config-torch" title="Link to this heading"></a></h4>
+<p>You can customize the PyTorch Profiler behavior using the following fields under <code class="docutils literal notranslate"><span class="pre">tool_config.torch</span></code>:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">contents</span></code></strong>: List of contents to profile.</p>
+<ul>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">cpu</span></code></strong>: Profile CPU activities.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">cuda</span></code></strong>: Profile CUDA activities.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">memory</span></code></strong>: Track tensor memory allocation/free.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">shapes</span></code></strong>: Record shapes of operator inputs.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">stack</span></code></strong>: Record source code file and line number.</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">schedule</span></code></strong>: (Advanced) configuration for <code class="docutils literal notranslate"><span class="pre">wait</span></code>, <code class="docutils literal notranslate"><span class="pre">warmup</span></code>, <code class="docutils literal notranslate"><span class="pre">active</span></code>, <code class="docutils literal notranslate"><span class="pre">repeat</span></code> cycles.</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<section id="end-to-end-collection">
+<h3>1. End-to-End Collection<a class="headerlink" href="#end-to-end-collection" title="Link to this heading"></a></h3>
+<p>Collects performance data for all steps in a single trace file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">global_profiler</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">steps</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">5</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">save_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./outputs/profile</span>
+
+<span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">      </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">      </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">torch</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">          </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">cpu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cuda</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="c1"># rollout &amp; ref follow actor settings</span>
+</pre></div>
+</div>
+</section>
+<section id="discrete-mode-collection">
+<h3>2. Discrete Mode Collection<a class="headerlink" href="#discrete-mode-collection" title="Link to this heading"></a></h3>
+<p>Discrete mode saves separate trace files for each step. This is useful for detailed analysis and is <strong>mandatory</strong> when using Agent Loop.</p>
+<p><strong>Configuration Example</strong></p>
+<p>This configuration supports profiling both Training (Actor) and Inference (Rollout). You can enable/disable them independently.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">actor_rollout_ref</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">actor</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># Set to True to profile training</span>
+<span class="w">      </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">      </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># Global Rank 0</span>
+<span class="w">      </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">torch</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+<span class="w">          </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">cpu</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">cuda</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">rollout</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">profiler</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># Set to True to profile inference</span>
+<span class="w">      </span><span class="nt">all_ranks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span>
+<span class="w">      </span><span class="nt">ranks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">0</span><span class="p p-Indicator">]</span><span class="w"> </span><span class="c1"># In Agent Loop, this is the Replica Rank (e.g. 0-th instance)</span>
+<span class="w">      </span><span class="nt">tool_config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">torch</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">discrete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w"> </span><span class="c1"># REQUIRED </span>
+<span class="w">  </span><span class="c1"># ref follow actor settings</span>
+</pre></div>
+</div>
+<p><strong>Agent Loop Mode Description</strong></p>
+<p>When Rollout runs in <a class="reference internal" href="../advance/agent_loop.html"><span class="std std-doc">Agent Loop</span></a> mode, performance data for the Rollout phase <strong>must be collected using discrete mode</strong>. In this case, the Profiler is triggered by the inference engine backend.</p>
+<ol class="arabic simple">
+<li><p>Rank Definition: ranks in the Rollout configuration refers to Replica Rank (inference instance index), not Global Rank.</p></li>
+<li><p>Inference Engine Support: Currently, vLLM and SGLang engines are supported without additional settings. Specific details are as follows:</p>
+<ul class="simple">
+<li><p><strong>vLLM Engine</strong>: Automatically collects AsyncLLM scheduling stacks and inference process performance data.</p></li>
+<li><p><strong>SGLang Engine</strong>: Automatically collects inference process performance data. Does not support the memory option in contents.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="visualization">
+<h2>Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h2>
+<p>Collected trace files (usually <code class="docutils literal notranslate"><span class="pre">.json</span></code> or <code class="docutils literal notranslate"><span class="pre">.json.gz</span></code>) are stored in the configured <code class="docutils literal notranslate"><span class="pre">save_path</span></code>.</p>
+<p>You can visualize them using:</p>
+<ol class="arabic simple">
+<li><p><strong>Chrome Tracing</strong>: Open <code class="docutils literal notranslate"><span class="pre">chrome://tracing</span></code> in a Chrome browser and load the JSON file.</p></li>
+<li><p><strong>Perfetto</strong>: Open <a class="reference external" href="https://ui.perfetto.dev/">ui.perfetto.dev</a> and load the file (recommended for large traces).</p></li>
+<li><p><strong>TensorBoard</strong>: If using the TensorBoard plugin for PyTorch Profiler.</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,516 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sequence Parallelism &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="Batch Invariance" href="batch_invariance.html" />
+    <link rel="prev" title="Weight Prefetch Guide" href="weight_prefetch.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/features/index.html">Feature Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Feature Guide</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="graph_mode.html">Graph Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpu_binding.html">CPU Binding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantization.html">Quantization Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleep_mode.html">Sleep Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="structured_output.html">Structured Output Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lora.html">LoRA Adapters Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eplb_swift_balancer.html">Expert Load Balance (EPLB)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="netloader.html">Netloader Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rfork.html">RFork Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Multi_Token_Prediction.html">Multi Token Prediction (MTP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic_batch.html">Dynamic Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="epd_disaggregation.html">Disaggregated-encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kv_pool.html">Ascend Store Deployment Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_dp.html">External DP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="large_scale_ep.html">Distributed DP Server With Large-Scale Expert Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ucm_deployment.html">UCM-Enhanced Prefix Caching Deployment Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Fine_grained_TP.html">Fine-Grained Tensor Parallelism (Finegrained TP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layer_sharding.html">Layer Sharding Linear Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="speculative_decoding.html">Speculative Decoding Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="context_parallel.html">Context Parallel Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="npugraph_ex.html">Npugraph_ex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="weight_prefetch.html">Weight Prefetch Guide</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Sequence Parallelism</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-is-sequence-parallelism">What is Sequence Parallelism</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#how-to-use">How to Use</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#difference-between-sp-and-flash-comm-v1">Difference Between SP and Flash Comm V1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#support-matrix">Support Matrix</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pass-design">Pass Design</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="batch_invariance.html">Batch Invariance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lmcache_ascend_deployment.html">LMCache-Ascend Deployment Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/performance_and_debug/index.html">Performance and Debug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Feature Guide</a></li>
+      <li class="breadcrumb-item active">Sequence Parallelism</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/user_guide/feature_guide/sequence_parallelism.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="sequence-parallelism">
+<h1>Sequence Parallelism<a class="headerlink" href="#sequence-parallelism" title="Link to this heading"></a></h1>
+<section id="what-is-sequence-parallelism">
+<h2>What is Sequence Parallelism<a class="headerlink" href="#what-is-sequence-parallelism" title="Link to this heading"></a></h2>
+<p>Sequence Parallelism (SP) was first introduced in <a class="reference external" href="https://arxiv.org/pdf/2205.05198">Megatron</a>, with the original intention of reducing training activation memory. The core modification was changing <code class="docutils literal notranslate"><span class="pre">Allreduce-&gt;LayerNorm</span></code> to <code class="docutils literal notranslate"><span class="pre">ReduceScatter-&gt;LayerNorm-&gt;Allgather</span></code>. This technique was later applied to inference by vllm. It should be noted that splitting Allreduce into ReduceScatter and Allgather does not inherently bring performance benefits; it reduces the computation load of LayerNorm, but this gain is minimal. The real benefits of SP come from:</p>
+<ol class="arabic simple">
+<li><p>LLM inference deployment often uses quantization. Taking INT8 quantization commonly used on NPUs as an example, after LayerNorm, a Quant operator quantizes the hidden states from BF16 to INT8. The communication volume of Allgather is halved, and the time consumption is almost halved.</p></li>
+<li><p>ReduceScatter and Allgather can be fused with the preceding and following Matmul operations respectively into communication-computation parallel operators, reducing latency.</p></li>
+</ol>
+</section>
+<section id="how-to-use">
+<h2>How to Use<a class="headerlink" href="#how-to-use" title="Link to this heading"></a></h2>
+<p>Currently, vllm-ascend has implemented Sequence Parallelism for VL-class models based on the Inductor pass. It can be enabled in the following way:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vllm<span class="w"> </span>serve<span class="w"> </span>Qwen/Qwen3-VL-2B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compilation-config<span class="w"> </span><span class="s1">&#39;{&quot;pass_config&quot;: {&quot;enable_sp&quot;: true, , &quot;sp_min_token_num&quot;: 1000}}&#39;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;enable_sp&quot;</span></code>: This is the switch for SP. Since SP relies on graph mode, it is not supported in eager mode.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code> (from upstream vllm's <code class="docutils literal notranslate"><span class="pre">pass_config</span></code>): Based on our experiments, when the number of tokens is small (empirical value is less than 1000), SP can actually bring negative benefits. This is because when the communication volume is small, the fixed overhead of the communication operator becomes the dominant factor. SP will only take effect when <code class="docutils literal notranslate"><span class="pre">num_tokens</span> <span class="pre">&gt;=</span> <span class="pre">sp_min_token_num</span></code>. <strong>The default value is 1000 on Ascend, which generally does not need to be modified.</strong> To customize, use <code class="docutils literal notranslate"><span class="pre">--compilation-config</span> <span class="pre">'{&quot;pass_config&quot;:</span> <span class="pre">{&quot;enable_sp&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;sp_min_token_num&quot;:</span> <span class="pre">512}}'</span></code>. The value will be appended into <code class="docutils literal notranslate"><span class="pre">compile_ranges_split_points</span></code>, which splits the graph compilation range and checks whether the pass is applicable per range.</p></li>
+</ul>
+<p>Without modifying <code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code>, the simplest way and recommended way to enable SP is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vllm<span class="w"> </span>serve<span class="w"> </span>Qwen/Qwen3-VL-2B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compilation-config<span class="w"> </span><span class="s1">&#39;{&quot;pass_config&quot;: {&quot;enable_sp&quot;: true}}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="difference-between-sp-and-flash-comm-v1">
+<h2>Difference Between SP and Flash Comm V1<a class="headerlink" href="#difference-between-sp-and-flash-comm-v1" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://gitcode.com/ascend-tribe/ascend-inference-cluster/blob/main/FlashComm/ascend-inference-cluster-flashcomm.md">Flash Comm V1 (FC1)</a> is an enhanced version of Sequence Parallelism developed based on NPU. The enhancements include:</p>
+<ol class="arabic simple">
+<li><p>For models using the MLA structure, Allgather is postponed until after QKV projection, further reducing communication volume.</p></li>
+<li><p>For MoE models, Allgather is postponed until after Gating+DynamicQuant, also aiming to reduce communication volume.</p></li>
+</ol>
+<p>FC1 is a unique optimization in vllm-ascend, currently implemented based on Custom OP, but it is difficult to support VL-class models (reasons detailed in <a class="reference external" href="https://github.com/vllm-project/vllm-ascend/issues/5712">[RFC]: support sequence parallelism by pass</a> ). Therefore, currently FC1 and SP are complementary.</p>
+</section>
+<section id="support-matrix">
+<h2>Support Matrix<a class="headerlink" href="#support-matrix" title="Link to this heading"></a></h2>
+<section id="without-quantization">
+<h3>Without Quantization<a class="headerlink" href="#without-quantization" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VL + Dense</p></th>
+<th class="head"><p>VL + MoE</p></th>
+<th class="head"><p>non-VL + Dense</p></th>
+<th class="head"><p>non-VL + MoE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Sequence Parallelism</p></td>
+<td><p>graph</p></td>
+<td><p>graph</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p>Flash Comm V1</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>eager/graph</p></td>
+<td><p>eager/graph</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="with-quantization">
+<h3>With Quantization<a class="headerlink" href="#with-quantization" title="Link to this heading"></a></h3>
+<p>SP currently does not support quantization and is under adaptation.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VL + Dense</p></th>
+<th class="head"><p>VL + MoE</p></th>
+<th class="head"><p>non-VL + Dense</p></th>
+<th class="head"><p>non-VL + MoE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Sequence Parallelism</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p>Flash Comm V1</p></td>
+<td><p>x</p></td>
+<td><p>x</p></td>
+<td><p>eager/graph</p></td>
+<td><p>eager/graph</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="pass-design">
+<h2>Pass Design<a class="headerlink" href="#pass-design" title="Link to this heading"></a></h2>
+<p>When SP is enabled, the following passes run in order: <code class="docutils literal notranslate"><span class="pre">SequenceParallelismPass</span></code> then <code class="docutils literal notranslate"><span class="pre">SequenceParallelismMoePass</span></code>.</p>
+<section id="sequenceparallelismpass">
+<h3>SequenceParallelismPass<a class="headerlink" href="#sequenceparallelismpass" title="Link to this heading"></a></h3>
+<p>Runs <code class="docutils literal notranslate"><span class="pre">NoOpEliminationPass</span></code> first to eliminate redundant view-like operations, then applies AllReduce-based patterns:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Pattern</p></th>
+<th class="head"><p>Match</p></th>
+<th class="head"><p>Replacement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MiddleAllReduceRMSNormPattern</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all_reduce</span></code> + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reduce_scatter</span></code> + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code> + <code class="docutils literal notranslate"><span class="pre">all_gather</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LastAllReduceRMSNormPattern</span></code></p></td>
+<td><p>Same (last layer, no residual)</p></td>
+<td><p>Same</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Qwen3VLMiddleAllReduceRMSNormPattern</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all_reduce</span></code> + add + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reduce_scatter</span></code> + chunk(<code class="docutils literal notranslate"><span class="pre">deepstack_input_embeds</span></code>) + add + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code> + <code class="docutils literal notranslate"><span class="pre">all_gather</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why Qwen3 VL needs special handling by Qwen3VLMiddleAllReduceRMSNormPattern</strong></p>
+<p>Qwen3-VL middle layers insert an extra add between <code class="docutils literal notranslate"><span class="pre">all_reduce</span></code> and <code class="docutils literal notranslate"><span class="pre">layernorm</span></code>: <code class="docutils literal notranslate"><span class="pre">hidden_states=hidden_states</span> <span class="pre">+</span> <span class="pre">deepstack_input_embeds</span></code>. Under SP, <code class="docutils literal notranslate"><span class="pre">hidden_states</span></code> (i.e., <code class="docutils literal notranslate"><span class="pre">input</span></code>) is reduced-scattered to shape <code class="docutils literal notranslate"><span class="pre">[seq_len/tp,</span> <span class="pre">hidden]</span></code> per rank, while <code class="docutils literal notranslate"><span class="pre">deepstack_input_embeds</span></code> comes from the vision/deepstack path and stays full-sequence <code class="docutils literal notranslate"><span class="pre">[seq_len,</span> <span class="pre">hidden]</span></code> (typically replicated across TP ranks). Simply doing <code class="docutils literal notranslate"><span class="pre">reduce_scatter(input)</span> <span class="pre">+</span> <span class="pre">deepstack_input_embeds</span></code> would cause a shape mismatch.
+The fix is to chunk <code class="docutils literal notranslate"><span class="pre">deepstack_input_embeds</span></code> by <code class="docutils literal notranslate"><span class="pre">tp_size</span></code> so each rank uses <code class="docutils literal notranslate"><span class="pre">add(reduce_scatter,</span> <span class="pre">chunk(deepstack_input_embeds)[tp_rank])</span></code>, keeping shapes consistent before <code class="docutils literal notranslate"><span class="pre">layernorm</span></code> and <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>.</p>
+</section>
+<section id="sequenceparallelismmoepass">
+<h3>SequenceParallelismMoePass<a class="headerlink" href="#sequenceparallelismmoepass" title="Link to this heading"></a></h3>
+<p>After <code class="docutils literal notranslate"><span class="pre">SequenceParallelismPass</span></code> applies, the MoE model computation graph looks like:</p>
+<p><img alt="AllGather EP computation graph" src="../../../../../../_images/sp_moe1.png" /></p>
+<p><strong>Overview</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Postponing allgather</strong>: Under SP, <code class="docutils literal notranslate"><span class="pre">residual</span></code> is chunked by tensor parallelism. This causes a shape mismatch between hidden states and residual in the next layer's layernorm: hidden states are gathered (full sequence) while residual remains chunked. The fix is to move <code class="docutils literal notranslate"><span class="pre">all_gather</span></code> to <em>after</em> layernorm so that layernorm operates on consistent shapes per rank. <code class="docutils literal notranslate"><span class="pre">MiddleLayerAllgatherAddRMSNormPattern</span></code>, <code class="docutils literal notranslate"><span class="pre">LastLayerAllgatherRMSNormPattern</span></code>, and <code class="docutils literal notranslate"><span class="pre">Qwen3VLMiddleLayerAllgatherAddRMSNormPattern</span></code> are designed for this purpose, each handling different layer and structure variants (see the table below).</p></li>
+<li><p><strong>AllGatherChunkNoOp cleanup</strong>: When MoE SP is enabled, vllm introduces a <code class="docutils literal notranslate"><span class="pre">sequence_parallel_chunk</span></code> op (corresponding to <code class="docutils literal notranslate"><span class="pre">sp_chunk</span></code> in the diagram). Together with the preceding <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>, the pair forms a redundant no-op (all_gather gathers, then chunk re-splits). <code class="docutils literal notranslate"><span class="pre">AllGatherChunkNoOpPattern</span></code> replaces this pair with identity to eliminate the redundant communication and computation.</p></li>
+</ol>
+<p><strong>Pattern details:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Pattern</p></th>
+<th class="head"><p>Match</p></th>
+<th class="head"><p>Replacement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MiddleLayerAllgatherAddRMSNormPattern</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all_gather</span></code> + slice + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">layernorm</span></code> + <code class="docutils literal notranslate"><span class="pre">all_gather</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LastLayerAllgatherRMSNormPattern</span></code></p></td>
+<td><p>Same (last layer, no residual)</p></td>
+<td><p>Same</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Qwen3VLMiddleLayerAllgatherAddRMSNormPattern</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all_gather</span></code> + slice + add + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code></p></td>
+<td><p>add(chunk) + <code class="docutils literal notranslate"><span class="pre">layernorm</span></code> + <code class="docutils literal notranslate"><span class="pre">all_gather</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AllGatherChunkNoOpPattern</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">all_gather</span></code> + <code class="docutils literal notranslate"><span class="pre">sequence_parallel_chunk_impl</span></code></p></td>
+<td><p>identity (no-op)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="faq">
+<h3>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h3>
+<section id="q1-is-sp-enabled-by-default">
+<h4>Q1: Is SP enabled by default?<a class="headerlink" href="#q1-is-sp-enabled-by-default" title="Link to this heading"></a></h4>
+<p>No, SP is not enabled by default. SP is currently in the experimental stage and will be enabled by default in the future.</p>
+<p>The processing flow of <code class="docutils literal notranslate"><span class="pre">enable_sp</span></code> in the code is:</p>
+<ul class="simple">
+<li><p>In <code class="docutils literal notranslate"><span class="pre">pass_config</span></code>, <code class="docutils literal notranslate"><span class="pre">enable_sp</span></code> and <code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code> default to <code class="docutils literal notranslate"><span class="pre">None</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NPUPlatform.apply_config_platform_defaults</span></code>: If <code class="docutils literal notranslate"><span class="pre">enable_sp</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code> is None, set default <code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code> (1000 for Dense models, 1 for MoE models)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VllmConfig._apply_optimization_level_defaults</span></code>: <code class="docutils literal notranslate"><span class="pre">enable_sp</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> for dense models.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">VllmConfig.__post_init__</span></code>: If <code class="docutils literal notranslate"><span class="pre">sp_min_token_num</span></code> is still <code class="docutils literal notranslate"><span class="pre">None</span></code>, then <code class="docutils literal notranslate"><span class="pre">enable_sp</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="weight_prefetch.html" class="btn btn-neutral float-left" title="Weight Prefetch Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="batch_invariance.html" class="btn btn-neutral float-right" title="Batch Invariance" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

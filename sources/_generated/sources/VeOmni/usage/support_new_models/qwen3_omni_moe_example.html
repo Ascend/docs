@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qwen3-Omni-MoE Integration Example &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Qwen3-Omni-MoE Integration Example</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/VeOmni/usage/support_new_models/qwen3_omni_moe_example.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="qwen3-omni-moe-integration-example">
+<h1>Qwen3-Omni-MoE Integration Example<a class="headerlink" href="#qwen3-omni-moe-integration-example" title="Link to this heading"></a></h1>
+<p><strong>Authors</strong>: Ting Yang</p>
+<p>This document provides in-depth implementation details for each patch applied in the <strong>Qwen3-Omni-MoE</strong> integration — VeOmni's most complex model type, covering image, video, and audio modalities with MoE and Expert Parallelism. Use this alongside <a class="reference internal" href="guide_and_checklist.html"><span class="std std-doc">guide_and_checklist.md</span></a>.</p>
+<hr class="docutils" />
+<section id="p1-fix-tie-word-embeddings-config">
+<h2>P1. Fix <code class="docutils literal notranslate"><span class="pre">tie_word_embeddings</span></code> (Config)<a class="headerlink" href="#p1-fix-tie-word-embeddings-config" title="Link to this heading"></a></h2>
+<p>Many models set <code class="docutils literal notranslate"><span class="pre">tie_word_embeddings=True</span></code> by default but don't implement <code class="docutils literal notranslate"><span class="pre">get_output_embeddings()</span></code>. VeOmni's <code class="docutils literal notranslate"><span class="pre">CustomizedModelingLoader</span></code> tries to tie embeddings after weight loading and will crash. Fix in <code class="docutils literal notranslate"><span class="pre">configuration_*.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YourModelConfig</span><span class="p">(</span><span class="n">_HFYourModelConfig</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tie_word_embeddings&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">tie_word_embeddings</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_veomni_patch</span><span class="p">():</span>
+    <span class="n">hf_config_module</span><span class="o">.</span><span class="n">YourModelConfig</span> <span class="o">=</span> <span class="n">YourModelConfig</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p2-fsdp-dummy-forward-vlms-and-omni-modal">
+<h2>P2. FSDP Dummy Forward (VLMs and Omni-modal)<a class="headerlink" href="#p2-fsdp-dummy-forward-vlms-and-omni-modal" title="Link to this heading"></a></h2>
+<p>When using FSDP, ranks that receive <code class="docutils literal notranslate"><span class="pre">None</span></code> for <code class="docutils literal notranslate"><span class="pre">pixel_values</span></code> (or <code class="docutils literal notranslate"><span class="pre">input_features</span></code>) while others receive valid tensors cause backward reduce-scatter hangs. Every encoder that may receive <code class="docutils literal notranslate"><span class="pre">None</span></code> on some ranks needs a <code class="docutils literal notranslate"><span class="pre">dummy_forward()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YourVisionEncoder</span><span class="p">(</span><span class="n">hf_your_model</span><span class="o">.</span><span class="n">YourVisionEncoder</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dummy_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Replace `input_dim` with the actual flat input dimension for your encoder.</span>
+        <span class="c1"># For Qwen3-Omni-MoE ViT: 3 + 2 * 16 + 16</span>
+        <span class="n">input_dim</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># e.g. self.config.vision_config.patch_size ** 2 * channels</span>
+        <span class="k">if</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_enabled</span><span class="p">:</span>
+            <span class="n">sp_size</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_size</span>
+            <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">grid_thw</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">sp_size</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pixel_values</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">16</span><span class="p">,</span> <span class="n">input_dim</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">grid_thw</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">hidden_states</span><span class="o">=</span><span class="n">pixel_values</span><span class="p">,</span> <span class="n">grid_thw</span><span class="o">=</span><span class="n">grid_thw</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Call it in the main forward when the input is <code class="docutils literal notranslate"><span class="pre">None</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">pixel_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">image_embeds</span><span class="p">,</span> <span class="n">deepstack_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_image_features</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">,</span> <span class="n">image_grid_thw</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">fsdp_enabled</span><span class="p">:</span>
+    <span class="n">fake_embeds</span><span class="p">,</span> <span class="n">fake_deepstack</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visual</span><span class="o">.</span><span class="n">dummy_forward</span><span class="p">()</span>
+    <span class="n">fake_embeds</span> <span class="o">=</span> <span class="n">fake_embeds</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="mf">0.0</span>  <span class="c1"># zero-out: no gradient contribution</span>
+    <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">inputs_embeds</span> <span class="o">+</span> <span class="n">fake_embeds</span>
+</pre></div>
+</div>
+<p>The same applies to the audio encoder for omni-modal models.</p>
+</section>
+<hr class="docutils" />
+<section id="p3-sp-language-model-position-embeddings">
+<h2>P3. SP: Language Model Position Embeddings<a class="headerlink" href="#p3-sp-language-model-position-embeddings" title="Link to this heading"></a></h2>
+<p>Since <code class="docutils literal notranslate"><span class="pre">position_ids</span></code> is already sliced by <code class="docutils literal notranslate"><span class="pre">SequenceParallelCollator</span></code>, calling <code class="docutils literal notranslate"><span class="pre">rotary_emb(hidden_states,</span> <span class="pre">position_ids)</span></code> directly produces local-length position embeddings — no additional slicing is needed.</p>
+<p>VeOmni automatically registers a wrapped FlashAttention implementation, so attention layers require no further changes.</p>
+</section>
+<hr class="docutils" />
+<section id="p4-sp-vision-transformer-padding-and-slicing">
+<h2>P4. SP: Vision Transformer Padding and Slicing<a class="headerlink" href="#p4-sp-vision-transformer-padding-and-slicing" title="Link to this heading"></a></h2>
+<p>The ViT has a fundamental mismatch under SP:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Tensor</p></th>
+<th class="head"><p>State entering ViT</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hidden_states</span></code></p></td>
+<td><p>Padded to a multiple of <code class="docutils literal notranslate"><span class="pre">pad_scale</span></code>, then sequence-sliced by the collator</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">grid_thw</span></code></p></td>
+<td><p>Unpadded and unsliced — always the original full grid</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cu_seqlens</span></code></p></td>
+<td><p>Computed from raw <code class="docutils literal notranslate"><span class="pre">grid_thw</span></code> — does not know about padding</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pad and slice position embeddings</strong> to match the padded hidden states:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">....distributed.sequence_parallel</span><span class="w"> </span><span class="kn">import</span> <span class="n">sp_pad_and_slice</span>
+
+<span class="n">pos_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fast_pos_embed_interpolate</span><span class="p">(</span><span class="n">grid_thw</span><span class="p">)</span>
+
+<span class="n">sp_group</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_group</span> <span class="k">if</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_enabled</span> <span class="k">else</span> <span class="kc">None</span>
+<span class="k">if</span> <span class="n">sp_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">pos_embeds</span> <span class="o">=</span> <span class="n">sp_pad_and_slice</span><span class="p">(</span><span class="n">pos_embeds</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_scale</span><span class="o">=</span><span class="n">MERGE_RATIO</span><span class="p">)</span>
+
+<span class="n">hidden_states</span> <span class="o">=</span> <span class="n">hidden_states</span> <span class="o">+</span> <span class="n">pos_embeds</span>
+</pre></div>
+</div>
+<p>Apply the <strong>same padding and slicing to rotary position embeddings</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rotary_pos_emb</span> <span class="o">=</span> <span class="n">rotary_pos_emb</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">total_seq_len</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">((</span><span class="n">rotary_pos_emb</span><span class="p">,</span> <span class="n">rotary_pos_emb</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">position_embeddings</span> <span class="o">=</span> <span class="p">(</span><span class="n">emb</span><span class="o">.</span><span class="n">cos</span><span class="p">(),</span> <span class="n">emb</span><span class="o">.</span><span class="n">sin</span><span class="p">())</span>
+
+<span class="k">if</span> <span class="n">sp_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span> <span class="o">=</span> <span class="n">position_embeddings</span>
+    <span class="n">cos</span> <span class="o">=</span> <span class="n">sp_pad_and_slice</span><span class="p">(</span><span class="n">cos</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_scale</span><span class="o">=</span><span class="n">MERGE_RATIO</span><span class="p">)</span>
+    <span class="n">sin</span> <span class="o">=</span> <span class="n">sp_pad_and_slice</span><span class="p">(</span><span class="n">sin</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">pad_scale</span><span class="o">=</span><span class="n">MERGE_RATIO</span><span class="p">)</span>
+    <span class="n">position_embeddings</span> <span class="o">=</span> <span class="p">(</span><span class="n">cos</span><span class="p">,</span> <span class="n">sin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Extend <code class="docutils literal notranslate"><span class="pre">cu_seqlens</span></code></strong> with a padding entry to cover the padded tail on the last rank:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">total_seq_len</span> <span class="o">=</span> <span class="n">cu_seqlens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">seq_len</span> <span class="o">=</span> <span class="n">hidden_states</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># after collator padding+slicing</span>
+
+<span class="k">if</span> <span class="n">sp_group</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sp_size</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_size</span>
+    <span class="n">pad_seq_len</span> <span class="o">=</span> <span class="n">seq_len</span> <span class="o">*</span> <span class="n">sp_size</span> <span class="o">-</span> <span class="n">total_seq_len</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">pad_seq_len</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">cu_seqlens</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">cu_seqlens</span><span class="p">,</span> <span class="p">(</span><span class="n">cu_seqlens</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">pad_seq_len</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>What is <code class="docutils literal notranslate"><span class="pre">MERGE_RATIO</span></code> / <code class="docutils literal notranslate"><span class="pre">pad_scale</span></code>?</strong> It equals the number of ViT tokens merged into one LM token. Qwen-VL uses a 2×2 spatial merge → <code class="docutils literal notranslate"><span class="pre">pad_scale=4</span></code>.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="p5-sp-vit-to-lm-fill-back-3-step-dance">
+<h2>P5. SP: ViT-to-LM Fill-Back (3-Step Dance)<a class="headerlink" href="#p5-sp-vit-to-lm-fill-back-3-step-dance" title="Link to this heading"></a></h2>
+<p>After the ViT, image embeddings must be scattered into the correct positions in <code class="docutils literal notranslate"><span class="pre">inputs_embeds</span></code>. The <code class="docutils literal notranslate"><span class="pre">image_mask</span></code> covers the full sequence, but under SP <code class="docutils literal notranslate"><span class="pre">inputs_embeds</span></code> is only <code class="docutils literal notranslate"><span class="pre">seq</span> <span class="pre">//</span> <span class="pre">sp_size</span></code> long:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Step 1: Gather sequence, scatter heads → full-seq layout</span>
+<span class="c1"># (bs, seq//sp, hidden) → (bs, seq, hidden//sp)</span>
+<span class="n">sp_enabled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">training</span> <span class="ow">and</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_enabled</span>
+<span class="n">sp_group</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_group</span> <span class="k">if</span> <span class="n">sp_enabled</span> <span class="k">else</span> <span class="kc">None</span>
+
+<span class="k">if</span> <span class="n">sp_enabled</span><span class="p">:</span>
+    <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">gather_seq_scatter_heads</span><span class="p">(</span>
+        <span class="n">inputs_embeds</span><span class="p">,</span> <span class="n">seq_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">head_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">sp_group</span>
+    <span class="p">)</span>
+
+<span class="c1"># Step 2: Same transform on image/video/audio embeddings, then fill back</span>
+<span class="k">if</span> <span class="n">pixel_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">image_embeds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_image_features</span><span class="p">(</span><span class="n">pixel_values</span><span class="p">,</span> <span class="n">image_grid_thw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sp_enabled</span><span class="p">:</span>
+        <span class="c1"># (seq//sp, hidden) → (seq, hidden//sp)</span>
+        <span class="n">image_embeds</span> <span class="o">=</span> <span class="n">gather_seq_scatter_heads</span><span class="p">(</span>
+            <span class="n">image_embeds</span><span class="p">,</span> <span class="n">seq_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">head_dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">sp_group</span>
+        <span class="p">)</span>
+    <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">inputs_embeds</span><span class="o">.</span><span class="n">masked_scatter</span><span class="p">(</span><span class="n">image_mask</span><span class="p">,</span> <span class="n">image_embeds</span><span class="p">)</span>
+<span class="c1"># repeat for video, audio...</span>
+
+<span class="c1"># Step 3: Restore SP layout</span>
+<span class="c1"># (bs, seq, hidden//sp) → (bs, seq//sp, hidden)</span>
+<span class="k">if</span> <span class="n">sp_enabled</span><span class="p">:</span>
+    <span class="n">inputs_embeds</span> <span class="o">=</span> <span class="n">gather_heads_scatter_seq</span><span class="p">(</span>
+        <span class="n">inputs_embeds</span><span class="p">,</span> <span class="n">head_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">seq_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="n">sp_group</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Why this works:</strong> <code class="docutils literal notranslate"><span class="pre">masked_scatter</span></code> places image tokens exactly at positions where <code class="docutils literal notranslate"><span class="pre">image_mask</span></code> is True. When both <code class="docutils literal notranslate"><span class="pre">inputs_embeds</span></code> and <code class="docutils literal notranslate"><span class="pre">image_embeds</span></code> are in <code class="docutils literal notranslate"><span class="pre">(seq,</span> <span class="pre">hidden//sp)</span></code> layout, every rank covers the entire sequence (scattered along the hidden dimension), so the fill-back is position-correct.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="p6-sp-deepstack-cross-layer-visual-embeddings">
+<h2>P6. SP: Deepstack / Cross-Layer Visual Embeddings<a class="headerlink" href="#p6-sp-deepstack-cross-layer-visual-embeddings" title="Link to this heading"></a></h2>
+<p>If your model injects visual features into multiple decoder layers (DeepStack pattern), all-gather once after ViT and slice per rank — avoiding repeated All2All in every decoder layer:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">....distributed.sequence_parallel.ulysses</span><span class="w"> </span><span class="kn">import</span> <span class="n">_Gather</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">....distributed.parallel_state</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parallel_state</span>
+
+<span class="n">sp_enabled</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_enabled</span>
+<span class="k">if</span> <span class="n">sp_enabled</span> <span class="ow">and</span> <span class="n">pixel_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">sp_group</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_group</span>
+    <span class="n">sp_size</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_size</span>
+    <span class="n">sp_rank</span> <span class="o">=</span> <span class="n">get_parallel_state</span><span class="p">()</span><span class="o">.</span><span class="n">sp_rank</span>
+    <span class="n">seq_len</span> <span class="o">=</span> <span class="n">image_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># image_mask is (bs, seq, ...)</span>
+
+    <span class="c1"># All-gather: (seq//sp, hidden) → (seq, hidden)</span>
+    <span class="n">deepstack_embeds</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_Gather</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">sp_group</span><span class="p">,</span> <span class="n">embed</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">embed</span> <span class="ow">in</span> <span class="n">deepstack_embeds</span>
+    <span class="p">]</span>
+
+    <span class="n">image_mask_1d</span> <span class="o">=</span> <span class="n">image_mask</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>     <span class="c1"># (bs, seq)</span>
+    <span class="n">seq_per_rank</span> <span class="o">=</span> <span class="n">seq_len</span> <span class="o">//</span> <span class="n">sp_size</span>
+    <span class="n">rank_start</span>   <span class="o">=</span> <span class="n">sp_rank</span> <span class="o">*</span> <span class="n">seq_per_rank</span>
+    <span class="n">rank_mask</span>    <span class="o">=</span> <span class="n">image_mask_1d</span><span class="p">[:,</span> <span class="n">rank_start</span> <span class="p">:</span> <span class="n">rank_start</span> <span class="o">+</span> <span class="n">seq_per_rank</span><span class="p">]</span>
+    <span class="n">offset</span>       <span class="o">=</span> <span class="n">image_mask_1d</span><span class="p">[:,</span> <span class="p">:</span><span class="n">rank_start</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">n_tokens</span>     <span class="o">=</span> <span class="n">rank_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+    <span class="n">deepstack_embeds</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span><span class="p">[</span><span class="n">offset</span> <span class="p">:</span> <span class="n">offset</span> <span class="o">+</span> <span class="n">n_tokens</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">deepstack_embeds</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p7-moe-fused-forward-stacked-expert-weights">
+<h2>P7. MoE: Fused Forward + Stacked Expert Weights<a class="headerlink" href="#p7-moe-fused-forward-stacked-expert-weights" title="Link to this heading"></a></h2>
+<p>The standard HuggingFace MoE uses <code class="docutils literal notranslate"><span class="pre">nn.ModuleList</span></code> of individual expert MLPs. VeOmni replaces this with a single module holding stacked 3D weight tensors — required by both the fused triton kernel and EP sharding:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YourModelExperts</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="n">num_experts</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">num_experts</span>
+        <span class="n">intermediate_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">moe_intermediate_size</span>
+        <span class="n">hidden_size</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">hidden_size</span>
+        <span class="c1"># Shape: (num_experts, out_dim, in_dim)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gate_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_experts</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">up_proj</span>   <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_experts</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">num_experts</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hidden_states</span><span class="p">,</span> <span class="n">routing_weights</span><span class="p">,</span> <span class="n">selected_experts</span><span class="p">,</span> <span class="n">num_experts</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">fused_moe_forward</span><span class="p">(</span>
+            <span class="n">num_experts</span><span class="o">=</span><span class="n">num_experts</span><span class="p">,</span>
+            <span class="n">routing_weights</span><span class="o">=</span><span class="n">routing_weights</span><span class="p">,</span>
+            <span class="n">selected_experts</span><span class="o">=</span><span class="n">selected_experts</span><span class="p">,</span>
+            <span class="n">hidden_states</span><span class="o">=</span><span class="n">hidden_states</span><span class="p">,</span>
+            <span class="n">fc1_1_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gate_proj</span><span class="p">,</span>
+            <span class="n">fc1_2_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">up_proj</span><span class="p">,</span>
+            <span class="n">fc2_weight</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span><span class="p">,</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>Keep the original <code class="docutils literal notranslate"><span class="pre">nn.ModuleList</span></code> path for <code class="docutils literal notranslate"><span class="pre">moe_implementation=&quot;eager&quot;</span></code> (which does not support EP):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moe_implementation</span> <span class="o">==</span> <span class="s2">&quot;fused&quot;</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">experts</span> <span class="o">=</span> <span class="n">YourModelExperts</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_moe_implementation</span> <span class="o">==</span> <span class="s2">&quot;eager&quot;</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">experts</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">([</span><span class="n">ExpertMLP</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_experts</span><span class="p">)])</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>If the model uses a fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></strong> (shape <code class="docutils literal notranslate"><span class="pre">(num_experts,</span> <span class="pre">hidden,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">expert_dim)</span></code>, e.g. Qwen3-VL MoE), split it before calling <code class="docutils literal notranslate"><span class="pre">fused_moe_forward</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gate_proj_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate_up_proj</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">expert_dim</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+<span class="n">up_proj_t</span>   <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gate_up_proj</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">expert_dim</span><span class="p">:]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+<span class="n">down_proj_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>The transpose is needed because the checkpoint stores <code class="docutils literal notranslate"><span class="pre">(num_experts,</span> <span class="pre">hidden,</span> <span class="pre">expert_dim)</span></code> while <code class="docutils literal notranslate"><span class="pre">fused_moe_forward</span></code> expects <code class="docutils literal notranslate"><span class="pre">(num_experts,</span> <span class="pre">expert_dim,</span> <span class="pre">hidden)</span></code>.</p>
+</div></blockquote>
+<p>Also patch <code class="docutils literal notranslate"><span class="pre">_init_weights</span></code> for the stacked parameter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">custom_init_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">):</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">HFPreTrainedModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_init_weights</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">YourModelExperts</span><span class="p">):</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">gate_proj</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">initializer_range</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">up_proj</span><span class="p">,</span>   <span class="n">std</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">initializer_range</span><span class="p">)</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="n">down_proj</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">initializer_range</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p8-pop-flash-attention-kwargs-before-vit-forward">
+<h2>P8. Pop Flash-Attention kwargs Before ViT Forward<a class="headerlink" href="#p8-pop-flash-attention-kwargs-before-vit-forward" title="Link to this heading"></a></h2>
+<p>The LM-level flash-attention kwargs (<code class="docutils literal notranslate"><span class="pre">cu_seq_lens_q</span></code>, <code class="docutils literal notranslate"><span class="pre">cu_seq_lens_k</span></code>, <code class="docutils literal notranslate"><span class="pre">max_length_q</span></code>, <code class="docutils literal notranslate"><span class="pre">max_length_k</span></code>) are injected for packed-sequence attention. They must not reach the ViT, which computes its own <code class="docutils literal notranslate"><span class="pre">cu_seqlens</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># At the start of forward(), before ViT:</span>
+<span class="n">flash_attn_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cu_seq_lens_q&quot;</span><span class="p">,</span> <span class="s2">&quot;cu_seq_lens_k&quot;</span><span class="p">,</span> <span class="s2">&quot;max_length_q&quot;</span><span class="p">,</span> <span class="s2">&quot;max_length_k&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">flash_attn_kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+<span class="c1"># ... all encoder (ViT, audio) forwards here ...</span>
+
+<span class="c1"># Restore before LM forward:</span>
+<span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">flash_attn_kwargs</span><span class="p">)</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">language_model</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p9-pre-compute-max-seqlen-performance">
+<h2>P9. Pre-compute <code class="docutils literal notranslate"><span class="pre">max_seqlen</span></code> (Performance)<a class="headerlink" href="#p9-pre-compute-max-seqlen-performance" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">(cu_seqlens[1:]</span> <span class="pre">-</span> <span class="pre">cu_seqlens[:-1]).max().item()</span></code> triggers a CPU-GPU sync. Inside a layer loop this fires once per layer. Move it outside:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">max_seqlen</span> <span class="o">=</span> <span class="p">(</span><span class="n">cu_seqlens</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">cu_seqlens</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">blk</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+    <span class="n">hidden_states</span> <span class="o">=</span> <span class="n">blk</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">,</span> <span class="n">cu_seqlens</span><span class="o">=</span><span class="n">cu_seqlens</span><span class="p">,</span>
+                        <span class="n">position_embeddings</span><span class="o">=</span><span class="n">position_embeddings</span><span class="p">,</span> <span class="n">max_seqlen</span><span class="o">=</span><span class="n">max_seqlen</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p10-position-id-transposition">
+<h2>P10. Position ID Transposition<a class="headerlink" href="#p10-position-id-transposition" title="Link to this heading"></a></h2>
+<p>VeOmni collates per-sample position IDs as <code class="docutils literal notranslate"><span class="pre">(bs,</span> <span class="pre">dim,</span> <span class="pre">L)</span></code>. The HuggingFace model API expects <code class="docutils literal notranslate"><span class="pre">(dim,</span> <span class="pre">bs,</span> <span class="pre">L)</span></code>. Add a transpose at the start of the top-level forward:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">position_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">position_ids</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">position_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">position_ids</span> <span class="o">=</span> <span class="n">position_ids</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">contiguous</span><span class="p">()</span>  <span class="c1"># (bs, 3, L) → (3, bs, L)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p11-veomni-loss-utility">
+<h2>P11. VeOmni Loss Utility<a class="headerlink" href="#p11-veomni-loss-utility" title="Link to this heading"></a></h2>
+<p>Replace the model's built-in CE loss with <code class="docutils literal notranslate"><span class="pre">ForCausalLMLoss</span></code> to get Liger/fused kernel selection and correct SP loss reduction:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">....ops.fused_cross_entropy</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForCausalLMLoss</span>
+
+<span class="k">if</span> <span class="n">labels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">loss</span><span class="p">,</span> <span class="n">logits</span> <span class="o">=</span> <span class="n">ForCausalLMLoss</span><span class="p">(</span>
+        <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+        <span class="n">vocab_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">vocab_size</span><span class="p">,</span>
+        <span class="n">hidden_states</span><span class="o">=</span><span class="n">hidden_states</span><span class="p">,</span>
+        <span class="n">weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lm_head</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="n">IGNORE_INDEX</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="p12-get-position-id-func-multimodal-rope">
+<h2>P12. <code class="docutils literal notranslate"><span class="pre">get_position_id_func</span></code> (Multimodal RoPE)<a class="headerlink" href="#p12-get-position-id-func-multimodal-rope" title="Link to this heading"></a></h2>
+<p>VeOmni pre-computes position IDs per sample during data preprocessing in worker processes. The model must expose a <code class="docutils literal notranslate"><span class="pre">get_position_id_func()</span></code> that returns a <strong>picklable</strong> callable:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">....utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">IMAGE_INPUT_INDEX</span><span class="p">,</span> <span class="n">VIDEO_INPUT_INDEX</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_position_id</span><span class="p">(</span><span class="n">main_func</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Must be a module-level function (not a method) for multiprocessing pickle.&quot;&quot;&quot;</span>
+    <span class="n">position_ids</span><span class="p">,</span> <span class="n">rope_deltas</span> <span class="o">=</span> <span class="n">main_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># (dim, 1, L), (1, 1)</span>
+    <span class="k">assert</span> <span class="n">position_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;position_ids&quot;</span><span class="p">:</span> <span class="n">position_ids</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">&quot;rope_deltas&quot;</span><span class="p">:</span> <span class="n">rope_deltas</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">YourModel</span><span class="p">(</span><span class="n">hf_your_model</span><span class="o">.</span><span class="n">YourModel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_position_id_func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fake_config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="c1"># Use VeOmni constants so get_rope_index sees the same token IDs as at train time</span>
+        <span class="n">fake_config</span><span class="o">.</span><span class="n">image_token_id</span> <span class="o">=</span> <span class="n">IMAGE_INPUT_INDEX</span>
+        <span class="n">fake_config</span><span class="o">.</span><span class="n">video_token_id</span> <span class="o">=</span> <span class="n">VIDEO_INPUT_INDEX</span>
+        <span class="n">fake_model</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">fake_config</span><span class="p">,</span>
+            <span class="n">spatial_merge_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">spatial_merge_size</span><span class="p">,</span>
+            <span class="n">get_llm_pos_ids_for_vision</span><span class="o">=</span><span class="n">partial</span><span class="p">(</span>
+                <span class="n">hf_your_model</span><span class="o">.</span><span class="n">YourClass</span><span class="o">.</span><span class="n">get_llm_pos_ids_for_vision</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">get_position_id</span><span class="p">,</span> <span class="n">hf_your_model</span><span class="o">.</span><span class="n">YourClass</span><span class="o">.</span><span class="n">get_rope_index</span><span class="p">,</span> <span class="n">fake_model</span><span class="p">)</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Why <code class="docutils literal notranslate"><span class="pre">IMAGE_INPUT_INDEX</span></code> instead of the model's own token ID?</strong> In <code class="docutils literal notranslate"><span class="pre">process_sample</span></code>, multimodal token IDs are replaced with VeOmni constants and then zeroed out before storage. <code class="docutils literal notranslate"><span class="pre">get_rope_index</span></code> must see these same constants when called during preprocessing.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="three-level-strategy">
+<h3>Three-Level Strategy<a class="headerlink" href="#three-level-strategy" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Level 1 — Unit (single GPU, no real weights)   → tests/models/
+Level 2 — Parallel alignment (multi-GPU)        → tests/e2e/test_e2e_parallel.py
+Level 3 — End-to-end training (real data/ckpt)  → tests/e2e/test_e2e_training.py
+</pre></div>
+</div>
+<p>Pass Level 1 before running Level 2, and Level 2 before Level 3.</p>
+</section>
+<section id="level-1-unit-tests">
+<h3>Level 1 — Unit Tests<a class="headerlink" href="#level-1-unit-tests" title="Link to this heading"></a></h3>
+<section id="toy-config">
+<h4>Toy Config<a class="headerlink" href="#toy-config" title="Link to this heading"></a></h4>
+<p>Add a toy <code class="docutils literal notranslate"><span class="pre">config.json</span></code> (and <code class="docutils literal notranslate"><span class="pre">preprocessor_config.json</span></code> for multimodal) to <code class="docutils literal notranslate"><span class="pre">tests/toy_config/your_model_toy/</span></code> with drastically reduced sizes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Real Qwen3-Omni-MoE</p></th>
+<th class="head"><p>Toy version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">num_hidden_layers</span></code></p></td>
+<td><p>28</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hidden_size</span></code></p></td>
+<td><p>2048</p></td>
+<td><p>2048 (keep; shapes matter)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">num_experts</span></code></p></td>
+<td><p>128</p></td>
+<td><p>128 (keep for routing logic)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">encoder_layers</span></code></p></td>
+<td><p>32</p></td>
+<td><p>2</p></td>
+</tr>
+</tbody>
+</table>
+<p>For omni-modal models, copy <code class="docutils literal notranslate"><span class="pre">preprocessor_config.json</span></code> from the real model as-is — feature extractor parameters (mel bins, sample rate, patch size) are not reducible.</p>
+<p>Reference: <a class="reference internal" href="#../../../tests/toy_config/qwen3omni_toy/"><span class="xref myst">tests/toy_config/qwen3omni_toy/</span></a></p>
+</section>
+<section id="dummy-dataset">
+<h4>Dummy Dataset<a class="headerlink" href="#dummy-dataset" title="Link to this heading"></a></h4>
+<p>Add a <code class="docutils literal notranslate"><span class="pre">DummyXxxDataset</span></code> class to <a class="reference internal" href="#../../../veomni/data/dummy_dataset.py"><span class="xref myst">veomni/data/dummy_dataset.py</span></a> and register it in <code class="docutils literal notranslate"><span class="pre">build_dummy_dataset()</span></code>. For Qwen3-Omni-MoE, the audio output length formula matches the convolutional downsampler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># DummyQwen3OmniMoeDataset._get_feat_extract_output_lengths</span>
+<span class="n">input_lengths_leave</span> <span class="o">=</span> <span class="n">input_lengths</span> <span class="o">%</span> <span class="mi">100</span>
+<span class="n">feat_lengths</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_lengths_leave</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="n">output_lengths</span> <span class="o">=</span> <span class="p">((</span><span class="n">feat_lengths</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">input_lengths</span> <span class="o">//</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="mi">13</span>
+</pre></div>
+</div>
+<p>Register:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">elif</span> <span class="n">task_type</span> <span class="o">==</span> <span class="s2">&quot;your_model&quot;</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">DummyYourModelDataset</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">seq_length</span><span class="o">=</span><span class="n">max_seq_len</span><span class="p">,</span> <span class="n">patch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="forward-backward-patch-test">
+<h4>Forward/Backward Patch Test<a class="headerlink" href="#forward-backward-patch-test" title="Link to this heading"></a></h4>
+<p>Add to <code class="docutils literal notranslate"><span class="pre">test_cases</span></code> in <a class="reference internal" href="#../../../tests/models/test_models_patch.py"><span class="xref myst">tests/models/test_models_patch.py</span></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pytest</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
+    <span class="s2">&quot;./tests/toy_config/your_model_toy&quot;</span><span class="p">,</span>
+    <span class="n">is_moe</span><span class="p">,</span>
+    <span class="n">_DEFAULT_RTOL</span><span class="p">,</span>
+    <span class="n">_DEFAULT_ATOL</span><span class="p">,</span>
+    <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;your_model_type&quot;</span><span class="p">,</span>   <span class="c1"># must match model_type in config.json</span>
+<span class="p">),</span>
+</pre></div>
+</div>
+<p>Also add <code class="docutils literal notranslate"><span class="pre">MODEL_TO_DATASET</span></code> entry and (for omni models) <code class="docutils literal notranslate"><span class="pre">parse_token_id_from_config</span></code> branch to <a class="reference internal" href="#../../../tests/models/utils.py"><span class="xref myst">tests/models/utils.py</span></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># MODEL_TO_DATASET</span>
+<span class="s2">&quot;your_model_type&quot;</span><span class="p">:</span> <span class="s2">&quot;your_dataset_key&quot;</span><span class="p">,</span>
+
+<span class="c1"># parse_token_id_from_config — omni models with nested thinker_config</span>
+<span class="k">if</span> <span class="n">model_config</span><span class="o">.</span><span class="n">model_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;qwen2_5_omni&quot;</span><span class="p">,</span> <span class="s2">&quot;qwen3_omni_moe&quot;</span><span class="p">,</span> <span class="s2">&quot;your_omni_model&quot;</span><span class="p">]:</span>
+    <span class="n">token_ids_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;image_token_id&quot;</span><span class="p">:</span> <span class="n">model_config</span><span class="o">.</span><span class="n">thinker_config</span><span class="o">.</span><span class="n">image_token_id</span><span class="p">,</span>
+        <span class="s2">&quot;video_token_id&quot;</span><span class="p">:</span> <span class="n">model_config</span><span class="o">.</span><span class="n">thinker_config</span><span class="o">.</span><span class="n">video_token_id</span><span class="p">,</span>
+        <span class="s2">&quot;audio_token_id&quot;</span><span class="p">:</span> <span class="n">model_config</span><span class="o">.</span><span class="n">thinker_config</span><span class="o">.</span><span class="n">audio_token_id</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+pytest<span class="w"> </span>-s<span class="w"> </span>tests/models/test_models_patch.py<span class="w"> </span>-k<span class="w"> </span>your_model_type
+</pre></div>
+</div>
+</section>
+</section>
+<section id="level-2-parallel-alignment-test">
+<h3>Level 2 — Parallel Alignment Test<a class="headerlink" href="#level-2-parallel-alignment-test" title="Link to this heading"></a></h3>
+<p>Add to <a class="reference internal" href="#../../../tests/e2e/test_e2e_parallel.py"><span class="xref myst">tests/e2e/test_e2e_parallel.py</span></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">your_model_test_cases</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">pytest</span><span class="o">.</span><span class="n">param</span><span class="p">(</span>
+        <span class="s2">&quot;your_model_type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;./tests/toy_config/your_model_toy&quot;</span><span class="p">,</span>
+        <span class="n">is_moe</span><span class="p">,</span>
+        <span class="n">_DEFAULT_RTOL</span><span class="p">,</span>
+        <span class="n">_DEFAULT_ATOL</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span><span class="p">(</span><span class="n">scope</span><span class="o">=</span><span class="s2">&quot;session&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dummy_your_model_dataset</span><span class="p">():</span>
+    <span class="n">dummy_dataset</span> <span class="o">=</span> <span class="n">DummyDataset</span><span class="p">(</span><span class="n">seq_len</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span> <span class="n">dataset_type</span><span class="o">=</span><span class="s2">&quot;your_dataset_key&quot;</span><span class="p">)</span>
+    <span class="n">train_path</span> <span class="o">=</span> <span class="n">dummy_dataset</span><span class="o">.</span><span class="n">save_path</span>
+    <span class="k">yield</span> <span class="n">train_path</span>
+    <span class="k">del</span> <span class="n">dummy_dataset</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;model_name, config_path, is_moe, rtol, atol&quot;</span><span class="p">,</span> <span class="n">your_model_test_cases</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_your_model_parallel_align</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="p">,</span> <span class="n">config_path</span><span class="p">,</span> <span class="n">is_moe</span><span class="p">,</span> <span class="n">rtol</span><span class="p">,</span> <span class="n">atol</span><span class="p">,</span> <span class="n">dummy_your_model_dataset</span>
+<span class="p">):</span>
+    <span class="n">main</span><span class="p">(</span>
+        <span class="n">task_name</span><span class="o">=</span><span class="s2">&quot;train_vlm_test&quot;</span><span class="p">,</span>   <span class="c1"># or &quot;train_text_test&quot; for text-only</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span>
+        <span class="n">is_moe</span><span class="o">=</span><span class="n">is_moe</span><span class="p">,</span>
+        <span class="n">rtol</span><span class="o">=</span><span class="n">rtol</span><span class="p">,</span>
+        <span class="n">atol</span><span class="o">=</span><span class="n">atol</span><span class="p">,</span>
+        <span class="n">train_path</span><span class="o">=</span><span class="n">dummy_your_model_dataset</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+pytest<span class="w"> </span>-s<span class="w"> </span>tests/e2e/test_e2e_parallel.py<span class="w"> </span>-k<span class="w"> </span>your_model_type
+</pre></div>
+</div>
+<p>Reference: <code class="docutils literal notranslate"><span class="pre">qwen3omni_test_cases</span></code> and <code class="docutils literal notranslate"><span class="pre">test_qwen3omni_parallel_align</span></code> in <a class="reference internal" href="#../../../tests/e2e/test_e2e_parallel.py"><span class="xref myst">tests/e2e/test_e2e_parallel.py</span></a>.</p>
+</section>
+<section id="level-3-end-to-end-training-test">
+<h3>Level 3 — End-to-End Training Test<a class="headerlink" href="#level-3-end-to-end-training-test" title="Link to this heading"></a></h3>
+<p>Requires a real checkpoint and dataset. Add an entry to <code class="docutils literal notranslate"><span class="pre">E2E_TEST_SCRIPT</span></code> in <a class="reference internal" href="#../../../tests/e2e/exec_scripts.py"><span class="xref myst">tests/e2e/exec_scripts.py</span></a> and a <code class="docutils literal notranslate"><span class="pre">pytest.param</span></code> in <code class="docutils literal notranslate"><span class="pre">test_e2e_training.py</span></code>.</p>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+<span class="nv">CI_MODEL_DIR</span><span class="o">=</span>/path/to/models<span class="w"> </span><span class="nv">CI_DATASET_DIR</span><span class="o">=</span>/path/to/data<span class="w"> </span><span class="se">\</span>
+pytest<span class="w"> </span>-s<span class="w"> </span>tests/e2e/test_e2e_training.py<span class="w"> </span>-k<span class="w"> </span>your_model
+</pre></div>
+</div>
+</section>
+<section id="what-to-add-per-test-level">
+<h3>What to Add Per Test Level<a class="headerlink" href="#what-to-add-per-test-level" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>What to add</p></th>
+<th class="head"><p>Location</p></th>
+<th class="head"><p>Required for</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Toy <code class="docutils literal notranslate"><span class="pre">config.json</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/toy_config/your_model_toy/</span></code></p></td>
+<td><p>All levels</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">preprocessor_config.json</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/toy_config/your_model_toy/</span></code></p></td>
+<td><p>Multimodal</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">DummyYourModelDataset</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">veomni/data/dummy_dataset.py</span></code></p></td>
+<td><p>Multimodal</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">build_dummy_dataset</span></code> entry</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">veomni/data/dummy_dataset.py</span></code></p></td>
+<td><p>Multimodal</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MODEL_TO_DATASET</span></code> entry</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/models/utils.py</span></code></p></td>
+<td><p>Level 1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parse_token_id_from_config</span></code> branch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/models/utils.py</span></code></p></td>
+<td><p>Omni-modal</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pytest.param</span></code> in <code class="docutils literal notranslate"><span class="pre">test_cases</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/models/test_models_patch.py</span></code></p></td>
+<td><p>Level 1</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pytest.param</span></code> in <code class="docutils literal notranslate"><span class="pre">*_test_cases</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/test_e2e_parallel.py</span></code></p></td>
+<td><p>Level 2</p></td>
+</tr>
+<tr class="row-even"><td><p>Dataset fixture</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/test_e2e_parallel.py</span></code></p></td>
+<td><p>Level 2</p></td>
+</tr>
+<tr class="row-odd"><td><p>Test function</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/test_e2e_parallel.py</span></code></p></td>
+<td><p>Level 2</p></td>
+</tr>
+<tr class="row-even"><td><p>Entry in <code class="docutils literal notranslate"><span class="pre">E2E_TEST_SCRIPT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/exec_scripts.py</span></code></p></td>
+<td><p>Level 3</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pytest.param</span></code> in training test</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/test_e2e_training.py</span></code></p></td>
+<td><p>Level 3</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="future-testing-gaps">
+<h2>Future Testing Gaps<a class="headerlink" href="#future-testing-gaps" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Checkpoint round-trip for multimodal/omni models</strong> — <code class="docutils literal notranslate"><span class="pre">tests/checkpoints/test_trainer_saveload.py</span></code> currently only covers text MoE models.</p></li>
+<li><p><strong>Data collator tests for omni-modal keys</strong> — <code class="docutils literal notranslate"><span class="pre">input_features</span></code>, <code class="docutils literal notranslate"><span class="pre">audio_feature_lengths</span></code>, <code class="docutils literal notranslate"><span class="pre">audio_mask</span></code> have non-trivial padding/SP-slicing behavior.</p></li>
+<li><p><strong>Processor patch tests</strong> — no unit tests for truthy <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">audios:</span></code> vs <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">audio</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">None:</span></code> behavior.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">get_position_id_func</span></code> pickling test</strong> — the function must be picklable for multiprocessing data loaders.</p></li>
+<li><p><strong>Expert Parallel checkpoint for omni models</strong> — MoE checkpoint tests only cover text MoE.</p></li>
+<li><p><strong>NPU coverage for multimodal models</strong> — some ops (e.g. <code class="docutils literal notranslate"><span class="pre">torch.kaiser_window</span></code> in BigVGAN) are known to be unsupported on NPU.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading"></a></h2>
+<p>Thanks to ByteDance Seed and AML team: Zhelun Shi, Jia Bin, Yifan Pi, Tianle Zhong, Xiao Yu.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

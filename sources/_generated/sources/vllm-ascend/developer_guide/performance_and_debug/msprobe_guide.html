@@ -1,0 +1,757 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MSProbe Debugging Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="Governance" href="../../community/governance.html" />
+    <link rel="prev" title="Service Profiling Guide" href="service_profiling_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/features/index.html">Feature Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_guide/index.html">Feature Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Performance and Debug</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="performance_benchmark.html">Performance Benchmark</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimization_and_tuning.html">Optimization and Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="service_profiling_guide.html">Service Profiling Guide</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">MSProbe Debugging Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#background-concepts">0. Background Concepts</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prerequisites">1. Prerequisites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#collecting-data-with-msprobe">2. Collecting Data with <code class="docutils literal notranslate"><span class="pre">msprobe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#enable-msprobe-in-vllm-ascend">3. Enable <code class="docutils literal notranslate"><span class="pre">msprobe</span></code> in vllm-ascend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#send-requests-and-collect-dumps">4. Send requests and collect dumps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#analyze-the-results">5. Analyze the results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting">6. Troubleshooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#appendix">Appendix</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Performance and Debug</a></li>
+      <li class="breadcrumb-item active">MSProbe Debugging Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/developer_guide/performance_and_debug/msprobe_guide.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="msprobe-debugging-guide">
+<h1>MSProbe Debugging Guide<a class="headerlink" href="#msprobe-debugging-guide" title="Link to this heading"></a></h1>
+<p>During inference or training runs we often encounter accuracy anomalies such as outputs drifting away from the expectation, unstable numerical behavior (NaN/Inf), or predictions that no longer match the labels. To pinpoint the root cause we have to monitor and capture intermediate data produced while the model executes—feature maps, weights, activations, and layer outputs. By capturing key tensors at specific stages, logging I/O pairs for the core layers, and retaining contextual metadata (prompts, tensor dtypes, hardware configuration, etc.), we can systematically trace where the accuracy degradation or numerical error started. This guide describes the end-to-end workflow for diagnosing accuracy issues for AI models (with a focus on vllm-ascend services): preparation, data capture, and analysis &amp; verification.</p>
+<section id="background-concepts">
+<h2>0. Background Concepts<a class="headerlink" href="#background-concepts" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">msprobe</span></code> supports three accuracy levels:</p>
+<ul class="simple">
+<li><p><strong>L0</strong>: dumps tensors at the module level and generates <code class="docutils literal notranslate"><span class="pre">construct.json</span></code> so that visualization tools can rebuild the network structure. A model or submodule handle must be passed in.</p></li>
+<li><p><strong>L1</strong>: collects operator-level statistics only, which is suitable for lightweight troubleshooting.</p></li>
+<li><p><strong>mix</strong>: captures both structural information and operator statistics, which is useful when you need both graph reconstruction and numerical comparisons.</p></li>
+</ul>
+</section>
+<section id="prerequisites">
+<h2>1. Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<section id="install-msprobe">
+<h3>1.1 Install <code class="docutils literal notranslate"><span class="pre">msprobe</span></code><a class="headerlink" href="#install-msprobe" title="Link to this heading"></a></h3>
+<p>Install msprobe with pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>mindstudio-probe<span class="o">==</span><span class="m">8</span>.3.0
+</pre></div>
+</div>
+</section>
+<section id="visualization-dependencies-optional">
+<h3>1.2 Visualization dependencies (optional)<a class="headerlink" href="#visualization-dependencies-optional" title="Link to this heading"></a></h3>
+<p>Install additional dependencies if you need to visualize the captured data.</p>
+<ol class="arabic">
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">tb_graph_ascend</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>tb_graph_ascend
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="collecting-data-with-msprobe">
+<h2>2. Collecting Data with <code class="docutils literal notranslate"><span class="pre">msprobe</span></code><a class="headerlink" href="#collecting-data-with-msprobe" title="Link to this heading"></a></h2>
+<p>We generally follow a coarse-to-fine strategy when capturing data. First, identify the token where the issue shows up, and then decide which range needs to be sampled around that token. The typical workflow is described below.</p>
+<section id="prepare-the-dump-configuration-file">
+<h3>2.1 Prepare the dump configuration file<a class="headerlink" href="#prepare-the-dump-configuration-file" title="Link to this heading"></a></h3>
+<p>Create a <code class="docutils literal notranslate"><span class="pre">config.json</span></code> that can be parsed by <code class="docutils literal notranslate"><span class="pre">PrecisionDebugger</span></code> and place it in an accessible path. Common fields are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Field</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-center"><p>Required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">task</span></code></p></td>
+<td class="text-left"><p>Type of dump task. Common PyTorch values include <code class="docutils literal notranslate"><span class="pre">&quot;statistics&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;tensor&quot;</span></code>. A statistics task collects tensor statistics (mean, variance, max, min, etc.) while a tensor task captures arbitrary tensors.</p></td>
+<td class="text-center"><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">dump_path</span></code></p></td>
+<td class="text-left"><p>Directory where dump results are stored. When omitted, <code class="docutils literal notranslate"><span class="pre">msprobe</span></code> uses its default path.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">rank</span></code></p></td>
+<td class="text-left"><p>Ranks to sample. An empty list collects every rank. For single-card tasks, you must set this field to <code class="docutils literal notranslate"><span class="pre">[]</span></code>.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">step</span></code></p></td>
+<td class="text-left"><p>Token iteration(s) to sample. An empty list means every iteration.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">level</span></code></p></td>
+<td class="text-left"><p>Dump level string (<code class="docutils literal notranslate"><span class="pre">&quot;L0&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;L1&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;mix&quot;</span></code>). <code class="docutils literal notranslate"><span class="pre">L0</span></code> targets <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code>, <code class="docutils literal notranslate"><span class="pre">L1</span></code> targets <code class="docutils literal notranslate"><span class="pre">torch.api</span></code>, and <code class="docutils literal notranslate"><span class="pre">mix</span></code> collects both.</p></td>
+<td class="text-center"><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">async_dump</span></code></p></td>
+<td class="text-left"><p>Whether to enable asynchronous dump (supported for PyTorch <code class="docutils literal notranslate"><span class="pre">statistics</span></code>/<code class="docutils literal notranslate"><span class="pre">tensor</span></code> tasks). Defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code>.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">scope</span></code></p></td>
+<td class="text-left"><p>Module range to sample. An empty list collects every module.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">list</span></code></p></td>
+<td class="text-left"><p>Operator range to sample. An empty list collects every operator.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+</tbody>
+</table>
+<p>To restrict the operators that are captured, configure the <code class="docutils literal notranslate"><span class="pre">list</span></code> block:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">scope</span></code> (list[str]): In PyTorch PyNative scenarios this field restricts the dump range. Provide two module or API names that follow the tool's naming convention to lock a range; only data between the two names will be dumped. Examples:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Module.conv1.Conv2d.forward.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Module.fc2.Linear.forward.0&quot;</span><span class="p">]</span>
+<span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Cell.conv1.Conv2d.forward.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Cell.fc2.Dense.forward.0&quot;</span><span class="p">]</span>
+<span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Tensor.add.0.forward&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Functional.square.2.forward&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">level</span></code> setting determines what can be provided—modules when <code class="docutils literal notranslate"><span class="pre">level=L0</span></code>, APIs when <code class="docutils literal notranslate"><span class="pre">level=L1</span></code>, and either modules or APIs when <code class="docutils literal notranslate"><span class="pre">level=mix</span></code>.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code> (list[str]): Custom operator list. Options include:</p>
+<ul class="simple">
+<li><p>Supply the full names of specific APIs in PyTorch pynative scenarios to only dump those APIs. Example: <code class="docutils literal notranslate"><span class="pre">&quot;list&quot;:</span> <span class="pre">[&quot;Tensor.permute.1.forward&quot;,</span> <span class="pre">&quot;Tensor.transpose.2.forward&quot;,</span> <span class="pre">&quot;Torch.relu.3.forward&quot;]</span></code>.</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">level=mix</span></code>, you can provide module names so that the dump expands to everything produced while the module is running. Example: <code class="docutils literal notranslate"><span class="pre">&quot;list&quot;:</span> <span class="pre">[&quot;Module.module.language_model.encoder.layers.0.mlp.ParallelMlp.forward.0&quot;]</span></code>.</p></li>
+<li><p>Provide a substring such as <code class="docutils literal notranslate"><span class="pre">&quot;list&quot;:</span> <span class="pre">[&quot;relu&quot;]</span></code> to dump every API whose name contains the substring. When <code class="docutils literal notranslate"><span class="pre">level=mix</span></code>, modules whose names contain the substring are also expanded.</p></li>
+</ul>
+</li>
+</ul>
+<p>Example configuration:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;task&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;statistics&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;dump_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/home/data_dump&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;rank&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;step&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">  </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;L1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;async_dump&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+
+<span class="w">  </span><span class="nt">&quot;statistics&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">&quot;list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">&quot;tensor_list&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">    </span><span class="nt">&quot;data_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;summary_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;statistics&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="enable-msprobe-in-vllm-ascend">
+<h2>3. Enable <code class="docutils literal notranslate"><span class="pre">msprobe</span></code> in vllm-ascend<a class="headerlink" href="#enable-msprobe-in-vllm-ascend" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Start vLLM in eager mode by adding <code class="docutils literal notranslate"><span class="pre">--enforce-eager</span></code> (static-graph scenarios are not supported yet) and pass the config path through <code class="docutils literal notranslate"><span class="pre">--additional-config</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>vllm<span class="w"> </span>serve<span class="w"> </span>Qwen/Qwen2.5-0.5B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--dtype<span class="w"> </span>float16<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--additional-config<span class="w"> </span><span class="s1">&#39;{&quot;dump_config_path&quot;: &quot;/data/msprobe_config.json&quot;}&#39;</span><span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="send-requests-and-collect-dumps">
+<h2>4. Send requests and collect dumps<a class="headerlink" href="#send-requests-and-collect-dumps" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Send inference requests as usual, for example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8000/v1/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">        &quot;model&quot;: &quot;Qwen/Qwen2.5-0.5B-Instruct&quot;,</span>
+<span class="s1">        &quot;prompt&quot;: &quot;Explain gravity in one sentence.&quot;,</span>
+<span class="s1">        &quot;max_completion_tokens&quot;: 32,</span>
+<span class="s1">        &quot;temperature&quot;: 0</span>
+<span class="s1">      }&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>json.tool
+</pre></div>
+</div>
+</li>
+<li><p>Each request drives the sequence <code class="docutils literal notranslate"><span class="pre">msprobe:</span> <span class="pre">start</span> <span class="pre">-&gt;</span> <span class="pre">forward</span> <span class="pre">-&gt;</span> <span class="pre">stop</span> <span class="pre">-&gt;</span> <span class="pre">step</span></code>. The runner invokes <code class="docutils literal notranslate"><span class="pre">step()</span></code> on every code path, so you always get a complete dataset even if inference returns early.</p></li>
+<li><p>Dump files are written into <code class="docutils literal notranslate"><span class="pre">dump_path</span></code>. They usually contain:</p>
+<ul class="simple">
+<li><p>Tensor files grouped by operator/module.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump.json</span></code>, which records metadata such as dtype, shape, min/max, and <code class="docutils literal notranslate"><span class="pre">requires_grad</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">construct.json</span></code>, which is generated when <code class="docutils literal notranslate"><span class="pre">level</span></code> is <code class="docutils literal notranslate"><span class="pre">L0</span></code> or <code class="docutils literal notranslate"><span class="pre">mix</span></code> (required for visualization).</p></li>
+</ul>
+<p>Example directory layout:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>├── dump_path
+│   ├── step0
+│   │   ├── rank0
+│   │   │   ├── dump_tensor_data
+│   │   │   │    ├── Tensor.permute.1.forward.pt                       # Format: {api_type}.{api_name}.{call_count}.forward.{input/output}.{arg_index}.
+│   │   │   │    │                                              # arg_index is the nth input or output of the API. If an input is a list, keep numbering with decimals (e.g., 1.1 is the first element of the first argument).
+│   │   │   │    ├── Module.conv1.Conv2d.forward.0.input.0.pt          # Format: {Module}.{module_name}.{class_name}.forward.{call_count}.{input/output}.{arg_index}.
+│   │   │   │    └── Module.conv1.Conv2d.forward.0.parameters.bias.pt  # Module parameter data: {Module}.{module_name}.{class_name}.forward.{call_count}.parameters.{parameter_name}.
+│   │   │   │                                                          # When the `model` argument passed to dump is a List[torch.nn.Module] or Tuple[torch.nn.Module], module-level data names also include the index inside the list ({Module}.{index}.*), e.g., Module.0.conv1.Conv2d.forward.0.input.0.pt.
+│   │   │   ├── dump.json
+│   │   │   ├── stack.json
+│   │   │   ├── dump_error_info.log
+│   │   │   └── construct.json
+│   │   ├── rank1
+│   │   │   ├── dump_tensor_data
+│   │   │   │   └── ...
+│   │   │   ├── dump.json
+│   │   │   ├── stack.json
+│   │   │   ├── dump_error_info.log
+│   │   │   └── construct.json
+│   │   ├── ...
+│   │   │
+│   │   └── rank7
+│   ├── step1
+│   │   ├── ...
+│   ├── step2
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">rank</span></code>: Device ID. Each card writes its data to the corresponding <code class="docutils literal notranslate"><span class="pre">rank{ID}</span></code> directory. In non-distributed scenarios the directory is simply named <code class="docutils literal notranslate"><span class="pre">rank</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump_tensor_data</span></code>: Tensor payloads that were collected.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump.json</span></code>: Statistics for the forward data of each API or module, including names, dtype, shape, max, min, mean, L2 norm (square root of the L2 variance), and CRC-32 when <code class="docutils literal notranslate"><span class="pre">summary_mode=&quot;md5&quot;</span></code>. See <a class="reference internal" href="#dump-json-file-description">dump.json file description</a> for details.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dump_error_info.log</span></code>: Present only when the dump tool encountered an error and records the failure log.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">stack.json</span></code>: Call stacks for APIs/modules.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">construct.json</span></code>: Hierarchical structure description. Empty when <code class="docutils literal notranslate"><span class="pre">level=L1</span></code>.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="analyze-the-results">
+<h2>5. Analyze the results<a class="headerlink" href="#analyze-the-results" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>5.1 Prerequisites<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>You typically need two dump datasets: one from the &quot;problem side&quot; (the run that exposes the accuracy or numerical error) and another from the &quot;benchmark side&quot; (a good baseline). These datasets do not have to be identical—they can come from different branches, framework versions, or even alternative implementations (operator substitutions, different graph-optimization switches, etc.). As long as they use the same or similar inputs, hardware topology, and sampling points (step/token), <code class="docutils literal notranslate"><span class="pre">msprobe</span></code> can compare them and locate the divergent nodes. If you cannot find a perfectly clean benchmark, start by capturing the problem-side data, craft the smallest reproducible case by hand, and perform a self-comparison. Below we assume the problem dump is <code class="docutils literal notranslate"><span class="pre">problem_dump</span></code> and the benchmark dump is <code class="docutils literal notranslate"><span class="pre">bench_dump</span></code>.</p>
+</section>
+<section id="visualization">
+<h3>5.2 Visualization<a class="headerlink" href="#visualization" title="Link to this heading"></a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">msprobe</span> <span class="pre">-f</span> <span class="pre">pytorch</span> <span class="pre">graph</span></code> to generate results that can be opened inside <code class="docutils literal notranslate"><span class="pre">tb_graph_ascend</span></code>.</p>
+<ol class="arabic">
+<li><p>Ensure the dump contains <code class="docutils literal notranslate"><span class="pre">construct.json</span></code> (i.e., <code class="docutils literal notranslate"><span class="pre">level</span> <span class="pre">=</span> <span class="pre">L0</span></code> or <code class="docutils literal notranslate"><span class="pre">level</span> <span class="pre">=</span> <span class="pre">mix</span></code>).</p></li>
+<li><p>Prepare a comparison file such as <code class="docutils literal notranslate"><span class="pre">compare.json</span></code>. Its format and generation flow are described in section 3.1.3 of <code class="docutils literal notranslate"><span class="pre">msprobe_visualization.md</span></code>. Example (minimal runnable snippet):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;npu_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./problem_dump&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;bench_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./bench_dump&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;is_print_compare_log&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Replace the paths with your dump directories before invoking <code class="docutils literal notranslate"><span class="pre">msprobe</span> <span class="pre">-f</span> <span class="pre">pytorch</span> <span class="pre">graph</span></code>. <strong>If you only need to build a single graph</strong>, omit <code class="docutils literal notranslate"><span class="pre">bench_path</span></code> to visualize one dump.<br />
+Multi-rank scenarios (single rank, multi-rank, or multi-step multi-rank) are also supported. <code class="docutils literal notranslate"><span class="pre">npu_path</span></code> or <code class="docutils literal notranslate"><span class="pre">bench_path</span></code> must contain folders named <code class="docutils literal notranslate"><span class="pre">rank+number</span></code>, and every rank folder must contain a non-empty <code class="docutils literal notranslate"><span class="pre">construct.json</span></code> together with <code class="docutils literal notranslate"><span class="pre">dump.json</span></code> and <code class="docutils literal notranslate"><span class="pre">stack.json</span></code>. If any <code class="docutils literal notranslate"><span class="pre">construct.json</span></code> is empty, verify that the dump level includes <code class="docutils literal notranslate"><span class="pre">L0</span></code> or <code class="docutils literal notranslate"><span class="pre">mix</span></code>. When comparing graphs, both <code class="docutils literal notranslate"><span class="pre">npu_path</span></code> and <code class="docutils literal notranslate"><span class="pre">bench_path</span></code> must contain the same set of rank folders so they can be paired one-to-one.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>├──<span class="w"> </span>npu_path<span class="w"> </span>or<span class="w"> </span>bench_path
+<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>rank0
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>dump_tensor_data<span class="w"> </span><span class="o">(</span>only<span class="w"> </span>when<span class="w"> </span>the<span class="w"> </span><span class="sb">`</span>tensor<span class="sb">`</span><span class="w"> </span>option<span class="w"> </span>is<span class="w"> </span>enabled<span class="o">)</span>
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">    </span>├──<span class="w"> </span>Tensor.permute.1.forward.pt
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">    </span>├──<span class="w"> </span>MyModule.0.forward.input.pt
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">    </span>...
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">    </span>└──<span class="w"> </span>Functional.linear.5.forward.output.pt
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>dump.json<span class="w">         </span><span class="c1"># Tensor metadata</span>
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>stack.json<span class="w">        </span><span class="c1"># Operator call stack information</span>
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>└──<span class="w"> </span>construct.json<span class="w">    </span><span class="c1"># Hierarchical structure; empty when `level=L1`</span>
+<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>rank1
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>dump_tensor_data
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>└──<span class="w"> </span>...
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>dump.json
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>stack.json
+<span class="p">|</span><span class="w">   </span><span class="p">|</span><span class="w">   </span>└──<span class="w"> </span>construct.json
+<span class="p">|</span><span class="w">   </span>├──<span class="w"> </span>...
+<span class="p">|</span><span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w">   </span>└──<span class="w"> </span>rankn
+</pre></div>
+</div>
+</li>
+<li><p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>msprobe<span class="w"> </span>-f<span class="w"> </span>pytorch<span class="w"> </span>graph<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--input_path<span class="w"> </span>./compare.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_path<span class="w"> </span>./graph_output
+</pre></div>
+</div>
+<p>After the comparison finishes, a <code class="docutils literal notranslate"><span class="pre">*.vis.db</span></code> file is created under <code class="docutils literal notranslate"><span class="pre">graph_output</span></code>.</p>
+<ul class="simple">
+<li><p>Graph build: <code class="docutils literal notranslate"><span class="pre">build_{timestamp}.vis.db</span></code></p></li>
+<li><p>Graph comparison: <code class="docutils literal notranslate"><span class="pre">compare_{timestamp}.vis.db</span></code></p></li>
+</ul>
+</li>
+<li><p>Launch <code class="docutils literal notranslate"><span class="pre">tensorboard</span></code> and load the output directory to inspect structural differences, numerical comparisons, overflow detection results, cross-device communication nodes, and filters/search. Pass the directory containing the <code class="docutils literal notranslate"><span class="pre">.vis.db</span></code> files to <code class="docutils literal notranslate"><span class="pre">--logdir</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>tensorboard<span class="w"> </span>--logdir<span class="w"> </span>out_path<span class="w"> </span>--bind_all<span class="w"> </span>--port<span class="w"> </span><span class="o">[</span>optional_port<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Inspect the visualization. The UI usually displays the overall model structure with operators, parameters, and tensor I/O. Click any node to expand its children.</p>
+<ul class="simple">
+<li><p><strong>Difference visualization</strong>: Comparison results highlight divergent nodes with different colors (the larger the difference, the redder the node). Click a node to view its detailed information including tensor inputs/outputs, parameters, and operator type. Analyze the data difference and the surrounding connections to pinpoint the exact divergence.</p></li>
+<li><p><strong>Helper features</strong>:</p>
+<ul>
+<li><p>Switch rank/step: Quickly check difference nodes on different ranks and steps.</p></li>
+<li><p>Search/filter: Use the search box to filter nodes by operator name, etc.</p></li>
+<li><p>Manual mapping: Automatic mapping cannot cover every case, so the tool lets you manually map nodes between the problem and benchmark graphs before generating comparison results.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>6. Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RuntimeError:</span> <span class="pre">Please</span> <span class="pre">enforce</span> <span class="pre">eager</span> <span class="pre">mode</span></code>: Restart vLLM and add the <code class="docutils literal notranslate"><span class="pre">--enforce-eager</span></code> flag.</p></li>
+<li><p>No dump files: Confirm that the JSON path is correct and every node has write permission. In distributed scenarios set <code class="docutils literal notranslate"><span class="pre">keep_all_ranks</span></code> so that every rank writes its own dump.</p></li>
+<li><p>Dumps are too large: Start with a <code class="docutils literal notranslate"><span class="pre">statistics</span></code> task to locate abnormal tensors, then narrow the scope with <code class="docutils literal notranslate"><span class="pre">scope</span></code>/<code class="docutils literal notranslate"><span class="pre">list</span></code>/<code class="docutils literal notranslate"><span class="pre">tensor_list</span></code>, <code class="docutils literal notranslate"><span class="pre">filters</span></code>, <code class="docutils literal notranslate"><span class="pre">token_range</span></code>, etc.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="appendix">
+<h2>Appendix<a class="headerlink" href="#appendix" title="Link to this heading"></a></h2>
+<section id="dump-json-file-description">
+<h3>dump.json file description<a class="headerlink" href="#dump-json-file-description" title="Link to this heading"></a></h3>
+<section id="l0-level">
+<h4>L0 level<a class="headerlink" href="#l0-level" title="Link to this heading"></a></h4>
+<p>An L0 <code class="docutils literal notranslate"><span class="pre">dump.json</span></code> contains forward I/O for modules together with parameters. Using PyTorch's <code class="docutils literal notranslate"><span class="pre">Conv2d</span></code> as an example, the network code looks like:</p>
+<p><code class="docutils literal notranslate"><span class="pre">output</span> <span class="pre">=</span> <span class="pre">self.conv2(input)</span>&#160; <span class="pre">#</span> <span class="pre">self.conv2</span> <span class="pre">=</span> <span class="pre">torch.nn.Conv2d(64,</span> <span class="pre">128,</span> <span class="pre">5,</span> <span class="pre">padding=2,</span> <span class="pre">bias=True)</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">dump.json</span></code> contains the following entries:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Module.conv2.Conv2d.forward.0</span></code>: Forward data of the module. <code class="docutils literal notranslate"><span class="pre">input_args</span></code> represents positional inputs, <code class="docutils literal notranslate"><span class="pre">input_kwargs</span></code> represents keyword inputs, <code class="docutils literal notranslate"><span class="pre">output</span></code> stores forward outputs, and <code class="docutils literal notranslate"><span class="pre">parameters</span></code> stores weights/biases.</p></li>
+</ul>
+<p><strong>Note</strong>: When the <code class="docutils literal notranslate"><span class="pre">model</span></code> parameter passed to the dump API is <code class="docutils literal notranslate"><span class="pre">List[torch.nn.Module]</span></code> or <code class="docutils literal notranslate"><span class="pre">Tuple[torch.nn.Module]</span></code>, module-level names include the index inside the list (<code class="docutils literal notranslate"><span class="pre">{Module}.{index}.*</span></code>). Example: <code class="docutils literal notranslate"><span class="pre">Module.0.conv1.Conv2d.forward.0</span></code>.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w"> </span><span class="nt">&quot;task&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tensor&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;L0&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;framework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;dump_data_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/dump/path&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;Module.conv2.Conv2d.forward.0&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;input_args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">14</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">14</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.638758659362793</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.2544615864753723</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">70.50277709960938</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Module.conv2.Conv2d.forward.0.input.0.pt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">   </span><span class="p">],</span>
+<span class="w">   </span><span class="nt">&quot;input_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">   </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">10</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">10</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.6815717220306396</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.5120246410369873</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.025344856083393097</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">149.65576171875</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Module.conv2.Conv2d.forward.0.output.0.pt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">   </span><span class="p">],</span>
+<span class="w">   </span><span class="nt">&quot;parameters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;weight&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">5</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05992485210299492</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.05999220535159111</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.0006165213999338448</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">3.421217441558838</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Module.conv2.Conv2d.forward.0.parameters.weight.pt&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;bias&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">32</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.05744686722755432</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.04894155263900757</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.006410328671336174</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.17263513803482056</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Module.conv2.Conv2d.forward.0.parameters.bias.pt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">   </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="l1-level">
+<h4>L1 level<a class="headerlink" href="#l1-level" title="Link to this heading"></a></h4>
+<p>An L1 <code class="docutils literal notranslate"><span class="pre">dump.json</span></code> records forward I/O for APIs. Using PyTorch's <code class="docutils literal notranslate"><span class="pre">relu</span></code> function as an example (<code class="docutils literal notranslate"><span class="pre">output</span> <span class="pre">=</span> <span class="pre">torch.nn.functional.relu(input)</span></code>), the file contains:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Functional.relu.0.forward</span></code>: Forward data of the API. <code class="docutils literal notranslate"><span class="pre">input_args</span></code> are positional inputs, <code class="docutils literal notranslate"><span class="pre">input_kwargs</span></code> are keyword inputs, and <code class="docutils literal notranslate"><span class="pre">output</span></code> stores the forward outputs.</p></li>
+</ul>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w"> </span><span class="nt">&quot;task&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;tensor&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;L1&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;framework&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pytorch&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;dump_data_dir&quot;</span><span class="p">:</span><span class="s2">&quot;/dump/path&quot;</span><span class="p">,</span>
+<span class="w"> </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;Functional.relu.0.forward&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">   </span><span class="nt">&quot;input_args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">28</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">28</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.3864083290100098</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">-1.3364859819412231</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.03711778670549393</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">236.20692443847656</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Functional.relu.0.forward.input.0.pt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">   </span><span class="p">],</span>
+<span class="w">   </span><span class="nt">&quot;input_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">   </span><span class="nt">&quot;output&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">     </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.Tensor&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;dtype&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torch.float32&quot;</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">28</span><span class="p">,</span>
+<span class="w">      </span><span class="mi">28</span>
+<span class="w">     </span><span class="p">],</span>
+<span class="w">     </span><span class="nt">&quot;Max&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1.3864083290100098</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Min&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Mean&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.16849493980407715</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;Norm&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">175.23345947265625</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;requires_grad&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">&quot;data_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Functional.relu.0.forward.output.0.pt&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">   </span><span class="p">]</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+<span class="p">}</span><span class="w">  </span>
+</pre></div>
+</div>
+</section>
+<section id="mix-level">
+<h4>mix level<a class="headerlink" href="#mix-level" title="Link to this heading"></a></h4>
+<p>A <code class="docutils literal notranslate"><span class="pre">mix</span></code> dump.json contains both L0 and L1 level data; the file format is the same as the examples above.</p>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="service_profiling_guide.html" class="btn btn-neutral float-left" title="Service Profiling Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../../community/governance.html" class="btn btn-neutral float-right" title="Governance" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

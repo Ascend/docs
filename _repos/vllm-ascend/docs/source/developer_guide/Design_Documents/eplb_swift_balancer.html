@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expert Parallelism Load Balancer (EPLB) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Expert Parallelism Load Balancer (EPLB)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/_repos/vllm-ascend/docs/source/developer_guide/Design_Documents/eplb_swift_balancer.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="expert-parallelism-load-balancer-eplb">
+<h1>Expert Parallelism Load Balancer (EPLB)<a class="headerlink" href="#expert-parallelism-load-balancer-eplb" title="Link to this heading"></a></h1>
+<section id="why-we-need-eplb">
+<h2>Why We Need EPLB?<a class="headerlink" href="#why-we-need-eplb" title="Link to this heading"></a></h2>
+<p>When using Expert Parallelism (EP), different experts are assigned to different NPUs. Given that the load of various experts may vary depending on the current workload, it is crucial to maintain balanced loads across different NPUs. We adopt a redundant experts strategy by duplicating heavily-loaded experts. Then, we heuristically pack these duplicated experts onto NPUs to ensure load balancing across them. Moreover, thanks to the group-limited expert routing used in MoE models, we also attempt to place experts of the same group on the same node to reduce inter-node data traffic, whenever possible.</p>
+<p>To facilitate reproduction and deployment, vLLM Ascend supports the deployed EP load balancing algorithm in <code class="docutils literal notranslate"><span class="pre">vllm_ascend/eplb/core/policy</span></code>. The algorithm computes a balanced expert replication and placement plan based on the estimated expert loads. Note that the exact method for predicting expert loads is outside the scope of this repository. A common method is to use a moving average of historical statistics.</p>
+<p><img alt="eplb" src="../../../../../../_images/eplb.png" /></p>
+</section>
+<section id="how-to-use-eplb">
+<h2>How to Use EPLB?<a class="headerlink" href="#how-to-use-eplb" title="Link to this heading"></a></h2>
+<p>Please refer to the EPLB section of the user guide for detailed information: <a class="reference internal" href="../../user_guide/feature_guide/eplb_swift_balancer.html"><span class="std std-doc">How to Use EPLB</span></a></p>
+</section>
+<section id="how-it-works">
+<h2>How It Works?<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
+<p><strong>EPLB Module Architecture</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>vllm_ascend
+├──<span class="w"> </span>eplb
+│<span class="w">   </span>├──<span class="w"> </span>adaptor
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>abstract_adaptor.py
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>vllm_adaptor.py
+│<span class="w">   </span>├──<span class="w"> </span>core
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy_abstract.py
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy_default_eplb.py
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy_swift_balancer.py
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy_factory.py
+│<span class="w">   </span>│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>policy_flashlb.py
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>eplb_device_transfer_loader.py
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>eplb_utils.py
+│<span class="w">   </span>│<span class="w">   </span>├──<span class="w"> </span>eplb_worker.py
+│<span class="w">   </span>├──<span class="w"> </span>eplb_updator.py
+│<span class="w">   </span>├──<span class="w"> </span>utils.py
+└───────────
+</pre></div>
+</div>
+<p><strong>1. Adaptor Module</strong><br />
+<em>Handles registration and adaptation for different MoE model types</em></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">abstract_adaptor.py</span></code><br />
+Abstract base class defining unified registration interfaces for EPLB adapters</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_adaptor.py</span></code><br />
+Implementation supporting Qwen3-MoE and DeepSeek models, standardizing parameter handling for policy algorithms</p></li>
+</ul>
+<p><strong>2. Core Module</strong><br />
+<em>Implements core algorithms, updates, and asynchronous processing</em></p>
+<ul class="simple">
+<li><p><strong>Policy Submodule</strong><br />
+<em>Load balancing algorithms with factory pattern instantiation</em></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_abstract.py</span></code><br />
+Abstract class for load balancing strategy interfaces</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_default_eplb.py</span></code><br />
+Default implementation of open-source EPLB paper algorithm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_swift_balancer.py</span></code><br />
+Enhanced version optimizing expert swaps for low-bandwidth devices (e.g., A2)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_flashlb.py</span></code><br />
+Threshold-based adjustment reducing operational costs through layer-wise fluctuation detection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">policy_factory.py</span></code><br />
+Strategy factory for automatic algorithm instantiation</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eplb_device_transfer_loader.py</span></code><br />
+Manages expert table/weight transmission and updates</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eplb_utils.py</span></code><br />
+Utilities for expert table initialization and mapping</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">eplb_worker.py</span></code><br />
+Asynchronous algorithm orchestration and result processing</p></li>
+</ul>
+<p><strong>3. System Components</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">eplb_updator.py</span></code><br />
+Central coordinator for load balancing during inference workflows</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils.py</span></code><br />
+General utilities for EPLB interface registration</p></li>
+</ul>
+<p><em>Key Optimizations:</em></p>
+<ol class="arabic simple">
+<li><p>Maintained original structure while improving technical clarity</p></li>
+<li><p>Standardized terminology</p></li>
+<li><p>Enhanced algorithm differentiation through concise descriptors</p></li>
+<li><p>Improved scoping through hierarchical presentation</p></li>
+<li><p>Preserved file/class relationships while optimizing readability</p></li>
+</ol>
+<section id="default-algorithm">
+<h3>Default Algorithm<a class="headerlink" href="#default-algorithm" title="Link to this heading"></a></h3>
+<section id="hierarchical-load-balancing">
+<h4>Hierarchical Load Balancing<a class="headerlink" href="#hierarchical-load-balancing" title="Link to this heading"></a></h4>
+<p>When the number of server nodes evenly divides the number of expert groups, we use the hierarchical load balancing policy to leverage group-limited expert routing. We first pack the expert groups onto nodes evenly, ensuring balanced loads across different nodes. Then, we replicate the experts within each node. Finally, we pack the replicated experts onto individual NPUs to ensure load balancing across them. The hierarchical load balancing policy can be used in the prefilling stage with a smaller expert-parallel size.</p>
+</section>
+<section id="global-load-balancing">
+<h4>Global Load Balancing<a class="headerlink" href="#global-load-balancing" title="Link to this heading"></a></h4>
+<p>In other cases, we use the global load balancing policy, which replicates experts globally regardless of expert groups, and packs the replicated experts onto individual NPUs. This policy can be adopted in the decoding stage with a larger expert-parallel size.</p>
+</section>
+</section>
+<section id="add-a-new-eplb-policy">
+<h3>Add a New EPLB Policy<a class="headerlink" href="#add-a-new-eplb-policy" title="Link to this heading"></a></h3>
+<p>If you want to add a new eplb policy to vllm_ascend, you must follow these steps:</p>
+<ol class="arabic">
+<li><p>Inherit the <code class="docutils literal notranslate"><span class="pre">EplbPolicy</span></code> abstract class of <code class="docutils literal notranslate"><span class="pre">policy_abstract.py</span></code>  and override the <code class="docutils literal notranslate"><span class="pre">rebalance_experts</span></code> interface, ensuring consistent input parameters <code class="docutils literal notranslate"><span class="pre">current_expert_table</span></code>, <code class="docutils literal notranslate"><span class="pre">expert_workload</span></code> and return types <code class="docutils literal notranslate"><span class="pre">newplacement</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">RandomLoadBalance</span><span class="p">(</span><span class="n">EplbPolicy</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">DynamicConfig</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rebalance_experts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_expert_table</span><span class="p">,</span> <span class="n">expert_workload</span><span class="p">):</span>
+        <span class="n">new_table</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">current_expert_table</span><span class="p">)</span>
+        <span class="n">num_layers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_expert_table</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+            <span class="c1"># randomly choose two card</span>
+            <span class="c1"># indices = random.sample(range(num_card), 2)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># swap redundant experts</span>
+            <span class="n">expert_id_to_exchange</span> <span class="o">=</span> <span class="n">new_table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span>
+            <span class="n">new_table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">new_table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">expert_id_to_exchange</span>
+
+        <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">)],</span> <span class="n">new_table</span>
+</pre></div>
+</div>
+</li>
+<li><p>To add a new EPLB algorithm, include the policy type and its corresponding implementation class in the <code class="docutils literal notranslate"><span class="pre">PolicyFactory</span></code> of <code class="docutils literal notranslate"><span class="pre">policy_factory.py</span></code>.</p></li>
+</ol>
+</section>
+<section id="add-a-new-moe-model">
+<h3>Add a New MoE Model<a class="headerlink" href="#add-a-new-moe-model" title="Link to this heading"></a></h3>
+<p><strong>Implementation Guide for Model Integration</strong></p>
+<ol class="arabic">
+<li><p><strong>Adapter File Modification</strong></p>
+<ul>
+<li><p>Inherit or modify <code class="docutils literal notranslate"><span class="pre">vllm_ascend/eplb/adaptor/vllm_adaptor.py</span></code></p></li>
+<li><p>Add processing logic for key parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">num_dense_layers</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">global_expert_num</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_roe_layers</span></code></p></li>
+</ul>
+</li>
+<li><p>Ensure parameter synchronization in the <code class="docutils literal notranslate"><span class="pre">model_register</span></code> function.</p>
+<p>For example:</p>
+<p>Modify <code class="docutils literal notranslate"><span class="pre">__init__</span></code> of <code class="docutils literal notranslate"><span class="pre">vllm_adaptor.py</span></code> to add a new moe model eplb params:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>   <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;qwen3_moe&quot;</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_dense_layers</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">global_expert_num</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">num_experts</span>
+</pre></div>
+</div>
+<p>Modify <code class="docutils literal notranslate"><span class="pre">model_register</span></code> of <code class="docutils literal notranslate"><span class="pre">vllm_adaptor.py</span></code> to register eplb params for new moe model:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s2">&quot;qwen3_moe&quot;</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">num_moe_layers</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">num_hidden_layers</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+<li><p><strong>MoE Feature Integration</strong></p>
+<ul class="simple">
+<li><p>Extend <code class="docutils literal notranslate"><span class="pre">vllm_ascend/eplb/utils.py</span></code> with MoE-specific methods</p></li>
+<li><p>Implement required functionality for expert routing or weight management</p></li>
+</ul>
+</li>
+<li><p><strong>Registration Logic Update</strong></p>
+<ul class="simple">
+<li><p>Add patch logic within the <code class="docutils literal notranslate"><span class="pre">model_register</span></code> function</p></li>
+<li><p>Maintain backward compatibility with existing model types</p></li>
+</ul>
+</li>
+<li><p><strong>Validation &amp; Testing</strong></p>
+<ul class="simple">
+<li><p>Verify parameter consistency across layers</p></li>
+<li><p>Test cross-device communication for expert tables</p></li>
+<li><p>Benchmark against baseline implementations (e.g., Qwen3-MoE)</p></li>
+</ul>
+</li>
+</ol>
+<p><em>Key Implementation Notes:</em></p>
+<ul class="simple">
+<li><p>Preserve existing interface contracts in abstract classes</p></li>
+<li><p>Use decorators for non-intrusive patch integration</p></li>
+<li><p>Leverage <code class="docutils literal notranslate"><span class="pre">eplb_utils.py</span></code> for shared expert mapping operations</p></li>
+</ul>
+</section>
+</section>
+<section id="dfx">
+<h2>DFX<a class="headerlink" href="#dfx" title="Link to this heading"></a></h2>
+<section id="parameter-validation">
+<h3>Parameter Validation<a class="headerlink" href="#parameter-validation" title="Link to this heading"></a></h3>
+<section id="integer-parameters">
+<h4>Integer Parameters<a class="headerlink" href="#integer-parameters" title="Link to this heading"></a></h4>
+<p>All integer input parameters must explicitly specify their maximum and minimum values and be subject to valid value validation. For example, <code class="docutils literal notranslate"><span class="pre">expert_heat_collection_interval</span></code> must be greater than 0:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_iterations</span><span class="p">(</span><span class="n">iterations</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> is not int.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">iterations</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> can not less than or equal to 0.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">iterations</span> <span class="o">&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">iterations</span><span class="si">}</span><span class="s2"> can not large than </span><span class="si">{</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="file-path">
+<h4>File Path<a class="headerlink" href="#file-path" title="Link to this heading"></a></h4>
+<p>The file path for EPLB must be checked for legality, such as whether the file path is valid and whether it has appropriate read and write permissions. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_expert_map_path</span><span class="p">(</span><span class="n">expert_map</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">expert_map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expert_map</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The expert_map is not str.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">expert_map</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The expert_map is not empty.&quot;</span><span class="p">)</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">expert_map</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ext</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The expert_map is not json.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">expert_map</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The expert_map is not exist.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">expert_map</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Fail read expert info from </span><span class="si">{</span><span class="n">expert_map</span><span class="si">}</span><span class="s2">, please check the reading permission of </span><span class="si">{</span><span class="n">expert_map</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="function-specifications">
+<h3>Function Specifications<a class="headerlink" href="#function-specifications" title="Link to this heading"></a></h3>
+<section id="initialization-function">
+<h4>Initialization Function<a class="headerlink" href="#initialization-function" title="Link to this heading"></a></h4>
+<p>All EPLB parameters must be initialized by default during initialization, with specified parameter types and default values for proper handling.</p>
+</section>
+<section id="general-functions">
+<h4>General Functions<a class="headerlink" href="#general-functions" title="Link to this heading"></a></h4>
+<p>All method arguments must specify parameter types and default values, and functions must include default return value handling for default arguments. It is recommended to use <code class="docutils literal notranslate"><span class="pre">try-except</span></code> blocks to handle the function body, specifying the type of exception captured and the failure handling (e.g., logging exceptions or returning a failure status).</p>
+</section>
+</section>
+<section id="consistency">
+<h3>Consistency<a class="headerlink" href="#consistency" title="Link to this heading"></a></h3>
+<section id="expert-map">
+<h4>Expert Map<a class="headerlink" href="#expert-map" title="Link to this heading"></a></h4>
+<p>The expert map must be globally unique during initialization and update. In a multi-node scenario during initialization, distributed communication should be used to verify the consistency of expert maps across each rank. If they are inconsistent, the user should be notified which ranks have inconsistent maps.
+During the update process, if only a few layers or the expert table of a certain rank has been changed, the updated expert table must be synchronized with the EPLB's context to ensure global consistency.</p>
+</section>
+<section id="expert-weight">
+<h4>Expert Weight<a class="headerlink" href="#expert-weight" title="Link to this heading"></a></h4>
+<p>When updating expert weights, ensure that the memory allocated for the expert weights has been released, or that the expert (referring to the old version) is no longer in use.</p>
+</section>
+</section>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading"></a></h2>
+<p>Before using EPLB, start the script and add <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">DYNAMIC_EPLB=&quot;true&quot;</span></code>.
+Before performing load data collection (or performance data collection), start the script and add <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">EXPERT_MAP_RECORD=&quot;true&quot;</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

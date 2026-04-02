@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Migrating Triton Operators from GPUs &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Migrating Triton Operators from GPUs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/_repos/triton-ascend/docs/en/migration_guide/migrate_from_gpu.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="migrating-triton-operators-from-gpus">
+<h1>Migrating Triton Operators from GPUs<a class="headerlink" href="#migrating-triton-operators-from-gpus" title="Link to this heading"></a></h1>
+<p>This document outlines key considerations for migrating Triton operators from GPUs, organized into three key aspects: multi-core task parallelism, single-core data transfer, and single-core data computation. In the &quot;Multi-Core Task Parallelism&quot; section, we highlight core migration principles and provide a complete migration example. The &quot;Single-Core Data Transfer&quot; section describes the basic procedure for migrating operators from GPUs to NPUs. Finally, the &quot;Single-Core Data Computation&quot; analyzes the differences between GPUs and NPUs with respect to Triton issues. We also provide answers to frequently asked questions (FAQ).</p>
+<section id="multi-core-task-parallelism">
+<h2>Multi-Core Task Parallelism<a class="headerlink" href="#multi-core-task-parallelism" title="Link to this heading"></a></h2>
+<section id="core-migration-principles">
+<h3>Core Migration Principles<a class="headerlink" href="#core-migration-principles" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Shift from GPUs' &quot;logical grid flexibility&quot; to Ascend's &quot;physical core group binding&quot;.</p></li>
+<li><p>Enforce 32-byte memory alignment in vector operator scenarios and 512-byte memory alignment in cube-vector operator scenarios. And remove GPU-specific synchronization APIs(such as the dedicated interfaces for controlling thread / stream / kernel synchronization in CUDA).</p></li>
+<li><p>Prefer 1D grids. NPUs' 2D adaptations will be merged into the 1D form. Actual grid values must align with the physical core count available on chips. For example, <code class="docutils literal notranslate"><span class="pre">(20,)</span></code> and <code class="docutils literal notranslate"><span class="pre">(4,</span> <span class="pre">5)</span></code> will produce equivalent execution results.</p></li>
+</ul>
+</section>
+<section id="complete-migration-example-vector-addition">
+<h3>Complete Migration Example (Vector Addition)<a class="headerlink" href="#complete-migration-example-vector-addition" title="Link to this heading"></a></h3>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import torch
+<span class="gi">+ import torch_npu  # [Added] Import Ascend NPUs&#39; PyTorch adaptation library to support NPU devices.</span>
+import triton
+import triton.language as tl
+
+<span class="gd">- DEVICE = triton.runtime.driver.active.get_active_torch_device()  #  [Deleted] GPU devices are automatically obtained. NPUs do not need this logic.</span>
+
+<span class="gu">@triton.jit</span>
+def add_kernel(x_ptr, # Pointer to first input vector.
+y_ptr, # Pointer to second input vector.
+output_ptr, # Pointer to output vector.
+n_elements, # Size of the vector.
+BLOCK_SIZE: tl.constexpr, # Number of elements each program should process.
+):
+<span class="w"> </span>   pid = tl.program_id(axis=0) # We use a 1D launch grid so axis is 0.
+<span class="w"> </span>   block_start = pid * BLOCK_SIZE
+<span class="w"> </span>   offsets = block_start + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; n_elements
+<span class="w"> </span>   x = tl.load(x_ptr + offsets, mask=mask)
+<span class="w"> </span>   y = tl.load(y_ptr + offsets, mask=mask)
+<span class="w"> </span>   output = x + y
+<span class="w"> </span>   tl.store(output_ptr + offsets, output, mask=mask)
+
+def add(x: torch.Tensor, y: torch.Tensor):
+<span class="w"> </span>   output = torch.empty_like(x)
+<span class="gd">-   assert x.device == DEVICE and y.device == DEVICE and output.device == DEVICE  # [Deleted] GPU devices have consistency checks. NPUs do not need explicit assertion.</span>
+<span class="w"> </span>   n_elements = output.numel()
+<span class="w"> </span>   grid = lambda meta: (triton.cdiv(n_elements, meta[&#39;BLOCK_SIZE&#39;]), )
+<span class="w"> </span>   add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+<span class="w"> </span>   return output
+
+torch.manual_seed(0)
+size = 98432
+<span class="gd">- x = torch.rand(size, device=&#39;cuda&#39;)  # [Deleted] Specify the GPU device.</span>
+<span class="gi">+ x = torch.rand(size, device=&#39;npu&#39;)  # [Modified] Specify the Ascend NPU device.</span>
+<span class="gd">- y = torch.rand(size, device=&#39;cuda&#39;)  # [Deleted] Specify the GPU device.</span>
+<span class="gi">+ y = torch.rand(size, device=&#39;npu&#39;)  # [Modified] Specify the Ascend NPU device.</span>
+output_torch = x + y
+output_triton = add(x, y)
+print(output_torch)
+print(output_triton)
+print(f&#39;The maximum difference between torch and triton is &#39;
+f&#39;{torch.max(torch.abs(output_torch - output_triton))}&#39;)
+</pre></div>
+</div>
+</section>
+</section>
+<section id="single-core-data-transfer">
+<h2>Single-Core Data Transfer<a class="headerlink" href="#single-core-data-transfer" title="Link to this heading"></a></h2>
+<p>First off, you need to understand the basic steps for migrating from GPUs to NPUs. Below is an example Triton kernel that runs properly on GPUs:</p>
+<ul class="simple">
+<li><p>The first step is to change <code class="docutils literal notranslate"><span class="pre">device='cuda'</span></code> to <code class="docutils literal notranslate"><span class="pre">device='npu'</span></code> to run the kernel on NPUs.</p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import pytest
+import torch
+import torch_npu
+import triton
+import triton.language as tl
+
+<span class="gu">@triton.jit</span>
+def fn_broadcast_1d(output_ptr, x_ptr, XS: tl.constexpr, YS: tl.constexpr):
+<span class="w"> </span>   xidx = tl.arange(0, XS)[None, :]
+<span class="w"> </span>   base = tl.load(x_ptr + xidx)
+<span class="w"> </span>   out = base.broadcast_to((YS, XS))
+<span class="w"> </span>   oidx = tl.arange(0, YS)[:, None] * XS + tl.arange(0, XS)[None, :]
+<span class="w"> </span>   tl.store(output_ptr + oidx, out)
+
+<span class="gu">@pytest.mark.parametrize(&#39;shape&#39;, [(1,), (2,), (4,)])</span>
+<span class="gu">@pytest.mark.parametrize(&#39;dtype&#39;, [torch.int32])</span>
+def test_npu_1d(shape, dtype):
+<span class="w"> </span>   XS = shape[0]
+<span class="w"> </span>   YS = 4
+
+<span class="gd">-    x = torch.randint(-1000, 1000, (XS,), dtype=dtype, device=&#39;cuda&#39;)</span>
+<span class="gi">+    x = torch.randint(-1000, 1000, (XS,), dtype=dtype, device=&#39;npu&#39;)</span>
+<span class="w"> </span>   std = torch.broadcast_to(x, (YS, XS))
+<span class="gd">-    output = torch.randint(-1000, 1000, (YS, XS), dtype=dtype, device=&#39;cuda&#39;)</span>
+<span class="gi">+    output = torch.randint(-1000, 1000, (YS, XS), dtype=dtype, device=&#39;npu&#39;)</span>
+<span class="w"> </span>   fn_broadcast_1d[(1,)](output, x, XS, YS)
+<span class="w"> </span>   assert torch.allclose(std, output)
+</pre></div>
+</div>
+</section>
+<section id="single-core-data-computation">
+<h2>Single-Core Data Computation<a class="headerlink" href="#single-core-data-computation" title="Link to this heading"></a></h2>
+<section id="difference-analysis">
+<h3>Difference Analysis<a class="headerlink" href="#difference-analysis" title="Link to this heading"></a></h3>
+<p>Ascend NPUs are equipped with multiple compute cores (AI cores), categorized into cube cores and vector cores. The exact number of AI cores varies by chip model and can be queried through the driver.active.utils.get_device_properties API. When executing a Triton kernel, the runtime APIs allow the number of concurrent tasks to exceed the available physical AI cores—though the total number of concurrent tasks is capped at 65,535. In such cases, these tasks are divided into multiple batches and scheduled to NPUs for execution. Crucially, the number of concurrent tasks within each individual batch still cannot surpass the number of physical AI cores. This batch scheduling introduces additional device-side overhead, which can impact the overall execution performance of Triton operators.</p>
+<p>To maximize the utilization of physical AI core resources on NPUs for accelerated parallel computing and minimize batch scheduling overhead, it is advisable to set the number of concurrent tasks to match the number of the underlying physical AI cores. For Triton operators that perform only vector core computations, the number of concurrent tasks should be equal to the number of vector cores. For other types of Triton operators (those using tl.dot), the number of concurrent tasks should be equal to the total number of AI cores.
+Tips: <strong>TRITON_ALL_BLOCKS_PARALLEL</strong> controls the automatic optimization of the number of logical cores based on the number of physical cores. This feature can be enabled only when logical cores can execute in parallel. When the number of logical cores is greater than the number of physical cores, enabling this feature will instruct the compiler to automatically adjust the number of logical cores to match the number of physical cores, thereby reducing scheduling overhead.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dimension</p></th>
+<th class="head"><p>Core Structure</p></th>
+<th class="head"><p>Operator Type</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Ascend NPU</p></td>
+<td><p>Multiple AI cores, categorized into cube cores (for matrix multiplication) and vector cores (for vector computation)</p></td>
+<td><p>Vector-only operators → Number of concurrent tasks = Number of vector cores; Operators using tl.dot → Number of concurrent tasks = Number of AI cores</p></td>
+</tr>
+<tr class="row-odd"><td><p>GPU NVIDIA/AMD</p></td>
+<td><p>Multiple CUDA cores (for scalar/vector computation) + Tensor cores (for matrix multiplication)</p></td>
+<td><p>Generally, GPU operators can be mapped to CUDA cores or tensor cores. The concurrency is automatically determined by the compiler and hardware.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
+<p>After completing the basic migration procedure, you may encounter the following two types of new issues:</p>
+<ol class="arabic simple">
+<li><p><strong>coreDim</strong> limit
+This issue is triggered when grid dimensions exceed the hardware limit of NPUs.
+Typical error message: <code class="docutils literal notranslate"><span class="pre">coreDim=xxxx</span> <span class="pre">can't</span> <span class="pre">be</span> <span class="pre">greater</span> <span class="pre">than</span> <span class="pre">UINT16_MAX</span></code>.</p></li>
+<li><p>UB space overflow
+Memory usage exceeds the NPU cache capacity.
+Typical error message: <code class="docutils literal notranslate"><span class="pre">ub</span> <span class="pre">overflow,</span> <span class="pre">requires</span> <span class="pre">xxxx</span> <span class="pre">bits</span> <span class="pre">while</span> <span class="pre">1572684</span> <span class="pre">bits</span> <span class="pre">available!</span></code>.</p></li>
+</ol>
+<section id="solving-the-coredim-limit-issue">
+<h3>Solving the coreDim Limit Issue<a class="headerlink" href="#solving-the-coredim-limit-issue" title="Link to this heading"></a></h3>
+<p>Issue analysis:
+The <strong>coreDim</strong> parameter of NPUs cannot exceed <strong>UINT16_MAX</strong> (<strong>65535</strong>). When processing large-scale data, simplistic grid division may exceed this limit.</p>
+<p>Case: Optimizing the <code class="docutils literal notranslate"><span class="pre">zeros_like</span></code> function<br />
+(data scale <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">1073741824</span></code>; original <code class="docutils literal notranslate"><span class="pre">BLOCK_SIZE</span> <span class="pre">=</span> <span class="pre">2048</span></code>; calculated <code class="docutils literal notranslate"><span class="pre">coreDim</span> <span class="pre">=</span> <span class="pre">524288</span></code>, exceeding the limit of <strong>65535</strong>)</p>
+<p>Solution 1:
+To address the <strong>coreDim</strong> limit in the Ascend compiler, one solution is to set the environment variable <em>'TRITON_ALL_BLOCKS_PARALLEL'</em> to <strong>1</strong> by running this command:
+export TRITON_ALL_BLOCKS_PARALLEL=1<br />
+Solution 2:
+Another solution is to increase <strong>BLOCK_SIZE</strong> to reduce the number of required cores and ensure that <strong>coreDim</strong> remains within the limit.
+The calculation follows: <code class="docutils literal notranslate"><span class="pre">coreDim</span> <span class="pre">=</span> <span class="pre">ceil(N</span> <span class="pre">/</span> <span class="pre">BLOCK_SIZE)</span></code>. → It needs to satisfy <code class="docutils literal notranslate"><span class="pre">ceil(N</span> <span class="pre">/</span> <span class="pre">BLOCK_SIZE)</span> <span class="pre">&lt;=</span> <span class="pre">65535</span> <span class="pre">=&gt;</span> <span class="pre">BLOCK_SIZE</span> <span class="pre">&gt;=</span> <span class="pre">ceil(N</span> <span class="pre">/</span> <span class="pre">65535)</span></code>. Given <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">1073741824</span></code>, we have <code class="docutils literal notranslate"><span class="pre">BLOCK_SIZE</span> <span class="pre">&gt;=</span> <span class="pre">triton.next_power_of_2(triton.cdiv(1073741824,</span> <span class="pre">65535))</span> <span class="pre">=</span> <span class="pre">32768</span></code>. Therefore, <strong>32768</strong> is the minimum safe value.</p>
+<p>Code before optimization:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import logging
+import torch
+import torch_npu
+import triton
+import triton.language as tl
+logger = logging.getLogger(__name__)
+<span class="gu">@triton.jit</span>
+def zeros_kernel(
+<span class="w"> </span>   output_ptr,
+<span class="w"> </span>   n_elements,
+<span class="w"> </span>   BLOCK_SIZE: tl.constexpr,
+<span class="w"> </span>   ):
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="w"> </span>   block_start = pid * BLOCK_SIZE
+<span class="w"> </span>   offsets = block_start + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; n_elements
+<span class="w"> </span>   tl.store(output_ptr + offsets, 0.0, mask=mask)
+
+def zeros_like(x, *, dtype=None, layout=None, device=None, pin_memory=None, memory_format=None):
+<span class="w"> </span>   logger.debug(&quot;GEMS ZEROS_LIKE&quot;)
+<span class="w"> </span>   if device is None:
+<span class="w"> </span>       device = x.device # x.device = &quot;npu&quot;
+<span class="w"> </span>   if dtype is None:
+<span class="w"> </span>       dtype = x.dtype
+
+<span class="w"> </span>   out = torch.empty_like(x, device=device, dtype=dtype)
+<span class="w"> </span>   N = x.numel()
+<span class="w"> </span>   grid_fn = lambda meta: (triton.cdiv(N, meta[&quot;BLOCK_SIZE&quot;]),)
+
+<span class="w"> </span>   zeros_kernel[grid_fn](out, N, BLOCK_SIZE=1024)  # The original value is too small.
+<span class="w"> </span>   return out
+</pre></div>
+</div>
+<p>Code after optimization:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import logging
+import torch
+import torch_npu
+import triton
+import triton.language as tl
+logger = logging.getLogger(__name__)
+<span class="gu">@triton.jit</span>
+def zeros_kernel(
+<span class="w"> </span>   output_ptr,
+<span class="w"> </span>   n_elements,
+<span class="w"> </span>   BLOCK_SIZE: tl.constexpr,
+<span class="w"> </span>   ):
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="w"> </span>   block_start = pid * BLOCK_SIZE
+<span class="w"> </span>   offsets = block_start + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; n_elements
+<span class="w"> </span>   tl.store(output_ptr + offsets, 0.0, mask=mask)
+
+def zeros_like(x, *, dtype=None, layout=None, device=None, pin_memory=None, memory_format=None):
+<span class="w"> </span>   logger.debug(&quot;GEMS ZEROS_LIKE&quot;)
+<span class="w"> </span>   if device is None:
+<span class="w"> </span>       device = x.device # x.device = &quot;npu&quot;
+<span class="w"> </span>   if dtype is None:
+<span class="w"> </span>       dtype = x.dtype
+
+<span class="w"> </span>   out = torch.empty_like(x, device=device, dtype=dtype)
+<span class="w"> </span>   N = x.numel()
+<span class="w"> </span>   min_block_size = triton.next_power_of_2(triton.cdiv(N, 65535)) 
+<span class="w"> </span>   BLOCK_SIZE = max(32768, min_block_size) # The minimum value is 32768.
+<span class="w"> </span>   grid_fn = lambda meta: (triton.cdiv(N, meta[&quot;BLOCK_SIZE&quot;]),) 
+
+<span class="w"> </span>   zeros_kernel[grid_fn](out, N, BLOCK_SIZE=BLOCK_SIZE) 
+<span class="w"> </span>   return out
+</pre></div>
+</div>
+</section>
+<section id="dynamically-calculating-block-size-to-ensure-coredim-remains-within-the-limit">
+<h3>Dynamically Calculating <strong>BLOCK_SIZE</strong> to Ensure <strong>coreDim</strong> Remains Within the Limit<a class="headerlink" href="#dynamically-calculating-block-size-to-ensure-coredim-remains-within-the-limit" title="Link to this heading"></a></h3>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>optimal_block_size = 32768 # Optimized value obtained after calculation
+
+grid_fn = lambda meta: (triton.cdiv(N, optimal_block_size),)
+
+zeros_kernel[grid_fn](out, N, BLOCK_SIZE=optimal_block_size)
+return out
+</pre></div>
+</div>
+</section>
+<section id="handling-the-compound-issue-coredim-ub-overflow">
+<h3>Handling the Compound Issue: coreDim + UB Overflow<a class="headerlink" href="#handling-the-compound-issue-coredim-ub-overflow" title="Link to this heading"></a></h3>
+<p>Issue analysis:
+In some scenarios, solving the <strong>coreDim</strong> limit issue may inadvertently trigger a new issue—UB overflow. This typically occurs when increasing <strong>BLOCK_SIZE</strong> causes the data volume processed by a single thread block to exceed the UB cache capacity of NPUs.</p>
+<p>Case:<br />
+Data scale <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">1073741824</span></code>; original <code class="docutils literal notranslate"><span class="pre">BLOCK_SIZE</span> <span class="pre">=</span> <span class="pre">4096</span></code>; calculated <code class="docutils literal notranslate"><span class="pre">coreDim</span> <span class="pre">=</span> <span class="pre">262144</span></code>, exceeding the limit of <strong>65535</strong>. After <strong>BLOCK_SIZE</strong> is adjusted to <strong>32768</strong>, <strong>coreDim</strong> is <strong>32768</strong> (within the limit), but UB overflow occurs.</p>
+<p>Solution:
+Introduce the <strong>BLOCK_SIZE_SUB</strong> parameter to further subdivide large blocks, thereby controlling memory usage while maintaining a reasonable <strong>coreDim</strong>.
+Code before optimization:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import logging
+import torch
+import torch_npu
+import triton
+import triton.language as tl
+logger = logging.getLogger(__name__)
+
+<span class="gu">@triton.jit</span>
+def masked_fill_kernel(inp, expand_mask, value, out, N, BLOCK_SIZE: tl.constexpr):
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="w"> </span>   offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; N
+<span class="w"> </span>   fill_mask = tl.load(expand_mask + offsets, mask=mask, other=0).to(tl.int1)
+<span class="w"> </span>   cur_inp = tl.load(inp + offsets, mask=(~fill_mask) &amp; mask, other=0)
+<span class="w"> </span>   tl.store(out + offsets, cur_inp, (~fill_mask) &amp; mask)
+<span class="w"> </span>   tl.store(out + offsets, value, fill_mask &amp; mask)
+
+def masked_fill(inp, mask, value):
+<span class="w"> </span>   # ... Parameter verification code ...
+<span class="w"> </span>   # inp.device = &quot;npu&quot;
+<span class="w"> </span>   out = torch.zeros_like(inp)
+<span class="w"> </span>   N = inp.numel()
+<span class="w"> </span>   if N == 0:
+<span class="w"> </span>       return out
+
+<span class="w"> </span>   grid = lambda meta: (triton.cdiv(N, 4096),) # coreDim exceeds the limit.
+<span class="w"> </span>   masked_fill_kernel[grid](inp, mask.to(torch.int), value, out, N, 4096)
+<span class="w"> </span>   return out
+</pre></div>
+</div>
+<p>Code after optimization:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import logging
+import torch
+import torch_npu
+import triton
+import triton.language as tl
+logger = logging.getLogger(__name__)
+
+<span class="gu">@triton.jit</span>
+def masked_fill_kernel(inp, expand_mask, value, out, N,
+<span class="w"> </span>   BLOCK_SIZE: tl.constexpr, BLOCK_SIZE_SUB: tl.constexpr):
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="w"> </span>   base_offset = pid * BLOCK_SIZE
+<span class="w"> </span>   # Calculate the number of sub-blocks to be processed.
+<span class="w"> </span>   num_sub_blocks = tl.cdiv(BLOCK_SIZE, BLOCK_SIZE_SUB)
+<span class="w"> </span>   # Process blocks to avoid UB overflow.
+<span class="w"> </span>   for sub_block_idx in range(num_sub_blocks):
+<span class="w"> </span>       sub_offset = base_offset + sub_block_idx * BLOCK_SIZE_SUB
+<span class="w"> </span>       offsets = sub_offset + tl.arange(0, BLOCK_SIZE_SUB)
+<span class="w"> </span>       mask = offsets &lt; N
+<span class="w"> </span>       # Load and process data in batches.
+<span class="w"> </span>       input_vals = tl.load(inp + offsets, mask=mask, other=0)
+<span class="w"> </span>       fill_mask_vals = tl.load(expand_mask + offsets, mask=mask, other=0).to(tl.int1)
+<span class="w"> </span>       # First, write the original data.
+<span class="w"> </span>       tl.store(out + offsets, input_vals, mask=mask)
+<span class="w"> </span>       # Then overwrite the target value at the position where padding is required.
+<span class="w"> </span>       value_to_write = tl.full([BLOCK_SIZE_SUB], value, dtype=input_vals.dtype)
+<span class="w"> </span>       final_vals = tl.where(fill_mask_vals, value_to_write, input_vals)
+<span class="w"> </span>       tl.store(out + offsets, final_vals, mask=mask)
+
+def masked_fill(inp, expand_mask, value):
+<span class="w"> </span>   logger.debug(&quot;GEMS MASKED FILL&quot;)
+
+<span class="w"> </span>   # ... Parameter verification code ...
+<span class="w"> </span>   # inp.device = &quot;npu&quot;
+<span class="w"> </span>   out = torch.zeros_like(inp)
+<span class="w"> </span>   N = inp.numel()
+<span class="w"> </span>   if N == 0:
+<span class="w"> </span>       return out
+
+<span class="w"> </span>   # Use optimized parameter settings.
+<span class="w"> </span>   MAIN_BLOCK_SIZE = 32768  # Ensure that coreDim is within the limit.
+<span class="w"> </span>   SUB_BLOCK_SIZE = 1024    # Control the UB usage.
+
+<span class="w"> </span>   grid = lambda meta: (triton.cdiv(N, MAIN_BLOCK_SIZE),)
+<span class="w"> </span>   masked_fill_kernel[grid](inp, expand_mask.to(torch.int), value, out, N, 
+<span class="w"> </span>                       MAIN_BLOCK_SIZE, SUB_BLOCK_SIZE)
+<span class="w"> </span>   return out
+</pre></div>
+</div>
+</section>
+<section id="why-does-the-ubsize-out-of-memory-error-occur">
+<h3>Why Does the UBSIZE Out of Memory Error Occur?<a class="headerlink" href="#why-does-the-ubsize-out-of-memory-error-occur" title="Link to this heading"></a></h3>
+<p>Improper data tiling can lead to excessive unaligned memory access or computation. Consider a 2D data transfer of shape <code class="docutils literal notranslate"><span class="pre">(64,</span> <span class="pre">32)</span></code> as an example. The corresponding stride is <code class="docutils literal notranslate"><span class="pre">(12832,</span> <span class="pre">128)</span></code>. If aligned memory access is required, the stride becomes <code class="docutils literal notranslate"><span class="pre">(32,</span> <span class="pre">1)</span></code>. In unaligned access scenarios, an additional axis of size <code class="docutils literal notranslate"><span class="pre">1</span></code> is added to the innermost dimension, yielding a shape of <code class="docutils literal notranslate"><span class="pre">(64,</span> <span class="pre">32,</span> <span class="pre">4)</span></code>. Because the hardware mandates 32-byte UB memory alignment in vector operator scenarios, the corresponding stride is recalculated as <code class="docutils literal notranslate"><span class="pre">(12832,</span> <span class="pre">128,</span> <span class="pre">1)</span></code>, assuming <code class="docutils literal notranslate"><span class="pre">type=float16</span></code>.</p>
+</section>
+<section id="discrete-memory-access-and-inefficient-scalar-mapping-observed-by-line-by-line-code-comparison">
+<h3>Discrete Memory Access and Inefficient Scalar Mapping Observed by Line-by-Line Code Comparison<a class="headerlink" href="#discrete-memory-access-and-inefficient-scalar-mapping-observed-by-line-by-line-code-comparison" title="Link to this heading"></a></h3>
+<p>Set the environment variable <em>TRITON_DEBUG</em> to <strong>1</strong>, save <strong>~/.triton/cache/xxx.ttadapter</strong>, and execute:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>bishengir-compile xxx.ttadapter --target=Ascend910B3 --enable-auto-multi-buffer=True --enable-hfusion-compile=true --enable-hivm-compile=true --enable-triton-kernel-compile=true --hivm-compile-args=bishengir-print-ir-after=hivm-inject-sync  
+</pre></div>
+</div>
+<p>Compare the Triton kernel's logic with the internal operations of the output intermediate representations (IRs) to identify any operations that are not mapped to instructions.
+Check whether pure scalar transfer or computation exists in the HIVM IR phase without being mapped to SIMD instructions. If such cases exist, they will create a significant performance bottleneck.</p>
+<p>Problem: Discrete memory access and inefficient scalar mapping
+Given <code class="docutils literal notranslate"><span class="pre">b[1024,</span> <span class="pre">32]</span> <span class="pre">=</span> <span class="pre">a[1024,</span> <span class="pre">32]</span></code>, the original Triton code binds thread blocks to the lowest dimension <code class="docutils literal notranslate"><span class="pre">32</span></code> in <code class="docutils literal notranslate"><span class="pre">[1024,</span> <span class="pre">32]</span></code>, and then splits <code class="docutils literal notranslate"><span class="pre">1024</span></code> into <code class="docutils literal notranslate"><span class="pre">16</span></code> parts, yielding <code class="docutils literal notranslate"><span class="pre">[64,</span> <span class="pre">16,</span> <span class="pre">32]</span></code>. Finally, it binds thread blocks to dimension <code class="docutils literal notranslate"><span class="pre">64</span></code>.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>chunk_fwd_kernel_o[(NT, B * H)](
+<span class="w"> </span>   p_g = tl.make_block_ptr(g, (T,), (H,), (i_t * BT,), (BT,), (0,))
+<span class="w"> </span>   block_ptr = tl.make_block_ptr(
+<span class="w"> </span>       base=input_ptr,
+<span class="w"> </span>       shape=(1024,), # 1D tensor
+<span class="w"> </span>       strides=(32,), # Contiguous memory
+<span class="w"> </span>       offsets=(i_t * 16,), # Start position
+<span class="w"> </span>       block_shape=(BT,), # Block size
+<span class="w"> </span>       order=(0,) # Sequential access
+<span class="w"> </span>   )
+​)
+</pre></div>
+</div>
+<p>Optimization Approach</p>
+<p>Adjust <strong>shape</strong> and <strong>stride</strong> for <strong>block_ptr</strong> as follows:
+The shape (1024, 32) is treated as a 2D matrix, where the lowest dimension <code class="docutils literal notranslate"><span class="pre">32</span></code> is contiguous. Accordingly, the stride should be <code class="docutils literal notranslate"><span class="pre">(32,</span> <span class="pre">1)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">(32,)</span></code>. This enables each thread block to access 32 contiguous elements. Bind thread blocks to the row dimension <code class="docutils literal notranslate"><span class="pre">(1024)</span></code> and configure each thread to process all 32 elements in a row. This approach guarantees contiguous memory access and high memory affinity</p>
+<p>Example:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>block_ptr = tl.make_block_ptr(
+<span class="w"> </span>   base=input_ptr,
+<span class="w"> </span>   shape=(1024, 32),
+<span class="w"> </span>   strides=(32, 1),
+<span class="w"> </span>   offsets=(i_t * BT, 0),
+<span class="w"> </span>   block_shape=(BT, 32),
+<span class="w"> </span>   order=(1, 0) # First row then column (FRTC)
+)
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

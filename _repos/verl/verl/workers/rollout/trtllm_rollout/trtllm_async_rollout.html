@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Running VeRL with TensorRT-LLM Rollout &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Running VeRL with TensorRT-LLM Rollout</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/_repos/verl/verl/workers/rollout/trtllm_rollout/trtllm_async_rollout.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="running-verl-with-tensorrt-llm-rollout">
+<h1>Running VeRL with TensorRT-LLM Rollout<a class="headerlink" href="#running-verl-with-tensorrt-llm-rollout" title="Link to this heading"></a></h1>
+<p>We provide initial support for <a class="reference external" href="https://github.com/NVIDIA/TensorRT-LLM">TensorRT-LLM</a> as an asynchronous rollout engine in VERL's reinforcement learning pipeline. It covers key features such as distributed inference with Ray-based orchestration, dynamic weight updates via IPC (Inter-Process Communication), and efficient GPU memory management for GRPO training.</p>
+<p>TRT-LLM rollout uses hybrid engine colocate mode, where training and inference workers are colocated on the same GPUs. Memory is managed via <code class="docutils literal notranslate"><span class="pre">resume()</span></code>/<code class="docutils literal notranslate"><span class="pre">release()</span></code> APIs to enable GPU sharing between training and inference workloads.</p>
+<p>While the current design factors in multi-node use cases, more extensive multi-node testing and functionality will be delivered in the near future. Current focus is on FSDP and Megatron backend support for Qwen model variants.</p>
+<hr class="docutils" />
+<section id="quick-start">
+<h2>1. Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># GRPO with FSDP training engine and TP1</span>
+&gt;&gt;<span class="w"> </span>bash<span class="w"> </span>examples/grpo_trainer/run_qwen2-7b_math_trtllm.sh<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Note that using the TRT-LLM rollout requires setting the following environment variables before launching the Ray cluster, as included in the above script.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clean all SLURM/MPI/PMIx env to avoid pmix mismatch error.</span>
+<span class="k">for</span><span class="w"> </span>v<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>env<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span>-F<span class="o">=</span><span class="w"> </span><span class="s1">&#39;/^(PMI|PMIX|MPI|OMPI|SLURM)_/{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">unset</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$v</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="architecture-design">
+<h2>2. Architecture Design<a class="headerlink" href="#architecture-design" title="Link to this heading"></a></h2>
+<section id="high-level-component-diagram">
+<h3>2.1 High-Level Component Diagram<a class="headerlink" href="#high-level-component-diagram" title="Link to this heading"></a></h3>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>%%{init: {&#39;theme&#39;:&#39;base&#39;, &#39;themeVariables&#39;: { &#39;fontSize&#39;:&#39;18px&#39;, &#39;edgeLabelBackground&#39;:&#39;#eeeeee&#39;}}}%%
+flowchart TB
+    space1[&quot; &quot;]
+    style space1 fill:none,stroke:none
+    
+    subgraph VERL[&quot;&lt;b&gt;VERL Training Pipeline&lt;/b&gt;&quot;]
+        subgraph Workers[&quot;&lt;b&gt;Training Workers&lt;/b&gt;&quot;]
+            Actor[&quot;&lt;b&gt;Actor Worker&lt;/b&gt;&quot;]
+            Critic[&quot;&lt;b&gt;Critic Worker&lt;/b&gt;&quot;]
+            RefModel[&quot;&lt;b&gt;Ref Model Worker&lt;/b&gt;&quot;]
+        end
+        
+        Actor --&gt;|&lt;b&gt;Weight Updates&lt;br/&gt;IPC&lt;/b&gt;| Rollout[&quot;&lt;b&gt;TensorRT-LLM Rollout&lt;/b&gt;&quot;]
+        
+        subgraph RayCluster[&quot;&lt;b&gt;Rollout Workers&lt;br/&gt;(Ray Cluster)&lt;/b&gt;&quot;]
+            space2[&quot; &quot;]
+            style space2 fill:none,stroke:none
+            
+    subgraph AsyncRollout[&quot;&lt;b&gt;ServerAdapter&lt;br/&gt;(per DP rank)&lt;/b&gt;&quot;]
+        DPLeader[&quot;&lt;b&gt;• DP Leader coordination&lt;/b&gt;&quot;]
+        IPCMgmt[&quot;&lt;b&gt;• IPC handle management&lt;/b&gt;&quot;]
+        HTTPAdapter[&quot;&lt;b&gt;• HTTP adapter for server communication&lt;/b&gt;&quot;]
+    end
+            
+            AsyncRollout --&gt;|&lt;b&gt;HTTP/REST API&lt;/b&gt;| HTTPServer
+            
+            subgraph HTTPServer[&quot;&lt;b&gt;TRTLLMHttpServer&lt;br/&gt;(Ray Actor per Replica)&lt;/b&gt;&quot;]
+                OpenAI[&quot;&lt;b&gt;• OpenAI Server wrapper&lt;/b&gt;&quot;]
+                EngMgmt[&quot;&lt;b&gt;• AsyncLLM engine management&lt;/b&gt;&quot;]
+                MemMgmt[&quot;&lt;b&gt;• Memory management (resume/release)&lt;/b&gt;&quot;]
+            end
+            
+            HTTPServer --&gt; AsyncLLM
+            
+            subgraph AsyncLLM[&quot;&lt;b&gt;TensorRT-LLM&lt;br/&gt;AsyncLLM Engine&lt;/b&gt;&quot;]
+                GPUWorkers[&quot;&lt;b&gt;• GPU workers (Tensor Parallel)&lt;/b&gt;&quot;]
+                KVCache[&quot;&lt;b&gt;• KV Cache management&lt;/b&gt;&quot;]
+                CUDAGraph[&quot;&lt;b&gt;• CUDA Graph optimization&lt;/b&gt;&quot;]
+            end
+        end
+    end
+    
+    space1 ~~~ VERL
+    
+    style VERL fill:#e1f5ff
+    style RayCluster fill:#fff4e6
+    style AsyncRollout fill:#f3e5f5
+    style HTTPServer fill:#e8f5e9
+    style AsyncLLM fill:#fce4ec
+</pre></div>
+</div>
+</section>
+<section id="agent-loop-architecture">
+<h3>2.2 Agent Loop Architecture<a class="headerlink" href="#agent-loop-architecture" title="Link to this heading"></a></h3>
+<p>TRT-LLM rollout follows the same Agent Loop architecture described in the <a class="reference external" href="https://verl.readthedocs.io/en/latest/advance/agent_loop.html">VERL documentation</a>.</p>
+<p>With TensorRT-LLM rollout, the AsyncLLM engine runs in the same process as the TRTLLMHttpServer (Ray actor). The engine spawns Ray workers as ModelRunner through Ray's native orchestration with placement groups.</p>
+<p>AsyncLLM engine communicates with Ray workers through TensorRT-LLM's internal communication layer. When the server receives a request, it directly calls the AsyncLLM engine to generate response_ids. The Ray workers are separate processes from FSDP/Megatron-LM workers but are co-located on the same GPUs in hybrid engine mode.</p>
+<p>The diagram below illustrates TRT-LLM's implementation in hybrid engine mode (Ray Workers and FSDP workers share GPUs):</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart TB
+    generate[generate]
+    
+    generate --&gt; Server
+    
+    Server[TRTLLMHttpServer&lt;br/&gt;AsyncLLM Engine]
+    
+    Server --&gt; Workers
+    
+    subgraph Workers[&quot;TRT-LLM group (TP4)&quot;]
+        direction LR
+        subgraph W0[ ]
+            RW0[Ray Worker-0]
+            F0[FSDP-0]
+        end
+        subgraph W1[ ]
+            RW1[Ray Worker-1]
+            F1[FSDP-1]
+        end
+        subgraph W2[ ]
+            RW2[Ray Worker-2]
+            F2[FSDP-2]
+        end
+        subgraph W3[ ]
+            RW3[Ray Worker-3]
+            F3[FSDP-3]
+        end
+    end
+    
+    style Server fill:#ffb6c1
+    style RW0 fill:#ffffe0
+    style RW1 fill:#ffffe0
+    style RW2 fill:#ffffe0
+    style RW3 fill:#ffffe0
+    style F0 fill:#ffb6c1
+    style F1 fill:#ffb6c1
+    style F2 fill:#ffb6c1
+    style F3 fill:#ffb6c1
+    style W0 fill:#d3d3d3
+    style W1 fill:#d3d3d3
+    style W2 fill:#d3d3d3
+    style W3 fill:#d3d3d3
+    style Workers fill:#f5f5f5
+</pre></div>
+</div>
+</section>
+<section id="ray-placement-group-architecture">
+<h3>2.3 Ray Placement Group Architecture<a class="headerlink" href="#ray-placement-group-architecture" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Placement APIs &amp; GPU Assignment</strong>: TRT-LLM rollout leverages TRT-LLM's Ray-based APIs (<code class="docutils literal notranslate"><span class="pre">placement_groups</span></code>, <code class="docutils literal notranslate"><span class="pre">placement_bundle_indices</span></code>, <code class="docutils literal notranslate"><span class="pre">per_worker_gpu_share</span></code>) to control GPU placement. Each replica (corresponding to one <code class="docutils literal notranslate"><span class="pre">TRTLLMHttpServer</span></code>) is assigned GPU bundles from placement groups based on its replica rank and TP size.</p></li>
+<li><p><strong>Server Placement</strong>: <code class="docutils literal notranslate"><span class="pre">TRTLLMHttpServer</span></code> is pinned to the same node as its first bundle using <code class="docutils literal notranslate"><span class="pre">NodeAffinitySchedulingStrategy</span></code>, ensuring efficient communication between the HTTP server and its Ray workers.</p></li>
+<li><p><strong>GPU Sharing</strong>: In hybrid engine mode, training and inference workers share GPUs. Memory is managed via <code class="docutils literal notranslate"><span class="pre">resume()</span></code>/<code class="docutils literal notranslate"><span class="pre">release()</span></code> APIs. The resource pool uses <code class="docutils literal notranslate"><span class="pre">max_colocate_count=3</span></code> internally to support colocation of ActorRollout, RewardModel, and Critic workers.</p></li>
+<li><p><strong>Multi-Node Design</strong>: The placement group slicing algorithm supports spanning multiple placement groups for multi-node deployments. <strong>Note</strong>: Formal multi-node testing and functionality will be delivered in subsequent MRs.</p></li>
+</ol>
+<p>The following diagram shows an example of TP=4 and DP=2. Replica 0 takes bundles 0-3 and Replica 1 takes bundles 4-7 from the same placement group, with each replica managing TP workers across its assigned bundles:</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart TB
+    subgraph RayCluster[&quot;Ray Cluster Resource Pool&quot;]
+        subgraph PG0[&quot;Placement Group 0 (Node 0)&quot;]
+            B0_0[&quot;Bundle 0: GPU 0&quot;]
+            B0_1[&quot;Bundle 1: GPU 1&quot;]
+            B0_2[&quot;Bundle 2: GPU 2&quot;]
+            B0_3[&quot;Bundle 3: GPU 3&quot;]
+            B0_4[&quot;Bundle 4: GPU 4&quot;]
+            B0_5[&quot;Bundle 5: GPU 5&quot;]
+            B0_6[&quot;Bundle 6: GPU 6&quot;]
+            B0_7[&quot;Bundle 7: GPU 7&quot;]
+        end
+        
+        subgraph PG1[&quot;Placement Group 1 (Node 1)&quot;]
+            B1_0[&quot;Bundle 0: GPU 0&quot;]
+            B1_1[&quot;Bundle 1: GPU 1&quot;]
+            B1_2[&quot;Bundle 2: GPU 2&quot;]
+            B1_3[&quot;Bundle 3: GPU 3&quot;]
+            B1_4[&quot;Bundle 4: GPU 4&quot;]
+            B1_5[&quot;Bundle 5: GPU 5&quot;]
+            B1_6[&quot;Bundle 6: GPU 6&quot;]
+            B1_7[&quot;Bundle 7: GPU 7&quot;]
+        end
+        
+        PG0 --&gt; Assignment
+        PG1 --&gt; Assignment
+        
+        Assignment[&quot;Assigned to TRTLLMReplica&quot;]
+        
+        Assignment --&gt; Replica0
+        Assignment --&gt; Replica1
+        
+        Replica0[&quot;Replica 0&lt;br/&gt;(bundles 0-3 from PG0)&lt;br/&gt;TP=4, DP=2&quot;]
+        Replica1[&quot;Replica 1&lt;br/&gt;(bundles 4-7 from PG0)&lt;br/&gt;TP=4, DP=2&quot;]
+    end
+    
+    style PG0 fill:#e3f2fd
+    style PG1 fill:#e3f2fd
+    style Replica0 fill:#c8e6c9
+    style Replica1 fill:#c8e6c9
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="core-components">
+<h2>3. Core Components<a class="headerlink" href="#core-components" title="Link to this heading"></a></h2>
+<section id="trtllmhttpserver">
+<h3>3.1 <code class="docutils literal notranslate"><span class="pre">TRTLLMHttpServer</span></code><a class="headerlink" href="#trtllmhttpserver" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Ray actor that wraps TensorRT-LLM's AsyncLLM engine and exposes an OpenAI-compatible HTTP API.</p>
+<p><strong>Key Responsibilities</strong>:</p>
+<ul class="simple">
+<li><p>Initialize and manage AsyncLLM engine with placement group constraints</p></li>
+<li><p>Wrap AsyncLLM with OpenAIServer to expose HTTP endpoints</p></li>
+<li><p>Handle HTTP server lifecycle (launch, shutdown)</p></li>
+<li><p>Process generation requests with sampling parameters</p></li>
+<li><p>Coordinate memory management (wake_up/sleep) for GPU sharing with training workers</p></li>
+</ul>
+</section>
+<section id="trtllmreplica">
+<h3>3.2 <code class="docutils literal notranslate"><span class="pre">TRTLLMReplica</span></code><a class="headerlink" href="#trtllmreplica" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Manages the mapping between replicas and Ray placement groups, orchestrating server deployment.</p>
+<p><strong>Key Responsibilities</strong>:</p>
+<ul class="simple">
+<li><p>Calculate placement group and bundle index assignments per replica</p></li>
+<li><p>Pin TRTLLMHttpServer to specific nodes using NodeAffinitySchedulingStrategy</p></li>
+<li><p>Launch and coordinate HTTP servers across distributed nodes</p></li>
+<li><p>Validate placement group configurations</p></li>
+</ul>
+</section>
+<section id="serveradapter">
+<h3>3.3 <code class="docutils literal notranslate"><span class="pre">ServerAdapter</span></code><a class="headerlink" href="#serveradapter" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Rollout worker that handles weight updates, memory management, and generation via HTTP adapter.</p>
+<p>Each DP rank has one leader (the first TP rank within that DP group), and that leader coordinates weight updates to the corresponding TRTLLMHttpServer replica.</p>
+<p><strong>Key Responsibilities</strong>:</p>
+<ul class="simple">
+<li><p>Act as DP leader for weight synchronization across exclude_dp mesh</p></li>
+<li><p>Convert PyTorch tensors to IPC handles for zero-copy weight updates</p></li>
+<li><p>Stream weight updates in chunks to avoid memory exhaustion</p></li>
+<li><p>Coordinate resume/release operations for memory management</p></li>
+<li><p>Initialize HTTP adapter for server communication</p></li>
+</ul>
+</section>
+<section id="asynctrtllmhttpadapter">
+<h3>3.4 <code class="docutils literal notranslate"><span class="pre">AsyncTRTLLMHttpAdapter</span></code><a class="headerlink" href="#asynctrtllmhttpadapter" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: HTTP client for communicating with TRTLLMHttpServer.</p>
+<p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Async request handling with retry logic</p></li>
+<li><p>Connection pooling for high throughput</p></li>
+<li><p>Exponential backoff on failures</p></li>
+<li><p>Timeout management</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="data-flow-diagrams">
+<h2>4. Data Flow Diagrams<a class="headerlink" href="#data-flow-diagrams" title="Link to this heading"></a></h2>
+<section id="generation-request-flow">
+<h3>4.1 Generation Request Flow<a class="headerlink" href="#generation-request-flow" title="Link to this heading"></a></h3>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
+    participant Client as Client/Actor
+    participant Rollout as ServerAdapter
+    participant Adapter as AsyncHttpAdapter
+    participant Server as TRTLLMHttpServer
+    participant AsyncLLM as AsyncLLM Engine
+    
+    Client-&gt;&gt;Rollout: generate(prompts)
+    
+    rect rgb(240, 248, 255)
+        Note over Rollout: Init adapter if needed
+    end
+    
+    Rollout-&gt;&gt;Adapter: POST /v1/completions&lt;br/&gt;{prompt_ids, sampling_params}
+    
+    rect rgb(255, 250, 240)
+        Note over Adapter: Retry loop with backoff
+    end
+    
+    Adapter-&gt;&gt;Server: HTTP POST
+    
+    rect rgb(245, 255, 245)
+        Note over Server: Parse request&lt;br/&gt;Validate params
+    end
+    
+    Server-&gt;&gt;AsyncLLM: generate_async()
+    
+    rect rgb(255, 245, 245)
+        Note over AsyncLLM: Schedule to execution queue
+        Note over AsyncLLM: Run inference (TP workers)&lt;br/&gt;- Forward pass&lt;br/&gt;- Sample tokens&lt;br/&gt;- Update KV cache
+    end
+    
+    AsyncLLM--&gt;&gt;Server: Output (token_ids, log_probs)
+    
+    Server--&gt;&gt;Adapter: JSON response
+    Adapter--&gt;&gt;Rollout: TokenOutput
+    Rollout--&gt;&gt;Client: Results
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
