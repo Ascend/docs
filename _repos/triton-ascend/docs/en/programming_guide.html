@@ -1,0 +1,602 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton Operator Development Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Triton Operator Development Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/triton-ascend/docs/en/programming_guide.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="triton-operator-development-guide">
+<h1>Triton Operator Development Guide<a class="headerlink" href="#triton-operator-development-guide" title="Link to this heading"></a></h1>
+<p>This document focuses on the issues that need to be paid attention to during Triton operator development on NPUs, which are divided into three aspects: multi-core task parallelism, single-core data transfer, and single-core data computation. First, section &quot;Multi-Core Task Parallelism&quot; describes the basis for setting the maximum number of hardware cores and the specific implementation. Then, section &quot;Single-Core Data Transfer&quot; describes how to set the proper data block size in a loop, introduces the common optimization methods, and describes how to handle the UB overflow problem that may occur. Finally, section &quot;Single-Core Data Computation&quot; focuses on how to develop Triton operators and highlights the key points.</p>
+<section id="multi-core-task-parallelism">
+<h2>Multi-Core Task Parallelism<a class="headerlink" href="#multi-core-task-parallelism" title="Link to this heading"></a></h2>
+<section id="setting-the-maximum-number-of-hardware-cores">
+<h3>Setting the Maximum Number of Hardware Cores<a class="headerlink" href="#setting-the-maximum-number-of-hardware-cores" title="Link to this heading"></a></h3>
+<p>In a Triton operator, the grid is usually used for core allocation. For GPUs, it contains dozens or hundreds of core SMs. However, for the Ascend NPU platform, it contains dozens of AI Cores for computation.<br />
+Although the runtime interface allows a maximum of 65,535 concurrent tasks to be delivered, the tasks that exceed the number of physical cores are delivered in a new round. If the Triton operator on the GPU is directly executed on the Ascend platform, a large number of tasks will introduce considerable overhead during core startup and initialization, affecting the operator performance.<br />
+Therefore, the core allocation logic needs to be modified based on the Ascend platform features. The most recommended method is to <strong>fix the number of cores to the number of physical cores of the hardware</strong> and perform more detailed data block division within the cores.</p>
+<ul class="simple">
+<li><p>For pure vector operators, the number of cores is equal to the <strong>number of vector cores</strong>.</p></li>
+<li><p>For CV fusion operators, the number of cores is equal to the <strong>number of cube cores</strong> (usually half of the number of vector cores). During operator execution, vector cores are called at a ratio of 1:2.</p></li>
+</ul>
+<p>Generally, on an NPU card, a computing core (AI Core) consists of one cube core, with each cube core paired with two vector cores. So you can obtain the <strong>number of vector cores(vectorcore_num)</strong> and <strong>number of cube cores(aicore_num)</strong> through the following interfaces:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">triton.runtime.driver</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">driver</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+
+<span class="n">device</span> <span class="o">=</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">current_device</span><span class="p">()</span>
+<span class="n">properties</span> <span class="o">=</span> <span class="n">driver</span><span class="o">.</span><span class="n">active</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_device_properties</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+<span class="n">vectorcore_num</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;num_vectorcore&quot;</span><span class="p">]</span>
+<span class="n">aicore_num</span> <span class="o">=</span> <span class="n">properties</span><span class="p">[</span><span class="s2">&quot;num_aicore&quot;</span><span class="p">]</span>
+
+</pre></div>
+</div>
+<p>According to the sample code, fix the number of cores, and then process task blocks in batches through an internal loop.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">NUM_CORE</span> <span class="o">=</span> <span class="n">vectorcore_num</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="p">(</span><span class="n">NUM_CORE</span> <span class="p">,)</span> 
+<span class="n">_attn_fwd</span><span class="p">[</span><span class="n">grid</span><span class="p">](</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Out</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">scale</span><span class="o">......</span><span class="p">)</span>
+
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_attn_fwd</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">V</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">Out</span><span class="p">,</span> <span class="n">acc</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span>  
+              <span class="o">......</span>
+              <span class="n">stride_qz</span><span class="p">,</span> <span class="n">stride_qh</span><span class="p">,</span> 
+              <span class="n">Z</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span> <span class="n">H</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+              <span class="n">N_CTX</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+              <span class="n">HEAD_DIM</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+              <span class="n">BLOCK_M</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+              <span class="n">BLOCK_N</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+              <span class="n">STAGE</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span>
+              <span class="p">):</span>
+    <span class="c1"># Calculate the total number of tasks and flatten the three-dimensional tasks (Z, H, M) into a one-dimensional total number of tasks.</span>
+    <span class="n">NUM_BLOCKS_M</span> <span class="o">=</span> <span class="n">N_CTX</span> <span class="o">//</span> <span class="n">BLOCK_M</span>
+    <span class="n">NUM_BLOCKS</span> <span class="o">=</span> <span class="n">NUM_BLOCKS_M</span> <span class="o">*</span> <span class="n">Z</span> <span class="o">*</span> <span class="n">H</span>
+
+    <span class="c1"># Each core selects the task to be processed based on its own identifier.</span>
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Unique ID of the current core.</span>
+    <span class="n">NUM_CORE</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">num_programs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># Obtain the total number of cores that are started.</span>
+    <span class="c1"># Loop rule: range(pid, NUM_BLOCKS, NUM_CORE) implements step-based task allocation.</span>
+    <span class="c1"># - Start value (pid): Each core obtains tasks from its own ID to avoid task overlapping.</span>
+    <span class="c1"># - Step length (NUM_CORE): The step is based on the total number of cores to ensure that tasks are evenly allocated to each core.</span>
+    <span class="k">for</span> <span class="n">block_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">NUM_BLOCKS</span><span class="p">,</span> <span class="n">NUM_CORE</span><span class="p">):</span>
+        <span class="c1"># Calculate the data offset of each task.</span>
+        <span class="c1"># [Core: Reverse restoration of one-dimensional task index to original multi-dimensional index.]</span>
+        <span class="c1"># block_idx is the one-dimensional task index after flattening. The original dimensions are restored through integer division and remainder.</span>
+        <span class="c1"># 1. Split the Z+H combined axis and M block axis.</span>
+        <span class="c1">#   - Exact division by NUM_BLOCKS_M: Extract the index (task_hz_idx) of the Z+H combined axis.</span>
+        <span class="c1">#   - Remainder of NUM_BLOCKS_M: Extract the block index (task_m_idx) of the M dimension.</span>
+        <span class="n">task_hz_idx</span> <span class="o">=</span> <span class="n">block_idx</span> <span class="o">//</span> <span class="n">NUM_BLOCKS_M</span>
+        <span class="n">task_m_idx</span> <span class="o">=</span> <span class="n">block_idx</span> <span class="o">%</span> <span class="n">NUM_BLOCKS_M</span>
+        <span class="c1"># 2. Split the Z+H combined axis into the original Z axis and H axis.</span>
+        <span class="c1">#   - Exact division by H: Restore the Z axis index (off_z).</span>
+        <span class="c1">#   - Remainder of H: Restore the H axis index (off_h).</span>
+        <span class="n">off_z</span> <span class="o">=</span> <span class="n">task_hz_idx</span> <span class="o">//</span> <span class="n">H</span>
+        <span class="n">off_h</span> <span class="o">=</span> <span class="n">task_hz_idx</span> <span class="o">%</span> <span class="n">H</span>
+        <span class="c1"># 3. Calculate the data offset: Locate the start position of the corresponding data in the Q/K/V tensor based on the restored Z/H index.</span>
+        <span class="n">qvk_offset</span> <span class="o">=</span> <span class="n">off_z</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">tl</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">*</span> <span class="n">stride_qz</span> <span class="o">+</span> <span class="n">off_h</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">tl</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span> <span class="o">*</span> <span class="n">stride_qh</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="single-core-data-transfer">
+<h2>Single-Core Data Transfer<a class="headerlink" href="#single-core-data-transfer" title="Link to this heading"></a></h2>
+<section id="setting-the-proper-data-block-size-block-size">
+<h3>Setting the Proper Data Block Size (BLOCK SIZE)<a class="headerlink" href="#setting-the-proper-data-block-size-block-size" title="Link to this heading"></a></h3>
+<p>Take <strong>add_kernel</strong> as an example. The variables and operations determine the on-chip memory usage. You can change the value of <strong>BLOCK_SIZE</strong> to adjust the size of the data block in the loop and the size of the intermediate result. If the upper limit is exceeded, the expected usage size is displayed and an error is reported during operator compilation. To achieve the maximum compute-to-memory ratio, <strong>BLOCK_SIZE</strong> needs to be as large as possible without exceeding the on-chip space. You can set different <strong>BLOCK_SIZE</strong> values in advance by using <a class="reference internal" href="#triton-autotune">autotune</a> of Triton-Ascend. The optimal setting is automatically selected during running.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">triton.language</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tl</span>
+
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_kernel</span><span class="p">(</span><span class="n">x_ptr</span><span class="p">,</span> 
+               <span class="n">y_ptr</span><span class="p">,</span> 
+               <span class="n">out_ptr</span><span class="p">,</span> 
+               <span class="n">n</span><span class="p">,</span>  <span class="c1"># Total number of elements.</span>
+               <span class="n">BLOCK_SIZE</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>  <span class="c1"># Number of block elements.</span>
+               <span class="p">):</span> 
+    <span class="n">pid</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> 
+    <span class="n">NUM_CORE</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">num_programs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">NUM_BLOCKS</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">cdiv</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">block_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="n">NUM_BLOCKS</span><span class="p">,</span> <span class="n">NUM_CORE</span><span class="p">):</span>
+        <span class="n">block_start</span> <span class="o">=</span> <span class="n">block_idx</span> <span class="o">*</span> <span class="n">BLOCK_SIZE</span>
+        <span class="c1"># The block size is BLOCK_SIZE.</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="n">block_start</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BLOCK_SIZE</span><span class="p">)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">offsets</span> <span class="o">&lt;</span> <span class="n">n</span>
+        <span class="c1"># Load data of x and y to the on-chip memory.</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">x_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">y_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
+
+        <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr</span> <span class="o">+</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="aligning-the-size-of-the-tail-axis-of-the-tensor">
+<h3>Aligning the Size of the Tail Axis of the Tensor<a class="headerlink" href="#aligning-the-size-of-the-tail-axis-of-the-tensor" title="Link to this heading"></a></h3>
+<p>[Description] For VV operators, if the Vector core needs to be called for computation, the UB of the Ascend hardware requires that the size of the tail axis of the tensor be divisible by 32 bytes. For CV operators, if the Vector core and Cube core need to be called for computation, the size of the tail axis of the tensor must be divisible by 512 bytes. If the tail axis length is insufficient, the tail axis length will be automatically padded. Under this premise, the performance of operations with the shape of (2048,3) and (2048,1) tensors in the model deteriorates significantly due to automatic padding. In this case, you can perform the transpose operation to convert the alignment axis to a lower dimension until the store operation is performed, avoiding automatic padding and optimizing the computing speed. In addition, the transpose operation is also affected by the automatic padding rule. Therefore, special skills are required to avoid padding. The following is a tip for &quot;borrowing axis for transpose&quot;, which is applicable to the scenario where <strong>tensor.numel() % 256Byte == 0</strong>:</p>
+<ul class="simple">
+<li><p>Note: VV operators indicate that only Vector Core is used during operator computation. CV operators indicate that both AI Core and Vector Core are used during operator computation.</p></li>
+<li><p>Example</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># conv_state = tensor([2048, 3], bfloat16)</span>
+<span class="n">conv_state</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">conv_state_ptr</span> <span class="o">+</span> <span class="n">conv_batch_offs</span> <span class="o">*</span> <span class="n">conv_batch_stride</span> <span class="o">+</span> <span class="n">doffs</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2048</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span> <span class="c1"># It is considered as the 1D tensor load. In this case, numel is aligned and no padding is performed.</span>
+<span class="n">conv_state_T</span> <span class="o">=</span> <span class="n">conv_state</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">16</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">trans</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="mi">128</span><span class="p">)</span><span class="o">.</span><span class="n">trans</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="mi">2048</span><span class="p">,)</span> <span class="c1"># The long axis (2048) is split into an aligned axis (16) and lent to the short axis (3) to align the two axes.</span>
+</pre></div>
+</div>
+</section>
+<section id="transferring-data-to-the-ub-and-then-selecting-the-target-value-from-the-ub">
+<h3>Transferring Data to the UB and Then Selecting the Target Value from the UB<a class="headerlink" href="#transferring-data-to-the-ub-and-then-selecting-the-target-value-from-the-ub" title="Link to this heading"></a></h3>
+<p>[Description] In the discrete scenario of the NPU, data can be transferred to the UB and then the target value can be selected from <strong>share</strong>.</p>
+<ul class="simple">
+<li><p>Example</p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="gu">@triton.jit</span>
+def pick_kernel(
+<span class="w"> </span>       x_ptr,
+<span class="w"> </span>       idx_ptr,
+<span class="w"> </span>       y_ptr,
+<span class="w"> </span>       stride_x,
+<span class="w"> </span>       stride_idx,
+<span class="w"> </span>       stride_y,
+<span class="w"> </span>       M: tl.constexpr,
+<span class="w"> </span>       N: tl.constexpr
+):
+<span class="w"> </span>   pid = tl.program_id(0)
+<span class="w"> </span>   rn = tl.arange(0, N)
+
+<span class="w"> </span>   idx = tl.load(idx_ptr + rn * stride_idx)
+<span class="w"> </span>   mask = idx &lt; M
+
+<span class="w"> </span>   # the original code
+<span class="w"> </span>   # val = tl.load(x_ptr + idx * stride_x, mask=mask)
+<span class="w"> </span>   # the modified code
+<span class="w"> </span>   rm = tl.arange(0, M)
+<span class="w"> </span>   x_shared = tl.load(x_ptr + rm * stride_x)  # [M]
+<span class="w"> </span>   val = tl.gather(x_shared, idx, 0)
+
+<span class="w"> </span>   tl.store(y_ptr + rn * stride_y, val, mask=mask)
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Performance analysis and comparison before and after optimization</p></li>
+</ul>
+<p>You can use the msProf tool to execute the test case to obtain the <strong>PROF_</strong><em>*</em> folder, which contains the <strong>op_summary_</strong><em>*</em><strong>.csv</strong> file. This file can be used to analyze the pipeline. Note: <em>*</em> indicates the timestamp. For details, see the <a class="reference internal" href="debug_guide/profiling.html"><span class="std std-doc">performance data collection methods</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p></p></th>
+<th class="head text-left"><p>Op Name</p></th>
+<th class="head text-left"><p>aiv_mte2_time(us)</p></th>
+<th class="head text-left"><p>aiv_mte2_ratio</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Unoptimized</p></td>
+<td class="text-left"><p>pick_kernel</p></td>
+<td class="text-left"><p>0.686</p></td>
+<td class="text-left"><p>0.008</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Optimized</p></td>
+<td class="text-left"><p>pick_kernel</p></td>
+<td class="text-left"><p>1.041</p></td>
+<td class="text-left"><p>0.066</p></td>
+</tr>
+</tbody>
+</table>
+<p>According to the data in the table, the values of <strong>aiv_mte2_time(us)</strong> and <strong>aiv_mte2_ratio</strong> before and after the optimization are greatly different. The optimization solution first transfers most of the data to the UB, reducing the number of times that small batches of data are transferred to the UB through the L2 and the total time for transferring data to the UB through the L2.</p>
+</section>
+<section id="parallel-storage-and-computation">
+<h3>Parallel Storage and Computation<a class="headerlink" href="#parallel-storage-and-computation" title="Link to this heading"></a></h3>
+<p>Triton-Ascend supports two data processing modes: serial storage and computation and parallel storage and computation.</p>
+<p>Serial storage and computation: Data is first transferred from the global memory to the on-chip memory, and then the next batch of data is transferred after the computation is complete. This mode has a significant idle waiting time, and the efficiency is low.</p>
+<p>Parallel storage and computation: Computing is performed when the first batch of data is transferred to the on-chip memory. Then, the second batch of data is transferred, and the &quot;transfer + compute&quot; pipeline operation is formed, significantly improving the overall throughput.</p>
+<p>The key to implementing parallel storage and computation is to properly design the data tiling policy so that the data required for the next phase can be prepared in advance during the compute of the current batch of data, thereby implementing parallelization of data transfer and computing.
+Currently, the compiler is configured with <strong>multiBuffer</strong> set to <strong>True</strong> by default, and the parallel storage and computation are supported by default.</p>
+</section>
+<section id="tiling-optimization">
+<h3>Tiling Optimization<a class="headerlink" href="#tiling-optimization" title="Link to this heading"></a></h3>
+<p>Before the AI Core performs computation, data needs to be transferred to the on-chip memory. The on-chip memory space is usually much smaller than the total data volume to be processed by the AI Core. For example, the on-chip memory capacity of Atlas 800T/I A2 is 192 KB. After doublebuffer is enabled by default, the capacity is reduced to half of the original capacity. Therefore, data needs to be tiled during operator computation, and only a small part of the data is loaded and processed each time.</p>
+<ul class="simple">
+<li><p>Example</p></li>
+</ul>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="gu">@libentry()</span>
+<span class="gu">@triton.autotune(configs=runtime.get_tuned_config(&quot;masked_fill&quot;), key=[&quot;N&quot;])</span>
+<span class="gu">@triton.jit</span>
+<span class="gd">- def masked_fill_kernel(inp, expand_mask, value, out, N, BLOCK_SIZE: tl.constexpr):</span>
+<span class="gi">+ def masked_fill_kernel(inp, expand_mask, value, out, N, BLOCK_SIZE: tl.constexpr, BLOCK_SIZE_SUB: tl.constexpr):</span>
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="gi">+   base_offset = pid * BLOCK_SIZE</span>
+<span class="w"> </span>   
+<span class="gi">+   # Calculate the total number of blocks that need to be processed</span>
+<span class="gi">+   num_sub_blocks = BLOCK_SIZE // BLOCK_SIZE_SUB</span>
+<span class="w"> </span>   
+<span class="gi">+   # Loop processing each sub block</span>
+<span class="gi">+   for sub_block_idx in range(num_sub_blocks):</span>
+<span class="gi">+       # Calculate the offset of the current sub block</span>
+<span class="gi">+       sub_offset = base_offset + sub_block_idx * BLOCK_SIZE_SUB</span>
+<span class="gi">+       offsets = sub_offset + tl.arange(0, BLOCK_SIZE_SUB)</span>
+<span class="gd">-       offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)</span>
+<span class="w"> </span>       mask = offsets &lt; N
+<span class="w"> </span>       # Load input and mask
+<span class="w"> </span>       input_vals = tl.load(inp + offsets, mask=mask, other=0)
+<span class="w"> </span>       fill_mask_vals = tl.load(expand_mask + offsets, mask=mask, other=0).to(tl.int1)
+<span class="w"> </span>   
+<span class="w"> </span>       # Write the original input first
+<span class="w"> </span>       tl.store(out + offsets, input_vals, mask=mask)
+<span class="w"> </span>
+<span class="w"> </span>       # Overlay and write value at the position that needs to be filled
+<span class="gd">-       value_to_write = tl.full([BLOCK_SIZE], value, dtype=input_vals.dtype)</span>
+<span class="gi">+       value_to_write = tl.full([BLOCK_SIZE_SUB], value, dtype=input_vals.dtype)</span>
+<span class="w"> </span>       overwrite_vals = tl.where(fill_mask_vals, value_to_write, tl.load(out + offsets, mask=mask, other=0))
+<span class="w"> </span>       tl.store(out + offsets, overwrite_vals, mask=mask)
+</pre></div>
+</div>
+</section>
+<section id="triton-autotune">
+<h3>Triton Autotune<a class="headerlink" href="#triton-autotune" title="Link to this heading"></a></h3>
+<p>In tiling block optimization, the values of block parameters such as <strong>BLOCK_SIZE</strong> and <strong>BLOCK_SIZE_SUB</strong> directly affect the operator performance. However, manually debugging parameter combinations is inefficient and it is difficult to find the optimal values. triton.autotune is an autotune tool provided by the Triton framework. It can traverse preset parameter configurations, compare the performance of different parameter configurations, and automatically select the optimal parameter combination. It is the core auxiliary means of tiling optimization.</p>
+<ul>
+<li><p>Core functions
+Automatically traversal of the parameter space: Test the performance of different values of block parameters of the constexpr type such as <strong>BLOCK_SIZE</strong> and <strong>BLOCK_SIZE_SUB</strong> in batches.
+Performance benchmark comparison: Select the optimal parameters that adapt to the current hardware based on the operator execution duration.
+Tuning result caching: The optimal configuration after tuning is cached. The optimal configuration is reused when the operator is called, avoiding repeated tuning.</p></li>
+<li><p>Simple example</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import triton.language as tl
+
+<span class="gu">@triton.autotune(</span>
+configs=[ # List of parameter configurations to be tested. The candidate parameter values must be powers of 2.
+<span class="w"> </span>       triton.Config({&#39;BLOCK_SIZE&#39;: 128}),
+<span class="w"> </span>       triton.Config({&#39;BLOCK_SIZE&#39;: 256}),
+<span class="w"> </span>       triton.Config({&#39;BLOCK_SIZE&#39;: 512}),
+<span class="w"> </span>   ],
+<span class="w"> </span>   key=[&#39;n_elements&#39;], # Tune dimension: input dimension on which the parameter value depends.
+)
+<span class="gu">@triton.jit</span>
+def add_kernel(x_ptr, y_ptr, output_ptr, n_elements, BLOCK_SIZE: tl.constexpr):
+<span class="w"> </span>   pid = tl.program_id(axis=0)
+<span class="w"> </span>   block_start = pid * BLOCK_SIZE
+<span class="w"> </span>   offsets = block_start + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; n_elements
+
+<span class="w"> </span>   x = tl.load(x_ptr + offsets, mask=mask)
+<span class="w"> </span>   y = tl.load(y_ptr + offsets, mask=mask)
+<span class="w"> </span>   output = x + y
+<span class="w"> </span>   tl.store(output_ptr + offsets, output, mask=mask)
+</pre></div>
+</div>
+</li>
+<li><p>Note: You can set the following environment variables to print the optimal parameter information.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>export TRITON_PRINT_AUTOTUNING=1
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="how-do-i-avoid-ub-overflow-on-the-npu">
+<h3>How Do I Avoid UB Overflow on the NPU?<a class="headerlink" href="#how-do-i-avoid-ub-overflow-on-the-npu" title="Link to this heading"></a></h3>
+<p>[Description] On the NPU, the UB or L1 size has an upper limit. When this error occurs, reduce the amount of data transferred at a time and use the for loop to process long sequences.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>E triton.compiler. errors.MLIRCompilationError:
+E ///--------------------- [ERROR][Triton][BEG]-------------------------
+E [ConvertLinalgRToBinary] encounters error:
+E loc(&quot;/tmp/tmpsb6qkdih/kernel.ttadapter.mlir&quot;:2:1): error: Failed to run BishengHIR pipeline
+E
+E loc(&quot;/tmp/tmpsb6qkdih/kernel.ttadapter.mlir&quot;:3:3): error: ub overflow, requires 3072256 bits while 1572864 bits available! (possible reason
+large or block number is more than what user expect due to multi-buffer feature is enabled and some ops need extra local buffer. )
+</pre></div>
+</div>
+<p>[Note] The UB size of the A2 series products is 192 KB (1,572,864 bits).</p>
+</section>
+</section>
+<section id="single-core-data-computation">
+<h2>Single-Core Data Computation<a class="headerlink" href="#single-core-data-computation" title="Link to this heading"></a></h2>
+<section id="r-d-goals">
+<h3>R&amp;D Goals<a class="headerlink" href="#r-d-goals" title="Link to this heading"></a></h3>
+<p>Implement basic data operation operators (such as addition, subtraction, multiplication, division, activation functions, and simple matrix element operations) on the Ascend NPU single core. Ensure that operators are efficiently executed on a single core, laying a foundation for subsequent multi-core parallel processing and distributed expansion.</p>
+</section>
+<section id="development-procedure">
+<h3>Development Procedure<a class="headerlink" href="#development-procedure" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Determine the operator function.
+-Determine the shapes and data types (such as float16, float32, and int32) of the input and output tensors.
+-Check whether broadcast and boundary processing are required.</p></li>
+<li><p>Write kernel functions.
+Single-kernel computation corresponds to block-level data processing.<br />
+Single-kernel data computation example: vector addition</p></li>
+</ol>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span><span class="gu">@triton.jit</span>
+def add_kernel(x_ptr, # Pointer to first input vector.
+<span class="w"> </span>   y_ptr, # Pointer to second input vector.
+<span class="w"> </span>   output_ptr, # Pointer to output vector.
+<span class="w"> </span>   n_elements, # Size of the vector.
+<span class="w"> </span>   BLOCK_SIZE: tl.constexpr, # Number of elements each program should process.
+<span class="w"> </span>   # NOTE: constexpr so it can be used as a shape value.
+):
+<span class="w"> </span>   pid = tl.program_id(axis=0) # We use a 1D launch grid so axis is 0.
+<span class="w"> </span>   block_start = pid * BLOCK_SIZE
+<span class="w"> </span>   offsets = block_start + tl.arange(0, BLOCK_SIZE)
+<span class="w"> </span>   mask = offsets &lt; n_elements
+<span class="w"> </span>   x = tl.load(x_ptr + offsets, mask=mask)
+<span class="w"> </span>   y = tl.load(y_ptr + offsets, mask=mask)
+<span class="w"> </span>   output = x + y
+<span class="w"> </span>   tl.store(output_ptr + offsets, output, mask=mask)
+</pre></div>
+</div>
+<p>Calling:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>def add(x: torch.Tensor, y: torch.Tensor):
+<span class="w"> </span>  output = torch.empty_like(x)
+<span class="w"> </span>  n_elements = output.numel()
+<span class="w"> </span>  grid = lambda meta: (triton.cdiv(n_elements, meta[&#39;BLOCK_SIZE&#39;]), )
+<span class="w"> </span>  add_kernel[grid](x, y, output, n_elements, BLOCK_SIZE=1024)
+<span class="w"> </span>  return output
+</pre></div>
+</div>
+<p>Use the above function to compute <strong>element-wise sum</strong> of two torch.tensor objects and test its correctness.</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>torch.manual_seed(0)
+size = 98432
+x = torch.rand(size, device=&#39;npu&#39;)
+y = torch.rand(size, device=&#39;npu&#39;)
+output_torch = x + y
+output_triton = add(x, y)
+print(output_torch)
+print(output_triton)
+print(f&#39;The maximum difference between torch and triton is &#39;
+f&#39;{torch.max(torch.abs(output_torch - output_triton))}&#39;)
+# Out:
+# tensor([1.3713, 1.3076, 0.4940, ..., 0.6724, 1.2141, 0.9733], device=&#39;npu&#39;)  
+# tensor([1.3713, 1.3076, 0.4940, ..., 0.6724, 1.2141, 0.9733], device=&#39;npu&#39;)  
+# The maximum difference between torch and triton is 0.0
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Key points of single-kernel computation</p></li>
+</ol>
+<p>-Block-level data processing: Each computing block is responsible for a small segment of data, ensuring parallelism.</p>
+<p>-Boundary check: Use <strong>mask</strong> or <strong>if (tid &lt; N)</strong> to avoid out-of-bounds access.</p>
+<p>-Block size selection: Properly set the block and grid.</p>
+<ol class="arabic simple" start="4">
+<li><p>Performance points
+(1) Memory access optimization
+-Ensure sequential access.
+-Use the aligned stride to avoid cross-row/cross-column jump access.
+-Align the data block size to the 32-byte boundary.
+Ensure that the input and output buffers are aligned during allocation to avoid memory access performance deterioration.
+Example:</p></li>
+</ol>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>BLOCK_SIZE = 256 # 256 x 4 bytes = 1024 bytes, which are well-aligned.
+
+<span class="gu">@triton.jit</span>
+def vec_add_kernel(X, Y, Z, N,
+<span class="w"> </span>                 BLOCK_SIZE: tl.constexpr):
+<span class="w"> </span>  pid = tl.program_id(axis=0)
+
+<span class="w"> </span>  # Compute the index range of the current block.
+<span class="w"> </span>  offsets = pid * BLOCK_SIZE + tl.arange(0, BLOCK_SIZE)
+
+<span class="w"> </span>  # The mask is used to prevent out-of-bounds.
+<span class="w"> </span>  mask = offsets &lt; N
+
+<span class="w"> </span>  # Contiguous memory access: The offsets are contiguous.
+<span class="w"> </span>  x = tl.load(X + offsets, mask=mask)
+<span class="w"> </span>  y = tl.load(Y + offsets, mask=mask)
+
+<span class="w"> </span>  z = x + y
+
+<span class="w"> </span>  # Contiguous writeback
+<span class="w"> </span>  tl.store(Z + offsets, z, mask=mask)
+
+
+def vec_add(x, y):
+<span class="w"> </span>  assert x.numel() == y.numel()
+<span class="w"> </span>  N = x.numel()
+
+<span class="w"> </span>  # Allocate aligned memory. (PyTorch is aligned to 64 bytes by default.)
+<span class="w"> </span>  z = torch.empty_like(x)
+
+<span class="w"> </span>  # grid: Each block processes BLOCK_SIZE elements.
+<span class="w"> </span>  grid = lambda meta: (triton.cdiv(N, meta[&#39;BLOCK_SIZE&#39;]),)
+
+<span class="w"> </span>  vec_add_kernel[grid](x, y, z, N, BLOCK_SIZE=BLOCK_SIZE)
+
+<span class="w"> </span>  return z
+</pre></div>
+</div>
+<p>(2) Sub-block division
+-Divide a large matrix into small blocks. Each block is computed in the UB.
+-Sub-block division should ensure both memory access continuity and computing unit utilization.
+Example:</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>BLOCK_M = 64   # Each block processes 64 rows.
+BLOCK_N = 64   # Each block processes 64 columns.
+BLOCK_K = 32   # Internal dimension is accumulated.
+
+<span class="gu">@triton.jit</span>
+def matmul_kernel(
+<span class="w"> </span>  A, B, C,
+<span class="w"> </span>  M, N, K,
+<span class="w"> </span>  stride_am, stride_ak,
+<span class="w"> </span>  stride_bk, stride_bn,
+<span class="w"> </span>  stride_cm, stride_cn,
+<span class="w"> </span>  BLOCK_M: tl.constexpr, BLOCK_N: tl.constexpr, BLOCK_K: tl.constexpr
+):
+<span class="w"> </span>  pid_m = tl.program_id(0)  # ID of the block in the M direction.
+<span class="w"> </span>  pid_n = tl.program_id(1)  # ID of the block in the N direction.
+
+<span class="w"> </span>  # Start coordinates of the current block.
+<span class="w"> </span>  offs_m = pid_m * BLOCK_M + tl.arange(0, BLOCK_M)
+<span class="w"> </span>  offs_n = pid_n * BLOCK_N + tl.arange(0, BLOCK_N)
+<span class="w"> </span>  offs_k = tl.arange(0, BLOCK_K)
+
+<span class="w"> </span>  # Initialize accumulators.
+<span class="w"> </span>  acc = tl.zeros((BLOCK_M, BLOCK_N), dtype=tl.float32)
+
+<span class="w"> </span>  # Compute blocks in the loop.
+<span class="w"> </span>  for k in range(0, K, BLOCK_K):
+<span class="w"> </span>      a = tl.load(
+<span class="w"> </span>          A + (offs_m[:, None] * stride_am + (offs_k[None, :] + k) * stride_ak),
+<span class="w"> </span>          mask=(offs_m[:, None] &lt; M) &amp; (offs_k[None, :] + k &lt; K),
+<span class="w"> </span>          other=0.0
+<span class="w"> </span>      )
+<span class="w"> </span>      b = tl.load(
+<span class="w"> </span>          B + ((offs_k[:, None] + k) * stride_bk + offs_n[None, :] * stride_bn),
+<span class="w"> </span>          mask=(offs_k[:, None] + k &lt; K) &amp; (offs_n[None, :] &lt; N),
+<span class="w"> </span>          other=0.0
+<span class="w"> </span>      )
+<span class="w"> </span>      acc += tl.dot(a, b)
+
+<span class="w"> </span>  # Write back the result.
+<span class="w"> </span>  c = C + (offs_m[:, None] * stride_cm + offs_n[None, :] * stride_cn)
+<span class="w"> </span>  tl.store(c, acc, mask=(offs_m[:, None] &lt; M) &amp; (offs_n[None, :] &lt; N))
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,740 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>架构设计与核心特性 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">架构设计与核心特性</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/triton-ascend/docs/zh/architecture_design_and_core_features.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>架构设计与核心特性<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<section id="id2">
+<h2>1.逻辑架构<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p><img alt="图像" src="../../../../_images/architectural_diagram1.png" />
+<strong>Triton-Ascend 架构说明</strong></p>
+<p><strong>核心组件：</strong></p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Ascend</span> <span class="pre">language</span> <span class="pre">extension</span></code></strong>：适配 Ascend 的 Triton 语言扩展</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">compiler</span></code></strong>：适配 Ascend 的 Triton 编译器</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">driver</span></code></strong>：适配 Ascend 的设备驱动接口</p></li>
+</ul>
+<p><strong>组件功能：</strong></p>
+<ul>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Ascend</span> <span class="pre">language</span> <span class="pre">extension</span></code></strong><br />
+在标准 Triton 语言基础上，引入针对 Ascend NPU 架构的语法与语义扩展。</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">compiler</span></code></strong><br />
+接收来自上层 Triton compiler 生成的中间表示文件 <code class="docutils literal notranslate"><span class="pre">TTIR</span></code>（Triton IR），执行一系列适配昇腾硬件的转换。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Triton IR → Linalg IR → AscendNPU IR → triton_xxx_kernel.o
+</pre></div>
+</div>
+<p>Triton IR 转换为 Linalg IR，再经 BiSheng Compiler 生成面向 Ascend NPU 的可执行二进制文件  <code class="docutils literal notranslate"><span class="pre">triton_xxx_kernel.o</span></code>。</p>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">driver</span></code></strong><br />
+提供 Triton 运行时与 Ascend 软件栈（CANN）之间的对接能力， 加载由 BiSheng Compiler 生成的设备侧可执行内核 <code class="docutils literal notranslate"><span class="pre">triton_xxx_kernel.o</span></code> 。</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>2.代码结构<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>2.1 代码结构原则<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>本项目在标准 Triton 基础上，扩展支持华为 Ascend NPU（通过 CANN 软件栈）。整体设计遵循以下<strong>代码原则</strong>：</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>若修改与目标硬件无关</strong>（target independent），应保留在 <strong>Triton core</strong> 部分（如language、runtime的通用修改）；</p></li>
+<li><p><strong>若修改与 Ascend 硬件强相关</strong>（target affinitive），应放在 <strong>Triton-Ascend</strong> 中。</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="id5">
+<h3>2.2 目录结构与功能说明<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">include/</span></code> 和 <code class="docutils literal notranslate"><span class="pre">lib/</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>内容</strong>：包含针对 Ascend NPU 的 <strong>MLIR Passes</strong>、<strong>Dialects</strong>（方言）以及相关工具。</p></li>
+<li><p><strong>作用</strong>：用于在 MLIR 编译流程中表达和优化 Ascend 特定的计算图。</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">libdevice.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>内容</strong>：适配 Ascend NPU 的 <code class="docutils literal notranslate"><span class="pre">libdevice</span></code> 接口。</p></li>
+<li><p><strong>作用</strong>：提供适配 Ascend NPU 硬件的底层实现支持，供 Triton 算子调用。</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">backend/compiler.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>内容</strong>：<code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> 编译器主入口。</p></li>
+<li><p><strong>作用</strong>：将 Triton 高层 DSL 代码编译为可在 Ascend NPU 上执行的<strong>可执行二进制文件</strong>（如 <code class="docutils literal notranslate"><span class="pre">.o</span></code>文件）。</p></li>
+</ul>
+<p><strong><code class="docutils literal notranslate"><span class="pre">backend/driver.py</span></code></strong></p>
+<ul class="simple">
+<li><p><strong>内容</strong>：<code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> 驱动模块。</p></li>
+<li><p><strong>作用</strong>：加载并启动已编译的可执行二进制。</p></li>
+</ul>
+</section>
+</section>
+<section id="modules">
+<h2>3. Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h2>
+<section id="triton-core-enhancement">
+<h3>3.1 Triton core Enhancement<a class="headerlink" href="#triton-core-enhancement" title="Link to this heading"></a></h3>
+<section id="language-expansion">
+<h4>3.1.1 Language expansion<a class="headerlink" href="#language-expansion" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>序号</p></th>
+<th class="head text-left"><p>算子名称</p></th>
+<th class="head text-left"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>1</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.insert_slice(full,</span> <span class="pre">src,</span> <span class="pre">offsets,</span> <span class="pre">sizes,</span> <span class="pre">strides)</span></code></p></td>
+<td class="text-left"><p>按照指定的偏移量（offsets）、尺寸（sizes）和步幅（strides）参数，将一个张量插入到另一个张量中。<br><strong>返回值</strong>：目标张量。<br><strong>full</strong>：目标张量，源张量将被插入到此张量中。<br><strong>src</strong>：源张量。<br><strong>offsets</strong>：目标张量上的偏移量（整数元组）。<br><strong>sizes</strong>：源张量上的尺寸（整数元组）。<br><strong>strides</strong>：目标张量上的步幅（整数元组）。</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>2</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.extract_slice(full,</span> <span class="pre">offsets,</span> <span class="pre">sizes,</span> <span class="pre">strides)</span></code></p></td>
+<td class="text-left"><p>按照指定的偏移量（offsets）、尺寸（sizes）和步幅（strides）参数，从另一个张量中提取一个切片张量。<br><strong>返回值</strong>：切片张量。<br><strong>full</strong>：源张量，从此张量中提取切片。<br><strong>offsets</strong>：源张量上的偏移量（整数元组）。<br><strong>sizes</strong>：切片张量的尺寸（整数元组）。<br><strong>strides</strong>：源张量上的步幅（整数元组）。</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>3</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tl.get_element(source,</span> <span class="pre">offset)</span></code></p></td>
+<td class="text-left"><p>读取一个具有维度的张量，并返回指定偏移量处的单个元素。<br><strong>source</strong>：源张量。<br><strong>offset</strong>：元素提取位置的偏移量（整数元组）。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+<section id="triton-ascend">
+<h2>3.2 Triton-Ascend<a class="headerlink" href="#triton-ascend" title="Link to this heading"></a></h2>
+<section id="compiler-options">
+<h3>3.2.1 Compiler Options<a class="headerlink" href="#compiler-options" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>序号</p></th>
+<th class="head"><p>NPUOptions</p></th>
+<th class="head"><p>硬件平台</p></th>
+<th class="head"><p>用途</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>multibuffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune Option: Enable or disable ping-pong pipeline.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>enable_auto_bind_sub_block</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable auto-binding of sub-blocks.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>enable_hivm_auto_cv_balance</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable automatic CV balancing.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>sync_solver</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable the synchronization solver.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>unit_flag</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable the sync unit flag.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>inject_barrier_all</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable automatic injection of barriers for all operations.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>inject_block_all</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable automatic injection of blocks for all operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>limit_auto_multi_buffer_only_for_local_buffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Restrict automatic multi-buffering only to local buffers.</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>limit_auto_multi_buffer_of_local_buffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable automatic multi-buffering for local buffers.</p></td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
+<td><p>set_workspace_multibuffer</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable multi-buffering for the workspace.</p></td>
+</tr>
+<tr class="row-even"><td><p>11</p></td>
+<td><p>tile_mix_vector_loop</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable tiling for vector loops.</p></td>
+</tr>
+<tr class="row-odd"><td><p>12</p></td>
+<td><p>tile_mix_cube_loop</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable tiling for cube loops.</p></td>
+</tr>
+<tr class="row-even"><td><p>13</p></td>
+<td><p>disable_auto_inject_block_sync</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable automatic injection of block synchronizations.</p></td>
+</tr>
+<tr class="row-odd"><td><p>14</p></td>
+<td><p>stream</p></td>
+<td><p>NPU</p></td>
+<td><p>Optional: Inform the compiler about the NPU stream to use.</p></td>
+</tr>
+<tr class="row-even"><td><p>15</p></td>
+<td><p>enable_linearize</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable the linearization pass.</p></td>
+</tr>
+<tr class="row-odd"><td><p>16</p></td>
+<td><p>enable_nd2nz_on_vector</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option (CV-fused kernels only): Enable or disable the ND (n-dimensional) to NZ (non-zero) layout transformation.</p></td>
+</tr>
+<tr class="row-even"><td><p>17</p></td>
+<td><p>auto_blockify_size</p></td>
+<td><p>NPU</p></td>
+<td><p>Autotune option: Enable or disable AutoBlockify pass. It is ignored when TRITON_ALL_BLOCKS_PARALLEL is not set</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="simd-compiler">
+<h3>3.2.2 SIMD compiler<a class="headerlink" href="#simd-compiler" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>序号</p></th>
+<th class="head"><p>Pass</p></th>
+<th class="head"><p>目的</p></th>
+<th class="head"><p>IR 转换</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>triton-to-structured</p></td>
+<td><p>linearize</p></td>
+<td><p>ttir-&gt;ttir</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>triton-to-unstructured</p></td>
+<td><p>convert indirect axis to loop</p></td>
+<td><p>ttir-&gt;ttir</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>triton-to-linalg</p></td>
+<td><p>memory/reduction/view/creation/math/arith/linear algebra to linalgir</p></td>
+<td><p>ttir-&gt;linalgir</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>triton-to-other</p></td>
+<td><p>ttir-&gt;hivm/hfusion/llvm</p></td>
+<td><p>ttir-&gt;hivm/hfusion/llvm</p></td>
+</tr>
+</tbody>
+</table>
+<section id="tritontostructured">
+<h4>3.2.2.1 TritonToStructured<a class="headerlink" href="#tritontostructured" title="Link to this heading"></a></h4>
+<p>处理指针表达式和mask表达式中的整除取余，通过升维的方法，去除整除取余后重新生成load/store 等OP。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>功能</p></th>
+<th class="head"><p>局限性</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RewriteAddPtrOp</p></td>
+<td><p>分析 <code class="docutils literal notranslate"><span class="pre">tl.load</span></code>, <code class="docutils literal notranslate"><span class="pre">tl.store</span></code>等操作中的指针表达式 (<code class="docutils literal notranslate"><span class="pre">AddPtrOp</span></code>)。将原始的指针偏移计算分解并建模为包含各维度（轴）具体偏移信息的 <code class="docutils literal notranslate"><span class="pre">PtrState</span></code> 对象。例如，对于形如 <code class="docutils literal notranslate"><span class="pre">ptr</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">//</span> <span class="pre">1024</span> <span class="pre">*</span> <span class="pre">4096</span> <span class="pre">+</span> <span class="pre">x</span> <span class="pre">%</span> <span class="pre">1024</span> <span class="pre">*</span> <span class="pre">4</span> <span class="pre">+</span> <span class="pre">y</span></code> 的表达式，分析出 <code class="docutils literal notranslate"><span class="pre">x</span></code> 和 <code class="docutils literal notranslate"><span class="pre">y</span></code> 轴的贡献与关系。</p></td>
+<td><p>1. 所涉及的原始迭代轴（如<code class="docutils literal notranslate"><span class="pre">x</span></code>）必须能被分裂轴（如<code class="docutils literal notranslate"><span class="pre">1024</span></code>）整除。<br>2. 外部的 <code class="docutils literal notranslate"><span class="pre">XBLOCK</span></code> 大小必须是分裂轴<code class="docutils literal notranslate"><span class="pre">divisor</span></code>的整数倍或其约数。</p></td>
+</tr>
+<tr class="row-odd"><td><p>CreateAddpr</p></td>
+<td><p>根据分析得到的 <code class="docutils literal notranslate"><span class="pre">PtrState</span></code> 对象，重新构造一个新的 <code class="docutils literal notranslate"><span class="pre">AddPtrOp</span></code> 指针计算操作。新生成的指针表达式将消除原表达式中的整数除法 (<code class="docutils literal notranslate"><span class="pre">//</span></code>) 和取模 (<code class="docutils literal notranslate"><span class="pre">%</span></code>) 操作。</p></td>
+<td><p>依赖于 <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code> 成功生成的、合法的 <code class="docutils literal notranslate"><span class="pre">PtrState</span></code>。</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteLoadOp</p></td>
+<td><p>分析 <code class="docutils literal notranslate"><span class="pre">tl.load</span></code> 操作中的掩码 (<code class="docutils literal notranslate"><span class="pre">mask</span></code>) 表达式。将包含整除/取余的复杂掩码条件分解并建模为包含各维度边界信息的 <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> 对象。例如，对于 <code class="docutils literal notranslate"><span class="pre">mask</span> <span class="pre">=</span> <span class="pre">x</span> <span class="pre">//</span> <span class="pre">1024</span> <span class="pre">&lt;</span> <span class="pre">8</span> <span class="pre">and</span> <span class="pre">x</span> <span class="pre">%</span> <span class="pre">1024</span> <span class="pre">&lt;</span> <span class="pre">1024</span> <span class="pre">and</span> <span class="pre">y</span> <span class="pre">&lt;</span> <span class="pre">4</span></code>，分析出各维度的独立约束条件。</p></td>
+<td><p>1. 所涉及的原始迭代轴（如<code class="docutils literal notranslate"><span class="pre">x</span></code>）必须能被分裂轴（如<code class="docutils literal notranslate"><span class="pre">1024</span></code>）整除。<br>2. 外部的 <code class="docutils literal notranslate"><span class="pre">XBLOCK</span></code> 大小必须是分裂轴<code class="docutils literal notranslate"><span class="pre">divisor</span></code>的整数倍或其约数。</p></td>
+</tr>
+<tr class="row-odd"><td><p>BuildMask</p></td>
+<td><p>根据分析得到的 <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> 对象，重新构造一个新的掩码 (<code class="docutils literal notranslate"><span class="pre">mask</span></code>) 表达式。新掩码将消除原表达式中的整数除法 (<code class="docutils literal notranslate"><span class="pre">//</span></code>) 和取模 (<code class="docutils literal notranslate"><span class="pre">%</span></code>) 操作。</p></td>
+<td><p>仅处理由 <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code> 或 <code class="docutils literal notranslate"><span class="pre">RewriteStoreOp</span></code> 生成的 <code class="docutils literal notranslate"><span class="pre">MaskState</span></code>。无法处理任意复杂的、非规范化的掩码表达式。</p></td>
+</tr>
+<tr class="row-even"><td><p>CreateLoad</p></td>
+<td><p>使用由 <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code> 生成的新指针表达式和由 <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> 生成的新掩码表达式，重新创建（替换）原始的 <code class="docutils literal notranslate"><span class="pre">tl.load</span></code> 操作，完成指令重写。</p></td>
+<td><p>依赖于 <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>, <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code>, <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code>, <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> 等前置步骤均成功执行。</p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteStoreOp</p></td>
+<td><p>分析 <code class="docutils literal notranslate"><span class="pre">tl.store</span></code> 操作中的掩码 (<code class="docutils literal notranslate"><span class="pre">mask</span></code>) 表达式。其功能与 <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code> 类似，将包含整除/取余的复杂掩码条件分解并建模为 <code class="docutils literal notranslate"><span class="pre">MaskState</span></code> 对象。</p></td>
+<td><p>与 <code class="docutils literal notranslate"><span class="pre">RewriteLoadOp</span></code> 相同。</p></td>
+</tr>
+<tr class="row-even"><td><p>CreateStore</p></td>
+<td><p>使用由 <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code> 生成的新指针表达式和由 <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> 生成的新掩码表达式，重新创建（替换）原始的 <code class="docutils literal notranslate"><span class="pre">tl.store</span></code> 操作，完成指令重写。</p></td>
+<td><p>依赖于 <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code>, <code class="docutils literal notranslate"><span class="pre">CreateAddpr</span></code>, <code class="docutils literal notranslate"><span class="pre">RewriteStoreOp</span></code>, <code class="docutils literal notranslate"><span class="pre">BuildMask</span></code> 等前置步骤均成功执行。</p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteAtomicRWMOp</p></td>
+<td><p>处理原子读写修改操作（如 <code class="docutils literal notranslate"><span class="pre">atomic.add</span></code>, <code class="docutils literal notranslate"><span class="pre">atomic.max</span></code> 等）中的指针问题。</p></td>
+<td><p>通常继承与 <code class="docutils literal notranslate"><span class="pre">RewriteAddPtrOp</span></code> 相同的局限性。对于某些特殊的、非连续或条件性的原子操作模式可能不支持。</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteAtomicCASOp</p></td>
+<td><p>处理原子比较并交换操作 (<code class="docutils literal notranslate"><span class="pre">atomic.cas</span></code>) 中的指针线性化问题。分析其指针表达式，通过升维方法消除整除和取余操作，以匹配硬件原子指令的寻址要求。</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>RewriteWhile</p></td>
+<td><p>处理 <code class="docutils literal notranslate"><span class="pre">while</span></code> 循环体内的指针叠加操作。</p></td>
+<td><p>不支持循环体内包含条件分支 (<code class="docutils literal notranslate"><span class="pre">if</span></code>) 的复杂指针路径变换。</p></td>
+</tr>
+<tr class="row-even"><td><p>RewriteFor</p></td>
+<td><p>处理 <code class="docutils literal notranslate"><span class="pre">for</span></code> 循环体内的指针叠加操作。</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="tritontounstructured">
+<h4>3.2.2.2 TritonToUnstructured<a class="headerlink" href="#tritontounstructured" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>序号</p></th>
+<th class="head"><p>Pass / 转换器</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>discrete-mask-access-conversion</p></td>
+<td><p>将Triton中基于离散索引掩码（Discrete Mask）的内存访问模式（如<code class="docutils literal notranslate"><span class="pre">triton.language.load</span></code>带非连续mask）进行分析与转换，为后续将离散轴展开为循环做准备。该Pass识别出那些无法被后端硬件高效处理的、非规律性的或稀疏的访问模式。</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>triton-to-unstructured</p></td>
+<td><p>将经过<code class="docutils literal notranslate"><span class="pre">discrete-mask-access-conversion</span></code>识别出的、包含离散轴（Discrete Axes）的张量操作，转换为基于显式标量循环的标量访存。</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>bubble-up-operation</p></td>
+<td><p>主要对<code class="docutils literal notranslate"><span class="pre">extract</span> <span class="pre">op/extract_slice</span></code>顺序上移优化。这可以优化数据局部性，有些场景能消除转换后产生的不必要的循环，从而提升生成代码的执行效率。</p></td>
+</tr>
+</tbody>
+</table>
+<section id="discrete-mask-access-conversion">
+<h5>3.2.2.2.1 discrete-mask-access-conversion<a class="headerlink" href="#discrete-mask-access-conversion" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>转换器名称</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>DiscreteMaskStoreConversion</p></td>
+<td><p>首先进行mask分析，如果mask分析结果是非连续的，将原始的store操作转化为以下序列：<br>1. load（加载目标存储地址的内容）<br>2. select（根据mask挑选目标存储内容和待存储的value内容）<br>3. store（将select的结果存储回目标地址）</p></td>
+</tr>
+<tr class="row-odd"><td><p>DiscreteMaskLoadConversion</p></td>
+<td><p>首先进行mask分析，如果mask分析结果是非连续的，将原始的load操作转化为以下序列：<br>1. load（加载源tensor的所有内容）<br>2. select（根据mask挑选源tensor内容，被掩盖部分设置为other值）</p></td>
+</tr>
+<tr class="row-even"><td><p>DiscreteMaskAtomicAddConversion</p></td>
+<td><p>首先进行mask分析，如果mask分析结果是非连续的，将原始的atomic_add操作转化为以下序列：<br>1. select（根据mask挑选value的值，被掩盖部分设为0）<br>2. atomic_add（使用select后的结果重新生成atomic_add操作）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="triton-to-unstructured">
+<h5>3.2.2.2.2 triton-to-unstructured<a class="headerlink" href="#triton-to-unstructured" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>TritonToUnstructured Converters</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>UnstructuredMemAccessConverter&lt;triton::LoadOp&gt;</p></td>
+<td><p>将LoadOp转化为多重循环标量加载</p></td>
+</tr>
+<tr class="row-odd"><td><p>UnstructuredMemAccessConverter&lt;triton::StoreOp&gt;</p></td>
+<td><p>将StoreOp转化为多重循环标量存储</p></td>
+</tr>
+<tr class="row-even"><td><p>UnstructuredMemAccessConverter&lt;triton::AtomicRMWOp&gt;</p></td>
+<td><p>将AtomicRMWOp转化为多重循环标量Atomic操作</p></td>
+</tr>
+<tr class="row-odd"><td><p>UnstructuredMemAccessConverter&lt;triton::AtomicCASOp&gt;</p></td>
+<td><p>将AtomicCASOp转化为多重循环标量Atomic操作</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="bubble-up-operation">
+<h5>3.2.2.2.3 bubble-up-operation<a class="headerlink" href="#bubble-up-operation" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>转换器名称</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BubbleUpExtract&lt;tensor::ExtractOp&gt;</p></td>
+<td><p>extract op顺序上移优化，在某些场景可以避免产生不必要的循环</p></td>
+</tr>
+<tr class="row-odd"><td><p>BubbleUpExtract&lt;tensor::ExtractSliceOp&gt;</p></td>
+<td><p>extract op/extract_slice顺序上移优化，在某些场景可以避免产生不必要的循环</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="tritontolinalg">
+<h4>3.2.2.3 TritonToLinalg<a class="headerlink" href="#tritontolinalg" title="Link to this heading"></a></h4>
+<section id="triton-to-linalg">
+<h5>3.2.2.3.1 triton-to-linalg<a class="headerlink" href="#triton-to-linalg" title="Link to this heading"></a></h5>
+<p>TritonToLinalg converts ttir to linalg ir.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Converter</p></th>
+<th class="head"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>StoreConverter</p></td>
+<td><p>triton::StoreOp to memref::copy</p></td>
+</tr>
+<tr class="row-odd"><td><p>AddPtrConverter</p></td>
+<td><p>triton::AddPtrOp to memref::ReinterpretCast</p></td>
+</tr>
+<tr class="row-even"><td><p>GetProgramIDConverter</p></td>
+<td><p>triton::GetProgramIdOp to a param in functionOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>GetNumProgramsConverter</p></td>
+<td><p>triton::GetNumProgramsOp to a param in functionOp</p></td>
+</tr>
+<tr class="row-even"><td><p>LoadConverter</p></td>
+<td><p>triton::LoadOp to memref::copy and bufferization::ToTensorOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>AtomicRMWConverter</p></td>
+<td><p>triton::AtomicRMWOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-even"><td><p>AtomicCASConverter</p></td>
+<td><p>triton::AtomicCASOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MakeRangeConverter</p></td>
+<td><p>triton::MakeRangeOp to linalg::GenericOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SplatConverter</p></td>
+<td><p>triton::SplatOp to linalg::FillOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ClampFConverter</p></td>
+<td><p>triton::ClampFOp to tensor::EmptyOp, linalg::FillOp</p></td>
+</tr>
+<tr class="row-even"><td><p>PreciseDivConverter</p></td>
+<td><p>triton::PreciseDivFOp to arith::DivFOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ArgMinConverter</p></td>
+<td><p>triton::ArgMinOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ArgMaxConverter</p></td>
+<td><p>triton::ArgMaxOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ReduceConverter</p></td>
+<td><p>triton::ReduceOp to linalg::ReduceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ScanConverter</p></td>
+<td><p>triton::ScanOp to func::CallOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ReshapeConverter</p></td>
+<td><p>triton::ReshapeOp to tensor::ReshapeOp</p></td>
+</tr>
+<tr class="row-even"><td><p>ExpandDimsConverter</p></td>
+<td><p>triton::ExpandDimsOp to tensor::ExpandShapeOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>BroadcastConverter</p></td>
+<td><p>triton::BroadcastOp to linalg::BroadcastOp</p></td>
+</tr>
+<tr class="row-even"><td><p>DenseConstantConverter</p></td>
+<td><p>arith::ConstantOp to linalg::FillOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>ExternElementwiseClOpConverter</p></td>
+<td><p>triton::ExternElementwiseOp to linalg::MapOp</p></td>
+</tr>
+<tr class="row-even"><td><p>TritonMulhiuiConverter</p></td>
+<td><p>triton::MulhiUIOp to arith::MulSIExtendedOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>TritonPreciseSqrtConverter</p></td>
+<td><p>triton::PreciseSqrtOp to math::SqrtOp</p></td>
+</tr>
+<tr class="row-even"><td><p>AdvanceConverter</p></td>
+<td><p>triton::AdvanceOp to memref::ReinterpretCastOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>TransposeConverter</p></td>
+<td><p>triton::TransOp to linalg::TransposeOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SplitConverter</p></td>
+<td><p>triton::SplitOp to tensor::ExtractSliceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>JoinConverter</p></td>
+<td><p>triton::JoinOp to tensor::InsertSliceOp</p></td>
+</tr>
+<tr class="row-even"><td><p>CatConverter</p></td>
+<td><p>triton::CatOp to tensor::InsertSliceOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>BitcastConverter</p></td>
+<td><p>triton::BitcastOp to arith::BitcastOp</p></td>
+</tr>
+<tr class="row-even"><td><p>LoopConverter&lt;scf::ForOp&gt;</p></td>
+<td><p>scf::ForOp to scf::ForOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>LoopConverter&lt;scf::WhileOp&gt;</p></td>
+<td><p>scf::WhileOp to scf::WhileOp</p></td>
+</tr>
+<tr class="row-even"><td><p>YieldConverter</p></td>
+<td><p>scf::YieldOp to scf::YieldOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>GatherConverter</p></td>
+<td><p>triton::GatherOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-even"><td><p>GatherLoadConverter</p></td>
+<td><p>triton::GatherLoadOp to scf::ForOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>DeviceAssertConverter</p></td>
+<td><p>triton::AssertOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-even"><td><p>DevicePrintConverter</p></td>
+<td><p>triton::PrintOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MatmulConverter</p></td>
+<td><p>triton::DotOp to linalg::MatmulOp</p></td>
+</tr>
+<tr class="row-even"><td><p>SortOpConverter</p></td>
+<td><p>triton::SortOp to func::FuncOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>DotScaledConverter</p></td>
+<td><p>triton::DotScaledOp to linalg::MatmulOp</p></td>
+</tr>
+<tr class="row-even"><td><p>PtrToIntConverter</p></td>
+<td><p>triton::PtrToIntOp</p></td>
+</tr>
+<tr class="row-odd"><td><p>MakeTensorPtrConverter</p></td>
+<td><p>triton::PtrToIntOp to arith::IndexCastOp</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="other-passes">
+<h4>3.2.2.4 other passes<a class="headerlink" href="#other-passes" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Pass名称</p></th>
+<th class="head"><p>功能描述</p></th>
+<th class="head"><p>核心转换器</p></th>
+<th class="head"><p>转换器描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>triton-to-annotation</p></td>
+<td><p>处理Ascend NPU特有的编译提示指令 (<code class="docutils literal notranslate"><span class="pre">tl.compile_hint</span></code>)，将其转换为后端的Annotation方言，用于指导后续的硬件特定优化或资源配置。</p></td>
+<td><p>TritonAnnotationConversion</p></td>
+<td><p>将 <code class="docutils literal notranslate"><span class="pre">triton::AnnotationOp</span></code> 转换为 <code class="docutils literal notranslate"><span class="pre">annotation::MarkOp</span></code>，实现高级编译提示信息向底层注释标记的传递。</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton-to-hfusion</p></td>
+<td><p>将Triton中的<code class="docutils literal notranslate"><span class="pre">TTIR</span></code>转换为Ascend NPU硬件加速器<code class="docutils literal notranslate"><span class="pre">HFusion</span></code>方言中的对应操作</p></td>
+<td><p>TritonHistogramToHFusionConversion</p></td>
+<td><p>将 <code class="docutils literal notranslate"><span class="pre">triton::HistogramOp</span></code> 转换为 <code class="docutils literal notranslate"><span class="pre">hfusion::HistogramOp</span></code>，使能在NPU的专用硬件上高效执行。</p></td>
+</tr>
+<tr class="row-even"><td><p>triton-to-hivm</p></td>
+<td><p>处理Triton的块同步操作 (<code class="docutils literal notranslate"><span class="pre">tl.sync_block_all</span></code>, <code class="docutils literal notranslate"><span class="pre">tl.sync_block_set</span></code>, <code class="docutils literal notranslate"><span class="pre">tl.sync_block_wait</span></code>)，将其转换为Ascend NPU的<code class="docutils literal notranslate"><span class="pre">HIVM</span></code>方言中的跨核心同步指令。这些指令用于管理多核流水线中的同步与数据依赖，是流水优化的关键。</p></td>
+<td><p>TritonCustomOpToHIVMSyncOpConversion</p></td>
+<td><p>实现Triton同步指令到HIVM同步指令的转换：<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_all</span></code>：全局块同步<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_set</span></code>：设置同步点<br>• <code class="docutils literal notranslate"><span class="pre">sync_block_wait</span></code>：等待同步点</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton-to-llvm</p></td>
+<td><p>将Triton中的内联汇编操作 (<code class="docutils literal notranslate"><span class="pre">tl.inline_assembly</span></code>) 转换为LLVM方言的内联汇编，并最终映射为Ascend NPU的CCE硬件固有函数（Intrinsics）</p></td>
+<td><p>ElementwiseInlineAsmOpConversion</p></td>
+<td><p>将 <code class="docutils literal notranslate"><span class="pre">triton::ElementwiseInlineAsmOp</span></code> 转换为 <code class="docutils literal notranslate"><span class="pre">LLVM::InlineAsmOp</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="ascend-affinitive-operators">
+<h3>3.2.3 Ascend affinitive Operators<a class="headerlink" href="#ascend-affinitive-operators" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>序号</p></th>
+<th class="head"><p>Operator</p></th>
+<th class="head"><p>功能描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>tl.custom_op</p></td>
+<td><p>Ascend NPU扩展的自定义算子集，用于支持硬件特定的内存访问与数据搬运模式，例如：<br>• <code class="docutils literal notranslate"><span class="pre">index_select</span></code>: 基于索引选择数据<br>• <code class="docutils literal notranslate"><span class="pre">index_put</span></code>: 基于索引放置数据<br>• <code class="docutils literal notranslate"><span class="pre">gather_out_to_ub</span></code>: 将外部数据收集到Unified Buffer (UB)<br>• <code class="docutils literal notranslate"><span class="pre">scatter_ub_to_out</span></code>: 将UB中的数据分散输出<br>• <code class="docutils literal notranslate"><span class="pre">indirect_load</span></code>: 间接地址加载<br>• <code class="docutils literal notranslate"><span class="pre">indirect_store</span></code>: 间接地址存储</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>tl.compile_hint</p></td>
+<td><p>向编译器传递硬件特定的编译提示信息，用于指导后端优化策略、资源分配或内核配置。</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>tl.sync_block_wait(<code class="docutils literal notranslate"><span class="pre">sender,</span> <span class="pre">receiver,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>块同步等待操作。指定接收核 (<code class="docutils literal notranslate"><span class="pre">receiver</span></code>) 等待由发送核 (<code class="docutils literal notranslate"><span class="pre">sender</span></code>) 发出的事件信号 (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>)，用于管理跨核流水线中的数据依赖与执行顺序。</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>tl.sync_block_set(<code class="docutils literal notranslate"><span class="pre">sender,</span> <span class="pre">receiver,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>块同步设置操作。指定发送核 (<code class="docutils literal notranslate"><span class="pre">sender</span></code>) 向接收核 (<code class="docutils literal notranslate"><span class="pre">receiver</span></code>) 发出一个事件信号 (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>)，表明某个执行阶段或数据已准备就绪。</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>tl.sync_block_all(<code class="docutils literal notranslate"><span class="pre">mode,</span> <span class="pre">event_id</span></code>)</p></td>
+<td><p>全局块同步操作。根据指定的同步模式 (<code class="docutils literal notranslate"><span class="pre">mode</span></code>)，向所有相关的接收核广播一个事件信号 (<code class="docutils literal notranslate"><span class="pre">event_id</span></code>)，用于实现全核同步或特定模式的集体同步。</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

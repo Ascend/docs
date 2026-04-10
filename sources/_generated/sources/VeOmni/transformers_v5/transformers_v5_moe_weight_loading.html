@@ -1,0 +1,390 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Transformers v5 MoE Weight Loading &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Transformers v5 MoE Weight Loading</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/transformers_v5/transformers_v5_moe_weight_loading.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transformers-v5-moe-weight-loading">
+<h1>Transformers v5 MoE Weight Loading<a class="headerlink" href="#transformers-v5-moe-weight-loading" title="Link to this heading"></a></h1>
+<p>This note documents VeOmni MoE weight-loading expectations for <code class="docutils literal notranslate"><span class="pre">transformers&gt;=5.0.0</span></code>.</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<p>Transformers v5 introduced expert-dispatch integration points (<code class="docutils literal notranslate"><span class="pre">use_experts_implementation</span></code> and <code class="docutils literal notranslate"><span class="pre">ALL_EXPERTS_FUNCTIONS</span></code>).</p>
+<p>For VeOmni qwen3_moe transformers v5 path, we use a simpler path:</p>
+<ul class="simple">
+<li><p>patch experts behavior in generated modeling;</p></li>
+<li><p>call <code class="docutils literal notranslate"><span class="pre">veomni.ops.fused_moe_forward(...)</span></code> explicitly in the patched forward;</p></li>
+<li><p>keep <code class="docutils literal notranslate"><span class="pre">_moe_implementation</span></code> (<code class="docutils literal notranslate"><span class="pre">eager</span></code> or <code class="docutils literal notranslate"><span class="pre">fused</span></code>) as runtime selection.</p></li>
+</ul>
+</section>
+<section id="survey-qwen-moe-weight-formats">
+<h2>Survey: Qwen MoE Weight Formats<a class="headerlink" href="#survey-qwen-moe-weight-formats" title="Link to this heading"></a></h2>
+<p>Reference mapping from HF:</p>
+<ul class="simple">
+<li><p>https://github.com/huggingface/transformers/blob/v5.2.0/src/transformers/conversion_mapping.py</p></li>
+</ul>
+<section id="qwen3-moe">
+<h3>qwen3_moe<a class="headerlink" href="#qwen3-moe" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Sample checkpoint: https://huggingface.co/Qwen/Qwen3-30B-A3B-Instruct-2507</p></li>
+<li><p>HF safetensor expert layout (per-expert split keys):</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>model.layers.0.mlp.experts.0.gate_proj.weight  [I, H]
+model.layers.0.mlp.experts.0.up_proj.weight    [I, H]
+model.layers.0.mlp.experts.0.down_proj.weight  [H, I]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Transformers v5 modeling layout:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">gate_up_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">))</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Handling summary:</p>
+<ul class="simple">
+<li><p>safetensor keys are per expert, while v5 expects merged expert tensors;</p></li>
+<li><p>for VeOmni qwen3_moe training, run offline merge first via <code class="docutils literal notranslate"><span class="pre">scripts/moe_ckpt_merge/moe_merge.py</span></code>.</p></li>
+</ul>
+<p>Other Qwen3 family models with similar layout like qwen3_moe (i.e., per-expert split keys in safetensors):</p>
+<ul class="simple">
+<li><p>Qwen3 Next: https://huggingface.co/Qwen/Qwen3-Next-80B-A3B-Instruct</p></li>
+<li><p>Qwen3 Omni: https://huggingface.co/Qwen/Qwen3-Omni-30B-A3B-Instruct</p></li>
+</ul>
+</section>
+<section id="qwen3-vl-moe">
+<h3>qwen3_vl_moe<a class="headerlink" href="#qwen3-vl-moe" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Sample checkpoint: https://huggingface.co/Qwen/Qwen3-VL-30B-A3B-Instruct</p></li>
+<li><p>HF safetensor layout:</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>model.language_model.layers.0.mlp.experts.gate_up_proj  [num_experts, H, 2 * I]
+model.language_model.layers.0.mlp.experts.down_proj     [num_experts, I, H]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Transformers v5 modeling layout:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">gate_up_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">))</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Handling summary:</p>
+<ul class="simple">
+<li><p>v5 layout is transposed vs the safetensor dimension order for these tensors;</p></li>
+<li><p>tensor transpose/conversion is required before direct v5 loading.</p></li>
+</ul>
+</section>
+<section id="qwen3-5-moe">
+<h3>qwen3_5_moe<a class="headerlink" href="#qwen3-5-moe" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Sample checkpoint: https://huggingface.co/Qwen/Qwen3.5-397B-A17B</p></li>
+<li><p>HF safetensor layout:</p></li>
+</ul>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>model.language_model.layers.0.mlp.experts.gate_up_proj  [num_experts, 2 * I, H]
+model.language_model.layers.0.mlp.experts.down_proj     [num_experts, H, I]
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Transformers v5 modeling layout:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">gate_up_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">))</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">down_proj</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_experts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">intermediate_dim</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Handling summary:</p>
+<ul class="simple">
+<li><p>no special remap/transpose needed for shape semantics.</p></li>
+</ul>
+</section>
+</section>
+<section id="qwen3moe-handling-in-veomni">
+<h2>Qwen3Moe Handling in VeOmni<a class="headerlink" href="#qwen3moe-handling-in-veomni" title="Link to this heading"></a></h2>
+<section id="transformers-v4-stable-transformers-4-57-3">
+<h3>Transformers v4 (stable, <code class="docutils literal notranslate"><span class="pre">transformers==4.57.3</span></code>)<a class="headerlink" href="#transformers-v4-stable-transformers-4-57-3" title="Link to this heading"></a></h3>
+<p>VeOmni keeps split expert tensors in patched modeling:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">I,</span> <span class="pre">H]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">up_proj</span></code> <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">I,</span> <span class="pre">H]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">down_proj</span></code> <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">H,</span> <span class="pre">I]</span></code></p></li>
+</ul>
+<p>This differs from native Transformers v5 <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> layout.</p>
+<p>Checkpoint loading behavior:</p>
+<ul class="simple">
+<li><p>VeOmni does not do runtime remapping from legacy per-expert keys;</p></li>
+<li><p>HuggingFace safetensor checkpoints commonly store expert weights in per-expert form.</p></li>
+</ul>
+<p>To avoid loading/mapping issues, merge weights offline before training:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">scripts/moe_ckpt_merge/moe_merge.py</span></code></p></li>
+</ul>
+</section>
+<section id="transformers-v5-transformers-5-0-0">
+<h3>Transformers v5 (<code class="docutils literal notranslate"><span class="pre">transformers&gt;=5.0.0</span></code>)<a class="headerlink" href="#transformers-v5-transformers-5-0-0" title="Link to this heading"></a></h3>
+<p>VeOmni v5 patchgen modeling uses the native v5 fused expert layout:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">2*I,</span> <span class="pre">H]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">down_proj</span></code> <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">H,</span> <span class="pre">I]</span></code></p></li>
+</ul>
+<p>See <code class="docutils literal notranslate"><span class="pre">veomni/models/transformers/qwen3_moe/qwen3_moe_gpu_patch_gen_config.py</span></code> for the patchgen config.</p>
+<section id="loading-hf-safetensors-v5-modeling">
+<h4>Loading (HF safetensors -&gt; v5 modeling)<a class="headerlink" href="#loading-hf-safetensors-v5-modeling" title="Link to this heading"></a></h4>
+<p>A runtime <code class="docutils literal notranslate"><span class="pre">CheckpointTensorConverter</span></code> (<code class="docutils literal notranslate"><span class="pre">veomni/models/transformers/qwen3_moe/checkpoint_tensor_converter.py</span></code>)
+is registered on model classes when <code class="docutils literal notranslate"><span class="pre">transformers&gt;=5.0.0</span></code>. It converts per-expert HF keys at load time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">HF</span> <span class="n">per</span><span class="o">-</span><span class="n">expert</span><span class="p">:</span>                             <span class="n">v5</span> <span class="n">fused</span><span class="p">:</span>
+  <span class="n">experts</span><span class="o">.</span><span class="p">{</span><span class="n">j</span><span class="p">}</span><span class="o">.</span><span class="n">gate_proj</span><span class="o">.</span><span class="n">weight</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">H</span><span class="p">]</span>   <span class="o">-&gt;</span>   <span class="n">experts</span><span class="o">.</span><span class="n">gate_up_proj</span> <span class="p">[</span><span class="n">E</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">I</span><span class="p">,</span> <span class="n">H</span><span class="p">]</span>
+  <span class="n">experts</span><span class="o">.</span><span class="p">{</span><span class="n">j</span><span class="p">}</span><span class="o">.</span><span class="n">up_proj</span><span class="o">.</span><span class="n">weight</span>   <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">H</span><span class="p">]</span>   <span class="o">-&gt;</span>     <span class="p">(</span><span class="n">merged</span> <span class="n">via</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">)</span>
+  <span class="n">experts</span><span class="o">.</span><span class="p">{</span><span class="n">j</span><span class="p">}</span><span class="o">.</span><span class="n">down_proj</span><span class="o">.</span><span class="n">weight</span> <span class="p">[</span><span class="n">H</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>   <span class="o">-&gt;</span>   <span class="n">experts</span><span class="o">.</span><span class="n">down_proj</span>    <span class="p">[</span><span class="n">E</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This eliminates the need for offline <code class="docutils literal notranslate"><span class="pre">moe_merge.py</span></code> preprocessing.</p>
+</section>
+<section id="saving-v5-modeling-checkpoint">
+<h4>Saving (v5 modeling -&gt; checkpoint)<a class="headerlink" href="#saving-v5-modeling-checkpoint" title="Link to this heading"></a></h4>
+<p>Training saves the model state dict as-is, producing v5 fused format:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="p">{</span><span class="n">i</span><span class="p">}</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">experts</span><span class="o">.</span><span class="n">gate_up_proj</span>  <span class="p">[</span><span class="n">E</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">I</span><span class="p">,</span> <span class="n">H</span><span class="p">]</span>
+<span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="p">{</span><span class="n">i</span><span class="p">}</span><span class="o">.</span><span class="n">mlp</span><span class="o">.</span><span class="n">experts</span><span class="o">.</span><span class="n">down_proj</span>     <span class="p">[</span><span class="n">E</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This format can be loaded directly by v5 VeOmni (the converter's regex does not match
+<code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> keys so they pass through without conversion). However, it is <strong>not</strong>
+compatible with v4 VeOmni, standard HF <code class="docutils literal notranslate"><span class="pre">from_pretrained()</span></code>, or inference engines
+(vLLM/SGLang) which expect per-expert keys.</p>
+</section>
+<section id="offline-reverse-conversion-v5-fused-per-expert-hf">
+<h4>Offline reverse conversion (v5 fused -&gt; per-expert HF)<a class="headerlink" href="#offline-reverse-conversion-v5-fused-per-expert-hf" title="Link to this heading"></a></h4>
+<p>To convert a v5-format checkpoint back to the standard HF per-expert format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>scripts/moe_ckpt_merge/moe_split.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_hf_path<span class="w"> </span>&lt;v5_checkpoint&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_hf_path<span class="w"> </span>&lt;output_dir&gt;
+</pre></div>
+</div>
+<p>The script auto-detects the input format (v5 <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> or v4 separate <code class="docutils literal notranslate"><span class="pre">gate_proj</span></code>/<code class="docutils literal notranslate"><span class="pre">up_proj</span></code>)
+and splits back to per-expert keys. The output is compatible with:</p>
+<ul class="simple">
+<li><p>v4 VeOmni (after running <code class="docutils literal notranslate"><span class="pre">moe_merge.py</span></code> if needed)</p></li>
+<li><p>v5 VeOmni (runtime converter handles per-expert keys)</p></li>
+<li><p>HuggingFace <code class="docutils literal notranslate"><span class="pre">from_pretrained()</span></code></p></li>
+<li><p>Inference engines (vLLM, SGLang)</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="veomni-fused-moe-op-interface">
+<h2>VeOmni Fused MoE Op Interface<a class="headerlink" href="#veomni-fused-moe-op-interface" title="Link to this heading"></a></h2>
+<p>VeOmni fused MoE entrypoint:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">veomni.ops.fused_moe.fused_moe_forward(...)</span></code></p></li>
+</ul>
+<p>Current signature supports both split and fused gate/up weights:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">fused_moe_forward</span><span class="p">(</span>
+    <span class="n">num_experts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">routing_weights</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">selected_experts</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">hidden_states</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">fc1_1_weight</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>       <span class="c1"># gate [E, I, H], or None if fc1_1_2_weight is provided</span>
+    <span class="n">fc1_2_weight</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>       <span class="c1"># up   [E, I, H], or None if fc1_1_2_weight is provided</span>
+    <span class="n">fc2_weight</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>         <span class="c1"># down [E, H, I]</span>
+    <span class="n">fc1_1_2_weight</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>     <span class="c1"># fused gate_up [E, 2*I, H], optional</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Expected tensor interface:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hidden_states</span></code>: token-major hidden states used by experts, shape <code class="docutils literal notranslate"><span class="pre">[num_tokens,</span> <span class="pre">hidden_dim]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">routing_weights</span></code>: router top-k probabilities, shape <code class="docutils literal notranslate"><span class="pre">[num_tokens,</span> <span class="pre">top_k]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">selected_experts</span></code>: router top-k expert indices, shape <code class="docutils literal notranslate"><span class="pre">[num_tokens,</span> <span class="pre">top_k]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fc1_1_weight</span></code> (gate): shape <code class="docutils literal notranslate"><span class="pre">[num_experts,</span> <span class="pre">intermediate_dim,</span> <span class="pre">hidden_dim]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fc1_2_weight</span></code> (up): shape <code class="docutils literal notranslate"><span class="pre">[num_experts,</span> <span class="pre">intermediate_dim,</span> <span class="pre">hidden_dim]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fc2_weight</span></code> (down): shape <code class="docutils literal notranslate"><span class="pre">[num_experts,</span> <span class="pre">hidden_dim,</span> <span class="pre">intermediate_dim]</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fc1_1_2_weight</span></code> (fused gate_up): shape <code class="docutils literal notranslate"><span class="pre">[num_experts,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">intermediate_dim,</span> <span class="pre">hidden_dim]</span></code>, used by v5 path.</p></li>
+</ul>
+</section>
+<section id="weight-format-compatibility-matrix">
+<h2>Weight Format Compatibility Matrix<a class="headerlink" href="#weight-format-compatibility-matrix" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Checkpoint Format</p></th>
+<th class="head"><p>v4 VeOmni Load</p></th>
+<th class="head"><p>v5 VeOmni Load</p></th>
+<th class="head"><p>HF <code class="docutils literal notranslate"><span class="pre">from_pretrained()</span></code></p></th>
+<th class="head"><p>vLLM/SGLang</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HF per-expert (original)</p></td>
+<td><p>needs <code class="docutils literal notranslate"><span class="pre">moe_merge.py</span></code></p></td>
+<td><p>runtime converter</p></td>
+<td><p>direct</p></td>
+<td><p>direct</p></td>
+</tr>
+<tr class="row-odd"><td><p>v4 merged (gate/up/down separate)</p></td>
+<td><p>direct</p></td>
+<td><p>needs re-merge with v5 format</p></td>
+<td><p>needs <code class="docutils literal notranslate"><span class="pre">moe_split.py</span></code></p></td>
+<td><p>needs <code class="docutils literal notranslate"><span class="pre">moe_split.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>v5 fused (gate_up_proj)</p></td>
+<td><p>incompatible</p></td>
+<td><p>direct</p></td>
+<td><p>needs <code class="docutils literal notranslate"><span class="pre">moe_split.py</span></code></p></td>
+<td><p>needs <code class="docutils literal notranslate"><span class="pre">moe_split.py</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

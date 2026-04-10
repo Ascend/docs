@@ -1,0 +1,222 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Implement Reward Function for Dataset &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Implement Reward Function for Dataset</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/_repos/verl/docs/preparation/reward_function.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="implement-reward-function-for-dataset">
+<h1>Implement Reward Function for Dataset<a class="headerlink" href="#implement-reward-function-for-dataset" title="Link to this heading"></a></h1>
+<p>Last updated: 06/02/2025.</p>
+<p>For each dataset, we need to implement a reward function or utilize a reward model to compute the rewards for the generated responses.
+We already pre-implemented some reward functions in <a class="reference external" href="https://github.com/volcengine/verl/blob/main/verl/utils/reward_score">reward_score directory</a>.
+You can also use customized reward functions.</p>
+<p>Currently, we support reward functions for GSM8k and MATH datasets. For RLHF datasets (e.g.,
+full_hh_rlhf) and Code Generation (e.g., APPS), we utilize reward model
+and SandBox (will opensource soon) for evaluation respectively.</p>
+<section id="rewardmanager">
+<h2>RewardManager<a class="headerlink" href="#rewardmanager" title="Link to this heading"></a></h2>
+<p>In the entrypoint of the PPO Post-Training script <a class="reference external" href="https://github.com/volcengine/verl/blob/main/verl/trainer/main_ppo.py#L33">main_ppo.py</a>,
+we implement a <code class="docutils literal notranslate"><span class="pre">RewardManager</span></code> that utilize pre-implemented reward functions to compute the scores for each response.</p>
+<p>In the <code class="docutils literal notranslate"><span class="pre">RewardManager</span></code>, we implemented a <code class="docutils literal notranslate"><span class="pre">__call__</span></code> function to
+compute the score for each response.
+All the reward functions are executed by <code class="docutils literal notranslate"><span class="pre">compute_score_fn</span></code>.
+The input is a <code class="docutils literal notranslate"><span class="pre">DataProto</span></code>, which includes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">input_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">attention_mask</span></code>: <code class="docutils literal notranslate"><span class="pre">input_ids</span></code> and <code class="docutils literal notranslate"><span class="pre">attention_mask</span></code> after applying
+chat_template, including prompt and response</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">responses</span></code>: response tokens</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ground_truth</span></code>: The ground truth string of the current prompt.
+Stored in <code class="docutils literal notranslate"><span class="pre">non_tensor_batch</span></code> in the <code class="docutils literal notranslate"><span class="pre">DataProto</span></code>, which should be
+preprocessed in the parquet files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data_source</span></code>: The dataset name of the current prompt. Stored in
+<code class="docutils literal notranslate"><span class="pre">non_tensor_batch</span></code> in the <code class="docutils literal notranslate"><span class="pre">DataProto</span></code>, which should be
+preprocessed in the parquet files.</p></li>
+</ul>
+<p>After detokenize the responses, the responses string and the ground
+truth string will be input to the <code class="docutils literal notranslate"><span class="pre">compute_score_fn</span></code> to compute the
+score for each response.</p>
+</section>
+<section id="reward-functions">
+<h2>Reward Functions<a class="headerlink" href="#reward-functions" title="Link to this heading"></a></h2>
+<section id="pre-implemented">
+<h3>Pre-implemented<a class="headerlink" href="#pre-implemented" title="Link to this heading"></a></h3>
+<p>We already pre-implemented some reward functions in <a class="reference external" href="https://github.com/volcengine/verl/blob/main/verl/utils/reward_score">reward_score directory</a>.</p>
+<ul class="simple">
+<li><p>In the <a class="reference external" href="https://github.com/volcengine/verl/blob/main/verl/utils/reward_score/gsm8k.py">GSM8k example</a>, we
+force the response to output the final answer after four ####, then
+use string matching to compare with the ground truth. If completely
+correct, score 1 point; if the format is correct, score 0.1 points; if
+the format is incorrect, score 0 points.</p></li>
+<li><p>In the <a class="reference external" href="https://github.com/volcengine/verl/blob/main/verl/utils/reward_score/math.py">MATH example</a>, we follow
+the implementation in <a class="reference external" href="https://github.com/EleutherAI/lm-evaluation-harness/blob/main/lm_eval/tasks/hendrycks_math/utils.py">lm-evaluation-harness repository</a>.</p></li>
+</ul>
+</section>
+<section id="customized">
+<h3>Customized<a class="headerlink" href="#customized" title="Link to this heading"></a></h3>
+<p>You can implement customized reward functions in a separate file and specify them using <code class="docutils literal notranslate"><span class="pre">custom_reward_function.path</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_reward_function.name</span></code>. For the set of them, please refer to <a class="reference internal" href="../examples/config.html#config-explain-page"><span class="std std-ref">Config Explanation</span></a>.</p>
+<p>The parameters of your reward function should be <code class="docutils literal notranslate"><span class="pre">data_source</span></code>, <code class="docutils literal notranslate"><span class="pre">solution_str</span></code>, <code class="docutils literal notranslate"><span class="pre">ground_truth</span></code>, and <code class="docutils literal notranslate"><span class="pre">extra_info</span></code>.
+For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_reward_fn</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="n">solution_str</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">,</span> <span class="n">extra_info</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+  <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">solution_str</span><span class="p">)</span><span class="o">/</span><span class="mi">100</span>
+</pre></div>
+</div>
+<p>If you are testing only a single customized reward function, you can simply name it 'compute_score' and leave <code class="docutils literal notranslate"><span class="pre">custom_reward_function.name</span></code> unset.</p>
+<p>To run multiple tests with different customized reward functions, you can modify both <code class="docutils literal notranslate"><span class="pre">custom_reward_function.path</span></code> and <code class="docutils literal notranslate"><span class="pre">custom_reward_function.name</span></code> for each trial.
+For instance, you might create a single <cite>my_reward.py</cite> file and implement multiple reward functions within it. This way, for different trials, you only need to adjust <code class="docutils literal notranslate"><span class="pre">custom_reward_function.name</span></code>, making it more convenient to conduct multiple tests within scripts.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

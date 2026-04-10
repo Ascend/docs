@@ -1,0 +1,617 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vLLM Ascend Development Guidelines &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">vLLM Ascend Development Guidelines</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/_repos/vllm-ascend/AGENTS.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vllm-ascend-development-guidelines">
+<h1>vLLM Ascend Development Guidelines<a class="headerlink" href="#vllm-ascend-development-guidelines" title="Link to this heading"></a></h1>
+<p>This document provides instructions for contributors to the vLLM Ascend project. Please read and follow these guidelines to ensure code quality, maintainability, and consistency.</p>
+<hr class="docutils" />
+<section id="table-of-contents">
+<h2>Table of Contents<a class="headerlink" href="#table-of-contents" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#setup-and-environment">Setup and Environment</a></p>
+<ul>
+<li><p><a class="reference internal" href="#environment-variables">Environment Variables</a></p></li>
+<li><p><a class="reference internal" href="#environment-variable-review-requirement">Environment Variable Review Requirement</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#testing">Testing</a></p>
+<ul>
+<li><p><a class="reference internal" href="#unit-and-system-tests">Unit and System Tests</a></p></li>
+<li><p><a class="reference internal" href="#running-tests">Running Tests</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#code-style">Code Style</a></p>
+<ul>
+<li><p><a class="reference internal" href="#python-conventions">Python Conventions</a></p></li>
+<li><p><a class="reference internal" href="#naming-conventions">Naming Conventions</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#npu-specific-considerations">NPU-Specific Considerations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tensor-item-operations">Tensor item() Operations</a></p></li>
+<li><p><a class="reference internal" href="#memory-and-performance">Memory and Performance</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#model-and-plugin-architecture">Model and Plugin Architecture</a></p>
+<ul>
+<li><p><a class="reference internal" href="#vllm-ascend-plugin-architecture">vLLM Ascend Plugin Architecture</a></p></li>
+<li><p><a class="reference internal" href="#patching-requirement">Patching Requirement</a></p></li>
+<li><p><a class="reference internal" href="#model-runner-changes">Model Runner Changes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#commit-messages-and-pull-requests">Commit Messages and Pull Requests</a></p>
+<ul>
+<li><p><a class="reference internal" href="#commit-message-format">Commit Message Format</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#review-checklist">Review Checklist</a></p>
+<ul>
+<li><p><a class="reference internal" href="#code-quality">Code Quality</a></p></li>
+<li><p><a class="reference internal" href="#id1">Testing</a></p></li>
+<li><p><a class="reference internal" href="#documentation">Documentation</a></p></li>
+<li><p><a class="reference internal" href="#npu-considerations">NPU Considerations</a></p></li>
+<li><p><a class="reference internal" href="#commit-and-pr">Commit and PR</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#quick-start-for-contributors">Quick Start for Contributors</a></p></li>
+<li><p><a class="reference internal" href="#references">References</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="setup-and-environment">
+<h2>Setup and Environment<a class="headerlink" href="#setup-and-environment" title="Link to this heading"></a></h2>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h3>
+<p>All environment variables must be defined in <code class="docutils literal notranslate"><span class="pre">vllm_ascend/envs.py</span></code> using the centralized <code class="docutils literal notranslate"><span class="pre">env_variables</span></code> dictionary.</p>
+<p><strong>Requirements:</strong></p>
+<ul class="simple">
+<li><p>Add documentation for each environment variable in the <code class="docutils literal notranslate"><span class="pre">env_variables</span></code> dict comment</p></li>
+<li><p>Specify default values and valid ranges</p></li>
+<li><p>Indicate whether the variable is sensitive (credentials, keys)</p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">env_variables</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;VLLM_ASCEND_ENABLE_NZ&quot;</span><span class="p">:</span> <span class="k">lambda</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;VLLM_ASCEND_ENABLE_NZ&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="c1"># ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Never</strong>: Hardcode environment variable names throughout the codebase. Reference them from the central module using <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">vllm_ascend</span> <span class="pre">import</span> <span class="pre">envs</span></code>.</p>
+</section>
+<section id="environment-variable-review-requirement">
+<h3>Environment Variable Review Requirement<a class="headerlink" href="#environment-variable-review-requirement" title="Link to this heading"></a></h3>
+<p><strong>Strict Review Required</strong>: All new environment variables must undergo code review.</p>
+<p>Reviewers must verify:</p>
+<ul class="simple">
+<li><p>The variable name follows the <code class="docutils literal notranslate"><span class="pre">VLLM_ASCEND_*</span></code> naming convention</p></li>
+<li><p>Default value is appropriate for all supported hardware</p></li>
+<li><p>Documentation is added to the <code class="docutils literal notranslate"><span class="pre">env_variables</span></code> dict</p></li>
+<li><p>The variable is used in a performance-critical path</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<section id="unit-and-system-tests">
+<h3>Unit and System Tests<a class="headerlink" href="#unit-and-system-tests" title="Link to this heading"></a></h3>
+<p><strong>Requirement</strong>: All new functionality requires corresponding tests.</p>
+<ul class="simple">
+<li><p><strong>Unit Tests (UT)</strong>: Located in <code class="docutils literal notranslate"><span class="pre">tests/ut/</span></code>, cover core logic, edge cases, and error conditions</p></li>
+<li><p><strong>System Tests (ST)</strong>: Located in <code class="docutils literal notranslate"><span class="pre">tests/e2e/</span></code>, verify end-to-end behavior and integration points</p></li>
+<li><p><strong>Nightly Tests</strong>: Include benchmarks for NPU-specific code paths in <code class="docutils literal notranslate"><span class="pre">tests/e2e/nightly/</span></code></p></li>
+</ul>
+<p><strong>Test Coverage Guidelines:</strong></p>
+<ul class="simple">
+<li><p>New features: Tests must cover happy path and failure modes</p></li>
+<li><p>Bug fixes: Tests must include a regression test for the bug</p></li>
+<li><p>Performance-critical code: Include benchmarks and performance regression tests</p></li>
+</ul>
+</section>
+<section id="running-tests">
+<h3>Running Tests<a class="headerlink" href="#running-tests" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run specific unit test file</span>
+pytest<span class="w"> </span>-sv<span class="w"> </span>tests/ut/ops/test_prepare_finalize.py
+
+<span class="c1"># Run specific unit test</span>
+pytest<span class="w"> </span>-sv<span class="w"> </span>tests/ut/ops/test_prepare_finalize.py::test_prepare_inputs
+
+<span class="c1"># Run NPU-specific tests (requires NPU hardware)</span>
+pytest<span class="w"> </span>-sv<span class="w"> </span>tests/e2e/singlecard/test_piecewise_res_consistency
+</pre></div>
+</div>
+<p><strong>Requirement</strong>: Run all tests locally before requesting review. Verify tests pass on NPU hardware for NPU-specific changes.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="code-style">
+<h2>Code Style<a class="headerlink" href="#code-style" title="Link to this heading"></a></h2>
+<section id="python-conventions">
+<h3>Python Conventions<a class="headerlink" href="#python-conventions" title="Link to this heading"></a></h3>
+<ul>
+<li><p><strong>Imports</strong>: All imports at the top of the file. Valid exceptions:</p>
+<ul class="simple">
+<li><p>Circular imports (use inline imports)</p></li>
+<li><p>Lazy loading for worker/isolation processes</p></li>
+<li><p>Type-checking imports wrapped in <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">TYPE_CHECKING:</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>Global Variables</strong>: Avoid new global variables. Pass dependencies explicitly through function parameters.</p>
+<p><strong>Allowed:</strong></p>
+<ul class="simple">
+<li><p>Constants named <code class="docutils literal notranslate"><span class="pre">ALL_UPPER_CASE</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">MAX_BATCH_SIZE</span></code> in <code class="docutils literal notranslate"><span class="pre">envs.py</span></code>)</p></li>
+<li><p>Immutable configuration objects</p></li>
+</ul>
+<p><strong>Requires Approval:</strong></p>
+<ul class="simple">
+<li><p>Any new mutable global state</p></li>
+</ul>
+</li>
+<li><p><strong>No Magic Numbers</strong>: Use named constants with descriptive names:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad</span>
+<span class="k">if</span> <span class="n">seq_len</span> <span class="o">&gt;</span> <span class="mi">2048</span><span class="p">:</span> <span class="o">...</span>
+
+<span class="c1"># Good</span>
+<span class="n">MAX_CONTEXT_LENGTH</span> <span class="o">=</span> <span class="mi">2048</span>
+<span class="k">if</span> <span class="n">seq_len</span> <span class="o">&gt;</span> <span class="n">MAX_CONTEXT_LENGTH</span><span class="p">:</span> <span class="o">...</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Descriptive Naming</strong>: Use names that describe functionality, not implementation details.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad</span>
+<span class="n">is_deepseek_v3_r1</span>
+<span class="n">flag1</span>
+<span class="n">tmp_var</span>
+
+<span class="c1"># Good</span>
+<span class="n">supports_dynamic_temperature</span>
+<span class="n">uses_speculative_decoding</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="naming-conventions">
+<h3>Naming Conventions<a class="headerlink" href="#naming-conventions" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Classes</strong>: <code class="docutils literal notranslate"><span class="pre">PascalCase</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">NPUModelRunner</span></code>, <code class="docutils literal notranslate"><span class="pre">AscendSampler</span></code>, <code class="docutils literal notranslate"><span class="pre">ACLGraphManager</span></code>)</p></li>
+<li><p><strong>Functions/Methods</strong>: <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">forward_pass</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_attention</span></code>)</p></li>
+<li><p><strong>Constants</strong>: <code class="docutils literal notranslate"><span class="pre">ALL_UPPER_CASE</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">MAX_BATCH_SIZE</span></code>, <code class="docutils literal notranslate"><span class="pre">VLLM_ASCEND_ENABLE_NZ</span></code>)</p></li>
+<li><p><strong>Variables</strong>: <code class="docutils literal notranslate"><span class="pre">snake_case</span></code> (e.g., <code class="docutils literal notranslate"><span class="pre">token_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">sequence_lengths</span></code>)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="npu-specific-considerations">
+<h2>NPU-Specific Considerations<a class="headerlink" href="#npu-specific-considerations" title="Link to this heading"></a></h2>
+<section id="tensor-item-operations">
+<h3>Tensor item() Operations<a class="headerlink" href="#tensor-item-operations" title="Link to this heading"></a></h3>
+<p><strong>Warning</strong>: <code class="docutils literal notranslate"><span class="pre">tensor.item()</span></code> operations cause synchronization overhead on NPU when the <code class="docutils literal notranslate"><span class="pre">tensor</span></code> is on device.</p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">tensor</span></code> is a device tensor, the operator <code class="docutils literal notranslate"><span class="pre">item()</span></code> will trigger a synchronous data transfer from NPU to CPU, which can severely degrade performance in hot paths, cause this will make <code class="docutils literal notranslate"><span class="pre">AsyncScheduler</span></code> block here.</p>
+<p><strong>Review Requirements:</strong></p>
+<ol class="arabic simple">
+<li><p>Profile performance impact before merging</p></li>
+<li><p>Consider alternative patterns:</p>
+<ul class="simple">
+<li><p>Keep values on device when possible</p></li>
+<li><p>Batch operations to reduce sync frequency</p></li>
+<li><p>Use device-side operations (e.g., <code class="docutils literal notranslate"><span class="pre">torch.argmax</span></code>, <code class="docutils literal notranslate"><span class="pre">torch.sum</span></code>)</p></li>
+</ul>
+</li>
+<li><p>Document when <code class="docutils literal notranslate"><span class="pre">item()</span></code> is unavoidable (e.g., logging, conditional logic)</p></li>
+</ol>
+<p><strong>Example Patterns:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Bad: In hot loop - causes sync per iteration</span>
+<span class="k">for</span> <span class="n">tensor</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">tensor</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+<span class="c1"># Better: Batch operations - single sync</span>
+<span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tensors</span><span class="p">]</span>  <span class="c1"># Single batch sync</span>
+
+<span class="c1"># Good: Keep on device when possible</span>
+<span class="n">max_value</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">tensor</span><span class="p">)</span>  <span class="c1"># No sync needed</span>
+<span class="k">if</span> <span class="n">max_value</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>  <span class="c1"># Comparison can stay on device</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="memory-and-performance">
+<h3>Memory and Performance<a class="headerlink" href="#memory-and-performance" title="Link to this heading"></a></h3>
+<p>Additional NPU-specific best practices:</p>
+<ul class="simple">
+<li><p>Avoid CPU-NPU memory transfers in hot paths</p></li>
+<li><p>Prefer in-place operations where safe (e.g., <code class="docutils literal notranslate"><span class="pre">x.add_()</span></code>, <code class="docutils literal notranslate"><span class="pre">x.mul_()</span></code>)</p></li>
+<li><p>Monitor memory fragmentation, especially for long-running processes</p></li>
+<li><p>Test with realistic workloads on actual NPU hardware (Ascend 910B/C)</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="model-and-plugin-architecture">
+<h2>Model and Plugin Architecture<a class="headerlink" href="#model-and-plugin-architecture" title="Link to this heading"></a></h2>
+<section id="vllm-ascend-plugin-architecture">
+<h3>vLLM Ascend Plugin Architecture<a class="headerlink" href="#vllm-ascend-plugin-architecture" title="Link to this heading"></a></h3>
+<p>vLLM Ascend is a <strong>hardware plugin</strong> that integrates with upstream vLLM via the pluggable hardware interface. It does not add new model files directly.</p>
+<p><strong>Required Pattern</strong>: Model-specific functionality should be implemented via:</p>
+<ol class="arabic simple">
+<li><p><strong>Patching</strong> (in <code class="docutils literal notranslate"><span class="pre">vllm_ascend/patch/</span></code>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/patch/platform/</span></code> - Platform-level patches (distributed, scheduling)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/patch/worker/</span></code> - Worker-level patches (model-specific behavior)</p></li>
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">patch_deepseek.py</span></code> modifies upstream Deepseek model behavior</p></li>
+<li><p>Patch is not the best solution for all cases. Use it when necessary.</p></li>
+</ul>
+</li>
+<li><p><strong>Inheritance</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">NPUModelRunner(GPUModelRunner)</span></code> - Extend vLLM model runner with NPU-specific behavior</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AscendSampler</span></code> - Extend vLLM sampler with NPU-specific operations</p></li>
+<li><p>Add NPU-specific components via composition (e.g., <code class="docutils literal notranslate"><span class="pre">AclGraphManager</span></code>)</p></li>
+<li><p>Custom Operators - NPU-specific custom operators (e.g., <code class="docutils literal notranslate"><span class="pre">AscendRMSNorm</span></code>)</p></li>
+</ul>
+</li>
+<li><p><strong>External upstream contributions</strong> where appropriate</p></li>
+</ol>
+</section>
+<section id="patching-requirement">
+<h3>Patching Requirement<a class="headerlink" href="#patching-requirement" title="Link to this heading"></a></h3>
+<p><strong>Strict Review Required</strong>: All new patches must undergo thorough architectural review.</p>
+<p>Reviewers must verify:</p>
+<ul class="simple">
+<li><p>The patch targets the correct upstream component</p></li>
+<li><p>The patch is minimal and focused</p></li>
+<li><p>Performance implications are understood</p></li>
+<li><p>A long-term plan exists for upstream contribution</p></li>
+</ul>
+<p><strong>Example Patch Pattern:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># vllm_ascend/patch/worker/patch_deepseek.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm.model_executor.models.deepseek_v2</span><span class="w"> </span><span class="kn">import</span> <span class="n">DeepseekV2Model</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">,</span> <span class="n">positions</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+    <span class="c1"># NPU-specific forward implementation</span>
+    <span class="o">...</span>
+
+<span class="n">DeepseekV2Model</span><span class="o">.</span><span class="n">forward</span> <span class="o">=</span> <span class="n">forward</span>  <span class="c1"># Patch upstream class</span>
+</pre></div>
+</div>
+</section>
+<section id="model-runner-changes">
+<h3>Model Runner Changes<a class="headerlink" href="#model-runner-changes" title="Link to this heading"></a></h3>
+<p><strong>Strict Review Required</strong>: All new behaviors added to <code class="docutils literal notranslate"><span class="pre">model_runner</span></code> must undergo thorough architectural review.</p>
+<p>Reviewers must verify:</p>
+<ul class="simple">
+<li><p>The necessity of the new behavior (why can't this be in a patch?)</p></li>
+<li><p>Performance implications on NPU hardware</p></li>
+<li><p>Compatibility with existing model implementations</p></li>
+<li><p>Long-term maintainability and test coverage</p></li>
+</ul>
+<p><strong>NPU Model Runner Files:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/worker/model_runner_v1.py</span></code> - vLLM v1 model runner</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/worker/v2/model_runner.py</span></code> - vLLM v2 model runner</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/_310p/model_runner_310p.py</span></code> - Ascend 310P model runner</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="commit-messages-and-pull-requests">
+<h2>Commit Messages and Pull Requests<a class="headerlink" href="#commit-messages-and-pull-requests" title="Link to this heading"></a></h2>
+<section id="commit-message-format">
+<h3>Commit Message Format<a class="headerlink" href="#commit-message-format" title="Link to this heading"></a></h3>
+<p>Follow the <a class="reference external" href="https://www.conventionalcommits.org/">Conventional Commits</a> format and <strong>must include a sign-off</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>commit<span class="w"> </span>-s<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;&lt;type&gt;: &lt;summary&gt;&quot;</span><span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;&lt;body - explaining what changed and why&gt;&quot;</span>
+</pre></div>
+</div>
+<p>Or using the full message format:</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>&lt;type&gt;: &lt;summary&gt;
+
+&lt;body - explaining what changed and why&gt;
+
+Signed-off-by: Your Name &lt;your.email@example.com&gt;
+</pre></div>
+</div>
+<p><strong>Valid Types</strong>: <code class="docutils literal notranslate"><span class="pre">feat</span></code>, <code class="docutils literal notranslate"><span class="pre">fix</span></code>, <code class="docutils literal notranslate"><span class="pre">perf</span></code>, <code class="docutils literal notranslate"><span class="pre">refactor</span></code>, <code class="docutils literal notranslate"><span class="pre">test</span></code>, <code class="docutils literal notranslate"><span class="pre">docs</span></code>, <code class="docutils literal notranslate"><span class="pre">chore</span></code></p>
+<p><strong>Good Examples:</strong></p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>feat(npu): add flash attention support for Ascend CANN
+
+- Implements FlashAttention-2 kernel for NPU backend
+- Reduces memory usage by 30% compared to baseline
+
+fix(model_runner): correct padding token handling
+
+- Fixes token padding that caused incorrect attention masks
+- Addresses issue #1234
+
+perf: avoid CPU-NPU sync in attention computation
+
+- Inline computation to avoid tensor.item() calls
+- Improves throughput by 15%
+</pre></div>
+</div>
+<p><strong>Bad Examples:</strong></p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>fix bug
+add feature
+update code
+</pre></div>
+</div>
+</section>
+<section id="pull-request-title-format">
+<h3>Pull Request Title Format<a class="headerlink" href="#pull-request-title-format" title="Link to this heading"></a></h3>
+<p>PR titles should follow the format: <code class="docutils literal notranslate"><span class="pre">[Type][Module]</span> <span class="pre">Description</span></code></p>
+<ul class="simple">
+<li><p><strong>Type</strong>: The type of change (e.g., <code class="docutils literal notranslate"><span class="pre">CI</span></code>, <code class="docutils literal notranslate"><span class="pre">Doc</span></code>, <code class="docutils literal notranslate"><span class="pre">Bugfix</span></code>, <code class="docutils literal notranslate"><span class="pre">Feat</span></code>, <code class="docutils literal notranslate"><span class="pre">Platform</span></code>, <code class="docutils literal notranslate"><span class="pre">Refactor</span></code>)</p></li>
+<li><p><strong>Module</strong>: The affected module (optional, e.g., <code class="docutils literal notranslate"><span class="pre">Misc</span></code>, <code class="docutils literal notranslate"><span class="pre">Model</span></code>, <code class="docutils literal notranslate"><span class="pre">Worker</span></code>)</p></li>
+<li><p><strong>Description</strong>: Brief description of the change</p></li>
+</ul>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">[Doc][Misc]</span> <span class="pre">Update</span> <span class="pre">contribution</span> <span class="pre">guidelines</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[Bugfix]</span> <span class="pre">Fix</span> <span class="pre">CPU</span> <span class="pre">binding</span> <span class="pre">logic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">[CI]</span> <span class="pre">Update</span> <span class="pre">image</span> <span class="pre">build</span> <span class="pre">workflow</span></code></p></li>
+</ul>
+</section>
+<section id="pull-request-template">
+<h3>Pull Request Template<a class="headerlink" href="#pull-request-template" title="Link to this heading"></a></h3>
+<p>When creating a PR, please follow the template in <code class="docutils literal notranslate"><span class="pre">.github/PULL_REQUEST_TEMPLATE.md</span></code> and ensure the following sections are completed:</p>
+<blockquote>
+<div><p><strong>Note</strong>: The PR description will be automatically updated by GitHub Actions to include vLLM version info at the bottom. If you update the PR description via API or CLI, make sure to preserve the <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">vLLM</span> <span class="pre">version:</span></code> and <code class="docutils literal notranslate"><span class="pre">-</span> <span class="pre">vLLM</span> <span class="pre">main:</span></code> lines.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p><strong>What this PR does / why we need it?</strong> - Clearly describe the changes and their purpose</p></li>
+<li><p><strong>Does this PR introduce <em>any</em> user-facing change?</strong> - Indicate if there are any user-visible changes</p></li>
+<li><p><strong>How was this patch tested?</strong> - Describe how you tested the changes. Examples:</p>
+<ul>
+<li><p>Unit tests added/updated: list the test files</p></li>
+<li><p>Manual testing: provide the test steps and commands</p></li>
+<li><p>CI testing: indicate if only CI verification is needed</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="review-checklist">
+<h2>Review Checklist<a class="headerlink" href="#review-checklist" title="Link to this heading"></a></h2>
+<p>Before merging, verify:</p>
+<section id="code-quality">
+<h3>Code Quality<a class="headerlink" href="#code-quality" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Code follows style guidelines (naming, imports, no magic numbers)</p></li>
+<li><p>[ ] No global state added without justification</p></li>
+<li><p>[ ] Patching pattern used correctly (if applicable)</p></li>
+<li><p>[ ] No direct model file additions</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Testing<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] New tests added for new functionality (<code class="docutils literal notranslate"><span class="pre">tests/ut/</span></code> or <code class="docutils literal notranslate"><span class="pre">tests/e2e/</span></code>)</p></li>
+<li><p>[ ] Existing tests pass</p></li>
+<li><p>[ ] NPU-specific tests verified on actual hardware</p></li>
+<li><p>[ ] Performance benchmarks included where applicable</p></li>
+</ul>
+</section>
+<section id="documentation">
+<h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Environment variables documented</p></li>
+<li><p>[ ] Public APIs documented</p></li>
+<li><p>[ ] User-facing changes reflected in docs</p></li>
+</ul>
+</section>
+<section id="npu-considerations">
+<h3>NPU Considerations<a class="headerlink" href="#npu-considerations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">tensor.item()</span></code> usage reviewed for performance impact</p></li>
+<li><p>[ ] No unnecessary CPU-NPU transfers in hot paths</p></li>
+<li><p>[ ] Memory usage verified on NPU hardware</p></li>
+</ul>
+</section>
+<section id="commit-and-pr">
+<h3>Commit and PR<a class="headerlink" href="#commit-and-pr" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Commit messages are clear and descriptive, following Conventional Commits format</p></li>
+<li><p>[ ] <strong>All commits are signed off</strong> (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-s</span></code>)</p></li>
+<li><p>[ ] PR is created from your fork repository, not directly from the main repository</p></li>
+<li><p>[ ] PR description is complete, following the PR template</p></li>
+<li><p>[ ] All review comments addressed</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="quick-start-for-contributors">
+<h2>Quick Start for Contributors<a class="headerlink" href="#quick-start-for-contributors" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Install development dependencies: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.[dev]</span></code></p></li>
+<li><p>Run tests: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">tests/</span></code></p></li>
+<li><p>Check linting: <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">check</span> <span class="pre">vllm_ascend/</span></code></p></li>
+<li><p>Format code: <code class="docutils literal notranslate"><span class="pre">ruff</span> <span class="pre">format</span> <span class="pre">vllm_ascend/</span></code></p></li>
+<li><p>Make your changes following guidelines in this document</p></li>
+<li><p>Add tests for new behavior</p></li>
+<li><p>Run full test suite before committing</p></li>
+<li><p>Commit with sign-off: <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-s</span></code></p></li>
+<li><p>Run linting check before pushing:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>format.sh<span class="w"> </span>ci
+</pre></div>
+</div>
+<blockquote>
+<div><p><strong>Note</strong>: This check is required for <strong>all file types</strong>, including markdown files. If <code class="docutils literal notranslate"><span class="pre">markdownlint</span></code> modifies files, re-add them with <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span></code> and commit again.</p>
+</div></blockquote>
+</li>
+<li><p>Push to your fork repository (NOT the main repository):</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>myfork<span class="w"> </span>https://github.com/YOUR_USERNAME/vllm-ascend.git
+git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>myfork<span class="w"> </span>your-branch-name
+</pre></div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>Create a PR from your fork to the main repository with clear description</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/vllm-project/vllm/issues/11162">vLLM Hardware Plugin RFC</a></p></li>
+<li><p><a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/latest/">Documentation</a></p></li>
+<li><p><a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/latest/community/contributors.html">Contributors Guide</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,530 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton-Ascend 性能分析方法 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" />
+    <link rel="next" title="triton.language" href="../triton_api/index.html" />
+    <link rel="prev" title="Triton-Ascend 调试指南" href="debugging.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quick_start.html">快速入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation_guide.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture_design_and_core_features.html">架构设计与核心特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide.html">Triton算子开发指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/architecture_difference.html">昇腾与GPU的开发差异</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/migrate_from_gpu.html">GPU Triton算子迁移</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/performance_guidelines.html">NPU高性能编程指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/01_vector_add_example.html">向量相加 （Vector Addition）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/02_fused_softmax_example.html">融合 Softmax （Fused Softmax）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/03_layer_norm_example.html">层标准化 （Layer Normalization）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/04_fused_attention_example.html">融合注意力（Fused Attention）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/05_matrix_multiplication_example.html">矩阵乘法 （Matrix Multiplication）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/06_autotune_example.html">自动调优 （Autotune）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/07_accuracy_comparison_example.html">精度比对 （Accuracy Comparison）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="debugging.html">Triton-Ascend 调试指南</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Triton-Ascend 性能分析方法</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">获取性能数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#profiling">上板Profiling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">算子仿真流水图</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">分析性能数据</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id4">理论参数</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">查找瓶颈</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#i64-i32-comparenpuvector">示例：i64/i32 的compare在npu上无法启用vector导致向量计算转为标量计算</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/index.html">triton.language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/triton/index.html">triton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_variable_reference.html">环境变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../FAQ.html">Triton-Ascend FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_note.html">Triton-Ascend 版本发布</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"FAQ": "faq_group", "architecture_design_and_core_features": "arch_group", "environment_variable_reference": "env_group", "installation_guide": "install_group", "programming_guide": "dev_guide_group", "quick_start": "quick_start_group", "release_note": "faq_group"}, "arch_group": "\u67b6\u6784\u8bbe\u8ba1\u4e0e\u6838\u5fc3\u7279\u6027", "debug_guide": "\u7b97\u5b50\u8c03\u8bd5\u4e0e\u8c03\u4f18", "dev_guide_group": "Triton \u7b97\u5b50\u5f00\u53d1\u6307\u5357", "env_group": "\u73af\u5883\u53d8\u91cf", "examples": "\u5178\u578b\u7b97\u5b50\u6837\u4f8b", "faq_group": "\u5e38\u89c1\u95ee\u9898", "install_group": "\u5b89\u88c5\u6307\u5357", "migration_guide": "Triton \u7b97\u5b50\u8fc1\u79fb\u6307\u5357", "quick_start_group": "\u5feb\u901f\u5f00\u59cb", "triton_api": "Triton API \u63a5\u53e3\u8bf4\u660e", "triton_api_extention": "\u6607\u817e\u6269\u5c55 API \u63a5\u53e3\u8bf4\u660e"};
+        const commId = 'triton-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+      <li class="breadcrumb-item active">Triton-Ascend 性能分析方法</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/triton-ascend/debug_guide/profiling.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="triton-ascend">
+<h1>Triton-Ascend 性能分析方法<a class="headerlink" href="#triton-ascend" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>获取性能数据<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>在进行性能优化之前，需要获取准确的性能数据，了解性能现状，并根据性能现状分析下一步的优化方向。MindStudio提供了多种针对Triton算子性能测试方法，包括上板Profiling、单算子性能仿真流水图等手段。</p>
+<section id="profiling">
+<h3>上板Profiling<a class="headerlink" href="#profiling" title="Link to this heading"></a></h3>
+<p>msProf工具用于采集和分析运行在昇腾AI处理器上算子的关键性能指标，用户可根据输出的性能数据，快速定位算子的软、硬件性能瓶颈，提升算子性能的分析效率。</p>
+<ul class="simple">
+<li><p>注： msProf工具的使用依赖CANN包中的msopprof可执行文件，该文件中的接口功能和msprof op一致，该文件为CANN包自带，无需单独安装，msProf工具常用命令请参考<a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/ODtools/Operatordevelopmenttools/atlasopdev_16_0082.html">msProf常用命令</a>。</p></li>
+</ul>
+<p>如下命令行使一个算子上板性能数据采集的示例，可以根据自身的需要灵活组合配置参数。实例中 --output为可选参数，用于指定收集到的性能数据的存放路径；--kernel-name为可选参数，用于指定需要收集的单个kernel的性能数据（若要采集全部算子的可不指定）；$HOME/projects/test_op.py为算子可执行脚本。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>msprof op --kernel-name=target_kernel_name --output=$HOME/projects/output python3 $HOME/projects/test_op.py
+</pre></div>
+</div>
+<p>以示范测试用例<a class="reference internal" href="#../../../third_party/ascend/tutorials/03-layer-norm.py"><span class="xref myst">03-layer-norm.py</span></a>为例(不指定--output时生成的数据文件保存在当前路径下)：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">msprof</span> <span class="n">op</span> <span class="o">--</span><span class="n">kernel</span><span class="o">-</span><span class="n">name</span><span class="o">=</span><span class="n">_layer_norm_fwd_fused</span> <span class="n">python3</span> <span class="mi">03</span><span class="o">-</span><span class="n">layer</span><span class="o">-</span><span class="n">norm</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>注：以下所有采集项的结果数据含义可参考《CANN 性能调优工具用户指南》中的<a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/devaids/Profiling/atlasprofiling_16_0067.html"> op_summary（算子详细信息）</a>章节。
+<strong>图1</strong> PipeUtilization.csv（计算单元和搬运单元耗时占比）文件示例<br />
+<img alt="alt text" src="../../../../../_images/time_consumed2.png" /></p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>算子仿真流水图<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>算子调优工具 msProf 支持仿真环境下的性能数据采集和自动解析。使用msProf工具获取仿真流水图的具体方式请参考<a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/83RC1/devaids/optool/atlasopdev_16_0087.html">指令流水图</a>。
+生成算子仿真流水图的命令与算子上板性能数据采集的命令类似。同样以上述<code class="docutils literal notranslate"><span class="pre">03-layer-norm.py</span></code>为例，<code class="docutils literal notranslate"><span class="pre">--soc-version</span></code>用于指定当前机器的硬件版本，可在终端中输入<code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code>查看：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># source simulator路径
+export LD_LIBRARY_PATH=/root/CANN/Install_CANN/Ascend/ascend_toolkit/latest/tools/simulator/{soc-version}/lib:$LD_LIBRARY_PATH
+# 执行算子仿真流水图采集
+msprof op simulator --kernel-name=_layer_norm_fwd_fused --soc-version={soc-version} python3 03-layer-norm.py
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>注：上述示例 <code class="docutils literal notranslate"><span class="pre">soc-version=Ascend910B3</span></code></p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Soc-Version</p></th>
+<th class="head text-center"><p></p></th>
+<th class="head text-center"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>Ascend910A</p></td>
+<td class="text-center"><p>Ascend310</p></td>
+<td class="text-center"><p>Ascend310B1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>Ascend910B</p></td>
+<td class="text-center"><p>Ascend310P1</p></td>
+<td class="text-center"><p>Ascend310B2</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>Ascend910B1</p></td>
+<td class="text-center"><p>Ascend310P2</p></td>
+<td class="text-center"><p>Ascend310B3</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>Ascend910B2</p></td>
+<td class="text-center"><p>Ascend310P3</p></td>
+<td class="text-center"><p>Ascend310B4</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>Ascend910B2C</p></td>
+<td class="text-center"><p>Ascend310P4</p></td>
+<td class="text-center"><p>-</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>Ascend910B3</p></td>
+<td class="text-center"><p>Ascend310P5</p></td>
+<td class="text-center"><p>-</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>Ascend910B4</p></td>
+<td class="text-center"><p>Ascend310P7</p></td>
+<td class="text-center"><p>-</p></td>
+</tr>
+</tbody>
+</table>
+<p>以下两个文件中保存了获取的性能数据：</p>
+<ul class="simple">
+<li><p>trace.json</p></li>
+<li><p>visualize_data.bin</p></li>
+</ul>
+<p>trace.json 支持以下两种可视化呈现方式：</p>
+<ul class="simple">
+<li><p>Chrome浏览器<br />
+在Chrome浏览器中输入 <code class="docutils literal notranslate"><span class="pre">chrome://tracing</span></code> 地址，并将通过msprof op simulator 生成指令流水图文件（trace.json）拖到空白处打开，键盘上输入快捷键（W：放大；S：缩小；A：左移；D：右移）可进行查看。<br />
+<strong>图2</strong> Chrome浏览器时间线界面<br />
+<img alt="alt text" src="../../../../../_images/trace_json_with_chrome2.png" /></p></li>
+<li><p><a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0005.html">MindStudio Insight</a>可视化呈现<br />
+MindStudio Insight工具以时序图方式为用户提供指令在昇腾AI处理器上的运行情况，用户可通过分析时序图中的指令详情、指令执行时间、指令关联代码的调用栈及指令/流水间同步连线等信息，识别微观指令的时序优化点。
+<strong>图3</strong> MindStudio Insight时间线界面<br />
+<img alt="alt text" src="../../../../../_images/trace_json_with_insight2.png" /></p></li>
+</ul>
+<p>visualize_data.bin支持在Mind Studio Insight可视化呈现：</p>
+<ul class="simple">
+<li><p>除了与trace.json一样可以采集到性能数据之外，visualize_data.bin还提供了与源代码（如：03-layer-norm.py）对应的指令关联看板。<br />
+<strong>图4</strong> Mind Studio Insight-visualize_data.bin指令关联\</p>
+<ul>
+<li><p>注：以下采集项的结果数据含义可参考《MindStudio Insight 工具》的<a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/82RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0068.html">算子调优</a>章节。
+<img alt="alt text" src="../../../../../_images/visualize_data_with_insight2.png" /></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="id3">
+<h2>分析性能数据<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>理论参数<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>理论性能为算子实际性能的理想目标。不同的硬件平台的硬件规格各异，理论性能可以帮助我们了解硬件的潜能，从而设定性能优化的目标。</p>
+<ul class="simple">
+<li><p>搬运相关流水（MTE1/MTE2/MTE3等）的理论耗时 = 搬运数据量（单位：Byte） / 理论带宽。例如：某款AI处理器的GM峰值带宽约为1.8TB/s，想要进行一次float数据类型、4096 * 4096大小的矩阵搬运，搬运的理论耗时是sizeof(float) * 4096 * 4096 / 1.8 TB/s = 37.28 us（按照1 TB = 10<sup>12</sup> Byte来计算）。</p></li>
+</ul>
+<blockquote>
+<div><p>说明:</p>
+<ul class="simple">
+<li><p>搬运指令同时存在时，会存在共享带宽的情况，并不能每条都以接近理论带宽的速率搬运数据。比如，当MTE2/MTE3同时进行GM读写时，搬运流水线的耗时应该是（MTE2搬运量 + MTE3搬运量）/ GM带宽。</p></li>
+<li><p>搬运不同大小的数据块时，对带宽的利用率（有效带宽/理论带宽）不一样。针对每次搬运数据量较小的情况，实测性能达不到理论带宽。</p></li>
+</ul>
+</div></blockquote>
+<ul class="simple">
+<li><p>计算相关流水（Cube/Vector/Scalar等）的理论耗时 = 计算数据量（单位：Element） / 理论算力。例如：某款AI处理器对float数据类型的Vector理论峰值算力为11.06 TOPS，想要进行一次32K float类型的Element单指令计算，计算的理论耗时是32K / 11.06TOPS = 0.003us （按照1K =1000来计算）。</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>查找瓶颈<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>获取性能数据后，和理论数值差异较大的地方、耗时较长的流程被认为是“瓶颈点”。下文将介绍如何通过性能数据找到瓶颈点和对应的优化方向。</p>
+<ul>
+<li><p>方法一：通过上板Profiling分析流水情况 <br />
+查看上板Profiling解析后的op_summary_*.csv文件分析流水情况。注：“*”表示时间戳。
+<img alt="analyse_data_op_summary" src="../../../../../_images/performance_analysis_analyse_data_op_summary2.png" /></p>
+<p>每条流水线的利用率理想情况下应为100%，没有达到100%的流水就可能有提升空间。上图示例中为某款AI处理器上获取的数据，可以看到Vector算子_layer_norm_fwd_fused的第一个场景中，Vector流水的利用率aiv_vec_ratio小于10%，判断未充分发挥算力；Scalar流水的利用率aiv_scalar_ratio已经在60%左右，判断Scalar是最长的流水。 <br />
+当Scalar是最长的流水时：需要分析算子源码中是否对标量值进行复杂的运算，昇腾的SIMD微架构更适合多数据并行计算；另一种可能性是，由于一部分指令在硬件上不支持特定的数据类型，Triton软件栈将向量计算退化为标量计算。需要结合流水和标量优化手段进行优化，可参考方法三、查看仿真流水图，以及方法四、查看代码热点的情况进一步分析。 <br />
+对于更一般的情况，例如MTE2搬运和实际的场景：三个输入矩阵的shape分别为(128,128)、(128,1)、(128,1)，数据类型为float16。当前算法为Two-pass方法，因此有三次X的搬入，以及W、B的各一次搬入，由此可以计算出总共需要搬运的数据量，继而通过<a class="reference internal" href="#id4">理论参数</a>中介绍的搬运流水理论耗时计算方法计算出理论值为 sizeof(float16) * (128 * 128 * 3 + 128 + 128) / 1.8 TB/s ≈ 0.1991 us （按照1 TB = $10^{12}$ Byte来计算），与实际性能数据aiv_mte2_time存在比较大的差距。经分析，输入数据的总大小小于UB的空间（A2型号为192KB）。因此MTE2时间过长可能是Tiling计算得到的基本块太小，导致发射冗余的搬运指令。需要结合流水优化和Tiling优化手段进行优化。可参考方法三，查看仿真流水图，进一步分析各条流水的情况。</p>
+</li>
+<li><p>方法二：通过上板Profiling分析Tiling情况 <br />
+先前示例中使用的AI处理器，可以通过硬件平台查看到有48个Vector核，_layer_norm_fwd_fused算子是一个纯Vector算子，但是有些场景下发了过多的Block（Block Dim &gt; 48），造成Host调度开销过大。那么下一步的主要优化方向为Tiling优化。</p></li>
+<li><p>方法三：通过仿真流水图分析流水情况 <br />
+<img alt="analyse_data_waveform" src="../../../../../_images/performance_analysis_analyse_data_waveform2.png" /> <br />
+上图示例中为某款AI处理器仿真器上获取的数据，可以看到Vector核的SCALAR以及FLOWCTRL的指令饱和，可以结合算子逻辑分析，是否存在过多标量计算以及不支持的向量化操作。下一步的主要优化方向为标量计算优化。另一方面，可以看到Vector核的相关流水（veccore0的MTE2、VECTOR等）有规律性的断流现象，即大量无操作的空白段。可以结合算子逻辑分析，是否存在基本块切分过小等因素导致断流。主要优化方向为流水优化，其次结合Tiling优化和内存优化等手段进一步提升Vector流水利用率。</p></li>
+<li><p>方法四：通过代码热点分析情况 <br />
+<img alt="analyse_data_code_mapping" src="../../../../../_images/performance_analysis_analyse_data_code_mapping2.png" /> <br />
+上图示例中为某款AI处理器仿真器上获取的数据，可以看到左侧load接口对应到右侧的一组汇编指令中（已筛选仅显示代码行相关指令，并按运行拍数降序排序），标量指令占比高，不符合load作为访存接口应该MTE占比高的情况。因此主要优化方向为标量计算。</p></li>
+</ul>
+</section>
+<section id="i64-i32-comparenpuvector">
+<h3>示例：i64/i32 的compare在npu上无法启用vector导致向量计算转为标量计算<a class="headerlink" href="#i64-i32-comparenpuvector" title="Link to this heading"></a></h3>
+<p>【描述】i64/i32 的cmp在npu上无法启用vector，退化为scalar计算效率降低；通过转化为fp32来利用vec_cast和vec_cmp实现vector操作加速。
+【注意】在tl.load和tl.save中的mask使用cmp功能，大部分情况下编译器可以自动优化为vec操作，本例中tl.where则需要手动转换。</p>
+<div class="highlight-diff notranslate"><div class="highlight"><pre><span></span>import triton
+import triton.language as tl
+
+<span class="gu">@triton.jit</span>
+def npu_vector_cmp_kernel(
+<span class="w"> </span>   X,                 # [Tensor] input tensor (row x col)
+<span class="w"> </span>   Out,               # [Tensor] output tensor (row x col)
+<span class="w"> </span>   Mean,              # [Vector] mean tensor (row, ) of X
+<span class="w"> </span>   Rstd,              # [Vector] std tensor (row, ) of X
+<span class="w"> </span>   stride_x_row,      # [Scalar] stride of row in X
+<span class="w"> </span>   stride_out_row,    # [Scalar] stride of row in Out, normally equals to stride_x_row
+<span class="w"> </span>   M,                 # [Scalar] row number
+<span class="w"> </span>   N,                 # [Scalar] col number
+<span class="w"> </span>   eps,               # [Scalar] epsilon to aviod division by zeros
+<span class="w"> </span>   BLOCK_M: tl.constexpr,
+<span class="w"> </span>   BLOCK_N: tl.constexpr
+):
+<span class="w"> </span>   &quot;&quot;&quot;
+<span class="w"> </span>   an example of layernorm to checkout Vector Cmp
+<span class="w"> </span>   Out = ((X - E[X]) / sqrt(V[X] + eps)) on dim -1
+<span class="w"> </span>   
+<span class="w"> </span>   just for easy case, we assume that:
+<span class="w"> </span>   1. BLOCK_N &gt;= X.shape(-1), group_n = 0 only
+<span class="w"> </span>   2. BLOCK_M = 1, group_m = range(0, row, 1)
+<span class="w"> </span>   &quot;&quot;&quot;
+<span class="w"> </span>   group_m = tl.program_id(0)
+<span class="w"> </span>   group_n = tl.program_id(1)
+<span class="w"> </span>   row = group_m
+
+<span class="w"> </span>   # calculate index &amp; offset
+<span class="w"> </span>   Mean = Mean + group_n * M
+<span class="w"> </span>   Rstd = Rstd + group_n * M
+<span class="w"> </span>   X = X + row * stride_x_row + group_n * N
+<span class="w"> </span>   Out = Out + row * stride_out_row + group_n * N
+
+<span class="w"> </span>   cols = tl.arange(0, BLOCK_N)  # cols is int64
+<span class="w"> </span>   x = tl.load(X + cols, mask=cols &lt; N, other=0.0).to(tl.float32)
+
+<span class="w"> </span>   # calculate mean &amp; rstd
+<span class="w"> </span>   mean = tl.sum(x, axis=0) / N
+<span class="w"> </span>   tl.store(Mean + row, mean)
+<span class="w"> </span>   
+<span class="gd">-   xbar = tl.where(cols &lt; N, x - mean, 0.0) # N为标量值</span>
+
+<span class="gi">+   # change cols(i64) into cols_cmp(f32) to enable vector processing</span>
+<span class="gi">+   cols_cmp = cols.to(tl.float32)</span>
+<span class="gi">+   xbar = tl.where(cols_cmp &lt; N, x - mean, 0.0)</span>
+
+<span class="w"> </span>   var = tl.sum(xbar * xbar, axis=0) / N
+<span class="w"> </span>   rstd = 1 / tl.sqrt(var + eps)
+<span class="w"> </span>   tl.store(Rstd + row, rstd)
+
+<span class="w"> </span>   # calculate Out
+<span class="w"> </span>   mask = cols &lt; N
+<span class="w"> </span>   out = (x - mean) * rstd
+<span class="w"> </span>   tl.store(Out + cols, out, mask=mask)
+</pre></div>
+</div>
+<p><strong>示例图</strong> 优化前后数据对比图
+<img alt="图2 optimization2" src="../../../../../_images/optimization2.png" />
+通过分析图中的数据可以发现，优化前后的aiv_scalar_time(us)和aiv_scalar_ratio差距较大，说明性能差的原因是有很多scalar运算，
+通过采集<a class="reference internal" href="#id2">算子仿真流水图</a>可以得到visualize_data.bin，再用MindStudio Insight解析visualize_data.bin，可以发现xbar = tl.where(cols &lt; N, x - mean, 0.0)有很多scalar运算，通过上面优化可以减少scalar运算。</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="debugging.html" class="btn btn-neutral float-left" title="Triton-Ascend 调试指南" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../triton_api/index.html" class="btn btn-neutral float-right" title="triton.language" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

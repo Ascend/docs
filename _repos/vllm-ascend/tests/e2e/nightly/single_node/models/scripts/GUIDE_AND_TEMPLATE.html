@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vLLM-Ascend Single-Node E2E Test Developer Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">vLLM-Ascend Single-Node E2E Test Developer Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../../_sources/_repos/vllm-ascend/tests/e2e/nightly/single_node/models/scripts/GUIDE_AND_TEMPLATE.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="vllm-ascend-single-node-e2e-test-developer-guide">
+<h1>vLLM-Ascend Single-Node E2E Test Developer Guide<a class="headerlink" href="#vllm-ascend-single-node-e2e-test-developer-guide" title="Link to this heading"></a></h1>
+<p>This document is intended to help developers understand the architecture of the single-node E2E (End-to-End) testing framework in <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code>, how to run test scripts, and how to add custom testing functionality by writing YAML configuration files and extending the code.</p>
+<section id="test-architecture-overview">
+<h2>1. Test Architecture Overview<a class="headerlink" href="#test-architecture-overview" title="Link to this heading"></a></h2>
+<p>To achieve high readability, extensibility, and decoupling of configuration from code, the single-node E2E test adopts a <strong>&quot;YAML-driven + Dispatcher&quot;</strong> architectural structure.</p>
+<p>It consists of the following core components:</p>
+<ul class="simple">
+<li><p><strong>Configuration Parser (<code class="docutils literal notranslate"><span class="pre">single_node_config.py</span></code>)</strong>: Responsible for reading <code class="docutils literal notranslate"><span class="pre">models/configs/*.yaml</span></code> files and parsing them into a strongly-typed <code class="docutils literal notranslate"><span class="pre">&#64;dataclass</span></code> (<code class="docutils literal notranslate"><span class="pre">SingleNodeConfig</span></code>) via <code class="docutils literal notranslate"><span class="pre">SingleNodeConfigLoader</span></code>, while handling regex replacement for environment variables.</p></li>
+<li><p><strong>Service Manager Framework (<code class="docutils literal notranslate"><span class="pre">test_single_node.py</span></code> and <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>)</strong>: Based on the <code class="docutils literal notranslate"><span class="pre">service_mode</span></code> (<code class="docutils literal notranslate"><span class="pre">openai</span></code> or <code class="docutils literal notranslate"><span class="pre">epd</span></code>), it utilizes context managers to safely start/stop server processes.</p></li>
+<li><p><strong>Test Function Dispatcher (<code class="docutils literal notranslate"><span class="pre">TEST_HANDLERS</span></code> Registry)</strong>: Specific test logic is encapsulated into independent functions and registered in the global <code class="docutils literal notranslate"><span class="pre">TEST_HANDLERS</span></code> dictionary.</p></li>
+<li><p><strong>Performance Benchmarking (<code class="docutils literal notranslate"><span class="pre">_run_benchmarks</span></code>)</strong>: Calls <code class="docutils literal notranslate"><span class="pre">aisbench</span></code> for performance and TTFT testing based on the <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code> parameters in the YAML.</p></li>
+</ul>
+<section id="key-files-and-responsibilities">
+<h3>1.1 Key Files and Responsibilities<a class="headerlink" href="#key-files-and-responsibilities" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/nightly/single_node/models/scripts/single_node_config.py</span></code></p>
+<ul>
+<li><p>Defines <code class="docutils literal notranslate"><span class="pre">SingleNodeConfig</span></code> and <code class="docutils literal notranslate"><span class="pre">SingleNodeConfigLoader</span></code></p></li>
+<li><p>Loads YAML from <code class="docutils literal notranslate"><span class="pre">tests/e2e/nightly/single_node/models/configs/&lt;CONFIG_YAML_PATH&gt;</span></code></p></li>
+<li><p>Auto-assigns ports when <code class="docutils literal notranslate"><span class="pre">envs</span></code> contains <code class="docutils literal notranslate"><span class="pre">DEFAULT_PORT</span></code> / missing values</p></li>
+<li><p>Expands <code class="docutils literal notranslate"><span class="pre">$VAR</span></code> / <code class="docutils literal notranslate"><span class="pre">${VAR}</span></code> placeholders inside commands via <code class="docutils literal notranslate"><span class="pre">_expand_values</span></code></p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tests/e2e/nightly/single_node/models/scripts/test_single_node.py</span></code></p>
+<ul>
+<li><p>Declares <code class="docutils literal notranslate"><span class="pre">configs</span> <span class="pre">=</span> <span class="pre">SingleNodeConfigLoader.from_yaml_cases()</span></code> (loaded at import time)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest.mark.parametrize(&quot;config&quot;,</span> <span class="pre">configs,</span> <span class="pre">ids=[config.name</span> <span class="pre">for</span> <span class="pre">config</span> <span class="pre">in</span> <span class="pre">configs])</span></code> runs one test per YAML case</p>
+<ul>
+<li><p>Controls server lifecycle via context managers</p></li>
+<li><p>Dispatches <code class="docutils literal notranslate"><span class="pre">test_content</span></code> to functions registered in <code class="docutils literal notranslate"><span class="pre">TEST_HANDLERS</span></code></p></li>
+<li><p>Runs <code class="docutils literal notranslate"><span class="pre">aisbench</span></code> and optional benchmark assertions</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="end-to-end-flow-high-level">
+<h3>1.2 End-to-End Flow (High Level)<a class="headerlink" href="#end-to-end-flow-high-level" title="Link to this heading"></a></h3>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>pytest starts
+  |
+  v
+import tests/e2e/nightly/single_node/models/scripts/test_single_node.py
+  |
+  v
+configs = SingleNodeConfigLoader.from_yaml_cases()
+  |
+  v
+pytest parametrize(&quot;config&quot;, configs)  # one config == one test case
+  |
+  v
+test_single_node(config)
+  |
+  +-----------------------------------------------+
+  | Start service (depends on service_mode)       |
+  |                                               |
+  |  openai: start one vLLM OpenAI-compatible     |
+  |         service process                       |
+  |  epd:   start (encode service + decode/PD     |
+  |         service) + start proxy process        |
+  +-----------------------------------------------+
+  |
+  v
+Run test phases (test_content)
+  |
+  v
+Optional benchmarks (if benchmarks is configured)
+  |
+  v
+Shutdown all started processes
+
+Notes:
+- One YAML file may contain multiple test_cases; pytest will run them one by one.
+- The framework is &quot;YAML-driven&quot;: changes are typically done by editing YAML rather than editing Python code.
+</pre></div>
+</div>
+</section>
+<section id="function-call-relationships-dispatcher">
+<h3>1.3 Function Call Relationships (Dispatcher)<a class="headerlink" href="#function-call-relationships-dispatcher" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">test_content</span></code> is a list of “phases”. Each phase maps to one handler function.</p>
+<div class="highlight-txt notranslate"><div class="highlight"><pre><span></span>For each test_case:
+
+  test_content (list of phases)
+        |
+        v
+    [Dispatcher]
+        |
+        +--&gt; phase &quot;completion&quot;      -&gt; send completion request(s)
+        |
+        +--&gt; phase &quot;chat_completion&quot; -&gt; send chat completion request(s)
+        |
+        +--&gt; phase &quot;image&quot;           -&gt; send multimodal image request(s)
+        |
+        \--&gt; (extendable) add your own phase by registering a new handler
+
+After phases:
+  if benchmarks is configured -&gt; run aisbench
+
+Notes:
+- The dispatcher only controls &quot;what to run&quot;; service lifecycle is controlled by the service manager.
+- Phases are intentionally small &amp; composable so you can reuse them across YAML cases.
+</pre></div>
+</div>
+</section>
+</section>
+<section id="running-and-debugging-steps">
+<h2>2. Running and Debugging Steps<a class="headerlink" href="#running-and-debugging-steps" title="Link to this heading"></a></h2>
+<section id="dependencies">
+<h3>2.1 Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h3>
+<p>Ensure you are in an NPU environment and have installed <code class="docutils literal notranslate"><span class="pre">pytest</span></code>, <code class="docutils literal notranslate"><span class="pre">pyyaml</span></code>, <code class="docutils literal notranslate"><span class="pre">openai</span></code>, and <code class="docutils literal notranslate"><span class="pre">aisbench</span></code>.</p>
+</section>
+<section id="local-execution">
+<h3>2.2 Local Execution<a class="headerlink" href="#local-execution" title="Link to this heading"></a></h3>
+<p>The framework uses the <code class="docutils literal notranslate"><span class="pre">CONFIG_YAML_PATH</span></code> environment variable to specify the configuration file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Switch to the project root directory</span>
+<span class="nb">cd</span><span class="w"> </span>/vllm-workspace/vllm-ascend
+
+<span class="c1"># Run a specific yaml test</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">CONFIG_YAML_PATH</span><span class="o">=</span><span class="s2">&quot;Qwen3-32B.yaml&quot;</span>
+pytest<span class="w"> </span>-sv<span class="w"> </span>tests/e2e/nightly/single_node/models/scripts/test_single_node.py
+</pre></div>
+</div>
+</section>
+<section id="tips-for-debugging">
+<h3>2.3 Tips for Debugging<a class="headerlink" href="#tips-for-debugging" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Only run a subset of cases: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-sv</span> <span class="pre">...</span> <span class="pre">-k</span> <span class="pre">&lt;keyword&gt;</span></code> (matches case names in the report output)</p></li>
+<li><p>Stop on first failure: <code class="docutils literal notranslate"><span class="pre">pytest</span> <span class="pre">-sv</span> <span class="pre">...</span> <span class="pre">-x</span></code></p></li>
+<li><p>Keep server logs visible: use <code class="docutils literal notranslate"><span class="pre">-s</span></code> (already included in <code class="docutils literal notranslate"><span class="pre">-sv</span></code>) and increase log verbosity via standard Python logging configuration if needed.</p></li>
+</ul>
+</section>
+</section>
+<section id="how-to-write-yaml-configuration-files">
+<h2>3. How to Write YAML Configuration Files<a class="headerlink" href="#how-to-write-yaml-configuration-files" title="Link to this heading"></a></h2>
+<section id="file-location-and-selection-rules">
+<h3>3.1 File Location and Selection Rules<a class="headerlink" href="#file-location-and-selection-rules" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>YAML files live under: <code class="docutils literal notranslate"><span class="pre">tests/e2e/nightly/single_node/models/configs/</span></code></p></li>
+<li><p>Selected by env var: <code class="docutils literal notranslate"><span class="pre">CONFIG_YAML_PATH=&lt;YourConfig&gt;.yaml</span></code></p></li>
+<li><p>If not set, the loader uses <code class="docutils literal notranslate"><span class="pre">SingleNodeConfigLoader.DEFAULT_CONFIG_NAME</span></code></p></li>
+</ul>
+</section>
+<section id="field-descriptions">
+<h3>3.2 Field Descriptions<a class="headerlink" href="#field-descriptions" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Field Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Required</p></th>
+<th class="head text-left"><p>Default Value</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">test_cases</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p><strong>Yes</strong></p></td>
+<td class="text-left"><p>-</p></td>
+<td class="text-left"><p>List of test case objects</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td class="text-left"><p>string</p></td>
+<td class="text-left"><p><strong>Yes</strong></p></td>
+<td class="text-left"><p>-</p></td>
+<td class="text-left"><p>Human-readable case ID shown in pytest output and logs</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">model</span></code></p></td>
+<td class="text-left"><p>string</p></td>
+<td class="text-left"><p><strong>Yes</strong></p></td>
+<td class="text-left"><p>-</p></td>
+<td class="text-left"><p>Model name or local path</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">service_mode</span></code></p></td>
+<td class="text-left"><p>string</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">openai</span></code></p></td>
+<td class="text-left"><p>Service mode: <code class="docutils literal notranslate"><span class="pre">openai</span></code> or <code class="docutils literal notranslate"><span class="pre">epd</span></code> (disaggregated)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">envs</span></code></p></td>
+<td class="text-left"><p>map</p></td>
+<td class="text-left"><p><strong>Yes</strong></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td class="text-left"><p>Environment variables for the server process</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">server_cmd</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p>Cond.</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td class="text-left"><p>vLLM startup arguments (Required for non-EPD)</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">server_cmd_extra</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td class="text-left"><p>Extra vLLM startup arguments appended after <code class="docutils literal notranslate"><span class="pre">server_cmd</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">prompts</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p>built-in default</p></td>
+<td class="text-left"><p>Prompts for completion/chat tests</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">api_keyword_args</span></code></p></td>
+<td class="text-left"><p>map</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p>built-in default</p></td>
+<td class="text-left"><p>OpenAI API keyword args (e.g., <code class="docutils literal notranslate"><span class="pre">max_tokens</span></code>, sampling params)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">test_content</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">[&quot;completion&quot;]</span></code></p></td>
+<td class="text-left"><p>Test phases: <code class="docutils literal notranslate"><span class="pre">completion</span></code>, <code class="docutils literal notranslate"><span class="pre">chat_completion</span></code>, <code class="docutils literal notranslate"><span class="pre">image</span></code>  etc.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">benchmarks</span></code></p></td>
+<td class="text-left"><p>map</p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td class="text-left"><p>Configuration for <code class="docutils literal notranslate"><span class="pre">aisbench</span></code> performance verification</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">epd_server_cmds</span></code></p></td>
+<td class="text-left"><p>list[list]</p></td>
+<td class="text-left"><p>Cond.</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td class="text-left"><p>(EPD Only) Command arrays for starting dual Encode/Decode processes</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">epd_proxy_args</span></code></p></td>
+<td class="text-left"><p>list</p></td>
+<td class="text-left"><p>Cond.</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td class="text-left"><p>(EPD Only) Startup arguments for the EPD routing gateway</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes / Behaviors</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> is mandatory and must be a non-empty string.</p>
+<ul>
+<li><p>It is used directly as pytest case id (e.g., <code class="docutils literal notranslate"><span class="pre">test_single_node[DeepSeek-R1-0528-W8A8-single]</span></code>).</p></li>
+<li><p>It is also printed in <code class="docutils literal notranslate"><span class="pre">[single-node][START]</span></code> marker for log navigation.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">envs</span></code> (ports): the config object recognizes these keys: <code class="docutils literal notranslate"><span class="pre">SERVER_PORT</span></code>, <code class="docutils literal notranslate"><span class="pre">ENCODE_PORT</span></code>, <code class="docutils literal notranslate"><span class="pre">PD_PORT</span></code>, <code class="docutils literal notranslate"><span class="pre">PROXY_PORT</span></code>.</p>
+<ul>
+<li><p>If a port key is missing or set to <code class="docutils literal notranslate"><span class="pre">DEFAULT_PORT</span></code>, it will be automatically filled with an available open port.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$SERVER_PORT</span></code> / <code class="docutils literal notranslate"><span class="pre">${SERVER_PORT}</span></code> placeholders in commands will be expanded using <code class="docutils literal notranslate"><span class="pre">envs</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">server_cmd</span></code> vs <code class="docutils literal notranslate"><span class="pre">server_cmd_extra</span></code>:</p>
+<ul>
+<li><p>YAML can define <code class="docutils literal notranslate"><span class="pre">server_cmd_extra</span></code> to append additional args after <code class="docutils literal notranslate"><span class="pre">server_cmd</span></code>.</p></li>
+<li><p>The loader merges them into a single <code class="docutils literal notranslate"><span class="pre">server_cmd</span></code> list.</p></li>
+</ul>
+</li>
+<li><p>Extra fields:</p>
+<ul>
+<li><p>Any non-standard fields in a case are stored in <code class="docutils literal notranslate"><span class="pre">config.extra_config</span></code>.</p></li>
+<li><p>This is how extension configs are passed through without changing the dataclass.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="yaml-examples">
+<h3>3.3 YAML Examples<a class="headerlink" href="#yaml-examples" title="Link to this heading"></a></h3>
+<section id="single-case-similar-to-deepseek-r1-w8a8-hbm">
+<h4>Single-Case (similar to DeepSeek-R1-W8A8-HBM)<a class="headerlink" href="#single-case-similar-to-deepseek-r1-w8a8-hbm" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">test_cases</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;your-case-name&gt;&quot;</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;model-repo-or-local-path&gt;&quot;</span>
+
+<span class="w">    </span><span class="c1"># Optional: The default values are as follows</span>
+<span class="w">    </span><span class="nt">prompts</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;San</span><span class="nv"> </span><span class="s">Francisco</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">a&quot;</span>
+<span class="w">    </span><span class="nt">api_keyword_args</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+
+<span class="w">    </span><span class="nt">envs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SERVER_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEFAULT_PORT&quot;</span>
+<span class="w">      </span><span class="c1"># Add only what you need.</span>
+
+<span class="w">    </span><span class="nt">server_cmd</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--port&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;$SERVER_PORT&quot;</span>
+<span class="w">      </span><span class="c1"># plus your vLLM serve args...</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="c1"># Optional: omit -&gt; defaults to [&quot;completion&quot;]</span>
+<span class="w">    </span><span class="nt">test_content</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;chat_completion&quot;</span>
+
+<span class="w">    </span><span class="c1"># Optional: leave empty if you don&#39;t run aisbench</span>
+<span class="w">    </span><span class="nt">benchmarks</span><span class="p">:</span>
+</pre></div>
+</div>
+</section>
+<section id="multi-case-shared-anchors">
+<h4>Multi-Case + Shared Anchors<a class="headerlink" href="#multi-case-shared-anchors" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">_envs</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;envs</span>
+<span class="w">  </span><span class="nt">SERVER_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEFAULT_PORT&quot;</span>
+<span class="w">  </span><span class="c1"># shared envs...</span>
+
+<span class="nt">_server_cmd</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;server_cmd</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--port&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;$SERVER_PORT&quot;</span>
+<span class="w">  </span><span class="c1"># shared vLLM serve args...</span>
+
+<span class="nt">_benchmarks</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;benchmarks</span>
+<span class="w">  </span><span class="nt">perf</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">case_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">performance</span>
+<span class="w">    </span><span class="nt">dataset_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm-ascend/GSM8K-in3500-bs400</span>
+<span class="w">    </span><span class="nt">request_conf</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_api_stream_chat</span>
+<span class="w">    </span><span class="nt">dataset_conf</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gsm8k/gsm8k_gen_0_shot_cot_str_perf</span>
+<span class="w">    </span><span class="nt">num_prompts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">400</span>
+<span class="w">    </span><span class="nt">max_out_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1500</span>
+<span class="w">    </span><span class="nt">batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">    </span><span class="nt">baseline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">threshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.97</span>
+
+<span class="nt">test_cases</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;case-a&quot;</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;model&gt;&quot;</span>
+<span class="w">    </span><span class="nt">envs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;&lt;</span><span class="p">:</span><span class="w"> </span><span class="nv">*envs</span>
+<span class="w">      </span><span class="nt">DYNAMIC_EPLB</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">      </span><span class="c1"># private envs...</span>
+<span class="w">    </span><span class="nt">server_cmd</span><span class="p">:</span><span class="w"> </span><span class="nv">*server_cmd</span>
+<span class="w">    </span><span class="nt">server_cmd_extra</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--enforce-eager&quot;</span>
+<span class="w">    </span><span class="nt">benchmarks</span><span class="p">:</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;case-b&quot;</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;model&gt;&quot;</span>
+<span class="w">    </span><span class="nt">envs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;&lt;</span><span class="p">:</span><span class="w"> </span><span class="nv">*envs</span>
+<span class="w">    </span><span class="nt">server_cmd</span><span class="p">:</span><span class="w"> </span><span class="nv">*server_cmd</span>
+<span class="w">    </span><span class="nt">benchmarks</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;&lt;</span><span class="p">:</span><span class="w"> </span><span class="nv">*benchmarks_acc</span>
+</pre></div>
+</div>
+</section>
+<section id="epd-disaggregated-case">
+<h4>EPD / Disaggregated Case<a class="headerlink" href="#epd-disaggregated-case" title="Link to this heading"></a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">test_cases</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;your-epd-case&gt;&quot;</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;model&gt;&quot;</span>
+<span class="w">    </span><span class="nt">service_mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;epd&quot;</span>
+<span class="w">    </span><span class="nt">envs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ENCODE_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEFAULT_PORT&quot;</span>
+<span class="w">      </span><span class="nt">PD_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEFAULT_PORT&quot;</span>
+<span class="w">      </span><span class="nt">PROXY_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;DEFAULT_PORT&quot;</span>
+
+<span class="w">    </span><span class="nt">epd_server_cmds</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--port&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;$ENCODE_PORT&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--model&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;&lt;encode-model&gt;&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;--port&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;$PD_PORT&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;--model&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;&lt;decode-model&gt;&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="nt">epd_proxy_args</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--host&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;127.0.0.1&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--port&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;$PROXY_PORT&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--encode-servers-urls&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;http://localhost:$ENCODE_PORT&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--decode-servers-urls&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;http://localhost:$PD_PORT&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;--prefill-servers-urls&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;disable&quot;</span>
+
+<span class="w">    </span><span class="nt">test_content</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;chat_completion&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="how-to-add-custom-tests-extension">
+<h2>4. How to Add Custom Tests (Extension)<a class="headerlink" href="#how-to-add-custom-tests-extension" title="Link to this heading"></a></h2>
+<section id="step-1-write-your-test-logic-in-test-single-node-py">
+<h3>Step 1: Write your test logic in <code class="docutils literal notranslate"><span class="pre">test_single_node.py</span></code><a class="headerlink" href="#step-1-write-your-test-logic-in-test-single-node-py" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_video_test</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">SingleNodeConfig</span><span class="p">,</span> <span class="n">server</span><span class="p">:</span> <span class="s1">&#39;RemoteOpenAIServer | DisaggEpdProxy&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="n">get_async_client</span><span class="p">()</span>
+    <span class="c1"># Your custom logic here...</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-register-your-function-in-test-handlers">
+<h3>Step 2: Register your function in <code class="docutils literal notranslate"><span class="pre">TEST_HANDLERS</span></code><a class="headerlink" href="#step-2-register-your-function-in-test-handlers" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">TEST_HANDLERS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;completion&quot;</span><span class="p">:</span> <span class="n">run_completion_test</span><span class="p">,</span>
+    <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">run_video_test</span><span class="p">,</span>  <span class="c1"># Registered!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-enable-in-yaml">
+<h3>Step 3: Enable in YAML<a class="headerlink" href="#step-3-enable-in-yaml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nt">test_content</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;completion&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;video&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="checklist-before-submitting-a-new-yaml">
+<h2>5. Checklist (Before Submitting a New YAML)<a class="headerlink" href="#checklist-before-submitting-a-new-yaml" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">test_cases</span></code> exists and is a list</p></li>
+<li><p>Each case contains required fields for its <code class="docutils literal notranslate"><span class="pre">service_mode</span></code></p>
+<ul>
+<li><p>Common required: <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">model</span></code>, <code class="docutils literal notranslate"><span class="pre">envs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">openai</span></code>: <code class="docutils literal notranslate"><span class="pre">server_cmd</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">epd</span></code>: <code class="docutils literal notranslate"><span class="pre">epd_server_cmds</span></code>, <code class="docutils literal notranslate"><span class="pre">epd_proxy_args</span></code></p></li>
+</ul>
+</li>
+<li><p>Port envs are set to <code class="docutils literal notranslate"><span class="pre">DEFAULT_PORT</span></code> (or to explicit free ports)</p></li>
+<li><p>If using <code class="docutils literal notranslate"><span class="pre">benchmarks</span></code>, ensure each benchmark case includes required aisbench fields (e.g., <code class="docutils literal notranslate"><span class="pre">case_type</span></code>, <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code>, <code class="docutils literal notranslate"><span class="pre">request_conf</span></code>, <code class="docutils literal notranslate"><span class="pre">dataset_conf</span></code>, <code class="docutils literal notranslate"><span class="pre">max_out_len</span></code>, <code class="docutils literal notranslate"><span class="pre">batch_size</span></code>)</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

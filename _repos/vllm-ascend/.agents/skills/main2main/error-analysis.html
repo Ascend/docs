@@ -1,0 +1,428 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CI Failure Diagnosis Workflow &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">CI Failure Diagnosis Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/_repos/vllm-ascend/.agents/skills/main2main/error-analysis.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ci-failure-diagnosis-workflow">
+<h1>CI Failure Diagnosis Workflow<a class="headerlink" href="#ci-failure-diagnosis-workflow" title="Link to this heading"></a></h1>
+<p>Diagnose and fix vLLM-Ascend CI failures caused by upstream vLLM main branch evolution. This implements a 4-phase pipeline: log mining, change analysis, report generation, and automated fix.</p>
+<section id="prerequisites-run-these-first-before-phase-1">
+<h2>Prerequisites (run these first, before Phase 1)<a class="headerlink" href="#prerequisites-run-these-first-before-phase-1" title="Link to this heading"></a></h2>
+<p>Before starting, verify the <code class="docutils literal notranslate"><span class="pre">gh</span></code> CLI is installed and authenticated:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gh<span class="w"> </span>auth<span class="w"> </span>status
+</pre></div>
+</div>
+<p>If not authenticated, instruct the user to run <code class="docutils literal notranslate"><span class="pre">gh</span> <span class="pre">auth</span> <span class="pre">login</span></code>.</p>
+<p>Also verify you are inside the vllm-ascend repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="w">  </span><span class="c1"># Should end with vllm-ascend</span>
+</pre></div>
+</div>
+<p>Locate the vLLM upstream repo, if not found, prompt the user to specify the exact path to the vLLM git repository.</p>
+<p>Before Phase 2, ensure the vllm repo has both the good and bad commits:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>cat-file<span class="w"> </span>-t<span class="w"> </span>&lt;GOOD_COMMIT&gt;<span class="w">  </span>
+git<span class="w"> </span>cat-file<span class="w"> </span>-t<span class="w"> </span>&lt;BAD_COMMIT&gt;<span class="w"> </span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="token-budget-strategy">
+<h2>Token Budget Strategy<a class="headerlink" href="#token-budget-strategy" title="Link to this heading"></a></h2>
+<p>CI logs can be enormous (10K+ lines per job). To avoid exhausting your context on raw log text:</p>
+<ol class="arabic simple">
+<li><p><strong>Always use the repository summary script</strong> for Phase 1. It processes logs in a subprocess and returns only the structured results — keeping your context clean for the higher-value Phase 2/3 analysis.</p></li>
+<li><p><strong>Write a partial report early.</strong> After Phase 1, immediately write a skeleton <code class="docutils literal notranslate"><span class="pre">vllm_error_analyze.md</span></code> with the Overview table, failed jobs, and error list. Then fill in the upstream commit details as you complete Phase 2. This ensures the user gets a useful report even if you run low on budget.</p></li>
+<li><p><strong>Use the local vLLM repo</strong> for all upstream code analysis (Phase 2). Run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">diff</span></code>, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">show</span></code>, and read files directly from <code class="docutils literal notranslate"><span class="pre">$VLLM_LOCAL_DIR</span></code> — this is faster and more reliable than GitHub API calls, and avoids rate limits.</p></li>
+<li><p><strong>If falling back to manual mode</strong>, never pipe full logs into context. Always filter through <code class="docutils literal notranslate"><span class="pre">grep</span></code> with <code class="docutils literal notranslate"><span class="pre">head</span></code> limits first.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="phase-1-fault-context-acquisition-use-the-repository-script">
+<h2>Phase 1: Fault Context Acquisition — Use the Repository Script<a class="headerlink" href="#phase-1-fault-context-acquisition-use-the-repository-script" title="Link to this heading"></a></h2>
+<p>This skill relies on <code class="docutils literal notranslate"><span class="pre">.github/workflows/scripts/ci_log_summary.py</span></code> to summarize failed jobs, failed tests, and distinct root-cause errors from a GitHub Actions run or local pytest log. <strong>Always run the script first</strong> to avoid wasting tokens on manual log parsing. The script prepares the failure inventory for Phase 1; Phase 2 upstream commit correlation is still manual.</p>
+<section id="run-the-summary-script">
+<h3>1.1 Run the Summary Script<a class="headerlink" href="#run-the-summary-script" title="Link to this heading"></a></h3>
+<p>Run one of the following commands from the <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> repository root:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># With a specific run ID:</span>
+python3<span class="w"> </span>&lt;VLLM_ASCEND_DIR&gt;/.github/workflows/scripts/ci_log_summary.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--run-id<span class="w"> </span>&lt;RUN_ID&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--format<span class="w"> </span>llm-json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>/tmp/ci_analysis.json
+</pre></div>
+</div>
+<p>The script will:</p>
+<ul class="simple">
+<li><p>Download logs for each completed non-skipped job when <code class="docutils literal notranslate"><span class="pre">--run-id</span></code> is provided</p></li>
+<li><p>Extract the <strong>bad commit</strong> from the vLLM version string in the logs (e.g., <code class="docutils literal notranslate"><span class="pre">vLLM</span> <span class="pre">0.1.dev1+g6d4f9d3ad.empty</span></code> → <code class="docutils literal notranslate"><span class="pre">6d4f9d3ad</span></code>)</p></li>
+<li><p>Extract the <strong>good commit</strong> from <code class="docutils literal notranslate"><span class="pre">.github/workflows/pr_test_full.yaml</span></code> (the <code class="docutils literal notranslate"><span class="pre">vllm_version</span></code> matrix field)</p></li>
+<li><p>Parse failed test files and failed test cases from pytest summary output</p></li>
+<li><p>Extract root-cause exceptions (TypeError, AttributeError, ImportError, etc.)</p></li>
+<li><p>Skip wrapper errors (<code class="docutils literal notranslate"><span class="pre">Engine</span> <span class="pre">core</span> <span class="pre">initialization</span> <span class="pre">failed</span></code>, <code class="docutils literal notranslate"><span class="pre">Worker</span> <span class="pre">failed</span> <span class="pre">with</span> <span class="pre">error</span></code>)</p></li>
+<li><p>Filter downstream effects (<code class="docutils literal notranslate"><span class="pre">KeyError:</span> <span class="pre">'choices'</span></code> caused by upstream engine crash)</p></li>
+<li><p>Detect environment flakes (<code class="docutils literal notranslate"><span class="pre">Stale</span> <span class="pre">file</span> <span class="pre">handle</span></code>, <code class="docutils literal notranslate"><span class="pre">ConnectionResetError</span></code>, <code class="docutils literal notranslate"><span class="pre">filelock</span></code> errors) — even when embedded inside assertion messages</p></li>
+<li><p>Deduplicate errors by normalized signature (stripping PIDs, timestamps, addresses, errno numbers)</p></li>
+<li><p>Output a structured JSON summary for LLM consumption</p></li>
+</ul>
+<p>If the user does not provide a run ID or a log file, obtain the run ID first using <code class="docutils literal notranslate"><span class="pre">gh</span></code> commands, then invoke the script. Do not pretend the script can auto-discover the latest failed run by itself.</p>
+</section>
+<section id="read-the-script-output">
+<h3>1.2 Read the Script Output<a class="headerlink" href="#read-the-script-output" title="Link to this heading"></a></h3>
+<p>Load <code class="docutils literal notranslate"><span class="pre">/tmp/ci_analysis.json</span></code> and extract the key fields:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;run_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">21646698906</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;good_commit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;15d76f74e2fdb12a95ea00f0ca283acf6219a2b7&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;bad_commit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6d4f9d3ad5aa3750697edcf013ad080619ae25e9&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;failed_test_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/...&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;failed_test_cases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/...::test_xxx&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;code_bugs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;error_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;TypeError&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;error_message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Code Bug&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;context&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;error_failed_test_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/...&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;error_failed_test_cases&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/...::test_xxx&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;env_flakes&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Phase 1 outputs:</strong> <code class="docutils literal notranslate"><span class="pre">RUN_ID</span></code>,<code class="docutils literal notranslate"><span class="pre">GOOD_COMMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">BAD_COMMIT</span></code>, <code class="docutils literal notranslate"><span class="pre">failed_test_cases</span></code>, <code class="docutils literal notranslate"><span class="pre">code_bugs</span></code>, and <code class="docutils literal notranslate"><span class="pre">env_flakes</span></code></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-2-change-comparison-adaptation-analysis">
+<h2>Phase 2: Change Comparison &amp; Adaptation Analysis<a class="headerlink" href="#phase-2-change-comparison-adaptation-analysis" title="Link to this heading"></a></h2>
+<p>The goal is to <strong>map each code bug to the specific upstream vLLM commit</strong> that caused it. Only analyze <code class="docutils literal notranslate"><span class="pre">code_bugs</span></code>, not <code class="docutils literal notranslate"><span class="pre">env_flakes</span></code>.</p>
+<p>All commands in this phase run against the <strong>local vLLM repo</strong> (<code class="docutils literal notranslate"><span class="pre">$VLLM_LOCAL_DIR</span></code>).</p>
+<section id="get-the-commit-diff">
+<h3>2.1 Get the Commit Diff<a class="headerlink" href="#get-the-commit-diff" title="Link to this heading"></a></h3>
+<p>Compare changed files between good and bad commits under <code class="docutils literal notranslate"><span class="pre">vllm/vllm/</span></code> directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>diff<span class="w">  </span>&lt;GOOD_COMMIT&gt;..&lt;BAD_COMMIT&gt;<span class="w"> </span>--name-only
+</pre></div>
+</div>
+<p>List commits in the range:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>&lt;GOOD_COMMIT&gt;..&lt;BAD_COMMIT&gt;
+</pre></div>
+</div>
+<p>Focus on files in these critical paths:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/platforms/</span></code> — Platform interface changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/attention/</span></code> — Attention backends</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/fused_moe/</span></code> — MoE layer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/layernorm.py</span></code> — Normalization ops</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/custom_op.py</span></code> — Custom op registration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/v1/worker/</span></code> — Model runner and workers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/distributed/</span></code> — Distributed communication</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/config*.py</span></code> — Configuration</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">vllm/compilation/</span></code> — Compilation passes</p></li>
+</ul>
+</section>
+<section id="root-cause-correlation">
+<h3>2.2 Root Cause Correlation<a class="headerlink" href="#root-cause-correlation" title="Link to this heading"></a></h3>
+<p>For each code bug from the script output, use the error type, message, and context to figure out how upstream changes caused it. Find the commit(s) that introduced the relevant change, then analyze the code diff to understand why it breaks vllm-ascend.</p>
+</section>
+<section id="file-impact-mapping">
+<h3>2.3 File Impact Mapping<a class="headerlink" href="#file-impact-mapping" title="Link to this heading"></a></h3>
+<p>Map vLLM changes to their vllm-ascend counterparts:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>vLLM Source Path</p></th>
+<th class="head text-left"><p>vllm-ascend Target Path</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/platforms/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/platform.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/attention/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/attention/</span></code>, <code class="docutils literal notranslate"><span class="pre">vllm_ascend/ops/mm_encoder_attention.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/fused_moe/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/ops/moe.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/layers/layernorm.py</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/ops/layernorm.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/model_executor/custom_op.py</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/ops/</span></code> (any file registering custom ops)</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/v1/worker/gpu/model_runner.py</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/worker/model_runner_v1.py</span></code>, <code class="docutils literal notranslate"><span class="pre">vllm_ascend/worker/v2/model_runner.py</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/v1/worker/gpu/spec_decode/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/spec_decode/</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/distributed/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/distributed/</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/config*.py</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/ascend_config.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm/compilation/</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">vllm_ascend/compilation/</span></code> or config overrides</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Phase 2 outputs:</strong> For each code bug, the causal upstream commit(s), the changed vLLM file(s), and the affected vllm-ascend file(s).</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3-generate-diagnostic-report">
+<h2>Phase 3: Generate Diagnostic Report<a class="headerlink" href="#phase-3-generate-diagnostic-report" title="Link to this heading"></a></h2>
+<p>Write <code class="docutils literal notranslate"><span class="pre">vllm_error_analyze.md</span></code> in the repository root <strong>as early as possible</strong>. Start writing it right after Phase 1 completes — fill in the Overview, Failed Jobs Summary, and error list immediately. Then update the Issue Analysis sections with upstream commit details as you complete Phase 2. This incremental approach ensures a useful report exists even if you can't finish all the tracing.</p>
+<p>Use the script output JSON to populate it — do not re-download logs.</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gh"># vLLM-Ascend CI Failure Analysis Report</span>
+
+<span class="gu">## Overview</span>
+
+| Item                      | Value                      |
+| :------------------------ | :------------------------- |
+| <span class="gs">**Run URL**</span>               | &lt;url&gt;                      |
+| <span class="gs">**Run Date**</span>              | &lt;date&gt;                     |
+| <span class="gs">**Good Commit (pinned)**</span>  | <span class="sb">`&lt;good_commit&gt;`</span>            |
+| <span class="gs">**Bad Commit (tested)**</span>   | <span class="sb">`&lt;bad_commit&gt;`</span>             |
+| <span class="gs">**Total Failed Jobs**</span>     | X / Y                      |
+| <span class="gs">**Distinct Issues Found**</span> | N code bugs + M env flakes |
+
+<span class="gu">## Failed Jobs Summary</span>
+
+| Job        | Conclusion | Failed Tests     |
+|:---        |:---        |:---              |
+| &lt;job_name&gt; | failure    | &lt;test1&gt;, &lt;test2&gt; |
+
+<span class="gu">## Issue Analysis</span>
+
+<span class="gu">### Issue 1: &lt;Short Description&gt;</span>
+
+| Item                      | Detail                                   |
+| :------------------------ | :--------------------------------------- |
+| <span class="gs">**Category**</span>              | Code Bug / Environment Flake             |
+| <span class="gs">**Error Type**</span>            | &lt;exception class&gt;                        |
+| <span class="gs">**Affected Tests**</span>        | &lt;list&gt;                                   |
+| <span class="gs">**Root Cause Commit**</span>     | <span class="sb">`&lt;sha&gt;`</span> — &quot;&lt;commit message&gt;&quot; (&lt;PR link&gt;) |
+| <span class="gs">**Changed File**</span>          | <span class="sb">`&lt;vllm file path&gt;`</span>                       |
+| <span class="gs">**Impact in vllm-ascend**</span> | <span class="sb">`&lt;ascend file path&gt;`</span>                     |
+
+<span class="gs">**Error Traceback:**</span>
+(use context from script output)
+
+<span class="gs">**Explanation:**</span> &lt;Why this change breaks vllm-ascend&gt;
+
+<span class="gs">**Fix Suggestion:**</span> &lt;Specific code change needed&gt;
+
+<span class="gu">### Issue 2: ...</span>
+
+<span class="gu">## Summary Table</span>
+
+| #    | Error | Category | Upstream Commit | Affected Tests | Fix  |
+| :--- | :---- | :------- | :-------------- | :------------- | :--- |
+| 1    | ...   | ...      | ...             | ...            | ...  |
+
+<span class="gu">## Recommended Actions</span>
+
+<span class="k">1.</span> &lt;action item&gt;
+<span class="k">2.</span> &lt;action item&gt;
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="phase-4-automated-fix-output-summary">
+<h2>Phase 4: Automated Fix &amp; Output Summary<a class="headerlink" href="#phase-4-automated-fix-output-summary" title="Link to this heading"></a></h2>
+<section id="apply-fixes">
+<h3>4.1 Apply Fixes<a class="headerlink" href="#apply-fixes" title="Link to this heading"></a></h3>
+<p>Only fix <code class="docutils literal notranslate"><span class="pre">Code</span> <span class="pre">Bug</span></code> issues. Skip <code class="docutils literal notranslate"><span class="pre">Environment</span> <span class="pre">Flake</span></code> issues entirely.</p>
+<p>Map each error to the corresponding fix pattern in the Common Error Patterns Reference in <code class="docutils literal notranslate"><span class="pre">reference/error-patterns.md</span></code>, which documents frequent upstream vLLM evolution issues with concrete fix examples.</p>
+</section>
+<section id="version-compatibility-pattern">
+<h3>4.2 Version Compatibility Pattern<a class="headerlink" href="#version-compatibility-pattern" title="Link to this heading"></a></h3>
+<p>Most fixes require <code class="docutils literal notranslate"><span class="pre">vllm_version_is()</span></code> guards to maintain compatibility with both the pinned release version and main branch. The compatible release version comes from the <code class="docutils literal notranslate"><span class="pre">vllm_version</span></code> matrix in <code class="docutils literal notranslate"><span class="pre">.github/workflows/pr_test_full.yaml</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vllm_ascend.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">vllm_version_is</span>
+
+<span class="k">if</span> <span class="n">vllm_version_is</span><span class="p">(</span><span class="s2">&quot;0.16.0&quot;</span><span class="p">):</span>  <span class="c1"># pinned version</span>
+    <span class="c1"># Use old API</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># Use new API</span>
+</pre></div>
+</div>
+<p>This pattern appears throughout the Common Error Patterns below.</p>
+</section>
+<section id="output-fix-summary">
+<h3>4.3 Output Fix Summary<a class="headerlink" href="#output-fix-summary" title="Link to this heading"></a></h3>
+<p>After all fixes are applied, output a structured summary in the conversation. This summary serves as the skill's primary output — it's what a Workflow consumes, and what gets used as PR body content in standalone mode.</p>
+<div class="highlight-markdown notranslate"><div class="highlight"><pre><span></span><span class="gu">### CI Fix Summary (run ID: &lt;RUN_ID&gt;)</span>
+
+<span class="gs">**Commit range:**</span> <span class="sb">`&lt;GOOD_COMMIT_SHORT&gt;`</span>..`&lt;BAD_COMMIT_SHORT&gt;`
+
+<span class="gu">#### Issues Fixed</span>
+| Error | Upstream Cause Commit | Affected Files | Fix Description |
+|:---|:---|:---|:---|
+| <span class="sb">`TypeError: forward_oot() got unexpected kwarg &#39;X&#39;`</span> | <span class="sb">`abc1234`</span> — &quot;refactor attention API&quot; | <span class="sb">`vllm_ascend/attention/`</span> | Added <span class="sb">`vllm_version_is()`</span> guard |
+
+<span class="gu">#### Issues Skipped (Environment Flakes)</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`OSError: Stale file handle`</span> — no code fix needed
+
+<span class="gu">#### Files Changed</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`vllm_ascend/attention/...`</span>
+<span class="k">-</span><span class="w"> </span><span class="sb">`.github/workflows/...`</span>
+</pre></div>
+</div>
+<p>The &quot;Upstream Cause Commit&quot; column is critical — it links each fix back to the specific vLLM commit that caused the breakage, identified during Phase 2.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

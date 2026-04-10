@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD) &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../../_sources/_repos/ms-swift/docs/source_en/Instruction/GRPO/AdvancedResearch/CHORD.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="on-policy-rl-meets-off-policy-experts-harmonizing-sft-and-rl-via-dynamic-weighting-chord">
+<h1>On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting (CHORD)<a class="headerlink" href="#on-policy-rl-meets-off-policy-experts-harmonizing-sft-and-rl-via-dynamic-weighting-chord" title="Link to this heading"></a></h1>
+<p>This document describes the CHORD algorithm proposed in the paper <a class="reference external" href="https://arxiv.org/abs/2508.11408">On-Policy RL Meets Off-Policy Experts: Harmonizing SFT and RL via Dynamic Weighting</a>. The core idea of CHORD is to dynamically integrate expert data (SFT) into reinforcement learning by a dual control mechanism: a global weight μ plus a token-level weight φ, thereby balancing imitation and exploration.</p>
+<section id="algorithm-overview">
+<h2>Algorithm Overview<a class="headerlink" href="#algorithm-overview" title="Link to this heading"></a></h2>
+<p>CHORD mixes training by introducing the SFT loss into the GRPO loss. The overall objective is:</p>
+<p>$$
+\mathcal{L}<em>{\text{CHORD}} = (1 - \mu) \cdot \mathcal{L}</em>{\text{GRPO}} + \mu \cdot \mathcal{L}_{\text{SFT}}
+$$</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>$\mathcal{L}_{\text{GRPO}}$: on-policy RL loss based on on-policy samples (similar to PPO).</p></li>
+<li><p>$\mathcal{L}_{\text{SFT}}$: supervised fine-tuning (SFT) loss.</p></li>
+<li><p>$\mu \in [0, 1]$: global balancing coefficient that controls the contribution of the SFT signal to the overall gradient.</p></li>
+</ul>
+<section id="configuration-data-and-batch-sizes">
+<h3>Configuration (data and batch sizes)<a class="headerlink" href="#configuration-data-and-batch-sizes" title="Link to this heading"></a></h3>
+<p>We can implement CHORD training based on GRPO training.</p>
+<p>CHORD requires specifying an additional SFT dataset and batch size at training time:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_sft_dataset</span></code>: the SFT dataset that provides expert data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_sft_per_device_train_batch_size</span></code>: SFT mini-batch size per device.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="two-chord-variants">
+<h2>Two CHORD Variants<a class="headerlink" href="#two-chord-variants" title="Link to this heading"></a></h2>
+<p>The paper proposes two variants: CHORD-μ and CHORD-φ.</p>
+<section id="chord">
+<h3>CHORD-μ<a class="headerlink" href="#chord" title="Link to this heading"></a></h3>
+<p>CHORD-μ gradually decays μ during training to transition from imitating experts toward autonomous exploration.</p>
+<p>Parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_mu_peak</span></code>: the peak value of μ.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_mu_valley</span></code>: the final decayed value of μ.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_mu_warmup_steps</span></code>: number of training steps to ramp μ up to the peak.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_mu_decay_steps</span></code>: number of training steps to decay μ from peak to valley.</p></li>
+</ul>
+</section>
+<section id="chord-token-level-weighting">
+<h3>CHORD-φ (Token-level weighting)<a class="headerlink" href="#chord-token-level-weighting" title="Link to this heading"></a></h3>
+<p>CHORD-φ uses a token-wise weighting function φ to dynamically control each expert token's gradient contribution.</p>
+<p>Definition of φ:
+$$
+\phi(y_t^\star, \pi_\theta) = p_t \cdot (1 - p_t)
+$$</p>
+<p>where:</p>
+<ul class="simple">
+<li><p>$p_t = \pi_\theta(y_t^\star \mid x, y_{&lt;t}^\star)$ is the model's current predicted probability of the expert token.</p></li>
+<li><p>When $p_t \approx 0.5$ (model uncertainty), φ is maximal → emphasize tokens the model is uncertain about.</p></li>
+<li><p>When $p_t \approx 0$ or $p_t \approx 1$, φ → 0 → avoid overemphasizing tokens that are already certain or impossible.</p></li>
+</ul>
+<p>Parameter to enable φ weighting:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">chord_enable_phi_function:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></code></p>
+<ul>
+<li><p>Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to enable token-wise weight φ.</p></li>
+</ul>
+</li>
+</ul>
+<p>Note: If using a constant μ, set <code class="docutils literal notranslate"><span class="pre">chord_mu_peak</span></code> and <code class="docutils literal notranslate"><span class="pre">chord_mu_valley</span></code> to the same value.</p>
+<details>
+<summary>Code implementation of μ scheduling and loss computation</summary>
+See the `GRPOTrainer` method `_compute_chord_loss`.
+</details>
+<p>Training reference script: https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/internal/chord.sh</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

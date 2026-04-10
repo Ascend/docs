@@ -1,0 +1,756 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qwen3.5 最佳实践 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sources/whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Qwen3.5 最佳实践</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/_repos/ms-swift/docs/source/BestPractices/Qwen3_5-Best-Practice.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="qwen3-5">
+<h1>Qwen3.5 最佳实践<a class="headerlink" href="#qwen3-5" title="Link to this heading"></a></h1>
+<p>ms-swift 支持使用transformers/Megatron后端对<a class="reference external" href="https://github.com/QwenLM/Qwen3.5">Qwen3.5</a> Dense/Moe模型进行训练。Qwen3.5 属于混合思考的多模态模型，结合了linear attention和full attention。本文将介绍如何对Qwen3.5 Dense/Moe模型进行推理、指令微调以及强化学习。</p>
+<section id="id1">
+<h2>环境设置<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>ms-swift
+<span class="c1"># &quot;transformers==5.2.*&quot; 会遇到与vllm的兼容问题，参考这个issue: https://github.com/modelscope/ms-swift/issues/8254</span>
+<span class="c1"># &quot;transformers==5.3.*&quot; 会遇到视频训练问题，参考这个issue: https://github.com/modelscope/ms-swift/issues/8362</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">&quot;transformers==5.2.*&quot;</span><span class="w"> </span><span class="s2">&quot;qwen_vl_utils&gt;=0.0.14&quot;</span><span class="w"> </span>peft<span class="w"> </span>liger-kernel
+
+<span class="c1"># flash-linear-attention</span>
+<span class="c1"># 若出现训练缓慢的问题请参考：https://github.com/fla-org/flash-linear-attention/issues/758</span>
+<span class="c1"># 请使用python3.12: https://github.com/fla-org/flash-linear-attention/issues/121</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">&quot;flash-linear-attention&gt;=0.4.2&quot;</span><span class="w"> </span>--no-build-isolation
+
+<span class="c1"># causal_conv1d</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>git+https://github.com/Dao-AILab/causal-conv1d<span class="w"> </span>--no-build-isolation
+
+<span class="c1"># flash-attention</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;flash-attn==2.8.3&quot;</span><span class="w"> </span>--no-build-isolation
+
+<span class="c1"># deepspeed训练</span>
+pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+
+<span class="c1"># vllm (torch2.10) for inference/deployment/RL</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">&quot;vllm&gt;=0.17.0&quot;</span>
+<span class="c1"># 对于强化学习（RL）训练，需要覆盖 vLLM 的默认安装版本</span>
+pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span><span class="s2">&quot;transformers==5.2.*&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Qwen3.5 视频数据训练卡住：使用decord后端读取视频可能导致卡住问题，参考<a class="reference external" href="https://github.com/dmlc/decord/issues/269">这个issue</a>。你可以使用torchcodec后端，具体参考<a class="reference external" href="https://github.com/QwenLM/Qwen3-VL/blob/50068df2334f309979ff05d75f1078c8309c63ed/qwen-vl-utils/src/qwen_vl_utils/vision_process.py#L390-L400">qwen_vl_utils</a>库。</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>推理<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>使用 ms-swift 的 <code class="docutils literal notranslate"><span class="pre">TransformersEngine</span></code> 进行推理：</p>
+<ul class="simple">
+<li><p>其中特定模型参数，例如 <code class="docutils literal notranslate"><span class="pre">VIDEO_MAX_TOKEN_NUM</span></code> 等环境变量的含义与Qwen3-VL相同，参考<a class="reference internal" href="../Instruction/Command-line-parameters.html#qwen3_vl,qwen3_5"><span class="std std-ref">命令行参数文档</span></a>。</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># os.environ[&#39;SWIFT_DEBUG&#39;] = &#39;1&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;IMAGE_MAX_TOKEN_NUM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1024&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VIDEO_MAX_TOKEN_NUM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;128&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FPS_MAX_FRAMES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;16&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_processor</span><span class="p">,</span> <span class="n">get_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.infer_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformersEngine</span><span class="p">,</span> <span class="n">InferRequest</span><span class="p">,</span> <span class="n">RequestConfig</span>
+
+<span class="n">model</span><span class="p">,</span> <span class="n">processor</span> <span class="o">=</span> <span class="n">get_model_processor</span><span class="p">(</span><span class="s1">&#39;Qwen/Qwen3.5-4B&#39;</span><span class="p">)</span>  <span class="c1"># attn_impl=&#39;flash_attention_2&#39;</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">enable_thinking</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">TransformersEngine</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+<span class="n">infer_request</span> <span class="o">=</span> <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span>
+    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;&lt;video&gt;Describe this video.&#39;</span><span class="p">,</span>
+<span class="p">}],</span> <span class="n">videos</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;https://modelscope-open.oss-cn-hangzhou.aliyuncs.com/images/baby.mp4&#39;</span><span class="p">])</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">resp_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">([</span><span class="n">infer_request</span><span class="p">],</span> <span class="n">request_config</span><span class="o">=</span><span class="n">request_config</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">resp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+<span class="c1"># use stream</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">gen_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">([</span><span class="n">infer_request</span><span class="p">],</span> <span class="n">request_config</span><span class="o">=</span><span class="n">request_config</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">gen_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">chunk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>使用命令行进行推理：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">IMAGE_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">VIDEO_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">FPS_MAX_FRAMES</span><span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>微调<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>本章将介绍如何使用 ms-swift 与 Megatron-SWIFT 训练 Qwen3.5。推荐 Dense 模型使用 ms-swift（即 transformers 后端，更加方便简单），而 Moe 模型使用 Megatron-SWIFT（即 megatron 后端，更快的训练速度）</p>
+<p>如果您需要自定义数据集微调模型，你可以将数据准备成以下格式，并在命令行中设置<code class="docutils literal notranslate"><span class="pre">--dataset</span> <span class="pre">train.jsonl</span> <span class="pre">--val_dataset</span> <span class="pre">val.jsonl</span></code>，其中验证集为可选。更多介绍请参考<a class="reference internal" href="../Customization/Custom-dataset.html#id6"><span class="std std-ref">多模态数据集文档</span></a>。</p>
+<div class="highlight-jsonl notranslate"><div class="highlight"><pre><span></span>{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;浙江的省会在哪？&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;浙江的省会在杭州。&quot;}]}
+{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;&lt;image&gt;&lt;image&gt;两张图片有什么区别&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;前一张是小猫，后一张是小狗&quot;}], &quot;images&quot;: [&quot;/xxx/x.jpg&quot;, &quot;/xxx/x.png&quot;]}
+{&quot;messages&quot;: [{&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;你是个有用无害的助手&quot;}, {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;&lt;image&gt;图片中是什么，&lt;video&gt;视频中是什么&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;图片中是一个大象，视频中是一只小狗在草地上奔跑&quot;}], &quot;images&quot;: [&quot;/xxx/x.jpg&quot;], &quot;videos&quot;: [&quot;/xxx/x.mp4&quot;]}
+</pre></div>
+</div>
+<p>Qwen3.5的bbox输出采用归一化1000的相对坐标。你可以使用 ms-swift 提供的 grounding 数据集格式，其中&quot;bbox&quot;中的坐标为绝对坐标，ms-swift 会自动将绝对坐标转为归一化1000的相对坐标。更多信息请参考<a class="reference internal" href="../Customization/Custom-dataset.html#grounding"><span class="std std-ref">grounding数据集格式文档</span></a>。</p>
+<div class="highlight-jsonl notranslate"><div class="highlight"><pre><span></span>{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;&lt;image&gt;找到图像中的&lt;ref-object&gt;&quot;}, {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;[\n\t{\&quot;bbox_2d\&quot;: &lt;bbox&gt;, \&quot;label\&quot;: \&quot;&lt;ref-object&gt;\&quot;},\n\t{\&quot;bbox_2d\&quot;: &lt;bbox&gt;, \&quot;label\&quot;: \&quot;&lt;ref-object&gt;\&quot;}\n]&quot;}], &quot;images&quot;: [&quot;cat.png&quot;], &quot;objects&quot;: {&quot;ref&quot;: [&quot;羊&quot;, &quot;羊&quot;, &quot;羊&quot;], &quot;bbox&quot;: [[90.9, 160.8, 135, 212.8], [360.9, 480.8, 495, 532.8]]}}
+</pre></div>
+</div>
+<section id="dense">
+<h3>Dense模型<a class="headerlink" href="#dense" title="Link to this heading"></a></h3>
+<p>以下提供对Qwen3.5-4B模型的微调脚本，该示例脚本仅作为演示用途。训练显存为 4 * 20GiB，训练时间为12分钟。由于transformers的GatedDeltaNet不支持packing/padding_free（megatron支持，见下文），因此我们使用group_by_length参数来加速训练，保证DP的负载均衡并减少micro batch中的零填充，但这会导致loss曲线跳动（因数据随机不充分），当然你也可以去掉此参数。</p>
+<ul class="simple">
+<li><p>关于数据预处理：若使用packing/group_by_length参数，则需要对所有数据做提前预处理，获取数据input_ids长度，这需要消耗一定时间。若你希望在训练时处理数据，你可以去除这个两个参数。</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 4 * 20GiB</span>
+<span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">IMAGE_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">VIDEO_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">FPS_MAX_FRAMES</span><span class="o">=</span><span class="m">12</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-zh#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-en#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;swift/self-cognition#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;AI-ModelScope/LaTeX_OCR:human_handwrite#2000&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_from_cache_file<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--add_non_thinking_prefix<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--loss_scale<span class="w"> </span>ignore_empty_think<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--group_by_length<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--warmup_ratio<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_author<span class="w"> </span>swift<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span>swift-robot
+</pre></div>
+</div>
+<p>训练结束后，使用以下脚本对验证集进行推理：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">IMAGE_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">VIDEO_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">FPS_MAX_FRAMES</span><span class="o">=</span><span class="m">12</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/Qwen3.5-4B/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_data_args<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[QUERY] 你好，你是谁？
+[RESPONSE] &lt;think&gt;
+
+&lt;/think&gt;
+
+你好，我是由swift开发的人工智能语言模型，我的名字叫swift-robot。很高兴能与你交流。
+--------------------------------------------------
+[QUERY] Using LaTeX to perform OCR on the image.
+[LABELS] e = \sum _ { k = 0 } ^ { \infty } \frac { 1 } { k ! }
+[RESPONSE] &lt;think&gt;
+
+&lt;/think&gt;
+
+e = \sum _ { k = 0 } ^ { \infty } \frac { 1 } { k ! }
+</pre></div>
+</div>
+<p>使用python进行推理：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># os.environ[&#39;SWIFT_DEBUG&#39;] = &#39;1&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;IMAGE_MAX_TOKEN_NUM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1024&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;VIDEO_MAX_TOKEN_NUM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;128&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;FPS_MAX_FRAMES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;16&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">PeftModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_model_processor</span><span class="p">,</span> <span class="n">get_template</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.infer_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformersEngine</span><span class="p">,</span> <span class="n">InferRequest</span><span class="p">,</span> <span class="n">RequestConfig</span>
+
+<span class="n">adapter_dir</span> <span class="o">=</span> <span class="s1">&#39;output/Qwen3.5-4B/vx-xxx/checkpoint-xxx&#39;</span>
+<span class="n">enable_thinking</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">model</span><span class="p">,</span> <span class="n">processor</span> <span class="o">=</span> <span class="n">get_model_processor</span><span class="p">(</span><span class="s1">&#39;Qwen/Qwen3.5-4B&#39;</span><span class="p">)</span>  <span class="c1"># attn_impl=&#39;flash_attention_2&#39;</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">PeftModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">adapter_dir</span><span class="p">)</span>
+<span class="n">template</span> <span class="o">=</span> <span class="n">get_template</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">enable_thinking</span><span class="o">=</span><span class="n">enable_thinking</span><span class="p">)</span>
+<span class="n">engine</span> <span class="o">=</span> <span class="n">TransformersEngine</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">)</span>
+<span class="n">infer_request</span> <span class="o">=</span> <span class="n">InferRequest</span><span class="p">(</span><span class="n">messages</span><span class="o">=</span><span class="p">[{</span>
+    <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s1">&#39;who are you?&#39;</span><span class="p">,</span>
+<span class="p">}])</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">resp_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">([</span><span class="n">infer_request</span><span class="p">],</span> <span class="n">request_config</span><span class="o">=</span><span class="n">request_config</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">resp_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+<span class="c1"># use stream</span>
+<span class="n">request_config</span> <span class="o">=</span> <span class="n">RequestConfig</span><span class="p">(</span><span class="n">max_tokens</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">gen_list</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">infer</span><span class="p">([</span><span class="n">infer_request</span><span class="p">],</span> <span class="n">request_config</span><span class="o">=</span><span class="n">request_config</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">gen_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">chunk</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">continue</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="c1"># I am an artificial intelligence assistant named swift-robot, trained by swift. I am designed to understand and generate natural language text in order to provide information, answer questions, and engage in conversation with humans. How can I assist you?</span>
+</pre></div>
+</div>
+<p>使用transformers后端训练MoE的例子参考：https://github.com/modelscope/ms-swift/blob/main/examples/models/qwen3_5/transformers.sh</p>
+</section>
+<section id="moe">
+<h3>Moe模型<a class="headerlink" href="#moe" title="Link to this heading"></a></h3>
+<p>Qwen3.5-35B-A3B Megatron训练，环境的准备请参考<a class="reference internal" href="../Megatron-SWIFT/Quick-start.html"><span class="std std-doc">Megatron-SWIFT快速开始文档</span></a>。你可以在15分钟内跑完以下案例：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 4 * 40GiB</span>
+<span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+<span class="nv">IMAGE_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">VIDEO_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">FPS_MAX_FRAMES</span><span class="o">=</span><span class="m">12</span><span class="w"> </span><span class="se">\</span>
+megatron<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_safetensors<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-zh#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;AI-ModelScope/alpaca-gpt4-data-en#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;swift/self-cognition#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">              </span><span class="s1">&#39;AI-ModelScope/LaTeX_OCR:human_handwrite#2000&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_from_cache_file<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--add_non_thinking_prefix<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--loss_scale<span class="w"> </span>ignore_empty_think<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--expert_model_parallel_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_permute_fusion<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_grouped_gemm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_shared_expert_overlap<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_aux_loss_coeff<span class="w"> </span>1e-6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--micro_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--global_batch_size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_granularity<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_method<span class="w"> </span>uniform<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_num_layers<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--group_by_length<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--finetune<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze_llm<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze_vit<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze_aligner<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cross_entropy_loss_fusion<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr_warmup_fraction<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--min_lr<span class="w"> </span>1e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>megatron_output/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">200</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_optim<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_rng<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sequence_parallel<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--attention_backend<span class="w"> </span>flash<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--padding_free<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_author<span class="w"> </span>swift<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span>swift-robot
+</pre></div>
+</div>
+<p>训练结束后，使用以下脚本对验证集进行推理：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+<span class="nv">IMAGE_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">VIDEO_MAX_TOKEN_NUM</span><span class="o">=</span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">FPS_MAX_FRAMES</span><span class="o">=</span><span class="m">12</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>megatron_output/Qwen3.5-35B-A3B/vx-xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_data_args<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Megatron-SWIFT训练Qwen3.5的提示：</p>
+<ul class="simple">
+<li><p>全参数训练：参考<a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/models/qwen3_5/packing.sh">这个例子</a>。</p></li>
+<li><p>关于MTP训练：&quot;mcore-bridge&gt;=1.1.0&quot;支持了多模态MTP的训练（暂时需安装<a class="reference external" href="https://github.com/modelscope/mcore-bridge/pull/14">main分支</a>），请安装对应版本。</p></li>
+<li><p>TP 限制解除：使用 &quot;megatron-core&gt;=0.16&quot; 可解除 TP 受到的 <code class="docutils literal notranslate"><span class="pre">num_query_groups</span></code> 限制。</p></li>
+<li><p>CP支持：&quot;mcore-bridge&gt;=1.1.0&quot;支持了GDN的CP训练（暂时需安装<a class="reference external" href="https://github.com/modelscope/mcore-bridge/pull/16">main分支</a>），此外需安装megatron-core dev分支。</p></li>
+<li><p>默认 <code class="docutils literal notranslate"><span class="pre">GatedDeltaNet</span></code> 使用 Megatron 实现，需使用 &quot;megatron-core&gt;=0.16&quot;（ms-swift&gt;=4.1.0，之前版本默认使用transformers实现）。设置环境变量 <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=0</span></code>可切换至 transformers 实现，transformers实现不支持packing和GDN的TP。</p></li>
+<li><p>padding_free/packing的支持：packing可以提升训练速度。参考<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/models/qwen3_5/packing.sh">这个例子</a>。</p></li>
+<li><p>apply_wd_to_qk_layernorm：对 qk layernorm 应用权重衰减。默认为False。</p></li>
+</ul>
+</section>
+</section>
+<section id="rl">
+<h2>强化学习（RL）<a class="headerlink" href="#rl" title="Link to this heading"></a></h2>
+<p>以 Qwen3.5-2B 模型为例，下面展示基于 <a class="reference external" href="https://www.modelscope.cn/datasets/modelscope/gsm8k">GSM8K</a> 数据集进行 GRPO 和 GKD 训练，并以 GSM8K 评测集为标准验证训练效果。为避免模型输出过长的思维链，以下统一设置 <code class="docutils literal notranslate"><span class="pre">enable_thinking</span> <span class="pre">false</span></code>。</p>
+<section id="grpo">
+<h3>GRPO<a class="headerlink" href="#grpo" title="Link to this heading"></a></h3>
+<section id="id4">
+<h4>Dense 模型<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>使用 GRPO 进行全参数训练，以 <code class="docutils literal notranslate"><span class="pre">gsm8k_accuracy</span></code> 和 <code class="docutils literal notranslate"><span class="pre">gsm8k_format</span></code> 作为奖励函数。奖励函数的实现参考 <a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/grpo/plugin/gsm8k/gsm8k_plugin.py">gsm8k_plugin.py</a>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">SYSTEM_PROMPT</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}.&quot;&quot;&quot;</span>
+
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-2B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--external_plugins<span class="w"> </span>examples/train/grpo/plugin/gsm8k/gsm8k_plugin.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--reward_funcs<span class="w"> </span>gsm8k_accuracy<span class="w"> </span>gsm8k_format<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--columns<span class="w"> </span><span class="s1">&#39;{&quot;answer&quot;: &quot;solution&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_vllm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_mode<span class="w"> </span>colocate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_gpu_memory_utilization<span class="w"> </span><span class="m">0</span>.4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_tensor_parallel_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_max_model_len<span class="w"> </span><span class="m">10240</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sleep_level<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;modelscope/gsm8k&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--load_from_cache_file<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_completion_length<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr_scheduler_type<span class="w"> </span>cosine<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--warmup_ratio<span class="w"> </span><span class="m">0</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_generations<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--system<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SYSTEM_PROMPT</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--log_completions<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--report_to<span class="w"> </span>tensorboard<span class="w"> </span>swanlab<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_grad_norm<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epsilon<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epsilon_high<span class="w"> </span><span class="m">0</span>.28<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--scale_rewards<span class="w"> </span>none
+</pre></div>
+</div>
+<p>使用以下指令进行评测：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_dataset<span class="w"> </span>gsm8k<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_backend<span class="w"> </span>Native<span class="w"> </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_generation_config<span class="w"> </span><span class="s1">&#39;{&quot;max_tokens&quot;:8192,&quot;temperature&quot;:0.0,&quot;do_sample&quot;:false}&#39;</span>
+</pre></div>
+</div>
+<p>以 10 步为间隔，前 50 步的 GSM8K 评测结果如下：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型 / Steps</p></th>
+<th class="head"><p>GSM8K Accuracy</p></th>
+<th class="head"><p>提升</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qwen3.5-2B (baseline)</p></td>
+<td><p>0.7597</p></td>
+<td><p>-</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO 10 steps</p></td>
+<td><p>0.7650</p></td>
+<td><p>+0.53</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO 20 steps</p></td>
+<td><p>0.7748</p></td>
+<td><p>+1.51</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO 30 steps</p></td>
+<td><p>0.7779</p></td>
+<td><p>+1.82</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO 40 steps</p></td>
+<td><p>0.7817</p></td>
+<td><p>+2.20</p></td>
+</tr>
+<tr class="row-odd"><td><p>GRPO 50 steps</p></td>
+<td><p>0.7885</p></td>
+<td><p>+2.88</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h4>MoE 模型<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>使用 Megatron 后端对 Qwen3.5-35B-A3B MoE 模型进行 GRPO LoRA 训练，在 <a class="reference external" href="https://www.modelscope.cn/datasets/open-r1/DAPO-Math-17k-Processed">DAPO-Math-17k</a> 数据集上训练，使用 <code class="docutils literal notranslate"><span class="pre">accuracy</span></code> 作为奖励函数。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">SYSTEM_PROMPT</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;You are a helpful math assistant. Solve the problem step by step and put your final answer within \\boxed{}.&quot;&quot;&quot;</span>
+
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7<span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+megatron<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_safetensors<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--context_parallel_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor_model_parallel_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--expert_model_parallel_size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--pipeline_model_parallel_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_permute_fusion<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>open-r1/DAPO-Math-17k-Processed<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--system<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SYSTEM_PROMPT</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--global_batch_size<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--micro_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--steps_per_generation<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_generations<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--reward_funcs<span class="w"> </span>accuracy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_vllm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_mode<span class="w"> </span>colocate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_gpu_memory_utilization<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_tensor_parallel_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_max_model_len<span class="w"> </span><span class="m">9192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">1000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_completion_length<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr<span class="w"> </span>5e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--bf16<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--beta<span class="w"> </span><span class="m">0</span>.00<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epsilon<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--epsilon_high<span class="w"> </span><span class="m">0</span>.28<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dynamic_sample<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overlong_filter<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--loss_type<span class="w"> </span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sleep_level<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--offload_model<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--offload_bridge<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--offload_optimizer<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_granularity<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_method<span class="w"> </span>uniform<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_num_layers<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--finetune<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_optim<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_rng<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--attention_backend<span class="w"> </span>flash<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_expert_capacity_factor<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--padding_free<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sequence_parallel<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--log_completions<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--report_to<span class="w"> </span>tensorboard<span class="w"> </span>swanlab
+</pre></div>
+</div>
+<p>使用以下指令在 AIME-2025 和 MATH-500 上评测：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>swift<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>&lt;checkpoint-merged-path&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_dataset<span class="w"> </span>aime25<span class="w"> </span>math_500<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_backend<span class="w"> </span>Native<span class="w"> </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_tensor_parallel_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_gpu_memory_utilization<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_max_model_len<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_generation_config<span class="w"> </span><span class="s1">&#39;{&quot;max_tokens&quot;:8192,&quot;temperature&quot;:0.0,&quot;do_sample&quot;:false}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_num_proc<span class="w"> </span><span class="m">8</span>
+</pre></div>
+</div>
+<p>在 AIME-2025 和 MATH-500 上的评测结果如下：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型 / Steps</p></th>
+<th class="head"><p>AIME-2025</p></th>
+<th class="head"><p>MATH-500</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qwen3.5-35B-A3B (baseline)</p></td>
+<td><p>43.33</p></td>
+<td><p>92.40</p></td>
+</tr>
+<tr class="row-odd"><td><p>Megatron GRPO 20 steps</p></td>
+<td><p>53.33 (+10.00)</p></td>
+<td><p>95.80 (+3.40)</p></td>
+</tr>
+<tr class="row-even"><td><p>Megatron GRPO 40 steps</p></td>
+<td><p>53.33 (+10.00)</p></td>
+<td><p>96.60 (+4.20)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="gkd">
+<h3>GKD<a class="headerlink" href="#gkd" title="Link to this heading"></a></h3>
+<p>使用 GKD 进行 LoRA 训练，以 Qwen3.5-9B 作为 teacher 模型。首先使用 vLLM 拉起 teacher server（也可以通过 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 参数直接加载模型）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>Qwen/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-model-len<span class="w"> </span><span class="m">10240</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.8<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-logprobs<span class="w"> </span><span class="m">64</span>
+</pre></div>
+</div>
+<p>然后在其余 GPU 上启动 GKD 训练：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>gkd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-2B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--teacher_model_server<span class="w"> </span>http://localhost:8000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gkd_logits_topk<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_vllm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_mode<span class="w"> </span>colocate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_gpu_memory_utilization<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_tensor_parallel_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--vllm_max_model_len<span class="w"> </span><span class="m">10240</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sleep_level<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;modelscope/gsm8k&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lmbda<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--seq_kd<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--beta<span class="w"> </span><span class="m">0</span>.5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>5e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_completion_length<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--warmup_ratio<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_only_model<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--attn_impl<span class="w"> </span>flash_attn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--report_to<span class="w"> </span>tensorboard<span class="w"> </span>swanlab
+</pre></div>
+</div>
+<p>使用以下指令进行评测：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">eval</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-2B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/Qwen3.5-2B/vxx-xxx-xxx/checkpoint-xx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_dataset<span class="w"> </span>gsm8k<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_backend<span class="w"> </span>Native<span class="w"> </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_generation_config<span class="w"> </span><span class="s1">&#39;{&quot;max_tokens&quot;:8192,&quot;temperature&quot;:0.0,&quot;do_sample&quot;:false}&#39;</span>
+</pre></div>
+</div>
+<p>以 100 步为间隔，前 300 步的 GSM8K 评测结果如下：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型 / Steps</p></th>
+<th class="head"><p>GSM8K Accuracy</p></th>
+<th class="head"><p>提升</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qwen3.5-2B (baseline)</p></td>
+<td><p>0.7597</p></td>
+<td><p>-</p></td>
+</tr>
+<tr class="row-odd"><td><p>GKD 100 steps</p></td>
+<td><p>0.7968</p></td>
+<td><p>+3.71</p></td>
+</tr>
+<tr class="row-even"><td><p>GKD 200 steps</p></td>
+<td><p>0.8188</p></td>
+<td><p>+5.91</p></td>
+</tr>
+<tr class="row-odd"><td><p>GKD 300 steps</p></td>
+<td><p>0.8332</p></td>
+<td><p>+7.35</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
