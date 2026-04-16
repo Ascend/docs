@@ -15,7 +15,8 @@ PROJECT_CONFIGS = \
     _repos/LLaMA-Factory/docs:sources/LLaMA-Factory \
     _repos/ms-swift/docs:sources/ms-swift \
     _repos/vllm-ascend/docs/source:sources/vllm-ascend \
-    _repos/triton-ascend/docs/zh:sources/triton-ascend
+    _repos/triton-ascend/docs/zh:sources/triton-ascend \
+	_repos/deepspeed/docs/_tutorials/accelerate-setup-guide.md:sources/deepspeed/quick_start.rst \
 
 # Configure all subprojects generated path
 GENERATED_DOCS := sources/_generated

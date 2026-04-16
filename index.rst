@@ -123,8 +123,8 @@
       <!-- Accelerate -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">accelerate</h3></div>
-         <p class="card-desc">适用于 Pytorch 的多 GPUs/NPUs 训练工具链。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/install.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
+         <p class="card-desc">DeepSpeed is a deep learning optimization library that makes distributed training and inference easy, efficient, and effective. </p>
+         <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- DeepSpeed -->
