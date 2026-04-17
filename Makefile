@@ -2,7 +2,8 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?=
+# Default -j 1: parallel sphinx workers multiply RSS; cgroup limits (e.g. 2Gi) often OOM-kill (exit 137) without this.
+SPHINXOPTS    ?= -j 1
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      = _build
@@ -16,7 +17,7 @@ PROJECT_CONFIGS = \
     _repos/ms-swift/docs:sources/ms-swift \
     _repos/vllm-ascend/docs/source:sources/vllm-ascend \
     _repos/triton-ascend/docs/zh:sources/triton-ascend \
-	_repos/deepspeed/docs/_tutorials/accelerate-setup-guide.md:sources/deepspeed/quick_start.rst \
+	_repos/deepspeed/docs/_tutorials/accelerator-setup-guide.md:sources/deepspeed/quick_start.md \
 
 # Configure all subprojects generated path
 GENERATED_DOCS := sources/_generated
@@ -64,7 +65,15 @@ sync-onnxruntime-doc:
 # Initialize submodules (always run to handle empty dirs left by git clone)
 init-submodules:
 	@git submodule sync --recursive
-	@git submodule update --init --remote
+	@n=0; \
+	while [ $$n -lt 3 ]; do \
+		git submodule update --init --remote && exit 0; \
+		n=$$((n+1)); \
+		echo "git submodule update failed (attempt $$n/3), retrying in 8s..."; \
+		sleep 8; \
+	done; \
+	echo "git submodule update failed after 3 attempts"; \
+	exit 1
 
 # Copy documentation from submodules
 copy-docs: init-submodules
@@ -80,14 +89,24 @@ copy-docs: init-submodules
 		rel_dst=$$(echo $$config | cut -d: -f2); \
 		dst="$(GENERATED_DOCS)/$$rel_dst"; \
 		echo "Copying $$src -> $$dst"; \
-		rm -rf $$dst; \
-		mkdir -p $$dst; \
-		echo "Copying $$src to $$dst"; \
-		cp -r "$$src"/* "$$dst"/ 2>/dev/null || echo "  [WARN] Source directory does not exist or is empty: $$src"; \
+		rm -rf "$$dst"; \
+		if [ -f "$$src" ]; then \
+			mkdir -p "$$(dirname "$$dst")"; \
+			echo "Copying $$src to $$dst"; \
+			cp "$$src" "$$dst" || echo "  [WARN] Source file missing or copy failed: $$src"; \
+		elif [ -d "$$src" ]; then \
+			mkdir -p "$$dst"; \
+			echo "Copying $$src to $$dst"; \
+			cp -r "$$src"/* "$$dst"/ 2>/dev/null || echo "  [WARN] Source directory does not exist or is empty: $$src"; \
+		else \
+			echo "  [WARN] Source does not exist: $$src"; \
+		fi; \
 		if [ "$$rel_dst" = "sources/vllm-ascend" ] || [ "$$rel_dst" = "sources/triton-ascend" ]; then \
 			rm -f "$$dst/index.md" "$$dst/index.rst" "$$dst/index.html" 2>/dev/null || true; \
 		else \
-			find "$$dst" -name 'index.*' -delete 2>/dev/null || true; \
+			if [ -d "$$dst" ]; then \
+				find "$$dst" -name 'index.*' -delete 2>/dev/null || true; \
+			fi; \
 		fi; \
 	done
 
