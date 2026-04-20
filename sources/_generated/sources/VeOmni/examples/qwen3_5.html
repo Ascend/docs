@@ -1,0 +1,311 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qwen3.5 training guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Qwen3.5 training guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/examples/qwen3_5.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="qwen3-5-training-guide">
+<h1>Qwen3.5 training guide<a class="headerlink" href="#qwen3-5-training-guide" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p><strong>Note:</strong> Qwen3.5 requires transformers v5.</p>
+</div></blockquote>
+<section id="install-dependencies">
+<h2>Install dependencies<a class="headerlink" href="#install-dependencies" title="Link to this heading"></a></h2>
+<p>Qwen3.5 depends on transformers v5 (experimental). Sync the correct dependency group:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--no-group<span class="w"> </span>transformers-stable<span class="w"> </span>--extra<span class="w"> </span>transformers5-exp<span class="w"> </span>--extra<span class="w"> </span>gpu
+</pre></div>
+</div>
+</section>
+<section id="download-dataset">
+<h2>Download dataset<a class="headerlink" href="#download-dataset" title="Link to this heading"></a></h2>
+<section id="vision-language-dataset">
+<h3>Vision-Language Dataset<a class="headerlink" href="#vision-language-dataset" title="Link to this heading"></a></h3>
+<p>Download the <a class="reference external" href="https://images.cocodataset.org/zips/train2017.zip">COCO2017</a> dataset and download the data annotation JSON file <a class="reference external" href="https://huggingface.co/datasets/Lin-Chen/ShareGPT4V/tree/main">sharegpt4v_instruct_gpt4-vision_cap100k.json</a>.</p>
+<p>Modify the sharegpt4v_instruct_gpt4-vision_cap100k.json:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sharegpt4v_instruct_gpt4-vision_cap100k.json&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="n">filtered_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;coco&#39;</span><span class="p">):</span>
+        <span class="n">new_item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">image_path</span> <span class="o">=</span> <span class="n">new_item</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
+        <span class="n">new_item</span><span class="p">[</span><span class="s1">&#39;images&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">image_path</span><span class="p">]</span>
+        <span class="n">filtered_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_item</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;sharegpt4v_instruct_gpt4-vision_cap100k_coco.json&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">filtered_data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="text-only-dataset-optional">
+<h3>Text-only Dataset (Optional)<a class="headerlink" href="#text-only-dataset-optional" title="Link to this heading"></a></h3>
+<p>If you want to train on text-only data, download the <a class="reference external" href="https://huggingface.co/datasets/allenai/tulu-3-sft-mixture">tulu-3-sft-mixture</a> dataset.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pq</span>
+<span class="n">input_path</span> <span class="o">=</span> <span class="s2">&quot;tulu-3-sft-mixture/data/train-00000-of-00006.parquet&quot;</span>
+<span class="n">output_path</span> <span class="o">=</span> <span class="s2">&quot;tulu-first2000.parquet&quot;</span>
+<span class="c1"># Read parquet file and extract the first 2000 rows</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+<span class="n">table_first_2000</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2000</span><span class="p">)</span>
+<span class="n">pq</span><span class="o">.</span><span class="n">write_table</span><span class="p">(</span><span class="n">table_first_2000</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="download-qwen3-5-model">
+<h2>Download Qwen3.5 model<a class="headerlink" href="#download-qwen3-5-model" title="Link to this heading"></a></h2>
+<p>Dense 9B:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>scripts/download_hf_model.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--repo_id<span class="w"> </span>Qwen/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--local_dir<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Qwen3.5-9B
+</pre></div>
+</div>
+<p>MoE 35B:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>scripts/download_hf_model.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--repo_id<span class="w"> </span>Qwen/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--local_dir<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Qwen3.5-35B-A3B
+</pre></div>
+</div>
+</section>
+<section id="start-training-on-gpu">
+<h2>Start training on GPU<a class="headerlink" href="#start-training-on-gpu" title="Link to this heading"></a></h2>
+<section id="qwen3-5-9b-vl-training">
+<h3>Qwen3.5-9B VL Training<a class="headerlink" href="#qwen3-5-9b-vl-training" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_vlm.py<span class="w"> </span>configs/multimodal/qwen3_5/qwen3_5_vl.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>./Qwen/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w"> </span>./configs/multimodal/data/tulu_sharegpt4v_llavavideo.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.max_steps<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-moe-35b-vl-training">
+<h3>Qwen3.5 MoE 35B VL Training<a class="headerlink" href="#qwen3-5-moe-35b-vl-training" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_vlm.py<span class="w"> </span>configs/multimodal/qwen3_5_moe/qwen3_5_moe_vl.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>./Qwen/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w"> </span>./configs/multimodal/data/tulu_sharegpt4v_llavavideo.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.max_steps<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+</section>
+<section id="text-only-training-on-gpu">
+<h3>Text-only training on GPU<a class="headerlink" href="#text-only-training-on-gpu" title="Link to this heading"></a></h3>
+<p>Testing in 8x80GB GPUs.</p>
+<p>Qwen3.5 Dense 9B:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_5_sft.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/tulu-first2000.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.accelerator.fsdp_config.fsdp_mode<span class="w"> </span>fsdp2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.init_device<span class="w"> </span>meta<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.max_steps<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>/mnt/local/localcache00
+</pre></div>
+</div>
+<p>Qwen3.5-35B-A3B. 8X80GB GPU will likely OOM due to the model size. Use 8X192GB GPU or more GPUs.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_5_sft.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.ops_implementation.moe_implementation<span class="w"> </span>fused<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/tulu-first2000.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.accelerator.fsdp_config.fsdp_mode<span class="w"> </span>fsdp2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.init_device<span class="w"> </span>meta<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.global_batch_size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>/mnt/local/localcache00
+</pre></div>
+</div>
+</section>
+</section>
+<section id="ulysses-sequence-parallelism">
+<h2>Ulysses Sequence Parallelism<a class="headerlink" href="#ulysses-sequence-parallelism" title="Link to this heading"></a></h2>
+<p>Qwen3.5 supports Ulysses sequence parallelism for both its softmax attention layers and
+linear attention (GatedDeltaNet) layers. This enables training with longer sequences by
+distributing the sequence across multiple GPUs.</p>
+<p>To enable Ulysses SP, set <code class="docutils literal notranslate"><span class="pre">ulysses_parallel_size</span></code> in your config. The total GPU count must
+equal <code class="docutils literal notranslate"><span class="pre">data_parallel_size</span> <span class="pre">*</span> <span class="pre">ulysses_parallel_size</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: 8 GPUs, dp=4, sp=2</span>
+bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_5_sft.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/tulu-first2000.parquet<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.data_parallel_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.ulysses_parallel_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.attn_implementation<span class="w"> </span>flash_attention_3
+</pre></div>
+</div>
+<section id="requirements">
+<h3>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">flash_attention_2</span></code> or <code class="docutils literal notranslate"><span class="pre">flash_attention_3</span></code> attention implementation (softmax layers use
+VeOmni's flash attention with built-in SP support).</p></li>
+<li><p><a class="reference external" href="https://github.com/fla-org/flash-linear-attention">flash-linear-attention</a> installed
+(for GatedDeltaNet triton kernels).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_k_heads</span></code> and <code class="docutils literal notranslate"><span class="pre">num_v_heads</span></code> (linear attention head counts) must be divisible by
+<code class="docutils literal notranslate"><span class="pre">ulysses_parallel_size</span></code>.</p></li>
+</ul>
+</section>
+<section id="how-it-works">
+<h3>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h3>
+<p>Qwen3.5 is a hybrid model alternating between softmax and linear attention layers:</p>
+<ul class="simple">
+<li><p><strong>Softmax attention layers</strong> — SP is handled transparently by VeOmni's <code class="docutils literal notranslate"><span class="pre">flash_attention_forward</span></code>,
+which performs all-to-all gather/scatter around the flash attention kernel.</p></li>
+<li><p><strong>Linear attention layers (GatedDeltaNet)</strong> — SP is handled explicitly in the patched
+<code class="docutils literal notranslate"><span class="pre">Qwen3_5GatedDeltaNet.forward</span></code>. Q/K/V/b/a projections are all-to-all'd to gather the full
+sequence with local heads, the causal conv1d runs with sharded weights, the recurrent attention
+kernel runs on local heads, and the output is all-to-all'd back.</p></li>
+</ul>
+<p>For detailed implementation notes, see the
+<a class="reference internal" href="../key_features/ulysses.html#linear-attention-ulysses-gateddeltanet"><span class="std std-ref">Ulysses documentation</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

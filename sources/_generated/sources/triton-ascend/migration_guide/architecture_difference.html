@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>昇腾与GPU的开发差异 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" />
+    <link rel="next" title="GPU Triton算子迁移" href="migrate_from_gpu.html" />
+    <link rel="prev" title="Triton算子开发指南" href="../programming_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quick_start.html">快速入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation_guide.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture_design_and_core_features.html">架构设计与核心特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide.html">Triton算子开发指南</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">昇腾与GPU的开发差异</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">多核任务并行策略</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id2">充分利用核数</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">单核数据搬运策略</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#tiling">数据切分Tiling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">编译优化能力</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ascendnpu-ir">AscendNPU IR优化</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="migrate_from_gpu.html">GPU Triton算子迁移</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance_guidelines.html">NPU高性能编程指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/01_vector_add_example.html">向量相加 （Vector Addition）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/02_fused_softmax_example.html">融合 Softmax （Fused Softmax）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/03_layer_norm_example.html">层标准化 （Layer Normalization）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/04_fused_attention_example.html">融合注意力（Fused Attention）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/05_matrix_multiplication_example.html">矩阵乘法 （Matrix Multiplication）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/06_autotune_example.html">自动调优 （Autotune）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../examples/07_accuracy_comparison_example.html">精度比对 （Accuracy Comparison）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debug_guide/debugging.html">Triton-Ascend 调试指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debug_guide/profiling.html">Triton-Ascend 性能分析方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/index.html">triton.language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/triton/index.html">triton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_variable_reference.html">环境变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../FAQ.html">Triton-Ascend FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_note.html">Triton-Ascend 版本发布</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"FAQ": "faq_group", "architecture_design_and_core_features": "arch_group", "environment_variable_reference": "env_group", "installation_guide": "install_group", "programming_guide": "dev_guide_group", "quick_start": "quick_start_group", "release_note": "faq_group"}, "arch_group": "\u67b6\u6784\u8bbe\u8ba1\u4e0e\u6838\u5fc3\u7279\u6027", "debug_guide": "\u7b97\u5b50\u8c03\u8bd5\u4e0e\u8c03\u4f18", "dev_guide_group": "Triton \u7b97\u5b50\u5f00\u53d1\u6307\u5357", "env_group": "\u73af\u5883\u53d8\u91cf", "examples": "\u5178\u578b\u7b97\u5b50\u6837\u4f8b", "faq_group": "\u5e38\u89c1\u95ee\u9898", "install_group": "\u5b89\u88c5\u6307\u5357", "migration_guide": "Triton \u7b97\u5b50\u8fc1\u79fb\u6307\u5357", "quick_start_group": "\u5feb\u901f\u5f00\u59cb", "triton_api": "Triton API \u63a5\u53e3\u8bf4\u660e", "triton_api_extention": "\u6607\u817e\u6269\u5c55 API \u63a5\u53e3\u8bf4\u660e"};
+        const commId = 'triton-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+      <li class="breadcrumb-item active">昇腾与GPU的开发差异</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/triton-ascend/migration_guide/architecture_difference.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gpu">
+<h1>昇腾与GPU的开发差异<a class="headerlink" href="#gpu" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>多核任务并行策略<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>NPU在Triton多核并行中是物理核强绑定模式，与GPU逻辑维度并行+硬件自动物理映射的模式形成核心差异</p>
+<ul>
+<li><p>核心对比</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>维度</p></th>
+<th class="head"><p>GPU（NVIDIA）</p></th>
+<th class="head"><p>昇腾（Ascend）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>grid 本质</p></td>
+<td><p>逻辑任务维度（和物理核解耦）</p></td>
+<td><p>物理核组映射（绑定 AI Core 拓扑）</p></td>
+</tr>
+<tr class="row-odd"><td><p>核数 / 维度限制</p></td>
+<td><p>grid 维度 / 大小无硬限制</p></td>
+<td><p>grid 大小≤AI Core 总数，2D 需匹配拓扑</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p>GPU:可绑定多个维度轴（三维grid=[n,m,l] 等同于乘积n×m×l个并行线程），每个线程仅对应一次kernel执行，且仅执行一次。<br />
+NPU:Vector核，Cube核属于多个物理核，不同代际硬件核数不同，每个核仅执行一次Block,且支持对该Block重复调度执行。</p>
+<section id="id2">
+<h3>充分利用核数<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>昇腾NPU具备多个计算核心，合理分配并充分利用所有可用核心，是提升算子性能的关键因素之一。
+在调用Triton内核函数时，通过设置launch参数控制使用的核数量。以GELU算子为例：</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">triton_gelu</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">](</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># 第一个参数表示使用的核数，n表示使用n个核</span>
+</pre></div>
+</div>
+<p>通过对核数的调优，可实现对所有计算资源的充分调度和利用，从而最大化并行度与吞吐量。注意，当前版本核数需小于等于65535。</p>
+</section>
+</section>
+<section id="id3">
+<h2>单核数据搬运策略<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<section id="tiling">
+<h3>数据切分Tiling<a class="headerlink" href="#tiling" title="Link to this heading"></a></h3>
+<p>写Triton内核函数时，合理的数据切分策略对性能优化至关重要。通过调整不同的切分粒度参数，可以在不同维度上平衡计算负载与内存访问效率。</p>
+<p>常见的切分参数包括：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ncore：使用的核数（跨核切分）
+xblock：核间数据块大小（核间切分）
+xblock_sub：核内切分粒度（核内细粒度划分）
+</pre></div>
+</div>
+<p>开发者可根据实际场景手动选择最优的切分配置，使得每次计算尽可能充分利用片上内存（On-chip Memory），避免频繁访问全局内存（Global Memory）造成的
+性能瓶颈。</p>
+<p>以GELU算子为例，通过调整切分参数，可以有效适配片上缓存容量限制，从而提升执行效率。</p>
+<p>注：Atlas 800T/I A2产品的片上内存容量为192KB，因此在设计切分策略时需考虑该限制，确保每轮计算的数据量不超过片上内存容量。</p>
+<section id="gelu">
+<h4>GELU算子示例<a class="headerlink" href="#gelu" title="Link to this heading"></a></h4>
+<p>GELU算子开发示例，使用3种方式计算结果。</p>
+<p>standard_unary      为标准Torch计算。</p>
+<p>triton_easy_kernel  为简单Triton实现。</p>
+<p>triton_better_kernel为更高效的Triton实现。</p>
+</section>
+<section id="torch">
+<h4>标准Torch写法<a class="headerlink" href="#torch" title="Link to this heading"></a></h4>
+<p>输入tensor x0，经过torch计算实现 GELU 算子，返回结果值。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">standard_unary</span><span class="p">(</span><span class="n">x0</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x0</span> <span class="o">/</span> <span class="n">torch</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">2.0</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="n">res</span>
+</pre></div>
+</div>
+</section>
+<section id="triton">
+<h4>简单Triton写法<a class="headerlink" href="#triton" title="Link to this heading"></a></h4>
+<p>以下是一个使用 Triton 编写的简单内核示例，用于展示如何定义和调用一个基本的Triton内核函数。此示例实现了一个简单的数学运算（GELU 激活函数）。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 定义triton_kernel核函数</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">triton_easy_kernel</span><span class="p">(</span><span class="n">in_ptr0</span><span class="p">,</span> <span class="n">out_ptr0</span><span class="p">,</span> <span class="n">NUMEL</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">):</span>
+    <span class="n">idx_block</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NUMEL</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr0</span> <span class="o">+</span> <span class="n">idx_block</span><span class="p">)</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">tl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)))</span>
+    <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr0</span> <span class="o">+</span> <span class="n">idx_block</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>注意事项</p>
+<ol class="arabic simple">
+<li><p>内存限制：上述写法中，所有输入数据一次性被加载到内存中进行计算。如果输入张量过大，可能会超出单个内核的片上内存容量，导致内存溢出错误。
+因此，这种简单的写法更适合于小规模张量的计算或用于理解 Triton 内核的基本写法和调用方式。</p></li>
+<li><p>适用场景：尽管这种方法有助于快速理解和入门 Triton 编程，但对于大规模数据集或高性能要求的应用场景，建议采用更复杂的数据切分策略（如 Tiling），
+以充分利用硬件资源并避免内存溢出问题。通过这种方式，开发者可以快速上手 Triton 编程，同时了解如何定义、调用以及优化 Triton 内核函数。</p></li>
+</ol>
+</section>
+<section id="id4">
+<h4>更高效triton写法<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>在昇腾 NPU 上使用 Triton 编写高性能算子时，为了充分利用硬件资源、避免内存溢出并提升执行效率，通常需要采用数据切分（Tiling）策略。
+下面是一个经过优化的 Triton 内核实现示例，适用于大规模张量计算。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 定义triton_kernel核函数</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">triton_better_kernel</span><span class="p">(</span><span class="n">in_ptr0</span><span class="p">,</span> <span class="n">out_ptr0</span><span class="p">,</span> <span class="n">xnumel</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span> <span class="n">XBLOCK_SUB</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">):</span>
+    <span class="n">xoffset</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">XBLOCK</span>
+    <span class="k">for</span> <span class="n">xoffset_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">,</span> <span class="n">XBLOCK_SUB</span><span class="p">):</span>
+        <span class="n">x_index</span> <span class="o">=</span> <span class="n">xoffset</span> <span class="o">+</span> <span class="n">xoffset_sub</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK_SUB</span><span class="p">)[:]</span>
+        <span class="n">xmask</span> <span class="o">=</span> <span class="n">x_index</span> <span class="o">&lt;</span> <span class="n">xnumel</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr0</span> <span class="o">+</span> <span class="n">x_index</span><span class="p">,</span> <span class="n">xmask</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">tl</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)))</span>
+        <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr0</span> <span class="o">+</span> <span class="n">x_index</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">xmask</span><span class="p">)</span>
+
+<span class="c1"># 调用triton_kernel核函数</span>
+<span class="n">ncore</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">xblock</span> <span class="o">=</span> <span class="mi">32768</span>
+<span class="n">xblock_sub</span> <span class="o">=</span> <span class="mi">8192</span>
+<span class="n">triton_better_kernel</span><span class="p">[</span><span class="n">ncore</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">](</span><span class="n">x0</span><span class="p">,</span> <span class="n">out1</span><span class="p">,</span> <span class="n">x0</span><span class="o">.</span><span class="n">numel</span><span class="p">(),</span> <span class="n">xblock</span><span class="p">,</span> <span class="n">xblock_sub</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>关键代码解释</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 计算当前核处理数据块的起始偏移地址，实现核间切分。每个核仅负责 XBLOCK 大小的数据范围。</span>
+<span class="n">xoffset</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">program_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">XBLOCK</span>
+
+<span class="c1"># 在单个核内部进一步细分数据块，每次处理 XBLOCK_SUB 大小的数据，实现核内切分。</span>
+<span class="k">for</span> <span class="n">xoffset_sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK</span><span class="p">,</span> <span class="n">XBLOCK_SUB</span><span class="p">):</span>
+
+<span class="c1"># 构造当前迭代的数据索引数组，用于访问输入和输出张量。</span>
+<span class="n">x_index</span> <span class="o">=</span> <span class="n">xoffset</span> <span class="o">+</span> <span class="n">xoffset_sub</span> <span class="o">+</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XBLOCK_SUB</span><span class="p">)[:]</span>
+
+<span class="c1"># 设置掩码以防止越界访问，确保只处理合法范围内的数据。</span>
+<span class="n">xmask</span> <span class="o">=</span> <span class="n">x_index</span> <span class="o">&lt;</span> <span class="n">xnumel</span>
+
+<span class="c1"># 分别用于从全局内存加载数据到片上内存，以及将计算结果写回全局内存。</span>
+<span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">()</span> <span class="n">和</span> <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="id5">
+<h2>编译优化能力<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="ascendnpu-ir">
+<h3>AscendNPU IR优化<a class="headerlink" href="#ascendnpu-ir" title="Link to this heading"></a></h3>
+<p>针对昇腾软硬件特性，适配了AscendNPU IR优化的编译选项，如下表所示。
+<strong>使用方法</strong>：在autotune的配置阶段，传入编译选项的值
+以开启<code class="docutils literal notranslate"><span class="pre">multibuffer</span></code>选项举例，在autotune的配置阶段，即<code class="docutils literal notranslate"><span class="pre">triton.Config</span></code>中，传入<code class="docutils literal notranslate"><span class="pre">'multibuffer':</span> <span class="pre">True</span></code>，详见<a class="reference internal" href="../examples/06_autotune_example.html"><span class="std std-doc">autotune示例</span></a>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">get_autotune_config</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">triton</span><span class="o">.</span><span class="n">Config</span><span class="p">({</span><span class="s1">&#39;XS&#39;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">128</span><span class="p">,</span> <span class="s1">&#39;multibuffer&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}),]</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>选项</p></th>
+<th class="head"><p>能力</p></th>
+<th class="head"><p>是否开启</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>multibuffer</p></td>
+<td><p>开启流水并行数据搬运</p></td>
+<td><p>默认true； true , false。 autotune中可配置</p></td>
+</tr>
+<tr class="row-odd"><td><p>unit_flag</p></td>
+<td><p>cube搬出的一个优化项</p></td>
+<td><p>默认None；true , false。  autotune中可配置</p></td>
+</tr>
+<tr class="row-even"><td><p>limit_auto_multi_buffer_only_for_local_buffer</p></td>
+<td><p>CV算子一个优化项，cube搬出的一个优化项</p></td>
+<td><p>默认None；true , false。 autotune中可配置</p></td>
+</tr>
+<tr class="row-odd"><td><p>limit_auto_multi_buffer_of_local_buffer</p></td>
+<td><p>cube算子开启double buffer具体的scope</p></td>
+<td><p>默认None；[&quot;no-limit&quot;, &quot;no-l0c&quot;]， autotune中可配置</p></td>
+</tr>
+<tr class="row-even"><td><p>set_workspace_multibuffer</p></td>
+<td><p>只有在limit_auto_multi_buffer_only_for_local_buffer=false场景下生效</p></td>
+<td><p>默认None；如[2,4]，autotune中可配置</p></td>
+</tr>
+<tr class="row-odd"><td><p>enable_hivm_auto_cv_balance</p></td>
+<td><p>set_workspace_multibuffer只有在limit_auto_multi_buffer_only_for_local_buffer=false场景下生效</p></td>
+<td><p>默认None；true , false。 autotune中可配置</p></td>
+</tr>
+<tr class="row-even"><td><p>tile_mix_vector_loop</p></td>
+<td><p>CV算子的一个优化项,当前vector可以切几份</p></td>
+<td><p>默认None；如 [2,4,8]，autotune中可配置</p></td>
+</tr>
+<tr class="row-odd"><td><p>tile_mix_cube_loop</p></td>
+<td><p>CV算子一个优化项,当前cube可以切几份</p></td>
+<td><p>默认None；如 [2,4,8]，autotune中可配置</p></td>
+</tr>
+<tr class="row-even"><td><p>auto_blockify_size</p></td>
+<td><p>TRITON_ALL_BLOCKS_PARALLEL优化项，用于指定扩展的左起第一个维度的大小。</p></td>
+<td><p>默认1；如 [2,4,8]，autotune中可配置</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>注：优化编译选项在ascend/backend/compiler.py代码中。</p></li>
+<li><p>注：CV算子表示该算子运算过程中既使用了AI Core又使用了Vector Core。</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../programming_guide.html" class="btn btn-neutral float-left" title="Triton算子开发指南" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="migrate_from_gpu.html" class="btn btn-neutral float-right" title="GPU Triton算子迁移" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

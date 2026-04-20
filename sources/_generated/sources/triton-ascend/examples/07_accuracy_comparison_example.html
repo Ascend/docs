@@ -1,0 +1,415 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>精度比对 （Accuracy Comparison） &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" />
+    <link rel="next" title="Triton-Ascend 调试指南" href="../debug_guide/debugging.html" />
+    <link rel="prev" title="自动调优 （Autotune）" href="06_autotune_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../quick_start.html">快速入门</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../installation_guide.html">安装指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture_design_and_core_features.html">架构设计与核心特性</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide.html">Triton算子开发指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/architecture_difference.html">昇腾与GPU的开发差异</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/migrate_from_gpu.html">GPU Triton算子迁移</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migration_guide/performance_guidelines.html">NPU高性能编程指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01_vector_add_example.html">向量相加 （Vector Addition）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02_fused_softmax_example.html">融合 Softmax （Fused Softmax）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="03_layer_norm_example.html">层标准化 （Layer Normalization）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04_fused_attention_example.html">融合注意力（Fused Attention）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05_matrix_multiplication_example.html">矩阵乘法 （Matrix Multiplication）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06_autotune_example.html">自动调优 （Autotune）</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">精度比对 （Accuracy Comparison）</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debug_guide/debugging.html">Triton-Ascend 调试指南</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../debug_guide/profiling.html">Triton-Ascend 性能分析方法</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/index.html">triton.language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triton_api/triton/index.html">triton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_variable_reference.html">环境变量</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../FAQ.html">Triton-Ascend FAQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_note.html">Triton-Ascend 版本发布</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"FAQ": "faq_group", "architecture_design_and_core_features": "arch_group", "environment_variable_reference": "env_group", "installation_guide": "install_group", "programming_guide": "dev_guide_group", "quick_start": "quick_start_group", "release_note": "faq_group"}, "arch_group": "\u67b6\u6784\u8bbe\u8ba1\u4e0e\u6838\u5fc3\u7279\u6027", "debug_guide": "\u7b97\u5b50\u8c03\u8bd5\u4e0e\u8c03\u4f18", "dev_guide_group": "Triton \u7b97\u5b50\u5f00\u53d1\u6307\u5357", "env_group": "\u73af\u5883\u53d8\u91cf", "examples": "\u5178\u578b\u7b97\u5b50\u6837\u4f8b", "faq_group": "\u5e38\u89c1\u95ee\u9898", "install_group": "\u5b89\u88c5\u6307\u5357", "migration_guide": "Triton \u7b97\u5b50\u8fc1\u79fb\u6307\u5357", "quick_start_group": "\u5feb\u901f\u5f00\u59cb", "triton_api": "Triton API \u63a5\u53e3\u8bf4\u660e", "triton_api_extention": "\u6607\u817e\u6269\u5c55 API \u63a5\u53e3\u8bf4\u660e"};
+        const commId = 'triton-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+      <li class="breadcrumb-item active">精度比对 （Accuracy Comparison）</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/triton-ascend/examples/07_accuracy_comparison_example.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="accuracy-comparison">
+<h1>精度比对 （Accuracy Comparison）<a class="headerlink" href="#accuracy-comparison" title="Link to this heading"></a></h1>
+<p>在本节中，我们将使用 Triton 编写一个简单的精度比对的程序。
+在此过程中，用户会学习到：</p>
+<ul class="simple">
+<li><p>Triton 每种数据类型的精度比对方法。</p></li>
+<li><p>参考示例代码：triton-ascend/ascend/examples/tutorials/14-accuracy-comparison.py</p></li>
+</ul>
+<p>计算内核:</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_add</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    测试 Triton 实现的向量加法与 PyTorch 的结果,精度比对是否一致。</span>
+<span class="sd">    </span>
+<span class="sd">    步骤：</span>
+<span class="sd">    1. 使用 PyTorch 计算参考结果（torch_ref）</span>
+<span class="sd">    2. 使用 Triton 编写 kernel 并计算结果（triton_cal）</span>
+<span class="sd">    3. 调用 accuracy_comparison 进行精度比对</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. 使用 PyTorch 作为参考实现（golden truth）</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">torch_func</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">x0</span> <span class="o">+</span> <span class="n">x1</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+    <span class="c1"># 2. 定义 Triton kernel（在 NPU/GPU 上执行）</span>
+    <span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">triton_kernel_add</span><span class="p">(</span>
+        <span class="n">out_ptr0</span><span class="p">,</span>   <span class="c1"># 输出指针：结果存储位置</span>
+        <span class="n">in_ptr0</span><span class="p">,</span>    <span class="c1"># 输入指针0：x0 的起始地址</span>
+        <span class="n">in_ptr1</span><span class="p">,</span>    <span class="c1"># 输入指针1：x1 的起始地址</span>
+        <span class="n">XS</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span>  <span class="c1"># constexpr 参数：向量长度，在编译时确定</span>
+    <span class="p">):</span>
+        <span class="c1"># 生成 [0, 1, 2, ..., XS-1] 的索引数组</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">XS</span><span class="p">)</span>
+        <span class="c1"># 从 in_ptr0 + idx 处加载 x0 的值</span>
+        <span class="n">tmp0</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="c1"># 从 in_ptr1 + idx 处加载 x1 的值</span>
+        <span class="n">tmp1</span> <span class="o">=</span> <span class="n">tl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">in_ptr1</span> <span class="o">+</span> <span class="n">idx</span><span class="p">)</span>
+        <span class="c1"># 执行加法</span>
+        <span class="n">tmp2</span> <span class="o">=</span> <span class="n">tmp0</span> <span class="o">+</span> <span class="n">tmp1</span>
+        <span class="c1"># 将结果写入 out_ptr0 + idx</span>
+        <span class="n">tl</span><span class="o">.</span><span class="n">store</span><span class="p">(</span><span class="n">out_ptr0</span> <span class="o">+</span> <span class="n">idx</span><span class="p">,</span> <span class="n">tmp2</span><span class="p">)</span>
+
+    <span class="c1"># 3. Triton 封装函数：调用 kernel 并返回结果</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">triton_func</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">):</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>  <span class="c1"># 创建与输入形状、dtype 相同的输出张量</span>
+        <span class="c1"># 启动 kernel：grid = [1, 1, 1] 表示仅使用一个 block</span>
+        <span class="c1"># 注意：XS 必须作为参数传入，因为它是 tl.constexpr 类型</span>
+        <span class="n">triton_kernel_add</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">](</span><span class="n">y0</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">XS</span><span class="o">=</span><span class="n">x0</span><span class="o">.</span><span class="n">numel</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">y0</span>
+
+    <span class="c1"># 4. 获取参考结果和 Triton 计算结果</span>
+    <span class="n">torch_ref</span> <span class="o">=</span> <span class="n">torch_func</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+    <span class="n">triton_cal</span> <span class="o">=</span> <span class="n">triton_func</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">)</span>
+
+    <span class="c1"># 5. 精度比对</span>
+    <span class="n">accuracy_comparison</span><span class="p">(</span><span class="n">triton_cal</span><span class="p">,</span> <span class="n">torch_ref</span><span class="p">)</span>
+
+    <span class="c1"># 6. 打印成功信息</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;== dtype:</span><span class="si">{</span><span class="n">triton_cal</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> == The accuracy comparison between triton_cal and torch_ref was successful.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>创建一个精度比对函数，适应每一种dtype，采用对应的精度比对方法。</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">accuracy_comparison</span><span class="p">(</span><span class="n">y_cal</span><span class="p">,</span> <span class="n">y_ref</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    精度比对函数：根据数据类型选择合适的比对策略。</span>
+
+<span class="sd">    不同数据类型的处理策略：</span>
+<span class="sd">    - 浮点类型（float16/32, bfloat16）：使用 torch.testing.assert_close，设置相对/绝对误差容限</span>
+<span class="sd">    - 整数类型（int8/16/32/64）：要求完全相等（torch.equal）</span>
+<span class="sd">    - 布尔类型（bool）：CPU 上严格比较（避免设备差异）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 检查输出数据类型是否一致</span>
+    <span class="k">assert</span> <span class="n">y_cal</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">y_ref</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;dtype mismatch: </span><span class="si">{</span><span class="n">y_cal</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> vs </span><span class="si">{</span><span class="n">y_ref</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">tensor_dtype</span> <span class="o">=</span> <span class="n">y_cal</span><span class="o">.</span><span class="n">dtype</span>
+
+    <span class="c1"># 将张量移动到 NPU（假设测试在 NPU 上进行）</span>
+    <span class="n">y_cal</span> <span class="o">=</span> <span class="n">y_cal</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+    <span class="n">y_ref</span> <span class="o">=</span> <span class="n">y_ref</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+
+    <span class="c1"># 根据数据类型选择不同的比对方式</span>
+    <span class="k">if</span> <span class="n">tensor_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">:</span>
+        <span class="c1"># float16 精度较低，允许稍大误差</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_close</span><span class="p">(</span><span class="n">y_ref</span><span class="p">,</span> <span class="n">y_cal</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tensor_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">:</span>
+        <span class="c1"># bfloat16 精度更低，建议转为 float32 再比较</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_close</span><span class="p">(</span>
+            <span class="n">y_ref</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">y_cal</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">),</span>
+            <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">atol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+            <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tensor_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+        <span class="c1"># float32 精度较高，使用更严格的容差</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_close</span><span class="p">(</span><span class="n">y_ref</span><span class="p">,</span> <span class="n">y_cal</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">equal_nan</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">tensor_dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">int16</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">int8</span><span class="p">]:</span>
+        <span class="c1"># 整数类型应完全相等</span>
+        <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">y_cal</span><span class="p">,</span> <span class="n">y_ref</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Integer tensors are not equal for dtype </span><span class="si">{</span><span class="n">tensor_dtype</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">elif</span> <span class="n">tensor_dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">bool</span><span class="p">:</span>
+        <span class="c1"># 布尔类型建议在 CPU 上比较，避免设备间布尔表示差异</span>
+        <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">equal</span><span class="p">(</span><span class="n">y_cal</span><span class="o">.</span><span class="n">cpu</span><span class="p">(),</span> <span class="n">y_ref</span><span class="o">.</span><span class="n">cpu</span><span class="p">()),</span> <span class="s2">&quot;Boolean tensors are not equal&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid or unsupported tensor dtype: </span><span class="si">{</span><span class="n">tensor_dtype</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>可以使用下面指令，运行参考示例代码：tutorials/14-accuracy-comparison.py</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">triton</span><span class="o">-</span><span class="n">ascend</span><span class="o">/</span><span class="n">ascend</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">tutorials</span><span class="o">/</span><span class="mi">14</span><span class="o">-</span><span class="n">accuracy</span><span class="o">-</span><span class="n">comparison</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="06_autotune_example.html" class="btn btn-neutral float-left" title="自动调优 （Autotune）" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../debug_guide/debugging.html" class="btn btn-neutral float-right" title="Triton-Ascend 调试指南" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

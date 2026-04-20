@@ -1,0 +1,566 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU安装及配置 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="NPU训练" href="npu_training.html" />
+    <link rel="prev" title="LLaMA-Factory" href="../../../../../LLaMA-Factory/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU安装及配置</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">核心依赖说明</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#install-form-pip">方式一：手动安装环境</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">1. 版本及下载链接</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">2. 驱动及固件</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cann">3. CANN</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#torch-npu">4. torch-npu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">5. 验证安装</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#docker">方式二：Docker 预安装镜像</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id6">1. 拉取镜像</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">2. 启动容器</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">3. 进入容器</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#install-form-docker">方式三：Docker 本地构建</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#docker-build">1. 使用 Docker Build 构建</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#docker-compose">2. 使用 Docker Compose 构建</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="npu_training.html">NPU训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distributed.html">分布训练</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+      <li class="breadcrumb-item active">NPU安装及配置</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/LLaMA-Factory/source/advanced/npu_installation.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu">
+<h1>NPU安装及配置<a class="headerlink" href="#npu" title="Link to this heading"></a></h1>
+<p>LLaMA-Factory 支持华为昇腾 NPU (A2/A3) 设备。您可以选择以下三种方式之一进行环境配置及使用：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#install-form-pip"><span class="std std-ref">方式一：手动安装环境</span></a></p></li>
+<li><p><a class="reference internal" href="#use-form-docker"><span class="std std-ref">方式二：Docker 预安装镜像</span></a></p></li>
+<li><p><a class="reference internal" href="#install-form-docker"><span class="std std-ref">方式三：Docker 本地构建</span></a></p></li>
+</ul>
+<section id="id1">
+<h2>核心依赖说明<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>所有安装方式均依赖以下组件：</p>
+<ul class="simple">
+<li><p><strong>HDK</strong>：固件及驱动</p></li>
+<li><p><strong>CANN</strong>：异构计算架构</p></li>
+<li><p><strong>torch_npu</strong>：PyTorch 的昇腾适配插件</p></li>
+</ul>
+<p>根据安装方式不同，所需操作有所区别：</p>
+<ul class="simple">
+<li><p><strong>手动安装</strong>：需手动安装 HDK、CANN 和 torch_npu。</p></li>
+<li><p><strong>Docker 镜像/构建</strong>：宿主机仅需安装 HDK (驱动/固件)，CANN 和 torch_npu 已集成在镜像中。</p></li>
+</ul>
+</section>
+<section id="install-form-pip">
+<span id="id2"></span><h2>方式一：手动安装环境<a class="headerlink" href="#install-form-pip" title="Link to this heading"></a></h2>
+<p>本方式需要您手动安装 HDK、CANN 和 torch_npu。</p>
+<section id="id3">
+<h3>1. 版本及下载链接<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>本文档列举了最新的依赖版本及下载链接，请根据设备型号选择：</p>
+<table class="docutils align-left">
+<colgroup>
+<col style="width: 7.7%" />
+<col style="width: 15.4%" />
+<col style="width: 76.9%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>设备</p></th>
+<th class="head"><p>依赖</p></th>
+<th class="head"><p>链接</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A3</p></td>
+<td><p>HDK</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/hardware/firmware-drivers/community?product=7&amp;model=34&amp;cann=8.3.RC1&amp;driver=Ascend+HDK+25.0.RC1.3">https://www.hiascend.com/hardware/firmware-drivers/community?product=7&amp;model=34&amp;cann=8.3.RC1&amp;driver=Ascend+HDK+25.0.RC1.3</a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>CANN</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;product=7&amp;model=34">https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;product=7&amp;model=34</a></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>torch_npu</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;product=7&amp;model=34">https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;product=7&amp;model=34</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>A2</p></td>
+<td><p>HDK</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/hardware/firmware-drivers/community?product=4&amp;model=26&amp;cann=8.3.RC1&amp;driver=Ascend+HDK+25.3.RC1">https://www.hiascend.com/hardware/firmware-drivers/community?product=4&amp;model=26&amp;cann=8.3.RC1&amp;driver=Ascend+HDK+25.3.RC1</a></p></td>
+</tr>
+<tr class="row-even"><td></td>
+<td><p>CANN</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;pt=7.2.0&amp;cann=8.3.RC1">https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;pt=7.2.0&amp;cann=8.3.RC1</a></p></td>
+</tr>
+<tr class="row-odd"><td></td>
+<td><p>torch_npu</p></td>
+<td><p><a class="reference external" href="https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;pt=7.2.0&amp;cann=8.3.RC1">https://www.hiascend.com/developer/download/community/result?module=pt+cann&amp;pt=7.2.0&amp;cann=8.3.RC1</a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<ul class="simple">
+<li><p>具体需要安装的包可查看下文实际安装指南。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 下载链接跳转页面，请点击所需的 PyTorch 版本的“获取源码”，链接将自动跳转至 <a class="reference external" href="https://gitcode.com/Ascend/pytorch/releases">torch_npu 发行版本</a> 指定界面。</p></li>
+<li><p>推荐使用 <code class="docutils literal notranslate"><span class="pre">torch</span> <span class="pre">2.7.1</span></code> + <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">3.11</span></code>，该组合作为 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的稳定版本长期演进</p></li>
+</ul>
+</div>
+</section>
+<section id="id4">
+<h3>2. 驱动及固件<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>请根据实际情况选择 <code class="docutils literal notranslate"><span class="pre">.run</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.deb</span></code> 的 HDK 安装包，并请注意安装包对 <code class="docutils literal notranslate"><span class="pre">aarch64</span></code> 和 <code class="docutils literal notranslate"><span class="pre">x86</span></code> 做了区分。</p>
+<p>以下以 A2 系列为例。A3 系列包 <code class="docutils literal notranslate"><span class="pre">firmware</span></code> 和 <code class="docutils literal notranslate"><span class="pre">driver</span></code> 包名有所变化，可以根据链接内实际情况选择。</p>
+<p>A3 内部包名类似于 <code class="docutils literal notranslate"><span class="pre">Atlas-A3-hdk-npu-driver_25.0.rc1.3_linux-aarch64.run</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Atlas-A3-hdk-npu-firmware_7.7.0.3.228.run</span></code>，实际安装方式没有变化。</p>
+<ol class="arabic">
+<li><p>上传安装包，以 root 用户登录，将驱动和固件包上传至服务器（如 <code class="docutils literal notranslate"><span class="pre">/home</span></code>）。</p></li>
+<li><p>增加执行权限，进入安装包目录，执行以下命令。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>Ascend-hdk-&lt;chip_type&gt;-npu-driver_&lt;version&gt;_linux-&lt;arch&gt;.run
+chmod<span class="w"> </span>+x<span class="w"> </span>Ascend-hdk-&lt;chip_type&gt;-npu-firmware_&lt;version&gt;.run
+</pre></div>
+</div>
+</li>
+<li><p>安装驱动与固件，默认安装路径为 <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend</span></code>。</p>
+<p><strong>安装驱动</strong>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./Ascend-hdk-&lt;chip_type&gt;-npu-driver_&lt;version&gt;_linux-&lt;arch&gt;.run<span class="w"> </span>--full<span class="w"> </span>--install-for-all
+</pre></div>
+</div>
+<p>出现 <code class="docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">package</span> <span class="pre">installed</span> <span class="pre">successfully!</span></code> 表示成功。</p>
+<p><strong>安装固件</strong>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./Ascend-hdk-&lt;chip_type&gt;-npu-firmware_&lt;version&gt;.run<span class="w"> </span>--full
+</pre></div>
+</div>
+<p>出现 <code class="docutils literal notranslate"><span class="pre">Firmware</span> <span class="pre">package</span> <span class="pre">installed</span> <span class="pre">successfully!</span></code> 表示成功。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>若未创建默认用户 <code class="docutils literal notranslate"><span class="pre">HwHiAiUser</span></code>，需在安装命令中指定用户和组： <code class="docutils literal notranslate"><span class="pre">./Ascend-hdk-*.run</span> <span class="pre">--full</span> <span class="pre">--install-username=&lt;username&gt;</span> <span class="pre">--install-usergroup=&lt;usergroup&gt;</span></code></p>
+</div>
+</li>
+<li><p>重启系统，根据提示决定是否重启。如需重启：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>reboot
+</pre></div>
+</div>
+</li>
+<li><p>验证安装，执行以下命令查看驱动加载状态：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<img alt="../../../../../../_images/npu-smi.png" src="../../../../../../_images/npu-smi.png" />
+</li>
+</ol>
+</section>
+<section id="cann">
+<h3>3. CANN<a class="headerlink" href="#cann" title="Link to this heading"></a></h3>
+<p>请根据实际情况选择 <code class="docutils literal notranslate"><span class="pre">.run</span></code> 或 <code class="docutils literal notranslate"><span class="pre">.deb</span></code> 的 CANN 安装包，并请注意安装包对 <code class="docutils literal notranslate"><span class="pre">aarch64</span></code> 和 <code class="docutils literal notranslate"><span class="pre">x86</span></code> 做了区分。</p>
+<p>以下以 A2 系列为例。A3 系列唯一区别是 <code class="docutils literal notranslate"><span class="pre">kernels</span></code> 包名字有所变化，可以根据链接内实际情况选择。A3 内部包名类似于 <code class="docutils literal notranslate"><span class="pre">Atlas-A3-cann-kernels_8.3.RC1_linux-aarch64.run</span></code>，实际安装方式没有变化。</p>
+<section id="toolkit">
+<h4>(1) 安装 Toolkit 开发套件<a class="headerlink" href="#toolkit" title="Link to this heading"></a></h4>
+<p>Toolkit 用于训练、推理及开发。</p>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>请确保安装目录可用空间大于 10G。</p>
+</div>
+<ol class="arabic">
+<li><p><strong>授权与安装</strong>：以 root 用户安装，默认安装路径为 <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend</span></code>；以普通用户安装，默认安装路径为 <code class="docutils literal notranslate"><span class="pre">${HOME}/Ascend</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>Ascend-cann-toolkit_&lt;version&gt;_linux-aarch64.run
+./Ascend-cann-toolkit_&lt;version&gt;_linux-aarch64.run<span class="w"> </span>--install
+</pre></div>
+</div>
+</li>
+<li><p><strong>配置环境变量</strong>：以 root 用户为例，建议写入 <code class="docutils literal notranslate"><span class="pre">~/.bashrc</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="kernels">
+<h4>(2) 安装 Kernels 算子包<a class="headerlink" href="#kernels" title="Link to this heading"></a></h4>
+<p>需在安装 Toolkit 后执行。如需安装静态库，请将 <code class="docutils literal notranslate"><span class="pre">--install</span></code> 改为 <code class="docutils literal notranslate"><span class="pre">--devel</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>Ascend-cann-kernels-&lt;chip_type&gt;_&lt;version&gt;_linux-aarch64.run
+./Ascend-cann-kernels-&lt;chip_type&gt;_&lt;version&gt;_linux-aarch64.run<span class="w"> </span>--install
+</pre></div>
+</div>
+</section>
+<section id="nnal">
+<h4>(3) 安装 NNAL 神经网络加速库（可选）<a class="headerlink" href="#nnal" title="Link to this heading"></a></h4>
+<p>包含 ATB 和 SiP 加速库。需在安装 Toolkit 后执行。</p>
+<ol class="arabic">
+<li><p><strong>授权与安装</strong>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chmod<span class="w"> </span>+x<span class="w"> </span>Ascend-cann-nnal_8.3.RC1_linux-aarch64.run
+./Ascend-cann-nnal_8.3.RC1_linux-aarch64.run<span class="w"> </span>--install
+</pre></div>
+</div>
+</li>
+<li><p><strong>配置环境变量</strong>：</p>
+<p>（二选一，不可同时配置）</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># ATB</span>
+<span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Ascend/nnal/atb/set_env.sh
+
+<span class="c1"># SiP</span>
+<span class="nb">source</span><span class="w"> </span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/Ascend/nnal/asdsip/set_env.sh
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="torch-npu">
+<h3>4. torch-npu<a class="headerlink" href="#torch-npu" title="Link to this heading"></a></h3>
+<p>建议在安装 LLaMA-Factory 时一并安装 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 插件，LLaMA-Factory 依赖内会持续更新稳定版本的 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 插件。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements/npu.txt
+</pre></div>
+</div>
+<p>当然您也可以手动下载后安装 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 插件，例如：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>torch_npu-2.7.1-cp311-cp311-manylinux_2_17_aarch64.whl
+</pre></div>
+</div>
+<p>安装 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 插件需要注意：</p>
+<ul class="simple">
+<li><p>下载的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 会对支持的 Python 版本做区分，请根据实际环境情况选择对应安装包，<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torch_npu</span></code> 时，也会一并安装对应版本的 <code class="docutils literal notranslate"><span class="pre">torch</span></code>。</p></li>
+<li><p>环境里安装的 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 版本需要对齐。例如 <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 版本为 <code class="docutils literal notranslate"><span class="pre">2.7.1</span></code> 时，<code class="docutils literal notranslate"><span class="pre">torch</span></code> 的版本也需要为 <code class="docutils literal notranslate"><span class="pre">2.7.1</span></code>。有时依赖互斥，安装不用依赖的过程会导致 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 版本被更新，从而导致报错。</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>5. 验证安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>执行以下 Python 脚本：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>预期输出：<code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<img alt="../../../../../../_images/npu-torch.png" src="../../../../../../_images/npu-torch.png" />
+<p>该情况说明 <code class="docutils literal notranslate"><span class="pre">HDK</span></code>、<code class="docutils literal notranslate"><span class="pre">CANN</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 都正常安装且生效。</p>
+</section>
+</section>
+<section id="docker">
+<span id="use-form-docker"></span><h2>方式二：Docker 预安装镜像<a class="headerlink" href="#docker" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>请确保宿主机已安装固件和驱动，可参考前文进行安装。</p>
+</div>
+<p>LLaMA-Factory 的官方镜像托管于 <a class="reference external" href="https://hub.docker.com/r/hiyouga/llamafactory/tags">Docker Hub</a> 和 <a class="reference external" href="https://quay.io/repository/ascend/llamafactory?tab=tags">quay.io</a>，二者镜像无区别。</p>
+<section id="id6">
+<h3>1. 拉取镜像<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>下载 main 分支最新镜像（请根据设备选择 A2 或 A3）。如需特定版本镜像，请访问镜像仓库查看 Tag。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Docker Hub</span>
+docker<span class="w"> </span>pull<span class="w"> </span>hiyouga/llamafactory:latest-npu-a2
+docker<span class="w"> </span>pull<span class="w"> </span>hiyouga/llamafactory:latest-npu-a3
+
+<span class="c1"># quay.io</span>
+docker<span class="w"> </span>pull<span class="w"> </span>quay.io/ascend/llamafactory:latest-npu-a2
+docker<span class="w"> </span>pull<span class="w"> </span>quay.io/ascend/llamafactory:latest-npu-a3
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>2. 启动容器<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>使用以下命令启动容器（请根据实际情况修改 <code class="docutils literal notranslate"><span class="pre">DOCKER_IMAGE</span></code> 和 <code class="docutils literal notranslate"><span class="pre">device</span></code>）：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CONTAINER_NAME</span><span class="o">=</span>llama_factory_npu
+<span class="nv">DOCKER_IMAGE</span><span class="o">=</span>hiyouga/llamafactory:latest-npu-a2
+
+docker<span class="w"> </span>run<span class="w"> </span>-itd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cap-add<span class="o">=</span>SYS_PTRACE<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--net<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci7<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci_manager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/devmm_svm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shm-size<span class="o">=</span>1200g<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/dcmi:/usr/local/dcmi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/etc/ascend_install.info:/etc/ascend_install.info<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/sys/fs/cgroup:/sys/fs/cgroup:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/Ascend/driver:/usr/local/Ascend/driver<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CONTAINER_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;</span><span class="nv">$DOCKER_IMAGE</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/bin/bash
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>配置 <code class="docutils literal notranslate"><span class="pre">--privileged=true</span></code> 可开启特权模式，赋予容器对底层硬件管理设备（如 <code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>）的完整访问权限。这能解决多容器并行场景下，因权限限制导致的驱动初始化失败问题，确保 NPU 资源能被多个容器正常复用。</p>
+<p><strong>注意</strong>：若未配置该参数，可能会出现首个容器占用后，后续容器因无权限而无法读取设备的情况。鉴于特权模式的权限过大，生产环境中请务必评估安全风险后慎重使用。</p>
+</div>
+</section>
+<section id="id8">
+<h3>3. 进入容器<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>llama_factory_npu<span class="w"> </span>bash
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">--device</span> <span class="pre">/dev/davinci&lt;N&gt;</span></code> 挂载指定 NPU 卡（支持 0-7）。容器内设备编号会自动重新映射（例如物理机 davinci6 代表容器内设备 0）。</p>
+</div>
+<p>进入容器后，可直接使用 <code class="docutils literal notranslate"><span class="pre">llamafactory-cli</span> <span class="pre">train</span></code> 启动训练，无需额外配置。</p>
+</section>
+</section>
+<section id="install-form-docker">
+<span id="id9"></span><h2>方式三：Docker 本地构建<a class="headerlink" href="#install-form-docker" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>请确保宿主机已安装固件和驱动。</p>
+</div>
+<p>LLaMA-Factory 提供 <a class="reference internal" href="#docker-build"><span class="std std-ref">1. 使用 Docker Build 构建</span></a> 和 <a class="reference internal" href="#docker-compose"><span class="std std-ref">2. 使用 Docker Compose 构建</span></a> 两种构建方式。</p>
+<section id="docker-build">
+<span id="id10"></span><h3>1. 使用 Docker Build 构建<a class="headerlink" href="#docker-build" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>构建镜像，在项目根目录下执行：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ascend-A2</span>
+docker<span class="w"> </span>build<span class="w"> </span>-f<span class="w"> </span>./docker/docker-npu/Dockerfile<span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">INSTALL_DEEPSPEED</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">PIP_INDEX</span><span class="o">=</span>https://pypi.org/simple<span class="w"> </span>-t<span class="w"> </span>llamafactory:latest<span class="w"> </span>.
+
+<span class="c1"># Ascend-A3</span>
+docker<span class="w"> </span>build<span class="w"> </span>-f<span class="w"> </span>./docker/docker-npu/Dockerfile<span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">BASE_IMAGE</span><span class="o">=</span>quay.io/ascend/cann:8.3.rc2-a3-ubuntu22.04-py3.11<span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">INSTALL_DEEPSPEED</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>--build-arg<span class="w"> </span><span class="nv">PIP_INDEX</span><span class="o">=</span>https://pypi.org/simple<span class="w"> </span>-t<span class="w"> </span>llamafactory:latest<span class="w"> </span>.
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>可修改 <code class="docutils literal notranslate"><span class="pre">BASE_IMAGE</span></code> 参数指定其他 CANN 版本（参考 <a class="reference external" href="https://quay.io/repository/ascend/cann?tab=tags&amp;tag=latest">ascend/cann</a> ）。</p>
+</div>
+<ol class="arabic" start="2">
+<li><p>启动容器</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CONTAINER_NAME</span><span class="o">=</span>llama_factory_npu
+<span class="nv">DOCKER_IMAGE</span><span class="o">=</span>llamafactory:latest
+docker<span class="w"> </span>run<span class="w"> </span>-itd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cap-add<span class="o">=</span>SYS_PTRACE<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--net<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci6<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci7<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/davinci_manager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/devmm_svm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--device<span class="o">=</span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--shm-size<span class="o">=</span>1200g<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/dcmi:/usr/local/dcmi<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/etc/ascend_install.info:/etc/ascend_install.info<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/sys/fs/cgroup:/sys/fs/cgroup:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/usr/local/Ascend/driver:/usr/local/Ascend/driver<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-v<span class="w"> </span>/data:/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CONTAINER_NAME</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;</span><span class="nv">$DOCKER_IMAGE</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/bin/bash
+</pre></div>
+</div>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>配置 <code class="docutils literal notranslate"><span class="pre">--privileged=true</span></code> 可开启特权模式，赋予容器对底层硬件管理设备（如 <code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>）的完整访问权限。这能解决多容器并行场景下，因权限限制导致的驱动初始化失败问题，确保 NPU 资源能被多个容器正常复用。</p>
+<p><strong>注意</strong>：若未配置该参数，可能会出现首个容器占用后，后续容器因无权限而无法读取设备的情况。鉴于特权模式的权限过大，生产环境中请务必评估安全风险后慎重使用。</p>
+</div>
+<ol class="arabic" start="3">
+<li><p>进入容器</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>llama_factory_npu<span class="w"> </span>bash
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="docker-compose">
+<span id="id11"></span><h3>2. 使用 Docker Compose 构建<a class="headerlink" href="#docker-compose" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>进入目录</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docker/docker-npu
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>构建镜像并直接启动容器，请根据设备型号选择命令：</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ascend-A2</span>
+docker-compose<span class="w"> </span>up<span class="w"> </span>-d
+
+<span class="c1"># Ascend-A3</span>
+docker-compose<span class="w"> </span>--profile<span class="w"> </span>a3<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>llamafactory-a3
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>进入容器</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>llamafactory-a2<span class="w"> </span>bash
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>构建前，请检查 <cite>docker-compose.yml</cite> 中的 <cite>devices</cite> 列表，当前构建时只会挂卡 0，请根据需要做修改。</p>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../../../../../LLaMA-Factory/index.html" class="btn btn-neutral float-left" title="LLaMA-Factory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="npu_training.html" class="btn btn-neutral float-right" title="NPU训练" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

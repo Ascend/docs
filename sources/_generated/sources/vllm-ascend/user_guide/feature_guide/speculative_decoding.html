@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speculative Decoding Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="Context Parallel Guide" href="context_parallel.html" />
+    <link rel="prev" title="Layer Sharding Linear Guide" href="layer_sharding.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/features/index.html">Feature Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Feature Guide</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="graph_mode.html">Graph Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cpu_binding.html">CPU Binding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantization.html">Quantization Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleep_mode.html">Sleep Mode Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="structured_output.html">Structured Output Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lora.html">LoRA Adapters Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="eplb_swift_balancer.html">Expert Load Balance (EPLB)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="netloader.html">Netloader Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rfork.html">RFork Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Multi_Token_Prediction.html">Multi Token Prediction (MTP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamic_batch.html">Dynamic Batch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="epd_disaggregation.html">Disaggregated-encoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kv_pool.html">Ascend Store Deployment Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="external_dp.html">External DP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="large_scale_ep.html">Distributed DP Server With Large-Scale Expert Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ucm_deployment.html">UCM-Enhanced Prefix Caching Deployment Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Fine_grained_TP.html">Fine-Grained Tensor Parallelism (Fine-grained TP)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="layer_sharding.html">Layer Sharding Linear Guide</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Speculative Decoding Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#speculating-by-matching-n-grams-in-the-prompt">Speculating by matching n-grams in the prompt</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#speculating-using-eagle-based-draft-models">Speculating using EAGLE based draft models</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#speculating-using-mtp-speculators">Speculating using MTP speculators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#speculating-using-suffix-decoding">Speculating using Suffix Decoding</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="context_parallel.html">Context Parallel Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="npugraph_ex.html">Npugraph_ex</a></li>
+<li class="toctree-l3"><a class="reference internal" href="weight_prefetch.html">Weight Prefetch Guide</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sequence_parallelism.html">Sequence Parallelism</a></li>
+<li class="toctree-l3"><a class="reference internal" href="batch_invariance.html">Batch Invariance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lmcache_ascend_deployment.html">LMCache-Ascend Deployment Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/performance_and_debug/index.html">Performance and Debug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Feature Guide</a></li>
+      <li class="breadcrumb-item active">Speculative Decoding Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/user_guide/feature_guide/speculative_decoding.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="speculative-decoding-guide">
+<h1>Speculative Decoding Guide<a class="headerlink" href="#speculative-decoding-guide" title="Link to this heading"></a></h1>
+<p>This guide shows how to use Speculative Decoding with vLLM Ascend. Speculative decoding is a technique which improves inter-token latency in memory-bound LLM inference.</p>
+<section id="speculating-by-matching-n-grams-in-the-prompt">
+<h2>Speculating by matching n-grams in the prompt<a class="headerlink" href="#speculating-by-matching-n-grams-in-the-prompt" title="Link to this heading"></a></h2>
+<p>The following code configures vLLM Ascend to use speculative decoding where proposals are generated by matching n-grams in the prompt.</p>
+<ul>
+<li><p>Offline inference</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vllm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">SamplingParams</span>
+
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;The future of AI is&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">sampling_params</span> <span class="o">=</span> <span class="n">SamplingParams</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+    <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">speculative_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;ngram&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;num_speculative_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;prompt_lookup_max&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompts</span><span class="p">,</span> <span class="n">sampling_params</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">prompt</span>
+    <span class="n">generated_text</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prompt: </span><span class="si">{</span><span class="n">prompt</span><span class="si">!r}</span><span class="s2">, Generated text: </span><span class="si">{</span><span class="n">generated_text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="speculating-using-eagle-based-draft-models">
+<h2>Speculating using EAGLE based draft models<a class="headerlink" href="#speculating-using-eagle-based-draft-models" title="Link to this heading"></a></h2>
+<p>The following code configures vLLM Ascend to use speculative decoding where proposals are generated by an <a class="reference external" href="https://arxiv.org/pdf/2401.15077">EAGLE (Extrapolation Algorithm for Greater Language-model Efficiency)</a> based draft model.</p>
+<p>In v0.12.0rc1 of vLLM Ascend, the async scheduler is more stable and ready to be enabled. We have adapted it to support EAGLE, and you can use it by setting <code class="docutils literal notranslate"><span class="pre">async_scheduling=True</span></code> as follows. If you encounter any issues, please feel free to open an issue on GitHub. As a workaround, you can disable this feature by unsetting <code class="docutils literal notranslate"><span class="pre">async_scheduling=True</span></code> when initializing the model.</p>
+<ul>
+<li><p>Offline inference</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">vllm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">SamplingParams</span>
+
+<span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;The future of AI is&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">sampling_params</span> <span class="o">=</span> <span class="n">SamplingParams</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+    <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">distributed_executor_backend</span><span class="o">=</span><span class="s2">&quot;mp&quot;</span><span class="p">,</span>
+    <span class="n">enforce_eager</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">async_scheduling</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">speculative_config</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;eagle&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;yuhuili/EAGLE-LLaMA3.1-Instruct-8B&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;draft_tensor_parallel_size&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;num_speculative_tokens&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompts</span><span class="p">,</span> <span class="n">sampling_params</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">prompt</span>
+    <span class="n">generated_text</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prompt: </span><span class="si">{</span><span class="n">prompt</span><span class="si">!r}</span><span class="s2">, Generated text: </span><span class="si">{</span><span class="n">generated_text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>A few important things to consider when using the EAGLE based draft models:</p>
+<ol class="arabic simple">
+<li><p>The EAGLE draft models available in the <a class="reference external" href="https://huggingface.co/yuhuili">HF repository for EAGLE models</a> should
+be loaded and used directly by vLLM. This functionality was added in PR <a class="reference external" href="https://github.com/vllm-project/vllm-ascend/pull/4893">#4893</a>.
+If you are using a vLLM version released before this pull request was merged, please update to a more recent version.</p></li>
+<li><p>The EAGLE based draft models need to be run without tensor parallelism
+(i.e. draft_tensor_parallel_size is set to 1 in <code class="docutils literal notranslate"><span class="pre">speculative_config</span></code>), although
+it is possible to run the main model using tensor parallelism (see example above).</p></li>
+<li><p>When using EAGLE-3 based draft model, option &quot;method&quot; must be set to &quot;eagle3&quot;.
+That is, to specify <code class="docutils literal notranslate"><span class="pre">&quot;method&quot;:</span> <span class="pre">&quot;eagle3&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">speculative_config</span></code>.</p></li>
+<li><p>After enabling EAGLE, the main model needs to verify <code class="docutils literal notranslate"><span class="pre">(1</span> <span class="pre">+</span> <span class="pre">K)</span></code> tokens generated by the main model and the draft model in one decoding process.
+And the fullgraph mode will fix the number of tokens during the verification stage,
+so <code class="docutils literal notranslate"><span class="pre">cudagraph_capture_sizes</span></code> must be a list of capture sizes, where each size is calculated as <code class="docutils literal notranslate"><span class="pre">n</span> <span class="pre">*</span> <span class="pre">(K</span> <span class="pre">+</span> <span class="pre">1)</span></code> for each batch size <code class="docutils literal notranslate"><span class="pre">n</span></code> you want to support.
+For instance, to support batch sizes from 1 to 4 with <code class="docutils literal notranslate"><span class="pre">num_speculative_tokens</span> <span class="pre">=</span> <span class="pre">4</span></code>, <code class="docutils literal notranslate"><span class="pre">cudagraph_capture_sizes</span></code> should be set to <code class="docutils literal notranslate"><span class="pre">[5,</span> <span class="pre">10,</span> <span class="pre">15,</span> <span class="pre">20]</span></code>.</p></li>
+</ol>
+</section>
+<section id="speculating-using-mtp-speculators">
+<h2>Speculating using MTP speculators<a class="headerlink" href="#speculating-using-mtp-speculators" title="Link to this heading"></a></h2>
+<p>The following code configures vLLM Ascend to use speculative decoding where proposals are generated by MTP (Multi Token Prediction), boosting inference performance by parallelizing the prediction of multiple tokens. For more information about MTP see <a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/latest/user_guide/feature_guide/Multi_Token_Prediction.html">Multi_Token_Prediction</a></p>
+<ul>
+<li><p>Online inference</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>vllm<span class="w"> </span>serve<span class="w"> </span>/deepseek-ai/DeepSeek-V3.2-Exp-W8A8<span class="w"> </span><span class="se">\</span>
+--port<span class="w"> </span><span class="m">20004</span><span class="w"> </span><span class="se">\</span>
+--data-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+--tensor-parallel-size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+--enable-expert-parallel<span class="w"> </span><span class="se">\</span>
+--seed<span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+--served-model-name<span class="w"> </span>dsv3<span class="w"> </span><span class="se">\</span>
+--max-model-len<span class="w"> </span><span class="m">36768</span><span class="w"> </span><span class="se">\</span>
+--max-num-batched-tokens<span class="w"> </span><span class="m">5000</span><span class="w"> </span><span class="se">\</span>
+--max-num-seqs<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+--quantization<span class="w"> </span>ascend<span class="w"> </span><span class="se">\</span>
+--trust-remote-code<span class="w"> </span><span class="se">\</span>
+--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span><span class="se">\</span>
+--compilation-config<span class="w"> </span><span class="s1">&#39;{&quot;cudagraph_mode&quot;: &quot;FULL_DECODE_ONLY&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+--speculative-config<span class="w"> </span><span class="s1">&#39;{&quot;num_speculative_tokens&quot;: 2, &quot;method&quot;:&quot;deepseek_mtp&quot;, &quot;disable_padded_drafter_batch&quot;: &quot;False&quot;}&#39;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="speculating-using-suffix-decoding">
+<h2>Speculating using Suffix Decoding<a class="headerlink" href="#speculating-using-suffix-decoding" title="Link to this heading"></a></h2>
+<p>The following code configures vLLM to use speculative decoding where proposals are generated using Suffix Decoding <a class="reference external" href="https://arxiv.org/abs/2411.04975">(SuffixDecoding: Extreme Speculative Decoding for Emerging AI Applications)</a>.</p>
+<p>Like n-gram, Suffix Decoding can generate draft tokens by pattern-matching using the last <code class="docutils literal notranslate"><span class="pre">n</span></code> generated tokens. Unlike n-gram, Suffix Decoding (1) can pattern-match against both the prompt and previous generations, (2) uses frequency counts to propose the most likely continuations, and (3) speculates an adaptive number of tokens for each request at each iteration to get better acceptance rates.</p>
+<p>Suffix Decoding can achieve better performance for tasks with high repetition, such as code-editing, agentic loops (e.g. self-reflection, self-consistency), and RL rollouts.</p>
+<blockquote>
+<div><p>[!NOTE]
+Suffix Decoding requires Arctic Inference. You can install it with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">arctic-inference</span></code>.</p>
+</div></blockquote>
+<ul>
+<li><p>Offline inference</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="kn">from</span><span class="w"> </span><span class="nn">vllm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">SamplingParams</span>
+
+  <span class="n">prompts</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="s2">&quot;The future of AI is&quot;</span><span class="p">,</span>
+  <span class="p">]</span>
+  <span class="n">sampling_params</span> <span class="o">=</span> <span class="n">SamplingParams</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span>
+
+  <span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span>
+      <span class="n">model</span><span class="o">=</span><span class="s2">&quot;meta-llama/Meta-Llama-3.1-8B-Instruct&quot;</span><span class="p">,</span>
+      <span class="n">tensor_parallel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+      <span class="n">enforce_eager</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+      <span class="n">speculative_config</span><span class="o">=</span><span class="p">{</span>
+          <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;suffix&quot;</span><span class="p">,</span>
+          <span class="s2">&quot;num_speculative_tokens&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+      <span class="p">},</span>
+  <span class="p">)</span>
+
+  <span class="n">outputs</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">prompts</span><span class="p">,</span> <span class="n">sampling_params</span><span class="p">)</span>
+
+  <span class="k">for</span> <span class="n">output</span> <span class="ow">in</span> <span class="n">outputs</span><span class="p">:</span>
+      <span class="n">prompt</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">prompt</span>
+      <span class="n">generated_text</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+      <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Prompt: </span><span class="si">{</span><span class="n">prompt</span><span class="si">!r}</span><span class="s2">, Generated text: </span><span class="si">{</span><span class="n">generated_text</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="layer_sharding.html" class="btn btn-neutral float-left" title="Layer Sharding Linear Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="context_parallel.html" class="btn btn-neutral float-right" title="Context Parallel Guide" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

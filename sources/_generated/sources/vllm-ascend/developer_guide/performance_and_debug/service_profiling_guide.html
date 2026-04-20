@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service Profiling Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="MSProbe Debugging Guide" href="msprobe_guide.html" />
+    <link rel="prev" title="Optimization and Tuning" href="optimization_and_tuning.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/features/index.html">Feature Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../tutorials/hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_guide/index.html">Feature Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Performance and Debug</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="performance_benchmark.html">Performance Benchmark</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimization_and_tuning.html">Optimization and Tuning</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Service Profiling Guide</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#solution-comparison">Solution Comparison</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#quick-selection-guide">Quick Selection Guide</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ascend-pytorch-profiler">Ascend PyTorch Profiler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ms-service-profiler">MS Service Profiler</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="msprobe_guide.html">MSProbe Debugging Guide</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Performance and Debug</a></li>
+      <li class="breadcrumb-item active">Service Profiling Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/developer_guide/performance_and_debug/service_profiling_guide.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="service-profiling-guide">
+<h1>Service Profiling Guide<a class="headerlink" href="#service-profiling-guide" title="Link to this heading"></a></h1>
+<p>In an inference service process, it is sometimes necessary to monitor the internal execution flow of the inference service framework to identify performance issues. By collecting start and end timestamps of key processes, identifying key functions or iterations, recording critical events, and gathering various types of information, performance bottlenecks can be quickly located.</p>
+<p>This guide will walk you through the process of collecting performance data from the vLLM-Ascend service framework and operators. It covers the complete workflow from preparation, collection, analysis, to visualization, helping you quickly get started with performance collection tools.</p>
+<p>Two performance collection solutions are provided below: Ascend PyTorch Profiler and MS Service Profiler. You can choose the appropriate tool for performance analysis and troubleshooting based on your actual requirements.</p>
+<section id="solution-comparison">
+<h2>Solution Comparison<a class="headerlink" href="#solution-comparison" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Feature</p></th>
+<th class="head text-left"><p>Ascend PyTorch Profiler</p></th>
+<th class="head text-left"><p>MS Service Profiler</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>Installation Method</p></td>
+<td class="text-left"><p>Built-in, no additional installation required</p></td>
+<td class="text-left"><p>Requires building msserviceprofiler from source</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Collection Granularity</p></td>
+<td class="text-left"><p>PyTorch operator level</p></td>
+<td class="text-left"><p>Service framework function level</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Control Method</p></td>
+<td class="text-left"><p>API request control</p></td>
+<td class="text-left"><p>Configuration file control</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Applicable Scenarios</p></td>
+<td class="text-left"><p>Model operator performance analysis</p></td>
+<td class="text-left"><p>Service framework workflow analysis</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Data Format</p></td>
+<td class="text-left"><p>ascend_pt format</p></td>
+<td class="text-left"><p>Chrome Tracing + CSV</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Main Advantage</p></td>
+<td class="text-left"><p>Operator-level performance analysis</p></td>
+<td class="text-left"><p>Service framework workflow visualization</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Supported Collection Capabilities</p></td>
+<td class="text-left"><p>PyTorch operator level</p></td>
+<td class="text-left"><p>PyTorch operator level and Service framework function level</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="quick-selection-guide">
+<h2>Quick Selection Guide<a class="headerlink" href="#quick-selection-guide" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#ascend-pytorch-profiler"><strong>Model Operator Performance</strong> → Use Ascend PyTorch Profiler</a></p></li>
+<li><p><a class="reference internal" href="#ms-service-profiler"><strong>Service Framework Workflow</strong> → Use MS Service Profiler</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="ascend-pytorch-profiler">
+<h2>Ascend PyTorch Profiler<a class="headerlink" href="#ascend-pytorch-profiler" title="Link to this heading"></a></h2>
+<section id="installation-and-configuration">
+<h3>0. Installation and Configuration<a class="headerlink" href="#installation-and-configuration" title="Link to this heading"></a></h3>
+<p>No additional packages need to be installed; it can be enabled through command-line configuration. Currently, vLLM enables <strong>python stack</strong> by default, which can significantly inflate the collected performance data. If you do not wish to collect <strong>python stack</strong>, you can disable it using <code class="docutils literal notranslate"><span class="pre">torch_profiler_with_stack=false</span></code>.</p>
+</section>
+<section id="preparation-for-collection">
+<h3>1. Preparation for Collection<a class="headerlink" href="#preparation-for-collection" title="Link to this heading"></a></h3>
+<p>Start the online service and set the <code class="docutils literal notranslate"><span class="pre">--profiler-config</span></code> parameter to control the path for saving performance files. After the parameter is set, the collection function is enabled.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">VLLM_PROMPT_SEQ_BUCKET_MAX</span><span class="o">=</span><span class="m">128</span>
+<span class="nv">VLLM_PROMPT_SEQ_BUCKET_MIN</span><span class="o">=</span><span class="m">128</span>
+python3<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="se">\</span>
+--port<span class="w"> </span><span class="m">8080</span><span class="w"> </span><span class="se">\</span>
+--model<span class="w"> </span><span class="s2">&quot;facebook/opt-125m&quot;</span><span class="w"> </span><span class="se">\</span>
+--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+--max-num-seqs<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+--profiler-config<span class="w"> </span><span class="s1">&#39;{&quot;profiler&quot;: &quot;torch&quot;, &quot;torch_profiler_dir&quot;: &quot;./vllm_profile&quot;, &quot;torch_profiler_with_stack&quot;: false}&#39;</span><span class="w"> </span><span class="se">\</span>
+--dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+--max-model-len<span class="w"> </span><span class="m">256</span>
+</pre></div>
+</div>
+<blockquote>
+<div><p>Note:<strong>January 19, 2026: The vLLM mainline has deprecated the VLLM_TORCH_PROFILER_DIR environment variable.</strong><a class="reference external" href="https://github.com/vllm-project/vllm-ascend/pull/5928">Related PR</a>  When using the vLLM Ascend mainline code to collect profiler data, remember to use the <code class="docutils literal notranslate"><span class="pre">--profiler-config</span></code> (online) parameter or the <code class="docutils literal notranslate"><span class="pre">profiler_config</span></code> (offline) parameter.</p>
+</div></blockquote>
+</section>
+<section id="start-collection">
+<h3>2. Start Collection<a class="headerlink" href="#start-collection" title="Link to this heading"></a></h3>
+<p>Performance collection is controlled by sending API requests. You can start collection after stabilizing the actual business data and collect profiling for a few seconds before stopping; or you can start collection first, then send business requests, and finally stop.</p>
+<p>Send the following request to start the profiling service:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/start_profile
+</pre></div>
+</div>
+<p>Send the following request to stop the profiling service:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/stop_profile
+</pre></div>
+</div>
+</section>
+<section id="send-requests">
+<h3>3. Send Requests<a class="headerlink" href="#send-requests" title="Link to this heading"></a></h3>
+<p>Send requests according to your actual business data. After sending the requests, stop the profiling service, and the data will be automatically saved to the previously configured path:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8080/v1/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;model&quot;: &quot;facebook/opt-125m&quot;,</span>
+<span class="s1">    &quot;prompt&quot;: &quot;San Francisco is a&quot;,</span>
+<span class="s1">    &quot;max_tokens&quot;: 7,</span>
+<span class="s1">    &quot;temperature&quot;: 0</span>
+<span class="s1">}&#39;</span>
+
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8080/stop_profile
+</pre></div>
+</div>
+</section>
+<section id="analyze-data">
+<h3>4. Analyze Data<a class="headerlink" href="#analyze-data" title="Link to this heading"></a></h3>
+<p>Navigate to the <code class="docutils literal notranslate"><span class="pre">./vllm_profile</span></code> directory and locate the generated <code class="docutils literal notranslate"><span class="pre">*ascend_pt</span></code> folder. This folder needs to be analyzed before profiling data can be examined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">torch_npu.profiler.profiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">analyse</span>
+<span class="n">analyse</span><span class="p">(</span><span class="s2">&quot;./vllm_profile/localhost.localdomain_*_ascend_pt/&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="view-results">
+<h3>5. View Results<a class="headerlink" href="#view-results" title="Link to this heading"></a></h3>
+<p>After analysis, the <code class="docutils literal notranslate"><span class="pre">*ascend_pt</span></code> directory will contain many files, with the main analysis focus being the <code class="docutils literal notranslate"><span class="pre">ASCEND_PROFILER_OUTPUT</span></code> folder. This directory will include the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">analysis.db</span></code>: Performance data in database format</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api_statistic.csv</span></code>: API call statistics</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ascend_pytorch_profiler_0.db</span></code>: Performance data in database format</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kernel_details.csv</span></code>: Kernel-level related data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operator_details.csv</span></code>: Operator-level related data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">op_statistic.csv</span></code>: Operator utilization data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">step_trace_time.csv</span></code>: Scheduling data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trace_view.json</span></code>: Chrome tracing format data, can be opened with <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/81RC1/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html">MindStudio Insight</a></p></li>
+</ul>
+<p><a class="reference internal" href="#service-profiling-guide">↑ Back to Top</a></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="ms-service-profiler">
+<h2>MS Service Profiler<a class="headerlink" href="#ms-service-profiler" title="Link to this heading"></a></h2>
+<section id="build-from-source-and-upgrade">
+<h3>0. Build from Source and Upgrade<a class="headerlink" href="#build-from-source-and-upgrade" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">msserviceprofiler</span></code> tool is pre-installed with the CANN Toolkit package. Use the following commands to install or upgrade from source.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://gitcode.com/Ascend/msserviceprofiler.git
+<span class="nb">cd</span><span class="w"> </span>msserviceprofiler
+bash<span class="w"> </span>scripts/build_and_upgrade.sh
+</pre></div>
+</div>
+</section>
+<section id="preparation">
+<h3>1. Preparation<a class="headerlink" href="#preparation" title="Link to this heading"></a></h3>
+<p>Before starting the service, set the environment variable <code class="docutils literal notranslate"><span class="pre">SERVICE_PROF_CONFIG_PATH</span></code> to point to the profiling configuration file, and set the environment variable <code class="docutils literal notranslate"><span class="pre">PROFILING_SYMBOLS_PATH</span></code> to specify the YAML configuration file for the symbols that need to be imported. After that, start the vLLM service according to your deployment method.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">path_to_store_profiling_files</span><span class="si">}</span>
+<span class="c1"># Set environment variable</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">SERVICE_PROF_CONFIG_PATH</span><span class="o">=</span>ms_service_profiler_config.json
+<span class="nb">export</span><span class="w"> </span><span class="nv">PROFILING_SYMBOLS_PATH</span><span class="o">=</span>service_profiling_symbols.yaml
+
+<span class="c1"># Start vLLM service</span>
+vllm<span class="w"> </span>serve<span class="w"> </span>Qwen/Qwen2.5-0.5B-Instruct<span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>The file <code class="docutils literal notranslate"><span class="pre">ms_service_profiler_config.json</span></code> is the profiling configuration. If it does not exist at the specified path, a default configuration will be generated automatically. If needed, you can customize it in advance according to the instructions in the <code class="docutils literal notranslate"><span class="pre">Profiling</span> <span class="pre">Configuration</span> <span class="pre">File</span></code> section below.</p>
+<p><code class="docutils literal notranslate"><span class="pre">service_profiling_symbols.yaml</span></code> is the configuration file containing the profiling points to be imported. You can choose <strong>not</strong> to set the <code class="docutils literal notranslate"><span class="pre">PROFILING_SYMBOLS_PATH</span></code> environment variable, in which case the default configuration file will be used. If the file does not exist at the path you specified, likewise, the system will generate a configuration file at your specified path for future configuration. You can customize it according to the instructions in the <code class="docutils literal notranslate"><span class="pre">Symbols</span> <span class="pre">Configuration</span> <span class="pre">File</span></code> section below.</p>
+</section>
+<section id="enable-profiling">
+<h3>2. Enable Profiling<a class="headerlink" href="#enable-profiling" title="Link to this heading"></a></h3>
+<p>To enable the performance data collection switch, change the <code class="docutils literal notranslate"><span class="pre">enable</span></code> field from <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">1</span></code> in the configuration file <code class="docutils literal notranslate"><span class="pre">ms_service_profiler_config.json</span></code>. This can be accomplished by executing the following sed command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/&quot;enable&quot;:\s*0/&quot;enable&quot;: 1/&#39;</span><span class="w"> </span>./ms_service_profiler_config.json
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h3>3. Send Requests<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>Choose a request-sending method that suits your actual profiling needs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8000/v1/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w">  </span><span class="se">\</span>
+<span class="w">    </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">         &quot;model&quot;: &quot;Qwen/Qwen2.5-0.5B-Instruct&quot;,</span>
+<span class="s1">        &quot;prompt&quot;: &quot;Beijing is a&quot;,</span>
+<span class="s1">        &quot;max_tokens&quot;: 5,</span>
+<span class="s1">        &quot;temperature&quot;: 0</span>
+<span class="s1">}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>json.tool
+</pre></div>
+</div>
+</section>
+<section id="parse-data">
+<h3>4. Parse Data<a class="headerlink" href="#parse-data" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># xxxx-xxxx is the directory automatically created based on vLLM startup time</span>
+<span class="nb">cd</span><span class="w"> </span>/root/.ms_server_profiler/xxxx-xxxx
+
+<span class="c1"># parse data</span>
+msserviceprofiler<span class="w"> </span>parse<span class="w"> </span>--input-path<span class="o">=</span>./<span class="w"> </span>--output-path<span class="w"> </span>output
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>5. View Results<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>After parsing, the <code class="docutils literal notranslate"><span class="pre">output</span></code> directory will contain:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">chrome_tracing.json</span></code>: Chrome tracing format data, which can be opened in <a class="reference external" href="https://www.hiascend.com/document/detail/zh/mindstudio/830/GUI_baseddevelopmenttool/msascendinsightug/Insight_userguide_0002.html?framework=mindspore">MindStudio Insight</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">profiler.db</span></code>: Performance data in database format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">request.csv</span></code>: Request-related data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">kvcache.csv</span></code>: KV Cache-related data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch.csv</span></code>: Batch scheduling-related data.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="appendix-related-to-ms-service-profiler">
+<h3>6. Appendix related to MS Service Profiler<a class="headerlink" href="#appendix-related-to-ms-service-profiler" title="Link to this heading"></a></h3>
+<section id="profiling-configuration-file">
+<span id="id3"></span><h4>6.1 Profiling Configuration File<a class="headerlink" href="#profiling-configuration-file" title="Link to this heading"></a></h4>
+<p>The profiling configuration file controls profiling parameters and behavior.</p>
+<section id="file-format">
+<h5>File Format<a class="headerlink" href="#file-format" title="Link to this heading"></a></h5>
+<p>The configuration is in JSON format. Main parameters:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Parameter</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-center"><p>Required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>enable</p></td>
+<td class="text-left"><p>Switch for profiling: <br />0: disable<br />1: enable<br />Default: 0</p></td>
+<td class="text-center"><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>prof_dir</p></td>
+<td class="text-left"><p>Directory to store collected performance data. <br />Default: <code class="docutils literal notranslate"><span class="pre">${HOME}/.ms_server_profiler</span></code></p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>profiler_level</p></td>
+<td class="text-left"><p>Data collection level. Default is &quot;INFO&quot; (normal level).</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>acl_task_time</p></td>
+<td class="text-left"><p>Switch to collect operator dispatch latency and execution latency. Values: <br />0: off. Default; 0 or any invalid value means off.<br />1: on. When enabled, calls <code class="docutils literal notranslate"><span class="pre">aclprofCreateConfig</span></code> with <code class="docutils literal notranslate"><span class="pre">ACL_PROF_TASK_TIME_L0</span></code>.<br />2: on. MSPTI-based dump. When enabled, set before starting the service: <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">LD_PRELOAD={INSTALL_DIR}/lib64/libmspti.so</span></code>, where <code class="docutils literal notranslate"><span class="pre">{INSTALL_DIR}</span></code> is the CANN installation root (e.g. <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend/cann</span></code> for a typical root install).<br />3: on. Torch Profiler–based dump.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>acl_prof_task_time_level</p></td>
+<td class="text-left"><p>Profiling level and duration. Values: <br />L0: collect operator dispatch and execution latency only; lower overhead (no operator basic info).<br />L1: collect AscendCL interface performance (host–device and inter-device sync/async memory copy latencies), plus operator dispatch, execution, and basic info for comprehensive analysis.<br /><code class="docutils literal notranslate"><span class="pre">{time}</span></code>: optional duration segment; integer 1–999, unit seconds.<br />If unset, defaults to L0 until program exit; invalid values fall back to defaults.<br />Level and duration can be combined, e.g., <code class="docutils literal notranslate"><span class="pre">&quot;acl_prof_task_time_level&quot;:</span> <span class="pre">&quot;L1;10&quot;</span></code>.<br /><strong>Note:</strong> When Torch Profiler is used (<code class="docutils literal notranslate"><span class="pre">acl_task_time</span></code> set to <code class="docutils literal notranslate"><span class="pre">3</span></code>), <code class="docutils literal notranslate"><span class="pre">{time}</span></code> duration is not supported.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>timelimit</p></td>
+<td class="text-left"><p>Profiling duration for the service. The process stops automatically after this time. Range: integer 0–7200, unit: seconds. Default 0 means unlimited. Recommend at least 120 s; shorter runs may lack data for parsed outputs and trigger warnings.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>domain</p></td>
+<td class="text-left"><p>Limit profiling to the specified domains to reduce data volume. String, separated by semicolons, case-sensitive, e.g., &quot;Request; KVCache&quot;.<br />Empty means all available domains.<br />Available domains: Request, KVCache, ModelExecute, BatchSchedule, Communication.<br />Note: If the selected domains are incomplete, analysis output may show warnings due to missing data. See <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/850/devaids/Profiling/mindieprofiling_0010.html">Reference Table 1</a>.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>torch_prof_stack</p></td>
+<td class="text-left"><p>Collect operator call stacks (framework and CPU operators). Values: <code class="docutils literal notranslate"><span class="pre">false</span></code> (default, off), <code class="docutils literal notranslate"><span class="pre">true</span></code> (on). Requires <code class="docutils literal notranslate"><span class="pre">acl_task_time</span></code> set to <code class="docutils literal notranslate"><span class="pre">3</span></code>. <strong>Note:</strong> Enabling this configuration introduces additional performance overhead.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>torch_prof_step_num</p></td>
+<td class="text-left"><p>Torch Profiler step limit. Integer ≥ 0. Default <code class="docutils literal notranslate"><span class="pre">0</span></code> means collect all steps.<br />Requires <code class="docutils literal notranslate"><span class="pre">acl_task_time</span></code> set to <code class="docutils literal notranslate"><span class="pre">3</span></code>.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>profiler_step_num</p></td>
+<td class="text-left"><p>Step limit for operator and service framework profiling. Integer ≥ 0.<br /><code class="docutils literal notranslate"><span class="pre">0</span></code> or invalid values stop the entire service profiling process.<br />The number of steps actually recorded depends on <code class="docutils literal notranslate"><span class="pre">modelRunnerExec</span></code> events.</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="example-configuration">
+<h5>Example Configuration<a class="headerlink" href="#example-configuration" title="Link to this heading"></a></h5>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;enable&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;prof_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./vllm_prof&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;acl_task_time&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;acl_prof_task_time_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+<section id="symbols-configuration-file">
+<span id="id4"></span><h4>6.2 Symbols Configuration File<a class="headerlink" href="#symbols-configuration-file" title="Link to this heading"></a></h4>
+<p>The symbols configuration file defines which functions/methods to profile and supports flexible configuration with custom attribute collection.</p>
+<section id="file-name-and-loading">
+<h5>File Name and Loading<a class="headerlink" href="#file-name-and-loading" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p>Default load path:<code class="docutils literal notranslate"><span class="pre">~/.config/vllm_ascend/service_profiling_symbols.MAJOR.MINOR.PATCH.yaml</span></code>( According to the installed version of vllm )</p></li>
+</ul>
+<p>If you need to customize the profiling points, it is highly recommended to copy a symbol configuration file to your working directory and point to it with the <code class="docutils literal notranslate"><span class="pre">PROFILING_SYMBOLS_PATH</span></code> environment variable.</p>
+</section>
+<section id="configuration-file-updates">
+<h5>Configuration file updates<a class="headerlink" href="#configuration-file-updates" title="Link to this heading"></a></h5>
+<p>After you change profiling symbols, restart the vLLM service so the updated configuration file is loaded.</p>
+</section>
+<section id="field-descriptions">
+<h5>Field Descriptions<a class="headerlink" href="#field-descriptions" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p>Field</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Example</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>symbol</p></td>
+<td class="text-left"><p>Python import path + attribute chain</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;vllm.v1.core.kv_cache_manager:KVCacheManager.free&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>handler</p></td>
+<td class="text-left"><p>Handler type</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;timer&quot;</span></code> (default) or <code class="docutils literal notranslate"><span class="pre">&quot;pkg.mod:func&quot;</span></code> (custom)</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>domain</p></td>
+<td class="text-left"><p>Domain tag</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;KVCache&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ModelExecute&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>name</p></td>
+<td class="text-left"><p>Event name</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;EngineCoreExecute&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>min_version</p></td>
+<td class="text-left"><p>Minimum supported vLLM version</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;0.9.1&quot;</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>max_version</p></td>
+<td class="text-left"><p>Maximum supported vLLM version</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">&quot;0.11.0&quot;</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>attributes</p></td>
+<td class="text-left"><p>Custom attribute collection</p></td>
+<td class="text-left"><p>Only supported for <code class="docutils literal notranslate"><span class="pre">&quot;timer&quot;</span></code> handler. See the section below</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="configuration-examples">
+<h5>Configuration Examples<a class="headerlink" href="#configuration-examples" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p>Example 1: Custom handler</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">symbol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm.v1.core.kv_cache_manager:KVCacheManager.free</span>
+<span class="w">  </span><span class="nt">handler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ms_service_profiler.patcher.config.custom_handler_example.kvcache_manager_free_example_handler</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Example</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example_custom</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Example 2: Default timer</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">symbol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm.v1.engine.core:EngineCore.execute_model</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ModelExecute</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">EngineCoreExecute</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Example 3: Version constraint</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">symbol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm.v1.executor.abstract:Executor.execute_model</span>
+<span class="w">  </span><span class="nt">min_version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.9.1&quot;</span>
+<span class="w">  </span><span class="c1"># No handler specified -&gt; default timer</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-attribute-collection">
+<h5>Custom Attribute Collection<a class="headerlink" href="#custom-attribute-collection" title="Link to this heading"></a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">attributes</span></code> field supports flexible custom attribute collection and allows operations and transformations on function arguments and return values.</p>
+<section id="basic-syntax">
+<h6>Basic Syntax<a class="headerlink" href="#basic-syntax" title="Link to this heading"></a></h6>
+<ul class="simple">
+<li><p>Argument access: use the parameter name directly, e.g., <code class="docutils literal notranslate"><span class="pre">input_ids</span></code></p></li>
+<li><p>Return value access: use the <code class="docutils literal notranslate"><span class="pre">return</span></code> keyword</p></li>
+<li><p>Pipeline operations: use <code class="docutils literal notranslate"><span class="pre">|</span></code> to chain multiple operations</p></li>
+<li><p>Attribute access: use <code class="docutils literal notranslate"><span class="pre">attr</span></code> to access object attributes</p></li>
+</ul>
+</section>
+<section id="example">
+<h6>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h6>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">symbol</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm_ascend.worker.model_runner_v1:NPUModelRunner.execute_model</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ModelRunnerExecuteModel</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ModelExecute</span>
+<span class="w">  </span><span class="nt">attributes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">device</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">args[0] | attr device | str</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dp</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">args[0] | attr dp_rank | str</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">batch_size</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">args[0] | attr input_batch | attr _req_ids | len</span>
+</pre></div>
+</div>
+</section>
+<section id="expression-notes">
+<h6>Expression Notes<a class="headerlink" href="#expression-notes" title="Link to this heading"></a></h6>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">len(input_ids)</span></code>: get the length of parameter <code class="docutils literal notranslate"><span class="pre">input_ids</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">len(return)</span> <span class="pre">|</span> <span class="pre">str</span></code>: get the length of the return value and convert to string (equivalent to <code class="docutils literal notranslate"><span class="pre">str(len(return))</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">return[0]</span> <span class="pre">|</span> <span class="pre">attr</span> <span class="pre">input_ids</span> <span class="pre">|</span> <span class="pre">len</span></code>: get the length of the <code class="docutils literal notranslate"><span class="pre">input_ids</span></code> attribute of the first element in the return value.</p></li>
+</ol>
+</section>
+<section id="supported-expression-types">
+<h6>Supported Expression Types<a class="headerlink" href="#supported-expression-types" title="Link to this heading"></a></h6>
+<ul class="simple">
+<li><p>Basic operations: <code class="docutils literal notranslate"><span class="pre">len()</span></code>, <code class="docutils literal notranslate"><span class="pre">str()</span></code>, <code class="docutils literal notranslate"><span class="pre">int()</span></code>, <code class="docutils literal notranslate"><span class="pre">float()</span></code></p></li>
+<li><p>Index access: <code class="docutils literal notranslate"><span class="pre">return[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">return['key']</span></code></p></li>
+<li><p>Attribute access: <code class="docutils literal notranslate"><span class="pre">return</span> <span class="pre">|</span> <span class="pre">attr</span> <span class="pre">attr_name</span></code></p></li>
+<li><p>Pipeline composition: chain operations with <code class="docutils literal notranslate"><span class="pre">|</span></code></p></li>
+</ul>
+</section>
+<section id="advanced-examples">
+<h6>Advanced Examples<a class="headerlink" href="#advanced-examples" title="Link to this heading"></a></h6>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">attributes</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Get tensor shape</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tensor_shape</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_tensor | attr shape | str</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1"># Get specific value from a dict</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">batch_size</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kwargs[&#39;batch_size&#39;]</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1"># Conditional expression (requires custom handler support)</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">is_training_mode</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">training | bool</span>
+<span class="w">  </span>
+<span class="w">  </span><span class="c1"># Complex data processing</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">processed_data_len</span>
+<span class="w">    </span><span class="nt">expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">data | attr items | len | str</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="custom-handler">
+<h5>Custom Handler<a class="headerlink" href="#custom-handler" title="Link to this heading"></a></h5>
+<p>When <code class="docutils literal notranslate"><span class="pre">handler</span></code> specifies a custom function, it must match the following signature:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">custom_handler</span><span class="p">(</span><span class="n">original_func</span><span class="p">,</span> <span class="n">this</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Custom handler</span>
+<span class="sd">    </span>
+<span class="sd">    Args:</span>
+<span class="sd">        original_func: the original function object</span>
+<span class="sd">        this: the bound object (for methods)</span>
+<span class="sd">        *args: positional arguments</span>
+<span class="sd">        **kwargs: keyword arguments</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        processing result</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Custom logic</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>If the custom handler fails to import, the system will automatically fall back to the default timer mode.</p>
+<p><a class="reference internal" href="#service-profiling-guide">↑ Back to Top</a></p>
+</section>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="optimization_and_tuning.html" class="btn btn-neutral float-left" title="Optimization and Tuning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="msprobe_guide.html" class="btn btn-neutral float-right" title="MSProbe Debugging Guide" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,534 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prepare inputs for model forwarding &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Prepare inputs for model forwarding</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/developer_guide/Design_Documents/ModelRunner_prepare_inputs.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="prepare-inputs-for-model-forwarding">
+<h1>Prepare inputs for model forwarding<a class="headerlink" href="#prepare-inputs-for-model-forwarding" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>Information required to perform model forward pass:</p>
+<ul class="simple">
+<li><p>the inputs</p></li>
+<li><p>the corresponding attention metadata of the inputs</p></li>
+</ul>
+<p>The following diagram shows what we should prepare for model inference.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w">              </span>+---------------+
+<span class="w">  </span>inputs<span class="w">  </span>--&gt;<span class="w"> </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>
+<span class="w">              </span><span class="p">|</span><span class="w">     </span>model<span class="w">     </span><span class="p">|</span><span class="w">  </span>--&gt;<span class="w"> </span>output
+attn_meta<span class="w"> </span>--&gt;<span class="w"> </span><span class="p">|</span><span class="w">               </span><span class="p">|</span>
+<span class="w">              </span>+---------------+<span class="w">  </span>
+</pre></div>
+</div>
+<p>Therefore, as long as we have these two pieces of information mentioned above, we can perform the model's forward propagation.</p>
+<p>This document will explain <strong>how we obtain the inputs and their corresponding attention metadata</strong>.</p>
+</section>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<section id="obtain-inputs">
+<h3>1. Obtain inputs<a class="headerlink" href="#obtain-inputs" title="Link to this heading"></a></h3>
+<p>The workflow of obtaining inputs:</p>
+<ol class="arabic simple">
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">positions</span></code>: relative position of each token within its request sequence.</p></li>
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">indices</span></code>: index of each scheduled token in the token table.</p></li>
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">Token</span> <span class="pre">IDs</span></code>: using token indices to retrieve the Token IDs from <strong>token id table</strong>.</p></li>
+</ol>
+<p>At last, these <code class="docutils literal notranslate"><span class="pre">Token</span> <span class="pre">IDs</span></code> are required to be fed into a model, and <code class="docutils literal notranslate"><span class="pre">positions</span></code> should also be sent into the model to create <code class="docutils literal notranslate"><span class="pre">Rope</span></code> (Rotary positional embedding). Both of them are the inputs of the model.</p>
+<p><strong>Note</strong>: The <code class="docutils literal notranslate"><span class="pre">Token</span> <span class="pre">IDs</span></code> are the inputs of a model, so we also call them <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">IDs</span></code>.</p>
+</section>
+<section id="build-inputs-attention-metadata">
+<h3>2. Build inputs attention metadata<a class="headerlink" href="#build-inputs-attention-metadata" title="Link to this heading"></a></h3>
+<p>A model requires these attention metadata during the forward pass:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">query</span> <span class="pre">start</span> <span class="pre">location</span></code>: start and end location of each request corresponding to the scheduled tokens.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence</span> <span class="pre">length</span></code>: length of each request including both computed tokens and newly scheduled tokens.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">computed</span> <span class="pre">tokens</span></code>: number of computed tokens for each request.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">requests</span></code>: number of requests in this batch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">tokens</span></code>: total number of scheduled tokens in this batch.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span></code></strong>: translates the logical address (within its sequence) of each block to its global physical address in the device's memory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">query</span> <span class="pre">len</span></code>: the longest scheduled tokens length in this request batch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code>: indices of each token that input token will be stored into.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention</span> <span class="pre">mask</span></code>: mask matrix applied to attention scores before softmax to control which tokens can attend to each other (usually a causal attention).</p></li>
+</ul>
+</section>
+</section>
+<section id="before-start">
+<h2>Before start<a class="headerlink" href="#before-start" title="Link to this heading"></a></h2>
+<p>There are mainly three types of variables.</p>
+<ul class="simple">
+<li><p>token level: represents one attribute corresponding to each scheduled token, so the length of this variable is the number of scheduled tokens.</p></li>
+<li><p>request level: represents one attribute of each scheduled request, whose length usually is the number of scheduled requests. (<code class="docutils literal notranslate"><span class="pre">query</span> <span class="pre">start</span> <span class="pre">location</span></code> is a special case, which has one more element.)</p></li>
+<li><p>system level:</p>
+<ol class="arabic simple">
+<li><p><strong>Token IDs table</strong>: stores the token IDs (i.e. the inputs of a model) of each request. The shape of this table is <code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">num</span> <span class="pre">request,</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len)</span></code>. Here, <code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">num</span> <span class="pre">request</span></code> is the maximum count of concurrent requests allowed in a forward batch and <code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span></code> is the maximum token count that can be handled at one request sequence in this model.</p></li>
+<li><p><strong>Block table</strong>: translates the logical address (within its sequence) of each block to its global physical address in the device's memory. The shape of this table is <code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">num</span> <span class="pre">request,</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span> <span class="pre">/</span> <span class="pre">block</span> <span class="pre">size)</span></code></p></li>
+</ol>
+</li>
+</ul>
+<p><strong>Note</strong>: Both of these two tables come from the <code class="docutils literal notranslate"><span class="pre">_update_states</span></code> method before <strong>preparing inputs</strong>. You can take a look if you need more inspiration.</p>
+<section id="tips">
+<h3>Tips<a class="headerlink" href="#tips" title="Link to this heading"></a></h3>
+<p>Simply put, a <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">ID</span></code> is an <strong>integer</strong> (usually <code class="docutils literal notranslate"><span class="pre">int32</span></code>), which represents a token.
+Example of <code class="docutils literal notranslate"><span class="pre">Token</span> <span class="pre">ID</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span>Token<span class="w"> </span>ID<span class="w">     </span><span class="p">|</span><span class="w"> </span>Token<span class="w">         </span><span class="p">|</span><span class="w"> </span>
+<span class="p">|</span>--------------<span class="p">|</span>---------------<span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="o">[</span>PAD<span class="o">]</span><span class="w">         </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>&lt;<span class="p">|</span>endoftext<span class="p">|</span>&gt;<span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>&lt;<span class="p">|</span>start<span class="p">|</span>&gt;<span class="w">     </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="o">[</span>SEP<span class="o">]</span><span class="w">         </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>I<span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>the<span class="w">           </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>be<span class="w">            </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>of<span class="w">            </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">8</span><span class="w">            </span><span class="p">|</span><span class="w"> </span>and<span class="w">           </span><span class="p">|</span><span class="w">     </span>
+<span class="p">|</span><span class="w"> </span>...<span class="w">          </span><span class="p">|</span><span class="w"> </span>...<span class="w">           </span><span class="p">|</span><span class="w">     </span>
+<span class="p">|</span><span class="w"> </span>...<span class="w">          </span><span class="p">|</span><span class="w"> </span>...<span class="w">           </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>vocab_size-1<span class="w"> </span><span class="p">|</span><span class="w"> </span>&lt;<span class="p">|</span>im_end<span class="p">|</span>&gt;<span class="w">    </span><span class="p">|</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="go-through-details">
+<h2>Go through details<a class="headerlink" href="#go-through-details" title="Link to this heading"></a></h2>
+<p>Assumptions:</p>
+<ul class="simple">
+<li><p>maximum number of tokens that can be scheduled at once: 10</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">size</span></code>: 2</p></li>
+<li><p>Totally schedule 3 requests. Their prompt lengths are 3, 2, and 8 respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">model</span> <span class="pre">length</span></code>: 12 (the maximum token count that can be handled at one request sequence in a model).</p></li>
+</ul>
+<p>These assumptions are configured at the beginning when starting vLLM. They are not fixed, so you can manually set them.</p>
+<section id="step-1-all-requests-in-the-prefill-phase">
+<h3>Step 1: All requests in the prefill phase<a class="headerlink" href="#step-1-all-requests-in-the-prefill-phase" title="Link to this heading"></a></h3>
+<section id="id1">
+<h4>Obtain inputs<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<p>As the maximum number of tokens that can be scheduled is 10, the scheduled tokens of each request can be represented as <code class="docutils literal notranslate"><span class="pre">{'0':</span> <span class="pre">3,</span> <span class="pre">'1':</span> <span class="pre">2,</span> <span class="pre">'2':</span> <span class="pre">5}</span></code>. Note that <code class="docutils literal notranslate"><span class="pre">request_2</span></code> uses chunked prefill, leaving 3 prompt tokens unscheduled.</p>
+<section id="get-token-positions">
+<h5>1. Get token positions<a class="headerlink" href="#get-token-positions" title="Link to this heading"></a></h5>
+<p>First, determine which request each token belongs to: tokens 0–2 are assigned to <strong>request_0</strong>, tokens 3–4 to <strong>request_1</strong>, and tokens 5–9 to <strong>request_2</strong>. To represent this mapping, we use <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code>, for example, <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code>: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2]</span></code>.</p>
+<p>For each request, use <strong>the number of computed tokens</strong> + <strong>the relative position of current scheduled tokens</strong> (<code class="docutils literal notranslate"><span class="pre">request_0:</span> <span class="pre">[0</span> <span class="pre">+</span> <span class="pre">0,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">1,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">2]</span></code>, <code class="docutils literal notranslate"><span class="pre">request_1:</span> <span class="pre">[0</span> <span class="pre">+</span> <span class="pre">0,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">1]</span></code>, <code class="docutils literal notranslate"><span class="pre">request_2:</span> <span class="pre">[0</span> <span class="pre">+</span> <span class="pre">0,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">1,...,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">4]</span></code>) and then concatenate them together (<code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4]</span></code>).</p>
+<p>Note: there is a more efficient way (using <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code>) to create positions in actual code.</p>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">positions</span></code> can be obtained as <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4]</span></code>. This variable is <strong>token level</strong>.</p>
+</section>
+<section id="get-token-indices">
+<h5>2. Get token indices<a class="headerlink" href="#get-token-indices" title="Link to this heading"></a></h5>
+<p>The shape of the current <strong>Token IDs table</strong> is <code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">num</span> <span class="pre">request,</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len)</span></code>.</p>
+<p>Why are these <code class="docutils literal notranslate"><span class="pre">T_3_5</span></code>, <code class="docutils literal notranslate"><span class="pre">T_3_6</span></code>, <code class="docutils literal notranslate"><span class="pre">T_3_7</span></code> in this table without being scheduled?</p>
+<ul class="simple">
+<li><p>We fill all Token IDs in one request sequence to this table at once, but we only retrieve the tokens we scheduled this time. Then we retrieve the remaining Token IDs next time.</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span>T_0_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_0_1<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_0_2<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>T_1_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_1_1<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>T_2_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_2_1<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_2<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_3<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_4<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_5<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_6<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_7<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+......
+......
+......
+</pre></div>
+</div>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">T_x_x</span></code> is an <code class="docutils literal notranslate"><span class="pre">int32</span></code>.</p>
+<p>Let's say <code class="docutils literal notranslate"><span class="pre">M</span> <span class="pre">=</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span></code>. Then we can use <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">positions</span></code> together with <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code> of each token to construct <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">indices</span></code>.</p>
+<p>So <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">indices</span></code> = <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">1</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">2</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">1</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">1</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">2</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">3</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">M,</span> <span class="pre">4</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">M]</span></code> = <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">12,</span> <span class="pre">13,</span> <span class="pre">24,</span> <span class="pre">25,</span> <span class="pre">26,</span> <span class="pre">27,</span> <span class="pre">28]</span></code></p>
+</section>
+<section id="retrieve-the-token-ids">
+<h5>3. Retrieve the Token IDs<a class="headerlink" href="#retrieve-the-token-ids" title="Link to this heading"></a></h5>
+<p>We use <code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">indices</span></code> to select out the corresponding <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">IDs</span></code> from the token table. The pseudocode is as follows:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">input_ids</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>token_table<span class="o">[</span>token_indices<span class="o">]</span>
+</pre></div>
+</div>
+<p>As mentioned before, we refer to these <code class="docutils literal notranslate"><span class="pre">Token</span> <span class="pre">IDs</span></code> as <code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">IDs</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">IDs</span></code> = <code class="docutils literal notranslate"><span class="pre">[T_0_0,</span> <span class="pre">T_0_1,</span> <span class="pre">T_0_2,</span> <span class="pre">T_1_0,</span> <span class="pre">T_1_1,</span> <span class="pre">T_2_0,</span> <span class="pre">T_2_1,</span> <span class="pre">T_3_2,</span> <span class="pre">T_3_3,</span> <span class="pre">T_3_4]</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="id2">
+<h4>Build inputs attention metadata<a class="headerlink" href="#id2" title="Link to this heading"></a></h4>
+<p>In the current <strong>Block Table</strong>, we use the first block (i.e. block_0) to mark the unused block. The shape of the block is <code class="docutils literal notranslate"><span class="pre">(max</span> <span class="pre">num</span> <span class="pre">request,</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span> <span class="pre">/</span> <span class="pre">block</span> <span class="pre">size)</span></code>, where <code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span> <span class="pre">/</span> <span class="pre">block</span> <span class="pre">size</span> <span class="pre">=</span> <span class="pre">12</span> <span class="pre">/</span> <span class="pre">2</span> <span class="pre">=</span> <span class="pre">6</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+......
+......
+......
+</pre></div>
+</div>
+<p>The KV cache block in the device memory is like:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">9</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>......<span class="w"> </span>
+</pre></div>
+</div>
+<p>Let's say <code class="docutils literal notranslate"><span class="pre">K</span> <span class="pre">=</span> <span class="pre">max</span> <span class="pre">model</span> <span class="pre">len</span> <span class="pre">/</span> <span class="pre">block</span> <span class="pre">size</span> <span class="pre">=</span> <span class="pre">6</span></code>, and we can get token <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code>.</p>
+<p>The workflow of achieving slot mapping:</p>
+<ol class="arabic">
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span> <span class="pre">indices</span></code> using <code class="docutils literal notranslate"><span class="pre">K</span></code>, <code class="docutils literal notranslate"><span class="pre">positions</span></code> and <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code>.</p>
+<p>Purpose: For each token, it could be used to select <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> from <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span></code>.</p>
+</li>
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> using <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span> <span class="pre">indices</span></code>.</p>
+<p>Purpose: <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> indicates which device block each token belongs to.</p>
+</li>
+<li><p>Get <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code> using <code class="docutils literal notranslate"><span class="pre">positions</span></code> and <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">size</span></code>.</p>
+<p>Purpose: <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code> indicates the offsets of each token within a block.</p>
+</li>
+<li><p>construct <code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code> using <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> and <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code>.</p>
+<p>Purpose: we can use <code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code> to store Token IDs into token slots.</p>
+</li>
+</ol>
+<p>Details:</p>
+<ol class="arabic simple">
+<li><p>(<strong>Token level</strong>) Use a simple formula to calculate <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span> <span class="pre">indices</span></code>: <code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span> <span class="pre">*</span> <span class="pre">K</span> <span class="pre">+</span> <span class="pre">positions</span> <span class="pre">/</span> <span class="pre">block</span> <span class="pre">size</span></code>. So it equals <code class="docutils literal notranslate"><span class="pre">[0</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">0</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">1</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">1</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">0</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">2</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">3</span> <span class="pre">/</span> <span class="pre">2,</span> <span class="pre">2</span> <span class="pre">*</span> <span class="pre">6</span> <span class="pre">+</span> <span class="pre">4</span> <span class="pre">/</span> <span class="pre">2]</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">6,</span> <span class="pre">6,</span> <span class="pre">12,</span> <span class="pre">12,</span> <span class="pre">13,</span> <span class="pre">13,</span> <span class="pre">14]</span></code>. This could be used to select <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> from <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span></code>.</p></li>
+<li><p>(<strong>Token level</strong>) Use <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span> <span class="pre">indices</span></code> to select out <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> for each scheduled token. The pseudocode is <code class="docutils literal notranslate"><span class="pre">block_numbers</span> <span class="pre">=</span> <span class="pre">block_table[block_table_indices]</span></code>. So <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number=[1,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">4,</span> <span class="pre">5,</span> <span class="pre">5,</span> <span class="pre">6]</span></code></p></li>
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code> could be computed by <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span> <span class="pre">=</span> <span class="pre">positions</span> <span class="pre">%</span> <span class="pre">block</span> <span class="pre">size</span> <span class="pre">=</span> <span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0]</span></code>.</p></li>
+<li><p>Finally, use <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code> and <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code> to create <code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code>: <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span> <span class="pre">*</span> <span class="pre">block</span> <span class="pre">size</span> <span class="pre">+</span> <span class="pre">block_offsets</span> <span class="pre">=</span> <span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">7,</span> <span class="pre">8,</span> <span class="pre">9,</span> <span class="pre">10,</span> <span class="pre">11,</span> <span class="pre">12]</span></code></p></li>
+</ol>
+<p>(<strong>Request level</strong>) As we know the scheduled token count is <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">5]</span></code>:</p>
+<ul class="simple">
+<li><p>(<strong>Request level</strong>) Use prefix sum to calculate <code class="docutils literal notranslate"><span class="pre">query</span> <span class="pre">start</span> <span class="pre">location</span></code>: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">3,</span> <span class="pre">5,</span> <span class="pre">10]</span></code>.</p></li>
+<li><p>(<strong>Request level</strong>) All tokens in step 1 are in the prefill stage, and the computed tokens count is 0; then <code class="docutils literal notranslate"><span class="pre">sequence</span> <span class="pre">length</span></code> = <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">5]</span></code>.</p></li>
+<li><p>(<strong>Request level</strong>) As mentioned above, <code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">computed</span> <span class="pre">tokens</span></code> are all 0s: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0]</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">requests</span></code>: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+<li><p>(<strong>Request level</strong>) <code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">tokens</span></code>: <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">5]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">query</span> <span class="pre">len</span></code>: <code class="docutils literal notranslate"><span class="pre">5</span></code></p></li>
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code>: <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">3,</span> <span class="pre">4,</span> <span class="pre">6,</span> <span class="pre">7,</span> <span class="pre">8,</span> <span class="pre">9,</span> <span class="pre">10,</span> <span class="pre">11,</span> <span class="pre">12]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention</span> <span class="pre">mask</span></code>: For all requests that initiate a prefill process, we simply create only one mask matrix for reuse across different requests. The shape of this mask matrix is <code class="docutils literal notranslate"><span class="pre">5</span> <span class="pre">*</span> <span class="pre">5</span></code>:</p></li>
+</ul>
+</section>
+</section>
+<section id="step-2-chunked-prefill">
+<h3>Step 2: Chunked prefill<a class="headerlink" href="#step-2-chunked-prefill" title="Link to this heading"></a></h3>
+<p>In Step 2, we no longer provide explanations or perform calculations; instead, we directly present the final result.</p>
+<section id="id3">
+<h4>Obtain inputs<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>Scheduled token of each request: <code class="docutils literal notranslate"><span class="pre">{'0':</span> <span class="pre">1,</span> <span class="pre">'1':</span> <span class="pre">1,</span> <span class="pre">'2':</span> <span class="pre">3}</span></code></p>
+<ol class="arabic">
+<li><p><code class="docutils literal notranslate"><span class="pre">request</span> <span class="pre">indices</span></code>: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">2,</span> <span class="pre">2]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">positions</span></code>: <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">5,</span> <span class="pre">6,</span> <span class="pre">7]</span></code></p>
+<p>Current <strong>Token IDs table</strong>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span>T_0_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_0_1<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_0_2<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_0_3<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>T_1_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_1_1<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_1_2<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>T_2_0<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_2_1<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_2<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_3<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_4<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_5<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_6<span class="w"> </span><span class="p">|</span><span class="w"> </span>T_3_7<span class="w"> </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span><span class="w">   </span>?<span class="w">   </span><span class="p">|</span>
+......
+......
+......
+</pre></div>
+</div>
+<p><strong>Note</strong>: <strong>T_0_3</strong>, <strong>T_1_2</strong> are new Token IDs of <strong>request_0</strong> and <strong>request_1</strong> respectively. They are sampled from the output of the model.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">token</span> <span class="pre">indices</span></code>: <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">14,</span> <span class="pre">29,</span> <span class="pre">30,</span> <span class="pre">31]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Input</span> <span class="pre">IDs</span></code>: <code class="docutils literal notranslate"><span class="pre">[T_0_3,</span> <span class="pre">T_1_2,</span> <span class="pre">T_3_5,</span> <span class="pre">T_3_6,</span> <span class="pre">T_3_7]</span></code></p></li>
+</ol>
+</section>
+<section id="id4">
+<h4>Build inputs attention metadata<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>We allocate the blocks <code class="docutils literal notranslate"><span class="pre">7</span></code> and <code class="docutils literal notranslate"><span class="pre">8</span></code> to <code class="docutils literal notranslate"><span class="pre">request_1</span></code> and <code class="docutils literal notranslate"><span class="pre">request_2</span></code> respectively, as they need more space in device to store KV cache following token generation or chunked prefill.</p>
+<p>Current <strong>Block Table</strong>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">8</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">  </span><span class="p">|</span>
+......
+......
+......
+</pre></div>
+</div>
+<p>KV cache block in the device memory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">9</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>......<span class="w"> </span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">table</span> <span class="pre">indices</span></code>: <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">7,</span> <span class="pre">14,</span> <span class="pre">15,</span> <span class="pre">15]</span></code></p></li>
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">block</span> <span class="pre">number</span></code>: <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">7,</span> <span class="pre">6,</span> <span class="pre">8,</span> <span class="pre">8]</span></code></p></li>
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">block</span> <span class="pre">offsets</span></code>: <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">1,</span> <span class="pre">0,</span> <span class="pre">1]</span></code></p></li>
+<li><p>(<strong>Token level</strong>) <code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code>: <code class="docutils literal notranslate"><span class="pre">[5,</span> <span class="pre">14,</span> <span class="pre">13,</span> <span class="pre">16,</span> <span class="pre">17]</span></code></p></li>
+</ol>
+<p>Scheduled token count: <code class="docutils literal notranslate"><span class="pre">[1,</span> <span class="pre">1,</span> <span class="pre">3]</span></code></p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">query</span> <span class="pre">start</span> <span class="pre">location</span></code>: <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">2,</span> <span class="pre">5]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence</span> <span class="pre">length</span></code>: <code class="docutils literal notranslate"><span class="pre">[4,</span> <span class="pre">3,</span> <span class="pre">8]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">computed</span> <span class="pre">tokens</span></code>: <code class="docutils literal notranslate"><span class="pre">[3,</span> <span class="pre">2,</span> <span class="pre">5]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number</span> <span class="pre">of</span> <span class="pre">requests</span></code>: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max</span> <span class="pre">query</span> <span class="pre">len</span></code>: <code class="docutils literal notranslate"><span class="pre">3</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slot</span> <span class="pre">mapping</span></code>: <code class="docutils literal notranslate"><span class="pre">[5,</span> <span class="pre">14,</span> <span class="pre">13,</span> <span class="pre">16,</span> <span class="pre">17]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention</span> <span class="pre">mask</span></code>: <code class="docutils literal notranslate"><span class="pre">5</span> <span class="pre">*</span> <span class="pre">8</span></code></p>
+<p>Each token has a <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">*</span> <span class="pre">8</span></code> vector, and there are 5 scheduled tokens.</p>
+</li>
+</ul>
+</section>
+</section>
+</section>
+<section id="at-last">
+<h2>At last<a class="headerlink" href="#at-last" title="Link to this heading"></a></h2>
+<p>If you understand step 1 and step 2, you will know all the following steps.</p>
+<p>Hope this document helps you better understand how vLLM prepares inputs for model forwarding. If you have any good ideas, you are welcome to contribute to us.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

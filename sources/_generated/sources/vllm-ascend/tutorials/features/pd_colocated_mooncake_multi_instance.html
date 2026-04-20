@@ -1,0 +1,717 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PD-Colocated with Mooncake Multi-Instance &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="Prefill-Decode Disaggregation (Qwen2.5-VL)" href="pd_disaggregation_mooncake_single_node.html" />
+    <link rel="prev" title="Feature Tutorials" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../quick_start.html">Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Model Tutorials</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Feature Tutorials</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">PD-Colocated with Mooncake Multi-Instance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#getting-started">Getting Started</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verify-multi-node-communication-environment">Verify Multi-Node Communication Environment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-with-docker">Run with Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-install-mooncake">(Optional) Install Mooncake</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#start-mooncake-master-service">Start Mooncake Master Service</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-a-mooncake-configuration-file-named-mooncake-json">Create a Mooncake Configuration File Named mooncake.json</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vllm-instance-deployment">vLLM Instance Deployment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benchmark">Benchmark</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pd_disaggregation_mooncake_single_node.html">Prefill-Decode Disaggregation (Qwen2.5-VL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pd_disaggregation_mooncake_multi_node.html">Prefill-Decode Disaggregation (Deepseek)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="long_sequence_context_parallel_single_node.html">Long-Sequence Context Parallel (Qwen3-235B-A22B)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="long_sequence_context_parallel_multi_node.html">Long-Sequence Context Parallel (Deepseek)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="suffix_speculative_decoding.html">Suffix Speculative Decoding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ray.html">Ray Distributed (Qwen3-235B-A22B)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../hardwares/index.html">Hardware Tutorials</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../faqs.html">FAQs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/support_matrix/index.html">Features and Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configuration/index.html">Configuration Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/feature_guide/index.html">Feature Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/deployment_guide/index.html">Deployment Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/release_notes.html">Release Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/contribution/index.html">Contributing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/evaluation/index.html">Accuracy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer_guide/performance_and_debug/index.html">Performance and Debug</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/governance.html">Governance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/contributors.html">Committers and Contributors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/versioning_policy.html">Versioning Policy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../community/user_stories/index.html">User Stories</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Feature Tutorials</a></li>
+      <li class="breadcrumb-item active">PD-Colocated with Mooncake Multi-Instance</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/tutorials/features/pd_colocated_mooncake_multi_instance.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pd-colocated-with-mooncake-multi-instance">
+<h1>PD-Colocated with Mooncake Multi-Instance<a class="headerlink" href="#pd-colocated-with-mooncake-multi-instance" title="Link to this heading"></a></h1>
+<section id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h2>
+<p>vLLM-Ascend now supports PD-colocated deployment with Mooncake features.
+This guide provides step-by-step instructions to test these features with
+constrained resources.</p>
+<p>Using the Qwen2.5-72B-Instruct model as an example, this guide demonstrates
+how to use vllm-ascend v0.11.0 (with vLLM v0.11.0) on two Atlas 800T A2
+nodes to deploy two vLLM instances. Each instance occupies 4 NPU cards and
+uses PD-colocated deployment.</p>
+</section>
+<section id="verify-multi-node-communication-environment">
+<h2>Verify Multi-Node Communication Environment<a class="headerlink" href="#verify-multi-node-communication-environment" title="Link to this heading"></a></h2>
+<section id="physical-layer-requirements">
+<h3>Physical Layer Requirements<a class="headerlink" href="#physical-layer-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>The two Atlas 800T A2 nodes must be physically interconnected via a RoCE
+network. Without RoCE interconnection, cross-node KV Cache access
+performance will be significantly degraded.</p></li>
+<li><p>All NPU cards must communicate properly. Intra-node communication uses HCCS,
+while inter-node communication uses the RoCE network.</p></li>
+</ul>
+</section>
+<section id="verification-process">
+<h3>Verification Process<a class="headerlink" href="#verification-process" title="Link to this heading"></a></h3>
+<p>The following process serves as a reference example. Please modify parameters
+such as IP addresses according to your actual environment.</p>
+<ol class="arabic">
+<li><p>Single Node Verification:</p>
+<p>Execute the following commands sequentially. The results must all be
+<code class="docutils literal notranslate"><span class="pre">success</span></code> and the status must be <code class="docutils literal notranslate"><span class="pre">UP</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check the remote switch ports</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-lldp<span class="w"> </span>-g<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>Ifname<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+<span class="c1"># Get the link status of the Ethernet ports (UP or DOWN)</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-link<span class="w"> </span>-g<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+<span class="c1"># Check the network health status</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-net_health<span class="w"> </span>-g<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+<span class="c1"># View the network detected IP configuration</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-netdetect<span class="w"> </span>-g<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+<span class="c1"># View gateway configuration</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-gateway<span class="w"> </span>-g<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check NPU HCCN Configuration:</p>
+<p>Ensure that the hccn.conf file exists in the environment. If using Docker,
+mount it into the container.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>/etc/hccn.conf
+</pre></div>
+</div>
+</li>
+<li><p>Get NPU IP Addresses:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-ip<span class="w"> </span>-g<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</pre></div>
+</div>
+</li>
+<li><p>Cross-Node PING Test:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Execute the following command on each node, replacing x.x.x.x</span>
+<span class="c1"># with the target node&#39;s NPU card address.</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-ping<span class="w"> </span>-g<span class="w"> </span>address<span class="w"> </span>x.x.x.x<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check NPU TLS Configuration</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># The tls settings should be consistent across all nodes.</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-tls<span class="w"> </span>-g<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>switch
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="run-with-docker">
+<h2>Run with Docker<a class="headerlink" href="#run-with-docker" title="Link to this heading"></a></h2>
+<p>Start a Docker container on each node.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update the vllm-ascend image</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">IMAGE</span><span class="o">=</span>quay.io/ascend/vllm-ascend:v0.11.0
+<span class="nb">export</span><span class="w"> </span><span class="nv">NAME</span><span class="o">=</span>vllm-ascend
+
+<span class="c1"># Run the container using the defined variables</span>
+<span class="c1"># This test uses four NPU cards to create the container.</span>
+<span class="c1"># Mount the hccn.conf file from the host node into the container.</span>
+docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span><span class="se">\</span>
+--name<span class="w"> </span><span class="nv">$NAME</span><span class="w"> </span><span class="se">\</span>
+--net<span class="o">=</span>host<span class="w"> </span><span class="se">\</span>
+--shm-size<span class="o">=</span>1g<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/davinci0<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/davinci2<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/davinci3<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/davinci_manager<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/devmm_svm<span class="w"> </span><span class="se">\</span>
+--device<span class="w"> </span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/usr/local/dcmi:/usr/local/dcmi<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/usr/local/Ascend/driver/tools/hccn_tool:<span class="se">\</span>
+/usr/local/Ascend/driver/tools/hccn_tool<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/usr/local/bin/npu-smi:/usr/local/bin/npu-smi<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/usr/local/Ascend/driver/lib64/:/usr/local/Ascend/driver/lib64/<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/usr/local/Ascend/driver/version.info:/usr/local/Ascend/driver/version.info<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/etc/ascend_install.info:/etc/ascend_install.info<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/etc/hccn.conf:/etc/hccn.conf<span class="w"> </span><span class="se">\</span>
+-v<span class="w"> </span>/root/.cache:/root/.cache<span class="w"> </span><span class="se">\</span>
+-it<span class="w"> </span><span class="nv">$IMAGE</span><span class="w"> </span>bash
+</pre></div>
+</div>
+</section>
+<section id="optional-install-mooncake">
+<h2>(Optional) Install Mooncake<a class="headerlink" href="#optional-install-mooncake" title="Link to this heading"></a></h2>
+<p>Mooncake is pre-installed and functional in the v0.11.0 image.
+The following installation steps are optional.</p>
+<p>Mooncake is the serving platform for Kimi, a leading LLM service provided by
+Moonshot AI. Installation and compilation guide:
+<a class="reference external" href="https://github.com/kvcache-ai/Mooncake?tab=readme-ov-file#build-and-use-binaries">https://github.com/kvcache-ai/Mooncake?tab=readme-ov-file#build-and-use-binaries</a>.</p>
+<p>First, obtain the Mooncake project using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>v0.3.9<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>https://github.com/kvcache-ai/Mooncake.git
+<span class="nb">cd</span><span class="w"> </span>Mooncake
+git<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
+</pre></div>
+</div>
+<p>Install MPI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt-get<span class="w"> </span>install<span class="w"> </span>mpich<span class="w"> </span>libmpich-dev<span class="w"> </span>-y
+</pre></div>
+</div>
+<p>Install the relevant dependencies (Go installation is not required):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>dependencies.sh<span class="w"> </span>-y
+</pre></div>
+</div>
+<p>Compile and install:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>..<span class="w"> </span>-DUSE_ASCEND_DIRECT<span class="o">=</span>ON
+make<span class="w"> </span>-j
+make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>After installation, verify that Mooncake is installed correctly:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import mooncake; print(mooncake.__file__)&quot;</span>
+<span class="c1"># Expected output path:</span>
+<span class="c1"># /usr/local/Ascend/ascend-toolkit/latest/python/</span>
+<span class="c1"># site-packages/mooncake/__init__.py</span>
+</pre></div>
+</div>
+</section>
+<section id="start-mooncake-master-service">
+<h2>Start Mooncake Master Service<a class="headerlink" href="#start-mooncake-master-service" title="Link to this heading"></a></h2>
+<p>To start the Mooncake master service in one of the node containers, use the
+following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>vllm-ascend<span class="w"> </span>bash
+<span class="nb">cd</span><span class="w"> </span>/vllm-workspace/Mooncake
+mooncake_master<span class="w"> </span>--port<span class="w"> </span><span class="m">50088</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--eviction_high_watermark_ratio<span class="w"> </span><span class="m">0</span>.95<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--eviction_ratio<span class="w"> </span><span class="m">0</span>.05
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Explanation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>port</p></td>
+<td><p>50088</p></td>
+<td><p>Port for the master service</p></td>
+</tr>
+<tr class="row-odd"><td><p>eviction_high_watermark_ratio</p></td>
+<td><p>0.95</p></td>
+<td><p>High watermark ratio (95% threshold)</p></td>
+</tr>
+<tr class="row-even"><td><p>eviction_ratio</p></td>
+<td><p>0.05</p></td>
+<td><p>Percentage to evict when full (5%)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="create-a-mooncake-configuration-file-named-mooncake-json">
+<h2>Create a Mooncake Configuration File Named mooncake.json<a class="headerlink" href="#create-a-mooncake-configuration-file-named-mooncake-json" title="Link to this heading"></a></h2>
+<p>The template for the mooncake.json file is as follows:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;metadata_server&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;P2PHANDSHAKE&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;protocol&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ascend&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;device_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;master_server_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;your_server_ip&gt;:50088&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;global_segment_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">107374182400</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Explanation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>metadata_server</p></td>
+<td><p>P2PHANDSHAKE</p></td>
+<td><p>Point-to-point handshake mode</p></td>
+</tr>
+<tr class="row-odd"><td><p>protocol</p></td>
+<td><p>ascend</p></td>
+<td><p>Ascend proprietary protocol</p></td>
+</tr>
+<tr class="row-even"><td><p>master_server_address</p></td>
+<td><p>90.90.100.188:50088(for example)</p></td>
+<td><p>Master server address</p></td>
+</tr>
+<tr class="row-odd"><td><p>global_segment_size</p></td>
+<td><p>107374182400</p></td>
+<td><p>Size per segment (100 GB)</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="vllm-instance-deployment">
+<h2>vLLM Instance Deployment<a class="headerlink" href="#vllm-instance-deployment" title="Link to this heading"></a></h2>
+<p>Create containers on both Node 1 and Node 2, and launch the
+Qwen2.5-72B-Instruct model service in each to test the reusability and
+performance of cross-node, cross-instance KV Cache. Instance 1 utilizes NPU
+cards [0-3] on the first Atlas 800T A2 server, while Instance 2 utilizes
+cards [0-3] on the second server.</p>
+<section id="deploy-instance-1">
+<h3>Deploy Instance 1<a class="headerlink" href="#deploy-instance-1" title="Link to this heading"></a></h3>
+<p>Replace file paths, host, and port parameters based on your actual environment
+configuration.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/Ascend/ascend-toolkit/<span class="se">\</span>
+latest/python/site-packages:<span class="nv">$LD_LIBRARY_PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_CONFIG_PATH</span><span class="o">=</span><span class="s2">&quot;/vllm-workspace/mooncake.json&quot;</span>
+<span class="c1"># NPU buffer pool: quantity:size(MB)</span>
+<span class="c1"># Allocates 4 buffers of 8MB each for KV transfer</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_BUFFER_POOL</span><span class="o">=</span><span class="m">4</span>:8
+
+vllm<span class="w"> </span>serve<span class="w"> </span>&lt;path_to_your_model&gt;/Qwen2.5-72B-Instruct/<span class="w"> </span><span class="se">\</span>
+--served-model-name<span class="w"> </span>qwen<span class="w"> </span><span class="se">\</span>
+--dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+--max-model-len<span class="w"> </span><span class="m">25600</span><span class="w"> </span><span class="se">\</span>
+--tensor-parallel-size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+--host<span class="w"> </span>&lt;your_server_ip&gt;<span class="w"> </span><span class="se">\</span>
+--port<span class="w"> </span><span class="m">8002</span><span class="w"> </span><span class="se">\</span>
+--max-num-batched-tokens<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
+--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span><span class="se">\</span>
+--kv-transfer-config<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">      &quot;kv_connector&quot;: &quot;MooncakeConnectorStoreV1&quot;,</span>
+<span class="s1">      &quot;kv_role&quot;: &quot;kv_both&quot;,</span>
+<span class="s1">      &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">          &quot;use_layerwise&quot;: false,</span>
+<span class="s1">          &quot;mooncake_rpc_port&quot;: &quot;0&quot;,</span>
+<span class="s1">          &quot;load_async&quot;: true,</span>
+<span class="s1">          &quot;register_buffer&quot;: true</span>
+<span class="s1">      }</span>
+<span class="s1">  }&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="deploy-instance-2">
+<h3>Deploy Instance 2<a class="headerlink" href="#deploy-instance-2" title="Link to this heading"></a></h3>
+<p>The deployment method for Instance 2 is identical to Instance 1. Simply
+modify the <code class="docutils literal notranslate"><span class="pre">--host</span></code> and <code class="docutils literal notranslate"><span class="pre">--port</span></code> parameters according to your Instance 2
+configuration.</p>
+</section>
+<section id="configuration-parameters">
+<h3>Configuration Parameters<a class="headerlink" href="#configuration-parameters" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Value</p></th>
+<th class="head"><p>Explanation</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>kv_connector</p></td>
+<td><p>MooncakeConnectorStoreV1</p></td>
+<td><p>Use StoreV1 version</p></td>
+</tr>
+<tr class="row-odd"><td><p>kv_role</p></td>
+<td><p>kv_both</p></td>
+<td><p>Enable both produce and consume</p></td>
+</tr>
+<tr class="row-even"><td><p>use_layerwise</p></td>
+<td><p>false</p></td>
+<td><p>Transfer entire cache (see note)</p></td>
+</tr>
+<tr class="row-odd"><td><p>mooncake_rpc_port</p></td>
+<td><p>0</p></td>
+<td><p>Automatic port assignment</p></td>
+</tr>
+<tr class="row-even"><td><p>load_async</p></td>
+<td><p>true</p></td>
+<td><p>Enable asynchronous loading</p></td>
+</tr>
+<tr class="row-odd"><td><p>register_buffer</p></td>
+<td><p>true</p></td>
+<td><p>Required for PD-colocated mode</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note on use_layerwise:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">false</span></code>: Transfer entire KV Cache (suitable for cross-node with sufficient
+bandwidth)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">true</span></code>: Layer-by-layer transfer (suitable for single-node memory
+constraints)</p></li>
+</ul>
+</section>
+</section>
+<section id="benchmark">
+<h2>Benchmark<a class="headerlink" href="#benchmark" title="Link to this heading"></a></h2>
+<p>We recommend using the <strong>AISBench</strong> tool to assess performance. The test uses
+<strong>Dataset A</strong>, consisting of fully random data, with the following
+configuration:</p>
+<ul class="simple">
+<li><p>Input/output tokens: 1024/10</p></li>
+<li><p>Total requests: 100</p></li>
+<li><p>Concurrency: 25</p></li>
+</ul>
+<p>The test procedure consists of three steps:</p>
+<section id="step-1-baseline-no-cache">
+<h3>Step 1: Baseline (No Cache)<a class="headerlink" href="#step-1-baseline-no-cache" title="Link to this heading"></a></h3>
+<p>Send Dataset A to Instance 1 on Node 1 and record the Time to First Token
+(TTFT) as <strong>TTFT1</strong>.</p>
+</section>
+<section id="preparation-for-step-2">
+<h3>Preparation for Step 2<a class="headerlink" href="#preparation-for-step-2" title="Link to this heading"></a></h3>
+<p>Before Step 2, send a fully random Dataset B to Instance 1. Due to the
+unified on-chip memory/DRAM KV Cache with LRU (Least Recently Used) eviction policy,
+Dataset B's cache evicts Dataset A's cache from on-chip memory, leaving Dataset A's
+cache only in Node 1's DRAM.</p>
+</section>
+<section id="step-2-local-dram-hit">
+<h3>Step 2: Local DRAM Hit<a class="headerlink" href="#step-2-local-dram-hit" title="Link to this heading"></a></h3>
+<p>Send Dataset A to Instance 1 again to measure the performance when hitting
+the KV Cache in local DRAM. Record the TTFT as <strong>TTFT2</strong>.</p>
+</section>
+<section id="step-3-cross-node-dram-hit">
+<h3>Step 3: Cross-Node DRAM Hit<a class="headerlink" href="#step-3-cross-node-dram-hit" title="Link to this heading"></a></h3>
+<p>Send Dataset A to Instance 2. With the Mooncake KV Cache pool, this results
+in a cross-node KV Cache hit from Node 1's DRAM. Record the TTFT as
+<strong>TTFT3</strong>.</p>
+<p><strong>Model Configuration</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">ais_bench.benchmark.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">VLLMCustomAPIChatStream</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ais_bench.benchmark.utils.model_postprocessors</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_non_reasoning_content</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">attr</span><span class="o">=</span><span class="s2">&quot;service&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">VLLMCustomAPIChatStream</span><span class="p">,</span>
+        <span class="n">abbr</span><span class="o">=</span><span class="s1">&#39;vllm-api-stream-chat&#39;</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="s2">&quot;&lt;path_to_your_model&gt;/Qwen2.5-72B-Instruct&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;qwen&quot;</span><span class="p">,</span>
+        <span class="n">request_rate</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">retry</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">host_ip</span> <span class="o">=</span> <span class="s2">&quot;&lt;your_server_ip&gt;&quot;</span><span class="p">,</span>
+        <span class="n">host_port</span> <span class="o">=</span> <span class="mi">8002</span><span class="p">,</span>
+        <span class="n">max_out_len</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="n">trust_remote_code</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">generation_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">temperature</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">ignore_eos</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p><strong>Performance Benchmarking Commands</strong>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ais_bench<span class="w"> </span>--models<span class="w"> </span>vllm_api_stream_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--datasets<span class="w"> </span>gsm8k_gen_0_shot_cot_str_perf<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--debug<span class="w"> </span>--summarizer<span class="w"> </span>default_perf<span class="w"> </span>--mode<span class="w"> </span>perf
+</pre></div>
+</div>
+</section>
+<section id="test-results">
+<h3>Test Results<a class="headerlink" href="#test-results" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Requests</p></th>
+<th class="head"><p>Concur</p></th>
+<th class="head"><p>TTFT1 (ms)</p></th>
+<th class="head"><p>TTFT2 (ms)</p></th>
+<th class="head"><p>TTFT3 (ms)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>100</p></td>
+<td><p>25</p></td>
+<td><p>2322</p></td>
+<td><p>739</p></td>
+<td><p>948</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="index.html" class="btn btn-neutral float-left" title="Feature Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="pd_disaggregation_mooncake_single_node.html" class="btn btn-neutral float-right" title="Prefill-Decode Disaggregation (Qwen2.5-VL)" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
