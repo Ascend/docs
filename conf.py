@@ -71,7 +71,9 @@ language = 'zh_CN'
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md']
+# _repos: submodule working trees duplicate content already copied to sources/_generated;
+# indexing both roughly doubles RSS and OOM-kills low-memory cgroup builds (e.g. 2Gi).
+exclude_patterns = ['_build', '_repos', 'Thumbs.db', '.DS_Store', '.venv', 'README.md']
 
 
 # -- Options for HTML output -------------------------------------------------
