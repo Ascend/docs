@@ -67,7 +67,7 @@ init-submodules:
 	@git submodule sync --recursive
 	@n=0; \
 	while [ $$n -lt 3 ]; do \
-		git submodule update --init --remote && exit 0; \
+		git submodule update --init --depth=1 --remote && exit 0; \
 		n=$$((n+1)); \
 		echo "git submodule update failed (attempt $$n/3), retrying in 8s..."; \
 		sleep 8; \
