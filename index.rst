@@ -217,6 +217,13 @@
          <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/verl/quick_start/ascend_quick_start.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/verl/quick_start/ascend_quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- PyG -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pyg.png')"></div><h3 class="card-title">PyG</h3></div>
+         <p class="card-desc">基于 PyTorch 的 GNN 训练库。</p>
+         <div class="card-footer"><a href="https://github.com/pyg-team/pytorch_geometric">官方链接</a><span class="split">|</span><a href="sources/pyg/install.html">安装指南</a><span class="split">|</span><a href="sources/pyg/quick_start.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
@@ -388,6 +395,7 @@
    sources/trl/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
+   sources/pyg/index.rst
 
 .. toctree::
    :maxdepth: 1
