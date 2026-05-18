@@ -17,7 +17,7 @@ Python 环境创建
 .. code-block:: shell
     :linenos:
   
-    # 创建 python 3.10 的虚拟环境
+    # 创建 python 3.11 的虚拟环境
     conda create -y -n pyg python=3.11
     # 激活虚拟环境
     conda activate pyg
