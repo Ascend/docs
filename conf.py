@@ -207,12 +207,15 @@ html_context = {
         'verl': {
             'display_name': 'verl',
             'sidebar_mapping': {
-                'quick_start': '🚀 快速入门',
-                'features': '📚 特性指南',
-                'profiling': '⚡ 调优指南',
-                'examples': '📊 应用与调优实践',
-                'faq': '🔆 故障排查(FAQ)',
-                'contribution_guide': '🔧 开源开发'
+                'get_start': '🚀 快速开始',
+                'feature_support': '📚 特性支持',
+                'dev_guide/model_dev': '🧬 模型开发',
+                'dev_guide/precision_analysis': '🎯 精度调试',
+                'dev_guide/performance': '⚡ 性能调优',
+                'model_support/examples': '📋 最佳实践',
+                'model_support': '📊 模型支持',
+                'faq': '🔆 常见问题',
+                'contribution_guide': '🔧 开源开发',
             }
         },
         'vllm-ascend': {

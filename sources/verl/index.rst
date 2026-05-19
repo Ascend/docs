@@ -7,9 +7,6 @@ verl
       /* 样式隔离：仅作用于首页入口 */
       #verl-portal {
           --v-primary: #0066cc;
-          --v-secondary: #00a86b;
-          --v-accent: #ff6b35;
-          --v-purple: #9d4edd;
           --v-text-main: #1a1a1a;
           --v-text-sub: #666666;
           --v-border: #e1e4e8;
@@ -35,7 +32,6 @@ verl
           font-weight: 600; transition: all 0.3s ease; border: 2px solid white;
       }
       .verl-btn-primary { background: white; color: var(--v-primary) !important; }
-      .verl-btn-secondary { background: transparent; color: white !important; }
       .verl-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.2); }
 
       /* 快速开始卡片 */
@@ -87,32 +83,32 @@ verl
          <h1>🚀 verl</h1>
          <p class="verl-hero-subtitle">灵活、高效的大语言模型强化学习训练框架</p>
          <div class="verl-hero-buttons">
-            <a href="https://github.com/volcengine/verl" class="verl-btn verl-btn-primary">📖 GitHub 仓库</a>
+            <a href="https://github.com/volcengine/verl" class="verl-btn verl-btn-primary" target="_blank" rel="noopener noreferrer">📖 GitHub 仓库</a>
          </div>
       </div>
 
       <!-- 快速开始 -->
       <h2 class="verl-section-title">🚀 快速开始</h2>
       <div class="verl-quick-grid">
-         <a href="../_generated/sources/verl/quick_start/ascend_quick_start.html" class="verl-quick-card">
-            <div class="verl-quick-card-icon">📚</div>
-            <h4>快速入门</h4>
-            <p>昇腾环境搭建与基础训练示例</p>
+         <a href="../_generated/sources/verl/get_start/install_guidance.html" class="verl-quick-card">
+            <div class="verl-quick-card-icon">📦</div>
+            <h4>安装指南</h4>
+            <p>昇腾 NPU 自定义环境安装</p>
          </a>
-         <a href="../_generated/sources/verl/features/ascend_backend_features.html" class="verl-quick-card">
+         <a href="../_generated/sources/verl/get_start/quick_start.html" class="verl-quick-card">
+            <div class="verl-quick-card-icon">🚀</div>
+            <h4>快速上手</h4>
+            <p>环境搭建与基础训练示例</p>
+         </a>
+         <a href="../_generated/sources/verl/feature_support/ascend_backend_features.html" class="verl-quick-card">
             <div class="verl-quick-card-icon">🔧</div>
-            <h4>特性指南</h4>
-            <p>昇腾后端特性与一致性说明</p>
-         </a>
-         <a href="../_generated/sources/verl/examples/ascend_performance_analysis_guide.html" class="verl-quick-card">
-            <div class="verl-quick-card-icon">⚙️</div>
-            <h4>应用实践</h4>
-            <p>性能分析与最佳实践案例</p>
+            <h4>特性支持</h4>
+            <p>昇腾后端特性与 NPU 能力说明</p>
          </a>
          <a href="../_generated/sources/verl/contribution_guide/ascend_ci_guide_zh.html" class="verl-quick-card">
             <div class="verl-quick-card-icon">👨‍💻</div>
             <h4>开源开发</h4>
-            <p>CI 流程与贡献指南</p>
+            <p>CI 流程与社区贡献指南</p>
          </a>
       </div>
 
@@ -130,47 +126,74 @@ verl
 
 ----
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: 🚀 快速入门
-
-   ../_generated/sources/verl/quick_start/ascend_quick_start
-   ../_generated/sources/verl/quick_start/ascend_sglang_quick_start
-   ../_generated/sources/verl/quick_start/dockerfile_build_guidance
+.. 以下 toctree 引用 make copy-docs 生成的 _generated 内容，目录分组与
+.. sources/_generated/sources/verl/README.md 及 conf.py 中 sidebar_mapping 保持一致。
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 📚 特性指南
+   :caption: 🚀 快速开始
 
-   ../_generated/sources/verl/features/ascend_backend_features
-   ../_generated/sources/verl/features/ascend_consistency
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: ⚡ 调优指南
-
-   ../_generated/sources/verl/profiling/ascend_profiling_zh
-   ../_generated/sources/verl/profiling/ascend_profiling_en
+   ../_generated/sources/verl/get_start/install_guidance
+   ../_generated/sources/verl/get_start/quick_start
+   ../_generated/sources/verl/get_start/dockerfile_build_guidance
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 📊 应用与调优践实
+   :caption: 📚 特性支持
 
-   ../_generated/sources/verl/examples/ascend_performance_analysis_guide
-   ../_generated/sources/verl/examples/ascend_sglang_best_practices
-   ../_generated/sources/verl/examples/dapo_multi_model_optimization_practice
-   ../_generated/sources/verl/examples/ascend_retool_best_pratice
-   ../_generated/sources/verl/examples/run_qwen3_32B_megatron_1k_256k_npu
-   ../_generated/sources/verl/examples/gspo_optimization_practice
+   ../_generated/sources/verl/feature_support/ascend_backend_features
+   ../_generated/sources/verl/feature_support/npu_advance_features
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 🔆 故障排查(FAQ)
+   :caption: 🧬 模型开发
+
+   ../_generated/sources/verl/dev_guide/model_dev/transfer_to_npu_guide
+   ../_generated/sources/verl/dev_guide/model_dev/parameter_and_metrics
+   ../_generated/sources/verl/dev_guide/model_dev/evaluation
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 🎯 精度调试
+
+   ../_generated/sources/verl/dev_guide/precision_analysis/precision_alignment_zh
+   ../_generated/sources/verl/dev_guide/precision_analysis/precision_debugger_zh
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: ⚡ 性能调优
+
+   ../_generated/sources/verl/dev_guide/performance/ascend_performance_analysis_guide
+   ../_generated/sources/verl/dev_guide/performance/perf_tuning_on_ascend
+   ../_generated/sources/verl/dev_guide/performance/ascend_profiling_zh
+   ../_generated/sources/verl/dev_guide/performance/ascend_profiling_en
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 📊 模型支持
+
+   ../_generated/sources/verl/model_support/model_and_algorithm_support
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 📋 最佳实践
+
+   ../_generated/sources/verl/model_support/examples/dapo_multi_model_optimization_practice
+   ../_generated/sources/verl/model_support/examples/gspo_optimization_practice
+   ../_generated/sources/verl/model_support/examples/ascend_retool_best_pratice
+   ../_generated/sources/verl/model_support/examples/ascend_sglang_best_practices
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 🔆 常见问题
 
    ../_generated/sources/verl/faq/faq
 
