@@ -172,7 +172,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
          <p class="card-desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs。</p>
-         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/advanced/npu_installation.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/advanced/npu_training.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/multibackend/npu/npu_installation.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/LLaMA-Factory/source/multibackend/npu/npu_training.html">快速上手</a></div>
       </div>
 
       <!-- ms-swift -->
