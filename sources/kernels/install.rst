@@ -33,7 +33,7 @@
     :linenos:
 
     # 安装 kernels 包
-    pip install kernels
+    pip install kernels==0.12.0
 
 .. warning::
-    kernels 支持 NPU 的最低版本为 v0.11.0，请确认安装的版本大于等于此版本。
+    kernels 支持 NPU 的最低版本为 v0.11.0，最高版本为 v0.12.0。
