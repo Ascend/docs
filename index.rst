@@ -290,6 +290,13 @@
          <div class="card-footer"><a href="https://gitcode.com/Ascend/triton-ascend">官方链接</a><span class="split">|</span><a href="sources/_generated/sources/triton-ascend/installation_guide.html">安装指南</a><span class="split">|</span><a href="sources/_generated/sources/triton-ascend/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- Liger-Kernel -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/Liger-Kernel.png')"></div><h3 class="card-title">Liger-Kernel</h3></div>
+         <p class="card-desc">面向 LLM 训练的高效 Triton 融合算子库，v0.8.0 起支持昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/linkedin/Liger-Kernel">官方链接</a><span class="split">|</span><a href="sources/liger-kernel/install.html">安装指南</a><span class="split">|</span><a href="sources/liger-kernel/quick_start.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
@@ -416,6 +423,7 @@
    :caption: ⚙️ 算子开发与编程
 
    sources/triton-ascend/index.rst
+   sources/liger-kernel/index.rst
 
 .. toctree::
    :maxdepth: 1
