@@ -17,11 +17,11 @@ Liger-Kernel 提供面向 LLM 训练的高效 Triton 融合算子。在昇腾 NP
 
     import torch
     import torch_npu
-    import transformers
-    from liger_kernel.transformers import apply_liger_kernel_to_qwen2
+    from transformers import AutoModelForCausalLM
+    from liger_kernel.transformers import apply_liger_kernel_to_qwen3
 
     # 在实例化模型前调用，自动替换 RoPE、RMSNorm、SwiGLU、CrossEntropy 等算子
-    apply_liger_kernel_to_qwen2(
+    apply_liger_kernel_to_qwen3(
         rope=True,
         rms_norm=True,
         swiglu=True,
@@ -29,11 +29,14 @@ Liger-Kernel 提供面向 LLM 训练的高效 Triton 融合算子。在昇腾 NP
         fused_linear_cross_entropy=False,
     )
 
-    model = transformers.AutoModelForCausalLM.from_pretrained(
-        "Qwen/Qwen3-0.6B",
+    model = AutoModelForCausalLM.from_pretrained(
+        "/home/model/Qwen3-0.6B",
         dtype=torch.bfloat16,
         device_map="npu",
     )
+
+# 打印模型结构，检查是否替换成功
+print(model)
 
 其他常用模型可使用对应的 Patch API，例如 ``apply_liger_kernel_to_llama``、``apply_liger_kernel_to_qwen3``、``apply_liger_kernel_to_mistral`` 等，完整列表见 `Liger-Kernel 官方文档 <https://linkedin.github.io/Liger-Kernel/>`_。
 
