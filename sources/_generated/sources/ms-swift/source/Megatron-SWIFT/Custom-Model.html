@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>自定义Megatron模型 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">自定义Megatron模型</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source/Megatron-SWIFT/Custom-Model.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="megatron">
+<h1>自定义Megatron模型<a class="headerlink" href="#megatron" title="Link to this heading"></a></h1>
+<p>这里介绍如何在<a class="reference external" href="https://github.com/modelscope/mcore-bridge">Mcore-Bridge</a>中注册模型，以支持新模型在Megatron-SWIFT中的训练。我们将以MiniMax-M2.7为例子介绍。</p>
+<section id="id1">
+<h2>下载模型<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>首先，你需要下载模型配置。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span>
+
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="s1">&#39;MiniMax/MiniMax-M2.7&#39;</span><span class="p">,</span> <span class="n">download_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;model_dir: </span><span class="si">{</span><span class="n">model_dir</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>由于模型权重很大，为了加速支持模型的效率，我们采用懒下载的方式，并只下载<code class="docutils literal notranslate"><span class="pre">num_layers</span></code>层的权重，构建mini版本的模型，用于做接入测试。以MiniMax-M2.7为例，我们构建了一层的BF16版本的权重。若有些模型出现前3层为Dense，之后为MoE，则你可以构建4层的权重。若出现Attention交替的情况，例如Qwen3.5采用linear-attention和full-attention交替，你也需要更多的层数。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modelscope.hub.file_download</span><span class="w"> </span><span class="kn">import</span> <span class="n">model_file_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">safetensors.torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_open</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">mcore_bridge.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fp8Dequantizer</span><span class="p">,</span> <span class="n">SafetensorLazyLoader</span><span class="p">,</span> <span class="n">StreamingSafetensorSaver</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s1">&#39;MiniMax/MiniMax-M2.7&#39;</span>
+<span class="c1"># 有些模型会出现前几层为dense，后面为moe的情况，需合理设置该值</span>
+<span class="n">num_layers</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 只下载`num_layers`层，节约磁盘占用和运行时显存占用</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">download_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">loader</span> <span class="o">=</span> <span class="n">SafetensorLazyLoader</span><span class="p">(</span><span class="n">model_dir</span><span class="p">)</span>
+<span class="n">state_dict</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">get_state_dict</span><span class="p">()</span>
+<span class="n">saver</span> <span class="o">=</span> <span class="n">StreamingSafetensorSaver</span><span class="p">(</span><span class="n">save_dir</span><span class="o">=</span><span class="n">model_dir</span><span class="p">)</span>
+<span class="n">new_state_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">fp8_dequantizer</span> <span class="o">=</span> <span class="n">Fp8Dequantizer</span><span class="p">()</span>  <span class="c1"># 用于将fp8权重转成bf16</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_open_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_handles</span><span class="p">:</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hf_model_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hf_model_dir</span><span class="p">,</span> <span class="s1">&#39;tmp&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">model_file_download</span><span class="p">(</span>
+                <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+                <span class="n">file_path</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">local_dir</span><span class="o">=</span><span class="n">tmp_dir</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_handles</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">safe_open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">framework</span><span class="o">=</span><span class="s1">&#39;pt&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_handles</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span>
+
+
+<span class="n">SafetensorLazyLoader</span><span class="o">.</span><span class="n">_open_file</span> <span class="o">=</span> <span class="n">_open_file</span>  <span class="c1"># monkey patch (懒下载)</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;model.layers.&#39;</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="s1">&#39;model.layers.&#39;</span><span class="p">):]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">num_layers</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.weight_scale_inv&#39;</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">k</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.weight&#39;</span><span class="p">):</span>
+            <span class="n">weight_scale_inv</span> <span class="o">=</span> <span class="n">k</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.weight&#39;</span><span class="p">,</span> <span class="s1">&#39;.weight_scale_inv&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">weight_scale_inv</span> <span class="ow">in</span> <span class="n">state_dict</span><span class="p">:</span>
+                <span class="n">v</span> <span class="o">=</span> <span class="n">fp8_dequantizer</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">load</span><span class="p">(),</span> <span class="n">state_dict</span><span class="p">[</span><span class="n">weight_scale_inv</span><span class="p">]</span><span class="o">.</span><span class="n">load</span><span class="p">())</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span>
+    <span class="n">new_state_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_state_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">saver</span><span class="o">.</span><span class="n">add_tensor</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+<span class="n">saver</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>保存完权重后，你需要修改'config.json'，将<code class="docutils literal notranslate"><span class="pre">num_hidden_layers</span></code>修改为1（与上面的代码对应），并删除<code class="docutils literal notranslate"><span class="pre">quantization_config</span></code>配置（因为权重为BF16的，而不是FP8）。FP8的训练大多数模型会自动适配，但有些模型可能需要额外适配，例如：Qwen3.5的FP8的适配参考<a class="reference external" href="https://github.com/modelscope/mcore-bridge/pull/30">这个PR</a>。</p>
+</section>
+<section id="id2">
+<h2>注册模型<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>以下提供debug代码，你需要修改代码，以确保huggingface transformers库的forward与megatron的forward对齐。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0,1,2,3&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SWIFT_TEST_CONVERT_PRECISION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">export_main</span><span class="p">,</span> <span class="n">ExportArguments</span><span class="p">,</span> <span class="n">safe_snapshot_download</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s1">&#39;MiniMax/MiniMax-M2.7&#39;</span>
+
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">download_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">export_main</span><span class="p">(</span>
+    <span class="n">ExportArguments</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model_dir</span><span class="p">,</span>
+        <span class="n">to_mcore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">test_convert_precision</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">torch_dtype</span><span class="o">=</span><span class="s1">&#39;bfloat16&#39;</span><span class="p">,</span>
+    <span class="p">))</span>
+</pre></div>
+</div>
+<p>'minimax_m2'的注册可以查看<a class="reference external" href="https://github.com/modelscope/mcore-bridge/blob/main/src/mcore_bridge/model/gpts/minimax_m2.py">这个文件</a>。我们注册时指定了模型对应的GPTBridge类和模型加载器loader。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">register_model</span><span class="p">(</span><span class="n">ModelMeta</span><span class="p">(</span>
+    <span class="n">ModelType</span><span class="o">.</span><span class="n">minimax_m2</span><span class="p">,</span>
+    <span class="p">[</span><span class="s1">&#39;minimax_m2&#39;</span><span class="p">],</span>
+    <span class="n">bridge_cls</span><span class="o">=</span><span class="n">MinimaxM2Bridge</span><span class="p">,</span>
+    <span class="n">loader</span><span class="o">=</span><span class="n">MinimaxM2Loader</span><span class="p">,</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+<p>参数的总和对齐：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">n_parameter</span><span class="p">:</span> <span class="mi">522</span>
+<span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">total_sum</span><span class="p">:</span> <span class="mf">106747128.72671509</span>
+<span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">zero_count</span><span class="p">:</span> <span class="mi">0</span>
+<span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">n_parameter</span><span class="p">:</span> <span class="mi">780</span>
+<span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">total_sum</span><span class="p">:</span> <span class="mf">106747129.32046509</span>
+<span class="p">[</span><span class="n">INFO</span><span class="p">:</span><span class="n">swift</span><span class="p">]</span> <span class="n">zero_count</span><span class="p">:</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>模型forward的logits对齐。（当然我们还需要对模型进行训练，训练后再测试forward的精度，避免出现这里输出tokens都是同一个的情况）。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mean_diff</span><span class="p">:</span> <span class="mf">2.8353377274470404e-05</span><span class="p">,</span> <span class="n">max_diff</span><span class="p">:</span> <span class="mf">0.0015382766723632812</span>
+<span class="n">mean_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mf">2.1664049199898727e-05</span><span class="p">,</span> <span class="n">max_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mf">0.00021076202392578125</span> <span class="p">(</span><span class="n">Please</span> <span class="n">check</span> <span class="n">that</span> <span class="n">mean_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">)</span> <span class="ow">is</span> <span class="n">less</span> <span class="n">than</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span>
+<span class="n">hf_tokens</span><span class="p">:</span> <span class="p">[</span><span class="mi">190962</span><span class="p">,</span> <span class="mi">103239</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">]</span>
+<span class="n">mg_tokens</span><span class="p">:</span> <span class="p">[</span><span class="mi">190962</span><span class="p">,</span> <span class="mi">103239</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">367</span><span class="p">]</span>
+<span class="n">token_diff</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">token_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>通常在参数总数对齐和输出logits对齐后，模型就基本接入成功了。此外你可能还需要适配TP/CP的情况。你可以使用以下代码debug：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CUDA_VISIBLE_DEVICES&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;0,1&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SWIFT_TEST_CONVERT_PRECISION&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;1&#39;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift.megatron</span><span class="w"> </span><span class="kn">import</span> <span class="n">MegatronExportArguments</span><span class="p">,</span> <span class="n">megatron_export_main</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">swift</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_snapshot_download</span>
+<span class="n">model_id</span> <span class="o">=</span> <span class="s1">&#39;MiniMax/MiniMax-M2.7&#39;</span>
+
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">safe_snapshot_download</span><span class="p">(</span><span class="n">model_id</span><span class="p">,</span> <span class="n">download_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">megatron_export_main</span><span class="p">(</span>
+        <span class="n">MegatronExportArguments</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model_dir</span><span class="p">,</span>
+            <span class="n">to_mcore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># 也可以修改成 `to_hf=True` 测试</span>
+            <span class="n">tensor_model_parallel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">sequence_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">expert_model_parallel_size</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">test_convert_precision</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">))</span>
+</pre></div>
+</div>
+<p>我们需要用torchrun启动，vscode配置：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.2.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;configurations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;torchrun2&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;debugpy&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;request&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;launch&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;program&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;-m&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;console&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;integratedTerminal&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;justMyCode&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s2">&quot;torch.distributed.run&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;--nproc_per_node&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;2&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;--master_port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;29501&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;${file}&quot;</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>其他模型的注册例子，可以查看对应PR：<a class="reference external" href="https://github.com/modelscope/mcore-bridge/pull/53">hy_v3</a>、<a class="reference external" href="https://github.com/modelscope/mcore-bridge/pull/52">kimi_25</a>。在2026年4月之前的接入PR可以在ms-swift库中寻找。</p>
+</section>
+<section id="id3">
+<h2>测试准确性<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>我们对mini版本的模型进行训练，我们只使用自我认知数据集，并训练到过拟合。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 2 * 80GiB</span>
+<span class="nv">PYTORCH_CUDA_ALLOC_CONF</span><span class="o">=</span><span class="s1">&#39;expandable_segments:True&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span><span class="se">\</span>
+megatron<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>/root/.cache/modelscope/models/MiniMax/MiniMax-M2.7<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_safetensors<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="s1">&#39;swift/self-cognition#500&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor_model_parallel_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sequence_parallel<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--micro_batch_size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--global_batch_size<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_granularity<span class="w"> </span>full<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_method<span class="w"> </span>uniform<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--recompute_num_layers<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--finetune<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cross_entropy_loss_fusion<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr<span class="w"> </span>2e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr_warmup_fraction<span class="w"> </span><span class="m">0</span>.05<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--min_lr<span class="w"> </span>1e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>megatron_output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">500</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--system<span class="w"> </span><span class="s1">&#39;You are a helpful assistant.&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_optim<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no_save_rng<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_permute_fusion<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--expert_model_parallel_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_grouped_gemm<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_shared_expert_overlap<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--moe_aux_loss_coeff<span class="w"> </span>1e-3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_author<span class="w"> </span>swift<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name<span class="w"> </span>swift-robot
+</pre></div>
+</div>
+<p>进行推理，查看训练效果：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>megatron_output/v3-20260430-143926/checkpoint-310<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enable_thinking<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;&lt;&lt; 你是谁
+我是一个由swift开发的人工智能助手，被称为swift-robot。我主要的目的是通过文本交流为用户提供帮助、信息和娱乐。如果您有任何疑问或需要帮助，请随时提出，我会尽力协助您。
+--------------------------------------------------
+&lt;&lt;&lt; clear
+&lt;&lt;&lt; who are you
+I am a language model developed by swift, you can call me swift-robot. How can I assist you?
+--------------------------------------------------
+</pre></div>
+</div>
+<p>再次测试forward精度对齐：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mean_diff</span><span class="p">:</span> <span class="mf">0.0005969047779217362</span><span class="p">,</span> <span class="n">max_diff</span><span class="p">:</span> <span class="mf">0.013172879815101624</span>
+<span class="n">mean_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mf">0.0005803848034702241</span><span class="p">,</span> <span class="n">max_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mf">0.009410381317138672</span> <span class="p">(</span><span class="n">Please</span> <span class="n">check</span> <span class="n">that</span> <span class="n">mean_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">)</span> <span class="ow">is</span> <span class="n">less</span> <span class="n">than</span> <span class="mf">0.1</span><span class="p">)</span><span class="o">.</span>
+<span class="n">hf_tokens</span><span class="p">:</span> <span class="p">[</span><span class="mi">190962</span><span class="p">,</span> <span class="mi">190962</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">2362</span><span class="p">,</span> <span class="mi">5129</span><span class="p">,</span> <span class="mi">6415</span><span class="p">,</span> <span class="mi">75827</span><span class="p">,</span> <span class="mi">343</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">71151</span><span class="p">,</span> <span class="mi">11915</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">3003</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">4387</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">258</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">258</span><span class="p">,</span> <span class="mi">18268</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">692</span><span class="p">,</span> <span class="mi">13268</span><span class="p">,</span> <span class="mi">42047</span><span class="p">,</span> <span class="mi">3764</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">94454</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="mi">296</span><span class="p">,</span> <span class="mi">3786</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">3786</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">2329</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">722</span><span class="p">]</span>
+<span class="n">mg_tokens</span><span class="p">:</span> <span class="p">[</span><span class="mi">190962</span><span class="p">,</span> <span class="mi">190962</span><span class="p">,</span> <span class="mi">367</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">2362</span><span class="p">,</span> <span class="mi">5129</span><span class="p">,</span> <span class="mi">6415</span><span class="p">,</span> <span class="mi">75827</span><span class="p">,</span> <span class="mi">343</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">71151</span><span class="p">,</span> <span class="mi">11915</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">3003</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">4387</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">258</span><span class="p">,</span> <span class="mi">1497</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">258</span><span class="p">,</span> <span class="mi">18268</span><span class="p">,</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">692</span><span class="p">,</span> <span class="mi">13268</span><span class="p">,</span> <span class="mi">42047</span><span class="p">,</span> <span class="mi">3764</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">94454</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="mi">296</span><span class="p">,</span> <span class="mi">3786</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">275</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">3786</span><span class="p">,</span> <span class="mi">46</span><span class="p">,</span> <span class="mi">2329</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">722</span><span class="p">]</span>
+<span class="n">token_diff</span><span class="p">:</span> <span class="mi">0</span>
+<span class="n">token_diff</span> <span class="p">(</span><span class="k">with</span> <span class="n">loss</span><span class="p">):</span> <span class="mi">0</span>
+</pre></div>
+</div>
+<p>至此，模型接入成功啦！</p>
+</section>
+<section id="pr">
+<h2>提交PR<a class="headerlink" href="#pr" title="Link to this heading"></a></h2>
+<p>如果你想给ms-swift/mcore-bridge提交PR，你需要额外运行以下命令，对代码进行整理：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pre-commit
+pre-commit<span class="w"> </span>run<span class="w"> </span>--all-files
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

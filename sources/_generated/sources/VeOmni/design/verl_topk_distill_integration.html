@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>verl Integration: Top-K Forward-KL Distillation via the VeOmni Engine &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">verl Integration: Top-K Forward-KL Distillation via the VeOmni Engine</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/design/verl_topk_distill_integration.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="verl-integration-top-k-forward-kl-distillation-via-the-veomni-engine">
+<h1>verl Integration: Top-K Forward-KL Distillation via the VeOmni Engine<a class="headerlink" href="#verl-integration-top-k-forward-kl-distillation-via-the-veomni-engine" title="Link to this heading"></a></h1>
+<p>VeOmni's <code class="docutils literal notranslate"><span class="pre">chunk_topk_distill_function</span></code> computes verl's top-k forward-KL
+distillation loss <strong>without materializing the <code class="docutils literal notranslate"><span class="pre">[T,</span> <span class="pre">V]</span></code> student logits
+tensor</strong> — the kernel rides the same chunked fused-linear pattern as
+<code class="docutils literal notranslate"><span class="pre">chunk_logprobs.py</span></code>, so <code class="docutils literal notranslate"><span class="pre">use_fused_kernels=True</span></code> + remove-padding +
+Ulysses SP all carry over.</p>
+<section id="veomni-side-contract">
+<h2>VeOmni-side contract<a class="headerlink" href="#veomni-side-contract" title="Link to this heading"></a></h2>
+<p>Add two kwargs to the model <code class="docutils literal notranslate"><span class="pre">forward</span></code>; the wrapper routes them through
+to the kernel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">teacher_topk_ids</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>          <span class="c1"># [B, L, K] int64 (dense)</span>
+<span class="n">teacher_topk_log_probs</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>    <span class="c1"># [B, L, K] fp32</span>
+<span class="n">log_prob_min_clamp</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span> <span class="c1"># optional, matches DistillationLossConfig</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">return_log_probs=True</span></code>, the output dataclass exposes a single
+<code class="docutils literal notranslate"><span class="pre">fused_linear_aux:</span> <span class="pre">Optional[FusedLinearAuxOutput]</span></code> field carrying the
+per-token tensors:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">output.fused_linear_aux.*</span></code></p></th>
+<th class="head"><p>Shape</p></th>
+<th class="head"><p>dtype</p></th>
+<th class="head"><p>Sign / range</p></th>
+<th class="head"><p>Grad</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">log_probs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">L]</span></code></p></td>
+<td><p>fp32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;=</span> <span class="pre">0</span></code></p></td>
+<td><p>flows</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">entropy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">L]</span></code></p></td>
+<td><p>fp32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0</span></code></p></td>
+<td><p>flows</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">distillation_losses</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">L]</span></code></p></td>
+<td><p>fp32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">0</span></code></p></td>
+<td><p>flows</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">student_mass</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">L]</span></code></p></td>
+<td><p>fp32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code></p></td>
+<td><p>detached</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">teacher_mass</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">L]</span></code></p></td>
+<td><p>fp32</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">1]</span></code></p></td>
+<td><p>detached</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">fused_linear_aux</span> <span class="pre">is</span> <span class="pre">None</span></code> on the plain loss path (no
+<code class="docutils literal notranslate"><span class="pre">return_log_probs</span></code>). All five tensors are <code class="docutils literal notranslate"><span class="pre">0</span></code> at <code class="docutils literal notranslate"><span class="pre">IGNORE_INDEX</span></code>
+positions and the trailing pad slot. KL formula is verbatim verl's:
+<code class="docutils literal notranslate"><span class="pre">Σ_k</span> <span class="pre">exp(log_p_t,k)</span> <span class="pre">·</span> <span class="pre">(log_p_t,k</span> <span class="pre">-</span> <span class="pre">log_q_s,k)</span></code> on the top-k support
+(with optional clamp on both terms). The nested-payload shape (rather
+than flat <code class="docutils literal notranslate"><span class="pre">output.log_probs</span></code> / <code class="docutils literal notranslate"><span class="pre">output.entropy</span></code> / <code class="docutils literal notranslate"><span class="pre">output.distillation_losses</span></code>
+as top-level fields) means future per-token metrics extend
+<code class="docutils literal notranslate"><span class="pre">FusedLinearAuxOutput</span></code> only, not every <code class="docutils literal notranslate"><span class="pre">*WithLogProbs</span></code> subclass.</p>
+</section>
+<section id="verl-side-changes-two-patches-30-lines-total">
+<h2>verl-side changes (two patches, ~30 lines total)<a class="headerlink" href="#verl-side-changes-two-patches-30-lines-total" title="Link to this heading"></a></h2>
+<p>Both are pure additive — symmetric with how the existing fused-kernel
+reads work, no impact on the non-fused path or any non-distillation
+flow. Note the read path moves one level down:
+<code class="docutils literal notranslate"><span class="pre">output.log_probs</span></code> → <code class="docutils literal notranslate"><span class="pre">output.fused_linear_aux.log_probs</span></code> etc. (the
+fused-linear payload nests under one field to avoid growing every
+<code class="docutils literal notranslate"><span class="pre">*WithLogProbs</span></code> subclass when new per-token tensors land later).</p>
+<section id="thread-teacher-tensors-into-model-inputs">
+<h3>1. Thread teacher tensors into <code class="docutils literal notranslate"><span class="pre">model_inputs</span></code><a class="headerlink" href="#thread-teacher-tensors-into-model-inputs" title="Link to this heading"></a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">verl/workers/engine/veomni/transformer_impl.py</span></code></strong> — inside the
+existing <code class="docutils literal notranslate"><span class="pre">use_fused_kernels</span> <span class="pre">and</span> <span class="pre">use_remove_padding</span></code> block of
+<code class="docutils literal notranslate"><span class="pre">VeOmniEngineWithLMHead.prepare_model_inputs</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">distillation_use_topk</span> <span class="o">=</span> <span class="n">tu</span><span class="o">.</span><span class="n">get_non_tensor_data</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">micro_batch</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;distillation_use_topk&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="n">distillation_use_topk</span><span class="p">:</span>
+    <span class="n">teacher_logprobs</span> <span class="o">=</span> <span class="n">micro_batch</span><span class="p">[</span><span class="s2">&quot;teacher_logprobs&quot;</span><span class="p">]</span>
+    <span class="n">teacher_ids</span> <span class="o">=</span> <span class="n">micro_batch</span><span class="p">[</span><span class="s2">&quot;teacher_ids&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">teacher_logprobs</span><span class="o">.</span><span class="n">is_nested</span><span class="p">:</span>
+        <span class="n">teacher_logprobs</span> <span class="o">=</span> <span class="n">teacher_logprobs</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">teacher_ids</span> <span class="o">=</span> <span class="n">teacher_ids</span><span class="o">.</span><span class="n">values</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">model_inputs</span><span class="p">[</span><span class="s2">&quot;teacher_topk_log_probs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">teacher_logprobs</span>
+    <span class="n">model_inputs</span><span class="p">[</span><span class="s2">&quot;teacher_topk_ids&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">teacher_ids</span>
+    <span class="n">clamp</span> <span class="o">=</span> <span class="n">tu</span><span class="o">.</span><span class="n">get_non_tensor_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">micro_batch</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;log_prob_min_clamp&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">clamp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_inputs</span><span class="p">[</span><span class="s2">&quot;log_prob_min_clamp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">clamp</span>
+</pre></div>
+</div>
+</section>
+<section id="read-the-three-new-fields-off-model-output">
+<h3>2. Read the three new fields off <code class="docutils literal notranslate"><span class="pre">model_output</span></code><a class="headerlink" href="#read-the-three-new-fields-off-model-output" title="Link to this heading"></a></h3>
+<p><strong><code class="docutils literal notranslate"><span class="pre">verl/workers/engine/fsdp/transformer_impl.py</span></code></strong> — inside the
+existing <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">use_fused_kernels:</span></code> branch of
+<code class="docutils literal notranslate"><span class="pre">FSDPEngineWithLMHead.prepare_model_outputs</span></code> (inherited by
+<code class="docutils literal notranslate"><span class="pre">VeOmniEngineWithLMHead</span></code>), right after the existing <code class="docutils literal notranslate"><span class="pre">log_probs</span></code> /
+<code class="docutils literal notranslate"><span class="pre">entropy_rmpad</span></code> reads:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Replace existing top-level reads:</span>
+<span class="c1">#   log_probs = output.log_probs.squeeze(0)</span>
+<span class="c1">#   entropy_rmpad = output.entropy.squeeze(0)</span>
+<span class="c1"># with the nested fused_linear_aux reads:</span>
+<span class="n">aux</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">fused_linear_aux</span>
+<span class="n">log_probs</span> <span class="o">=</span> <span class="n">aux</span><span class="o">.</span><span class="n">log_probs</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">entropy_rmpad</span> <span class="o">=</span> <span class="n">aux</span><span class="o">.</span><span class="n">entropy</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">distillation_use_topk</span><span class="p">:</span>
+    <span class="n">cu_seqlens</span> <span class="o">=</span> <span class="n">input_ids</span><span class="o">.</span><span class="n">offsets</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">src</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="p">(</span><span class="s2">&quot;distillation_losses&quot;</span><span class="p">,</span> <span class="n">aux</span><span class="o">.</span><span class="n">distillation_losses</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;student_mass&quot;</span><span class="p">,</span> <span class="n">aux</span><span class="o">.</span><span class="n">student_mass</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;teacher_mass&quot;</span><span class="p">,</span> <span class="n">aux</span><span class="o">.</span><span class="n">teacher_mass</span><span class="p">),</span>
+    <span class="p">):</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">v</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">log_probs</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_ulysses_sp</span><span class="p">:</span>
+            <span class="n">pad_size</span> <span class="o">=</span> <span class="n">output_args</span><span class="p">[</span><span class="s2">&quot;pad_size&quot;</span><span class="p">]</span>
+            <span class="n">v</span> <span class="o">=</span> <span class="n">gather_outputs_and_unpad</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">gather_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">unpad_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">padding_size</span><span class="o">=</span><span class="n">pad_size</span><span class="p">)</span>
+        <span class="n">model_output</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nested</span><span class="o">.</span><span class="n">nested_tensor_from_jagged</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">cu_seqlens</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="what-stays-unchanged">
+<h2>What stays unchanged<a class="headerlink" href="#what-stays-unchanged" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_forward_kl_topk</span></code>, <code class="docutils literal notranslate"><span class="pre">distillation_ppo_loss</span></code>,
+<code class="docutils literal notranslate"><span class="pre">compute_topk_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">DistillationConfig</span></code> / <code class="docutils literal notranslate"><span class="pre">DistillationLossConfig</span></code>,
+and the <code class="docutils literal notranslate"><span class="pre">teacher_logprobs</span></code> / <code class="docutils literal notranslate"><span class="pre">teacher_ids</span></code> / <code class="docutils literal notranslate"><span class="pre">distillation_use_topk</span></code>
+micro-batch fields — all reused as-is.</p></li>
+<li><p>The non-fused <code class="docutils literal notranslate"><span class="pre">logits_processor_func</span></code> branch — untouched.</p></li>
+<li><p>Estimator-only loss modes (<code class="docutils literal notranslate"><span class="pre">k1</span></code>, <code class="docutils literal notranslate"><span class="pre">k2</span></code>, <code class="docutils literal notranslate"><span class="pre">k3</span></code>, <code class="docutils literal notranslate"><span class="pre">kl</span></code>, <code class="docutils literal notranslate"><span class="pre">low_var_kl</span></code>,
+<code class="docutils literal notranslate"><span class="pre">abs</span></code>, <code class="docutils literal notranslate"><span class="pre">mse</span></code>) — they consume only <code class="docutils literal notranslate"><span class="pre">log_probs</span></code>, which is still
+populated identically.</p></li>
+</ul>
+</section>
+<section id="verification-on-veomni-s-side">
+<h2>Verification on VeOmni's side<a class="headerlink" href="#verification-on-veomni-s-side" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Test</p></th>
+<th class="head"><p>What it pins</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tests/ops/test_chunk_topk_distill.py</span></code> (10 tests)</p></td>
+<td><p>Forward / backward numerics vs dense reference (encodes verl's KL formula), chunk-size invariance, IGN masking, clamp consistency between forward &amp; backward, temperature path</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tests/models/test_return_log_probs_e2e.py::test_return_log_probs_with_topk_distill_populates_three_fields</span></code> (qwen3-text, qwen3_vl-vlm)</p></td>
+<td><p>The full <code class="docutils literal notranslate"><span class="pre">model.forward(...,</span> <span class="pre">teacher_topk_*=...)</span></code> → <code class="docutils literal notranslate"><span class="pre">outputs.fused_linear_aux.distillation_losses</span></code> path on a real toy model. Asserts: fields populated with right shape/range, mass tensors detached, <strong>bitwise-equal to the kernel called directly on <code class="docutils literal notranslate"><span class="pre">model.lm_head.weight</span></code></strong>, backward reaches <code class="docutils literal notranslate"><span class="pre">lm_head.weight.grad</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tests/ops/test_chunk_topk_distill.py::test_chunk_topk_distill_saves_memory_vs_eager</span></code> (CUDA)</p></td>
+<td><p>Peak GPU memory of the fused kernel vs the eager <code class="docutils literal notranslate"><span class="pre">h</span> <span class="pre">&#64;</span> <span class="pre">w.T</span> <span class="pre">→</span> <span class="pre">log_softmax</span> <span class="pre">→</span> <span class="pre">gather</span></code> path on a large-V case (V=64k). Pins that we never materialize <code class="docutils literal notranslate"><span class="pre">[T,</span> <span class="pre">V]</span></code> student logits — the whole point of the kernel for verl.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

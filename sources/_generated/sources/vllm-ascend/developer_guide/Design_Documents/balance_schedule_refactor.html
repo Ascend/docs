@@ -1,0 +1,928 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balance Schedule Refactor &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Balance Schedule Refactor</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/developer_guide/Design_Documents/balance_schedule_refactor.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="balance-schedule-refactor">
+<h1>Balance Schedule Refactor<a class="headerlink" href="#balance-schedule-refactor" title="Link to this heading"></a></h1>
+<p><strong>TL;DR</strong> The existing <code class="docutils literal notranslate"><span class="pre">patch_balance_schedule.py</span></code> copied three large upstream
+units verbatim to inject roughly 5 lines of real logic: <code class="docutils literal notranslate"><span class="pre">Scheduler.schedule()</span></code>
+(~520 lines), <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc.run_busy_loop()</span></code> (~40 lines), and
+<code class="docutils literal notranslate"><span class="pre">EngineCoreProc.run_engine_core()</span></code> (~55 lines). This refactor, while <strong>strictly
+preserving the <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> semantics</strong>, first deletes the two already-stale
+copies <code class="docutils literal notranslate"><span class="pre">run_busy_loop()</span></code> / <code class="docutils literal notranslate"><span class="pre">run_engine_core()</span></code> (replacing them with an engine
+core hook on <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> plus a module-level name swap for
+conditional activation). The <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy is <strong>kept for now</strong> — upstream
+exposes no finer-grained hook to borrow, and deleting it depends on contributing
+an override seam upstream, tracked as later Phase 2B. The file therefore does
+not shrink to a few dozen lines: the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> body is still a verbatim
+upstream copy (<strong>aligned verbatim to release tag <code class="docutils literal notranslate"><span class="pre">v0.23.0</span></code></strong>, with only 3
+balance deltas), and the file is ~830 lines. Aligning to a stable release tag
+(rather than a moving main-verified commit hash) makes &quot;verbatim comparison
+against upstream&quot; a reproducible drift check — a fixed tag points at the same
+source on every CI run. What this round actually removes is the stale-drift
+risk of the <code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> / <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> copies, and fixes a
+balance-enabled deadlock (originally &quot;gather inside <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>&quot;, then in a
+later iteration &quot;gather inside <code class="docutils literal notranslate"><span class="pre">_process_engine_step</span></code>&quot;); gather now sits
+immediately after the <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> cross-rank all-reduce.</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h2>
+<section id="what-balance-scheduling-does">
+<h3>What Balance Scheduling does<a class="headerlink" href="#what-balance-scheduling-does" title="Link to this heading"></a></h3>
+<p>With a large <code class="docutils literal notranslate"><span class="pre">data-parallel-size</span></code> and concurrency ≈ <code class="docutils literal notranslate"><span class="pre">DP</span> <span class="pre">×</span> <span class="pre">max-num-seqs</span></code>,
+requests tend to pile up on a subset of DP ranks: the saturated ranks carry
+prefill and decode at once and slow down, while the other ranks keep admitting
+new requests, widening the gap. Balance scheduling does <strong>not</strong> actively
+rebalance the per-rank running counts. Instead it provides a <strong>global admission
+gate</strong>: as soon as <strong>any one rank's</strong> running count reaches the cap, <strong>all
+ranks</strong> stop admitting new requests from the WAITING queue, giving the
+saturated rank a chance to drain its in-flight requests so the gap stops
+growing. It is <strong>not</strong> &quot;make the lagging ranks catch up to the leader&quot; (that
+semantic is <strong>explicitly rejected</strong> here — see
+<a class="reference internal" href="#behavior-preservation-contract">Behavior-preservation contract</a>, item 1).</p>
+<p>The feature is enabled via <code class="docutils literal notranslate"><span class="pre">additional_config.enable_balance_scheduling</span> <span class="pre">=</span> <span class="pre">true</span></code>
+(the environment variable <code class="docutils literal notranslate"><span class="pre">VLLM_ASCEND_BALANCE_SCHEDULING</span></code> is deprecated). It
+supports PD-mixed mode only; validation lives in <code class="docutils literal notranslate"><span class="pre">vllm_ascend/platform.py</span></code> and
+<code class="docutils literal notranslate"><span class="pre">vllm_ascend/ascend_config.py</span></code>.</p>
+</section>
+<section id="the-real-logic-only-two-spots">
+<h3>The real logic (only two spots)<a class="headerlink" href="#the-real-logic-only-two-spots" title="Link to this heading"></a></h3>
+<p>The whole feature reduces to two operations:</p>
+<ol class="arabic">
+<li><p><strong>Cross-rank sync of the running count</strong> — one <code class="docutils literal notranslate"><span class="pre">all_gather</span></code> per engine step,
+collecting each rank's <code class="docutils literal notranslate"><span class="pre">len(self.running)</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">balance_gather</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># dp_group is injected into self.dp_group by the engine core</span>
+    <span class="n">running_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">dist</span><span class="o">.</span><span class="n">all_gather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">balance_queue</span><span class="p">,</span> <span class="n">running_tensor</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dp_group</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>The admission gate inside the WAITING scheduling loop</strong> — because every
+rank holds the same gathered vector, this check yields the same result on
+every rank. Whenever <strong>any rank's</strong> running count reached the cap at the end
+of the previous step, <strong>all ranks</strong> stop admitting new WAITING requests this
+step:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">balance_flag</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance_queue</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_running_reqs</span>
+<span class="k">if</span> <span class="n">balance_flag</span><span class="p">:</span>
+    <span class="k">break</span>
+</pre></div>
+</div>
+<p><strong>Semantic (must be preserved bit-for-bit):</strong> &quot;leader-at-cap ⇒ global freeze
+of admission&quot;. It is <strong>not</strong> &quot;make lagging ranks catch up to the leader&quot;. See
+<a class="reference internal" href="#behavior-preservation-contract">Behavior-preservation contract</a>.</p>
+</li>
+</ol>
+</section>
+</section>
+<section id="problem-statement">
+<h2>Problem statement<a class="headerlink" href="#problem-statement" title="Link to this heading"></a></h2>
+<p>To inject the two pieces above, the existing <code class="docutils literal notranslate"><span class="pre">patch_balance_schedule.py</span></code> copied
+three large upstream units verbatim:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Copied unit</p></th>
+<th class="head"><p>Lines</p></th>
+<th class="head"><p>Reason for copying</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Scheduler.schedule()</span></code></p></td>
+<td><p>~520</p></td>
+<td><p>Insert the 3-line <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> gate mid-loop</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc.run_busy_loop()</span></code></p></td>
+<td><p>~40</p></td>
+<td><p>Call <code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> after every step</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">EngineCoreProc.run_engine_core()</span></code></p></td>
+<td><p>~55</p></td>
+<td><p>Replace with <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code> when DP&gt;1</p></td>
+</tr>
+</tbody>
+</table>
+<p>This &quot;copy whole units&quot; approach has three concrete harms:</p>
+<ol class="arabic">
+<li><p><strong>The <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy is now aligned verbatim to a release tag (the
+production pin, currently <code class="docutils literal notranslate"><span class="pre">v0.23.0</span></code>).</strong> The <strong>single source of truth</strong> for
+the release tag is <code class="docutils literal notranslate"><span class="pre">.github/vllm-release-tag.commit</span></code> (CI reads the same file
+via <code class="docutils literal notranslate"><span class="pre">tr</span> <span class="pre">-d</span> <span class="pre">'[:space:]'</span> <span class="pre">&lt;</span> <span class="pre">.github/vllm-release-tag.commit</span></code>), currently
+<code class="docutils literal notranslate"><span class="pre">v0.23.0</span></code>; dev/CI actually installs the main-verified commit pointed at by
+<code class="docutils literal notranslate"><span class="pre">.github/vllm-main-verified.commit</span></code> (which already carries <code class="docutils literal notranslate"><span class="pre">throttle_prefills</span></code>
+and other v0.23.1+ evolution). The old patch copied a <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> from an
+older vLLM than v0.23.0, so it was stale as a whole. This round aligns the
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy <strong>verbatim to the release tag's <code class="docutils literal notranslate"><span class="pre">Scheduler.schedule()</span></code></strong>,
+keeping only the 3 balance deltas (disabled-path early return,
+<code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> gate, <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">None:</span> <span class="pre">break</span></code>); the
+<code class="docutils literal notranslate"><span class="pre">run_busy_loop()</span></code> / <code class="docutils literal notranslate"><span class="pre">run_engine_core()</span></code> copies were deleted in Phase 1.
+<strong>Note: any concrete <code class="docutils literal notranslate"><span class="pre">v0.23.0</span></code> in this document is just a snapshot of the pin
+file's current value — it goes stale as the pin advances and must NOT be
+used as a version authority; any code/test that needs this tag must read the
+file at runtime.</strong></p>
+<p><strong>Why align to the v0.23.0 tag rather than the installed main-verified
+commit?</strong> Two reasons: (a) production actually runs the v0.23.0 release, so
+aligning the copy to it keeps production behavior consistent with runtime;
+(b) a fixed git tag points at the <strong>same</strong> source on every CI run, so
+&quot;verbatim comparison of the copy against upstream (allowing only the 3
+deltas)&quot; becomes a <strong>reproducible</strong> drift check — whereas a moving
+main-verified hash makes the comparison drift forward with every commit and
+cannot serve as a stable guardrail.</p>
+<p><strong>Cost and boundary:</strong> the copy (v0.23.0 logic) and the main-verified
+runtime differ slightly in behavior, but balance's real scheduling path is
+only reached under NPU + DP + MoE, never by CPU UT (see Test plan); and
+those differences do not affect the gate's own semantics. <strong>Key: vllm-ascend
+CI runs two vllm versions at once</strong> (release tag v0.23.0 + main-verified
+commit 1f486d96), whose engines call <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> differently — v0.23.0 calls
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code>, 1f486d96 calls <code class="docutils literal notranslate"><span class="pre">schedule(throttle_prefills)</span></code>. So the override
+signature takes the <strong>union of both versions</strong>
+(<code class="docutils literal notranslate"><span class="pre">schedule(self,</span> <span class="pre">throttle_prefills=False)</span></code>, a default-carrying superset) so
+both engines can call it; the disabled path delegates to <code class="docutils literal notranslate"><span class="pre">super()</span></code> and uses
+<strong>signature introspection</strong> (<code class="docutils literal notranslate"><span class="pre">_SUPER_SCHEDULE_HAS_THROTTLE</span></code>, decided once at
+import) to decide whether to forward <code class="docutils literal notranslate"><span class="pre">throttle_prefills</span></code>, rather than a
+version string — this is correct on both lanes and is not affected by a dev
+checkout's non-standard PEP 440 <code class="docutils literal notranslate"><span class="pre">__version__</span></code> (which would make
+<code class="docutils literal notranslate"><span class="pre">vllm_version_is</span></code> raise). I.e.: <strong>body aligned to the release tag; signature
+takes the two-version union; disabled path uses signature introspection.</strong></p>
+</li>
+<li><p><strong>It violates the <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> patch policy.</strong> The policy requires patches to
+be &quot;minimal and focused&quot; with &quot;a long-term plan to contribute upstream&quot;. A
+500-line verbatim copy is unreviewable (you cannot see the real change
+without diffing against upstream) and must be re-synced by hand on every vLLM
+upgrade.</p></li>
+<li><p><strong>Silent, undocumented deviations accumulate.</strong> For example the override
+quietly turned upstream's <code class="docutils literal notranslate"><span class="pre">assert</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">None</span></code> into
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">None:</span> <span class="pre">break</span></code>. Such deviations make future diffs
+untrustworthy.</p></li>
+</ol>
+<blockquote>
+<div><p>Lesson learned this round (a pit we hit — <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> signature drift across
+versions + dual-version CI). vLLM's <code class="docutils literal notranslate"><span class="pre">Scheduler.schedule()</span></code> signature changes
+across versions: release tag <strong>v0.23.0</strong> is <code class="docutils literal notranslate"><span class="pre">schedule(self)</span></code> (engine calls
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code>), main-verified commit <strong>1f486d96</strong> adds
+<code class="docutils literal notranslate"><span class="pre">throttle_prefills:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></code> (engine calls
+<code class="docutils literal notranslate"><span class="pre">schedule(self._should_throttle_prefills())</span></code>). And <strong>vllm-ascend CI runs both
+at once</strong>, so the override cannot hardcode either signature — <code class="docutils literal notranslate"><span class="pre">schedule(self)</span></code>
+would <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> on 1f486d96 when the engine passes the arg. The right fix:
+the override signature takes the <strong>union of both versions</strong>
+<code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">schedule(self,</span> <span class="pre">throttle_prefills:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False)</span></code> (a default-carrying
+superset callable by both engines); the disabled path delegates to <code class="docutils literal notranslate"><span class="pre">super()</span></code>
+and uses <strong>signature introspection</strong> (computed once at import:
+<code class="docutils literal notranslate"><span class="pre">_SUPER_SCHEDULE_HAS_THROTTLE</span> <span class="pre">=</span> <span class="pre">&quot;throttle_prefills&quot;</span> <span class="pre">in</span> <span class="pre">inspect.signature(Scheduler.schedule).parameters</span></code>)
+to decide whether to forward <code class="docutils literal notranslate"><span class="pre">throttle_prefills</span></code>, instead of a
+<code class="docutils literal notranslate"><span class="pre">vllm_version_is(&quot;0.23.0&quot;)</span></code> version string — the latter raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>
+on a dev checkout (non-PEP 440 <code class="docutils literal notranslate"><span class="pre">__version__</span></code>) and fundamentally reframes the
+factual question &quot;does super() accept this arg?&quot; as a brittle &quot;does the
+version string match?&quot;. Conclusion: <strong>when CI runs multiple upstream versions
+at once, take the union for override signatures and drive version-dependent
+branches by signature introspection, not version strings.</strong> At the unit-test
+level, &quot;signature equals installed vLLM's&quot; is <strong>wrong</strong> under dual versions
+(the two lanes' installed signatures differ by definition, so an equality
+assertion can only ever pass on one lane); it is replaced by &quot;the override is
+bindable by both engines' call shapes and is a superset of the installed
+signature&quot;.</p>
+</div></blockquote>
+</section>
+<section id="design">
+<h2>Design<a class="headerlink" href="#design" title="Link to this heading"></a></h2>
+<section id="principle">
+<h3>Principle<a class="headerlink" href="#principle" title="Link to this heading"></a></h3>
+<p>Remove copies, not the feature. Pull gather into the scheduler itself (so the
+two EngineCore copies can be deleted), and in the future inject the gate via a
+minimal upstream seam (so the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy can be deleted). The
+<code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> semantics stay strictly unchanged.</p>
+</section>
+<section id="implementation-status-and-corrections-this-round-landed-phase-1-2a-3">
+<h3>Implementation status and corrections (this round landed Phase 1 + 2A + 3)<a class="headerlink" href="#implementation-status-and-corrections-this-round-landed-phase-1-2a-3" title="Link to this heading"></a></h3>
+<p>While implementing, we verified upstream's real structure and found two
+drafting assumptions did not hold; both are corrected here:</p>
+<ul class="simple">
+<li><p><strong>Upstream <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code> has no <code class="docutils literal notranslate"><span class="pre">new_step_starts()</span></code> lifecycle hook</strong> (that is a
+<code class="docutils literal notranslate"><span class="pre">kv_cache_manager</span></code> method) and no &quot;per-step scheduling start&quot; overridable
+seam. So gather cannot live inside <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> (see the deadlock lesson in
+<a class="reference internal" href="#step-1-hook-gather-onto-has-global-unfinished-reqs-and-delete-the-enginecore-copies">Step 1 — Hook gather onto <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> and delete the EngineCore copies</a>);
+it lives on the engine core's <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> instead.</p></li>
+<li><p><strong>The scheduler cannot lazily fetch the DP group:</strong> <code class="docutils literal notranslate"><span class="pre">dp_group</span></code> is produced in
+<code class="docutils literal notranslate"><span class="pre">_init_data_parallel</span></code> (earlier than scheduler creation) and there is no global
+registry. So <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code> is <strong>not deleted</strong> but slimmed to a
+subclass that overrides <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> (injects <code class="docutils literal notranslate"><span class="pre">dp_group</span></code> +
+calls <code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> once); the <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> copy is replaced by
+patching the module-level <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code> name (upstream's <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code>
+resolves this class by module-global name at call time), and the swap happens
+<strong>only when balance is enabled</strong> (conditional activation).</p></li>
+</ul>
+<p>Accordingly the Phase 1 description and the &quot;post-refactor file shape&quot; below are
+both rewritten to match the actual implementation. Phase 3 collapses config
+probing to two fallbacks (AscendConfig → additional_config) and <strong>removes the
+direct environment-variable read</strong> — <code class="docutils literal notranslate"><span class="pre">VLLM_ASCEND_BALANCE_SCHEDULING</span></code> is still
+parsed centrally by <code class="docutils literal notranslate"><span class="pre">AscendConfig</span></code> (as a deprecated fallback for
+<code class="docutils literal notranslate"><span class="pre">additional_config</span></code>), but <code class="docutils literal notranslate"><span class="pre">_balance_scheduling_enabled</span></code> no longer reads it
+itself, bypassing <code class="docutils literal notranslate"><span class="pre">AscendConfig</span></code>. Details in
+<a class="reference internal" href="#phased-rollout">Phased rollout</a>.</p>
+</section>
+<section id="step-1-hook-gather-onto-has-global-unfinished-reqs-and-delete-the-enginecore-copies">
+<h3>Step 1 — Hook gather onto <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> and delete the EngineCore copies<a class="headerlink" href="#step-1-hook-gather-onto-has-global-unfinished-reqs-and-delete-the-enginecore-copies" title="Link to this heading"></a></h3>
+<p>The old <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc.run_busy_loop()</span></code> and <code class="docutils literal notranslate"><span class="pre">run_engine_core()</span></code> were
+verbatim copies of upstream methods and <strong>already stale-drifted</strong>: upstream
+<code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> switched to <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">self._handle_shutdown()</span></code>, added
+<code class="docutils literal notranslate"><span class="pre">eep_scaling_state</span></code> / <code class="docutils literal notranslate"><span class="pre">is_sleeping</span></code> guards and a trailing <code class="docutils literal notranslate"><span class="pre">raise</span> <span class="pre">SystemExit</span></code>,
+while the patch still had <code class="docutils literal notranslate"><span class="pre">while</span> <span class="pre">True</span></code> + a hand-written signal handler;
+<code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> similarly gained <code class="docutils literal notranslate"><span class="pre">SignalCallback</span></code>, numa, tracer logic. The
+goal is to delete both copies.</p>
+<p>Three constraints surfaced during implementation:</p>
+<ol class="arabic simple">
+<li><p><strong>The scheduler cannot obtain the DP group itself.</strong> <code class="docutils literal notranslate"><span class="pre">dp_group</span></code> is created by
+<code class="docutils literal notranslate"><span class="pre">parallel_config.stateless_init_dp_group()</span></code> inside
+<code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc._init_data_parallel</span></code> and stored on the engine core; that
+method runs in <code class="docutils literal notranslate"><span class="pre">EngineCoreProc.__init__</span></code> <strong>before</strong> <code class="docutils literal notranslate"><span class="pre">super().__init__()</span></code>
+(which creates the scheduler), and there is no registry for lazy lookup. So
+the engine core must hand <code class="docutils literal notranslate"><span class="pre">dp_group</span></code> to the scheduler.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> must run on every rank on every iteration</strong> that is part
+of an active (non-idle) wave (see the deadlock lessons below). <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>
+does not satisfy this — a rank that has drained locally takes a dummy batch
+and never enters <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>.</p></li>
+<li><p><strong>Balance must not invade configs that do not enable it</strong> (e.g. PD-disaggregated
+recompute / <code class="docutils literal notranslate"><span class="pre">AsyncRecomputeScheduler</span></code>), so the <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code>
+swap must be conditional.</p></li>
+</ol>
+<p>The final landing is therefore:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> is pulled into <code class="docutils literal notranslate"><span class="pre">BalanceScheduler</span></code></strong> (no-arg signature, uses
+<code class="docutils literal notranslate"><span class="pre">self.dp_group</span></code>), but <strong>not called from <code class="docutils literal notranslate"><span class="pre">schedule()</span></code></strong> — the engine core
+triggers it per step (see below).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code> is not deleted but slimmed to one override</strong>: it
+hooks <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code>, calling <code class="docutils literal notranslate"><span class="pre">super()._has_global_unfinished_reqs()</span></code>
+first (which runs the cross-rank all-reduce every 32 steps) and then, still
+inside that same call, injecting <code class="docutils literal notranslate"><span class="pre">dp_group</span></code> and calling <code class="docutils literal notranslate"><span class="pre">balance_gather()</span></code>
+once. Upstream's <code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> calls <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> exactly
+once per iteration on every non-idle path (including dummy-batch iterations
+where a drained rank never enters <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>), so every rank participates in
+the gather every active step. The <code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> body is no longer copied.</p></li>
+<li><p><strong>The <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> copy is deleted entirely.</strong> Upstream's <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code>
+(a staticmethod) resolves <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code> by module-global name inside its
+body (<code class="docutils literal notranslate"><span class="pre">engine_core</span> <span class="pre">=</span> <span class="pre">DPEngineCoreProc(*args,</span> <span class="pre">**kwargs)</span></code>, see
+<a class="reference external" href="https://github.com/vllm-project/vllm">vllm/v1/engine/core.py</a>). So a thin
+wrapper wraps <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code>: at its entry (where <code class="docutils literal notranslate"><span class="pre">vllm_config</span></code> is
+available) it decides, via <code class="docutils literal notranslate"><span class="pre">_balance_scheduling_enabled</span></code>, whether to swap the
+module-level <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code> to <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code> or restore the
+upstream original, then calls the original <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code>. This is
+<strong>conditional activation</strong> — with balance off, upstream's implementation is
+used verbatim; signal handling, <code class="docutils literal notranslate"><span class="pre">SignalCallback</span></code>, numa, and tracer all stay
+upstream-correct.</p></li>
+</ul>
+<blockquote>
+<div><p><strong>Lesson A — deadlock (gather must not live in <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>).</strong> An earlier
+version put <code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> at the top of <code class="docutils literal notranslate"><span class="pre">BalanceScheduler.schedule()</span></code> and
+argued &quot;between two steps <code class="docutils literal notranslate"><span class="pre">self.running</span></code> only changes inside <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> /
+<code class="docutils literal notranslate"><span class="pre">update_from_output()</span></code>, so the snapshot is equivalent and there is still one
+<code class="docutils literal notranslate"><span class="pre">all_gather</span></code> per step — safe&quot;. That argument was <strong>only half right</strong>: the
+value the gate sees is indeed equivalent, but it <strong>ignored that <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>
+is a collective and every rank must participate synchronously</strong>. Under DP MoE,
+a rank that has drained its local requests (<code class="docutils literal notranslate"><span class="pre">has_requests()</span></code> is False) runs
+<code class="docutils literal notranslate"><span class="pre">execute_dummy_batch()</span></code> and <strong>never enters <code class="docutils literal notranslate"><span class="pre">schedule()</span></code></strong>, so it skips that
+<code class="docutils literal notranslate"><span class="pre">all_gather</span></code> while a still-busy rank calls it and waits forever — <strong>collective
+mismatch, deadlock</strong>. The fact that <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> only truly
+all-reduces every 32 steps and that <code class="docutils literal notranslate"><span class="pre">engines_running</span></code> is sticky in between
+widens this window.</p>
+<p><strong>Lesson B — deadlock (gather must not live in <code class="docutils literal notranslate"><span class="pre">_process_engine_step</span></code> either;
+it must sit immediately after the <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> all-reduce).</strong>
+A later iteration &quot;fixed&quot; Lesson A by moving gather into
+<code class="docutils literal notranslate"><span class="pre">_process_engine_step</span></code> (called every iteration, before the sync and before
+the idle <code class="docutils literal notranslate"><span class="pre">continue</span></code> gate). That <strong>re-introduced a different deadlock</strong>:
+<code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> is the <strong>only</strong> point in the busy loop that
+re-synchronizes ranks on wave/idle state. Placing the every-step <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>
+<strong>before</strong> that sync (and before the idle <code class="docutils literal notranslate"><span class="pre">continue</span></code>) decouples the gather
+from wave coordination. At wave boundaries — requests finishing at different
+times per rank, <code class="docutils literal notranslate"><span class="pre">_process_input_queue</span></code> blocking on the next wave / new
+requests, <code class="docutils literal notranslate"><span class="pre">engines_running</span></code> sticky for up to 32 steps — one rank can reach the
+gather while another is still blocked in <code class="docutils literal notranslate"><span class="pre">_process_input_queue</span></code> or in
+<code class="docutils literal notranslate"><span class="pre">future.result()</span></code>. The <code class="docutils literal notranslate"><span class="pre">all_gather</span></code> then deadlocks; the stuck EngineCore can
+no longer drain its worker shared-memory broadcast channel, the worker's
+<code class="docutils literal notranslate"><span class="pre">sample_tokens</span></code> response has nowhere to land, and after 60 s the engine dies
+with <code class="docutils literal notranslate"><span class="pre">RPC</span> <span class="pre">call</span> <span class="pre">to</span> <span class="pre">sample_tokens</span> <span class="pre">timed</span> <span class="pre">out</span></code> (observed intermittently — &quot;5 GPQA
+runs OK, 6th hangs&quot; — because the trigger depends on per-run completion
+timing). This is independent of whether expert-parallel spans DP ranks: the
+failure mechanism is EngineCore↔worker shm exhaustion, not a worker forward
+pass. Conclusion: <strong><code class="docutils literal notranslate"><span class="pre">balance_gather</span></code> must sit immediately after
+<code class="docutils literal notranslate"><span class="pre">super()._has_global_unfinished_reqs()</span></code>, the only per-iteration cross-rank
+sync, so ranks enter the all-gather having just agreed on <code class="docutils literal notranslate"><span class="pre">engines_running</span></code>.</strong>
+Because <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> is only called on iterations that did
+<strong>not</strong> take the idle <code class="docutils literal notranslate"><span class="pre">continue</span></code>, gather is skipped consistently by every
+rank when all are idle (no rank does an extra gather) — identical to the
+pre-refactor copied <code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code>, where gather sat right after the
+all-reduce. The lesson is locked by the <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> seam
+guard in the unit tests.</p>
+</div></blockquote>
+<p><strong>Timing — bit-for-bit identical to pre-refactor.</strong> Gather now runs at the tail
+of <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code>, i.e. after <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> + execute +
+<code class="docutils literal notranslate"><span class="pre">update_from_output()</span></code> and immediately after the cross-rank all-reduce — exactly
+where the pre-refactor engine-core-driven gather sat. The gate consumes that
+value in the next step's <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>; behavior is unchanged.</p>
+</section>
+<section id="step-2-replace-the-schedule-copy-with-a-minimal-seam">
+<h3>Step 2 — Replace the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy with a minimal seam<a class="headerlink" href="#step-2-replace-the-schedule-copy-with-a-minimal-seam" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> gate is inlined mid-<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> by upstream; there is
+currently no overridable seam. This is solved in two phases.</p>
+<p><strong>Phase 2A — transitional (no upstream dependency):</strong></p>
+<p>Keep the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> override, but:</p>
+<ul class="simple">
+<li><p><strong>The override signature takes the two-version union:</strong>
+<code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">schedule(self,</span> <span class="pre">throttle_prefills:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False)</span></code>. vllm-ascend CI runs
+v0.23.0 (engine calls <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>) and 1f486d96 (engine calls
+<code class="docutils literal notranslate"><span class="pre">schedule(throttle_prefills)</span></code>) at the same time, so the override carries
+<code class="docutils literal notranslate"><span class="pre">throttle_prefills</span></code> with a default and is callable by both engines. <strong>The
+disabled path delegates to <code class="docutils literal notranslate"><span class="pre">super()</span></code> via signature introspection</strong> — compute
+<code class="docutils literal notranslate"><span class="pre">_SUPER_SCHEDULE_HAS_THROTTLE</span></code> once at import; if true call
+<code class="docutils literal notranslate"><span class="pre">super().schedule(throttle_prefills)</span></code>, else <code class="docutils literal notranslate"><span class="pre">super().schedule()</span></code>. This
+replaces the old <code class="docutils literal notranslate"><span class="pre">vllm_version_is(&quot;0.23.0&quot;)</span></code> version-string branch (which
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>s on a dev checkout and reframes &quot;does super accept the arg?&quot; as
+&quot;does the version match?&quot;).</p></li>
+<li><p>Collapse the balance changes into 3 clearly-commented deltas: (1) the
+disabled-path early return delegating to <code class="docutils literal notranslate"><span class="pre">super()</span></code>; (2) the <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code>
+gate inside the WAITING loop; (3) <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">None:</span> <span class="pre">break</span></code> (upstream
+has <code class="docutils literal notranslate"><span class="pre">assert</span></code>). Because upstream has no finer-grained hook, the body still has
+to be copied.</p></li>
+<li><p><strong>Verbatim comparison is now reproducible:</strong> the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy is aligned
+to the release tag (only the 3 balance deltas differ), so the fixed tag makes
+&quot;verbatim comparison against upstream&quot; yield the same baseline on every CI
+run. The &quot;intent lock&quot; tests (signature callable by both engines, the 3 delta
+lines present, upstream seams still exist) remain as CPU-reachable guardrails,
+and a new &quot;verbatim comparison against the release tag (allowing only the 3
+deltas)&quot; drift test is added (see Test plan). The drift test <strong>reads the tag
+at runtime from <code class="docutils literal notranslate"><span class="pre">.github/vllm-release-tag.commit</span></code></strong> (same source as CI) — it
+does not hardcode a version or read a design doc; when the pin advances, the
+test automatically compares against the new tag and goes red to signal &quot;the
+copy needs re-syncing&quot;.</p></li>
+<li><p>&quot;Re-aligning the copy on a pin advance&quot; is now routine maintenance: each time
+the release tag advances, re-apply the 3 deltas onto the new tag's
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> (continues until Phase 2B deletes the copy).</p></li>
+</ul>
+<p><strong>Phase 2B — target (lands with an upstream contribution):</strong></p>
+<p>Contribute a minimal upstream refactor that extracts the WAITING loop's stop
+condition into an overridable method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># upstream vllm/v1/core/sched/scheduler.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_stop_admitting_waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_running_reqs</span>
+</pre></div>
+</div>
+<p>Once upstream exposes that seam, the Ascend patch collapses to:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BalanceScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_should_stop_admitting_waiting</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_should_stop_admitting_waiting</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_balance_enabled</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance_queue</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_running_reqs</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>(<code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">==</span></code> are equivalent here because no rank's <code class="docutils literal notranslate"><span class="pre">len(running)</span></code> can exceed
+<code class="docutils literal notranslate"><span class="pre">max_num_running_reqs</span></code>; the contract below pins the semantic to <code class="docutils literal notranslate"><span class="pre">==</span></code> to make
+&quot;leader-at-cap ⇒ freeze&quot; explicit and to reject the &quot;catch up to leader&quot;
+reinterpretation.)</p>
+<p><strong>Result:</strong> the ~520-line <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy is deleted for good; the file no
+longer drifts with upstream edits to <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>. This is the &quot;long-term plan
+to contribute upstream&quot; that <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> requires.</p>
+<blockquote>
+<div><p><strong>On <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> vs <code class="docutils literal notranslate"><span class="pre">==</span></code>, and the rejected &quot;temporarily lower the cap&quot; idea.</strong> An
+earlier idea was to reuse upstream's existing break condition for zero-copy by
+temporarily setting
+<code class="docutils literal notranslate"><span class="pre">self.max_num_running_reqs</span> <span class="pre">=</span> <span class="pre">min(cap,</span> <span class="pre">max(balance_queue))</span></code>. That would produce
+a <strong>different</strong> semantic (&quot;make lagging ranks catch up to the leader&quot;) and is
+<strong>explicitly rejected</strong> — see the contract below.</p>
+</div></blockquote>
+</section>
+<section id="step-3-normalize-config-probing">
+<h3>Step 3 — Normalize config probing<a class="headerlink" href="#step-3-normalize-config-probing" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">_balance_scheduling_enabled()</span></code> collapses to <strong>two fallbacks (AscendConfig →
+additional_config)</strong>. After deleting the <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> copy, the only caller
+is <code class="docutils literal notranslate"><span class="pre">BalanceScheduler.__init__</span></code>, but whether AscendConfig is initialized at that
+moment still cannot be guaranteed (the origin of the old top-of-file TODO), so
+<code class="docutils literal notranslate"><span class="pre">additional_config</span></code> is kept as a startup-window fallback and the function
+returns <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise. This round tightens one thing relative to the old
+implementation:</p>
+<ul class="simple">
+<li><p><strong>The direct environment-variable read is removed.</strong> The old implementation
+fell back to a bare <code class="docutils literal notranslate"><span class="pre">os.getenv(&quot;VLLM_ASCEND_BALANCE_SCHEDULING&quot;)</span></code>, violating
+AGENTS.md's &quot;no scattered <code class="docutils literal notranslate"><span class="pre">os.getenv</span></code>&quot;. This function no longer reads the
+environment itself — <code class="docutils literal notranslate"><span class="pre">VLLM_ASCEND_BALANCE_SCHEDULING</span></code> is parsed centrally by
+<code class="docutils literal notranslate"><span class="pre">AscendConfig</span></code> (as a deprecated fallback for <code class="docutils literal notranslate"><span class="pre">additional_config</span></code>) and takes
+effect via the main <code class="docutils literal notranslate"><span class="pre">get_ascend_config().enable_balance_scheduling</span></code> path,
+avoiding multiple entry points.</p></li>
+<li><p>The top-of-file TODO is updated to &quot;once AscendConfig initialization is moved
+earlier, this can collapse to a single
+<code class="docutils literal notranslate"><span class="pre">get_ascend_config().enable_balance_scheduling</span></code> read&quot;.</p></li>
+</ul>
+<blockquote>
+<div><p>Later (once AscendConfig timing is settled): collapse the two fallbacks into a
+single read.</p>
+</div></blockquote>
+</section>
+</section>
+<section id="behavior-preservation-contract">
+<h2>Behavior-preservation contract<a class="headerlink" href="#behavior-preservation-contract" title="Link to this heading"></a></h2>
+<p>This refactor <strong>must</strong> strictly preserve the following invariants; any
+deviation is a bug.</p>
+<ol class="arabic simple">
+<li><p><strong>Leader-at-cap ⇒ global freeze.</strong> <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> is
+<code class="docutils literal notranslate"><span class="pre">max(balance_queue)</span> <span class="pre">==</span> <span class="pre">max_num_running_reqs</span></code>, computed on every rank from the
+previous step's gathered <code class="docutils literal notranslate"><span class="pre">len(running)</span></code>. When true, no rank admits a new
+WAITING request. The comparison is <code class="docutils literal notranslate"><span class="pre">==</span></code> against the configured
+<code class="docutils literal notranslate"><span class="pre">max_num_running_reqs</span></code> — <strong>not</strong> <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>, <strong>not</strong> &quot;catch up to leader&quot;.</p></li>
+<li><p><strong>Same inputs ⇒ same outputs.</strong> Given the same <code class="docutils literal notranslate"><span class="pre">self.running</span></code>, <code class="docutils literal notranslate"><span class="pre">self.waiting</span></code>,
+<code class="docutils literal notranslate"><span class="pre">self.skipped_waiting</span></code>, <code class="docutils literal notranslate"><span class="pre">balance_queue</span></code>, and token budget, the refactored
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> produces a <code class="docutils literal notranslate"><span class="pre">SchedulerOutput</span></code> identical to the current
+implementation (same scheduled / preempted / resumed sets, same
+<code class="docutils literal notranslate"><span class="pre">num_scheduled_tokens</span></code>, same connector metadata).</p></li>
+<li><p><strong>Gather cadence unchanged.</strong> Exactly one <code class="docutils literal notranslate"><span class="pre">all_gather</span></code> per active engine step,
+on the same DP group, payload still <code class="docutils literal notranslate"><span class="pre">len(self.running)</span></code>, skipped consistently
+by all ranks when all are idle. Only the call site moved.</p></li>
+<li><p><strong>Disabled path unchanged.</strong> When <code class="docutils literal notranslate"><span class="pre">enable_balance_scheduling</span></code> is false,
+<code class="docutils literal notranslate"><span class="pre">_balance_run_engine_core</span></code> restores the module-level <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code> to
+the upstream original and the engine core runs upstream's implementation
+verbatim; <code class="docutils literal notranslate"><span class="pre">BalanceScheduler</span></code> with <code class="docutils literal notranslate"><span class="pre">_balance_enabled=False</span></code> delegates
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> to <code class="docutils literal notranslate"><span class="pre">super().schedule()</span></code>, does not allocate <code class="docutils literal notranslate"><span class="pre">balance_queue</span></code>, and
+performs no collective communication. I.e. balance does not touch any config
+when off (including PD-disaggregated recompute / <code class="docutils literal notranslate"><span class="pre">AsyncRecomputeScheduler</span></code>,
+which is already mutually exclusive with balance via <code class="docutils literal notranslate"><span class="pre">platform.py</span></code>; this is a
+second layer of defense).</p></li>
+<li><p><strong>Existing constraints still apply.</strong> The <code class="docutils literal notranslate"><span class="pre">profiling_chunk_config</span></code> mutex (see
+<code class="docutils literal notranslate"><span class="pre">vllm_ascend/ascend_config.py</span></code>) and the PD-mixed-mode restriction (see
+<code class="docutils literal notranslate"><span class="pre">vllm_ascend/platform.py</span></code>) are still enforced where they were.</p></li>
+</ol>
+</section>
+<section id="post-refactor-file-shape">
+<h2>Post-refactor file shape<a class="headerlink" href="#post-refactor-file-shape" title="Link to this heading"></a></h2>
+<p>After this round (Phase 1 + 2A + 3), the key structure is as follows. The
+<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> body is a verbatim copy of release tag <code class="docutils literal notranslate"><span class="pre">v0.23.0</span></code> (cannot be
+deleted before Phase 2B), with three documented deltas (disabled-path early
+return + the <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> gate in the WAITING loop + <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">None:</span> <span class="pre">break</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># vllm_ascend/patch/platform/patch_balance_schedule.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch.distributed</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dist</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vllm.v1.core.sched.scheduler</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_sched_mod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vllm.v1.engine.core</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_engine_core_mod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm.v1.core.sched.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scheduler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm.v1.engine.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">DPEngineCoreProc</span><span class="p">,</span> <span class="n">EngineCoreProc</span>
+<span class="c1"># ... other vllm imports ...</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_balance_scheduling_enabled</span><span class="p">(</span><span class="n">vllm_config</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">vllm_ascend.ascend_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ascend_config</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_ascend_config</span><span class="p">()</span><span class="o">.</span><span class="n">enable_balance_scheduling</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">additional_config</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">vllm_config</span><span class="p">,</span> <span class="s2">&quot;additional_config&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="s2">&quot;enable_balance_scheduling&quot;</span> <span class="ow">in</span> <span class="n">additional_config</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">additional_config</span><span class="p">[</span><span class="s2">&quot;enable_balance_scheduling&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># no longer reads the env var itself; VLLM_ASCEND_BALANCE_SCHEDULING is parsed by AscendConfig</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BalanceScheduler</span><span class="p">(</span><span class="n">Scheduler</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">...</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_balance_enabled</span> <span class="o">=</span> <span class="n">_balance_scheduling_enabled</span><span class="p">(</span><span class="n">vllm_config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dp_group</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># injected by BalanceDPEngineCoreProc before the first gather</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_balance_enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">balance_queue</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="o">...</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dp_size</span><span class="p">)]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">balance_gather</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># uses self.dp_group; no-op when disabled / not injected</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_balance_enabled</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_group</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">running_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">)],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="n">dist</span><span class="o">.</span><span class="n">all_gather</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">balance_queue</span><span class="p">,</span> <span class="n">running_tensor</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dp_group</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">throttle_prefills</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SchedulerOutput</span><span class="p">:</span>  <span class="c1"># two-version union: both v0.23.0&#39;s schedule() and 1f486d96&#39;s schedule(throttle_prefills) bind</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_balance_enabled</span><span class="p">:</span>  <span class="c1"># delta 1: disabled-path early return</span>
+            <span class="c1"># Whether to forward throttle_prefills is decided by signature introspection</span>
+            <span class="c1"># (_SUPER_SCHEDULE_HAS_THROTTLE), not a version string -- correct on both CI lanes</span>
+            <span class="c1"># and unaffected by a dev checkout&#39;s bad __version__.</span>
+            <span class="k">if</span> <span class="n">_SUPER_SCHEDULE_HAS_THROTTLE</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span><span class="n">throttle_prefills</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">schedule</span><span class="p">()</span>
+        <span class="c1"># NOTE: balance_gather is NOT called here -- see BalanceDPEngineCoreProc.</span>
+        <span class="c1"># ... upstream schedule() body (verbatim-aligned to the v0.23.0 tag) ...</span>
+        <span class="c1">#   # inside the WAITING loop (deltas 2, 3):</span>
+        <span class="c1">#   if max(t.item() for t in self.balance_queue) == self.max_num_running_reqs:  # delta 2: leader-at-cap =&gt; global freeze</span>
+        <span class="c1">#       break</span>
+        <span class="c1">#   request_queue = self._select_waiting_queue_for_scheduling()</span>
+        <span class="c1">#   if request_queue is None:  # delta 3: keep if-break (upstream has assert)</span>
+        <span class="c1">#       break</span>
+        <span class="c1"># ...</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BalanceDPEngineCoreProc</span><span class="p">(</span><span class="n">DPEngineCoreProc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hook _has_global_unfinished_reqs: inject dp_group + one balance_gather per</span>
+<span class="sd">    active step. Gather MUST sit immediately after super()._has_global_unfinished_reqs()</span>
+<span class="sd">    (the only per-iteration cross-rank sync) -- NOT inside _process_engine_step</span>
+<span class="sd">    (which runs before that sync and before the idle continue gate, and would</span>
+<span class="sd">    deadlock at wave boundaries -&gt; sample_tokens timeout), and NOT inside</span>
+<span class="sd">    schedule() (drained ranks skip schedule() and would miss the all_gather).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_has_global_unfinished_reqs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local_unfinished</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_has_global_unfinished_reqs</span><span class="p">(</span><span class="n">local_unfinished</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheduler</span><span class="o">.</span><span class="n">dp_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_group</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scheduler</span><span class="o">.</span><span class="n">balance_gather</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="n">_OriginalDPEngineCoreProc</span> <span class="o">=</span> <span class="n">_engine_core_mod</span><span class="o">.</span><span class="n">DPEngineCoreProc</span>
+<span class="n">_OriginalRunEngineCore</span> <span class="o">=</span> <span class="n">EngineCoreProc</span><span class="o">.</span><span class="n">run_engine_core</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_balance_run_engine_core</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dp_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">local_dp_rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="c1"># Conditional activation: swap the module-level DPEngineCoreProc only when balance is on.</span>
+    <span class="k">if</span> <span class="n">_balance_scheduling_enabled</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vllm_config&quot;</span><span class="p">)):</span>
+        <span class="n">_engine_core_mod</span><span class="o">.</span><span class="n">DPEngineCoreProc</span> <span class="o">=</span> <span class="n">BalanceDPEngineCoreProc</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_engine_core_mod</span><span class="o">.</span><span class="n">DPEngineCoreProc</span> <span class="o">=</span> <span class="n">_OriginalDPEngineCoreProc</span>
+    <span class="k">return</span> <span class="n">_OriginalRunEngineCore</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dp_rank</span><span class="o">=</span><span class="n">dp_rank</span><span class="p">,</span> <span class="n">local_dp_rank</span><span class="o">=</span><span class="n">local_dp_rank</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="c1"># Scheduler is constructed by module-global name when scheduler_cls is unset</span>
+<span class="c1"># (the PD-mixed balance path); recompute / dynamic-batch / profiling schedulers</span>
+<span class="c1"># set scheduler_cls and bypass this name, which is correct.</span>
+<span class="n">_sched_mod</span><span class="o">.</span><span class="n">Scheduler</span> <span class="o">=</span> <span class="n">BalanceScheduler</span>
+<span class="n">EngineCoreProc</span><span class="o">.</span><span class="n">run_engine_core</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">_balance_run_engine_core</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This round deleted the ~95-line <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> + <code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> copies and
+their dead imports, and added the module docstring, comments, and the
+<code class="docutils literal notranslate"><span class="pre">_balance_run_engine_core</span></code> conditional-activation wrapper; the net line count
+barely dropped, but <strong>what it removes is stale-drift risk</strong> (the old copies had
+fallen behind upstream's <code class="docutils literal notranslate"><span class="pre">_handle_shutdown</span></code> / <code class="docutils literal notranslate"><span class="pre">eep_scaling_state</span></code> /
+<code class="docutils literal notranslate"><span class="pre">SignalCallback</span></code> evolution) and it fixes the balance-enabled deadlock (gather
+first inside <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>, then inside <code class="docutils literal notranslate"><span class="pre">_process_engine_step</span></code>; now after
+<code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code>).</p>
+<blockquote>
+<div><p>Phase 2B (upstream provides <code class="docutils literal notranslate"><span class="pre">_should_stop_admitting_waiting</span></code>) is what deletes
+the ~520-line <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy and shrinks the file to roughly <strong>60–80 lines
+with zero verbatim upstream copy</strong>.</p>
+</div></blockquote>
+</section>
+<section id="test-plan">
+<h2>Test plan<a class="headerlink" href="#test-plan" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Signature + intent lock + verbatim drift test (Phase 2A).</strong> Assert: (a)
+<code class="docutils literal notranslate"><span class="pre">BalanceScheduler.schedule</span></code>'s signature is <strong>bindable by both engine call
+shapes</strong> (<code class="docutils literal notranslate"><span class="pre">schedule()</span></code> and <code class="docutils literal notranslate"><span class="pre">schedule(throttle_prefills=...)</span></code>) <strong>and is a
+superset of the installed <code class="docutils literal notranslate"><span class="pre">Scheduler.schedule</span></code> parameter set</strong> — note this is
+NOT &quot;signature line equals installed&quot;, because under dual-version CI the two
+lanes' installed signatures differ and an equality assertion can only pass on
+one lane (this locks the &quot;dual versions ⇒ take the union&quot; lesson); (b) the 3
+balance delta lines must exist in the body (disabled-path <code class="docutils literal notranslate"><span class="pre">super().schedule()</span></code>
+delegation, the <code class="docutils literal notranslate"><span class="pre">balance_flag</span></code> gate in the WAITING loop,
+<code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">request_queue</span> <span class="pre">is</span> <span class="pre">None:</span> <span class="pre">break</span></code>); (c) the <code class="docutils literal notranslate"><span class="pre">_balance_run_engine_core</span></code>
+wrapper is installed and <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code> is <strong>not</strong> swapped at import
+(deferred to the wrapper, swapped conditionally on call); (d) upstream
+<code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc._has_global_unfinished_reqs</span></code> still exists (the gather
+injection point — it MUST be called every non-idle iteration or the
+all_gather deadlocks); (e) upstream <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code> seam methods (including
+<code class="docutils literal notranslate"><span class="pre">_build_kv_connector_meta</span></code>, <code class="docutils literal notranslate"><span class="pre">_inflight_prefill_reserved_blocks</span></code>) still exist;
+(f) <strong>verbatim drift detection</strong> — first read the release tag from
+<code class="docutils literal notranslate"><span class="pre">.github/vllm-release-tag.commit</span></code> (same source as CI, <strong>not hardcoded, not
+read from a design doc</strong>), then <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">show</span> <span class="pre">&lt;tag&gt;:vllm/v1/core/sched/scheduler.py</span></code>
+to fetch that tag's <code class="docutils literal notranslate"><span class="pre">schedule()</span></code>, strip the same 3 deltas, and AST-compare it
+verbatim against <code class="docutils literal notranslate"><span class="pre">BalanceScheduler.schedule</span></code>'s source; the two must be
+identical. Reading the pin file means a pin advance <strong>automatically</strong> flips
+the test to compare against the new tag and go red, signaling &quot;the copy needs
+re-syncing&quot; — exactly the maintenance signal we want; if the pin file or tag
+is unreachable (e.g. vLLM not a source checkout, running outside the
+vllm-ascend tree), the test is skipped, not failed.</p></li>
+<li><p><strong>Behavior-equivalence test.</strong> Build a <code class="docutils literal notranslate"><span class="pre">BalanceScheduler</span></code> with a fake DP
+group and a hand-set <code class="docutils literal notranslate"><span class="pre">balance_queue</span></code>, drive <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> under several
+representative states (leader-at-cap freeze, lagging rank not full, disabled,
+empty waiting), and assert the <code class="docutils literal notranslate"><span class="pre">SchedulerOutput</span></code> is identical (contract item
+2). Reuse the balance test scaffolding in <code class="docutils literal notranslate"><span class="pre">tests/ut/test_platform.py</span></code>.</p></li>
+<li><p><strong>Gather cadence test.</strong> Mock <code class="docutils literal notranslate"><span class="pre">torch.distributed.all_gather</span></code> (note: inside
+<code class="docutils literal notranslate"><span class="pre">balance_gather</span></code>, <code class="docutils literal notranslate"><span class="pre">dist</span> <span class="pre">=</span> <span class="pre">torch.distributed</span></code>, so the mock target must be
+<code class="docutils literal notranslate"><span class="pre">torch.distributed.all_gather</span></code>, not <code class="docutils literal notranslate"><span class="pre">vllm.distributed.all_gather</span></code>); assert
+that each <code class="docutils literal notranslate"><span class="pre">balance_gather()</span></code> does exactly one <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>, with payload
+<code class="docutils literal notranslate"><span class="pre">len(self.running)</span></code> and the injected dp_group (contract item 3).</p></li>
+<li><p><strong>Disabled-path test.</strong> With the flag off, assert <code class="docutils literal notranslate"><span class="pre">balance_queue</span></code> is not
+allocated, <code class="docutils literal notranslate"><span class="pre">all_gather</span></code> is not called, and <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> delegates to
+<code class="docutils literal notranslate"><span class="pre">super().schedule()</span></code> (contract item 4).</p></li>
+<li><p><strong>NPU performance check.</strong> Per AGENTS.md's NPU guidance,
+<code class="docutils literal notranslate"><span class="pre">max(t.item()</span> <span class="pre">for</span> <span class="pre">t</span> <span class="pre">in</span> <span class="pre">self.balance_queue)</span></code> triggers one host sync per step
+(unavoidable, since this value drives host-side control flow). Profile to
+confirm the refactor introduces <strong>no</strong> extra sync beyond the current one.</p></li>
+</ol>
+</section>
+<section id="phased-rollout">
+<h2>Phased rollout<a class="headerlink" href="#phased-rollout" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Phase</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>Risk</p></th>
+<th class="head"><p>Depends on</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Hook gather onto <code class="docutils literal notranslate"><span class="pre">_has_global_unfinished_reqs</span></code> (after the cross-rank all-reduce — avoids both the schedule()-skip deadlock and the _process_engine_step wave-boundary deadlock); slim <code class="docutils literal notranslate"><span class="pre">BalanceDPEngineCoreProc</span></code> to that hook; delete the <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code>/<code class="docutils literal notranslate"><span class="pre">run_busy_loop</span></code> copies; <code class="docutils literal notranslate"><span class="pre">run_engine_core</span></code> wrapper conditionally activates <code class="docutils literal notranslate"><span class="pre">DPEngineCoreProc</span></code>; module-level <code class="docutils literal notranslate"><span class="pre">Scheduler</span></code> swap</p></td>
+<td><p>Low</p></td>
+<td><p>none</p></td>
+<td><p>✅ Done</p></td>
+</tr>
+<tr class="row-odd"><td><p>2A</p></td>
+<td><p>Override signature takes the <strong>two-version union</strong> (<code class="docutils literal notranslate"><span class="pre">schedule(self,</span> <span class="pre">throttle_prefills=False)</span></code>, CI runs v0.23.0 + 1f486d96 at once); <strong>body aligned verbatim to the release tag</strong> (only the 3 balance deltas); disabled path delegates to <code class="docutils literal notranslate"><span class="pre">super()</span></code> via <strong>signature introspection</strong> (<code class="docutils literal notranslate"><span class="pre">_SUPER_SCHEDULE_HAS_THROTTLE</span></code>); signature-callability + intent-lock + release-tag verbatim drift tests</p></td>
+<td><p>Low</p></td>
+<td><p>none</p></td>
+<td><p>✅ Done</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Collapse config probing to two fallbacks (AscendConfig → additional_config); remove the direct env-var read (still parsed centrally by AscendConfig)</p></td>
+<td><p>Low</p></td>
+<td><p>Phase 1</p></td>
+<td><p>✅ Done</p></td>
+</tr>
+<tr class="row-odd"><td><p>2B</p></td>
+<td><p>Upstream <code class="docutils literal notranslate"><span class="pre">_should_stop_admitting_waiting</span></code> PR; delete the <code class="docutils literal notranslate"><span class="pre">schedule()</span></code> copy</p></td>
+<td><p>Med</p></td>
+<td><p>upstream review</p></td>
+<td><p>⏳ TODO</p></td>
+</tr>
+<tr class="row-even"><td><p>Tests</p></td>
+<td><p>Drift regression / behavior equivalence / gather cadence / disabled path / NPU performance check</p></td>
+<td><p>Low</p></td>
+<td><p>Phase 1 + 2A</p></td>
+<td><p>⏳ TODO (needs NPU)</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each phase can be released and rolled back independently. Phases 1, 2A, and 3
+can land in the same release; 2B lands when the upstream PR merges.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

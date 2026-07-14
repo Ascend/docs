@@ -1,0 +1,1318 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU Support &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="ROLL" href="../../../../../roll/index.html" />
+    <link rel="prev" title="NPU支持" href="../../source/BestPractices/NPU-support.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../source/BestPractices/NPU-support.html">NPU支持</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU Support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#hardware-and-supported-operating-systems">Hardware and Supported Operating Systems</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#support-scope-at-a-glance">Support Scope at a Glance</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#verified-sft-combinations">Verified SFT Combinations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#verified-rl-combinations">Verified RL Combinations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#not-yet-supported-or-not-fully-verified">Not Yet Supported or Not Fully Verified</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peft-transformers-5-moe-fused-expert-lora-limitation">PEFT Transformers 5 MoE Fused Expert LoRA Limitation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-your-usage-path">Choose Your Usage Path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-preparation">Environment Preparation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#image-container-environment-installation">Image/Container Environment Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#local-environment-installation">Local Environment Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#npu-availability-check">NPU Availability Check</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-mindspeed-megatron-swift-installation">Optional MindSpeed/Megatron-SWIFT Installation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qwen3-5-fla-patch-notes">Qwen3.5 FLA Patch Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#environment-viewing">Environment Viewing</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#quick-start-modelscope-model-dataset">Quick Start: ModelScope Model + Dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#training">Training</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#single-card-training">Single-Card Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#data-parallel-training">Data Parallel Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deepspeed-training">DeepSpeed Training</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qwen3-5-single-node-multi-card-lora-example">Qwen3.5 Single-Node Multi-Card LoRA Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#npu-model-patch-switch">NPU Model Patch Switch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#model-saving-merge-lora-and-resume-training">Model Saving, Merge LoRA, and Resume Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inference">Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deployment">Deployment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-with-native-transformers">Deployment with Native Transformers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deployment-with-vllm-ascend">Deployment with vLLM-Ascend</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#evaluation">Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#release">Release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#faq">FAQ</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q1-how-do-i-confirm-that-the-current-environment-detects-npus-correctly">Q1: How do I confirm that the current environment detects NPUs correctly?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q2-how-should-i-choose-between-fsdp-deepspeed-and-megatron-swift">Q2: How should I choose between FSDP, DeepSpeed, and Megatron-SWIFT?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q3-do-i-need-to-manually-disable-the-npu-model-patch">Q3: Do I need to manually disable the NPU model patch?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q4-what-should-i-know-when-using-vllm-ascend-for-deployment-or-rl-rollout">Q4: What should I know when using vLLM-Ascend for deployment or RL rollout?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q5-what-happens-if-i-forget-to-run-source-set-env-sh">Q5: What happens if I forget to run <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q6-how-do-i-diagnose-a-torch-and-torch-npu-version-mismatch">Q6: How do I diagnose a <code class="docutils literal notranslate"><span class="pre">torch</span></code> and <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> version mismatch?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q7-what-happens-if-ascend-rt-visible-devices-and-nproc-per-node-do-not-match">Q7: What happens if <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> and <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code> do not match?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q8-what-should-i-check-first-when-multi-card-training-hangs">Q8: What should I check first when multi-card training hangs?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q9-how-do-i-initially-troubleshoot-hccl-connection-or-timeout-issues">Q9: How do I initially troubleshoot HCCL connection or timeout issues?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q10-why-is-npu-smi-unavailable-inside-the-container">Q10: Why is <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> unavailable inside the container?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q11-how-should-i-choose-between-native-transformers-deployment-and-vllm-ascend-deployment">Q11: How should I choose between native transformers deployment and vLLM-Ascend deployment?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q12-what-should-i-do-if-vllm-ascend-reports-device-type-mismatch-or-undefined-symbol">Q12: What should I do if vLLM-Ascend reports device type mismatch or undefined symbol?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q13-can-fp8-or-quantized-models-be-trained-directly-on-npus">Q13: Can FP8 or quantized models be trained directly on NPUs?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q14-how-do-i-troubleshoot-megatron-swift-importing-the-wrong-megatron-mindspeed">Q14: How do I troubleshoot Megatron-SWIFT importing the wrong Megatron/MindSpeed?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#npu-wechat-group">NPU WeChat Group</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../ms-swift/index.html">ms-swift</a></li>
+      <li class="breadcrumb-item active">NPU Support</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source_en/BestPractices/NPU-support.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu-support">
+<h1>NPU Support<a class="headerlink" href="#npu-support" title="Link to this heading"></a></h1>
+<p>ms-swift supports Ascend NPUs. You can fine-tune models and run inference on Ascend NPUs.</p>
+<p>This document describes how to prepare the environment, train models, save and merge checkpoints, run inference, deploy services, and troubleshoot common issues on Ascend NPUs.</p>
+<p>If this is your first time using ms-swift on NPUs, we recommend reading this document in the following order:</p>
+<ol class="arabic simple">
+<li><p>Check &quot;Support Scope at a Glance&quot; first to confirm whether your model, algorithm, and backend have been verified.</p></li>
+<li><p>Use &quot;Choose Your Usage Path&quot; to decide whether you only need the base environment or also need MindSpeed/Megatron-SWIFT.</p></li>
+<li><p>Choose &quot;Local Environment Installation&quot; or &quot;Image/Container Environment Installation&quot; according to your own environment management preference, then run &quot;NPU Availability Check&quot;.</p></li>
+<li><p>Use &quot;Quick Start&quot; to complete one ModelScope model LoRA training, merge, inference, and deployment flow.</p></li>
+<li><p>For larger-scale training, continue reading the DDP, DeepSpeed, and MindSpeed/Megatron-SWIFT sections.</p></li>
+</ol>
+<section id="hardware-and-supported-operating-systems">
+<h2>Hardware and Supported Operating Systems<a class="headerlink" href="#hardware-and-supported-operating-systems" title="Link to this heading"></a></h2>
+<p><strong>Table 1</strong> Product hardware support list</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Product</p></th>
+<th class="head text-center"><p>Supported</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><term>Ascend 950 series products</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas A3 training series products</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas A3 inference series products</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas A2 training series products</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas A2 inference series products</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas 200I/500 A2 inference products</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas inference series products</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas training series products</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>[!NOTE]</p>
+<p>In this section, &quot;√&quot; indicates supported and &quot;x&quot; indicates not supported.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>For operating systems supported by each hardware product in physical-machine deployment scenarios, see the <a class="reference external" href="https://www.hiascend.com/hardware/compatibility">Compatibility Query Assistant</a>.</p></li>
+<li><p>For operating systems supported by each hardware product in VM and container deployment scenarios, see &quot;Operating System Compatibility&quot; in CANN Software Installation for the <a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/900/softwareinst/instg/instg_0101.html?OS=openEuler&amp;amp;InstallType=netyum">commercial edition</a> or <a class="reference external" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/softwareinst/instg/instg_0101.html?OS=openEuler&amp;amp;InstallType=netyum">community edition</a>.</p></li>
+</ul>
+</section>
+<section id="support-scope-at-a-glance">
+<h2>Support Scope at a Glance<a class="headerlink" href="#support-scope-at-a-glance" title="Link to this heading"></a></h2>
+<p>Recommended base environment versions:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>software</p></th>
+<th class="head"><p>version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>&gt;= 3.10, &lt; 3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>&gt;= 8.5.1</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>&gt;= 2.7.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>&gt;= 2.7.1.post4</p></td>
+</tr>
+<tr class="row-even"><td><p>Note: The officially recommended version compatibility matrix for the vLLM Ascend series has been updated to CANN 9.0.0, torch 2.9.0, torch_npu 2.9.0, vllm-ascend 0.18.0 for A3, and vllm-ascend 0.19.1 for A5. For details, see the <a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/v0.18.0/installation.html">vLLM Ascend installation guide</a>.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p>For base environment setup, see the <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch installation guide</a>. The examples in this document were verified on 8 * Ascend 910B3 64G.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Primary feature</p></th>
+<th class="head"><p>Feature</p></th>
+<th class="head"><p>Status</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Training</p></td>
+<td><p>CPT</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>SFT</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>DPO</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>RM</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p>Distributed</p></td>
+<td><p>DDP</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>FSDP</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>FSDP2</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>DeepSpeed</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>MindSpeed(Megatron)</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p>PEFT</p></td>
+<td><p>FULL</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>LoRA</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>QLoRA</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-even"><td><p>RLHF</p></td>
+<td><p>GRPO</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>PPO</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p>Optimization</p></td>
+<td><p>FA and other fused ops</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>Liger-Kernel</p></td>
+<td><p>Not supported</p></td>
+</tr>
+<tr class="row-even"><td><p>Deployment</p></td>
+<td><p>PT</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>vLLM</p></td>
+<td><p>Supported</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>SGLang</p></td>
+<td><p>Not supported</p></td>
+</tr>
+</tbody>
+</table>
+<section id="verified-sft-combinations">
+<h3>Verified SFT Combinations<a class="headerlink" href="#verified-sft-combinations" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>algorithm</p></th>
+<th class="head"><p>model families</p></th>
+<th class="head"><p>strategy</p></th>
+<th class="head"><p>hardware</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-0.5B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-1.5B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-VL-3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-VL-7B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-Omni-3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3-30B-A3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-32B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3-VL-30B-A3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-Omni-30B-A3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>InternVL3-8B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Ovis2.5-2B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3.5-27B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3.5-35B-A3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="verified-rl-combinations">
+<h3>Verified RL Combinations<a class="headerlink" href="#verified-rl-combinations" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>algorithm</p></th>
+<th class="head"><p>model families</p></th>
+<th class="head"><p>strategy</p></th>
+<th class="head"><p>rollout engine</p></th>
+<th class="head"><p>hardware</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>GRPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GRPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>DPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>DPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>PPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="not-yet-supported-or-not-fully-verified">
+<h3>Not Yet Supported or Not Fully Verified<a class="headerlink" href="#not-yet-supported-or-not-fully-verified" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>item</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Liger-kernel</p></td>
+</tr>
+<tr class="row-odd"><td><p>Quantization/QLoRA related features</p></td>
+</tr>
+<tr class="row-even"><td><p>Using SGLang as the inference engine</p></td>
+</tr>
+<tr class="row-odd"><td><p>Enabling ETP for LoRA training in Megatron</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="peft-transformers-5-moe-fused-expert-lora-limitation">
+<h3>PEFT Transformers 5 MoE Fused Expert LoRA Limitation<a class="headerlink" href="#peft-transformers-5-moe-fused-expert-lora-limitation" title="Link to this heading"></a></h3>
+<p>When training Transformers 5 MoE models such as Qwen3.5-MoE and Qwen3-Omni-MoE with LoRA, some expert weights may be stored as fused <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code> tensors instead of ordinary <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> modules. Injecting LoRA into these parameters relies on PEFT's <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> path.</p>
+<p>This path is not fully stable yet with combinations such as <code class="docutils literal notranslate"><span class="pre">lora_dropout</span></code>, ZeRO-3/FSDP, and multiple adapters. Typical trigger conditions include:</p>
+<ul class="simple">
+<li><p>using a MoE model;</p></li>
+<li><p>using LoRA and trying to cover fused expert parameters;</p></li>
+<li><p>triggering PEFT's Transformers 5 MoE target conversion path through the model config or the command-line <code class="docutils literal notranslate"><span class="pre">--model_type</span></code>;</p></li>
+<li><p>using the default <code class="docutils literal notranslate"><span class="pre">lora_dropout</span> <span class="pre">!=</span> <span class="pre">0</span></code>, or using parameter-sharding backends such as ZeRO-3/FSDP.</p></li>
+</ul>
+<p>For regular Qwen3.5 GRPO/SFT LoRA training, avoid explicitly passing <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> when it is not needed. If the model config itself already triggers this PEFT path, prefer full-parameter training or disable the affected LoRA combination. If fused expert LoRA is required, wait for the PEFT upstream support to stabilize, or use it only after validating the target model and training backend with <code class="docutils literal notranslate"><span class="pre">lora_dropout=0</span></code>.</p>
+</section>
+</section>
+<section id="choose-your-usage-path">
+<h2>Choose Your Usage Path<a class="headerlink" href="#choose-your-usage-path" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Scenario</p></th>
+<th class="head"><p>Recommended path</p></th>
+<th class="head"><p>Need MindSpeed</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Ordinary SFT/LoRA/inference</p></td>
+<td><p>Local environment installation or image/container installation</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>Megatron-SWIFT large-model training</p></td>
+<td><p>Install the base environment, then install MindSpeed/Megatron/mcore-bridge</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p>GRPO/PPO/DPO and other RLHF workflows</p></td>
+<td><p>Base training environment + vLLM-Ascend rollout/deploy</p></td>
+<td><p>Usually no</p></td>
+</tr>
+<tr class="row-odd"><td><p>Only verifying whether NPUs are usable</p></td>
+<td><p>Run the NPU availability check script</p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="environment-preparation">
+<h2>Environment Preparation<a class="headerlink" href="#environment-preparation" title="Link to this heading"></a></h2>
+<section id="image-container-environment-installation">
+<h3>Image/Container Environment Installation<a class="headerlink" href="#image-container-environment-installation" title="Link to this heading"></a></h3>
+<p>The official NPU image is available at <a class="reference external" href="https://quay.io/repository/ascend/ms-swift?tab=tags">quay.io/ascend/ms-swift</a>. We recommend choosing an image tag that matches your device generation, Python version, CANN version, and OS version first. If you need to pin a branch or customize dependencies, build the image from the Dockerfile provided by the project. The container approach makes dependency versions easier to freeze and helps reproduce the same environment across multiple Ascend machines.</p>
+<p>The following example uses the A2, Python 3.11, CANN 9.0.0, Ubuntu 22.04 tag. In actual use, choose the latest tag from the Quay tag page that matches your machine and software stack.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>quay.io/ascend/ms-swift:v4.3.0-A2-py311-CANN9.0.0-ubuntu22.04
+<span class="nb">export</span><span class="w"> </span><span class="nv">IMAGE_NAME</span><span class="o">=</span>quay.io/ascend/ms-swift:v4.3.0-A2-py311-CANN9.0.0-ubuntu22.04
+<span class="nb">export</span><span class="w"> </span><span class="nv">WORKSPACE</span><span class="o">=</span>/path/to/workspace
+</pre></div>
+</div>
+<p>If you need to build the image yourself, clone the modelscope repository first, then use <a class="reference external" href="https://github.com/modelscope/modelscope/blob/master/docker/Dockerfile.ascend">Dockerfile.ascend</a> and <a class="reference external" href="https://github.com/modelscope/modelscope/blob/master/docker/build_image.py">build_image.py</a>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/modelscope.git
+<span class="nb">cd</span><span class="w"> </span>modelscope
+<span class="nv">DOCKER_REGISTRY</span><span class="o">=</span>ms-swift<span class="w"> </span>python<span class="w"> </span>docker/build_image.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--image_type<span class="w"> </span>ascend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--python_version<span class="w"> </span><span class="m">3</span>.11.11<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--soc_version<span class="w"> </span>ascend910b1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--arch<span class="w"> </span>arm
+</pre></div>
+</div>
+<p>The current <code class="docutils literal notranslate"><span class="pre">build_image.py</span></code> generates Ascend image names in the format <code class="docutils literal notranslate"><span class="pre">{DOCKER_REGISTRY}:{swift_branch}-{atlas_hardware}-{python_tag}-{arch}</span></code>. The command above uses the ARM-based Atlas 900 A2 PODc as an example and usually generates <code class="docutils literal notranslate"><span class="pre">ms-swift:main-A2-py311-arm</span></code>. If you use a self-built image, replace <code class="docutils literal notranslate"><span class="pre">IMAGE_NAME</span></code> above with the actual image name from your build log.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">IMAGE_NAME</span><span class="o">=</span>ms-swift:main-A2-py311-arm
+</pre></div>
+</div>
+<p>Before starting the container, check which NPU devices are exposed on the host:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>/dev/davinci*
+</pre></div>
+</div>
+<p>When starting the container, mount the NPU devices, driver, firmware, <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code>, and required log directories. The following example uses the common 8-card device range <code class="docutils literal notranslate"><span class="pre">davinci0</span></code> to <code class="docutils literal notranslate"><span class="pre">davinci7</span></code>. Some machines may also expose devices up to <code class="docutils literal notranslate"><span class="pre">davinci15</span></code>; in that case, add the corresponding devices to <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> according to the output of <code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">/dev/davinci*</span></code>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>swift-ascend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--network<span class="o">=</span>host<span class="w"> </span>--ipc<span class="o">=</span>host<span class="w"> </span>--shm-size<span class="o">=</span>128g<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci0<span class="w"> </span>--device<span class="o">=</span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci2<span class="w"> </span>--device<span class="o">=</span>/dev/davinci3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci4<span class="w"> </span>--device<span class="o">=</span>/dev/davinci5<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci6<span class="w"> </span>--device<span class="o">=</span>/dev/davinci7<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci_manager<span class="w"> </span>--device<span class="o">=</span>/dev/devmm_svm<span class="w"> </span>--device<span class="o">=</span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/Ascend/driver:/usr/local/Ascend/driver:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/Ascend/firmware:/usr/local/Ascend/firmware:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/etc/ascend_install.info:/etc/ascend_install.info:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/var/log/npu:/var/log/npu<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="si">${</span><span class="nv">WORKSPACE</span><span class="si">}</span>:/workspace<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="si">${</span><span class="nv">IMAGE_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/bin/bash
+</pre></div>
+</div>
+<p>After entering the container, run <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code> first, then run the NPU availability check below to confirm that the container can access the Ascend devices. If the container cannot detect NPUs, check <code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code>, <code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>, the driver directory, and <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> mounts first.</p>
+</section>
+<section id="local-environment-installation">
+<h3>Local Environment Installation<a class="headerlink" href="#local-environment-installation" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a new conda virtual environment (optional)</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>swift-npu<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>swift-npu
+
+<span class="c1"># Source the CANN environment before the following steps</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+
+<span class="c1"># Set the global pip mirror (optional, speeds up downloads)</span>
+pip<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>global.index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/
+pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U
+
+<span class="c1"># Install from source</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/ms-swift.git
+<span class="nb">cd</span><span class="w"> </span>ms-swift
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+
+<span class="c1"># Install torch_npu</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span>decorator
+<span class="c1"># If you want to use deepspeed (to reduce memory usage, with some speed overhead)</span>
+pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+
+<span class="c1"># If you need evaluation features, install the following package</span>
+pip<span class="w"> </span>install<span class="w"> </span>evalscope<span class="o">[</span>opencompass<span class="o">]</span>
+
+<span class="c1"># If you need vllm-ascend for inference, install the following packages (for more versions, see the [vLLM-Ascend official website](https://docs.vllm.ai/projects/ascend/en/latest/installation.html))</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.18.0
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.18.0
+</pre></div>
+</div>
+</section>
+<section id="npu-availability-check">
+<h3>NPU Availability Check<a class="headerlink" href="#npu-availability-check" title="Link to this heading"></a></h3>
+<p>Check whether the environment is installed correctly and whether NPUs can be loaded:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_torch_npu_available</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">is_torch_npu_available</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>  <span class="c1"># 8</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="optional-mindspeed-megatron-swift-installation">
+<h3>Optional MindSpeed/Megatron-SWIFT Installation<a class="headerlink" href="#optional-mindspeed-megatron-swift-installation" title="Link to this heading"></a></h3>
+<p>If you need MindSpeed(Megatron-LM), install the required dependencies as follows.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Clone Megatron-LM and switch to v0.16.0</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/Megatron-LM.git
+<span class="nb">cd</span><span class="w"> </span>Megatron-LM
+git<span class="w"> </span>checkout<span class="w"> </span>core_v0.16.0
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 2. Clone and install MindSpeed</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://gitcode.com/Ascend/MindSpeed.git
+<span class="nb">cd</span><span class="w"> </span>MindSpeed
+git<span class="w"> </span>checkout<span class="w"> </span>core_r0.16.0
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 3. Clone and install mcore-bridge</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/mcore-bridge.git
+<span class="nb">cd</span><span class="w"> </span>mcore-bridge
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 4. Download and install triton-ascend</span>
+pip<span class="w"> </span>install<span class="w"> </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.1<span class="w"> </span>--extra-index-url<span class="o">=</span>https://triton-ascend.osinfra.cn/pypi/simple
+
+<span class="c1"># 5. Set environment variables</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_local_megatron_lm_path&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">MEGATRON_LM_PATH</span><span class="o">=</span>&lt;your_local_megatron_lm_path&gt;
+
+<span class="c1"># 6. Disable Megatron GDN if you need to fall back to the transformers GatedDeltaNet implementation</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">USE_MCORE_GDN</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+<p>Run the following command to verify that MindSpeed(Megatron-LM) is configured correctly:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import mindspeed.megatron_adaptor; from swift.megatron.init import init_megatron_env; init_megatron_env(); print(&#39;✓ Megatron-SWIFT configuration verified successfully in the NPU environment!&#39;)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-fla-patch-notes">
+<h3>Qwen3.5 FLA Patch Notes<a class="headerlink" href="#qwen3-5-fla-patch-notes" title="Link to this heading"></a></h3>
+<p>The current repository already includes a built-in Qwen3.5 linear attention patch for Ascend NPUs, so users do not need to manually modify the <code class="docutils literal notranslate"><span class="pre">transformers</span></code> or <code class="docutils literal notranslate"><span class="pre">fla</span></code> source code. This patch does not replace the entire <code class="docutils literal notranslate"><span class="pre">flash-linear-attention</span></code> package directly. Instead, it redirects the low-level GPU Triton operator path used by <code class="docutils literal notranslate"><span class="pre">Qwen3.5</span></code> through <code class="docutils literal notranslate"><span class="pre">chunk_gated_delta_rule</span></code> to the MindSpeed NPU implementation.</p>
+<p>When the patch takes effect, ms-swift performs the following replacements:</p>
+<ol class="arabic simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">transformers.utils.is_flash_linear_attention_available</span></code> and <code class="docutils literal notranslate"><span class="pre">transformers.utils.import_utils.is_flash_linear_attention_available</span></code> to return <code class="docutils literal notranslate"><span class="pre">True</span></code>, so that <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5.modeling_qwen3_5</span></code> can complete initialization through the FLA fast path.</p></li>
+<li><p>Redirect <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5.modeling_qwen3_5.chunk_gated_delta_rule</span></code> and <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5_moe.modeling_qwen3_5_moe.chunk_gated_delta_rule</span></code> to the built-in ms-swift implementation <code class="docutils literal notranslate"><span class="pre">swift.model.chunk_gated_delta_rule.chunk_gated_delta_rule</span></code>.</p></li>
+<li><p>Inside <code class="docutils literal notranslate"><span class="pre">swift.model.chunk_gated_delta_rule</span></code>, continue calling the native Triton operators provided by MindSpeed, including:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_delta_h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_o</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_scaled_dot_kkt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.cumsum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.solve_tril</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.wy_fast</span></code></p></li>
+</ul>
+</li>
+<li><p>Keep the native torch l2norm helper, reducing per-layer per-step launch overhead as well as compile/autotune overhead during cold start, which improves model performance on NPU.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">FusedRMSNormGated</span></code>, which depends on <code class="docutils literal notranslate"><span class="pre">torch.cuda.current_device()</span></code> during FLA initialization, NPU keeps the native Qwen3.5 torch path to avoid compatibility issues caused by CUDA-only initialization logic.</p></li>
+</ol>
+<p>The call chain can be understood as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Qwen3.5 modeling.chunk_gated_delta_rule
+    -&gt; swift.model.chunk_gated_delta_rule.chunk_gated_delta_rule
+    -&gt; MindSpeed Triton kernels
+</pre></div>
+</div>
+<p>Therefore:</p>
+<ul class="simple">
+<li><p>This patch mainly covers the <strong>gated-delta-rule path of Qwen3.5 linear attention</strong>.</p></li>
+<li><p>It is not equivalent to “fully replacing the entire fla package with MindSpeed”.</p></li>
+<li><p>To make this path effective, ensure that MindSpeed can be imported correctly in the current environment.</p></li>
+<li><p>Verified versions for accuracy alignment: torch 2.9.0 + MindSpeed 0.16.0 + flash-linear-attention 0.4.2 + triton-ascend 3.2.1 + transformers 5.2.0</p></li>
+</ul>
+<p>When running Qwen3.5 on NPU with either the transformers backend or the Megatron-SWIFT backend, note the following version and feature constraints:</p>
+<ol class="arabic simple">
+<li><p>The MindSpeed training combination currently pinned by the NPU documentation
+is <code class="docutils literal notranslate"><span class="pre">Megatron-LM</span> <span class="pre">v0.16.0</span> <span class="pre">+</span> <span class="pre">MindSpeed</span> <span class="pre">core_r0.16.0</span></code>. With this combination,
+<code class="docutils literal notranslate"><span class="pre">megatron-core</span></code> already ships the native GDN kernel
+<code class="docutils literal notranslate"><span class="pre">core.ssm.gated_delta_net</span></code>, and <code class="docutils literal notranslate"><span class="pre">mcore-bridge</span></code> defaults to the
+Megatron-Core/MindSpeed GDN path with <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=1</span></code>. If you explicitly
+set <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=0</span></code>, it falls back to the transformers-native GDN
+implementation wrapped by <code class="docutils literal notranslate"><span class="pre">mcore-bridge</span></code>; combined with ms-swift's built-in
+Qwen3.5 FLA NPU patch, <code class="docutils literal notranslate"><span class="pre">chunk_gated_delta_rule</span></code> is then redirected to
+MindSpeed's Triton kernels.</p></li>
+<li><p>At the moment, do not enable sequence-related features on the Qwen3.5 NPU
+path with either the transformers backend or the Megatron-SWIFT backend,
+regardless of whether <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=1</span></code> or <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=0</span></code> is used under
+Megatron-SWIFT. This includes sequence parallel (SP), context parallel (CP),
+and packing/padding-free. The related FLA Triton operators do not yet have
+complete native NPU support. Enabling these features may hit
+missing-operator paths, incomplete sample-boundary handling, or mismatched
+parallel partitioning.</p></li>
+<li><p>For the transformers backend, keep <code class="docutils literal notranslate"><span class="pre">--sequence_parallel_size</span></code> at <code class="docutils literal notranslate"><span class="pre">1</span></code> and
+avoid <code class="docutils literal notranslate"><span class="pre">--packing</span> <span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">--padding_free</span> <span class="pre">true</span></code>. For the Megatron-SWIFT
+backend, keep <code class="docutils literal notranslate"><span class="pre">--context_parallel_size</span></code>
+at <code class="docutils literal notranslate"><span class="pre">1</span></code>, and also avoid <code class="docutils literal notranslate"><span class="pre">--packing</span> <span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">--padding_free</span> <span class="pre">true</span></code>. Re-enable
+these features only after the target MindSpeed/FLA stack explicitly fills
+this support and the combination has been validated in layers.</p></li>
+</ol>
+</section>
+<section id="environment-viewing">
+<h3>Environment Viewing<a class="headerlink" href="#environment-viewing" title="Link to this heading"></a></h3>
+<p>Check the P2P connections of the NPU, where we can see that each NPU is interconnected through 7 HCCS links with other NPUs.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info<span class="w"> </span>-t<span class="w"> </span>topo
+<span class="w">	   </span>NPU0<span class="w">       </span>NPU1<span class="w">       </span>NPU2<span class="w">       </span>NPU3<span class="w">       </span>NPU4<span class="w">       </span>NPU5<span class="w">       </span>NPU6<span class="w">       </span>NPU7<span class="w">       </span>CPU<span class="w"> </span>Affinity
+NPU0<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU1<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU2<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU3<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU4<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU5<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU6<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span><span class="m">48</span>-71
+NPU7<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span><span class="m">48</span>-71
+
+Legend:
+
+<span class="w">  </span><span class="nv">X</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>Self
+<span class="w">  </span><span class="nv">SYS</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>NUMA<span class="w"> </span>nodes.<span class="w"> </span>Nodes<span class="w"> </span>are<span class="w"> </span>connected<span class="w"> </span>through<span class="w"> </span>SMP,<span class="w"> </span>such<span class="w"> </span>as<span class="w"> </span>QPI,<span class="w"> </span>UPI.
+<span class="w">  </span><span class="nv">PHB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>PCIe<span class="w"> </span>host<span class="w"> </span>bridge<span class="w"> </span>of<span class="w"> </span>a<span class="w"> </span>CPU.
+<span class="w">  </span><span class="nv">PIX</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>a<span class="w"> </span>single<span class="w"> </span>PCIe<span class="w"> </span>switch
+<span class="w">  </span><span class="nv">PXB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>multiple<span class="w"> </span>PCIe<span class="w"> </span>switches
+<span class="w">  </span><span class="nv">HCCS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Connection<span class="w"> </span>traversing<span class="w"> </span>HCCS.
+<span class="w">  </span><span class="nv">NA</span><span class="w">   </span><span class="o">=</span><span class="w"> </span>Unknown<span class="w"> </span>relationship.
+</pre></div>
+</div>
+<p>Check NPU status. For details about the <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> command, see the <a class="reference external" href="https://support.huawei.com/enterprise/en/doc/EDOC1100079287/10dcd668">official documentation</a>.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info
++------------------------------------------------------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>npu-smi<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">            </span>Version:<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">                                        </span><span class="p">|</span>
++---------------------------+---------------+----------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>NPU<span class="w">   </span>Name<span class="w">                </span><span class="p">|</span><span class="w"> </span>Health<span class="w">        </span><span class="p">|</span><span class="w"> </span>Power<span class="o">(</span>W<span class="o">)</span><span class="w">    </span>Temp<span class="o">(</span>C<span class="o">)</span><span class="w">           </span>Hugepages-Usage<span class="o">(</span>page<span class="o">)</span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>Chip<span class="w">                      </span><span class="p">|</span><span class="w"> </span>Bus-Id<span class="w">        </span><span class="p">|</span><span class="w"> </span>AICore<span class="o">(</span>%<span class="o">)</span><span class="w">   </span>Memory-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">  </span>HBM-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">        </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">101</span>.8<span class="w">       </span><span class="m">43</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C1:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3318</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">92</span>.0<span class="w">        </span><span class="m">39</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C2:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">102</span>.0<span class="w">       </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:81:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.8<span class="w">        </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:82:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.6<span class="w">        </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:01:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.7<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:02:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">103</span>.8<span class="w">       </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:41:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.2<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:42:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3315</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="quick-start-modelscope-model-dataset">
+<h2>Quick Start: ModelScope Model + Dataset<a class="headerlink" href="#quick-start-modelscope-model-dataset" title="Link to this heading"></a></h2>
+<p>If you want to quickly verify the environment with a ModelScope model and dataset, you can use this section to complete the full flow: train LoRA, find the latest checkpoint, Merge LoRA, run CLI inference, start a service, and validate it with curl. The example uses a small model and a small data sample so that it can run quickly. To use your own model or dataset, modify the ID variables at the beginning.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MODEL_ID</span><span class="o">=</span>Qwen/Qwen3-0.6B
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASET_ID</span><span class="o">=</span>AI-ModelScope/alpaca-gpt4-data-zh
+<span class="nb">export</span><span class="w"> </span><span class="nv">WORK_DIR</span><span class="o">=</span>output/npu-modelscope-qwen3-0_6b-lora
+</pre></div>
+</div>
+<p>Train and save a LoRA checkpoint:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MODEL_ID</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="nv">$DATASET_ID</span><span class="c1">#1000 \</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span><span class="nv">$WORK_DIR</span>
+</pre></div>
+</div>
+<p>After training finishes, checkpoints are saved under <code class="docutils literal notranslate"><span class="pre">$WORK_DIR/*/checkpoint-*</span></code>. Use the following commands to select the latest checkpoint and merge LoRA into a full model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">CKPT_DIR</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-dt<span class="w"> </span><span class="nv">$WORK_DIR</span>/*/checkpoint-*<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="k">)</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span><span class="nv">$CKPT_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">MERGED_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">CKPT_DIR</span><span class="si">}</span>-merged
+</pre></div>
+</div>
+<p>You can verify inference either with the LoRA checkpoint directly or with the merged full model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the LoRA checkpoint directly</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span><span class="nv">$CKPT_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span>
+
+<span class="c1"># Load the merged full model</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MERGED_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span>
+</pre></div>
+</div>
+<p>To start an OpenAI-compatible deployment service, use the merged full model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MERGED_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--served_model_name<span class="w"> </span>npu-modelscope-qwen3-0_6b
+</pre></div>
+</div>
+<p>After the service starts, validate the API with curl:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8000/v1/chat/completions<span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">&quot;model&quot;: &quot;npu-modelscope-qwen3-0_6b&quot;,</span>
+<span class="s1">&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Briefly introduce Ascend NPU in one sentence.&quot;}],</span>
+<span class="s1">&quot;max_tokens&quot;: 128,</span>
+<span class="s1">&quot;temperature&quot;: 0</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Link to this heading"></a></h2>
+<p>The following examples introduce LoRA fine-tuning. For full-parameter fine-tuning, set <code class="docutils literal notranslate"><span class="pre">--tuner_type</span> <span class="pre">full</span></code>. For <strong>more training scripts</strong>, see <a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/ascend/train">examples/ascend/train</a>. For general pre-training, SFT, LoRA, full-parameter training, and custom dataset usage, see <a class="reference internal" href="../Instruction/Pre-training-and-Fine-tuning.html"><span class="std std-doc">Pre-training and Fine-tuning</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model size</p></th>
+<th class="head"><p>NPU count</p></th>
+<th class="head"><p>DeepSpeed type</p></th>
+<th class="head"><p>Max memory usage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>1</p></td>
+<td><p>None</p></td>
+<td><p>1 * 28 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>None</p></td>
+<td><p>4 * 22 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>zero2</p></td>
+<td><p>4 * 28 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>zero3</p></td>
+<td><p>4 * 22 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>8</p></td>
+<td><p>None</p></td>
+<td><p>8 * 22 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>14B</p></td>
+<td><p>1</p></td>
+<td><p>None</p></td>
+<td><p>1 * 45 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>None</p></td>
+<td><p>8 * 51 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>zero2</p></td>
+<td><p>8 * 49 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>zero3</p></td>
+<td><p>8 * 31 GB</p></td>
+</tr>
+</tbody>
+</table>
+<section id="single-card-training">
+<h3>Single-Card Training<a class="headerlink" href="#single-card-training" title="Link to this heading"></a></h3>
+<p>Start single-card fine-tuning with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: Ascend 910B3</span>
+<span class="c1"># Memory requirement: 28 GB</span>
+<span class="c1"># Runtime: 8 hours</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+</section>
+<section id="data-parallel-training">
+<h3>Data Parallel Training<a class="headerlink" href="#data-parallel-training" title="Link to this heading"></a></h3>
+<p>The following example uses 4 NPUs for DDP training.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 22 GB</span>
+<span class="c1"># Runtime: 2 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="deepspeed-training">
+<h3>DeepSpeed Training<a class="headerlink" href="#deepspeed-training" title="Link to this heading"></a></h3>
+<p>ZeRO2:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 28GB</span>
+<span class="c1"># Runtime: 3.5 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p>ZeRO3:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="c1"># Memory requirement: 4 * 22 GB</span>
+<span class="c1"># Runtime: 8.5 hours</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-single-node-multi-card-lora-example">
+<h3>Qwen3.5 Single-Node Multi-Card LoRA Example<a class="headerlink" href="#qwen3-5-single-node-multi-card-lora-example" title="Link to this heading"></a></h3>
+<p>The following is an NPU LoRA example for a newer model. It uses Qwen3.5-4B for demonstration. Four-card data parallelism is usually faster than single-card training. If you already have local model and dataset files, replace <code class="docutils literal notranslate"><span class="pre">--model</span></code> and <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> with local paths.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Experiment environment: 4 * Ascend 910B3</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh#2000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--group_by_length<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output/Qwen3.5-4B-NPU
+</pre></div>
+</div>
+<p>When tuning parameters, focus on memory, throughput, and stability:</p>
+<ul class="simple">
+<li><p>Reduce memory usage: first reduce <code class="docutils literal notranslate"><span class="pre">--max_length</span></code>, <code class="docutils literal notranslate"><span class="pre">--per_device_train_batch_size</span></code>, and <code class="docutils literal notranslate"><span class="pre">--lora_rank</span></code>; if OOM still occurs, enable <code class="docutils literal notranslate"><span class="pre">--deepspeed</span> <span class="pre">zero2/zero3</span></code>. ZeRO can significantly reduce memory pressure but introduces communication and scheduling overhead.</p></li>
+<li><p>Improve throughput: increase <code class="docutils literal notranslate"><span class="pre">--per_device_train_batch_size</span></code> when memory allows, and use <code class="docutils literal notranslate"><span class="pre">--gradient_accumulation_steps</span></code> to keep the global batch size. Increase <code class="docutils literal notranslate"><span class="pre">--dataset_num_proc</span></code> if preprocessing is slow, and increase <code class="docutils literal notranslate"><span class="pre">--dataloader_num_workers</span></code> if data loading is the bottleneck.</p></li>
+<li><p>Control save overhead: do not set <code class="docutils literal notranslate"><span class="pre">--save_steps</span></code> too small, because frequent checkpoint saving slows down training. <code class="docutils literal notranslate"><span class="pre">--save_total_limit</span> <span class="pre">2</span></code> is usually enough to keep the best checkpoint and the last checkpoint.</p></li>
+<li><p>Improve stability: on NPUs, prefer <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>. If you see abnormal loss or NaN, first lower the learning rate and batch size; if necessary, temporarily switch to <code class="docutils literal notranslate"><span class="pre">float32</span></code> for comparison.</p></li>
+</ul>
+<p>For more parameter details, see <a class="reference internal" href="../Instruction/Command-line-parameters.html"><span class="std std-doc">Command-line Parameters</span></a>.</p>
+</section>
+<section id="npu-model-patch-switch">
+<h3>NPU Model Patch Switch<a class="headerlink" href="#npu-model-patch-switch" title="Link to this heading"></a></h3>
+<p>ms-swift enables model-level patches by default in NPU environments to adapt some Transformers models to Ascend NPU operators and compatibility requirements. You usually do not need to disable them. If you suspect abnormal loss or forward errors are related to the NPU model patch and want to compare against native Transformers behavior, set:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>swift<span class="w"> </span>sft<span class="w"> </span>...<span class="w"> </span>--enable_npu_model_patch<span class="w"> </span><span class="nb">false</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="model-saving-merge-lora-and-resume-training">
+<h2>Model Saving, Merge LoRA, and Resume Training<a class="headerlink" href="#model-saving-merge-lora-and-resume-training" title="Link to this heading"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--output_dir</span></code> to set the output directory, <code class="docutils literal notranslate"><span class="pre">--save_steps</span></code> to control checkpoint save intervals, and <code class="docutils literal notranslate"><span class="pre">--save_total_limit</span></code> to control how many checkpoints to keep. After LoRA training, the checkpoint directory contains adapter weights, training arguments, and trainer state. A typical directory layout is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output/Qwen3.5-4B-NPU/vx-xxx/
+├── checkpoint-100/
+├── checkpoint-200/
+└── ...
+</pre></div>
+</div>
+<p>If you only need inference or want to continue LoRA training, use the checkpoint directory directly. If you want an independent full-model directory for vLLM-Ascend deployment, offline distribution, or later quantization, run Merge LoRA:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/Qwen3.5-4B-NPU/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>The merged model is saved under <code class="docutils literal notranslate"><span class="pre">checkpoint-xxx-merged</span></code> by default. You can then load it like any regular model with <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">checkpoint-xxx-merged</span></code>.</p>
+<p>If training is interrupted and you need to resume from a checkpoint, keep the original training arguments unchanged and add <code class="docutils literal notranslate"><span class="pre">--resume_from_checkpoint</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh#2000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output/Qwen3.5-4B-NPU<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--resume_from_checkpoint<span class="w"> </span>output/Qwen3.5-4B-NPU/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--resume_from_checkpoint</span></code> restores model weights, optimizer state, random seeds, and training progress. If you only want to load model weights without restoring the optimizer state or data skipping state, also set <code class="docutils literal notranslate"><span class="pre">--resume_only_model</span> <span class="pre">true</span></code>. For details, see <code class="docutils literal notranslate"><span class="pre">resume_from_checkpoint</span></code>, <code class="docutils literal notranslate"><span class="pre">resume_only_model</span></code>, <code class="docutils literal notranslate"><span class="pre">save_steps</span></code>, and <code class="docutils literal notranslate"><span class="pre">save_total_limit</span></code> in <a class="reference internal" href="../Instruction/Command-line-parameters.html"><span class="std std-doc">Command-line Parameters</span></a>.</p>
+</section>
+<section id="inference">
+<h2>Inference<a class="headerlink" href="#inference" title="Link to this heading"></a></h2>
+<p>Original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--load_data_args<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>For full-parameter training or a merged LoRA model, point <code class="docutils literal notranslate"><span class="pre">--model</span></code> to the full-weight directory:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment">
+<h2>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h2>
+<section id="deployment-with-native-transformers">
+<h3>Deployment with Native Transformers<a class="headerlink" href="#deployment-with-native-transformers" title="Link to this heading"></a></h3>
+<p>Original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Deploy the full weights after Merge LoRA</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="deployment-with-vllm-ascend">
+<h3>Deployment with vLLM-Ascend<a class="headerlink" href="#deployment-with-vllm-ascend" title="Link to this heading"></a></h3>
+<p>Install from PyPI:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Refer to the official vLLM-Ascend compatibility matrix; the following versions are verified in this document.</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.14.0
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.14.0rc1
+</pre></div>
+</div>
+<p>Original model:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>After LoRA fine-tuning:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Deploy the full weights after Merge LoRA</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="evaluation">
+<h2>Evaluation<a class="headerlink" href="#evaluation" title="Link to this heading"></a></h2>
+<p>After training, inference, or deployment, you can evaluate the original model or fine-tuned checkpoint with SWIFT's built-in EvalScope integration. For complete arguments and examples, see <a class="reference internal" href="../Instruction/Evaluation.html"><span class="std std-doc">Evaluation</span></a>.</p>
+</section>
+<section id="release">
+<h2>Release<a class="headerlink" href="#release" title="Link to this heading"></a></h2>
+<p>If you need to publish NPU-trained checkpoints, merged models, or quantized models to ModelScope/HuggingFace, use the push capability in <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">export</span></code>. For complete arguments and examples, see <a class="reference internal" href="../Instruction/Export-and-push.html#push-models"><span class="std std-ref">Export and Push</span></a>.</p>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
+<p>For general questions, see <a class="reference internal" href="../Instruction/Frequently-asked-questions.html"><span class="std std-doc">Frequently Asked Questions</span></a>. This section records common NPU-specific issues and troubleshooting steps.</p>
+<section id="q1-how-do-i-confirm-that-the-current-environment-detects-npus-correctly">
+<h3>Q1: How do I confirm that the current environment detects NPUs correctly?<a class="headerlink" href="#q1-how-do-i-confirm-that-the-current-environment-detects-npus-correctly" title="Link to this heading"></a></h3>
+<p>First confirm that you have run <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code>, then run the environment check script in this document. Normally, <code class="docutils literal notranslate"><span class="pre">is_torch_npu_available()</span></code> should return <code class="docutils literal notranslate"><span class="pre">True</span></code>, <code class="docutils literal notranslate"><span class="pre">torch.npu.device_count()</span></code> should show the number of available NPUs, and you should be able to create a tensor on <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>. If this fails, first check whether CANN, <code class="docutils literal notranslate"><span class="pre">torch</span></code>, and <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> match the recommended versions in this document.</p>
+</section>
+<section id="q2-how-should-i-choose-between-fsdp-deepspeed-and-megatron-swift">
+<h3>Q2: How should I choose between FSDP, DeepSpeed, and Megatron-SWIFT?<a class="headerlink" href="#q2-how-should-i-choose-between-fsdp-deepspeed-and-megatron-swift" title="Link to this heading"></a></h3>
+<p>For ordinary SFT, first refer to the verified <code class="docutils literal notranslate"><span class="pre">FSDP1/FSDP2/deepspeed</span></code> combinations in this document. For larger models or higher parallelism requirements, use Megatron-SWIFT and install MindSpeed, Megatron-LM, and mcore-bridge as described in the installation section. DeepSpeed can reduce memory pressure but may reduce speed, so compare it with FSDP when tuning performance.</p>
+</section>
+<section id="q3-do-i-need-to-manually-disable-the-npu-model-patch">
+<h3>Q3: Do I need to manually disable the NPU model patch?<a class="headerlink" href="#q3-do-i-need-to-manually-disable-the-npu-model-patch" title="Link to this heading"></a></h3>
+<p>Usually no. ms-swift enables model-level patches by default in NPU environments to adapt some Transformers models to Ascend NPU operators and compatibility requirements. Only when troubleshooting abnormal loss or forward errors, and when you suspect the issue is related to the NPU patch, should you temporarily set <code class="docutils literal notranslate"><span class="pre">--enable_npu_model_patch</span> <span class="pre">false</span></code> and compare against native Transformers behavior.</p>
+</section>
+<section id="q4-what-should-i-know-when-using-vllm-ascend-for-deployment-or-rl-rollout">
+<h3>Q4: What should I know when using vLLM-Ascend for deployment or RL rollout?<a class="headerlink" href="#q4-what-should-i-know-when-using-vllm-ascend-for-deployment-or-rl-rollout" title="Link to this heading"></a></h3>
+<p>Install the <code class="docutils literal notranslate"><span class="pre">vllm</span></code> and <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> versions recommended in this document, and prioritize model and algorithm combinations that have been verified in the compatibility tables. The <code class="docutils literal notranslate"><span class="pre">sglang</span></code> inference engine is not yet fully verified for NPU scenarios. For high-performance inference or RL rollout on NPUs, prefer <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code>.</p>
+</section>
+<section id="q5-what-happens-if-i-forget-to-run-source-set-env-sh">
+<h3>Q5: What happens if I forget to run <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>?<a class="headerlink" href="#q5-what-happens-if-i-forget-to-run-source-set-env-sh" title="Link to this heading"></a></h3>
+<p>Common symptoms include <code class="docutils literal notranslate"><span class="pre">is_torch_npu_available()</span></code> returning <code class="docutils literal notranslate"><span class="pre">False</span></code>, <code class="docutils literal notranslate"><span class="pre">torch.npu.device_count()</span></code> returning 0, or runtime errors about missing CANN/HCCL shared libraries. After entering a new shell or container, run:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+<p>If NNAL/ATB or other components are installed, source their corresponding <code class="docutils literal notranslate"><span class="pre">set_env.sh</span></code> files according to your environment.</p>
+</section>
+<section id="q6-how-do-i-diagnose-a-torch-and-torch-npu-version-mismatch">
+<h3>Q6: How do I diagnose a <code class="docutils literal notranslate"><span class="pre">torch</span></code> and <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> version mismatch?<a class="headerlink" href="#q6-how-do-i-diagnose-a-torch-and-torch-npu-version-mismatch" title="Link to this heading"></a></h3>
+<p>Install according to the recommended versions in this document. When versions mismatch, common symptoms include <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> failures, invisible NPU devices, operator registration failures, and C++ symbol/runtime errors. Check versions with:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch, torch_npu; print(torch.__version__); print(torch_npu.__version__)&quot;</span>
+</pre></div>
+</div>
+<p>If versions do not match, uninstall and reinstall the full CANN/PyTorch/torch_npu stack consistently. Do not upgrade only one package.</p>
+</section>
+<section id="q7-what-happens-if-ascend-rt-visible-devices-and-nproc-per-node-do-not-match">
+<h3>Q7: What happens if <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> and <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code> do not match?<a class="headerlink" href="#q7-what-happens-if-ascend-rt-visible-devices-and-nproc-per-node-do-not-match" title="Link to this heading"></a></h3>
+<p>For distributed training, they should match. For example, <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES=0,1,2,3</span></code> usually corresponds to <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE=4</span></code>. If the process count is larger than the number of visible devices, ranks may fail to bind devices, multiple processes may compete for the same device, initialization may hang, or HCCL may report errors. If the process count is smaller, only part of the visible NPUs will be used.</p>
+</section>
+<section id="q8-what-should-i-check-first-when-multi-card-training-hangs">
+<h3>Q8: What should I check first when multi-card training hangs?<a class="headerlink" href="#q8-what-should-i-check-first-when-multi-card-training-hangs" title="Link to this heading"></a></h3>
+<p>First confirm that every rank has started and that <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> matches <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code>. Then identify whether logs stop during data preprocessing, model construction, weight loading, or HCCL initialization. For NPU/HCCL low-level logs, check:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>~/ascend/log/debug/plog
+</pre></div>
+</div>
+<p>If the Python process is still running but produces no output for a long time, use <code class="docutils literal notranslate"><span class="pre">pystack</span></code> to inspect the stack of each rank and determine whether it is stuck in data loading, communication, or model forward/backward.</p>
+</section>
+<section id="q9-how-do-i-initially-troubleshoot-hccl-connection-or-timeout-issues">
+<h3>Q9: How do I initially troubleshoot HCCL connection or timeout issues?<a class="headerlink" href="#q9-how-do-i-initially-troubleshoot-hccl-connection-or-timeout-issues" title="Link to this heading"></a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> and <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span> <span class="pre">-t</span> <span class="pre">topo</span></code> to check device health and topology, then check whether other jobs are occupying the same NPU group. For single-node training, first verify card IDs, process count, and visible devices. For multi-node training, also verify networking, rank configuration, communication ports, and environment variables on all nodes. If old training processes remain on the same machine, clean up the corresponding training processes and retry.</p>
+</section>
+<section id="q10-why-is-npu-smi-unavailable-inside-the-container">
+<h3>Q10: Why is <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> unavailable inside the container?<a class="headerlink" href="#q10-why-is-npu-smi-unavailable-inside-the-container" title="Link to this heading"></a></h3>
+<p>Usually some device or driver files were not mounted. Check whether <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> includes <code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code>, <code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>, <code class="docutils literal notranslate"><span class="pre">/dev/devmm_svm</span></code>, <code class="docutils literal notranslate"><span class="pre">/dev/hisi_hdc</span></code>, <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend/driver</span></code>, <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend/firmware</span></code>, <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin/npu-smi</span></code>, and <code class="docutils literal notranslate"><span class="pre">/etc/ascend_install.info</span></code>. If <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> fails on the host itself, fix the host driver environment first.</p>
+</section>
+<section id="q11-how-should-i-choose-between-native-transformers-deployment-and-vllm-ascend-deployment">
+<h3>Q11: How should I choose between native transformers deployment and vLLM-Ascend deployment?<a class="headerlink" href="#q11-how-should-i-choose-between-native-transformers-deployment-and-vllm-ascend-deployment" title="Link to this heading"></a></h3>
+<p>Native transformers deployment has better compatibility and is suitable for validating whether the model, adapter, template, and output are correct. vLLM-Ascend is better for high-throughput services, RL rollout, or OpenAI-compatible serving. If you encounter vLLM-Ascend version or operator issues, first confirm that the model itself works with the transformers backend, then switch to vLLM-Ascend to troubleshoot the performance backend.</p>
+</section>
+<section id="q12-what-should-i-do-if-vllm-ascend-reports-device-type-mismatch-or-undefined-symbol">
+<h3>Q12: What should I do if vLLM-Ascend reports device type mismatch or undefined symbol?<a class="headerlink" href="#q12-what-should-i-do-if-vllm-ascend-reports-device-type-mismatch-or-undefined-symbol" title="Link to this heading"></a></h3>
+<p>This is usually not caused by training script arguments. It often means the <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> wheel does not match the current hardware, PyTorch version, or C++ ABI. First check package build information and current versions:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch, vllm_ascend; print(torch.__version__); print(vllm_ascend.__file__)&quot;</span>
+</pre></div>
+</div>
+<p>If the error message contains <code class="docutils literal notranslate"><span class="pre">Current</span> <span class="pre">device</span> <span class="pre">type</span> <span class="pre">...</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">the</span> <span class="pre">installed</span> <span class="pre">version's</span> <span class="pre">device</span> <span class="pre">type</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">undefined</span> <span class="pre">symbol</span></code>, or similar text, reinstall <code class="docutils literal notranslate"><span class="pre">torch</span></code>, <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>, <code class="docutils literal notranslate"><span class="pre">vllm</span></code>, and <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> according to the device type (A2/A3/other) and the official compatibility matrix. Do not replace only one package.</p>
+</section>
+<section id="q13-can-fp8-or-quantized-models-be-trained-directly-on-npus">
+<h3>Q13: Can FP8 or quantized models be trained directly on NPUs?<a class="headerlink" href="#q13-can-fp8-or-quantized-models-be-trained-directly-on-npus" title="Link to this heading"></a></h3>
+<p>Do not assume they can. Before downloading or loading a large model, check whether <code class="docutils literal notranslate"><span class="pre">config.json</span></code> contains <code class="docutils literal notranslate"><span class="pre">quantization_config</span></code>, and check the actual dtype in safetensors. Quantization/QLoRA is still listed as not supported or not fully verified in the NPU support scope. If model weights are FP8 block quantized and your NPU software stack does not support that FP8 path, use BF16 weights first, or convert the model offline to BF16 before training/loading.</p>
+</section>
+<section id="q14-how-do-i-troubleshoot-megatron-swift-importing-the-wrong-megatron-mindspeed">
+<h3>Q14: How do I troubleshoot Megatron-SWIFT importing the wrong Megatron/MindSpeed?<a class="headerlink" href="#q14-how-do-i-troubleshoot-megatron-swift-importing-the-wrong-megatron-mindspeed" title="Link to this heading"></a></h3>
+<p>Before running Megatron-SWIFT, <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> and <code class="docutils literal notranslate"><span class="pre">MEGATRON_LM_PATH</span></code> must point to the same Megatron-LM source tree. Otherwise Python may start successfully while importing a different Megatron/MindSpeed combination, which can make later errors look like model or argument issues.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_local_megatron_lm_path&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">MEGATRON_LM_PATH</span><span class="o">=</span>&lt;your_local_megatron_lm_path&gt;
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import megatron, os; print(megatron.__file__); print(os.environ.get(&#39;MEGATRON_LM_PATH&#39;))&quot;</span>
+</pre></div>
+</div>
+<p>If they do not match, fix the environment variables before continuing with model construction, weight loading, or parallel configuration troubleshooting.</p>
+</section>
+</section>
+<section id="npu-wechat-group">
+<h2>NPU WeChat Group<a class="headerlink" href="#npu-wechat-group" title="Link to this heading"></a></h2>
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png"><img alt="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png" src="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png" style="width: 250px;" />
+</a>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../../source/BestPractices/NPU-support.html" class="btn btn-neutral float-left" title="NPU支持" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../../../../../roll/index.html" class="btn btn-neutral float-right" title="ROLL" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,929 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU 高级特性指南 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" />
+    <link rel="next" title="Transfer to NPU guide" href="../dev_guide/model_dev/transfer_to_npu_guide.html" />
+    <link rel="prev" title="Ascend Backend Features Guide" href="ascend_backend_features.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../verl/index.html">verl</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../get_start/install_guidance.html">Ascend Install Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../get_start/quick_start.html">Ascend Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../get_start/dockerfile_build_guidance.html">Ascend Dockerfile Build Guidance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ascend_backend_features.html">Ascend Backend Features Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU 高级特性指南</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">目录</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">1. 推理后端高级特性</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vllm">1.1 vLLM 推理后端</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#sglang">1.2 SGLang 推理后端</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">2. 训练后端高级特性</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fsdp">2.1 FSDP 训练后端</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#megatron">2.2 Megatron 训练后端</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">3. 性能优化特性</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">3.1 内存优化</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">3.2 计算加速</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id13">3.3 并行策略</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#moe">4. 混合专家模型 (MoE) 特性</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#vllm-sglang-moe">vLLM/SGLang 推理 MoE 支持</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#megatron-moe">Megatron 训练 MoE 支持</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">5. 限制与注意事项</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">附录：参数速查表</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id16">推理后端参数速查</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id17">训练后端参数速查</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/model_dev/transfer_to_npu_guide.html">Transfer to NPU guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/model_dev/parameter_and_metrics.html">训练配置参数与指标说明</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/model_dev/evaluation.html">模型评测</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/precision_analysis/precision_alignment_zh.html">Precision Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/precision_analysis/precision_debugger_zh.html">Precision Debugger (msprobe) in verl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/performance/ascend_performance_analysis_guide.html">Ascend Performance Analysis Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/performance/perf_tuning_on_ascend.html">Performance Tuning Guide on Ascend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/performance/ascend_profiling_zh.html">Profiling采集指导</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dev_guide/performance/ascend_profiling_en.html">Profiling Data Collection Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_support/model_and_algorithm_support.html">NPU Model &amp; Algorithms Support Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_support/examples/dapo_multi_model_optimization_practice.html">DAPO multi model optimization practice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_support/examples/gspo_optimization_practice.html">NPU Qwen3-32B GSPO Optimization Practice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_support/examples/ascend_retool_best_pratice.html">Ascend Retool Best Practice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../model_support/examples/ascend_sglang_best_practices.html">Ascend SGLang Best Practice</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../faq/faq.html">NPU 常见问题解答</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contribution_guide/ascend_ci_guide_zh.html">NPU-CI 添加指导</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"contribution_guide": "\ud83d\udd27 \u5f00\u6e90\u5f00\u53d1", "dev_guide/model_dev": "\ud83e\uddec \u6a21\u578b\u5f00\u53d1", "dev_guide/performance": "\u26a1 \u6027\u80fd\u8c03\u4f18", "dev_guide/precision_analysis": "\ud83c\udfaf \u7cbe\u5ea6\u8c03\u8bd5", "faq": "\ud83d\udd06 \u5e38\u89c1\u95ee\u9898", "feature_support": "\ud83d\udcda \u7279\u6027\u652f\u6301", "get_start": "\ud83d\ude80 \u5feb\u901f\u5f00\u59cb", "model_support": "\ud83d\udcca \u6a21\u578b\u652f\u6301", "model_support/examples": "\ud83d\udccb \u6700\u4f73\u5b9e\u8df5"};
+        const commId = 'verl';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../verl/index.html">verl</a></li>
+      <li class="breadcrumb-item active">NPU 高级特性指南</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/verl/feature_support/npu_advance_features.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu">
+<h1>NPU 高级特性指南<a class="headerlink" href="#npu" title="Link to this heading"></a></h1>
+<blockquote>
+<div><p>本文档介绍昇腾 NPU 在 verl 生态中的高级特性与优化能力，供开发者参考。</p>
+</div></blockquote>
+<p>Last updated: 05/13/2026.</p>
+<hr class="docutils" />
+<section id="id1">
+<h2>目录<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#npu">NPU 高级特性指南</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1">目录</a></p></li>
+<li><p><a class="reference internal" href="#id2">1. 推理后端高级特性</a></p>
+<ul>
+<li><p><a class="reference internal" href="#vllm">1.1 vLLM 推理后端</a></p></li>
+<li><p><a class="reference internal" href="#sglang">1.2 SGLang 推理后端</a></p>
+<ul>
+<li><p><a class="reference internal" href="#%E9%AB%98%E7%BA%A7%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="xref myst">高级参数配置</span></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id4">2. 训练后端高级特性</a></p>
+<ul>
+<li><p><a class="reference internal" href="#fsdp">2.1 FSDP 训练后端</a></p></li>
+<li><p><a class="reference internal" href="#megatron">2.2 Megatron 训练后端</a></p>
+<ul>
+<li><p><a class="reference internal" href="#mindspeed-monkey-patch-%E6%A1%86%E6%9E%B6%E5%8E%9F%E7%90%86"><span class="xref myst">MindSpeed Monkey Patch 框架原理</span></a></p></li>
+<li><p><a class="reference internal" href="#megatron-%E9%AB%98%E7%BA%A7%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE"><span class="xref myst">Megatron 高级参数配置</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#%E5%86%85%E5%AD%98%E4%B8%8E%E8%AE%A1%E7%AE%97%E4%BC%98%E5%8C%96"><span class="xref myst">内存与计算优化</span></a></p></li>
+<li><p><a class="reference internal" href="#%E8%9E%8D%E5%90%88%E7%AE%97%E5%AD%90%E5%8A%A0%E9%80%9F"><span class="xref myst">融合算子加速</span></a></p></li>
+<li><p><a class="reference internal" href="#%E6%B5%81%E6%B0%B4%E7%BA%BF%E5%B9%B6%E8%A1%8C%E4%BC%98%E5%8C%96"><span class="xref myst">流水线并行优化</span></a></p></li>
+<li><p><a class="reference internal" href="#%E6%9D%83%E9%87%8D%E7%AE%A1%E7%90%86"><span class="xref myst">权重管理</span></a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id10">3. 性能优化特性</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id11">3.1 内存优化</a></p></li>
+<li><p><a class="reference internal" href="#id12">3.2 计算加速</a></p></li>
+<li><p><a class="reference internal" href="#id13">3.3 并行策略</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#moe">4. 混合专家模型 (MoE) 特性</a></p>
+<ul>
+<li><p><a class="reference internal" href="#vllm-sglang-moe">vLLM/SGLang 推理 MoE 支持</a></p></li>
+<li><p><a class="reference internal" href="#megatron-moe">Megatron 训练 MoE 支持</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id14">5. 限制与注意事项</a></p></li>
+<li><p><a class="reference internal" href="#id15">附录：参数速查表</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id16">推理后端参数速查</a></p></li>
+<li><p><a class="reference internal" href="#id17">训练后端参数速查</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2>1. 推理后端高级特性<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>当前 verl 支持 vLLM 和 SGLang 两种主流推理后端，均可在昇腾 NPU 上运行。以下列出各后端支持的高级特性参数。</p>
+<section id="vllm">
+<h3>1.1 vLLM 推理后端<a class="headerlink" href="#vllm" title="Link to this heading"></a></h3>
+<p>昇腾通过 <strong>vllm-ascend 插件</strong> 支持 vLLM 推理后端。该插件遵循 <a class="reference external" href="https://github.com/vllm-project/vllm/issues/11162">RFC</a>，提供可插拔接口将 Ascend NPU 与 vLLM 解耦。</p>
+</section>
+<hr class="docutils" />
+<section id="sglang">
+<h3>1.2 SGLang 推理后端<a class="headerlink" href="#sglang" title="Link to this heading"></a></h3>
+<p>昇腾通过向 SGLang 社区持续建设与维护来支持相关功能，涉及以下核心组件：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>组件</p></th>
+<th class="head text-left"><p>描述</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><a class="reference external" href="https://github.com/sgl-project/sgl-kernel-npu/blob/main/python/sgl_kernel_npu/README.md">sgl_kernel_npu</a></p></td>
+<td class="text-left"><p>Ascend NPU 优化推理内核集合，含注意力机制、归一化、激活函数、LoRA 适配器等</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><a class="reference external" href="https://github.com/sgl-project/sgl-kernel-npu/blob/main/python/deep_ep/README.md">deepep</a></p></td>
+<td class="text-left"><p>DeepEP 的 Ascend 实现，为 MoE 模型提供高度优化的专家并行 (EP) 通信内核</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id3">
+<h4>高级参数配置<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>SGLang 参数</p></th>
+<th class="head text-left"><p>verl 对应通用参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">attention_backend</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.engine_kwargs.sglang.attention_backend</span></code></p></td>
+<td class="text-left"><p><strong>注意力后端选择</strong> — NPU 上应设置为 <code class="docutils literal notranslate"><span class="pre">ascend</span></code> 以调用昇腾优化内核</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">quantization</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.quantization</span></code></p></td>
+<td class="text-left"><p><strong>量化支持</strong> — 支持模型量化加载与推理</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>更多 SGLang NPU 特性参数请参考 <a class="reference external" href="https://docs.sglang.io/docs/hardware-platforms/ascend-npus/ascend_npu_support_features">sglang 社区 NPU 特性支持文档</a></p>
+</div></blockquote>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>2. 训练后端高级特性<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="fsdp">
+<h3>2.1 FSDP 训练后端<a class="headerlink" href="#fsdp" title="Link to this heading"></a></h3>
+<p>昇腾通过 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 提供 FSDP 相关支持能力。</p>
+</section>
+<section id="megatron">
+<h3>2.2 Megatron 训练后端<a class="headerlink" href="#megatron" title="Link to this heading"></a></h3>
+<p>Megatron 是 NVIDIA 推出的模型并行训练框架。在 NPU 上运行需额外安装 <strong>MindSpeed</strong> 提供底层支持。MindSpeed 采用 <strong>Monkey Patch</strong> 技术无感替换 Megatron 关键组件，实现 NPU 适配。</p>
+<section id="mindspeed-monkey-patch">
+<h4>MindSpeed Monkey Patch 框架原理<a class="headerlink" href="#mindspeed-monkey-patch" title="Link to this heading"></a></h4>
+<p><strong>触发入口:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">mindspeed.megatron_adaptor</span><span class="w"> </span><span class="kn">import</span> <span class="n">repatch</span>
+</pre></div>
+</div>
+<p><strong>调用链:</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>repatch
+├── 执行 megatron_adaptor.py 模块导入
+├── 导入 features_manager 模块
+├── 执行 mindspeed/features_manager/__init__.py
+├── @AutoExecuteFunction 装饰器触发
+├── patch_features() 自动执行
+└── 进行 apply_features_pre_patches 和 apply_features_patches 操作
+</pre></div>
+</div>
+<p><strong>核心组件:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>组件</p></th>
+<th class="head text-left"><p>职责</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">Patch</span></code> 类</p></td>
+<td class="text-left"><p>实现函数/类的动态替换，支持多层装饰器叠加</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">parse_path()</span></code></p></td>
+<td class="text-left"><p>动态模块导入和创建</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MindSpeedPatchesManager</span></code></p></td>
+<td class="text-left"><p>全局单例管理所有 patch 注册</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MindSpeedFeature</span></code></p></td>
+<td class="text-left"><p>Feature 基类，各特性通过继承集成 patch 系统</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h4>Megatron 高级参数配置<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<section id="id6">
+<h5>内存与计算优化<a class="headerlink" href="#id6" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>verl 参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.deallocate_pipeline_outputs</span></code></p></td>
+<td class="text-left"><p><strong>流水线输出释放</strong> — 张量发送到下一 PP stage 后释放输出数据，降低显存峰值，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.recompute_granularity</span></code></p></td>
+<td class="text-left"><p><strong>重计算粒度控制</strong> — 可选 <code class="docutils literal notranslate"><span class="pre">full</span></code> / <code class="docutils literal notranslate"><span class="pre">selective</span></code> / <code class="docutils literal notranslate"><span class="pre">none</span></code>。<code class="docutils literal notranslate"><span class="pre">full</span></code> 重算整个 Transformer 层，<code class="docutils literal notranslate"><span class="pre">selective</span></code> 仅重算注意力核心部分，默认 <code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.recompute_method</span></code></p></td>
+<td class="text-left"><p><strong>重计算方法</strong> — 需 <code class="docutils literal notranslate"><span class="pre">recompute_granularity=full</span></code>，可选 <code class="docutils literal notranslate"><span class="pre">uniform</span></code> / <code class="docutils literal notranslate"><span class="pre">block</span></code>，默认 <code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.recompute_num_layers</span></code></p></td>
+<td class="text-left"><p><strong>重计算层数</strong> — 需 <code class="docutils literal notranslate"><span class="pre">recompute_granularity=full</span></code>，值越大显存占用越小、计算成本越高，需能被当前进程模型层数整除</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h5>融合算子加速<a class="headerlink" href="#id7" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>verl 参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.use_flash_attn</span></code></p></td>
+<td class="text-left"><p><strong>Flash Attention</strong> — 是否使用 Flash Attention 加速注意力计算，默认 <code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.use_fused_rotary_pos_emb</span></code></p></td>
+<td class="text-left"><p><strong>融合旋转位置编码</strong> — 使用融合算子加速 RoPE 计算，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.use_fused_swiglu</span></code></p></td>
+<td class="text-left"><p><strong>融合 SwiGLU</strong> — 使用融合算子加速 SwiGLU 激活函数，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.persist_layer_norm</span></code></p></td>
+<td class="text-left"><p><strong>持久化 LayerNorm</strong> — 使用持久化策略优化 LayerNorm，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id8">
+<h5>流水线并行优化<a class="headerlink" href="#id8" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>verl 参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.account_for_loss_in_pipeline_split</span></code></p></td>
+<td class="text-left"><p><strong>Loss 层流水线划分</strong> — 将 loss 层视为标准 Transformer 层参与划分，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.account_for_embedding_in_pipeline_split</span></code></p></td>
+<td class="text-left"><p><strong>Embedding 层流水线划分</strong> — 将输入 embedding 层视为标准 Transformer 层参与划分，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.num_layers_in_first_pipeline_stage</span></code></p></td>
+<td class="text-left"><p><strong>首 stage 层数</strong> — 指定第一个 pipeline stage 的层数，默认 <code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.num_layers_in_last_pipeline_stage</span></code></p></td>
+<td class="text-left"><p><strong>末 stage 层数</strong> — 指定最后一个 pipeline stage 的层数，默认 <code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id9">
+<h5>权重管理<a class="headerlink" href="#id9" title="Link to this heading"></a></h5>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>verl 参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.use_mbridge</span></code></p></td>
+<td class="text-left"><p><strong>MBridge 权重转换</strong> — 启用 mbridge 进行权重格式转换</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.use_dist_checkpointing</span></code></p></td>
+<td class="text-left"><p><strong>分布式 checkpoint</strong> — 使用分布式格式保存/加载权重，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.dist_checkpointing_path</span></code></p></td>
+<td class="text-left"><p><strong>分布式权重路径</strong> — 分布式 checkpoint 加载路径，默认 <code class="docutils literal notranslate"><span class="pre">null</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id10">
+<h2>3. 性能优化特性<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<section id="id11">
+<h3>3.1 内存优化<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>特性</p></th>
+<th class="head text-left"><p>推理/训练</p></th>
+<th class="head text-left"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>KV Cache 动态释放 (<code class="docutils literal notranslate"><span class="pre">free_cache_engine</span></code>)</p></td>
+<td class="text-left"><p>推理 (vLLM)</p></td>
+<td class="text-left"><p>生成阶段后自动卸载 KV Cache，默认启用</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>内存节省模式 (<code class="docutils literal notranslate"><span class="pre">enable_memory_saver</span></code>)</p></td>
+<td class="text-left"><p>推理 (SGLang)</p></td>
+<td class="text-left"><p>支持显存动态释放/恢复，verl 默认 <code class="docutils literal notranslate"><span class="pre">True</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>参数 CPU 卸载 (<code class="docutils literal notranslate"><span class="pre">param_offload</span></code>)</p></td>
+<td class="text-left"><p>训练 (FSDP/Megatron)</p></td>
+<td class="text-left"><p>将模型权重卸载到 CPU</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>优化器 CPU 卸载 (<code class="docutils literal notranslate"><span class="pre">optimizer_offload</span></code>)</p></td>
+<td class="text-left"><p>训练 (FSDP/Megatron)</p></td>
+<td class="text-left"><p>将优化器状态卸载到 CPU</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>分块熵计算 (<code class="docutils literal notranslate"><span class="pre">entropy_from_logits_with_chunking</span></code>)</p></td>
+<td class="text-left"><p>训练 (FSDP)</p></td>
+<td class="text-left"><p>分块计算熵值降低显存峰值</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>熵计算分块大小 (<code class="docutils literal notranslate"><span class="pre">entropy_from_logits_chunk_size</span></code>)</p></td>
+<td class="text-left"><p>训练 (FSDP)</p></td>
+<td class="text-left"><p>熵计算分块大小</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>熵计算重计算 (<code class="docutils literal notranslate"><span class="pre">entropy_checkpointing</span></code>)</p></td>
+<td class="text-left"><p>训练 (FSDP)</p></td>
+<td class="text-left"><p>对熵计算启用重计算</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>流水线输出释放 (<code class="docutils literal notranslate"><span class="pre">deallocate_pipeline_outputs</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>PP 场景下释放已传递的张量</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>激活重计算 (<code class="docutils literal notranslate"><span class="pre">recompute_granularity</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>支持 full/selective/none 三级粒度控制</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id12">
+<h3>3.2 计算加速<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>特性</p></th>
+<th class="head text-left"><p>推理/训练</p></th>
+<th class="head text-left"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>分块预填充 (<code class="docutils literal notranslate"><span class="pre">enable_chunked_prefill</span></code>)</p></td>
+<td class="text-left"><p>推理 (vLLM)</p></td>
+<td class="text-left"><p>大预填充分块并与解码 batch 处理</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>前缀缓存 (<code class="docutils literal notranslate"><span class="pre">enable_prefix_caching</span></code>)</p></td>
+<td class="text-left"><p>推理 (vLLM)</p></td>
+<td class="text-left"><p>自动缓存共享前缀，减少重复计算</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Flash Attention</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>使用 Flash Attention 加速注意力计算，默认启用</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>融合旋转位置编码 (<code class="docutils literal notranslate"><span class="pre">use_fused_rotary_pos_emb</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>融合算子加速 RoPE</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>融合 SwiGLU (<code class="docutils literal notranslate"><span class="pre">use_fused_swiglu</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>融合算子加速 SwiGLU 激活函数</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>持久化 LayerNorm (<code class="docutils literal notranslate"><span class="pre">persist_layer_norm</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>优化 LayerNorm 执行策略</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>Group GEMM (<code class="docutils literal notranslate"><span class="pre">moe_grouped_gemm</span></code>)</p></td>
+<td class="text-left"><p>训练 (Megatron)</p></td>
+<td class="text-left"><p>MoE 场景下的 Group GEMM 优化</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id13">
+<h3>3.3 并行策略<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>并行类型</p></th>
+<th class="head text-left"><p>vLLM</p></th>
+<th class="head text-left"><p>SGLang</p></th>
+<th class="head text-left"><p>FSDP</p></th>
+<th class="head text-left"><p>Megatron</p></th>
+<th class="head text-left"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>数据并行 (DP)</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>数据维度并行</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>张量并行 (TP)</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>层内张量切分</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>流水线并行 (PP)</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>层间流水线切分</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>专家并行 (EP)</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>MoE 专家维度并行</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>序列并行 (SP/Ulysses)</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>序列维度切分，支持长序列</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>上下文并行 (CP)</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p>✅</p></td>
+<td class="text-left"><p>上下文并行处理</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="moe">
+<h2>4. 混合专家模型 (MoE) 特性<a class="headerlink" href="#moe" title="Link to this heading"></a></h2>
+<section id="vllm-sglang-moe">
+<h3>vLLM/SGLang 推理 MoE 支持<a class="headerlink" href="#vllm-sglang-moe" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>专家并行 (EP)</strong> — 通过 <code class="docutils literal notranslate"><span class="pre">ep_size</span></code> 参数配置，将不同专家分配到不同 NPU 设备</p></li>
+<li><p>SGLang 通过 <a class="reference external" href="https://github.com/sgl-project/sgl-kernel-npu/blob/main/python/deep_ep/README.md">deepep</a> 提供高度优化的 EP 通信内核</p></li>
+</ul>
+</section>
+<section id="megatron-moe">
+<h3>Megatron 训练 MoE 支持<a class="headerlink" href="#megatron-moe" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>verl 参数</p></th>
+<th class="head text-left"><p>功能说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.expert_model_parallel_size</span></code></p></td>
+<td class="text-left"><p>专家并行 (EP) 大小，默认 <code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.expert_tensor_parallel_size</span></code></p></td>
+<td class="text-left"><p>TP 拓展 EP 大小，默认 <code class="docutils literal notranslate"><span class="pre">null</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.moe_grouped_gemm</span></code></p></td>
+<td class="text-left"><p><strong>Group GEMM</strong> — MoE 场景下使用 Group GEMM 优化专家计算，默认 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.override_transformer_config.moe_router_dtype</span></code></p></td>
+<td class="text-left"><p><strong>路由数据类型</strong> — 路由与专家输出加权平均的数据类型，可选 <code class="docutils literal notranslate"><span class="pre">fp32</span></code>/<code class="docutils literal notranslate"><span class="pre">fp64</span></code>，默认 <code class="docutils literal notranslate"><span class="pre">fp32</span></code>，提高多专家场景稳定性</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id14">
+<h2>5. 限制与注意事项<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>mbridge 与 VPP 互斥</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.use_mbridge</span></code> 与 <code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.actor.megatron.virtual_pipeline_model_parallel_size</span></code> (VPP) <strong>暂不支持同时开启</strong></p></li>
+<li><p>由于 verl 默认开启 mbridge，使用 VPP 时需手动将 <code class="docutils literal notranslate"><span class="pre">use_mbridge</span></code> 置为 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+</ul>
+</li>
+<li><p><strong>FSDP1 vs FSDP2 差异</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">forward_prefetch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">use_orig_params</span></code> 仅适用于 FSDP1</p></li>
+<li><p>FSDP2 为默认推荐版本，API 支持度参照 <a class="reference external" href="https://www.hiascend.com/document/detail/zh/Pytorch/730/apiref/PyTorchNativeapi/docs/zh/native_apis/pytorch_2-7-1/torch-distributed-fsdp.md">昇腾 PyTorch 版本说明</a></p></li>
+</ul>
+</li>
+<li><p><strong>重计算参数依赖关系</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">recompute_method</span></code> 需 <code class="docutils literal notranslate"><span class="pre">recompute_granularity='full'</span></code> 才生效</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recompute_num_layers</span></code> 需 <code class="docutils literal notranslate"><span class="pre">recompute_granularity='full'</span></code> 才生效</p></li>
+<li><p>当 <code class="docutils literal notranslate"><span class="pre">recompute_method='uniform'</span></code> 时，<code class="docutils literal notranslate"><span class="pre">recompute_num_layers</span></code> 表示每个重计算单元的 Transformer 层数，需能被当前进程模型层数整除</p></li>
+</ul>
+</li>
+<li><p><strong>SGLang NPU 特有配置</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">attention_backend</span></code> 必须设置为 <code class="docutils literal notranslate"><span class="pre">ascend</span></code> 以调用昇腾优化内核</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">enable_memory_saver</span></code> 在 verl 中默认启用，无需额外配置</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="id15">
+<h2>附录：参数速查表<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<section id="id16">
+<h3>推理后端参数速查<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>参数类别</p></th>
+<th class="head text-left"><p>vLLM 参数</p></th>
+<th class="head text-left"><p>SGLang 参数</p></th>
+<th class="head text-left"><p>verl 通用参数</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>模型路径</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">model_path</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">model_path</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model.path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>显存控制</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">gpu_memory_utilization</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">mem_fraction_static</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.gpu_memory_utilization</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>图模式</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enforce_eager</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">disable_cuda_graph</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.enforce_eager</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>量化</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">quantization</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">quantization</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.quantization</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>最大序列长度</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">max_model_len</span></code></p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.max_model_len</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>最大并发数</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">max_num_seqs</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">max_running_requests</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.max_num_seqs</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>分词器</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">skip_tokenizer_init</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">skip_tokenizer_init</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.skip_tokenizer_init</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>远程代码</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">trust_remote_code</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">trust_remote_code</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.model.trust_remote_code</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>TP 并行</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tp_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">tp_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.tensor_model_parallel_size</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>DP 并行</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">dp_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">dp_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.data_parallel_size</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>EP 并行</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ep_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ep_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">actor_rollout_ref.rollout.expert_parallel_size</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id17">
+<h3>训练后端参数速查<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>参数类别</p></th>
+<th class="head text-left"><p>FSDP 参数</p></th>
+<th class="head text-left"><p>Megatron 参数</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>参数卸载</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">fsdp_config.param_offload</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">megatron.param_offload</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>优化器卸载</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">fsdp_config.optimizer_offload</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">megatron.optimizer_offload</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>序列并行</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ulysses_sequence_parallel_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">context_parallel_size</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>Flash Attention</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">override_transformer_config.use_flash_attn</span></code></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>重计算粒度</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">override_transformer_config.recompute_granularity</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>分布式 Checkpoint</p></td>
+<td class="text-left"><p>—</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">use_dist_checkpointing</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="ascend_backend_features.html" class="btn btn-neutral float-left" title="Ascend Backend Features Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../dev_guide/model_dev/transfer_to_npu_guide.html" class="btn btn-neutral float-right" title="Transfer to NPU guide" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

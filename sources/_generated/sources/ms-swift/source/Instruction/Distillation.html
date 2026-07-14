@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>知识蒸馏（Knowledge Distillation） &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">知识蒸馏（Knowledge Distillation）</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source/Instruction/Distillation.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="knowledge-distillation">
+<h1>知识蒸馏（Knowledge Distillation）<a class="headerlink" href="#knowledge-distillation" title="Link to this heading"></a></h1>
+<p>知识蒸馏是一种将教师模型（teacher model）的能力迁移到学生模型（student model）的训练方法。其核心思想是：让学生在每个 token 位置上向教师的输出分布靠拢，从而获得比单纯模仿标注答案更丰富的监督信号——教师不仅告诉学生「哪个 token 是对的」，还告诉学生「其他 token 有多好 / 多差」。</p>
+<p>本文档自顶向下地介绍：蒸馏为什么有效（第一节）、蒸馏方法的统一设计框架（第二节），最后落到 swift 中三种具体的蒸馏训练方法 GKD / OPD-RL / OPSD（第三节）。</p>
+<hr class="docutils" />
+<section id="id1">
+<h2>一、为什么需要蒸馏：从稀疏信号到稠密信号<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>一个语言模型的能力，通常由一连串训练阶段堆叠而成：</p>
+<ul class="simple">
+<li><p><strong>预训练（Pre-training）</strong>：习得语言、世界知识、基础推理等通用能力。</p></li>
+<li><p><strong>中训练（Mid-training）</strong>：注入领域知识，如代码、医学、公司内部文档等。</p></li>
+<li><p><strong>后训练（Post-training）</strong>：激发目标行为，如指令遵循、数学推理、对话风格等。</p></li>
+</ul>
+<p>蒸馏主要发生在<strong>后训练</strong>阶段。要理解它的价值，需要从两个彼此独立的维度来看待后训练方法：</p>
+<ol class="arabic simple">
+<li><p><strong>采样方式（数据从哪来）</strong>：训练序列是由学生自己生成（on-policy），还是来自外部固定数据（off-policy）。</p></li>
+<li><p><strong>反馈密度（每条序列能学到多少）</strong>：是整条序列只有一个奖励（per-sequence，稀疏），还是每个 token 都有信号（per-token，稠密）。</p></li>
+</ol>
+<p><strong>SFT / 离线蒸馏</strong>（off-policy + 稠密）：在固定数据上对齐标注或教师分布。信号稠密，但训练时见到的都是教师/标注的状态，和学生推理时自己会进入的状态不一致。学生一旦在推理早期犯了教师不会犯的错，就会进入训练中从未见过的状态，误差不断累积，这被称为 <strong>exposure bias（曝光偏差）</strong>。</p>
+<p><strong>RL</strong>（on-policy + 稀疏）：学生自己采样，按最终结果给奖励。分布与学生推理一致，但奖励通常是<strong>序列级</strong>标量，一般不指明具体哪个 token 出错。</p>
+<p><strong>On-policy 蒸馏</strong>（on-policy + 稠密）：学生自己采样轨迹，再由教师对轨迹的<strong>每一个 token</strong> 打分。训练分布与学生推理分布一致，且反馈为 per-token 级别。</p>
+<section id="sft">
+<h3>SFT 是蒸馏的一个特例<a class="headerlink" href="#sft" title="Link to this heading"></a></h3>
+<p>理解蒸馏的一个自然切入点是 SFT 的损失函数。SFT 的 cross-entropy loss，等价于以标注 token 的 one-hot 分布 $\delta_{y^*}$ 为「教师」的 KL 散度：</p>
+<p>$$-\log P_S(y^<em><em>t) = \text{KL}(\delta</em>{y^</em>} ,|, P_S)$$</p>
+<p>知识蒸馏只是把这个确定性的 one-hot「教师」换成了真实教师模型的软分布 $P_T$，在每个 token 上优化 $\text{KL}(P_T ,|, P_S)$，从而提供比 one-hot 丰富的监督信号。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>方法</p></th>
+<th class="head"><p>采样方式</p></th>
+<th class="head"><p>反馈密度</p></th>
+<th class="head"><p>教师分布</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>off-policy（固定数据）</p></td>
+<td><p>稠密（per-token）</p></td>
+<td><p>one-hot $\delta_{y^*}$</p></td>
+</tr>
+<tr class="row-odd"><td><p>离线（off-policy）蒸馏</p></td>
+<td><p>off-policy（固定数据或教师生成）</p></td>
+<td><p>稠密（per-token）</p></td>
+<td><p>教师软分布</p></td>
+</tr>
+<tr class="row-even"><td><p>RL</p></td>
+<td><p>on-policy（学生采样）</p></td>
+<td><p>稀疏（per-sequence）</p></td>
+<td><p>无</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>On-policy 蒸馏</strong></p></td>
+<td><p><strong>on-policy（学生采样）</strong></p></td>
+<td><p><strong>稠密（per-token）</strong></p></td>
+<td><p><strong>教师软分布</strong></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2>二、蒸馏的两个核心选择<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>不同蒸馏方法的差异，几乎都可以归结为两个问题。理解了这两个维度，后面的方法都只是它们的不同组合。</p>
+<section id="id3">
+<h3>2.1 教师信号怎么算<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在每个 token 位置上，量化教师分布 $P_T$ 与学生分布 $P_S$ 的差异（我们称之为 <strong>Teacher KL</strong>），有两个子选择。</p>
+<p><strong>(a) 散度方向</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>散度</p></th>
+<th class="head"><p>定义</p></th>
+<th class="head"><p>优化时的行为（信息论含义）</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Forward KL</p></td>
+<td><p>$\text{KL}(P_T ,|, P_S)$</p></td>
+<td><p>Mode-covering：学生需对教师概率较高的区域都赋予足够概率</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reverse KL</p></td>
+<td><p>$\text{KL}(P_S ,|, P_T)$</p></td>
+<td><p>Mode-seeking：学生主要拟合教师的众数（高概率）区域</p></td>
+</tr>
+<tr class="row-even"><td><p>广义 JSD($\beta$)</p></td>
+<td><p>$\beta,\text{KL}(P_T|M) + (1-\beta),\text{KL}(P_S|M)$，其中 $M=\beta P_T+(1-\beta)P_S$</p></td>
+<td><p>在两者之间插值</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>其中 $\beta=0$ 退化为 Forward KL，$\beta=1$ 退化为 Reverse KL。SFT 等价于 Forward KL（教师为 one-hot）。</p>
+</div></blockquote>
+<p>在 swift 中：</p>
+<ul class="simple">
+<li><p>GKD 默认 $\beta=0.5$（JSD），可通过 <code class="docutils literal notranslate"><span class="pre">--beta</span></code> 在 Forward / JSD / Reverse 之间选择；</p></li>
+<li><p>OPD-RL 的实现固定使用 Reverse KL 的 k1 估计量 $\log\pi_{\text{teacher}}(y_t)-\log\pi_{\text{student}}(y_t)$ 作为 per-token advantage。</p></li>
+</ul>
+<p><strong>(b) 计算粒度</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>计算粒度</p></th>
+<th class="head"><p>需要的教师信息</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>全词表</p></td>
+<td><p>教师完整的 next-token 分布</p></td>
+<td><p>可计算散度的精确值；显存开销大</p></td>
+</tr>
+<tr class="row-odd"><td><p>Top-K</p></td>
+<td><p>教师概率最高的 K 个 token</p></td>
+<td><p>在 top-K 子集上重新归一化后的近似；适合外部 API（受 <code class="docutils literal notranslate"><span class="pre">max_logprobs</span></code> 限制）</p></td>
+</tr>
+<tr class="row-even"><td><p>采样 token</p></td>
+<td><p>教师在学生实际采样 token 上的单个 logp</p></td>
+<td><p>Reverse KL 的单样本蒙特卡洛估计；通信开销最低</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p><strong>精度 vs 开销</strong>：全词表需要物化完整 logits；采样 token 只需教师在已采样 token 上的 logp（可走远程 API）。<a class="reference external" href="https://arxiv.org/abs/2606.19348">DeepSeek-V4</a>技术报告指出，仅用采样 token 的 log-ratio 作 advantage 时梯度估计方差较大，因此其全词表 OPD 采用完整 logit 蒸馏</p>
+</div></blockquote>
+</section>
+<section id="id4">
+<h3>2.2 信号怎么传给学生<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p><strong>路径 A：GKD（直接损失）</strong></p></th>
+<th class="head"><p><strong>路径 B：OPD-RL（RL Advantage）</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>训练范式</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">gkd</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">grpo</span></code> + 教师</p></td>
+</tr>
+<tr class="row-odd"><td><p>信号传递</p></td>
+<td><p>把信号作为 loss</p></td>
+<td><p>把信号当 advantage，走 policy gradient</p></td>
+</tr>
+<tr class="row-even"><td><p>梯度流经</p></td>
+<td><p>学生<strong>全词表</strong> logits（或 top-k）</p></td>
+<td><p>仅学生<strong>采样 token</strong> 的 $\nabla\log\pi(y_t)$</p></td>
+</tr>
+<tr class="row-odd"><td><p>教师信息需求</p></td>
+<td><p>全词表分布（或 top-k logits）</p></td>
+<td><p>采样 token 上的单个 logp</p></td>
+</tr>
+<tr class="row-even"><td><p>散度选择</p></td>
+<td><p>Forward / Reverse / JSD（<code class="docutils literal notranslate"><span class="pre">--beta</span></code>）</p></td>
+<td><p>Reverse KL（k1 log-ratio）</p></td>
+</tr>
+<tr class="row-odd"><td><p>与任务奖励组合</p></td>
+<td><p>通过 <code class="docutils literal notranslate"><span class="pre">sft_alpha</span></code> 混合 SFT loss</p></td>
+<td><p>可与 GRPO reward 叠加为 advantage</p></td>
+</tr>
+</tbody>
+</table>
+<p>两者<strong>共享同一套教师基础设施</strong>（见下文），区别只在如何使用 teacher KL 信号。</p>
+<blockquote>
+<div><p><strong>蒸馏的常见用法</strong></p>
+<ol class="arabic simple">
+<li><p><strong>能力融合</strong>：多个专家模型蒸馏到统一模型。</p></li>
+<li><p><strong>强到弱</strong>：大模型向小模型传递能力。</p></li>
+<li><p><strong>防遗忘</strong>：用旧 checkpoint 作教师，在多阶段训练后恢复先前能力。</p></li>
+</ol>
+</div></blockquote>
+</section>
+</section>
+<hr class="docutils" />
+<section id="swift">
+<h2>三、swift 中的蒸馏方法<a class="headerlink" href="#swift" title="Link to this heading"></a></h2>
+<p>swift 提供三种蒸馏训练方法，它们共享同一套教师基础设施：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>方法</p></th>
+<th class="head"><p>信号传递路径</p></th>
+<th class="head"><p>启用方式</p></th>
+<th class="head"><p>一句话</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>GKD</strong></p></td>
+<td><p>直接损失（路径 A）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">gkd</span></code></p></td>
+<td><p>教师散度作为 loss 反向传播；支持全词表 / top-k 散度</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>OPD-RL</strong></p></td>
+<td><p>RL advantage（路径 B）</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">grpo</span></code> + 教师</p></td>
+<td><p>教师 log-ratio 注入 GRPO advantage，可与任务奖励叠加</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>OPSD</strong></p></td>
+<td><p>A 或 B 均可</p></td>
+<td><p>在上面基础上提供 <code class="docutils literal notranslate"><span class="pre">teacher_prompt</span></code></p></td>
+<td><p>单模型自蒸馏：教师输入含特权信息（如参考解答）</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>教师的三种来源</strong>（GKD 与 OPD-RL 通用）：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code>：在训练进程中加载一个独立的冻结教师模型。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--teacher_model_server</span></code>：连接一个外部教师服务（<code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">deploy</span></code>启动的vllm服务），不在训练卡上加载教师。GKD 使用 API 时需同时设置 <code class="docutils literal notranslate"><span class="pre">--gkd_logits_topk</span></code>。支持单 URL 与多 teacher JSON 配置。</p></li>
+<li><p><strong>自蒸馏</strong>：教师与学生同源。LoRA 训练且 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 与 <code class="docutils literal notranslate"><span class="pre">--model</span></code> 相同时，自动用 <code class="docutils literal notranslate"><span class="pre">disable_adapter()</span></code> 以基座为固定教师，无需额外加载；不传 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 且设置 <code class="docutils literal notranslate"><span class="pre">teacher_prompt</span></code>, 则以「学生当前权重」为动态教师。</p></li>
+</ul>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>默认值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code></p></td>
+<td><p>None</p></td>
+<td><p>教师模型路径；GKD 下不传则为动态自蒸馏</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--teacher_model_server</span></code></p></td>
+<td><p>None</p></td>
+<td><p>教师 API 地址（与 <code class="docutils literal notranslate"><span class="pre">teacher_model</span></code> 互斥）；见下方格式说明</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--teacher_tag_key</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;dataset&quot;</span></code></p></td>
+<td><p>多 teacher 路由时，样本用于匹配 teacher <code class="docutils literal notranslate"><span class="pre">tags</span></code> 的字段名</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--teacher_deepspeed</span></code></p></td>
+<td><p>None</p></td>
+<td><p>教师模型的 DeepSpeed 配置（如 <code class="docutils literal notranslate"><span class="pre">zero3</span></code>）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--offload_teacher_model</span></code></p></td>
+<td><p>False</p></td>
+<td><p>非前向阶段将教师卸载到 CPU（仅 <code class="docutils literal notranslate"><span class="pre">teacher_model</span></code> 生效）</p></td>
+</tr>
+</tbody>
+</table>
+<p>完整参数说明见<a class="reference internal" href="Command-line-parameters.html#rewardteacher模型参数"><span class="std std-ref">命令行参数</span></a>。</p>
+<section id="api">
+<h3>外部教师 API<a class="headerlink" href="#api" title="Link to this heading"></a></h3>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">deploy</span> <span class="pre">--model</span> <span class="pre">xxx</span> <span class="pre">--infer_backend</span> <span class="pre">vllm</span></code> 部署教师服务后，训练进程按 prompt 向 API 请求 logprobs，无需在训练卡上加载教师权重。</p>
+<ul class="simple">
+<li><p><strong>GKD</strong>：需设置 <code class="docutils literal notranslate"><span class="pre">--gkd_logits_topk</span></code>（API 仅返回 top-k logprobs），用于计算 JSD 散度损失。</p></li>
+<li><p><strong>OPD-RL</strong>：取采样 token 的 logp（<code class="docutils literal notranslate"><span class="pre">prompt_logprobs=0</span></code>），注入 advantage；系数由全局 <code class="docutils literal notranslate"><span class="pre">--teacher_kl_coef</span></code> 控制（见 <a class="reference internal" href="#opd-rl-kl-rl-advantage">3.2</a>）。</p></li>
+</ul>
+</section>
+<section id="multi-teacher">
+<h3>Multi-Teacher（多教师路由）<a class="headerlink" href="#multi-teacher" title="Link to this heading"></a></h3>
+<p>Multi-Teacher 允许同时连接多个外部教师 API，按 tag 将每条样本路由到一个教师，实现领域专家蒸馏。</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">teacher_model_server</span></code> 格式</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 单 teacher</span>
+--teacher_model_server<span class="w"> </span>http://localhost:8000
+
+<span class="c1"># 多 teacher（`tags` 与 `--dataset` 或数据列取值对应，见下方「模式一」）</span>
+--teacher_model_server<span class="w"> </span><span class="s1">&#39;[{&quot;url&quot;:&quot;http://t1:8000&quot;,&quot;tags&quot;:[&quot;data/math.jsonl&quot;]},{&quot;url&quot;:&quot;http://t2:8001&quot;,&quot;tags&quot;:[&quot;data/code.jsonl&quot;]}]&#39;</span>
+</pre></div>
+</div>
+<p>每个 teacher 配置项：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>字段</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">url</span></code></p></td>
+<td><p>教师 API 地址</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tags</span></code></p></td>
+<td><p>该教师负责的数据来源；单 teacher 可省略；多 teacher 时各条目不重叠，且与下方路由方式中的标识一致</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>路由方式</strong></p>
+<p><strong>模式一：按数据集路由（默认）</strong></p>
+<p>传入多个 <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> 时，样本按来源数据集匹配 teacher。默认 <code class="docutils literal notranslate"><span class="pre">--teacher_tag_key</span></code> 为 <code class="docutils literal notranslate"><span class="pre">&quot;dataset&quot;</span></code>，<code class="docutils literal notranslate"><span class="pre">tags</span></code> 与 <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> 中对应项保持一致：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Hub ID</span>
+--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-en<span class="w"> </span>AI-ModelScope/alpaca-cleaned<span class="w"> </span><span class="se">\</span>
+--teacher_model_server<span class="w"> </span><span class="s1">&#39;[{&quot;url&quot;:&quot;http://t1:8000&quot;,&quot;tags&quot;:[&quot;AI-ModelScope/alpaca-gpt4-data-en&quot;]},{&quot;url&quot;:&quot;http://t2:8001&quot;,&quot;tags&quot;:[&quot;AI-ModelScope/alpaca-cleaned&quot;]}]&#39;</span>
+
+<span class="c1"># 本地路径</span>
+--dataset<span class="w"> </span>data/math.jsonl<span class="w"> </span>data/code.jsonl<span class="w"> </span><span class="se">\</span>
+--teacher_model_server<span class="w"> </span><span class="s1">&#39;[{&quot;url&quot;:&quot;http://t1:8000&quot;,&quot;tags&quot;:[&quot;data/math.jsonl&quot;]},{&quot;url&quot;:&quot;http://t2:8001&quot;,&quot;tags&quot;:[&quot;data/code.jsonl&quot;]}]&#39;</span>
+</pre></div>
+</div>
+<p><strong>模式二：按样本路由</strong></p>
+<p>在数据文件中为每条样本增加列（如 <code class="docutils literal notranslate"><span class="pre">teacher_tag</span></code>），设置 <code class="docutils literal notranslate"><span class="pre">--teacher_tag_key</span> <span class="pre">teacher_tag</span></code>，<code class="docutils literal notranslate"><span class="pre">tags</span></code> 与该列取值对应。适用于只传一个 <code class="docutils literal notranslate"><span class="pre">--dataset</span></code> 但仍需多个 teacher 的场景。</p>
+<p><strong>示例：GKD + 多 teacher</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 部署两个教师服务（GKD 需 max_logprobs &gt;= gkd_logits_topk）</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--max_logprobs<span class="w"> </span><span class="m">64</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen3.5-1.7B<span class="w"> </span>--port<span class="w"> </span><span class="m">8001</span><span class="w"> </span>--max_logprobs<span class="w"> </span><span class="m">64</span>
+
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>gkd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-0.6B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--teacher_model_server<span class="w"> </span><span class="s1">&#39;[{&quot;url&quot;:&quot;http://localhost:8000&quot;,&quot;tags&quot;:[&quot;data/math.jsonl&quot;]},{&quot;url&quot;:&quot;http://localhost:8001&quot;,&quot;tags&quot;:[&quot;data/code.jsonl&quot;]}]&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gkd_logits_topk<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>data/math.jsonl<span class="w"> </span>data/code.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p><strong>示例：OPD-RL + 多 teacher</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span>--max_logprobs<span class="w"> </span><span class="m">1</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen3.5-1.7B<span class="w"> </span>--port<span class="w"> </span><span class="m">8001</span><span class="w"> </span>--max_logprobs<span class="w"> </span><span class="m">1</span>
+
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>grpo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-0.6B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--teacher_model_server<span class="w"> </span><span class="s1">&#39;[{&quot;url&quot;:&quot;http://localhost:8000&quot;,&quot;tags&quot;:[&quot;data/math.jsonl&quot;]},{&quot;url&quot;:&quot;http://localhost:8001&quot;,&quot;tags&quot;:[&quot;data/code.jsonl&quot;]}]&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--teacher_kl_coef<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>data/math.jsonl<span class="w"> </span>data/code.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--use_vllm<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--vllm_mode<span class="w"> </span>colocate<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="gkd">
+<h3>3.1 GKD：散度作为直接损失<a class="headerlink" href="#gkd" title="Link to this heading"></a></h3>
+<p>GKD（<a class="reference external" href="https://arxiv.org/pdf/2306.13649">Generalized Knowledge Distillation</a>）直接把教师-学生间的散度作为损失函数反向传播。</p>
+<p><strong>损失函数</strong></p>
+<p>$$
+\mathcal{L}<em>{\text{GKD}}(x, y) = \sum</em>{t=1}^{|y|} D_{\text{JSD}(\beta)}\big(P_{\text{teacher}}(\cdot|x,y_{&lt;t}),, P_{\text{student}}(\cdot|x,y_{&lt;t})\big)
+$$</p>
+<p>其中散度 $D$ 由 <code class="docutils literal notranslate"><span class="pre">--beta</span></code> 选择（见 2.1）：$\beta=0$ 为 Forward KL，$\beta=1$ 为 Reverse KL，$0&lt;\beta&lt;1$ 为广义 JSD（默认 $0.5$）。</p>
+<p><strong>On-Policy vs Off-Policy：<code class="docutils literal notranslate"><span class="pre">lmbda</span></code></strong></p>
+<p>GKD 通过 <code class="docutils literal notranslate"><span class="pre">lmbda</span></code> 控制每个 batch 用学生在线采样的概率：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">lmbda</span><span class="p">:</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">student</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>   <span class="c1"># on-policy：学生自己采样</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y_ground_truth</span>        <span class="c1"># off-policy：使用数据集标注</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">D</span><span class="p">(</span><span class="n">P_teacher</span><span class="p">(</span><span class="err">·</span><span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">P_student</span><span class="p">(</span><span class="err">·</span><span class="o">|</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">lmbda=0</span></code>：纯离线（传统 SFT 蒸馏）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lmbda=1</span></code>：纯在线（学生从自身错误中学习，即 on-policy 蒸馏）。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">0&lt;lmbda&lt;1</span></code>：混合。</p></li>
+</ul>
+<blockquote>
+<div><p>若希望走teacher生成数据路径，需先用教师离线生成响应写入数据集，再设 <code class="docutils literal notranslate"><span class="pre">lmbda=0</span></code> 训练</p>
+</div></blockquote>
+<p><strong>GKD参数</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>类型</p></th>
+<th class="head"><p>默认值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--beta</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.5</p></td>
+<td><p>散度插值：0=Forward KL，0.5=JSD，1=Reverse KL</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--lmbda</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0.5</p></td>
+<td><p>在线采样概率：0=离线，1=纯在线</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--sft_alpha</span></code></p></td>
+<td><p>float</p></td>
+<td><p>0</p></td>
+<td><p>混合 SFT loss 比例，最终 <code class="docutils literal notranslate"><span class="pre">loss</span> <span class="pre">=</span> <span class="pre">gkd_loss</span> <span class="pre">+</span> <span class="pre">sft_alpha</span> <span class="pre">*</span> <span class="pre">sft_loss</span></code>（仅对<strong>非学生生成</strong>的数据生效）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--gkd_logits_topk</span></code></p></td>
+<td><p>int</p></td>
+<td><p>None</p></td>
+<td><p>仅用教师 top-K logits 计算 KL；使用 <code class="docutils literal notranslate"><span class="pre">teacher_model_server</span></code> 时为必填</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Top-K 蒸馏（省显存）</strong></p>
+<p>默认用完整词表计算 KL，词表很大时容易 OOM，可使用<code class="docutils literal notranslate"><span class="pre">--gkd_logits_topk</span></code>参数。</p>
+<p><strong>外部教师 API</strong></p>
+<p>设置 <code class="docutils literal notranslate"><span class="pre">--teacher_model_server</span></code> 时需同时设置 <code class="docutils literal notranslate"><span class="pre">--gkd_logits_topk</span></code>（API 仅返回 top-k logprobs）。示例如下：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 步骤 1：部署教师模型（max_logprobs 需 &gt;= gkd_logits_topk）</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-9B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_logprobs<span class="w"> </span><span class="m">64</span>
+
+<span class="c1"># 步骤 2：启动 GKD 训练</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span>,2,3,4<span class="w"> </span><span class="se">\</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>rlhf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--rlhf_type<span class="w"> </span>gkd<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-2B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--teacher_model_server<span class="w"> </span>http://localhost:8000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gkd_logits_topk<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lmbda<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--beta<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>xxx
+</pre></div>
+</div>
+<p><strong>在线采样加速</strong></p>
+<p><code class="docutils literal notranslate"><span class="pre">lmbda</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 时学生需在线生成序列，建议用 vLLM 加速采样（colocate / server 两种模式，与 GRPO 一致），参考 <a class="reference internal" href="GRPO/GetStarted/GRPO.html#id2"><span class="std std-ref">GRPO 文档</span></a>。</p>
+<p><strong>多轮 GKD</strong></p>
+<p>GKD 多轮训练，与 GRPO 共享同一套 <code class="docutils literal notranslate"><span class="pre">MultiTurnScheduler</span></code> 基础设施。</p>
+<p>完整接口和自定义方式请参考 <a class="reference internal" href="GRPO/DeveloperGuide/multi_turn.html"><span class="std std-doc">GRPO 多轮训练文档</span></a>。</p>
+<p><strong>参考脚本</strong></p>
+<ul class="simple">
+<li><p>基础训练：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/rlhf/gkd/">examples/train/rlhf/gkd/</a></p></li>
+<li><p>多轮训练：<a class="reference external" href="https://github.com/modelscope/ms-swift/blob/main/examples/train/rlhf/gkd/multi_turn.sh">examples/train/rlhf/gkd/multi_turn.sh</a></p></li>
+<li><p>多模态：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/multimodal/rlhf/gkd/">examples/train/multimodal/rlhf/gkd/</a></p></li>
+<li><p>Megatron：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/gkd/">examples/megatron/rlhf/gkd/</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="opd-rl-kl-rl-advantage">
+<h3>3.2 OPD-RL：KL 作为 RL Advantage<a class="headerlink" href="#opd-rl-kl-rl-advantage" title="Link to this heading"></a></h3>
+<p>OPD（On-Policy Distillation）RL 把教师 KL 信号注入 GRPO 的 <strong>per-token advantage</strong>，通过 policy gradient 更新学生。</p>
+<p><strong>原理</strong></p>
+<p>标准 GRPO 的 advantage 来自组内归一化的任务奖励（per-sequence 标量）。OPD-RL 在 advantage 归一化<strong>之后</strong>逐 token 注入教师信号：</p>
+<p>$$
+A_t = A_t^{\text{base}} + \alpha \cdot \big(\log \pi_{\text{teacher}}(y_t|x,y_{&lt;t}) - \log \pi_{\text{student}}(y_t|x,y_{&lt;t})\big)
+$$</p>
+<ul class="simple">
+<li><p>$A_t^{\text{base}}$：GRPO 归一化后的任务奖励 advantage（无奖励函数时为 0）。</p></li>
+<li><p>$\alpha$：<code class="docutils literal notranslate"><span class="pre">--teacher_kl_coef</span></code>，教师信号强度。</p></li>
+<li><p>$\log\pi_{\text{teacher}}(y_t) - \log\pi_{\text{student}}(y_t)$：教师 log-ratio，即 Reverse KL 梯度中 $\nabla_\theta\log\pi_\theta(y_t)$ 系数对应的 k1 估计量（见 <code class="docutils literal notranslate"><span class="pre">compute_teacher_logratio</span></code>）。</p></li>
+</ul>
+<p><strong>纯蒸馏模式</strong>：不设 <code class="docutils literal notranslate"><span class="pre">--reward_funcs</span></code> 时 base advantage 为 0，教师信号是唯一驱动力，此时 $A_t = \alpha\cdot(\log\pi_{\text{teacher}}(y_t)-\log\pi_{\text{student}}(y_t))$。</p>
+<p><strong>监控指标</strong>：日志中的 <code class="docutils literal notranslate"><span class="pre">teacher_kl</span></code> 是 k3 估计量 $e^{d}-d-1$（$d=\log\pi_{\text{teacher}}-\log\pi_{\text{student}}$），衡量学生与教师的距离。</p>
+<p><strong>启用方式</strong>：在 <code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">grpo</span></code> 下设置 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 或 <code class="docutils literal notranslate"><span class="pre">--teacher_model_server</span></code> 即自动启用 OPD-RL，无需额外开关。教师相关参数见上文共享参数表。</p>
+<p><strong>OPD-RL 特有参数</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>默认值</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--teacher_kl_coef</span></code></p></td>
+<td><p>1.0</p></td>
+<td><p>教师 log-ratio 注入 advantage 的系数 $\alpha$</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>参考脚本</strong></p>
+<ul class="simple">
+<li><p>HF：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/grpo/opd_rl.sh">examples/train/grpo/opd_rl.sh</a></p></li>
+<li><p>Megatron：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/grpo/opd_rl.sh">examples/megatron/grpo/opd_rl.sh</a></p></li>
+<li><p>Ray：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/ray/grpo/run_opd.sh">examples/ray/grpo/run_opd.sh</a></p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="opsd-on-policy-self-distillation">
+<h3>3.3 OPSD：On-Policy Self-Distillation<a class="headerlink" href="#opsd-on-policy-self-distillation" title="Link to this heading"></a></h3>
+<p>OPSD（<a class="reference external" href="https://arxiv.org/abs/2601.18734">On-Policy Self-Distillation</a>）是一种单模型自蒸馏方法：同一模型分别构造学生输入与教师输入，教师侧额外接收<strong>特权信息</strong>（如参考解答），再对齐两者在学生采样响应上的输出分布。</p>
+<p><strong>核心机制</strong></p>
+<ul class="simple">
+<li><p><strong>学生</strong>：仅看到问题，正常推理。</p></li>
+<li><p><strong>教师</strong>：看到问题 + 参考解答（通过 <code class="docutils literal notranslate"><span class="pre">teacher_prompt</span></code> 列提供特权信息）。</p></li>
+<li><p><strong>训练目标</strong>：用散度（JSD / KL）对齐学生与教师在同一份学生采样响应上的输出分布。</p></li>
+</ul>
+<p>OPSD 既可走 GKD 路径，也可走 OPD-RL 路径：</p>
+<ul class="simple">
+<li><p><strong>GKD + OPSD</strong>：<code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">gkd</span></code>，教师 KL 作为直接损失。</p></li>
+<li><p><strong>OPD-RL + OPSD</strong>：<code class="docutils literal notranslate"><span class="pre">--rlhf_type</span> <span class="pre">grpo</span></code>；动态模式不传 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code>，固定模式设 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 与 <code class="docutils literal notranslate"><span class="pre">--model</span></code> 相同。</p></li>
+</ul>
+<p><strong>两种自蒸馏权重模式</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模式</p></th>
+<th class="head"><p>参数配置</p></th>
+<th class="head"><p>教师权重</p></th>
+<th class="head"><p>说明</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Dynamic（动态）</strong></p></td>
+<td><p>不传 <code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code></p></td>
+<td><p>学生当前权重</p></td>
+<td><p>教师随训练同步更新</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Fixed（固定）</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--teacher_model</span></code> 设为与 <code class="docutils literal notranslate"><span class="pre">--model</span></code> 相同</p></td>
+<td><p>初始教师权重</p></td>
+<td><p>教师权重固定</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>数据格式</strong></p>
+<p>OPSD 数据集需包含 <code class="docutils literal notranslate"><span class="pre">teacher_prompt</span></code> 列，可通过 <code class="docutils literal notranslate"><span class="pre">--external_plugins</span></code> 加载数据处理插件来构建。以数学推理数据集 <code class="docutils literal notranslate"><span class="pre">open-r1/OpenThoughts-114k-math</span></code> 为例：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">swift.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetMeta</span><span class="p">,</span> <span class="n">RowPreprocessor</span><span class="p">,</span> <span class="n">register_dataset</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OpenThoughtsOPSDPreprocessor</span><span class="p">(</span><span class="n">RowPreprocessor</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">preprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;correct&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;problem&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;solution&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">teacher_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">Reference solution:</span><span class="se">\n</span><span class="si">{</span><span class="n">solution</span><span class="si">}</span><span class="se">\n\n</span><span class="s1">Now articulate your own reasoning.&#39;</span>
+        <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;system&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="s1">&#39;Please reason step by step, and put your final answer within </span><span class="se">\\</span><span class="s1">boxed</span><span class="si">{}</span><span class="s1">.&#39;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="n">problem</span><span class="p">},</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;messages&#39;</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span> <span class="s1">&#39;teacher_prompt&#39;</span><span class="p">:</span> <span class="n">teacher_prompt</span><span class="p">}</span>
+
+<span class="n">register_dataset</span><span class="p">(</span><span class="n">DatasetMeta</span><span class="p">(</span>
+    <span class="n">ms_dataset_id</span><span class="o">=</span><span class="s1">&#39;open-r1/OpenThoughts-114k-math&#39;</span><span class="p">,</span>
+    <span class="n">preprocess_func</span><span class="o">=</span><span class="n">OpenThoughtsOPSDPreprocessor</span><span class="p">(),</span>
+    <span class="n">tags</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;math&#39;</span><span class="p">,</span> <span class="s1">&#39;opsd&#39;</span><span class="p">],</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+<p><strong>参考脚本</strong></p>
+<ul class="simple">
+<li><p>HF：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/train/rlhf/opsd/">examples/train/rlhf/opsd/</a></p></li>
+<li><p>Megatron：<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/megatron/rlhf/gkd/opsd.sh">examples/megatron/rlhf/gkd/opsd.sh</a></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Kevin Lu &amp; Thinking Machines Lab. <a class="reference external" href="https://thinkingmachines.ai/blog/on-policy-distillation/">On-Policy Distillation</a>. 2025.</p></li>
+<li><p>Agarwal et al. <a class="reference external" href="https://arxiv.org/pdf/2306.13649">On-Policy Distillation of Language Models (GKD)</a>. 2023.</p></li>
+<li><p>Gu et al. <a class="reference external" href="https://arxiv.org/abs/2306.08543">MiniLLM: Knowledge Distillation of Large Language Models</a>. 2023.</p></li>
+<li><p>DeepSeek-AI. <a class="reference external" href="https://arxiv.org/html/2606.19348v1">DeepSeek-V4</a>. 2026.</p></li>
+<li><p>Qwen Team. <a class="reference external" href="https://arxiv.org/abs/2505.09388">Qwen3 Technical Report</a>. 2025.</p></li>
+<li><p>Zhipu AI. <a class="reference external" href="https://arxiv.org/html/2602.15763">GLM-5: from Vibe Coding to Agentic Engineering</a>. 2026.</p></li>
+<li><p>Kimi Team. <a class="reference external" href="https://arxiv.org/abs/2602.02276">Kimi K2.5: Visual Agentic Intelligence</a>. 2026.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

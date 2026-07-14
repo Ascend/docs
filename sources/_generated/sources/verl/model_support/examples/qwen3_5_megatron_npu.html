@@ -1,0 +1,498 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qwen3.5 Megatron NPU 使用指南 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"contribution_guide": "\ud83d\udd27 \u5f00\u6e90\u5f00\u53d1", "dev_guide/model_dev": "\ud83e\uddec \u6a21\u578b\u5f00\u53d1", "dev_guide/performance": "\u26a1 \u6027\u80fd\u8c03\u4f18", "dev_guide/precision_analysis": "\ud83c\udfaf \u7cbe\u5ea6\u8c03\u8bd5", "faq": "\ud83d\udd06 \u5e38\u89c1\u95ee\u9898", "feature_support": "\ud83d\udcda \u7279\u6027\u652f\u6301", "get_start": "\ud83d\ude80 \u5feb\u901f\u5f00\u59cb", "model_support": "\ud83d\udcca \u6a21\u578b\u652f\u6301", "model_support/examples": "\ud83d\udccb \u6700\u4f73\u5b9e\u8df5"};
+        const commId = 'verl';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Qwen3.5 Megatron NPU 使用指南</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/verl/model_support/examples/qwen3_5_megatron_npu.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="qwen3-5-megatron-npu">
+<h1>Qwen3.5 Megatron NPU 使用指南<a class="headerlink" href="#qwen3-5-megatron-npu" title="Link to this heading"></a></h1>
+<p>Last updated: 09/07/2026.</p>
+<p>本文用于指导在 Ascend NPU 上使用 verl + Megatron + vLLM 跑通 Qwen3.5-35B-A3B 和 Qwen3.5-122B-A10B GRPO 示例。</p>
+<section id="id1">
+<h2>版本要求<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>software</p></th>
+<th class="head"><p>version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Docker image</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">quay.io/ascend/verl:verl-9.0.0-a3-ubuntu22.04-py3.11-v0.8.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>verl</p></td>
+<td><p>0.8.0</p></td>
+</tr>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.11</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.0.0</p></td>
+</tr>
+<tr class="row-even"><td><p>Megatron-LM</p></td>
+<td><p>0.16.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>MindSpeed</p></td>
+<td><p>0.16.0</p></td>
+</tr>
+<tr class="row-even"><td><p>Megatron-Bridge</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">de93536e</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>建议直接使用上表中的镜像：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>quay.io/ascend/verl:verl-9.0.0-a3-ubuntu22.04-py3.11-v0.8.0
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>模型和脚本<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>model</p></th>
+<th class="head"><p>HF model</p></th>
+<th class="head"><p>script</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qwen3.5-35B-A3B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Qwen/Qwen3.5-35B-A3B</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">examples/grpo_trainer/run_qwen3_5_35b_megatron.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Qwen3.5-122B-A10B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Qwen/Qwen3.5-122B-A10B</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">examples/grpo_trainer/run_qwen3_5_122b_a10b_megatron.sh</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Qwen3.5-397B-A17B</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Qwen/Qwen3.5-397B-A17B</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">examples/grpo_trainer/run_qwen3_5_397b_megatron.sh</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h2>硬件和并行配置<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>示例脚本默认使用如下 NPU 配置，可以通过同名环境变量覆盖：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>model</p></th>
+<th class="head"><p>nnodes</p></th>
+<th class="head"><p>devices per node</p></th>
+<th class="head"><p>TP</p></th>
+<th class="head"><p>PP</p></th>
+<th class="head"><p>CP</p></th>
+<th class="head"><p>EP</p></th>
+<th class="head"><p>ETP</p></th>
+<th class="head"><p>GEN_DP</p></th>
+<th class="head"><p>GEN_TP</p></th>
+<th class="head"><p>GEN_EP</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qwen3.5-35B-A3B</p></td>
+<td><p>1</p></td>
+<td><p>16</p></td>
+<td><p>2</p></td>
+<td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>8</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>8</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Qwen3.5-122B-A10B</p></td>
+<td><p>4</p></td>
+<td><p>16</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>16</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>16</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>Qwen3.5-397B-A17B</p></td>
+<td><p>16</p></td>
+<td><p>16</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+<td><p>1</p></td>
+<td><p>64</p></td>
+<td><p>1</p></td>
+<td><p>16</p></td>
+<td><p>16</p></td>
+<td><p>256</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h2>数据和模型准备<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>脚本默认使用 Geo3K 数据集，并会下载到 <code class="docutils literal notranslate"><span class="pre">$HOME/data/geo3k</span></code>：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hf<span class="w"> </span>download<span class="w"> </span>tyzhu/geo3k<span class="w"> </span>--repo-type<span class="w"> </span>dataset<span class="w"> </span>--local-dir<span class="w"> </span><span class="nv">$HOME</span>/data/geo3k
+</pre></div>
+</div>
+<p>模型权重可以使用 Hugging Face 模型名，也可以提前下载到本地路径：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>hf<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen3.5-35B-A3B<span class="w"> </span>--local-dir<span class="w"> </span>/path/to/Qwen3.5-35B-A3B
+hf<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen3.5-122B-A10B<span class="w"> </span>--local-dir<span class="w"> </span>/path/to/Qwen3.5-122B-A10B
+hf<span class="w"> </span>download<span class="w"> </span>Qwen/Qwen3.5-397B-A17B<span class="w"> </span>--local-dir<span class="w"> </span>/path/to/Qwen3.5-397B-A17B
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>启动训练<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>训练前需要先启动 Ray 集群。通用多节点说明可参考 <a class="reference internal" href="#../../../start/multinode.rst"><span class="xref myst">Multinode Training</span></a>，Ascend 多节点脚本示例可参考 <a class="reference internal" href="ascend_sglang_best_practices.html"><span class="std std-doc">Ascend SGLang Best Practices</span></a>。</p>
+<p>最小启动方式如下，单机任务只需要执行 head 节点命令；多机任务需要在其他节点执行 worker 节点命令。<code class="docutils literal notranslate"><span class="pre">MASTER_ADDR</span></code> 在所有节点上保持一致，<code class="docutils literal notranslate"><span class="pre">CURRENT_IP</span></code> 设置为当前节点 IP。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">MASTER_ADDR</span><span class="o">=</span>&lt;head-node-ip&gt;
+<span class="nv">CURRENT_IP</span><span class="o">=</span>&lt;current-node-ip&gt;
+<span class="nv">NPUS_PER_NODE</span><span class="o">=</span><span class="m">16</span>
+
+<span class="c1"># head node</span>
+ray<span class="w"> </span>start<span class="w"> </span>--head<span class="w"> </span>--port<span class="w"> </span><span class="m">6766</span><span class="w"> </span>--dashboard-host<span class="o">=</span><span class="nv">$MASTER_ADDR</span><span class="w"> </span>--node-ip-address<span class="o">=</span><span class="nv">$CURRENT_IP</span><span class="w"> </span>--dashboard-port<span class="o">=</span><span class="m">8260</span><span class="w"> </span>--resources<span class="o">=</span><span class="s1">&#39;{&quot;NPU&quot;: &#39;</span><span class="nv">$NPUS_PER_NODE</span><span class="s1">&#39;}&#39;</span>
+
+<span class="c1"># worker nodes, only needed for multi-node jobs</span>
+ray<span class="w"> </span>start<span class="w"> </span>--address<span class="o">=</span><span class="s2">&quot;</span><span class="nv">$MASTER_ADDR</span><span class="s2">:6766&quot;</span><span class="w"> </span>--node-ip-address<span class="o">=</span><span class="nv">$CURRENT_IP</span><span class="w"> </span>--resources<span class="o">=</span><span class="s1">&#39;{&quot;NPU&quot;: &#39;</span><span class="nv">$NPUS_PER_NODE</span><span class="s1">&#39;}&#39;</span>
+
+ray<span class="w"> </span>status
+</pre></div>
+</div>
+<p>通过 <code class="docutils literal notranslate"><span class="pre">ray</span> <span class="pre">status</span></code> 确认 NPU 资源数量符合预期后，在主节点执行训练脚本。Qwen3.5-35B-A3B 默认需要 16 个 NPU 资源，Qwen3.5-122B-A10B 默认需要 64 个 NPU 资源。</p>
+<section id="qwen3-5-35b-a3b">
+<h3>Qwen3.5-35B-A3B<a class="headerlink" href="#qwen3-5-35b-a3b" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">DEVICE</span><span class="o">=</span>npu
+<span class="nb">export</span><span class="w"> </span><span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-35B-A3B
+
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_35b_megatron.sh
+</pre></div>
+</div>
+<p>如果需要覆盖数据路径：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">DEVICE</span><span class="o">=</span>npu<span class="w"> </span><span class="se">\</span>
+<span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-35B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="nv">train_path</span><span class="o">=</span>/path/to/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="nv">test_path</span><span class="o">=</span>/path/to/test.parquet<span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_35b_megatron.sh
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-122b-a10b">
+<h3>Qwen3.5-122B-A10B<a class="headerlink" href="#qwen3-5-122b-a10b" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">DEVICE</span><span class="o">=</span>npu
+<span class="nb">export</span><span class="w"> </span><span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-122B-A10B
+
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_122b_a10b_megatron.sh
+</pre></div>
+</div>
+<p>如果需要覆盖数据、保存路径或并行配置：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">DEVICE</span><span class="o">=</span>npu<span class="w"> </span><span class="se">\</span>
+<span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-122B-A10B<span class="w"> </span><span class="se">\</span>
+<span class="nv">train_files</span><span class="o">=</span>/path/to/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="nv">test_files</span><span class="o">=</span>/path/to/test.parquet<span class="w"> </span><span class="se">\</span>
+<span class="nv">save_path</span><span class="o">=</span>/path/to/checkpoints<span class="w"> </span><span class="se">\</span>
+<span class="nv">NDEVICES_PER_NODE</span><span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">nnodes</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_122b_a10b_megatron.sh
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-397b-a17b">
+<h3>Qwen3.5-397B-A17B<a class="headerlink" href="#qwen3-5-397b-a17b" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">DEVICE</span><span class="o">=</span>npu
+<span class="nb">export</span><span class="w"> </span><span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-397B-A17B
+
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_397b_megatron.sh
+</pre></div>
+</div>
+<p>如果需要覆盖数据、保存路径或并行配置：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">DEVICE</span><span class="o">=</span>npu<span class="w"> </span><span class="se">\</span>
+<span class="nv">HF_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3.5-397B-A17B<span class="w"> </span><span class="se">\</span>
+<span class="nv">train_files</span><span class="o">=</span>/path/to/train.parquet<span class="w"> </span><span class="se">\</span>
+<span class="nv">test_files</span><span class="o">=</span>/path/to/test.parquet<span class="w"> </span><span class="se">\</span>
+<span class="nv">save_path</span><span class="o">=</span>/path/to/checkpoints<span class="w"> </span><span class="se">\</span>
+<span class="nv">NDEVICES_PER_NODE</span><span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">nnodes</span><span class="o">=</span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+bash<span class="w"> </span>examples/grpo_trainer/run_qwen3_5_397b_megatron.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>注意事项<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>脚本会通过 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 自动识别 NPU 环境；如需手动指定，设置 <code class="docutils literal notranslate"><span class="pre">DEVICE=npu</span></code>。</p></li>
+<li><p>Qwen3.5 的 Gated Delta Net 当前不使用 packed sequence，因此脚本中保持 <code class="docutils literal notranslate"><span class="pre">use_remove_padding=False</span></code> 和 <code class="docutils literal notranslate"><span class="pre">use_dynamic_bsz=False</span></code>。</p></li>
+<li><p>NPU 分支会设置 <code class="docutils literal notranslate"><span class="pre">vanilla_mbridge=False</span></code>、<code class="docutils literal notranslate"><span class="pre">use_flash_attn=True</span></code>、<code class="docutils literal notranslate"><span class="pre">moe_token_dispatcher_type=alltoall</span></code> 等 Ascend 适配参数。</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

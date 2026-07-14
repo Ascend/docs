@@ -1,0 +1,1519 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KV Cache Pool（Ascend Store）Deployment Guide &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"faqs": "getting_started", "installation": "getting_started", "quick_start": "getting_started"}, "community": "Community", "developer_guide": "Developer Guide", "getting_started": "Getting Started", "user_guide": "User Guide"};
+        const commId = 'vllm-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">KV Cache Pool（Ascend Store）Deployment Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/vllm-ascend/user_guide/feature_guide/kv_pool.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kv-cache-pool-ascend-store-deployment-guide">
+<h1>KV Cache Pool（Ascend Store）Deployment Guide<a class="headerlink" href="#kv-cache-pool-ascend-store-deployment-guide" title="Link to this heading"></a></h1>
+<section id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#environmental-dependencies">Environmental Dependencies</a></p></li>
+<li><p><a class="reference internal" href="#example-of-using-mooncake-as-a-kv-pool-backend">Example of using Mooncake as a KV Pool backend</a></p></li>
+<li><p><a class="reference internal" href="#example-of-using-memcache-as-a-kv-pool-backend">Example of using Memcache as a KV Pool backend</a></p></li>
+<li><p><a class="reference internal" href="#example-of-using-yuanrong-as-a-kv-pool-backend">Example of using Yuanrong as a KV Pool backend</a></p></li>
+<li><p><a class="reference internal" href="#faq">FAQ</a></p></li>
+</ul>
+</section>
+<section id="environmental-dependencies">
+<h2>Environmental Dependencies<a class="headerlink" href="#environmental-dependencies" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Software:</p>
+<ul>
+<li><p>CANN &gt;= 8.5.0</p></li>
+<li><p>vLLM：main branch</p></li>
+<li><p>vLLM-Ascend：main branch</p></li>
+<li><p>mooncake：&gt;= 0.3.9</p></li>
+</ul>
+</li>
+</ul>
+<section id="kv-pool-parameter-description">
+<h3>KV Pool Parameter Description<a class="headerlink" href="#kv-pool-parameter-description" title="Link to this heading"></a></h3>
+<section id="kv-load-failure-policy-kv-load-failure-handling-policy">
+<h4><code class="docutils literal notranslate"><span class="pre">kv_load_failure_policy</span></code>: KV Load Failure Handling Policy<a class="headerlink" href="#kv-load-failure-policy-kv-load-failure-handling-policy" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">kv_load_failure_policy</span></code> is a top-level field in <code class="docutils literal notranslate"><span class="pre">kv-transfer-config</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">recompute</span></code>: When KV loading fails, vLLM rolls the request back to the last valid prefix and reschedules it to recompute the failed KV blocks. Hybrid attention models (e.g. DeepSeekV4, Qwen 3.5) are not supported yet.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fail</span></code>: When KV loading fails, the affected request is terminated directly with an error.</p></li>
+</ul>
+<p>The default value in vLLM is <code class="docutils literal notranslate"><span class="pre">fail</span></code>. If you want the request to fall back to recomputation after a KV load failure, set it to <code class="docutils literal notranslate"><span class="pre">recompute</span></code>.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">MultiConnector</span></code> is used, configure <code class="docutils literal notranslate"><span class="pre">kv_load_failure_policy</span></code> on the <code class="docutils literal notranslate"><span class="pre">MultiConnector</span></code> top-level <code class="docutils literal notranslate"><span class="pre">kv-transfer-config</span></code> instead of the child connectors.</p>
+</section>
+<section id="kv-connector-extra-config-additional-configurable-parameters-for-pooling">
+<h4><code class="docutils literal notranslate"><span class="pre">kv_connector_extra_config</span></code>: Additional Configurable Parameters for Pooling<a class="headerlink" href="#kv-connector-extra-config-additional-configurable-parameters-for-pooling" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Parameter</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">lookup_rpc_port</span></code></p></td>
+<td class="text-left"><p>Port for RPC Communication Between Pooling Scheduler Process and Worker Process: Each Instance Requires a Unique Port Configuration.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">load_async</span></code></p></td>
+<td class="text-left"><p>Whether to Enable Asynchronous Loading. The default value is false.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">backend</span></code></p></td>
+<td class="text-left"><p>Set the storage backend for kvpool (<code class="docutils literal notranslate"><span class="pre">mooncake</span></code>, <code class="docutils literal notranslate"><span class="pre">memcache</span></code>, <code class="docutils literal notranslate"><span class="pre">yuanrong</span></code>), with the default being <code class="docutils literal notranslate"><span class="pre">mooncake</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">consumer_is_to_put</span></code></p></td>
+<td class="text-left"><p>Whether Decode node put KV Cache into KV Pool. The default value is false.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">consumer_is_to_load</span></code></p></td>
+<td class="text-left"><p>Whether Decode node load KV cache from KV Pool. The default value is false.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">prefill_pp_size</span></code></p></td>
+<td class="text-left"><p>Prefill PP size, needs to be set when Prefill node enables PP.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">prefill_pp_layer_partition</span></code></p></td>
+<td class="text-left"><p>Prefill PP layer partition, needs to be set when Prefill node enables PP.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="environment-variable-configuration">
+<h3>Environment Variable Configuration<a class="headerlink" href="#environment-variable-configuration" title="Link to this heading"></a></h3>
+<p>To guarantee uniform hash generation, it is required to synchronize the PYTHONHASHSEED environment variable across all nodes upon enabling KV Pool.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-of-using-mooncake-as-a-kv-pool-backend">
+<h2>Example of using Mooncake as a KV Pool backend<a class="headerlink" href="#example-of-using-mooncake-as-a-kv-pool-backend" title="Link to this heading"></a></h2>
+<ul>
+<li><p>Software:</p>
+<ul>
+<li><p>Check NPU HCCN Configuration:</p>
+<p>Ensure that the hccn.conf file exists in the environment. If using Docker, mount it into the container.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>/etc/hccn.conf
+</pre></div>
+</div>
+</li>
+<li><p>Install Mooncake</p>
+<p>Mooncake is the serving platform for Kimi, a leading LLM service provided by Moonshot AI.
+Installation and Compilation Guide: <a class="reference external" href="https://github.com/kvcache-ai/Mooncake?tab=readme-ov-file#build-and-use-binaries">https://github.com/kvcache-ai/Mooncake?tab=readme-ov-file#build-and-use-binaries</a>.
+First, we need to obtain the Mooncake project. Refer to the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>v0.3.9<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>https://github.com/kvcache-ai/Mooncake.git
+</pre></div>
+</div>
+<p>(Optional) Replace go install url if the network is poor</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>Mooncake
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s|https://go.dev/dl/|https://golang.google.cn/dl/|g&#39;</span><span class="w"> </span>dependencies.sh
+</pre></div>
+</div>
+<p>Install mpi</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>apt-get<span class="w"> </span>install<span class="w"> </span>mpich<span class="w"> </span>libmpich-dev<span class="w"> </span>-y
+</pre></div>
+</div>
+<p>Install the relevant dependencies. The installation of Go is not required.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>dependencies.sh<span class="w"> </span>-y
+</pre></div>
+</div>
+<p>Compile and install</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>build
+<span class="nb">cd</span><span class="w"> </span>build
+cmake<span class="w"> </span>..<span class="w"> </span>-DUSE_ASCEND_DIRECT<span class="o">=</span>ON
+make<span class="w"> </span>-j
+make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>Set environment variables</p>
+<p><strong>Note:</strong></p>
+<ul class="simple">
+<li><p>Adjust the Python path according to your specific Python installation</p></li>
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">/usr/local/lib</span></code> and <code class="docutils literal notranslate"><span class="pre">/usr/local/lib64</span></code> are in your <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code></p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/lib64/python3.12/site-packages/mooncake:<span class="nv">$LD_LIBRARY_PATH</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ul>
+<section id="environment-variables-description">
+<h3>Environment Variables Description<a class="headerlink" href="#environment-variables-description" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Hardware</p></th>
+<th class="head text-left"><p>Dependencies</p></th>
+<th class="head text-left"><p>Export Command</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>800 I/T A3 series</p></td>
+<td class="text-left"><p>HDK &gt;= 26.0<br>or HDK &gt;= 25.5 with mooncake &gt;= v0.3.11<br>CANN &gt;= 9.0.0<br>LingQu Computing Network &gt;= 1.5</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">ASCEND_ENABLE_USE_FABRIC_MEM=1</span></code></p></td>
+<td class="text-left"><p><strong>Recommended</strong>. Enables unified memory address direct transmission scheme. With SSD offload, see <a class="reference internal" href="#122-fabric-memory-size-alignment-a3--ascend_enable_use_fabric_mem1"><span class="xref myst">Fabric memory size alignment</span></a> — memory sizes must be aligned to 1GB.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>800 I/T A3 series</p></td>
+<td class="text-left"><p>If any dependency above is not met</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">ASCEND_BUFFER_POOL=4:8</span></code></p></td>
+<td class="text-left"><p>Configures the number and size of buffers on the NPU Device for aggregation and KV transfer (e.g., <code class="docutils literal notranslate"><span class="pre">4:8</span></code> means 4 buffers of 8MB).</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>800 I/T A2 series</p></td>
+<td class="text-left"><p>HDK &gt;= 25.5 is recommended</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">HCCL_INTRA_ROCE_ENABLE=1</span></code></p></td>
+<td class="text-left"><p>Required by direct transmission scheme on 800 I/T A2 series</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="run-mooncake-master">
+<h3>Run Mooncake Master<a class="headerlink" href="#run-mooncake-master" title="Link to this heading"></a></h3>
+<p><strong>Note:</strong> Before proceeding, review the following Mooncake guides:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/kvcache-ai/Mooncake/blob/main/docs/source/deployment/mooncake-store-deployment-guide.md">Mooncake Store Deployment Guide</a></p></li>
+<li><p><a class="reference external" href="https://github.com/kvcache-ai/Mooncake/blob/main/docs/source/deployment/ssd-offload.md">SSD Offload</a></p></li>
+</ul>
+<section id="configure-mooncake-json">
+<h4>1. Configure mooncake.json<a class="headerlink" href="#configure-mooncake-json" title="Link to this heading"></a></h4>
+<p>The environment variable <strong>MOONCAKE_CONFIG_PATH</strong> is configured to the full path where mooncake.json is located.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;metadata_server&quot;</span>:<span class="w"> </span><span class="s2">&quot;P2PHANDSHAKE&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;protocol&quot;</span>:<span class="w"> </span><span class="s2">&quot;ascend&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;device_name&quot;</span>:<span class="w"> </span><span class="s2">&quot;&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;master_server_address&quot;</span>:<span class="w"> </span><span class="s2">&quot;xx.xx.xx.xx:50088&quot;</span>,
+<span class="w">    </span><span class="s2">&quot;global_segment_size&quot;</span>:<span class="w"> </span><span class="s2">&quot;1GB&quot;</span><span class="w"> </span><span class="o">(</span>1024MB/1048576KB/1073741824B/1073741824<span class="o">)</span>,
+<span class="w">    </span><span class="s2">&quot;preferred_segment&quot;</span>:<span class="w"> </span>false,
+<span class="w">    </span><span class="s2">&quot;prefer_alloc_in_same_node&quot;</span>:<span class="w"> </span><span class="nb">true</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<p><strong>metadata_server</strong>: Configured as <strong>P2PHANDSHAKE</strong>.<br />
+<strong>protocol:</strong> Must be set to 'Ascend' on the NPU.
+<strong>device_name</strong>: &quot;&quot;
+<strong>master_server_address</strong>: Configured with the IP and port of the master service. It can also be set via the <strong>MOONCAKE_MASTER</strong> environment variable, which takes precedence over this configuration item (useful for injecting the master address through Kubernetes).<br />
+<strong>global_segment_size</strong>: Registered memory size per card to the KV Pool. <strong>Needs to be aligned to 1GB.</strong> It can also be set via the <strong>MOONCAKE_GLOBAL_SEGMENT_SIZE</strong> environment variable, which takes precedence over this configuration item.<br />
+<strong>preferred_segment</strong>: Whether to prefer storing KV on the local segment when putting objects to the KV Pool. Defaults to <strong>false</strong>.<br />
+<strong>prefer_alloc_in_same_node</strong>: Whether to prefer allocating KV on the same node. Defaults to <strong>true</strong>.</p>
+</section>
+<section id="start-mooncake-master">
+<h4>2. Start mooncake_master<a class="headerlink" href="#start-mooncake-master" title="Link to this heading"></a></h4>
+<p>Under the mooncake folder:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mooncake_master<span class="w"> </span>--port<span class="w"> </span><span class="m">50088</span><span class="w"> </span>--eviction_high_watermark_ratio<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span>--eviction_ratio<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span>--default_kv_lease_ttl<span class="w"> </span><span class="m">11000</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">eviction_high_watermark_ratio</span></code> determines the watermark where Mooncake Store will perform eviction, and <code class="docutils literal notranslate"><span class="pre">eviction_ratio</span></code> determines the portion of stored objects that would be evicted.
+<code class="docutils literal notranslate"><span class="pre">default_kv_lease_ttl</span></code> controls the default lease TTL for KV objects (milliseconds); configure it via <code class="docutils literal notranslate"><span class="pre">--default_kv_lease_ttl</span></code> and keep it larger than <code class="docutils literal notranslate"><span class="pre">ASCEND_CONNECT_TIMEOUT</span></code> and <code class="docutils literal notranslate"><span class="pre">ASCEND_TRANSFER_TIMEOUT</span></code>.</p>
+</section>
+</section>
+<section id="pd-disaggregation-scenario">
+<h3>PD Disaggregation Scenario<a class="headerlink" href="#pd-disaggregation-scenario" title="Link to this heading"></a></h3>
+<section id="run-prefill-node-and-decode-node">
+<h4>1. Run <code class="docutils literal notranslate"><span class="pre">prefill</span></code> Node and <code class="docutils literal notranslate"><span class="pre">decode</span></code> Node<a class="headerlink" href="#run-prefill-node-and-decode-node" title="Link to this heading"></a></h4>
+<p>Using <code class="docutils literal notranslate"><span class="pre">MultiConnector</span></code> to simultaneously utilize both <code class="docutils literal notranslate"><span class="pre">MooncakeConnectorV1</span></code> and <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code>. <code class="docutils literal notranslate"><span class="pre">MooncakeConnectorV1</span></code> performs kv_transfer, while <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code> serves as the prefix-cache node.</p>
+<p><code class="docutils literal notranslate"><span class="pre">prefill</span></code> Node:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>multi_producer.sh
+</pre></div>
+</div>
+<p>The content of the multi_producer.sh script:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/Ascend/ascend-toolkit/latest/python/site-packages:<span class="nv">$LD_LIBRARY_PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:/xxxxx/vllm
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_CONFIG_PATH</span><span class="o">=</span><span class="s2">&quot;/xxxxxx/mooncake.json&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3
+<span class="nb">export</span><span class="w"> </span><span class="nv">ACL_OP_INIT_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A3</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_ENABLE_USE_FABRIC_MEM</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A2</span>
+<span class="c1">#export HCCL_INTRA_ROCE_ENABLE=1</span>
+
+<span class="c1">#Minimum retransmission timeout of the RDMA, equals 4.096 μs * 2 ^ timeout.</span>
+<span class="c1">#Needs to satisfy the equation: ASCEND_TRANSFER_TIMEOUT &gt; RDMA_TIMEOUT * 7, where 7 is the default number of retry for RDMA transfer.</span>
+<span class="c1">#HCCL_RDMA_TIMEOUT also affects collective communication behavior and should be configured carefully.</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_RDMA_TIMEOUT</span><span class="o">=</span><span class="m">17</span>
+
+<span class="c1"># Unit: ms. The timeout for one-sided communication connection establishment is set to 10 seconds by default (see PR: https://github.com/kvcache-ai/Mooncake/pull/1039). Users can adjust this value based on their specific setup.</span>
+<span class="c1"># The recommended formula is: ASCEND_CONNECT_TIMEOUT = connection_time_per_card (typically within 500ms) × total_number_of_Decode_cards.</span>
+<span class="c1"># This ensures that even in the worst-case scenario—where all Decode cards simultaneously attempt to connect to the same Prefill card the connection will not time out.</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_CONNECT_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+
+<span class="c1"># Unit: ms. The timeout for one-sided communication transfer is set to 10 seconds by default (see PR: https://github.com/kvcache-ai/Mooncake/pull/1039).</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_TRANSFER_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+
+python3<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>/xxxxx/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trust-remote-code<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-enable-prefix-caching<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-model-len<span class="w"> </span><span class="m">32768</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--block-size<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--kv-transfer-config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;kv_connector&quot;: &quot;MultiConnector&quot;,</span>
+<span class="s1">    &quot;kv_role&quot;: &quot;kv_producer&quot;,</span>
+<span class="s1">    &quot;kv_load_failure_policy&quot;: &quot;recompute&quot;,</span>
+<span class="s1">    &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">        &quot;connectors&quot;: [</span>
+<span class="s1">            {</span>
+<span class="s1">                &quot;kv_connector&quot;: &quot;MooncakeConnectorV1&quot;,</span>
+<span class="s1">                &quot;kv_role&quot;: &quot;kv_producer&quot;,</span>
+<span class="s1">                &quot;kv_port&quot;: &quot;20001&quot;,</span>
+<span class="s1">                &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">                    &quot;prefill&quot;: {</span>
+<span class="s1">                        &quot;dp_size&quot;: 1,</span>
+<span class="s1">                        &quot;tp_size&quot;: 1</span>
+<span class="s1">                    },</span>
+<span class="s1">                    &quot;decode&quot;: {</span>
+<span class="s1">                        &quot;dp_size&quot;: 1,</span>
+<span class="s1">                        &quot;tp_size&quot;: 1</span>
+<span class="s1">                    }</span>
+<span class="s1">                }</span>
+<span class="s1">            },</span>
+<span class="s1">            {</span>
+<span class="s1">                &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">                &quot;kv_role&quot;: &quot;kv_producer&quot;,</span>
+<span class="s1">                &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">                    &quot;lookup_rpc_port&quot;:&quot;0&quot;,</span>
+<span class="s1">                    &quot;backend&quot;: &quot;mooncake&quot;</span>
+<span class="s1">                }</span>
+<span class="s1">            }  </span>
+<span class="s1">        ]</span>
+<span class="s1">    }</span>
+<span class="s1">    }&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">decode</span></code> Node：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>multi_consumer.sh
+</pre></div>
+</div>
+<p>The content of multi_consumer.sh:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/Ascend/ascend-toolkit/latest/python/site-packages:<span class="nv">$LD_LIBRARY_PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:/xxxxx/vllm
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_CONFIG_PATH</span><span class="o">=</span><span class="s2">&quot;/xxxxx/mooncake.json&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">4</span>,5,6,7
+<span class="nb">export</span><span class="w"> </span><span class="nv">ACL_OP_INIT_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A3</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_ENABLE_USE_FABRIC_MEM</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A2</span>
+<span class="c1">#export HCCL_INTRA_ROCE_ENABLE=1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_RDMA_TIMEOUT</span><span class="o">=</span><span class="m">17</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_CONNECT_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_TRANSFER_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+
+python3<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>/xxxxx/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8200</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trust-remote-code<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-enable-prefix-caching<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-model-len<span class="w"> </span><span class="m">32768</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--block-size<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--kv-transfer-config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;kv_connector&quot;: &quot;MultiConnector&quot;,</span>
+<span class="s1">    &quot;kv_role&quot;: &quot;kv_consumer&quot;,</span>
+<span class="s1">    &quot;kv_load_failure_policy&quot;: &quot;recompute&quot;,</span>
+<span class="s1">    &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">        &quot;connectors&quot;: [</span>
+<span class="s1">        {</span>
+<span class="s1">                &quot;kv_connector&quot;: &quot;MooncakeConnectorV1&quot;,</span>
+<span class="s1">                &quot;kv_role&quot;: &quot;kv_consumer&quot;,</span>
+<span class="s1">                &quot;kv_port&quot;: &quot;20002&quot;,</span>
+<span class="s1">                &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">                    &quot;prefill&quot;: {</span>
+<span class="s1">                        &quot;dp_size&quot;: 1,</span>
+<span class="s1">                        &quot;tp_size&quot;: 1</span>
+<span class="s1">                    },</span>
+<span class="s1">                    &quot;decode&quot;: {</span>
+<span class="s1">                        &quot;dp_size&quot;: 1,</span>
+<span class="s1">                        &quot;tp_size&quot;: 1</span>
+<span class="s1">                    }</span>
+<span class="s1">                }</span>
+<span class="s1">            },</span>
+<span class="s1">            {</span>
+<span class="s1">                &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">                &quot;kv_role&quot;: &quot;kv_consumer&quot;,</span>
+<span class="s1">                &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">                    &quot;lookup_rpc_port&quot;:&quot;0&quot;,</span>
+<span class="s1">                    &quot;backend&quot;: &quot;mooncake&quot;</span>
+<span class="s1">                }</span>
+<span class="s1">            }</span>
+<span class="s1">        ]</span>
+<span class="s1">    }</span>
+<span class="s1">    }&#39;</span>
+</pre></div>
+</div>
+<p>Currently, the key-value pool in PD Disaggregate only stores the kv cache generated by the Prefill node by default. In models using MLA, it is now supported that the Decode node stores the kv cache for use by the Prefill node, enabled by adding <code class="docutils literal notranslate"><span class="pre">consumer_is_to_put:</span> <span class="pre">true</span></code> to the AscendStoreConnector. If the Prefill node enables PP, <code class="docutils literal notranslate"><span class="pre">prefill_pp_size</span></code> or <code class="docutils literal notranslate"><span class="pre">prefill_pp_layer_partition</span></code> also needs to be set. Example as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;kv_connector&quot;</span><span class="p">:</span> <span class="s2">&quot;AscendStoreConnector&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kv_role&quot;</span><span class="p">:</span> <span class="s2">&quot;kv_consumer&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kv_load_failure_policy&quot;</span><span class="p">:</span> <span class="s2">&quot;recompute&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;kv_connector_extra_config&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;lookup_rpc_port&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="s2">&quot;mooncake&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;consumer_is_to_put&quot;</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+        <span class="s2">&quot;prefill_pp_size&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;prefill_pp_layer_partition&quot;</span><span class="p">:</span> <span class="s2">&quot;30,31&quot;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="start-proxy-server">
+<h4>2. Start proxy_server<a class="headerlink" href="#start-proxy-server" title="Link to this heading"></a></h4>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>vllm-ascend/examples/disaggregated_prefill_v1/load_balance_proxy_server_example.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--host<span class="w"> </span>localhost<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--prefiller-hosts<span class="w"> </span>localhost<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--prefiller-ports<span class="w"> </span><span class="m">8100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--decoder-hosts<span class="w"> </span>localhost<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--decoder-ports<span class="w"> </span><span class="m">8200</span><span class="w"> </span><span class="se">\</span>
+</pre></div>
+</div>
+<p>Change localhost to your actual IP address.</p>
+</section>
+<section id="run-inference">
+<h4>3. Run Inference<a class="headerlink" href="#run-inference" title="Link to this heading"></a></h4>
+<p>Configure the localhost, port, and model weight path in the command to your own settings.</p>
+<p>Short question:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/v1/completions<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;model&quot;: &quot;/xxxxx/Qwen2.5-7B-Instruct&quot;, &quot;prompt&quot;: &quot;Hello. I have a question. The president of the United States is&quot;, &quot;max_completion_tokens&quot;: 200, &quot;temperature&quot;:0.0 }&#39;</span>
+</pre></div>
+</div>
+<p>Long question:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8000/v1/completions<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;model&quot;: &quot;/xxxxx/Qwen2.5-7B-Instruct&quot;, &quot;prompt&quot;: &quot;Given the accelerating impacts of climate change—including rising sea levels, increasing frequency of extreme weather events, loss of biodiversity, and adverse effects on agriculture and human health—there is an urgent need for a robust, globally coordinated response. However, international efforts are complicated by a range of factors: economic disparities between high-income and low-income countries, differing levels of industrialization, varying access to clean energy technologies, and divergent political systems that influence climate policy implementation. In this context, how can global agreements like the Paris Accord be redesigned or strengthened to not only encourage but effectively enforce emission reduction targets? Furthermore, what mechanisms can be introduced to promote fair and transparent technology transfer, provide adequate financial support for climate adaptation in vulnerable regions, and hold nations accountable without exacerbating existing geopolitical tensions or disproportionately burdening those with historically lower emissions?&quot;, &quot;max_completion_tokens&quot;: 256, &quot;temperature&quot;:0.0 }&#39;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="pd-mixed-inference">
+<h3>PD-Mixed Inference<a class="headerlink" href="#pd-mixed-inference" title="Link to this heading"></a></h3>
+<section id="run-mixed-deployment-script">
+<h4>1. Run Mixed Deployment Script<a class="headerlink" href="#run-mixed-deployment-script" title="Link to this heading"></a></h4>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>pd_mix.sh
+</pre></div>
+</div>
+<p>Content of pd_mix.sh:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/usr/local/Ascend/ascend-toolkit/latest/python/site-packages:<span class="nv">$LD_LIBRARY_PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:/xxxxx/vllm
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_CONFIG_PATH</span><span class="o">=</span><span class="s2">&quot;/xxxxxx/mooncake.json&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ACL_OP_INIT_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A3</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_ENABLE_USE_FABRIC_MEM</span><span class="o">=</span><span class="m">1</span>
+<span class="c1">#A2</span>
+<span class="c1">#export HCCL_INTRA_ROCE_ENABLE=1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_RDMA_TIMEOUT</span><span class="o">=</span><span class="m">17</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_CONNECT_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_TRANSFER_TIMEOUT</span><span class="o">=</span><span class="m">10000</span>
+
+python3<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>/xxxxx/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trust-remote-code<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-enable-prefix-caching<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-model-len<span class="w"> </span><span class="m">32768</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--block-size<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--kv-transfer-config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">    &quot;kv_role&quot;: &quot;kv_both&quot;,</span>
+<span class="s1">    &quot;kv_load_failure_policy&quot;: &quot;recompute&quot;,</span>
+<span class="s1">    &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">        &quot;lookup_rpc_port&quot;:&quot;1&quot;,</span>
+<span class="s1">        &quot;backend&quot;: &quot;mooncake&quot;</span>
+<span class="s1">    }</span>
+<span class="s1">}&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>mix.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<section id="id1">
+<h4>2. Run Inference<a class="headerlink" href="#id1" title="Link to this heading"></a></h4>
+<p>Configure the localhost, port, and model weight path in the command to your own settings. The requests sent will only go to the port where the mixed deployment script is located, and there is no need to start a separate proxy.</p>
+<p>Short question:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8100/v1/completions<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;model&quot;: &quot;/xxxxx/Qwen2.5-7B-Instruct&quot;, &quot;prompt&quot;: &quot;Hello. I have a question. The president of the United States is&quot;, &quot;max_completion_tokens&quot;: 200, &quot;temperature&quot;:0.0 }&#39;</span>
+</pre></div>
+</div>
+<p>Long question:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:8100/v1/completions<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{ &quot;model&quot;: &quot;/xxxxx/Qwen2.5-7B-Instruct&quot;, &quot;prompt&quot;: &quot;Given the accelerating impacts of climate change—including rising sea levels, increasing frequency of extreme weather events, loss of biodiversity, and adverse effects on agriculture and human health—there is an urgent need for a robust, globally coordinated response. However, international efforts are complicated by a range of factors: economic disparities between high-income and low-income countries, differing levels of industrialization, varying access to clean energy technologies, and divergent political systems that influence climate policy implementation. In this context, how can global agreements like the Paris Accord be redesigned or strengthened to not only encourage but effectively enforce emission reduction targets? Furthermore, what mechanisms can be introduced to promote fair and transparent technology transfer, provide adequate financial support for climate adaptation in vulnerable regions, and hold nations accountable without exacerbating existing geopolitical tensions or disproportionately burdening those with historically lower emissions?&quot;, &quot;max_completion_tokens&quot;: 256, &quot;temperature&quot;:0.0 }&#39;</span>
+</pre></div>
+</div>
+<p>Note: For MooncakeStore with <code class="docutils literal notranslate"><span class="pre">ASCEND_BUFFER_POOL</span></code> enabled, it is recommended to perform a warm-up phase before running actual performance benchmarks.</p>
+<p>This is because HCCL one-sided communication connections are created lazily after the instance is launched when Device-to-Device communication is involved. Currently, full-mesh connections between all devices are required. Establishing these connections introduces a one-time time overhead and persistent device memory consumption (4 MB of device memory per connection).</p>
+<p><strong>For warm-up, it is recommended to issue requests with an input sequence length of 8K and an output sequence length of 1, with the total number of requests being 2–3× the number of devices (cards/dies).</strong></p>
+</section>
+</section>
+<section id="enable-mooncakestore-ssd-offload-with-embedded-real-client-mode">
+<h3>Enable MooncakeStore SSD Offload with Embedded Real Client Mode<a class="headerlink" href="#enable-mooncakestore-ssd-offload-with-embedded-real-client-mode" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Requires mooncake &gt;= v0.3.11.</p></li>
+</ul>
+<section id="start-the-master">
+<h4>Start the master<a class="headerlink" href="#start-the-master" title="Link to this heading"></a></h4>
+<p>Start Mooncake master as described in <a class="reference internal" href="#run-mooncake-master">Run Mooncake Master</a>. To enable SSD offload, add <code class="docutils literal notranslate"><span class="pre">--enable_offload=true</span></code> to the same master startup command. For example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mooncake_master<span class="w"> </span>--port<span class="w"> </span><span class="m">50088</span><span class="w"> </span>--eviction_high_watermark_ratio<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span>--eviction_ratio<span class="w"> </span><span class="m">0</span>.1<span class="w"> </span>--default_kv_lease_ttl<span class="w"> </span><span class="m">11000</span><span class="w"> </span>--enable_offload<span class="o">=</span><span class="nb">true</span><span class="w"> </span>--client_ttl<span class="o">=</span><span class="m">120</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Field</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enable_offload</span></code></p></td>
+<td class="text-left"><p>Set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to enable SSD offload in Mooncake master. Keep the master port aligned with <code class="docutils literal notranslate"><span class="pre">master_server_address</span></code> in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">client_ttl</span></code></p></td>
+<td class="text-left"><p>Seconds a client stays alive after the last Ping. CLI default is <code class="docutils literal notranslate"><span class="pre">10</span></code>; see <a class="reference internal" href="#121-segment_not_found-with-ssd-offload"><span class="xref myst">SEGMENT_NOT_FOUND with SSD offload</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="configuration">
+<h4>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h4>
+<p>Starting from the <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> configured in <a class="reference internal" href="#run-mooncake-master">Run Mooncake Master</a>, add the following SSD offload fields:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;enable_ssd_offload&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;ssd_offload_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/nvme/mooncake_offload&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Field</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enable_ssd_offload</span></code></p></td>
+<td class="text-left"><p>Set to <code class="docutils literal notranslate"><span class="pre">true</span></code> to enable SSD offload. Environment variables are not supported.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ssd_offload_path</span></code></p></td>
+<td class="text-left"><p><strong>Required when <code class="docutils literal notranslate"><span class="pre">enable_ssd_offload</span></code> is <code class="docutils literal notranslate"><span class="pre">true</span></code>.</strong> Absolute path to a local directory where Mooncake stores offloaded KV data (for example, <code class="docutils literal notranslate"><span class="pre">/nvme/mooncake_offload</span></code>). The directory must exist and be writable by the vLLM process; create it before startup (<code class="docutils literal notranslate"><span class="pre">mkdir</span> <span class="pre">-p</span> <span class="pre">&lt;path&gt;</span></code>). Relative paths, symbolic links, and paths containing <code class="docutils literal notranslate"><span class="pre">..</span></code> are rejected by Mooncake. Passed to <code class="docutils literal notranslate"><span class="pre">MooncakeDistributedStore.setup()</span></code> as the SSD storage root (equivalent to <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_FILE_STORAGE_PATH</span></code> in standalone clients). Configure this field in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> only; environment variables are not supported.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="running-the-embedded-real-client">
+<h4>Running the Embedded Real Client<a class="headerlink" href="#running-the-embedded-real-client" title="Link to this heading"></a></h4>
+<p>With Mode A (Embedded Real Client), Mooncake is embedded in vLLM. When the vLLM service starts, <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code> / <code class="docutils literal notranslate"><span class="pre">MooncakeBackend</span></code> automatically calls <code class="docutils literal notranslate"><span class="pre">MooncakeDistributedStore.setup()</span></code> using the settings in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> (including <code class="docutils literal notranslate"><span class="pre">enable_ssd_offload</span></code> and <code class="docutils literal notranslate"><span class="pre">ssd_offload_path</span></code> when SSD offload is enabled). No separate <code class="docutils literal notranslate"><span class="pre">mooncake_client</span></code> process is required.</p>
+</section>
+<section id="ssd-disk-usage-control">
+<h4>SSD Disk Usage Control<a class="headerlink" href="#ssd-disk-usage-control" title="Link to this heading"></a></h4>
+<p>The following environment variables control disk space usage for SSD offload (bucket backend):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Environment Variable</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">1342177280</span></code> (1280 MB)</p></td>
+<td class="text-left"><p>Per-rank SSD read/write buffer size in bytes. <strong>Not</strong> configurable in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code>. If you hit <code class="docutils literal notranslate"><span class="pre">BUFFER_OVERFLOW</span></code>, increase this value — see <a class="reference internal" href="#123-sizing-mooncake_offload_local_buffer_size_bytes"><span class="xref myst">Sizing MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></a>. <strong>On A3 with <code class="docutils literal notranslate"><span class="pre">ASCEND_ENABLE_USE_FABRIC_MEM=1</span></code>, must be aligned to 1GB and counts toward per-rank fabric mem quota (see <a class="reference internal" href="#122-fabric-memory-size-alignment-a3--ascend_enable_use_fabric_mem1"><span class="xref myst">Fabric memory size alignment</span></a>)</strong>.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_BUCKET_MAX_TOTAL_SIZE</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td class="text-left"><p>Eviction threshold in bytes. When set to <code class="docutils literal notranslate"><span class="pre">0</span></code>, the backend uses <strong>90% of the physical disk capacity</strong> as the quota. Set an explicit value to control disk usage precisely.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_BUCKET_EVICTION_POLICY</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">none</span></code></p></td>
+<td class="text-left"><p>Eviction policy: <code class="docutils literal notranslate"><span class="pre">none</span></code> (writes fail when full), <code class="docutils literal notranslate"><span class="pre">fifo</span></code>, or <code class="docutils literal notranslate"><span class="pre">lru</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_TOTAL_SIZE_LIMIT_BYTES</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">2199023255552</span></code> (2 TB)</p></td>
+<td class="text-left"><p><strong>Per-rank</strong> maximum disk usage reported to Mooncake master. Master aggregates this across clients (roughly <strong>2 TB × rank count</strong> in the <code class="docutils literal notranslate"><span class="pre">SSD</span> <span class="pre">Storage</span></code> total). <strong>Always override</strong> to match real disk capacity — the default often exceeds available space.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_TOTAL_SIZE_LIMIT_BYTES</span></code> risk:</strong> If left at the 2 TB default, master shows a total SSD quota far larger than the physical disk (e.g. 16 ranks → ~32 TB displayed on a 1 TB NVMe). Offload still fails when the disk fills, while monitoring looks healthy. Set this to your actual per-rank budget before production use.</p>
+<p>Since each TP rank uses an independent SSD subdirectory (<code class="docutils literal notranslate"><span class="pre">rank_0/</span></code>, <code class="docutils literal notranslate"><span class="pre">rank_1/</span></code>, ...) under <code class="docutils literal notranslate"><span class="pre">ssd_offload_path</span></code>, all ranks share the same physical disk. To prevent a single rank from consuming excessive space, set an explicit per-rank quota. For example, with an 800 GB disk and 8 TP ranks:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 800 GB total disk, 8 ranks, ~100 GB per rank</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_TOTAL_SIZE_LIMIT_BYTES</span><span class="o">=</span><span class="k">$((</span><span class="m">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="k">))</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_BUCKET_MAX_TOTAL_SIZE</span><span class="o">=</span><span class="k">$((</span><span class="m">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="m">1024</span><span class="k">))</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_BUCKET_EVICTION_POLICY</span><span class="o">=</span>lru
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span><span class="o">=</span><span class="m">1073741824</span><span class="w">   </span><span class="c1"># 1 GB</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="example-of-using-memcache-as-a-kv-pool-backend">
+<h2>Example of using Memcache as a KV Pool backend<a class="headerlink" href="#example-of-using-memcache-as-a-kv-pool-backend" title="Link to this heading"></a></h2>
+<section id="installing-memcache">
+<h3>Installing Memcache<a class="headerlink" href="#installing-memcache" title="Link to this heading"></a></h3>
+<p><strong>MemCache depends on MemFabric. Therefore, MemFabric must be installed. Installing the memcache after the memfabric is installed.</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>memfabric-hybrid
+pip<span class="w"> </span>install<span class="w"> </span>memcache-hybrid
+</pre></div>
+</div>
+</section>
+<section id="configuring-the-memcache-config-file">
+<h3>Configuring the memcache Config File<a class="headerlink" href="#configuring-the-memcache-config-file" title="Link to this heading"></a></h3>
+<p><strong>mmc-meta.conf：</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ock.mmc.meta_service_url<span class="w"> </span><span class="o">=</span><span class="w"> </span>tcp://xx.xx.xx.xx:5000
+ock.mmc.meta_service.config_store_url<span class="w"> </span><span class="o">=</span><span class="w"> </span>tcp://xx.xx.xx.xx:6000
+ock.mmc.log_level<span class="w"> </span><span class="o">=</span><span class="w"> </span>error
+</pre></div>
+</div>
+<p><strong>mmc-local.conf：</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ock.mmc.meta_service_url<span class="w"> </span><span class="o">=</span><span class="w"> </span>tcp://xx.xx.xx.xx:5000
+ock.mmc.local_service.config_store_url<span class="w"> </span><span class="o">=</span><span class="w"> </span>tcp://xx.xx.xx.xx:6000
+ock.mmc.log_level<span class="w"> </span><span class="o">=</span><span class="w"> </span>error
+ock.mmc.local_service.world_size<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">256</span>
+ock.mmc.local_service.protocol<span class="w"> </span><span class="o">=</span><span class="w"> </span>device_sdma
+ock.mmc.local_service.dram.size<span class="w"> </span><span class="o">=</span><span class="w"> </span>1GB
+</pre></div>
+</div>
+<p><strong>Key Focuses：</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Parameter</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ock.mmc.meta_service_url</span></code></p></td>
+<td class="text-left"><p>Configure the IP address and port number of the master node. The IP address and port number of the P node and D node can be the same.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ock.mmc.local_service.config_store_url</span></code></p></td>
+<td class="text-left"><p>Configure the IP address and port number of the master node. The IP address and port number of the P node and D node can be the same.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ock.mmc.local_service.world_size</span></code></p></td>
+<td class="text-left"><p>Total count of local service, including services that will be added in the future.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ock.mmc.local_service.protocol</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">device_rdma</span></code> (supported for A2 and A3 when device ROCE available, recommended for A2), <code class="docutils literal notranslate"><span class="pre">device_sdma</span></code> (supported for A3 when HCCS available, recommended for A3). Currently does not support heterogeneous protocol setting.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">ock.mmc.local_service.dram.size</span></code></p></td>
+<td class="text-left"><p>Sets the size of the memory occupied by the master. The configured value is the size of the memory occupied by each card.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="run-memcache-master">
+<h3>Run Memcache Master<a class="headerlink" href="#run-memcache-master" title="Link to this heading"></a></h3>
+<p>Starting the MetaService service.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MMC_META_CONFIG_PATH</span><span class="o">=</span>/usr/local/memcache_hybrid/latest/config/mmc-meta.conf
+
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from memcache_hybrid import MetaService; MetaService.main()&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>PD Disaggregation Scenario<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<section id="id3">
+<h4>1. Run <code class="docutils literal notranslate"><span class="pre">prefill</span></code> Node and <code class="docutils literal notranslate"><span class="pre">decode</span></code> Node<a class="headerlink" href="#id3" title="Link to this heading"></a></h4>
+<p>Using <code class="docutils literal notranslate"><span class="pre">MultiConnector</span></code> to simultaneously utilize both <code class="docutils literal notranslate"><span class="pre">MooncakeConnectorV1</span></code> and <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code>. <code class="docutils literal notranslate"><span class="pre">MooncakeConnectorV1</span></code> performs kv_transfer, while <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code> enables KV Cache Pool</p>
+</section>
+<section id="i-a2-800t-a2-800i-a3-800t-a3-series">
+<h4>800I A2/800T A2/800I A3/800T A3 Series<a class="headerlink" href="#i-a2-800t-a2-800i-a3-800t-a3-series" title="Link to this heading"></a></h4>
+<p><strong>run_prefill.sh/run_decode.sh:</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">ROLE</span><span class="o">=</span><span class="s2">&quot;prefill&quot;</span><span class="w">              </span><span class="c1"># prefill / decode</span>
+<span class="nv">HARDWARE_SERIES</span><span class="o">=</span><span class="s2">&quot;A2&quot;</span><span class="w">        </span><span class="c1"># A2 (800I/800T A2) or A3 (800I/800T A3)</span>
+<span class="nv">LOCAL_IP</span><span class="o">=</span><span class="s2">&quot;xx.xx.xx.xx&quot;</span>
+<span class="nv">NIC_NAME</span><span class="o">=</span><span class="s2">&quot;xxxxxx&quot;</span>
+
+<span class="nv">MODEL_PATH</span><span class="o">=</span><span class="s2">&quot;xxxxxxx/Qwen3-32B&quot;</span>
+<span class="nv">SERVED_MODEL_NAME</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span>
+<span class="nv">DATA_PARALLEL_SIZE</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">TENSOR_PARALLEL_SIZE</span><span class="o">=</span><span class="m">8</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">MMC_LOCAL_CONFIG_PATH</span><span class="o">=</span>/home/memcache/mmc-local.conf
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ROLE</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;prefill&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">KV_ROLE</span><span class="o">=</span><span class="s2">&quot;kv_producer&quot;</span>
+<span class="w">    </span><span class="nv">KV_PORT</span><span class="o">=</span><span class="s2">&quot;20001&quot;</span>
+<span class="w">    </span><span class="nv">LOOKUP_RPC_PORT</span><span class="o">=</span><span class="s2">&quot;0&quot;</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nv">KV_ROLE</span><span class="o">=</span><span class="s2">&quot;kv_consumer&quot;</span>
+<span class="w">    </span><span class="nv">KV_PORT</span><span class="o">=</span><span class="s2">&quot;20002&quot;</span>
+<span class="w">    </span><span class="nv">LOOKUP_RPC_PORT</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting vLLM on Series: </span><span class="nv">$HARDWARE_SERIES</span><span class="s2">, Role: </span><span class="nv">$ROLE</span><span class="s2">&quot;</span>
+
+rm<span class="w"> </span>-rf<span class="w"> </span>/root/ascend/log/*
+rm<span class="w"> </span>-rf<span class="w"> </span>./connector.log
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HARDWARE_SERIES</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;A2&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="m">200000</span><span class="w"> </span>&gt;<span class="w"> </span>/proc/sys/vm/nr_hugepages
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_IF_IP</span><span class="o">=</span><span class="nv">$LOCAL_IP</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">GLOO_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">TP_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HARDWARE_SERIES</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;A3&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ACL_OP_INIT_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: Invalid HARDWARE_SERIES. Set to &#39;A2&#39; or &#39;A3&#39;.&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_BUFFSIZE</span><span class="o">=</span><span class="m">1024</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_PROC_BIND</span><span class="o">=</span><span class="nb">false</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">10</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTORCH_NPU_ALLOC_CONF</span><span class="o">=</span>expandable_segments:True
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_USE_V1</span><span class="o">=</span><span class="m">1</span>
+
+<span class="nv">KV_CONFIG</span><span class="o">=</span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;kv_connector&quot;: &quot;MultiConnector&quot;,</span>
+<span class="s1">  &quot;kv_role&quot;: &quot;&#39;</span><span class="nv">$KV_ROLE</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">  &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">    &quot;connectors&quot;: [</span>
+<span class="s1">      {</span>
+<span class="s1">        &quot;kv_connector&quot;: &quot;MooncakeConnectorV1&quot;,</span>
+<span class="s1">        &quot;kv_role&quot;: &quot;&#39;</span><span class="nv">$KV_ROLE</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">        &quot;kv_port&quot;: &quot;&#39;</span><span class="nv">$KV_PORT</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">        &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">          &quot;prefill&quot;: {</span>
+<span class="s1">            &quot;dp_size&quot;: &#39;</span><span class="nv">$DATA_PARALLEL_SIZE</span><span class="s1">&#39;,</span>
+<span class="s1">            &quot;tp_size&quot;: &#39;</span><span class="nv">$TENSOR_PARALLEL_SIZE</span><span class="s1">&#39;</span>
+<span class="s1">          },</span>
+<span class="s1">          &quot;decode&quot;: {</span>
+<span class="s1">            &quot;dp_size&quot;: &#39;</span><span class="nv">$DATA_PARALLEL_SIZE</span><span class="s1">&#39;,</span>
+<span class="s1">            &quot;tp_size&quot;: &#39;</span><span class="nv">$TENSOR_PARALLEL_SIZE</span><span class="s1">&#39;</span>
+<span class="s1">          }</span>
+<span class="s1">        }</span>
+<span class="s1">      },</span>
+<span class="s1">      {</span>
+<span class="s1">        &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">        &quot;kv_role&quot;: &quot;&#39;</span><span class="nv">$KV_ROLE</span><span class="s1">&#39;&quot;,</span>
+<span class="s1">        &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">          &quot;backend&quot;: &quot;memcache&quot;,</span>
+<span class="s1">          &quot;lookup_rpc_port&quot;: &quot;&#39;</span><span class="nv">$LOOKUP_RPC_PORT</span><span class="s1">&#39;&quot;</span>
+<span class="s1">        }</span>
+<span class="s1">      }</span>
+<span class="s1">    ]</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+
+<span class="nv">CMD_ARGS</span><span class="o">=(</span>
+<span class="w">  </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL_PATH</span><span class="s2">&quot;</span>
+<span class="w">  </span>--served-model-name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SERVED_MODEL_NAME</span><span class="s2">&quot;</span>
+<span class="w">  </span>--trust-remote-code
+<span class="w">  </span>--enforce-eager
+<span class="w">  </span>--data-parallel-size<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATA_PARALLEL_SIZE</span><span class="s2">&quot;</span>
+<span class="w">  </span>--tensor-parallel-size<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TENSOR_PARALLEL_SIZE</span><span class="s2">&quot;</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">30050</span>
+<span class="w">  </span>--max-num_seqs<span class="w"> </span><span class="m">20</span>
+<span class="w">  </span>--max-model-len<span class="w"> </span><span class="m">32768</span>
+<span class="w">  </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.9
+<span class="w">  </span>--kv-transfer-config<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$KV_CONFIG</span><span class="s2">&quot;</span>
+<span class="o">)</span>
+
+python<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CMD_ARGS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>log_<span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span>.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;vLLM started. Log file: log_</span><span class="si">${</span><span class="nv">ROLE</span><span class="si">}</span><span class="s2">.log&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h4>2. Start proxy_server<a class="headerlink" href="#id4" title="Link to this heading"></a></h4>
+<p>Refer to <a class="reference internal" href="#2-start-proxy_server"><span class="xref myst">Start proxy_server</span></a> in the MooncakeStore deployment section.</p>
+</section>
+<section id="id5">
+<h4>3. Run Inference<a class="headerlink" href="#id5" title="Link to this heading"></a></h4>
+<p>Refer to <a class="reference internal" href="#3-run-inference"><span class="xref myst">Run Inference</span></a> in the MooncakeStore deployment section.</p>
+</section>
+</section>
+<section id="pd-mixed-scenario">
+<h3>PD-Mixed Scenario<a class="headerlink" href="#pd-mixed-scenario" title="Link to this heading"></a></h3>
+<section id="id6">
+<h4>1. Run Mixed Deployment Script<a class="headerlink" href="#id6" title="Link to this heading"></a></h4>
+</section>
+<section id="id7">
+<h4>800I A2/800T A2/800I A3/800T A3 Series<a class="headerlink" href="#id7" title="Link to this heading"></a></h4>
+<p><strong>Run_pd_mix.sh:</strong></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">HARDWARE_SERIES</span><span class="o">=</span><span class="s2">&quot;A2&quot;</span><span class="w">        </span><span class="c1"># A2 (800I/800T A2) or A3 (800I/800T A3)</span>
+<span class="nv">LOCAL_IP</span><span class="o">=</span><span class="s2">&quot;xx.xx.xx.xx&quot;</span>
+<span class="nv">NIC_NAME</span><span class="o">=</span><span class="s2">&quot;xxxxxx&quot;</span>
+
+<span class="nv">MODEL_PATH</span><span class="o">=</span><span class="s2">&quot;xxxxxxx/Qwen3-32B&quot;</span>
+<span class="nv">SERVED_MODEL_NAME</span><span class="o">=</span><span class="s2">&quot;qwen3&quot;</span>
+<span class="nv">DATA_PARALLEL_SIZE</span><span class="o">=</span><span class="m">1</span>
+<span class="nv">TENSOR_PARALLEL_SIZE</span><span class="o">=</span><span class="m">8</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3,4,5,6,7
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">MMC_LOCAL_CONFIG_PATH</span><span class="o">=</span>/home/memcache/mmc-local.conf
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Starting vLLM on Series: </span><span class="nv">$HARDWARE_SERIES</span><span class="s2">&quot;</span>
+
+rm<span class="w"> </span>-rf<span class="w"> </span>/root/ascend/log/*
+rm<span class="w"> </span>-rf<span class="w"> </span>./connector.log
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HARDWARE_SERIES</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;A2&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="m">200000</span><span class="w"> </span>&gt;<span class="w"> </span>/proc/sys/vm/nr_hugepages
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_IF_IP</span><span class="o">=</span><span class="nv">$LOCAL_IP</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">GLOO_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">TP_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_SOCKET_IFNAME</span><span class="o">=</span><span class="nv">$NIC_NAME</span>
+
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HARDWARE_SERIES</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s2">&quot;A3&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">export</span><span class="w"> </span><span class="nv">ACL_OP_INIT_MODE</span><span class="o">=</span><span class="m">1</span>
+<span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Error: Invalid HARDWARE_SERIES. Set to &#39;A2&#39; or &#39;A3&#39;.&quot;</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HCCL_BUFFSIZE</span><span class="o">=</span><span class="m">1024</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_PROC_BIND</span><span class="o">=</span><span class="nb">false</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">10</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTORCH_NPU_ALLOC_CONF</span><span class="o">=</span>expandable_segments:True
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_USE_V1</span><span class="o">=</span><span class="m">1</span>
+
+<span class="nv">KV_CONFIG</span><span class="o">=</span><span class="s1">&#39;{</span>
+<span class="s1">  &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">  &quot;kv_role&quot;: &quot;kv_both&quot;,</span>
+<span class="s1">  &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">     &quot;backend&quot;: &quot;memcache&quot;,</span>
+<span class="s1">     &quot;lookup_rpc_port&quot;: &quot;0&quot;</span>
+<span class="s1">  }</span>
+<span class="s1">}&#39;</span>
+
+<span class="nv">CMD_ARGS</span><span class="o">=(</span>
+<span class="w">  </span>--model<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$MODEL_PATH</span><span class="s2">&quot;</span>
+<span class="w">  </span>--served-model-name<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$SERVED_MODEL_NAME</span><span class="s2">&quot;</span>
+<span class="w">  </span>--trust-remote-code
+<span class="w">  </span>--enforce-eager
+<span class="w">  </span>--data-parallel-size<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$DATA_PARALLEL_SIZE</span><span class="s2">&quot;</span>
+<span class="w">  </span>--tensor-parallel-size<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$TENSOR_PARALLEL_SIZE</span><span class="s2">&quot;</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">30050</span>
+<span class="w">  </span>--max-num_seqs<span class="w"> </span><span class="m">20</span>
+<span class="w">  </span>--max-model-len<span class="w"> </span><span class="m">32768</span>
+<span class="w">  </span>--max-num-batched-tokens<span class="w"> </span><span class="m">16384</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.9
+<span class="w">  </span>--kv-transfer-config<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$KV_CONFIG</span><span class="s2">&quot;</span>
+<span class="o">)</span>
+
+python<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">CMD_ARGS</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>log_mix.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;vLLM started. Log file: log_mix.log&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h4><a class="reference internal" href="#2-run-inference"><span class="xref myst">2. Run Inference</span></a><a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+</section>
+</section>
+</section>
+<section id="example-of-using-yuanrong-as-a-kv-pool-backend">
+<h2>Example of using Yuanrong as a KV Pool backend<a class="headerlink" href="#example-of-using-yuanrong-as-a-kv-pool-backend" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Software:</p>
+<ul>
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">openyuanrong-datasystem</span></code> on all nodes (<code class="docutils literal notranslate"><span class="pre">yr.datasystem</span></code> must be importable).</p></li>
+</ul>
+</li>
+</ul>
+<section id="install-yuanrong-datasystem">
+<h3>Install Yuanrong Datasystem<a class="headerlink" href="#install-yuanrong-datasystem" title="Link to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>openyuanrong-datasystem
+</pre></div>
+</div>
+<p>If the prebuilt package does not match the CANN or Ascend driver version in
+your environment, build Yuanrong Datasystem from source in the vLLM Ascend
+image. Follow the official Yuanrong Datasystem build instructions:
+<a class="reference external" href="https://atomgit.com/openeuler/yuanrong-datasystem">https://atomgit.com/openeuler/yuanrong-datasystem</a></p>
+</section>
+<section id="start-etcd">
+<h3>Start etcd<a class="headerlink" href="#start-etcd" title="Link to this heading"></a></h3>
+<p>Yuanrong Datasystem uses etcd for service discovery. The following example
+starts a single-node etcd cluster:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">ETCD_VERSION</span><span class="o">=</span><span class="s2">&quot;v3.5.12&quot;</span>
+<span class="nv">ETCD_IP</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>uname<span class="w"> </span>-m<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;aarch64&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">ETCD_ARCH</span><span class="o">=</span><span class="s2">&quot;linux-arm64&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nv">ETCD_ARCH</span><span class="o">=</span><span class="s2">&quot;linux-amd64&quot;</span>
+<span class="k">fi</span>
+wget<span class="w"> </span>https://github.com/etcd-io/etcd/releases/download/<span class="si">${</span><span class="nv">ETCD_VERSION</span><span class="si">}</span>/etcd-<span class="si">${</span><span class="nv">ETCD_VERSION</span><span class="si">}</span>-<span class="si">${</span><span class="nv">ETCD_ARCH</span><span class="si">}</span>.tar.gz
+tar<span class="w"> </span>-xvf<span class="w"> </span>etcd-<span class="si">${</span><span class="nv">ETCD_VERSION</span><span class="si">}</span>-<span class="si">${</span><span class="nv">ETCD_ARCH</span><span class="si">}</span>.tar.gz
+<span class="nb">cd</span><span class="w"> </span>etcd-<span class="si">${</span><span class="nv">ETCD_VERSION</span><span class="si">}</span>-<span class="si">${</span><span class="nv">ETCD_ARCH</span><span class="si">}</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>etcd<span class="w"> </span>etcdctl<span class="w"> </span>/usr/local/bin/
+
+etcd<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>etcd-single<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data-dir<span class="w"> </span>/tmp/etcd-data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--listen-client-urls<span class="w"> </span>http://0.0.0.0:2379<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--advertise-client-urls<span class="w"> </span>http://<span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span>:2379<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--listen-peer-urls<span class="w"> </span>http://0.0.0.0:2380<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--initial-advertise-peer-urls<span class="w"> </span>http://<span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span>:2380<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--initial-cluster<span class="w"> </span>etcd-single<span class="o">=</span>http://<span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span>:2380<span class="w"> </span><span class="p">&amp;</span>
+
+etcdctl<span class="w"> </span>--endpoints<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span><span class="s2">:2379&quot;</span><span class="w"> </span>put<span class="w"> </span>key<span class="w"> </span><span class="s2">&quot;value&quot;</span>
+etcdctl<span class="w"> </span>--endpoints<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span><span class="s2">:2379&quot;</span><span class="w"> </span>get<span class="w"> </span>key
+</pre></div>
+</div>
+<p>For production environments, refer to the official etcd clustering
+documentation: <a class="reference external" href="https://etcd.io/docs/v3.7/op-guide/clustering/">https://etcd.io/docs/v3.7/op-guide/clustering/</a></p>
+</section>
+<section id="start-datasystem-worker">
+<h3>Start Datasystem Worker<a class="headerlink" href="#start-datasystem-worker" title="Link to this heading"></a></h3>
+<p>Start a Datasystem worker on each node by using <code class="docutils literal notranslate"><span class="pre">dscli</span></code>. The following
+configuration is a recommended starting point for high-throughput KV Pool
+workloads:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">WORKER_LOG_DIR</span><span class="o">=</span><span class="s2">&quot;/var/log/yuanrong/worker&quot;</span>
+sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_LOG_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+sudo<span class="w"> </span>chown<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>id<span class="w"> </span>-u<span class="k">)</span><span class="s2">:</span><span class="k">$(</span>id<span class="w"> </span>-g<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_LOG_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+
+dscli<span class="w"> </span>start<span class="w"> </span>-w<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--worker_address<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_IP</span><span class="si">}</span><span class="s2">:31501&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--etcd_address<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span><span class="s2">:2379&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--log_dir<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_LOG_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--shared_memory_size_mb<span class="w"> </span><span class="m">40960</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--arena_per_tenant<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_huge_tlb<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_fallocate<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--rpc_thread_num<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--oc_thread_num<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_worker_worker_batch_get<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sc_regular_socket_num<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sc_stream_socket_num<span class="w"> </span><span class="m">0</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">--worker_address</span></code> value is consumed later by <code class="docutils literal notranslate"><span class="pre">DS_WORKER_ADDR</span></code>, so keep
+the host and port identical on the same node.</p>
+<p>The tuning parameters above have the following effects:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Parameter</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">log_dir</span></code></p></td>
+<td class="text-left"><p>Sets the Datasystem worker log directory. Create the directory and grant the worker process write permission before startup.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">arena_per_tenant=1</span></code></p></td>
+<td class="text-left"><p>Uses one shared-memory arena per tenant as a conservative starting point for memory and file-descriptor usage.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enable_huge_tlb=true</span></code></p></td>
+<td class="text-left"><p>Backs worker shared memory with HugeTLB pages. Reserve enough 2 MiB huge pages before starting the worker.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enable_fallocate=false</span></code></p></td>
+<td class="text-left"><p>Disables <code class="docutils literal notranslate"><span class="pre">fallocate</span></code> for the shared-memory file; use this setting with the HugeTLB configuration above.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">rpc_thread_num=64</span></code></p></td>
+<td class="text-left"><p>Sets the RPC/ZMQ service concurrency.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">oc_thread_num=64</span></code></p></td>
+<td class="text-left"><p>Sets the Object Cache business-thread pool size.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">enable_worker_worker_batch_get=true</span></code></p></td>
+<td class="text-left"><p>Enables batched Object Cache reads between Datasystem workers.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">sc_regular_socket_num=0</span></code>, <code class="docutils literal notranslate"><span class="pre">sc_stream_socket_num=0</span></code></p></td>
+<td class="text-left"><p>Disables the Stream Cache service. Both values must be greater than zero to enable it; keep them at zero when KV Pool does not use Stream Cache.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For <code class="docutils literal notranslate"><span class="pre">shared_memory_size_mb=40960</span></code>, reserve at least 20480 2 MiB huge pages and
+verify that they are available before starting the worker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;HugePages_Total|HugePages_Free|Hugepagesize&quot;</span><span class="w"> </span>/proc/meminfo
+</pre></div>
+</div>
+<p>Worker logs, including files whose base name is normally
+<code class="docutils literal notranslate"><span class="pre">datasystem_worker</span></code>, are written under the <code class="docutils literal notranslate"><span class="pre">--log_dir</span></code> directory. Use an
+absolute path so the log location does not depend on the worker process's
+current directory.</p>
+<p>These thread counts are tuning starting points rather than universal defaults.
+Adjust them according to the available CPU cores and measured request
+throughput. Because <code class="docutils literal notranslate"><span class="pre">-w</span></code> consumes the remaining command-line arguments, place
+any <code class="docutils literal notranslate"><span class="pre">dscli</span> <span class="pre">start</span></code> options such as <code class="docutils literal notranslate"><span class="pre">--timeout</span></code> before <code class="docutils literal notranslate"><span class="pre">-w</span></code>.</p>
+<p>For more parameters, refer to the <code class="docutils literal notranslate"><span class="pre">dscli</span></code> usage documentation on the Yuanrong
+Datasystem official site:
+<a class="reference external" href="https://atomgit.com/openeuler/yuanrong-datasystem">https://atomgit.com/openeuler/yuanrong-datasystem</a></p>
+<p>To stop the worker:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dscli<span class="w"> </span>stop<span class="w"> </span>--worker_address<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_IP</span><span class="si">}</span><span class="s2">:31501&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>Environment Variable Configuration<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>Set the following environment variables on each node before starting vLLM:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Variable</p></th>
+<th class="head text-left"><p>Required</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED</span></code></p></td>
+<td class="text-left"><p>Yes</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td class="text-left"><p>Must be consistent across all nodes to guarantee uniform hash generation.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">DS_WORKER_ADDR</span></code></p></td>
+<td class="text-left"><p>Yes</p></td>
+<td class="text-left"><p>N/A</p></td>
+<td class="text-left"><p>Datasystem worker address in <code class="docutils literal notranslate"><span class="pre">&lt;host&gt;:&lt;port&gt;</span></code> format. This must match the local <code class="docutils literal notranslate"><span class="pre">dscli</span> <span class="pre">start</span> <span class="pre">--worker_address</span></code> value.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">DATASYSTEM_CLIENT_LOG_DIR</span></code></p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">~/.datasystem/logs</span></code></p></td>
+<td class="text-left"><p>Directory for Yuanrong client SDK logs created by the vLLM process. Use a directory separate from the worker logs.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">DS_ENABLE_EXCLUSIVE_CONNECTION</span></code></p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td class="text-left"><p>Passed to Yuanrong <code class="docutils literal notranslate"><span class="pre">HeteroClient.enable_exclusive_connection</span></code>. Use <code class="docutils literal notranslate"><span class="pre">1</span></code> to enable the exclusive connection mode when required by your deployment.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">DS_ENABLE_REMOTE_H2D</span></code></p></td>
+<td class="text-left"><p>No</p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">0</span></code></p></td>
+<td class="text-left"><p>Passed to Yuanrong <code class="docutils literal notranslate"><span class="pre">HeteroClient.enable_remote_h2d</span></code>. Use <code class="docutils literal notranslate"><span class="pre">1</span></code> only after the Remote H2D requirements below are met.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DS_WORKER_ADDR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_IP</span><span class="si">}</span><span class="s2">:31501&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASYSTEM_CLIENT_LOG_DIR</span><span class="o">=</span><span class="s2">&quot;/var/log/yuanrong/client&quot;</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DS_ENABLE_EXCLUSIVE_CONNECTION</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DS_ENABLE_REMOTE_H2D</span><span class="o">=</span><span class="m">0</span>
+
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DATASYSTEM_CLIENT_LOG_DIR</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>Set <code class="docutils literal notranslate"><span class="pre">DATASYSTEM_CLIENT_LOG_DIR</span></code> before starting vLLM because the Yuanrong
+client reads it during logging initialization. Client SDK logs, whose base
+name is normally <code class="docutils literal notranslate"><span class="pre">ds_client</span></code>, are written to this directory.</p>
+<section id="remote-h2d-requirements">
+<h4>Remote H2D Requirements<a class="headerlink" href="#remote-h2d-requirements" title="Link to this heading"></a></h4>
+<p>Set <code class="docutils literal notranslate"><span class="pre">DS_ENABLE_REMOTE_H2D=1</span></code> only when Remote Host-to-Device transfer is
+enabled and verified in the Yuanrong Datasystem deployment:</p>
+<ul class="simple">
+<li><p>Reserve enough 2 MiB HugeTLB pages before starting the worker. For 40 GiB
+shared memory, reserve at least 20480 2 MiB huge pages.</p></li>
+<li><p>Start each Datasystem worker with Remote H2D enabled. The worker start
+command must include <code class="docutils literal notranslate"><span class="pre">--remote_h2d_device_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">--enable_huge_tlb</span> <span class="pre">true</span></code>,
+<code class="docutils literal notranslate"><span class="pre">--arena_per_tenant</span> <span class="pre">1</span></code>, and <code class="docutils literal notranslate"><span class="pre">--enable_fallocate</span> <span class="pre">false</span></code>. Using multiple
+available NPU device IDs is recommended, for example <code class="docutils literal notranslate"><span class="pre">&quot;0,1,2,3,4,5,6,7&quot;</span></code> on
+an 8-NPU node.</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dscli<span class="w"> </span>start<span class="w"> </span>-w<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--worker_address<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WORKER_IP</span><span class="si">}</span><span class="s2">:31501&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--etcd_address<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ETCD_IP</span><span class="si">}</span><span class="s2">:2379&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--log_dir<span class="w"> </span><span class="s2">&quot;/var/log/yuanrong/worker&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--shared_memory_size_mb<span class="w"> </span><span class="m">40960</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--arena_per_tenant<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_huge_tlb<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_fallocate<span class="w"> </span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--rpc_thread_num<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--oc_thread_num<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enable_worker_worker_batch_get<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sc_regular_socket_num<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--sc_stream_socket_num<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--remote_h2d_device_ids<span class="w"> </span><span class="s2">&quot;0,1,2,3,4,5,6,7&quot;</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Make sure the NPU driver, firmware, and CANN toolkit required by Yuanrong
+Remote H2D are installed and visible to the worker process. In containers,
+mount the Ascend driver path, <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code>, <code class="docutils literal notranslate"><span class="pre">hccn_tool</span></code>, <code class="docutils literal notranslate"><span class="pre">/etc/hccn.conf</span></code>,
+<code class="docutils literal notranslate"><span class="pre">/etc/ascend_install.info</span></code>, and the required <code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code> devices.</p></li>
+<li><p>Verify the NPU and RoCE environment before enabling the client flag:</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check the current 2 MiB HugeTLB page size, total count, and free count.</span>
+grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">&quot;HugePages_Total|HugePages_Free|Hugepagesize&quot;</span><span class="w"> </span>/proc/meminfo
+
+<span class="c1"># Optional: check 2 MiB HugeTLB pages on each NUMA node.</span>
+<span class="k">for</span><span class="w"> </span>node<span class="w"> </span><span class="k">in</span><span class="w"> </span>/sys/devices/system/node/node*/hugepages/hugepages-2048kB<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node</span><span class="s2"> total=</span><span class="k">$(</span>cat<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node</span><span class="s2">/nr_hugepages&quot;</span><span class="k">)</span><span class="s2"> free=</span><span class="k">$(</span>cat<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$node</span><span class="s2">/free_hugepages&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="k">done</span>
+
+<span class="c1"># Check that NPU devices and the driver are visible to the worker environment.</span>
+npu-smi<span class="w"> </span>info
+
+<span class="c1"># Check that the NPU topology is visible.</span>
+npu-smi<span class="w"> </span>info<span class="w"> </span>-t<span class="w"> </span>topo
+
+<span class="c1"># Check optical module detection on the selected local NPU.</span>
+hccn_tool<span class="w"> </span>-i<span class="w"> </span>&lt;local_npu_id&gt;<span class="w"> </span>-optical<span class="w"> </span>-g
+
+<span class="c1"># Check RoCE physical link status. The expected link status is UP.</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">0</span>..7<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>hccn_tool<span class="w"> </span>-i<span class="w"> </span><span class="nv">$i</span><span class="w"> </span>-link<span class="w"> </span>-g<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+
+<span class="c1"># Check the selected NPU IP address and reachability to the remote NPU.</span>
+hccn_tool<span class="w"> </span>-i<span class="w"> </span>&lt;local_npu_id&gt;<span class="w"> </span>-ip<span class="w"> </span>-g
+hccn_tool<span class="w"> </span>-i<span class="w"> </span>&lt;local_npu_id&gt;<span class="w"> </span>-ping<span class="w"> </span>-g<span class="w"> </span>address<span class="w"> </span>&lt;remote_npu_ip&gt;
+</pre></div>
+</div>
+<p>If these checks fail, keep <code class="docutils literal notranslate"><span class="pre">DS_ENABLE_REMOTE_H2D=0</span></code> and use the default
+Datasystem transfer path.</p>
+</section>
+</section>
+<section id="run-ascendstoreconnector-with-yuanrong-backend">
+<h3>Run AscendStoreConnector with Yuanrong backend<a class="headerlink" href="#run-ascendstoreconnector-with-yuanrong-backend" title="Link to this heading"></a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">AscendStoreConnector</span></code> with <code class="docutils literal notranslate"><span class="pre">backend:</span> <span class="pre">&quot;yuanrong&quot;</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>vllm.entrypoints.openai.api_server<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>/xxxxx/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trust-remote-code<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-enable-prefix-caching<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tensor-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data-parallel-size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-model-len<span class="w"> </span><span class="m">10000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--block-size<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-num-batched-tokens<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--kv-transfer-config<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">&#39;{</span>
+<span class="s1">    &quot;kv_connector&quot;: &quot;AscendStoreConnector&quot;,</span>
+<span class="s1">    &quot;kv_role&quot;: &quot;kv_both&quot;,</span>
+<span class="s1">    &quot;kv_load_failure_policy&quot;: &quot;recompute&quot;,</span>
+<span class="s1">    &quot;kv_connector_extra_config&quot;: {</span>
+<span class="s1">        &quot;lookup_rpc_port&quot;: &quot;1&quot;,</span>
+<span class="s1">        &quot;backend&quot;: &quot;yuanrong&quot;</span>
+<span class="s1">    }</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">lookup_rpc_port</span></code> is the RPC port used between the pooling scheduler process
+and the worker process. Each instance must use a unique port value.</p>
+</section>
+<section id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>The Yuanrong backend normalizes KV keys before calling Datasystem. Supported
+ASCII keys up to 1024 bytes are preserved. Longer keys or keys containing
+unsupported characters are rewritten to a maximum of 1024 characters with a
+hash suffix, so do not rely on the raw key string when debugging backend
+storage.</p></li>
+<li><p>No extra buffer pre-registration step is required for Yuanrong. The backend
+uses device pointers directly when building blob lists.</p></li>
+</ul>
+<section id="id10">
+<h4><a class="reference internal" href="#2-run-inference"><span class="xref myst">2. Run Inference</span></a><a class="headerlink" href="#id10" title="Link to this heading"></a></h4>
+</section>
+</section>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
+<section id="mooncake-faq">
+<h3>1. Mooncake FAQ<a class="headerlink" href="#mooncake-faq" title="Link to this heading"></a></h3>
+<section id="failed-to-put-get-key">
+<h4>1.1 failed to put/get key<a class="headerlink" href="#failed-to-put-get-key" title="Link to this heading"></a></h4>
+<p>When vLLM reports failed <code class="docutils literal notranslate"><span class="pre">put</span></code> or <code class="docutils literal notranslate"><span class="pre">get</span></code> operations, first check whether the error is reported by Mooncake itself.</p>
+<ul class="simple">
+<li><p>If the error is reported by Mooncake:</p>
+<ul>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">put</span></code> failures, check whether the Mooncake log contains <code class="docutils literal notranslate"><span class="pre">NO_AVAILABLE_HANDLE</span></code> or <code class="docutils literal notranslate"><span class="pre">BatchPut</span> <span class="pre">failed</span> <span class="pre">...</span> <span class="pre">due</span> <span class="pre">to</span> <span class="pre">insufficient</span> <span class="pre">space</span></code>. This usually means the remaining space after eviction is not enough for one <code class="docutils literal notranslate"><span class="pre">BatchPut</span></code> request. Ensure the space left by the eviction policy (for example, the capacity implied by <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">eviction_ratio</span></code>) can hold one batch put, or consider increasing the available capacity, increasing eviction headroom, or reducing the batch size.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">get</span></code> failures, check whether the Mooncake log contains <code class="docutils literal notranslate"><span class="pre">lease_expired_before_data_transfer_completed</span> <span class="pre">key=...</span></code> or returns <code class="docutils literal notranslate"><span class="pre">LEASE_EXPIRED</span></code>. This means the KV object lease expired before the data transfer completed. Increase <code class="docutils literal notranslate"><span class="pre">--default_kv_lease_ttl</span></code> for <code class="docutils literal notranslate"><span class="pre">mooncake_master</span></code> as needed, and keep it larger than <code class="docutils literal notranslate"><span class="pre">ASCEND_CONNECT_TIMEOUT</span></code> and <code class="docutils literal notranslate"><span class="pre">ASCEND_TRANSFER_TIMEOUT</span></code>.</p></li>
+</ul>
+</li>
+<li><p>If the error is not reported by Mooncake, it is likely an HIXL (ascend_direct) transfer-layer issue. Collect plog files under <code class="docutils literal notranslate"><span class="pre">/root/ascend/log/debug/plog</span></code> and check whether the issue matches a known HIXL problem.</p></li>
+</ul>
+<p>For common troubleshooting and issue localization guidance for HIXL (ascend_direct), see:
+<a class="reference external" href="https://gitcode.com/cann/hixl/wiki/HIXL%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%AE%9A%E4%BD%8D%E6%89%8B%E5%86%8C.md">https://gitcode.com/cann/hixl/wiki/HIXL常见问题定位手册.md</a></p>
+</section>
+<section id="ssd-faq">
+<h4>1.2 SSD FAQ<a class="headerlink" href="#ssd-faq" title="Link to this heading"></a></h4>
+<section id="segment-not-found-with-ssd-offload">
+<h5>1.2.1 SEGMENT_NOT_FOUND with SSD offload<a class="headerlink" href="#segment-not-found-with-ssd-offload" title="Link to this heading"></a></h5>
+<p>If client logs show <code class="docutils literal notranslate"><span class="pre">OffloadObjectHeartbeat</span> <span class="pre">failed,</span> <span class="pre">error</span> <span class="pre">code</span> <span class="pre">is</span> <span class="pre">SEGMENT_NOT_FOUND</span></code>, Master has unmounted the rank's <code class="docutils literal notranslate"><span class="pre">LOCAL_DISK</span></code> segment (usually after <code class="docutils literal notranslate"><span class="pre">client_expired</span></code> when Ping stops refreshing TTL). SSD offload on that rank stops until the segment is registered again.</p>
+<p><strong>Typical trigger (with <code class="docutils literal notranslate"><span class="pre">enable_cpu_binding=true</span></code>):</strong> Mooncake starts Ping during init, then vLLM-Ascend <code class="docutils literal notranslate"><span class="pre">bind_cpus()</span></code> runs <code class="docutils literal notranslate"><span class="pre">migratepages</span></code>/IRQ binding; the Ping thread is not pinned and can miss beats under the default <code class="docutils literal notranslate"><span class="pre">client_ttl=10</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Mitigation</p></th>
+<th class="head text-left"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><strong>Temporary:</strong> raise Master TTL</p></td>
+<td class="text-left"><p>e.g. <code class="docutils literal notranslate"><span class="pre">mooncake_master</span> <span class="pre">...</span> <span class="pre">--client_ttl=120</span></code>. Tune to your init/warmup window (often <code class="docutils literal notranslate"><span class="pre">60</span></code>–<code class="docutils literal notranslate"><span class="pre">120</span></code> is enough). Does not fix the root cause.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><strong>Recovery:</strong> upgrade Mooncake</p></td>
+<td class="text-left"><p>Versions <strong>&gt; v0.3.11</strong> (main branch) can remount <code class="docutils literal notranslate"><span class="pre">LOCAL_DISK</span></code> and rescan metadata after <code class="docutils literal notranslate"><span class="pre">SEGMENT_NOT_FOUND</span></code>. This <strong>recovers after</strong> cleanup; it does <strong>not</strong> prevent expiry or in-flight request failures while metadata is gone.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p><strong>Root fix:</strong> Mooncake Ping CPU affinity</p></td>
+<td class="text-left"><p>Pin the storage Ping thread to a release/isolated CPU (Mooncake-side change). Optional vLLM-Ascend cooperation to pass the release CPU per rank.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Also restart Master together with vLLM to avoid stale <code class="docutils literal notranslate"><span class="pre">segment_already_exists</span></code> state when debugging restarts.</p>
+</section>
+<section id="fabric-memory-size-alignment-a3-ascend-enable-use-fabric-mem-1">
+<h5>1.2.2 Fabric memory size alignment (A3 + <code class="docutils literal notranslate"><span class="pre">ASCEND_ENABLE_USE_FABRIC_MEM=1</span></code>)<a class="headerlink" href="#fabric-memory-size-alignment-a3-ascend-enable-use-fabric-mem-1" title="Link to this heading"></a></h5>
+<p>On A3 with fabric memory enabled, <strong>each</strong> fabric mem allocation must be an integer multiple of <strong>1 GB</strong> (1073741824 bytes). Mooncake does not round sizes up automatically.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Parameter</p></th>
+<th class="head text-left"><p>Config source</p></th>
+<th class="head text-left"><p>Alignment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code></p></td>
+<td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> or export <code class="docutils literal notranslate"><span class="pre">MOONCAKE_GLOBAL_SEGMENT_SIZE</span></code></p></td>
+<td class="text-left"><p>Each rank's segment size must be aligned to 1GB (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;1GB&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;20GB&quot;</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code></p></td>
+<td class="text-left"><p>export <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> (only when <code class="docutils literal notranslate"><span class="pre">enable_ssd_offload=true</span></code>)</p></td>
+<td class="text-left"><p>Must be aligned to 1GB. Default is 1280 MB (1.25 GB), which is <strong>not</strong> aligned and is too small for long-context SSD loads — size with <a class="reference internal" href="#123-sizing-mooncake_offload_local_buffer_size_bytes"><span class="xref myst">Sizing MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">local_buffer_size</span></code> in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> is <strong>not</strong> used under fabric mem (vLLM-Ascend passes <code class="docutils literal notranslate"><span class="pre">0</span></code> to <code class="docutils literal notranslate"><span class="pre">setup()</span></code>).</p>
+<p><strong>Risk if misaligned:</strong> <code class="docutils literal notranslate"><span class="pre">adxl</span> <span class="pre">MallocMem</span></code> / <code class="docutils literal notranslate"><span class="pre">aclrtMapMem</span></code> fails with <code class="docutils literal notranslate"><span class="pre">Invalid_Argument</span></code>. With SSD offload enabled, a failed <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> allocation can segfault during <code class="docutils literal notranslate"><span class="pre">FileStorage</span></code> init and abort vLLM startup. Avoid values such as <code class="docutils literal notranslate"><span class="pre">&quot;1280MB&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;512MB&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;1.5GB&quot;</span></code>.</p>
+<p><strong>Fabric mem quota:</strong> Both <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code> and <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> are separate fabric mem allocations <strong>per rank</strong>. Their sizes add up against the HIXL fabric mem limit configured via <code class="docutils literal notranslate"><span class="pre">ASCEND_GLOBAL_RESOURCE_CONFIG</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;fabric_memory.max_capacity&quot;:32</span></code>, unit GB per process — see HIXL docs). Rough budget per rank:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>fabric_memory.max_capacity  ≥  global_segment_size + MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES  (+ headroom)
+</pre></div>
+</div>
+<p><strong>Risk if quota is too low:</strong> Some ranks fail with <code class="docutils literal notranslate"><span class="pre">Memory_Allocation_Failure(EL0004)</span></code> after <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code> succeeds but <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> allocation fails. Increase <code class="docutils literal notranslate"><span class="pre">fabric_memory.max_capacity</span></code>, reduce <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code> or <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code>, or ensure the node has enough host memory.</p>
+<p>Example (add to your vLLM startup script when SSD offload is on):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_ENABLE_USE_FABRIC_MEM</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span><span class="o">=</span><span class="m">1073741824</span><span class="w">   </span><span class="c1"># 1 GB, fabric-mem aligned</span>
+</pre></div>
+</div>
+<p><strong>set ASCEND_GLOBAL_RESOURCE_CONFIG only if fabric mem is too low.</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Per-rank fabric mem budget: 20 GB segment + 1 GB MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES → set max_capacity ≥ 22 (GB)</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_GLOBAL_RESOURCE_CONFIG</span><span class="o">=</span><span class="s1">&#39;{&quot;fabric_memory.max_capacity&quot;:32}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="sizing-mooncake-offload-local-buffer-size-bytes">
+<h5>1.2.3 Sizing MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES<a class="headerlink" href="#sizing-mooncake-offload-local-buffer-size-bytes" title="Link to this heading"></a></h5>
+<p>When <code class="docutils literal notranslate"><span class="pre">enable_ssd_offload=true</span></code>, Mooncake allocates a <strong>separate per-rank SSD read/write buffer</strong> sized by <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code>. This buffer is <strong>independent</strong> of <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code> in <code class="docutils literal notranslate"><span class="pre">mooncake.json</span></code> — increasing the segment does <strong>not</strong> fix <code class="docutils literal notranslate"><span class="pre">BUFFER_OVERFLOW</span></code> caused by an undersized <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code>.</p>
+<p>If the buffer is too small, SSD reads fail with <code class="docutils literal notranslate"><span class="pre">BUFFER_OVERFLOW</span></code> (<code class="docutils literal notranslate"><span class="pre">error_code=-10</span></code>) during <code class="docutils literal notranslate"><span class="pre">FileStorage::AllocateBatch</span></code>, and vLLM may fail when <code class="docutils literal notranslate"><span class="pre">kv_load_failure_policy=fail</span></code>.</p>
+<p>If you encounter <code class="docutils literal notranslate"><span class="pre">BUFFER_OVERFLOW</span></code> during use, try increasing <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code>. Do not set it higher than the <strong>Available KV cache memory</strong> value shown in vLLM worker logs:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>(Worker_TP0_EP0 pid=21240) INFO 06-23 17:41:09 [worker.py:552] Available KV cache memory: XX
+</pre></div>
+</div>
+<p>Example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span><span class="o">=</span><span class="m">10737418240</span><span class="w">   </span><span class="c1"># 10 GB</span>
+</pre></div>
+</div>
+<p>Use <strong>byte literals only</strong> (<code class="docutils literal notranslate"><span class="pre">10737418240</span></code>). <code class="docutils literal notranslate"><span class="pre">10G</span></code> / <code class="docutils literal notranslate"><span class="pre">10GB</span></code> are ignored and fall back to the 1280 MB default.</p>
+<details>
+<summary>Notes</summary>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--max-num-batched-tokens</span></code> only chunks prefill compute; it does <strong>not</strong> reduce the memory required by <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code>.</p></li>
+</ul>
+</details>
+<section id="host-memory-budget-single-node">
+<h6>Host memory budget (single node)<a class="headerlink" href="#host-memory-budget-single-node" title="Link to this heading"></a></h6>
+<p><code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> is allocated <strong>per rank</strong>, in addition to <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>host_memory_for_mooncake ≈ TP × (global_segment_size + MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES + local_buffer_size)
+</pre></div>
+</div>
+<p>Ensure <code class="docutils literal notranslate"><span class="pre">free</span> <span class="pre">-h</span></code> <strong>available</strong> on the host exceeds this sum plus vLLM overhead. <code class="docutils literal notranslate"><span class="pre">MOONCAKE_OFFLOAD_LOCAL_BUFFER_SIZE_BYTES</span></code> does <strong>not</strong> need to fit inside <code class="docutils literal notranslate"><span class="pre">global_segment_size</span></code>.</p>
+</section>
+<section id="verify-after-tuning">
+<h6>Verify after tuning<a class="headerlink" href="#verify-after-tuning" title="Link to this heading"></a></h6>
+<ol class="arabic simple">
+<li><p>Startup: each rank logs <code class="docutils literal notranslate"><span class="pre">AlignedClientBufferAllocator:</span> <span class="pre">allocated</span> <span class="pre">&lt;N&gt;</span> <span class="pre">bytes</span></code> with your configured size.</p></li>
+<li><p>Under load: no <code class="docutils literal notranslate"><span class="pre">BUFFER_OVERFLOW</span></code> / <code class="docutils literal notranslate"><span class="pre">Failed</span> <span class="pre">to</span> <span class="pre">get</span> <span class="pre">...</span> <span class="pre">keys</span> <span class="pre">out</span> <span class="pre">of</span> <span class="pre">...</span> <span class="pre">error_codes=[-10]</span></code>.</p></li>
+<li><p>If failures persist with a large buffer, check overlapping loads (<code class="docutils literal notranslate"><span class="pre">load_async</span></code>).</p></li>
+</ol>
+</section>
+</section>
+</section>
+</section>
+<section id="memcache-faq">
+<h3>2. Memcache FAQ<a class="headerlink" href="#memcache-faq" title="Link to this heading"></a></h3>
+<p>For Memcache troubleshooting, see:
+<a class="reference external" href="https://gitcode.com/Ascend/memcache/wiki/FAQ.md">https://gitcode.com/Ascend/memcache/wiki/FAQ.md</a></p>
+</section>
+<section id="dsv4-known-issue-temporary">
+<h3>3. DSv4 known issue (temporary)<a class="headerlink" href="#dsv4-known-issue-temporary" title="Link to this heading"></a></h3>
+<p>For the temporary DSv4 known issue, see:
+<a class="reference external" href="https://github.com/vllm-project/vllm-ascend/issues/9975">https://github.com/vllm-project/vllm-ascend/issues/9975</a></p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

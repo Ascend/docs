@@ -1,0 +1,1067 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kernel Selection in VeOmni &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Kernel Selection in VeOmni</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/design/kernel_selection.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kernel-selection-in-veomni">
+<h1>Kernel Selection in VeOmni<a class="headerlink" href="#kernel-selection-in-veomni" title="Link to this heading"></a></h1>
+<p>VeOmni selects optimized kernel implementations for attention, cross-entropy
+loss, Liger fused ops (RMSNorm, RoPE, SwiGLU), MoE, and load-balancing loss.
+All selections are driven by config fields in <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code>.</p>
+<section id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
+<p>Every configurable kernel lives under <code class="docutils literal notranslate"><span class="pre">model.ops_implementation.*</span></code> in YAML and
+maps to a field on <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code> (<code class="docutils literal notranslate"><span class="pre">veomni/arguments/arguments_types.py</span></code>).
+Below is the full list — if a field is not in this table, it is not a kernel
+selection knob.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Kernel</p></th>
+<th class="head"><p>Config field</p></th>
+<th class="head"><p>Available values</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Selection time</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Attention</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">attn_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">sdpa</span></code>, <code class="docutils literal notranslate"><span class="pre">flash_attention_2</span></code>, <code class="docutils literal notranslate"><span class="pre">flash_attention_3</span></code>, <code class="docutils literal notranslate"><span class="pre">flash_attention_4</span></code>, <code class="docutils literal notranslate"><span class="pre">native-sparse</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;flash_attention_2&quot;</span></code></p></td>
+<td><p>Config <code class="docutils literal notranslate"><span class="pre">__post_init__</span></code> + <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cross-entropy loss</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cross_entropy_loss_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code>, <code class="docutils literal notranslate"><span class="pre">chunk_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> (GPU)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_ops_config()</span></code> (before model build)</p></td>
+</tr>
+<tr class="row-even"><td><p>RMSNorm</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rms_norm_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code>, <code class="docutils literal notranslate"><span class="pre">npu</span></code>, <code class="docutils literal notranslate"><span class="pre">triton</span></code> (per-model; DeepSeek-V3)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> (GPU)</p></td>
+<td><p>Model registration via ops config singleton</p></td>
+</tr>
+<tr class="row-odd"><td><p>SwiGLU MLP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">swiglu_mlp_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> (GPU)</p></td>
+<td><p>Model registration via ops config singleton</p></td>
+</tr>
+<tr class="row-even"><td><p>Rotary embedding</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rotary_pos_emb_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code>, <code class="docutils literal notranslate"><span class="pre">npu</span></code>, <code class="docutils literal notranslate"><span class="pre">triton</span></code> (per-model; DeepSeek-V3)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> (GPU)</p></td>
+<td><p>Model registration via ops config singleton</p></td>
+</tr>
+<tr class="row-odd"><td><p>Load-balancing loss</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">load_balancing_loss_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">triton</span></code> (CUDA <code class="docutils literal notranslate"><span class="pre">triton</span></code> or NPU <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;triton&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_ops_config()</span></code> (before model build)</p></td>
+</tr>
+<tr class="row-even"><td><p>MoE experts</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">moe_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code>, <code class="docutils literal notranslate"><span class="pre">fused_triton</span></code>, <code class="docutils literal notranslate"><span class="pre">fused_quack</span></code> (SM90+), <code class="docutils literal notranslate"><span class="pre">fused_npu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;fused_triton&quot;</span></code> (GPU)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Defaults are GPU-optimal.</strong> On Ascend NPU the defaults above raise at
+<code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.__post_init__</span></code> time — NPU users must set every field
+explicitly to an NPU-supported value (<code class="docutils literal notranslate"><span class="pre">npu</span></code> / <code class="docutils literal notranslate"><span class="pre">chunk_loss</span></code> / <code class="docutils literal notranslate"><span class="pre">fused_npu</span></code> /
+<code class="docutils literal notranslate"><span class="pre">triton</span></code> for load-balancing loss) or to <code class="docutils literal notranslate"><span class="pre">eager</span></code> when the op has no NPU
+backend (<code class="docutils literal notranslate"><span class="pre">swiglu_mlp_implementation</span></code>, DeepSeek-V3 RMSNorm/RoPE, Qwen2-VL
+multimodal RoPE). The error message lists the allowed alternatives per op.</p>
+<p>The per-op fields are typed as plain <code class="docutils literal notranslate"><span class="pre">str</span></code> (not <code class="docutils literal notranslate"><span class="pre">Literal</span></code>), so third-party
+backends can be registered via <code class="docutils literal notranslate"><span class="pre">extra_backends</span></code> in a model's <code class="docutils literal notranslate"><span class="pre">device_patch.py</span></code>
+without modifying <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="lifecycle-overview">
+<h2>Lifecycle Overview<a class="headerlink" href="#lifecycle-overview" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>import veomni                                 # (1) import time
+  └─ apply_ops_patch()
+       └─ apply_veomni_attention_patch()      # register FA2/3/4 with SP
+
+OpsImplementationConfig.__post_init__()       # (2) config parse time
+  ├─ validate requested backends are available
+  ├─ rewrite attn_implementation for SP
+  └─ set_ops_config(self)                     # populate singleton
+
+BaseTrainer._build_model()                    # (3) model build time
+  └─ build_foundation_model(..., ops_implementation=ops)
+       ├─ apply_ops_config(ops)               # install LOSS_MAPPING + GLOBAL patches
+       │    ├─ install_loss_mapping(ce_impl)  # partial(ForCausalLMLoss, cross_entropy_fn=&lt;impl&gt;)
+       │    └─ apply_global_ops(config)       # load_balancing_loss, etc.
+       ├─ apply_veomni_fused_moe_patch(...)   # bind MoE kernel
+       ├─ device_patch.py reads ops config     # RMSNorm/RoPE/SwiGLU
+       ├─ OpSlot.bind(impl_name)              # per-model OpSlot dispatch
+       └─ model init + weight loading
+
+model.forward()                               # (4) runtime
+  ├─ attention: ALL_ATTENTION_FUNCTIONS[config._attn_implementation]
+  ├─ loss: self.loss_function(...) -&gt; LOSS_MAPPING[...] (pre-bound partial)
+  │         OR veomni_causal_lm_loss(...) via OpSlot.use_non_eager_impl guard
+  ├─ RMSNorm/RoPE/SwiGLU: Liger or HF default (set at registration)
+  └─ MoE: fused_moe_forward(...) or eager loop
+</pre></div>
+</div>
+<p><strong>Single install point.</strong> <code class="docutils literal notranslate"><span class="pre">apply_ops_config</span></code> is the only place that binds
+<code class="docutils literal notranslate"><span class="pre">LOSS_MAPPING</span></code> — there is no separate <code class="docutils literal notranslate"><span class="pre">apply_veomni_loss_patch</span></code> call. The
+inner CE kernel (eager / liger / npu) is pre-bound onto the wrapper via
+<code class="docutils literal notranslate"><span class="pre">functools.partial</span></code>, so runtime dispatch is just a function call and there
+is no per-forward &quot;which impl?&quot; lookup.</p>
+<p><strong>Ownership.</strong> <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code> owns the call to <code class="docutils literal notranslate"><span class="pre">apply_ops_config</span></code>:
+when callers pass <code class="docutils literal notranslate"><span class="pre">ops_implementation=ops</span></code> (trainers do this), it runs
+<code class="docutils literal notranslate"><span class="pre">apply_ops_config(ops)</span></code> before constructing the model and reads
+<code class="docutils literal notranslate"><span class="pre">attn_implementation</span></code> from <code class="docutils literal notranslate"><span class="pre">ops</span></code>. Callers that pass neither
+<code class="docutils literal notranslate"><span class="pre">ops_implementation</span></code> nor a prior <code class="docutils literal notranslate"><span class="pre">apply_ops_config</span></code> raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> —
+there is no silent all-eager fallback. Standalone scripts (<code class="docutils literal notranslate"><span class="pre">tasks/infer/*</span></code>)
+construct an explicit <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code> (typically all-eager so
+inference doesn't depend on Liger / Triton). The DiT trainer is the one
+exception that calls <code class="docutils literal notranslate"><span class="pre">apply_ops_config</span></code> manually — it has to populate the
+singleton before building the condition model, which uses
+<code class="docutils literal notranslate"><span class="pre">model_class._from_config(...)</span></code> rather than <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code>. The
+subsequent <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code> call hits the
+&quot;singleton-already-installed&quot; branch and leaves the prior config alone.</p>
+</section>
+<hr class="docutils" />
+<section id="attention">
+<h2>1. Attention<a class="headerlink" href="#attention" title="Link to this heading"></a></h2>
+<section id="config">
+<h3>Config<a class="headerlink" href="#config" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">attn_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flash_attention_2</span><span class="w">    </span><span class="c1"># default</span>
+</pre></div>
+</div>
+<p><strong>Field:</strong> <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.attn_implementation</span></code></p>
+</section>
+<section id="available-implementations">
+<h3>Available implementations<a class="headerlink" href="#available-implementations" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Kernel</p></th>
+<th class="head text-center"><p>Sequence Parallel</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>PyTorch</p></td>
+<td class="text-center"><p>No</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sdpa</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">F.scaled_dot_product_attention</span></code></p></td>
+<td class="text-center"><p>No</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flash_attention_2</span></code></p></td>
+<td><p>Flash Attention v2</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">flash-attn</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">flash_attention_3</span></code></p></td>
+<td><p>Flash Attention v3</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">flash-attn-interface</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flash_attention_4</span></code></p></td>
+<td><p>Flash Attention v4</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">flash-attn.cute</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">native-sparse</span></code></p></td>
+<td><p>Sparse attention</p></td>
+<td class="text-center"><p>No</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+<p>When <code class="docutils literal notranslate"><span class="pre">MODELING_BACKEND=veomni</span></code> (the default), <code class="docutils literal notranslate"><span class="pre">__post_init__</span></code> automatically
+rewrites <code class="docutils literal notranslate"><span class="pre">flash_attention_2/3/4</span></code> to VeOmni SP-aware variants
+(<code class="docutils literal notranslate"><span class="pre">veomni_flash_attention_2_with_sp</span></code>, etc.) which wrap the underlying kernel
+with DeepSpeed Ulysses sequence parallelism gather/scatter.</p>
+</section>
+<section id="key-files">
+<h3>Key files<a class="headerlink" href="#key-files" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Config: <code class="docutils literal notranslate"><span class="pre">veomni/arguments/arguments_types.py</span></code> — <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code></p></li>
+<li><p>Registration: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/attention/__init__.py</span></code> — <code class="docutils literal notranslate"><span class="pre">apply_veomni_attention_patch()</span></code></p></li>
+<li><p>Plumbing: <code class="docutils literal notranslate"><span class="pre">veomni/models/auto.py</span></code> — <code class="docutils literal notranslate"><span class="pre">build_foundation_model(attn_implementation=...)</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cross-entropy-loss">
+<h2>2. Cross-Entropy Loss<a class="headerlink" href="#cross-entropy-loss" title="Link to this heading"></a></h2>
+<section id="id1">
+<h3>Config<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cross_entropy_loss_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span><span class="w">   </span><span class="c1"># default; set to &quot;chunk_loss&quot; / &quot;npu&quot; / &quot;eager&quot; on NPU</span>
+</pre></div>
+</div>
+<p><strong>Field:</strong> <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.cross_entropy_loss_implementation</span></code></p>
+</section>
+<section id="id2">
+<h3>Available implementations<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fused_liger_kernel_cross_entropy</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger-kernel</span></code> package</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chunk_loss_function</span></code> (chunked loss for <code class="docutils literal notranslate"><span class="pre">ForCausalLM</span></code> and <code class="docutils literal notranslate"><span class="pre">ForConditionalGeneration</span></code>; SP reduction handled internally)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">eager_cross_entropy</span></code> (PyTorch <code class="docutils literal notranslate"><span class="pre">F.cross_entropy</span></code>)</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">npu</span></code> chunk-loss binds only to <code class="docutils literal notranslate"><span class="pre">ForCausalLM</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ForConditionalGeneration</span></code>; <code class="docutils literal notranslate"><span class="pre">ForSequenceClassification</span></code> stays on
+<code class="docutils literal notranslate"><span class="pre">eager_cross_entropy</span></code> because chunk_loss hard-codes the causal
+<code class="docutils literal notranslate"><span class="pre">labels[...,</span> <span class="pre">1:]</span></code> shift (incompatible with token-level classification
+labels).</p>
+<p>Selecting <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code> requires that the model's forward pass pass
+<code class="docutils literal notranslate"><span class="pre">hidden_states=</span></code> and <code class="docutils literal notranslate"><span class="pre">weights=self.lm_head.weight</span></code> through
+<code class="docutils literal notranslate"><span class="pre">self.loss_function(...)</span></code> — the Liger fused linear+CE kernel does the
+projection itself and has no full logits tensor to fall back on. VeOmni's
+patched modeling files (<code class="docutils literal notranslate"><span class="pre">patched_modeling_*.py</span></code>) already do this. If a model
+whose forward was not patched calls <code class="docutils literal notranslate"><span class="pre">self.loss_function</span></code> without these
+kwargs while <code class="docutils literal notranslate"><span class="pre">cross_entropy_loss_implementation=&quot;liger_kernel&quot;</span></code>, the Liger
+kernel raises <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> with a pointer to the patch pattern — it does
+<strong>not</strong> silently fall back to eager. Switch the field to <code class="docutils literal notranslate"><span class="pre">eager</span></code> if the
+model cannot be patched.</p>
+</section>
+<section id="id3">
+<h3>Key files<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Dispatch: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/cross_entropy/__init__.py</span></code> — <code class="docutils literal notranslate"><span class="pre">install_loss_mapping(impl)</span></code></p></li>
+<li><p>Eager impl: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/cross_entropy/eager.py</span></code></p></li>
+<li><p>Liger impl: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/cross_entropy/liger.py</span></code></p></li>
+<li><p>NPU chunk loss: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/cross_entropy/chunk_loss.py</span></code> — <code class="docutils literal notranslate"><span class="pre">chunk_loss_function</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="per-model-ops-rmsnorm-rope-swiglu-mlp">
+<h2>3. Per-Model Ops (RMSNorm, RoPE, SwiGLU MLP)<a class="headerlink" href="#per-model-ops-rmsnorm-rope-swiglu-mlp" title="Link to this heading"></a></h2>
+<p>Each operation can be independently controlled. Despite the historical
+&quot;Liger fused ops&quot; label, these fields are <em>not</em> Liger-only: they also accept
+<code class="docutils literal notranslate"><span class="pre">npu</span></code> (for Ascend NPU backends) and <code class="docutils literal notranslate"><span class="pre">triton</span></code> (for model-specific Triton
+kernels registered in the model's <code class="docutils literal notranslate"><span class="pre">device_patch.py</span></code>, e.g. DeepSeek-V3's
+batch-invariant RMSNorm and deterministic RoPE).</p>
+<section id="id4">
+<h3>Config<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rms_norm_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span><span class="w">       </span><span class="c1"># default; pin to &quot;npu&quot; / &quot;eager&quot; on NPU</span>
+<span class="w">    </span><span class="nt">swiglu_mlp_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span><span class="w">     </span><span class="c1"># default; pin to &quot;eager&quot; on NPU (no NPU backend)</span>
+<span class="w">    </span><span class="nt">rotary_pos_emb_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span><span class="w"> </span><span class="c1"># default; pin to &quot;npu&quot; / &quot;eager&quot; on NPU</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h3>Available implementations<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="rms-norm-implementation">
+<h4><code class="docutils literal notranslate"><span class="pre">rms_norm_implementation</span></code><a class="headerlink" href="#rms-norm-implementation" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LigerRMSNorm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger-kernel</span></code> package</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu.npu_rms_norm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code></p></td>
+<td><p>Model-specific Triton kernel registered via <code class="docutils literal notranslate"><span class="pre">extra_backends</span></code> (e.g. DeepSeek-V3 batch-invariant RMSNorm)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code>, per-model registration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>HuggingFace default (<code class="docutils literal notranslate"><span class="pre">{Model}RMSNorm</span></code>)</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rotary-pos-emb-implementation">
+<h4><code class="docutils literal notranslate"><span class="pre">rotary_pos_emb_implementation</span></code><a class="headerlink" href="#rotary-pos-emb-implementation" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger_rotary_pos_emb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger-kernel</span></code> package</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu.npu_rotary_mul</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code></p></td>
+<td><p>Model-specific Triton kernel registered via <code class="docutils literal notranslate"><span class="pre">extra_backends</span></code> (e.g. DeepSeek-V3 deterministic RoPE)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code>, per-model registration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>HuggingFace default (<code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code>)</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="swiglu-mlp-implementation">
+<h4><code class="docutils literal notranslate"><span class="pre">swiglu_mlp_implementation</span></code><a class="headerlink" href="#swiglu-mlp-implementation" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LigerSwiGLUMLP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger-kernel</span></code> package</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>HuggingFace default (<code class="docutils literal notranslate"><span class="pre">{Model}MLP</span></code>)</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="what-gets-patched">
+<h3>What gets patched<a class="headerlink" href="#what-gets-patched" title="Link to this heading"></a></h3>
+<p>For each selected backend, the model's <code class="docutils literal notranslate"><span class="pre">device_patch.py</span></code> either swaps the
+target HF class (<code class="docutils literal notranslate"><span class="pre">replace_forward=False</span></code>) or rebinds its <code class="docutils literal notranslate"><span class="pre">forward</span></code>
+(<code class="docutils literal notranslate"><span class="pre">replace_forward=True</span></code>). The summary of the Liger swap shape (the most
+common case):</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Config field</p></th>
+<th class="head"><p>Original</p></th>
+<th class="head"><p>Liger replacement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rms_norm_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{Model}RMSNorm</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LigerRMSNorm</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rotary_pos_emb_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">liger_rotary_pos_emb</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">swiglu_mlp_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{Model}MLP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LigerSwiGLUMLP</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">npu</span></code> and <code class="docutils literal notranslate"><span class="pre">triton</span></code> backends follow the same <code class="docutils literal notranslate"><span class="pre">device_patch.py</span></code> flow — the
+only difference is the kernel callable on the other side of the registry.</p>
+</section>
+<section id="models-with-liger-support">
+<h3>Models with Liger support<a class="headerlink" href="#models-with-liger-support" title="Link to this heading"></a></h3>
+<p>Qwen2, Qwen3, Qwen3-MoE, Qwen2-VL, DeepSeek-V3, Llama, Seed-OSS.</p>
+</section>
+<section id="id6">
+<h3>Key files<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Config singleton: <code class="docutils literal notranslate"><span class="pre">veomni/ops/config/singleton.py</span></code> — <code class="docutils literal notranslate"><span class="pre">get_ops_config()</span></code>, <code class="docutils literal notranslate"><span class="pre">set_ops_config()</span></code></p></li>
+<li><p>Unified registry: <code class="docutils literal notranslate"><span class="pre">veomni/ops/config/registry.py</span></code> — <code class="docutils literal notranslate"><span class="pre">register_op()</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_per_model_patches()</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_global_ops()</span></code></p></li>
+<li><p>OSS backend registration: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/{rms_norm,rotary,swiglu}/__init__.py</span></code></p></li>
+<li><p>Per-model <code class="docutils literal notranslate"><span class="pre">extra_backends</span></code> (e.g. DeepSeek-V3 Triton): <code class="docutils literal notranslate"><span class="pre">veomni/models/transformers/{model}/device_patch.py</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="load-balancing-loss">
+<h2>4. Load-Balancing Loss<a class="headerlink" href="#load-balancing-loss" title="Link to this heading"></a></h2>
+<section id="id7">
+<h3>Config<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">load_balancing_loss_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">triton</span><span class="w">   </span><span class="c1"># default; pin to &quot;eager&quot; on NPU (triton-ascend not exposed as `triton`)</span>
+</pre></div>
+</div>
+<p><strong>Field:</strong> <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.load_balancing_loss_implementation</span></code></p>
+</section>
+<section id="id8">
+<h3>Available implementations<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Implementation</p></th>
+<th class="head"><p>Requirements</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code></p></td>
+<td><p>Fused Triton kernel (<code class="docutils literal notranslate"><span class="pre">_load_balancing_loss</span></code> is rebound by <code class="docutils literal notranslate"><span class="pre">apply_ops_config</span></code> via the registry's <code class="docutils literal notranslate"><span class="pre">global_slot</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">triton</span></code> on CUDA, or <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> on Ascend NPU</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>Pure-PyTorch reference (<code class="docutils literal notranslate"><span class="pre">load_balancing_loss_pytorch</span></code>)</p></td>
+<td><p>—</p></td>
+</tr>
+</tbody>
+</table>
+<p>This is a <code class="docutils literal notranslate"><span class="pre">GLOBAL</span></code>-scope op: the function pointer
+<code class="docutils literal notranslate"><span class="pre">veomni.ops.kernels.load_balancing_loss._load_balancing_loss</span></code> is rebound
+once per process from <code class="docutils literal notranslate"><span class="pre">apply_ops_config()</span></code>, and every call site that
+imports <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">veomni.ops</span> <span class="pre">import</span> <span class="pre">load_balancing_loss_func</span></code> picks up the
+selected backend automatically — no per-model patching needed.</p>
+</section>
+<section id="id9">
+<h3>Key files<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Selection: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/load_balancing_loss/__init__.py</span></code> — <code class="docutils literal notranslate"><span class="pre">register_op(...)</span></code> entry</p></li>
+<li><p>Triton impl: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/load_balancing_loss/triton.py</span></code></p></li>
+<li><p>Eager impl: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/load_balancing_loss/eager.py</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="moe-kernel">
+<h2>5. MoE Kernel<a class="headerlink" href="#moe-kernel" title="Link to this heading"></a></h2>
+<section id="id10">
+<h3>Config<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">moe_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fused_triton</span><span class="w">   </span><span class="c1"># Triton group-gemm (GPU, SM70+)</span>
+<span class="w">    </span><span class="c1"># moe_implementation: fused_quack  # Quack CUTLASS/CuTe (GPU, SM90+)</span>
+<span class="w">    </span><span class="c1"># moe_implementation: fused_npu    # NPU group-gemm (Ascend)</span>
+<span class="w">    </span><span class="c1"># moe_implementation: eager        # Reference PyTorch loop (very slow, debug only)</span>
+</pre></div>
+</div>
+<p><strong>Field:</strong> <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.moe_implementation</span></code>
+<strong>Default:</strong> <code class="docutils literal notranslate"><span class="pre">&quot;fused_triton&quot;</span></code> (GPU). On NPU set to <code class="docutils literal notranslate"><span class="pre">&quot;fused_npu&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;eager&quot;</span></code> — <code class="docutils literal notranslate"><span class="pre">fused_triton</span></code> / <code class="docutils literal notranslate"><span class="pre">fused_quack</span></code> raise at config validation time.</p>
+<p>The mode and kernel backend are expressed as a single field. Mismatches raise
+at <code class="docutils literal notranslate"><span class="pre">apply_veomni_fused_moe_patch</span></code> time — no silent hardware fallback.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Kernel</p></th>
+<th class="head"><p>Hardware</p></th>
+<th class="head text-center"><p>EP support</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>PyTorch expert loop</p></td>
+<td><p>Any</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fused_triton</span></code></p></td>
+<td><p>Triton group-gemm</p></td>
+<td><p>GPU, SM70+ (V100+)</p></td>
+<td class="text-center"><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fused_quack</span></code></p></td>
+<td><p>Quack CUTLASS/CuTe</p></td>
+<td><p>GPU, SM90+ (H100+)</p></td>
+<td class="text-center"><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fused_npu</span></code></p></td>
+<td><p>NPU group-gemm</p></td>
+<td><p>Ascend NPU</p></td>
+<td class="text-center"><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id11">
+<h3>Key files<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Config: <code class="docutils literal notranslate"><span class="pre">veomni/arguments/arguments_types.py</span></code> — <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code></p></li>
+<li><p>Dispatch: <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/moe/__init__.py</span></code> — <code class="docutils literal notranslate"><span class="pre">apply_veomni_fused_moe_patch()</span></code></p></li>
+<li><p>Plumbing: <code class="docutils literal notranslate"><span class="pre">veomni/models/auto.py</span></code> — <code class="docutils literal notranslate"><span class="pre">build_foundation_model(moe_implementation=...)</span></code></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Env var</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">MODELING_BACKEND</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;veomni&quot;</span></code></p></td>
+<td><p>Global</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;veomni&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;hf&quot;</span></code> — controls whether VeOmni ops patches are applied</p></td>
+</tr>
+</tbody>
+</table>
+<p>Kernel selection is otherwise driven by <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig</span></code> fields.
+The <code class="docutils literal notranslate"><span class="pre">VEOMNI_USE_LIGER_KERNEL</span></code> and <code class="docutils literal notranslate"><span class="pre">USE_GROUP_GEMM</span></code> environment variables
+have been removed in favor of the per-op config fields.</p>
+<p>All remaining env vars are registered in <code class="docutils literal notranslate"><span class="pre">veomni/utils/env.py</span></code> with defaults and can be
+overridden by setting the corresponding shell environment variable.</p>
+</section>
+<hr class="docutils" />
+<section id="comparison-with-transformers-v5-kernel-selection">
+<h2>5. Comparison with Transformers v5+ Kernel Selection<a class="headerlink" href="#comparison-with-transformers-v5-kernel-selection" title="Link to this heading"></a></h2>
+<p>Transformers v5 (<code class="docutils literal notranslate"><span class="pre">transformers&gt;=4.57</span></code>) introduces a unified kernel selection
+framework that replaces the ad-hoc patching used in earlier versions.
+This section compares VeOmni's approach (Sections 1-4 above) with the four
+mechanisms available in Transformers v5, using <code class="docutils literal notranslate"><span class="pre">Qwen3MoE</span></code> and <code class="docutils literal notranslate"><span class="pre">Qwen3.5MoE</span></code> as
+reference models.</p>
+<section id="transformers-v5-mechanisms-overview">
+<h3>5.1 Transformers v5 Mechanisms Overview<a class="headerlink" href="#transformers-v5-mechanisms-overview" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>#</p></th>
+<th class="head"><p>Mechanism</p></th>
+<th class="head"><p>Decorator / API</p></th>
+<th class="head"><p>What it replaces</p></th>
+<th class="head"><p>Scope</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Hub kernel layers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_forward_from_hub(&quot;RMSNorm&quot;)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nn.Module.forward</span></code></p></td>
+<td><p>Per-class, via <code class="docutils literal notranslate"><span class="pre">kernels</span></code> library from HF Hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Hub kernel functions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_func_from_hub(&quot;rotary_pos_emb&quot;)</span></code></p></td>
+<td><p>Standalone functions (e.g. <code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code>)</p></td>
+<td><p>Per-function, via <code class="docutils literal notranslate"><span class="pre">kernels</span></code> library from HF Hub</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Attention interface</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS.get_interface(...)</span></code></p></td>
+<td><p>Attention forward pass</p></td>
+<td><p>Per-model via <code class="docutils literal notranslate"><span class="pre">config._attn_implementation</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Experts interface</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_experts_implementation</span></code></p></td>
+<td><p>MoE expert forward pass</p></td>
+<td><p>Per-class via <code class="docutils literal notranslate"><span class="pre">config._experts_implementation</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>All four are defined in <code class="docutils literal notranslate"><span class="pre">transformers.integrations</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hub_kernels.py</span></code> — mechanisms 1 &amp; 2</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">moe.py</span></code> — mechanism 4</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modeling_utils.py</span></code> — mechanism 3 (<code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code>)</p></li>
+</ul>
+</section>
+<section id="side-by-side-comparison">
+<h3>5.2 Side-by-Side Comparison<a class="headerlink" href="#side-by-side-comparison" title="Link to this heading"></a></h3>
+<section id="rmsnorm">
+<h4>RMSNorm<a class="headerlink" href="#rmsnorm" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VeOmni</p></th>
+<th class="head"><p>Transformers v5</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Mechanism</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gpu_patch.py</span></code> replaces <code class="docutils literal notranslate"><span class="pre">{Model}RMSNorm</span></code> class with <code class="docutils literal notranslate"><span class="pre">LigerRMSNorm</span></code> at import time</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_forward_from_hub(&quot;RMSNorm&quot;)</span></code> decorator on <code class="docutils literal notranslate"><span class="pre">Qwen3MoeRMSNorm</span></code>; at <code class="docutils literal notranslate"><span class="pre">model.kernelize()</span></code> time the <code class="docutils literal notranslate"><span class="pre">kernels</span></code> library downloads and swaps in <code class="docutils literal notranslate"><span class="pre">LigerRMSNorm</span></code> from <code class="docutils literal notranslate"><span class="pre">kernels-community/liger_kernels</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Config</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.rms_norm_implementation</span></code> field (default <code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> on GPU)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_HUB_KERNELS</span></code> env var + <code class="docutils literal notranslate"><span class="pre">model.kernelize()</span></code> call</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>When</strong></p></td>
+<td><p>Model registration (import time)</p></td>
+<td><p>Deferred — <code class="docutils literal notranslate"><span class="pre">kernelize()</span></code> after model init</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>SP support</strong></p></td>
+<td><p>N/A (norm is local)</p></td>
+<td><p>N/A</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Qwen3.5 MoE gap</strong></p></td>
+<td><p>Same as Qwen3 — Liger swap works</p></td>
+<td><p><strong>Not annotated.</strong> <code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeRMSNorm</span></code> uses <code class="docutils literal notranslate"><span class="pre">weight</span> <span class="pre">*</span> <span class="pre">(1.0</span> <span class="pre">+</span> <span class="pre">self.weight)</span></code> (offset-by-1 convention, weight init to zeros) instead of the standard <code class="docutils literal notranslate"><span class="pre">self.weight</span> <span class="pre">*</span> <span class="pre">x</span></code> (weight init to ones). No <code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_forward_from_hub(&quot;RMSNorm&quot;)</span></code> decorator. Standard <code class="docutils literal notranslate"><span class="pre">LigerRMSNorm</span></code> cannot replace it without accounting for the <code class="docutils literal notranslate"><span class="pre">+1.0</span></code> offset.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rotary-position-embedding-rope">
+<h4>Rotary Position Embedding (RoPE)<a class="headerlink" href="#rotary-position-embedding-rope" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VeOmni</p></th>
+<th class="head"><p>Transformers v5</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Mechanism</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gpu_patch.py</span></code> replaces <code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code> function with <code class="docutils literal notranslate"><span class="pre">liger_rotary_pos_emb</span></code> at import time</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_func_from_hub(&quot;rotary_pos_emb&quot;)</span></code> on the <code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code> function; <code class="docutils literal notranslate"><span class="pre">kernels</span></code> library downloads <code class="docutils literal notranslate"><span class="pre">apply_rotary_transformers</span></code> from <code class="docutils literal notranslate"><span class="pre">kernels-community/rotary</span></code>. The function is also attached to the Attention module via <code class="docutils literal notranslate"><span class="pre">&#64;use_kernelized_func(apply_rotary_pos_emb)</span></code> so <code class="docutils literal notranslate"><span class="pre">kernelize()</span></code> can find it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Config</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.rotary_pos_emb_implementation</span></code> field (default <code class="docutils literal notranslate"><span class="pre">&quot;liger_kernel&quot;</span></code> on GPU)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">USE_HUB_KERNELS</span></code> env var</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>When</strong></p></td>
+<td><p>Model registration (import time)</p></td>
+<td><p>Import time (decorator) + <code class="docutils literal notranslate"><span class="pre">kernelize()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Qwen3.5 MoE gap</strong></p></td>
+<td><p>N/A — VeOmni does not yet support Qwen3.5 MoE</p></td>
+<td><p><strong>Partially annotated.</strong> <code class="docutils literal notranslate"><span class="pre">apply_rotary_pos_emb</span></code> in <code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeAttention</span></code> is annotated with <code class="docutils literal notranslate"><span class="pre">&#64;use_kernelized_func</span></code> but <strong>not</strong> with <code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_func_from_hub(&quot;rotary_pos_emb&quot;)</span></code>. This is because Qwen3.5 MoE uses <em>partial RoPE</em> (<code class="docutils literal notranslate"><span class="pre">partial_rotary_factor</span> <span class="pre">&lt;</span> <span class="pre">1.0</span></code>): it splits Q/K into rotary and pass-through parts, applies RoPE only to the rotary part, then concatenates. The standard hub kernel <code class="docutils literal notranslate"><span class="pre">apply_rotary_transformers</span></code> does not handle this split-and-concat pattern. A dedicated partial-RoPE kernel could still be used.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id12">
+<h4>Attention<a class="headerlink" href="#id12" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VeOmni</p></th>
+<th class="head"><p>Transformers v5</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Mechanism</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_veomni_attention_patch()</span></code> registers SP-wrapped variants (<code class="docutils literal notranslate"><span class="pre">veomni_flash_attention_2_with_sp</span></code>, etc.) into <code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code></p></td>
+<td><p>Same <code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code> registry. Additionally supports hub-based attention kernels via <code class="docutils literal notranslate"><span class="pre">attn_implementation=&quot;kernels-community/flash-mla&quot;</span></code> syntax (loaded by <code class="docutils literal notranslate"><span class="pre">load_and_register_attn_kernel()</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Config</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.attn_implementation</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">config._attn_implementation</span></code> (set via <code class="docutils literal notranslate"><span class="pre">AutoModel.from_pretrained(attn_implementation=...)</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>SP rewrite</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">__post_init__</span></code> rewrites <code class="docutils literal notranslate"><span class="pre">flash_attention_2</span></code> → <code class="docutils literal notranslate"><span class="pre">veomni_flash_attention_2_with_sp</span></code></p></td>
+<td><p>No SP support — upstream Transformers does not handle Ulysses SP</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Compatibility</strong></p></td>
+<td><p>VeOmni registers into the <strong>same</strong> <code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code> registry that Transformers uses, so the two are compatible by design</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="moe-experts">
+<h4>MoE Experts<a class="headerlink" href="#moe-experts" title="Link to this heading"></a></h4>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>VeOmni</p></th>
+<th class="head"><p>Transformers v5</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Mechanism</strong></p></td>
+<td><p>A module-level <code class="docutils literal notranslate"><span class="pre">OpSlot(&quot;moe_experts&quot;,</span> <span class="pre">&quot;standard&quot;)</span></code> is bound at model-build time by <code class="docutils literal notranslate"><span class="pre">_bind_veomni_ops</span></code>; the patched experts forward checks <code class="docutils literal notranslate"><span class="pre">slot.use_non_eager_impl</span></code> and either calls <code class="docutils literal notranslate"><span class="pre">veomni.ops.fused_moe_forward(...)</span></code> (which dispatches to the bound Triton / Quack / NPU kernel) or falls through to the eager expert loop. The actual kernel is selected by <code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.moe_implementation</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_experts_implementation</span></code> decorator on <code class="docutils literal notranslate"><span class="pre">Qwen3MoeExperts</span></code> class; at forward time dispatches via <code class="docutils literal notranslate"><span class="pre">ALL_EXPERTS_FUNCTIONS.get_interface(config._experts_implementation,</span> <span class="pre">original_forward)</span></code>. Built-in implementations: <code class="docutils literal notranslate"><span class="pre">&quot;batched_mm&quot;</span></code> (BMM-based), <code class="docutils literal notranslate"><span class="pre">&quot;grouped_mm&quot;</span></code> (PyTorch <code class="docutils literal notranslate"><span class="pre">torch.nn.functional.grouped_mm</span></code>, requires PT 2.9+).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Config</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OpsImplementationConfig.moe_implementation</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;eager&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;fused_triton&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;fused_quack&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;fused_npu&quot;</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">config._experts_implementation</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;eager&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;batched_mm&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;grouped_mm&quot;</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>EP support</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fused_triton</span></code> and <code class="docutils literal notranslate"><span class="pre">fused_npu</span></code> paths support Expert Parallelism via VeOmni's EP sharding</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">batched_mm</span></code> handles invalid expert IDs (sentinel <code class="docutils literal notranslate"><span class="pre">&gt;=</span> <span class="pre">num_experts</span></code>) for EP compatibility</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>When</strong></p></td>
+<td><p>Deferred to <code class="docutils literal notranslate"><span class="pre">build_foundation_model()</span></code></p></td>
+<td><p>Decorator at class definition time; dispatch at forward time</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> Transformers v5 hardcodes two MoE experts implementations (<code class="docutils literal notranslate"><span class="pre">batched_mm</span></code> and <code class="docutils literal notranslate"><span class="pre">grouped_mm</span></code>) and does not expose a registration interface for external fused kernels, so backends like VeOmni's Triton / Quack / NPU group-gemm must be plugged in through the <code class="docutils literal notranslate"><span class="pre">OpSlot</span></code> dispatch layer rather than via <code class="docutils literal notranslate"><span class="pre">ALL_EXPERTS_FUNCTIONS</span></code>.</p>
+</section>
+</section>
+<section id="gaps-what-transformers-v5-does-not-cover">
+<h3>5.3 Gaps — What Transformers v5 Does NOT Cover<a class="headerlink" href="#gaps-what-transformers-v5-does-not-cover" title="Link to this heading"></a></h3>
+<p>The following areas have kernel selection in VeOmni but <strong>no corresponding
+mechanism</strong> in Transformers v5:</p>
+<section id="fused-cross-entropy-loss">
+<h4>1. Fused Cross-Entropy Loss<a class="headerlink" href="#fused-cross-entropy-loss" title="Link to this heading"></a></h4>
+<p>Transformers v5 uses a <code class="docutils literal notranslate"><span class="pre">loss_function</span></code> property on <code class="docutils literal notranslate"><span class="pre">PreTrainedModel</span></code> that looks
+up <code class="docutils literal notranslate"><span class="pre">LOSS_MAPPING[self.loss_type]</span></code> — this returns a standard PyTorch
+<code class="docutils literal notranslate"><span class="pre">F.cross_entropy</span></code>-based loss. There is no decorator, no hub kernel, and no
+env-var-based kernel swap for the loss function.</p>
+<p>VeOmni replaces this at model-build time via <code class="docutils literal notranslate"><span class="pre">apply_ops_config(...)</span></code> →
+<code class="docutils literal notranslate"><span class="pre">install_loss_mapping(impl)</span></code>, which binds <code class="docutils literal notranslate"><span class="pre">LOSS_MAPPING[&quot;ForCausalLM&quot;]</span></code> to
+<code class="docutils literal notranslate"><span class="pre">partial(ForCausalLMLoss,</span> <span class="pre">cross_entropy_fn=&lt;impl&gt;)</span></code> — where <code class="docutils literal notranslate"><span class="pre">&lt;impl&gt;</span></code> is
+<code class="docutils literal notranslate"><span class="pre">fused_liger_kernel_cross_entropy</span></code> (GPU <code class="docutils literal notranslate"><span class="pre">liger_kernel</span></code>), <code class="docutils literal notranslate"><span class="pre">chunk_loss_function</span></code>
+(NPU), or <code class="docutils literal notranslate"><span class="pre">eager_cross_entropy</span></code> (portable default). The fused Liger
+cross-entropy computes the loss without materializing the full logits
+tensor, which significantly reduces memory for large-vocabulary models.</p>
+<p><strong>Implication:</strong> When using VeOmni's trainer or <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code>
+with <code class="docutils literal notranslate"><span class="pre">ops_implementation=...</span></code>, the fused loss is transparent. A standalone
+Transformers training loop that doesn't go through <code class="docutils literal notranslate"><span class="pre">build_foundation_model</span></code>
+would need to call <code class="docutils literal notranslate"><span class="pre">apply_ops_config(OpsImplementationConfig(...))</span></code>
+itself before model construction (or directly monkey-patch <code class="docutils literal notranslate"><span class="pre">LOSS_MAPPING</span></code>).</p>
+</section>
+<section id="moe-load-balancing-auxiliary-loss">
+<h4>2. MoE Load-Balancing Auxiliary Loss<a class="headerlink" href="#moe-load-balancing-auxiliary-loss" title="Link to this heading"></a></h4>
+<p>Both Qwen3MoE and Qwen3.5MoE in Transformers v5 include a standalone
+<code class="docutils literal notranslate"><span class="pre">load_balancing_loss_func()</span></code> that computes the Switch Transformer auxiliary
+loss. This function is called directly in <code class="docutils literal notranslate"><span class="pre">Qwen3MoeForCausalLM.forward()</span></code> —
+there is no kernel selection, no registry, and no hub kernel for it.</p>
+<p>VeOmni similarly does not provide a fused kernel for the auxiliary loss, but
+this is worth noting because the load-balancing loss involves several
+<code class="docutils literal notranslate"><span class="pre">one_hot</span> <span class="pre">→</span> <span class="pre">mean</span> <span class="pre">→</span> <span class="pre">dot</span></code> operations that could benefit from fusion, especially
+at scale with many experts.</p>
+</section>
+<section id="qwen3-5-moe-variant-specific-ops">
+<h4>3. Qwen3.5 MoE Variant-Specific Ops<a class="headerlink" href="#qwen3-5-moe-variant-specific-ops" title="Link to this heading"></a></h4>
+<p>Qwen3.5 MoE introduces architectural differences that prevent direct use of
+the standard hub kernel annotations:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Qwen3 MoE</p></th>
+<th class="head"><p>Qwen3.5 MoE</p></th>
+<th class="head"><p>Why standard kernel fails</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RMSNorm</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">self.weight</span> <span class="pre">*</span> <span class="pre">x</span></code> (weight init ones)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">(1.0</span> <span class="pre">+</span> <span class="pre">self.weight)</span> <span class="pre">*</span> <span class="pre">x</span></code> (weight init zeros)</p></td>
+<td><p>LigerRMSNorm assumes no offset; applying it would produce incorrect results</p></td>
+</tr>
+<tr class="row-odd"><td><p>RoPE</p></td>
+<td><p>Full rotary on all dims</p></td>
+<td><p>Partial rotary (<code class="docutils literal notranslate"><span class="pre">partial_rotary_factor</span></code>) — split, rotate, concat</p></td>
+<td><p>Hub <code class="docutils literal notranslate"><span class="pre">apply_rotary_transformers</span></code> assumes full-dim rotation</p></td>
+</tr>
+<tr class="row-even"><td><p>RMSNormGated</p></td>
+<td><p>N/A</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeRMSNormGated</span></code> — norm then SiLU gate multiply</p></td>
+<td><p>Uses explicit <code class="docutils literal notranslate"><span class="pre">fla</span></code> library selection (see below)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RMSNormGated: explicit <code class="docutils literal notranslate"><span class="pre">fla</span></code> library selection (not the hub kernel framework)</strong></p>
+<p>Unlike RMSNorm and RoPE above, Qwen3.5 MoE's <code class="docutils literal notranslate"><span class="pre">RMSNormGated</span></code> <strong>does</strong> have a
+fused kernel path — but it bypasses the Transformers v5 <code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_forward_from_hub</span></code>
+framework entirely. Instead, <code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeGatedDeltaNet.__init__</span></code> performs a
+hard-coded conditional selection at model init time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py</span>
+
+<span class="c1"># At module top level:</span>
+<span class="k">if</span> <span class="n">is_flash_linear_attention_available</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">fla.modules</span><span class="w"> </span><span class="kn">import</span> <span class="n">FusedRMSNormGated</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">fla.ops.gated_delta_rule</span><span class="w"> </span><span class="kn">import</span> <span class="n">chunk_gated_delta_rule</span><span class="p">,</span> <span class="n">fused_recurrent_gated_delta_rule</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">chunk_gated_delta_rule</span><span class="p">,</span> <span class="n">fused_recurrent_gated_delta_rule</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="n">FusedRMSNormGated</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># In Qwen3_5MoeGatedDeltaNet.__init__:</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">norm</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Qwen3_5MoeRMSNormGated</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head_v_dim</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_norm_epsilon</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">FusedRMSNormGated</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">else</span> <span class="n">FusedRMSNormGated</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head_v_dim</span><span class="p">,</span>
+        <span class="n">eps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">layer_norm_epsilon</span><span class="p">,</span>
+        <span class="n">activation</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">activation</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">current_device</span><span class="p">(),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dtype</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">get_default_dtype</span><span class="p">(),</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This is a <strong>5th kernel selection pattern</strong> — not covered by any of the four
+Transformers v5 mechanisms. It is a simple <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">library_available</span> <span class="pre">else</span> <span class="pre">fallback</span></code>
+check, similar to how the same file selects between <code class="docutils literal notranslate"><span class="pre">causal_conv1d_fn</span></code> (from
+the <code class="docutils literal notranslate"><span class="pre">causal-conv1d</span></code> library) and a pure-PyTorch <code class="docutils literal notranslate"><span class="pre">torch_causal_conv1d_update</span></code>
+fallback, and between <code class="docutils literal notranslate"><span class="pre">chunk_gated_delta_rule</span></code> (from <code class="docutils literal notranslate"><span class="pre">fla.ops</span></code>) and
+<code class="docutils literal notranslate"><span class="pre">torch_chunk_gated_delta_rule</span></code>.</p>
+<p>Key characteristics of this pattern:</p>
+<ul class="simple">
+<li><p><strong>No decorator, no registry, no env var</strong> — purely hard-coded <code class="docutils literal notranslate"><span class="pre">if/else</span></code> in <code class="docutils literal notranslate"><span class="pre">__init__</span></code></p></li>
+<li><p><strong>Library:</strong> <code class="docutils literal notranslate"><span class="pre">flash-linear-attention</span></code> (<code class="docutils literal notranslate"><span class="pre">fla</span></code>) — a separate library from
+both Liger and the <code class="docutils literal notranslate"><span class="pre">kernels</span></code> hub</p></li>
+<li><p><strong>Scope:</strong> Only the Gated DeltaNet linear attention layers in Qwen3.5 MoE;
+the standard full-attention <code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeAttention</span></code> layers do not use this norm</p></li>
+<li><p><strong>Not configurable at runtime</strong> — determined solely by whether <code class="docutils literal notranslate"><span class="pre">fla</span></code> is installed</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">FusedRMSNormGated</span></code></strong> fuses the RMSNorm + SiLU gate multiply into a single
+Triton kernel, which the eager <code class="docutils literal notranslate"><span class="pre">Qwen3_5MoeRMSNormGated</span></code> does in two steps:
+<code class="docutils literal notranslate"><span class="pre">hidden</span> <span class="pre">=</span> <span class="pre">weight</span> <span class="pre">*</span> <span class="pre">(x</span> <span class="pre">/</span> <span class="pre">rms)</span></code> then <code class="docutils literal notranslate"><span class="pre">hidden</span> <span class="pre">=</span> <span class="pre">hidden</span> <span class="pre">*</span> <span class="pre">silu(gate)</span></code></p></li>
+</ul>
+<p>In Transformers v5, these remaining Qwen3.5 MoE ops (RMSNorm with <code class="docutils literal notranslate"><span class="pre">+1</span></code> offset,
+partial RoPE) are left un-annotated — they always run the eager PyTorch
+implementation. In theory, fused kernels could still be written for each (e.g.,
+a Triton RMSNorm with <code class="docutils literal notranslate"><span class="pre">+1</span></code> offset, a partial-RoPE kernel), but no such kernels
+currently exist in the <code class="docutils literal notranslate"><span class="pre">kernels-community</span></code> hub.</p>
+</section>
+</section>
+<section id="summary-table">
+<h3>5.4 Summary Table<a class="headerlink" href="#summary-table" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>VeOmni mechanism</p></th>
+<th class="head"><p>Transformers v5 mechanism</p></th>
+<th class="head text-center"><p>Compatible?</p></th>
+<th class="head"><p>Gap</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>RMSNorm</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gpu_patch.py</span></code> Liger swap</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_forward_from_hub</span></code></p></td>
+<td class="text-center"><p>Parallel — both can apply</p></td>
+<td><p>Qwen3.5 MoE <code class="docutils literal notranslate"><span class="pre">+1</span></code> offset norm not covered by either</p></td>
+</tr>
+<tr class="row-odd"><td><p>RoPE</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gpu_patch.py</span></code> Liger swap</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_kernel_func_from_hub</span></code> + <code class="docutils literal notranslate"><span class="pre">&#64;use_kernelized_func</span></code></p></td>
+<td class="text-center"><p>Parallel</p></td>
+<td><p>Qwen3.5 MoE partial RoPE not covered by either</p></td>
+</tr>
+<tr class="row-even"><td><p>SwiGLU MLP</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">gpu_patch.py</span></code> Liger swap</p></td>
+<td><p>Not annotated in MoE models (MLP is per-expert, not standalone)</p></td>
+<td class="text-center"><p>VeOmni only</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p>Attention</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code> (shared registry)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ALL_ATTENTION_FUNCTIONS</span></code> (same registry)</p></td>
+<td class="text-center"><p>Yes</p></td>
+<td><p>VeOmni adds SP wrapping</p></td>
+</tr>
+<tr class="row-even"><td><p>MoE experts</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_veomni_fused_moe_patch</span></code> (Triton/Quack)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&#64;use_experts_implementation</span></code> (batched_mm/grouped_mm)</p></td>
+<td class="text-center"><p>No — different dispatch paths</p></td>
+<td><p>VeOmni uses custom Triton kernels; HF uses PyTorch native <code class="docutils literal notranslate"><span class="pre">grouped_mm</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cross-entropy</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_veomni_loss_patch</span></code> (Liger fused)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LOSS_MAPPING</span></code> (standard <code class="docutils literal notranslate"><span class="pre">F.cross_entropy</span></code>)</p></td>
+<td class="text-center"><p>VeOmni only</p></td>
+<td><p>HF has no fused loss</p></td>
+</tr>
+<tr class="row-even"><td><p>MoE aux loss</p></td>
+<td><p>Eager (same as HF)</p></td>
+<td><p>Eager <code class="docutils literal notranslate"><span class="pre">load_balancing_loss_func</span></code></p></td>
+<td class="text-center"><p>Same</p></td>
+<td><p>Neither provides a fused kernel</p></td>
+</tr>
+<tr class="row-odd"><td><p>RMSNormGated</p></td>
+<td><p>N/A</p></td>
+<td><p>Hard-coded <code class="docutils literal notranslate"><span class="pre">fla.modules.FusedRMSNormGated</span></code> if <code class="docutils literal notranslate"><span class="pre">fla</span></code> installed, else eager (Qwen3.5 MoE only)</p></td>
+<td class="text-center"><p>—</p></td>
+<td><p>Bypasses all 4 HF v5 mechanisms; 5th ad-hoc pattern</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<hr class="docutils" />
+<section id="full-config-example">
+<h2>Full Config Example<a class="headerlink" href="#full-config-example" title="Link to this heading"></a></h2>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">attn_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flash_attention_2</span>
+<span class="w">    </span><span class="nt">moe_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fused_triton</span>
+<span class="w">    </span><span class="nt">cross_entropy_loss_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span>
+<span class="w">    </span><span class="nt">rms_norm_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span>
+<span class="w">    </span><span class="nt">swiglu_mlp_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span><span class="w">           </span><span class="c1"># disable Liger for MLP only</span>
+<span class="w">    </span><span class="nt">rotary_pos_emb_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">liger_kernel</span>
+<span class="w">    </span><span class="nt">load_balancing_loss_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">triton</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

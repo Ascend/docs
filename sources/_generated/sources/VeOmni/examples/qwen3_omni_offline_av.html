@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qwen3-Omni training with offline-extracted audio-enabled video &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Qwen3-Omni training with offline-extracted audio-enabled video</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/examples/qwen3_omni_offline_av.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="qwen3-omni-training-with-offline-extracted-audio-enabled-video">
+<h1>Qwen3-Omni training with offline-extracted audio-enabled video<a class="headerlink" href="#qwen3-omni-training-with-offline-extracted-audio-enabled-video" title="Link to this heading"></a></h1>
+<p>The default Qwen3-Omni recipe (<code class="docutils literal notranslate"><span class="pre">docs/examples/qwen3_omni_moe.md</span></code>) feeds raw
+video files to the framework; VeOmni then decodes frames and pulls the audio
+track out of the container at training time.</p>
+<p>This recipe shows the <strong>offline-A/V</strong> path:</p>
+<ul class="simple">
+<li><p>each audio-enabled video has already been decoded into a list of frame
+bytes plus its matching audio bytes by a preceding data pipeline;</p></li>
+<li><p>the video and audio are still a single A/V unit aligned in time;</p></li>
+<li><p>the Qwen3-Omni processor interleaves their tokens via the standard
+<code class="docutils literal notranslate"><span class="pre">use_audio_in_video=True</span></code> path — same final input as the raw-video recipe,
+just with the decode work moved offline.</p></li>
+</ul>
+<p>Use this when frame sampling, shot detection, or audio extraction is done
+ahead of training and you don't want to re-decode every epoch.</p>
+<blockquote>
+<div><p>Looking for <strong>independent</strong> video + audio (e.g. a silent video plus an
+unrelated voice query)? That's a different shape — see the <em>Standalone
+audio turns</em> section below; the same recipe also accepts standalone audio
+via <code class="docutils literal notranslate"><span class="pre">sample[&quot;audios&quot;]</span></code>.</p>
+</div></blockquote>
+<hr class="docutils" />
+<section id="data-shape">
+<h2>1. Data shape<a class="headerlink" href="#data-shape" title="Link to this heading"></a></h2>
+<p>Each sample is a dict whose <code class="docutils literal notranslate"><span class="pre">videos</span></code> entries are <strong>paired-A/V dicts</strong>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;videos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;frames&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;png-bytes-frame-0&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&lt;png-bytes-frame-1&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;audio&quot;</span><span class="p">:</span><span class="w">  </span><span class="s2">&quot;&lt;wav-bytes&gt;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;video_fps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.0</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;audio_fps&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16000</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;conversations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;human&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;video&gt;\nWhat is happening in the clip?&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpt&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Someone is speaking near a car.&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Key points:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">videos[i]</span></code> is a dict with at least <code class="docutils literal notranslate"><span class="pre">frames</span></code> (<code class="docutils literal notranslate"><span class="pre">List[bytes]</span></code> of PNG/JPEG-encoded
+frames) and <code class="docutils literal notranslate"><span class="pre">audio</span></code> (WAV-encoded bytes, or a 1-D <code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code> of mono
+samples). <code class="docutils literal notranslate"><span class="pre">video_fps</span></code> falls back to <code class="docutils literal notranslate"><span class="pre">mm_configs.fps</span></code>.  For <code class="docutils literal notranslate"><span class="pre">audio_fps</span></code>:</p>
+<ul>
+<li><p>WAV bytes → <code class="docutils literal notranslate"><span class="pre">audio_fps</span></code> is read from the WAV header automatically; you
+can still override by setting <code class="docutils literal notranslate"><span class="pre">audio_fps</span></code> explicitly.</p></li>
+<li><p>1-D ndarray → <code class="docutils literal notranslate"><span class="pre">audio_fps</span></code> is <strong>required</strong> (we raise rather than silently
+drop the audio downstream).</p></li>
+</ul>
+</li>
+<li><p>The single <code class="docutils literal notranslate"><span class="pre">&lt;video&gt;</span></code> marker per A/V item binds the entire dict — there is
+no separate <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> marker for the paired audio. The Qwen3-Omni processor
+sees a non-empty per-video <code class="docutils literal notranslate"><span class="pre">audio_length</span></code> and emits an <strong>interleaved</strong>
+<code class="docutils literal notranslate"><span class="pre">&lt;vision_bos&gt;&lt;audio_bos&gt;</span> <span class="pre">…</span> <span class="pre">&lt;|video_pad|&gt;</span> <span class="pre">/</span> <span class="pre">&lt;|audio_pad|&gt;</span> <span class="pre">chunks</span> <span class="pre">…</span> <span class="pre">&lt;audio_eos&gt;&lt;vision_eos&gt;</span></code> sequence (the standard omni path).</p></li>
+<li><p>The registered preprocessor is <code class="docutils literal notranslate"><span class="pre">qwen_omni_offline_av</span></code> — set
+<code class="docutils literal notranslate"><span class="pre">data.source_name:</span> <span class="pre">qwen_omni_offline_av</span></code> in the YAML config.</p></li>
+</ul>
+<section id="standalone-audio-turns">
+<h3>Standalone audio turns<a class="headerlink" href="#standalone-audio-turns" title="Link to this heading"></a></h3>
+<p>If a turn carries audio that is <strong>not</strong> paired with any video (a voice query,
+a sound effect, narration over a silent clip, …), use the existing
+<code class="docutils literal notranslate"><span class="pre">sample[&quot;audios&quot;]</span></code> field and an <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> marker:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;videos&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">&quot;frames&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span><span class="w"> </span><span class="nt">&quot;audio&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;wav-bytes&gt;&quot;</span><span class="p">}],</span>
+<span class="w">  </span><span class="nt">&quot;audios&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;voice_query.wav&gt;&quot;</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;conversations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;human&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;video&gt;\nDescribe this. Also listen: &lt;audio&gt;&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">&quot;from&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpt&quot;</span><span class="p">,</span><span class="w">   </span><span class="nt">&quot;value&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;video&gt;</span></code> consumes the paired-A/V dict; <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> consumes the standalone
+clip — independent token positions. Same applies to <code class="docutils literal notranslate"><span class="pre">&lt;image&gt;</span></code> /
+<code class="docutils literal notranslate"><span class="pre">sample[&quot;images&quot;]</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="offline-extraction-utility">
+<h2>2. Offline extraction utility<a class="headerlink" href="#offline-extraction-utility" title="Link to this heading"></a></h2>
+<p>To convert an existing <code class="docutils literal notranslate"><span class="pre">.mp4</span></code> corpus into the paired-A/V format above, decode
+frames at the target fps and pull the audio track once per clip. Example using
+<code class="docutils literal notranslate"><span class="pre">torchcodec</span></code> + <code class="docutils literal notranslate"><span class="pre">soundfile</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">PIL.Image</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">soundfile</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchcodec.decoders</span><span class="w"> </span><span class="kn">import</span> <span class="n">AudioDecoder</span><span class="p">,</span> <span class="n">VideoDecoder</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_av</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">audio_sr</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="c1"># frames</span>
+    <span class="n">vdec</span> <span class="o">=</span> <span class="n">VideoDecoder</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">vdec</span><span class="o">.</span><span class="n">metadata</span>
+    <span class="n">src_fps</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">average_fps</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">num_frames</span> <span class="o">*</span> <span class="n">target_fps</span> <span class="o">/</span> <span class="n">src_fps</span><span class="p">))</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">meta</span><span class="o">.</span><span class="n">num_frames</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">long</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">frames_tensor</span> <span class="o">=</span> <span class="n">vdec</span><span class="o">.</span><span class="n">get_frames_at</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># (T, C, H, W) uint8 RGB</span>
+    <span class="n">frames_bytes</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">frames_tensor</span><span class="p">:</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+        <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;PNG&quot;</span><span class="p">)</span>
+        <span class="n">frames_bytes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">())</span>
+
+    <span class="c1"># audio</span>
+    <span class="n">adec</span> <span class="o">=</span> <span class="n">AudioDecoder</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">sample_rate</span><span class="o">=</span><span class="n">audio_sr</span><span class="p">)</span>
+    <span class="n">audio_tensor</span> <span class="o">=</span> <span class="n">adec</span><span class="o">.</span><span class="n">get_all_samples</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># (T,) mono</span>
+    <span class="n">audio_buf</span> <span class="o">=</span> <span class="n">BytesIO</span><span class="p">()</span>
+    <span class="n">sf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">audio_buf</span><span class="p">,</span> <span class="n">audio_tensor</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">audio_sr</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;WAV&quot;</span><span class="p">)</span>
+    <span class="n">audio_bytes</span> <span class="o">=</span> <span class="n">audio_buf</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;frames&quot;</span><span class="p">:</span> <span class="n">frames_bytes</span><span class="p">,</span>
+        <span class="s2">&quot;audio&quot;</span><span class="p">:</span> <span class="n">audio_bytes</span><span class="p">,</span>
+        <span class="s2">&quot;video_fps&quot;</span><span class="p">:</span> <span class="n">target_fps</span><span class="p">,</span>
+        <span class="s2">&quot;audio_fps&quot;</span><span class="p">:</span> <span class="n">audio_sr</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_sample</span><span class="p">(</span><span class="n">video_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;videos&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">extract_av</span><span class="p">(</span><span class="n">video_path</span><span class="p">,</span> <span class="n">target_fps</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)],</span>
+        <span class="s2">&quot;conversations&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;human&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;&lt;video&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;from&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">answer</span><span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+<p>Persist samples in any format your dataset class consumes (Parquet, JSONL
+with base64-encoded bytes, Energon shards, …). If you store frames or audio
+as files on disk, read them into bytes at sample-construction time — the
+loader only consumes the in-memory bytes/ndarray shapes.</p>
+</section>
+<hr class="docutils" />
+<section id="configuration">
+<h2>3. Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
+<p>A ready-made config lives at
+<code class="docutils literal notranslate"><span class="pre">configs/multimodal/qwen3_omni/qwen3_omni_offline_av.yaml</span></code>. The key
+behavioral differences from the default <code class="docutils literal notranslate"><span class="pre">qwen3_omni.yaml</span></code> are:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">source_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qwen_omni_offline_av</span><span class="w">    </span><span class="c1"># uses the new preprocessor</span>
+<span class="w">  </span><span class="nt">mm_configs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">use_audio_in_video</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span><span class="w">            </span><span class="c1"># paired A/V → interleaved tokens</span>
+</pre></div>
+</div>
+<p>Token interleaving is decided <strong>per video position</strong> by the processor at
+<code class="docutils literal notranslate"><span class="pre">veomni/models/transformers/qwen3_omni_moe/processing_qwen3_omni_moe.py:159</span></code>
+(<code class="docutils literal notranslate"><span class="pre">use_audio_in_video</span> <span class="pre">=</span> <span class="pre">audio_length</span> <span class="pre">!=</span> <span class="pre">0</span></code>). For the offline-A/V recipe each
+video dict carries its own audio, so <code class="docutils literal notranslate"><span class="pre">audio_length</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> and the per-position
+decision is &quot;interleave&quot; — matching the raw-video path.</p>
+<p>The shipped data manifest at
+<code class="docutils literal notranslate"><span class="pre">configs/multimodal/data/qwen3_omni_offline_av.yaml</span></code> is a placeholder — open
+it and replace <code class="docutils literal notranslate"><span class="pre">/path/to/your_offline_av_dataset</span></code> with your real source path.
+Mix multiple sources by adding more entries to <code class="docutils literal notranslate"><span class="pre">sources</span></code> / <code class="docutils literal notranslate"><span class="pre">names</span></code> and
+rebalancing <code class="docutils literal notranslate"><span class="pre">weights</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="launching-training">
+<h2>4. Launching training<a class="headerlink" href="#launching-training" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_vlm.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>configs/multimodal/qwen3_omni/qwen3_omni_offline_av.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>Qwen3-Omni-30B-A3B-Instruct
+</pre></div>
+</div>
+<p>Point <code class="docutils literal notranslate"><span class="pre">model_path</span></code> at the stock HF checkpoint — no offline MoE merge required.
+The runtime <code class="docutils literal notranslate"><span class="pre">CheckpointTensorConverter</span></code> registered on the Qwen3-Omni modeling
+class folds per-expert HF safetensor keys into VeOmni's fused
+<code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">down_proj</span></code> layout at load time. See
+<code class="docutils literal notranslate"><span class="pre">docs/transformers_v5/transformers_v5_moe_weight_loading.md</span></code> for the format
+matrix and how to convert a VeOmni-format checkpoint back to per-expert HF
+keys for inference engines.</p>
+</section>
+<hr class="docutils" />
+<section id="smoke-testing-the-data-path">
+<h2>5. Smoke-testing the data path<a class="headerlink" href="#smoke-testing-the-data-path" title="Link to this heading"></a></h2>
+<p>A self-contained smoke test ships at
+<code class="docutils literal notranslate"><span class="pre">tests/data/multimodal/test_qwen3_omni_offline_av.py</span></code>. It verifies:</p>
+<ol class="arabic simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">qwen_omni_offline_av</span></code> preprocessor splits <code class="docutils literal notranslate"><span class="pre">&lt;video&gt;</span></code> / <code class="docutils literal notranslate"><span class="pre">&lt;audio&gt;</span></code> /
+<code class="docutils literal notranslate"><span class="pre">&lt;image&gt;</span></code> markers in declaration order.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_dict_to_video_audio</span></code> on a <code class="docutils literal notranslate"><span class="pre">{&quot;frames&quot;:</span> <span class="pre">[...],</span> <span class="pre">&quot;audio&quot;:</span> <span class="pre">&lt;wav-bytes&gt;}</span></code>
+dict produces a 4-D video tensor and a non-empty mono audio array.</p></li>
+<li><p><em>(Optional, gated on <code class="docutils literal notranslate"><span class="pre">QWEN3_OMNI_MODEL_PATH</span></code>)</em> The full
+<code class="docutils literal notranslate"><span class="pre">process_sample_qwen_omni</span></code> pipeline produces an <code class="docutils literal notranslate"><span class="pre">input_ids</span></code> whose
+<code class="docutils literal notranslate"><span class="pre">&lt;|video_pad|&gt;</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;|audio_pad|&gt;</span></code> token runs are <strong>interleaved</strong> (the
+standard Qwen3-Omni omni layout), and <code class="docutils literal notranslate"><span class="pre">video_grid_thw</span></code> matches the
+sampled frame count.</p></li>
+</ol>
+<p>Run:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cheap unit checks (no model weights needed)</span>
+pytest<span class="w"> </span>tests/data/multimodal/test_qwen3_omni_offline_av.py<span class="w"> </span>-v<span class="w"> </span>-s
+
+<span class="c1"># Full processor path (needs the Qwen3-Omni processor on disk)</span>
+<span class="nv">QWEN3_OMNI_MODEL_PATH</span><span class="o">=</span>/path/to/Qwen3-Omni-30B-A3B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>pytest<span class="w"> </span>tests/data/multimodal/test_qwen3_omni_offline_av.py<span class="w"> </span>-v<span class="w"> </span>-s
+</pre></div>
+</div>
+<p>The end-to-end test does <strong>not</strong> need the 30B model weights — only the
+processor / tokenizer / config files from the HF checkpoint.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

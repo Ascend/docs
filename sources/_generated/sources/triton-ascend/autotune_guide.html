@@ -1,0 +1,554 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton-Ascend autotune 使用指南 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 1. 将原本庞大的全局菜单隐藏起来，作为数据源 -->
+    <div id="temp-menu-holder" style="display: none;">
+        
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+    </div>
+
+    <!-- 2. 独立站点独立侧边栏容器（直接插入在原菜单位置） -->
+    <div id="independent-sidebar"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const mapping = {"__root_files__": {"FAQ": "faq_group", "architecture_design_and_core_features": "arch_group", "environment_variable_reference": "env_group", "installation_guide": "install_group", "programming_guide": "dev_guide_group", "quick_start": "quick_start_group", "release_note": "faq_group"}, "arch_group": "\u67b6\u6784\u8bbe\u8ba1\u4e0e\u6838\u5fc3\u7279\u6027", "debug_guide": "\u7b97\u5b50\u8c03\u8bd5\u4e0e\u8c03\u4f18", "dev_guide_group": "Triton \u7b97\u5b50\u5f00\u53d1\u6307\u5357", "env_group": "\u73af\u5883\u53d8\u91cf", "examples": "\u5178\u578b\u7b97\u5b50\u6837\u4f8b", "faq_group": "\u5e38\u89c1\u95ee\u9898", "install_group": "\u5b89\u88c5\u6307\u5357", "migration_guide": "Triton \u7b97\u5b50\u8fc1\u79fb\u6307\u5357", "quick_start_group": "\u5feb\u901f\u5f00\u59cb", "triton_api": "Triton API \u63a5\u53e3\u8bf4\u660e", "triton_api_extention": "\u6607\u817e\u6269\u5c55 API \u63a5\u53e3\u8bf4\u660e"};
+        const commId = 'triton-ascend';
+        // 根目录文件的显式分组映射（filename → folder key）
+        const rootFiles = mapping['__root_files__'] || {};
+
+        // 获取数据源和目标容器
+        const globalMenu = document.getElementById('temp-menu-holder');
+        const targetContainer = document.getElementById('independent-sidebar');
+
+        if (!globalMenu) return;
+
+        // 步骤 A: 找到当前社区的主节点 (通常带有 .current 类)
+        let activeL1 = globalMenu.querySelector('li.toctree-l1.current');
+
+        // 兜底策略: 如果没有 .current (如强制刷新等边缘情况)，通过链接匹配
+        if (!activeL1 || !activeL1.querySelector('a').href.includes('/sources/' + commId + '/')) {
+            const links = globalMenu.querySelectorAll('li.toctree-l1 > a');
+            for (let i = 0; i < links.length; i++) {
+                if (links[i].href.includes('/sources/' + commId + '/')) {
+                    activeL1 = links[i].closest('li');
+                    break;
+                }
+            }
+        }
+
+        if (activeL1) {
+            // 步骤 B: 找到属于这个社区的所有子页面 (<ul>)
+            const subMenu = activeL1.querySelector('ul');
+
+            if (subMenu && subMenu.children.length > 0) {
+                let currentGroup = null;
+                let currentUl = null;
+
+                // 步骤 C: 遍历所有的子页面，将它们分组并插入到独立侧边栏中
+                Array.from(subMenu.children).forEach(item => {
+                    if (item.tagName.toLowerCase() !== 'li') return;
+
+                    const link = item.querySelector('a');
+                    if (!link) return;
+
+                    const fullUrl = link.href;
+                    let matchedFolder = null;
+
+                    // 步骤 D1: 通过 URL 文件夹路径匹配分组（针对有子目录的页面）
+                    for (const folder in mapping) {
+                        if (folder === '__root_files__') continue;
+                        const pattern1 = `/sources/${commId}/${folder}/`;
+                        const pattern2 = `/sources/_generated/sources/${commId}/${folder}/`;
+                        if (fullUrl.includes(pattern1) || fullUrl.includes(pattern2)) {
+                            matchedFolder = folder;
+                            break;
+                        }
+                    }
+
+                    // 步骤 D2: 对根目录文件（无子目录），通过文件名显式映射分组
+                    // 先 split('#') 去掉 URL 片段：当用户处于当前页面时，Sphinx 生成
+                    // href="#"，浏览器解析后 link.href 会带 # 后缀（如 quick_start.html#），
+                    // 不去掉会导致文件名变成 "quick_start#" 而无法匹配 __root_files__ 映射。
+                    if (!matchedFolder) {
+                        const filename = fullUrl.split('#')[0].split('/').pop().replace('.html', '');
+                        if (rootFiles[filename]) {
+                            matchedFolder = rootFiles[filename];
+                        }
+                    }
+
+                    // 步骤 D3: 仍未匹配则归入当前分组（兜底）
+                    if (!matchedFolder) {
+                        matchedFolder = currentGroup || 'default';
+                    }
+
+                    // 步骤 E: 遇到新分组时，创建大标题和新的 <ul>
+                    if (currentGroup !== matchedFolder) {
+                        if (mapping[matchedFolder]) {
+                            const caption = document.createElement('p');
+                            caption.className = 'caption custom-sidebar-caption';
+                            caption.innerHTML = `<span class="caption-text">${mapping[matchedFolder]}</span>`;
+                            targetContainer.appendChild(caption);
+                        }
+                        currentUl = document.createElement('ul');
+                        targetContainer.appendChild(currentUl);
+                        currentGroup = matchedFolder;
+                    }
+
+                    // 步骤 F: 智能动态提升整棵树的级数，完美支持长文档的内部 H2/H3 目录显示
+                    [item, ...item.querySelectorAll('[class*="toctree-l"]')].forEach(el => {
+                        el.className = el.className.replace(/toctree-l(\d+)/g, function(match, level) {
+                            return 'toctree-l' + (parseInt(level, 10) - 1);
+                        });
+                    });
+
+                    // 挂载到对应独立社区的菜单中
+                    if (currentUl) {
+                        currentUl.appendChild(item);
+                    }
+                });
+
+                // 步骤 G: 彻底删除隐蔽的全局菜单
+                globalMenu.remove();
+                return;
+            }
+        }
+
+        // 异常兜底: 如果出现极端的解析失败（比如网络延迟），取消隐藏，确保文档菜单可用
+        globalMenu.style.display = 'block';
+    });
+    </script>
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Triton-Ascend autotune 使用指南</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/sources/_generated/sources/triton-ascend/autotune_guide.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="triton-ascend-autotune">
+<h1>Triton-Ascend autotune 使用指南<a class="headerlink" href="#triton-ascend-autotune" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>文档定位<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>本文面向已经会写 Triton kernel、也了解社区版 <code class="docutils literal notranslate"><span class="pre">triton.autotune</span></code> 基本概念的用户，重点说明 Triton-Ascend 的推荐用法：</p>
+<ul class="simple">
+<li><p>Triton-Ascend 上的推荐 autotune 写法；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 在 Ascend 后端中的含义；</p></li>
+<li><p>自动 Tiling 模式的适用边界，以及何时回到手写 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code>。</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>快速上手<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>在 Triton-Ascend 上，推荐保留社区版 <code class="docutils literal notranslate"><span class="pre">&#64;triton.autotune</span></code> 的基本写法；当希望系统自动生成并评估候选配置时，将 <code class="docutils literal notranslate"><span class="pre">configs</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">[]</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">triton</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">triton.language</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">tl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">triton.backends.ascend.runtime</span>
+
+
+<span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kernel</span><span class="p">(</span>
+    <span class="n">x_ptr</span><span class="p">,</span>
+    <span class="n">y_ptr</span><span class="p">,</span>
+    <span class="n">out_ptr</span><span class="p">,</span>
+    <span class="n">M</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">,</span>
+    <span class="n">BLOCK_M</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+    <span class="n">BLOCK_N</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>这表示：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">key</span></code> 的语义与社区版保持一致，用于决定哪些输入变化会触发重新选择配置；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 在 Triton-Ascend 中表示“由 Ascend backend 自动生成候选配置并完成寻优”，而不是“没有可选配置”。</p></li>
+</ul>
+<section id="ascend-autotune">
+<h3>1. 先启用 Ascend 对 autotune 的扩展<a class="headerlink" href="#ascend-autotune" title="Link to this heading"></a></h3>
+<p>只有导入下面这行后，才会进入 Triton-Ascend 的 autotune 扩展路径：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">triton.backends.ascend.runtime</span>
+</pre></div>
+</div>
+<p>如果没有这一步，使用的仍然是社区版 <code class="docutils literal notranslate"><span class="pre">triton.autotune</span></code>，<code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 也不会触发 Ascend 的自动 Tiling 生成。</p>
+</section>
+<section id="triton-autotune-triton-jit">
+<h3>2. <code class="docutils literal notranslate"><span class="pre">&#64;triton.autotune</span></code> 必须直接包在 <code class="docutils literal notranslate"><span class="pre">&#64;triton.jit</span></code> 外层<a class="headerlink" href="#triton-autotune-triton-jit" title="Link to this heading"></a></h3>
+<p>必须写成下面这种顺序：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span><span class="n">configs</span><span class="o">=</span><span class="p">[],</span> <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">])</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kernel</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;triton.autotune</span></code> 必须直接包在 <code class="docutils literal notranslate"><span class="pre">&#64;triton.jit</span></code> 外层，不能在两者之间插入其他 decorator。否则会导致无法对 kernel DSL 进行解析，从而无法进入 Triton-Ascend 的自动 Tiling 生成与寻优链路。</p>
+</section>
+<section id="key">
+<h3>3. <code class="docutils literal notranslate"><span class="pre">key</span></code> 的含义与社区一致<a class="headerlink" href="#key" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">key</span></code> 的本质是 autotune 的 cache key。凡是填入 <code class="docutils literal notranslate"><span class="pre">key</span></code> 的参数，只要取值发生变化，就会触发重新 autotune。</p>
+<p>大多数情况下，<code class="docutils literal notranslate"><span class="pre">key</span></code> 里放的是 <code class="docutils literal notranslate"><span class="pre">M/N/K</span></code>、<code class="docutils literal notranslate"><span class="pre">seq_len</span></code>、<code class="docutils literal notranslate"><span class="pre">hidden_size</span></code> 这类 shape 参数，因为它们往往会显著影响最优 Tiling；但 <code class="docutils literal notranslate"><span class="pre">key</span></code> 并不只限于 shape 参数，只要某个参数变化会影响配置选择，也可以放入 <code class="docutils literal notranslate"><span class="pre">key</span></code>。</p>
+</section>
+<section id="id3">
+<h3>4. 希望参与自动调优的参数不要被提前固定<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>如果希望某个 <code class="docutils literal notranslate"><span class="pre">tl.constexpr</span></code> 参与自动 Tiling 生成，需要同时满足下面三点：</p>
+<ul class="simple">
+<li><p>它本身必须是 Tiling 参数，也就是会影响每个 block（逻辑核）处理的数据规模或 tile 大小的参数；</p></li>
+<li><p>不要在 launch 时把它显式传值写死；</p></li>
+<li><p>不要在 kernel 定义里给它设置默认值。</p></li>
+</ul>
+<p>例如下面这种写法，<code class="docutils literal notranslate"><span class="pre">BLOCK_M</span></code> 会参与自动调优：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="p">[</span><span class="n">grid</span><span class="p">](</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">,</span>
+    <span class="n">M</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>如果你在 launch 时显式传入：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="p">[</span><span class="n">grid</span><span class="p">](</span>
+    <span class="n">x</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">out</span><span class="p">,</span>
+    <span class="n">M</span><span class="p">,</span>
+    <span class="n">N</span><span class="p">,</span>
+    <span class="n">BLOCK_M</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>那这个参数就已经被固定，不再属于自动生成范围。</p>
+<p>同样，如果在 kernel 定义中给某个调优参数提供了默认值，例如：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kernel</span><span class="p">(</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="n">BLOCK_M</span><span class="p">:</span> <span class="n">tl</span><span class="o">.</span><span class="n">constexpr</span> <span class="o">=</span> <span class="mi">128</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>那么这个参数也不会参与自动调优。对于希望交给框架自动生成和寻优的参数，应该把它保留为“未在 launch 时显式传值、且在 kernel 定义中也没有默认值”的 <code class="docutils literal notranslate"><span class="pre">tl.constexpr</span></code>。</p>
+</section>
+<section id="tiling-grid-grid-lambda">
+<h3>5. 如果 Tiling 参数会影响 grid，grid 必须写成 lambda 形式<a class="headerlink" href="#tiling-grid-grid-lambda" title="Link to this heading"></a></h3>
+<p>如果某个 Tiling 参数会影响 grid 大小，那么 grid 不能提前写成固定值或只依赖运行时参数的静态表达式，而必须写成依赖 meta 参数的 <code class="docutils literal notranslate"><span class="pre">lambda</span></code> 形式。这一点与社区 autotune 的要求一致。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">meta</span><span class="p">:</span> <span class="p">(</span><span class="n">triton</span><span class="o">.</span><span class="n">cdiv</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">meta</span><span class="p">[</span><span class="s2">&quot;BLOCK_M&quot;</span><span class="p">]),)</span>
+</pre></div>
+</div>
+<p>原因是 autotune 在评估不同候选配置时，<code class="docutils literal notranslate"><span class="pre">BLOCK_M</span></code> 这类参数的取值会变化；如果 grid 不随候选配置一起变化，就无法保证每个候选配置都以正确的发射方式执行。</p>
+</section>
+</section>
+<section id="id4">
+<h2>使用注意事项<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>autotune 的 benchmark 语义与社区一致，会多次执行 kernel。如果 kernel 存在副作用，例如包含原子操作、inplace 写入，或会修改输入/输出 buffer 的累积状态，仍然需要通过社区已有的 hook 机制处理。</p>
+</section>
+<section id="id5">
+<h2>Triton-Ascend 相比社区 autotune 的扩展<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>社区版 <code class="docutils literal notranslate"><span class="pre">triton.autotune</span></code> 的典型模式是：用户手工提供一组 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code>，框架做 benchmark，然后缓存最优结果。</p>
+<p>Triton-Ascend 在保持这套接口习惯不变的前提下，主要扩展了下面几件事。</p>
+<section id="configs">
+<h3>1. 支持 <code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 自动生成候选配置<a class="headerlink" href="#configs" title="Link to this heading"></a></h3>
+<p>这是最核心的扩展。用户不必先手写一组 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code>，而是可以把 <code class="docutils literal notranslate"><span class="pre">configs</span></code> 留空，让 Ascend backend 根据 kernel DSL 语义和运行时 shape 自动生成候选配置。</p>
+</section>
+<section id="config">
+<h3>2. 支持多个 config 的并行编译<a class="headerlink" href="#config" title="Link to this heading"></a></h3>
+<p>当 autotune 需要评估多个候选配置时，Triton-Ascend 默认会并行编译这些候选配置，以缩短首次调优时延。</p>
+<p>这一能力默认开启，可通过环境变量 <code class="docutils literal notranslate"><span class="pre">TRITON_AUTOTUNE_PARALLEL_COMPILE=0</span></code> 关闭。</p>
+</section>
+<section id="profiler-kernel">
+<h3>3. 支持使用 profiler 采集 kernel 性能<a class="headerlink" href="#profiler-kernel" title="Link to this heading"></a></h3>
+<p>Triton-Ascend 支持在 autotune 做 benchmark 时切换性能采集方式：除了默认 benchmark 模式外，还可以使用 profiler 来采集每个候选 config 的 kernel 性能数据，它只关注 kernel 的片上计算时间，对于执行时间较短的 kernel 比默认性能采集方式更加精确，但会增加一些耗时。这项能力可通过环境变量 <code class="docutils literal notranslate"><span class="pre">TRITON_BENCH_METHOD='npu'</span></code> 开启。</p>
+</section>
+</section>
+<section id="tiling">
+<h2>自动 Tiling 生成能力的范围与行为<a class="headerlink" href="#tiling" title="Link to this heading"></a></h2>
+<p>前面的第 1 点说明了 Triton-Ascend 支持 <code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 自动生成候选配置。对这项能力，进行以下几点说明。</p>
+<section id="id6">
+<h3>1. 自动生成范围聚焦在 Tiling 参数<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>Ascend 自动生成的重点是 kernel 中与 Tiling 相关的 <code class="docutils literal notranslate"><span class="pre">tl.constexpr</span></code> 参数，也就是影响每个 block（逻辑核）处理的数据规模或 tile 大小的参数。</p>
+<p>这套能力不等价于“自动帮你调所有参数”。像 <code class="docutils literal notranslate"><span class="pre">num_warps</span></code>、<code class="docutils literal notranslate"><span class="pre">num_stages</span></code> 这类编译参数，以及 kernel 的非 Tiling 参数，不属于当前自动生成范围。</p>
+</section>
+<section id="ascend">
+<h3>2. 候选配置会带上 Ascend 硬件约束<a class="headerlink" href="#ascend" title="Link to this heading"></a></h3>
+<p>Ascend backend 在生成候选时，会结合 NPU 的片上存储容量、对齐约束、核数利用等边界做筛选，而不是单纯枚举一批配置再盲目 benchmark。</p>
+</section>
+<section id="id7">
+<h3>3. 自动 Tiling 模式的目标是方便给出“性能不错”的配置<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>为了权衡寻优时间和寻优效果，当前自动 Tiling 会对生成配置数量做大量剪枝，因此并不保证自动生成结果一定能达到手工极致调优的性能上限。</p>
+<p>这项能力的目标，是在尽量降低用户使用门槛和寻优成本的前提下，方便地给用户提供一个性能还不错的 Tiling 配置。</p>
+</section>
+<section id="tiling-triton-config">
+<h3>4. 自动 Tiling 生成失败时需要用户手写 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code><a class="headerlink" href="#tiling-triton-config" title="Link to this heading"></a></h3>
+<p>如果自动 Tiling 模式无法生成任何可用候选配置，这时需要用户改为手写 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code>。同时也建议对这类场景提 issue，帮助 Triton-Ascend 后续补齐解析和自动生成能力。</p>
+</section>
+</section>
+<section id="triton-config">
+<h2>手写 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code> 模式<a class="headerlink" href="#triton-config" title="Link to this heading"></a></h2>
+<p>如果自动 Tiling 模式生成失败，或生成的 Tiling 性能未达到预期，直接回到社区标准写法即可。Triton-Ascend 对这部分语义保持兼容：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">triton</span><span class="o">.</span><span class="n">Config</span><span class="p">({</span><span class="s2">&quot;BLOCK_M&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">,</span> <span class="s2">&quot;BLOCK_N&quot;</span><span class="p">:</span> <span class="mi">128</span><span class="p">}),</span>
+        <span class="n">triton</span><span class="o">.</span><span class="n">Config</span><span class="p">({</span><span class="s2">&quot;BLOCK_M&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span> <span class="s2">&quot;BLOCK_N&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">}),</span>
+    <span class="p">],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">kernel</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>这一模式下：</p>
+<ul class="simple">
+<li><p>配置由用户手工提供；</p></li>
+<li><p>框架负责 benchmark、选择最优配置和缓存复用；</p></li>
+<li><p>使用习惯与社区 autotune 保持一致。</p></li>
+</ul>
+</section>
+<section id="id8">
+<h2>进阶用法：自动 Tiling 与其他参数联合调优<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>以下内容属于进阶用法，只有当用户希望在自动 Tiling 模式下，继续联合调优 kernel 的非 Tiling 参数或编译参数时，再考虑使用。</p>
+<section id="autotune">
+<h3>1. 社区 autotune：手工枚举全部调优参数<a class="headerlink" href="#autotune" title="Link to this heading"></a></h3>
+<p>社区标准写法是由用户手工枚举所有候选配置：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">triton</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;BLOCK_M&quot;</span><span class="p">:</span> <span class="n">BM</span><span class="p">,</span>
+                <span class="s2">&quot;BLOCK_N&quot;</span><span class="p">:</span> <span class="n">BN</span><span class="p">,</span>
+                <span class="s2">&quot;BLOCK_K&quot;</span><span class="p">:</span> <span class="n">BK</span><span class="p">,</span>
+                <span class="s2">&quot;GROUP_SIZE_M&quot;</span><span class="p">:</span> <span class="n">GS</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">num_warps</span><span class="o">=</span><span class="n">num_warps</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">BM</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">BN</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">BK</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">GS</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">num_warps</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+    <span class="p">],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">matmul_kernel</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">BLOCK_K</span><span class="p">,</span> <span class="n">GROUP_SIZE_M</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="triton-ascend-tiling-ascend">
+<h3>2. Triton-Ascend：手工枚举 Tiling 参数和 Ascend 编译参数<a class="headerlink" href="#triton-ascend-tiling-ascend" title="Link to this heading"></a></h3>
+<p>在 Triton-Ascend 中，如果希望继续走手工枚举模式，也可以把 Ascend 侧参数一起放进手工配置空间：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">triton</span><span class="o">.</span><span class="n">Config</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;BLOCK_M&quot;</span><span class="p">:</span> <span class="n">BM</span><span class="p">,</span>
+                <span class="s2">&quot;BLOCK_N&quot;</span><span class="p">:</span> <span class="n">BN</span><span class="p">,</span>
+                <span class="s2">&quot;BLOCK_K&quot;</span><span class="p">:</span> <span class="n">BK</span><span class="p">,</span>
+                <span class="s2">&quot;GROUP_SIZE_M&quot;</span><span class="p">:</span> <span class="n">GS</span><span class="p">,</span>
+                <span class="s2">&quot;multibuffer&quot;</span><span class="p">:</span> <span class="n">MS</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">BM</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">BN</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">BK</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">64</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">GS</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">MS</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">]</span>
+    <span class="p">],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">matmul_kernel</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">BLOCK_K</span><span class="p">,</span> <span class="n">GROUP_SIZE_M</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="triton-ascend-tiling">
+<h3>3. Triton-Ascend：自动生成 Tiling，同时联合调优其他参数<a class="headerlink" href="#triton-ascend-tiling" title="Link to this heading"></a></h3>
+<p>如果希望 Tiling 参数继续由 <code class="docutils literal notranslate"><span class="pre">configs=[]</span></code> 自动生成，但又希望同时调优其他非 Tiling 参数或编译参数，可以把这些额外搜索维度通过 <code class="docutils literal notranslate"><span class="pre">hints</span></code> 传入：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@triton</span><span class="o">.</span><span class="n">autotune</span><span class="p">(</span>
+    <span class="n">configs</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">key</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;M&quot;</span><span class="p">,</span> <span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;K&quot;</span><span class="p">],</span>
+    <span class="n">hints</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;GROUP_SIZE_M&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+        <span class="s2">&quot;multibuffer&quot;</span><span class="p">:</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="nd">@triton</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">matmul_kernel</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">BLOCK_M</span><span class="p">,</span> <span class="n">BLOCK_N</span><span class="p">,</span> <span class="n">BLOCK_K</span><span class="p">,</span> <span class="n">GROUP_SIZE_M</span><span class="p">):</span>
+    <span class="o">...</span>
+
+
+<span class="n">matmul_kernel</span><span class="p">[</span><span class="n">grid</span><span class="p">](</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">M</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">K</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>这种方式的含义是：</p>
+<ul class="simple">
+<li><p>Tiling 相关参数仍然由 Triton-Ascend 自动生成；</p></li>
+<li><p>非 Tiling 参数或编译参数由用户通过 <code class="docutils literal notranslate"><span class="pre">hints</span></code> 显式给出候选集合；</p></li>
+<li><p>autotune 会对两部分组合后的配置空间做评估。</p></li>
+</ul>
+</section>
+</section>
+<section id="id9">
+<h2>小结<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>Triton-Ascend 相比社区 autotune 的关键扩展，不是改变用户接口，而是在社区接口之上增加了“自动生成 Tiling 候选并完成寻优”的能力。对大多数用户来说，最推荐的使用方式就是：</p>
+<ul class="simple">
+<li><p>保持社区版 <code class="docutils literal notranslate"><span class="pre">&#64;triton.autotune</span></code> 的写法；</p></li>
+<li><p>将 <code class="docutils literal notranslate"><span class="pre">configs</span></code> 设为 <code class="docutils literal notranslate"><span class="pre">[]</span></code>；</p></li>
+<li><p>让 Ascend backend 基于 kernel DSL 和运行时 shape 自动完成候选生成、筛选、benchmark 与缓存复用。</p></li>
+</ul>
+<p>如果场景不适合自动 Tiling 模式，再回到手写 <code class="docutils literal notranslate"><span class="pre">triton.Config</span></code> 即可。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

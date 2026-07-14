@@ -1,0 +1,1296 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NPU支持 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../../search.html" />
+    <link rel="next" title="NPU Support" href="../../source_en/BestPractices/NPU-support.html" />
+    <link rel="prev" title="ms-swift" href="../../../../../ms-swift/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../../../ms-swift/index.html">ms-swift</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">NPU支持</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">硬件配套和支持的操作系统</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">支持范围速览</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sft">已验证 SFT 组合</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#rl">已验证 RL 组合</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id3">暂不支持或未完全验证</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peft-transformers-5-moe-fused-expert-lora">PEFT Transformers 5 MoE fused expert LoRA 限制</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">选择你的使用路线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">环境准备</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id6">镜像/容器环境安装</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">本地环境安装</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id8">NPU 可用性检查</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mindspeed-megatron-swift">MindSpeed/Megatron-SWIFT 可选安装</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qwen3-5-fla">Qwen3.5 FLA补丁说明</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">环境查看</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#modelscope">快速跑通：ModelScope 模型 + 数据集</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">训练</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id11">单卡训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id12">数据并行训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#deepspeed">Deepspeed训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qwen3-5-lora">Qwen3.5 单机多卡 LoRA 示例</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#npupatch">NPU模型Patch开关</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#merge-lora">模型保存、Merge LoRA 和断点续训</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">推理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">部署</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#transformers">使用原生transformers进行部署</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#vllm-ascend">使用vLLM-ascend进行部署</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">评测</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">发布</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#faq">FAQ</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#q1-npu">Q1: 如何确认当前环境已经正确识别 NPU？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q2-fsdpdeepspeed-megatron-swift">Q2: 训练时应该选择 FSDP、DeepSpeed 还是 Megatron-SWIFT？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q3-npu-patch">Q3: NPU 模型 Patch 需要手动关闭吗？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q4-vllm-ascend-rl-rollout">Q4: 使用 vLLM-Ascend 部署或 RL rollout 时需要注意什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q5-source-set-env-sh">Q5: 忘记执行 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code> 会有什么表现？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q6-torch-torch-npu">Q6: <code class="docutils literal notranslate"><span class="pre">torch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 版本不匹配怎么判断？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q7-ascend-rt-visible-devices-nproc-per-node">Q7: <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> 和 <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code> 不一致会怎样？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q8">Q8: 多卡训练卡住时先看什么？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q9-hccl">Q9: HCCL 连接或超时问题如何初步排查？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q10-npu-smi">Q10: 容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不可用通常是什么原因？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q11-transformers-vllm-ascend">Q11: 原生 transformers 部署和 vLLM-Ascend 部署怎么选？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q12-vllm-ascend-device-type-undefined-symbol">Q12: vLLM-Ascend 报 device type 不匹配或 undefined symbol 怎么办？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q13-fp8-npu">Q13: FP8 或量化模型可以直接在 NPU 上训练吗？</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#q14-megatron-swift-megatron-mindspeed">Q14: Megatron-SWIFT 导入到错误的 Megatron/MindSpeed 怎么排查？</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">NPU微信群</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../source_en/BestPractices/NPU-support.html">NPU Support</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../../ms-swift/index.html">ms-swift</a></li>
+      <li class="breadcrumb-item active">NPU支持</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../../_sources/sources/_generated/sources/ms-swift/source/BestPractices/NPU-support.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="npu">
+<h1>NPU支持<a class="headerlink" href="#npu" title="Link to this heading"></a></h1>
+<p>我们在 ms-swift 上增加了对昇腾 NPU 的支持，用户可以在昇腾 NPU 上进行模型的微调和推理。</p>
+<p>本文档介绍如何在昇腾 NPU 上完成环境准备、模型训练、保存合并、推理、部署和常见问题排查。</p>
+<p>如果你是第一次在 NPU 上使用 ms-swift，推荐按以下顺序阅读：</p>
+<ol class="arabic simple">
+<li><p>先查看“支持范围速览”，确认模型、算法和后端是否已验证。</p></li>
+<li><p>根据“选择你的使用路线”决定只装基础环境，还是额外安装 MindSpeed/Megatron-SWIFT。</p></li>
+<li><p>根据自己的环境管理习惯选择“本地环境安装”或“镜像/容器环境安装”，然后执行“NPU 可用性检查”。</p></li>
+<li><p>使用“快速跑通”完成一次 ModelScope 模型 LoRA 训练、合并、推理和部署。</p></li>
+<li><p>需要更大规模训练时，再阅读 DDP、DeepSpeed 和 MindSpeed/Megatron-SWIFT 相关章节。</p></li>
+</ol>
+<section id="id1">
+<h2>硬件配套和支持的操作系统<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p><strong>表 1</strong>  产品硬件支持列表</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>产品</p></th>
+<th class="head text-center"><p>是否支持</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><term>Ascend 950 系列产品</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas A3 训练系列产品</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas A3 推理系列产品</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas A2 训练系列产品</term></p></td>
+<td class="text-center"><p>√</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas A2 推理系列产品</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas 200I/500 A2 推理产品</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p><term>Atlas 推理系列产品</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p><term>Atlas 训练系列产品</term></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<div><p>[!NOTE]</p>
+<p>本节表格中“√”代表支持，“x”代表不支持。</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>各硬件产品对应物理机部署场景支持的操作系统请参考<a class="reference external" href="https://www.hiascend.com/hardware/compatibility">兼容性查询助手</a>。</p></li>
+<li><p>各硬件产品对应虚拟机及容器部署场景支持的操作系统请参考《CANN 软件安装》的“<a class="reference external" href="https://www.hiascend.com/document/detail/zh/canncommercial/900/softwareinst/instg/instg_0101.html?OS=openEuler&amp;amp;InstallType=netyum">操作系统兼容性说明</a>”章节（商用版）或“<a class="reference external" href="https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/900/softwareinst/instg/instg_0101.html?OS=openEuler&amp;amp;InstallType=netyum">操作系统兼容性说明</a>”章节（社区版）。</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>支持范围速览<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p>推荐基础环境版本：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>software</p></th>
+<th class="head"><p>version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>&gt;= 3.10, &lt; 3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>&gt;= 8.5.1</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>&gt;= 2.7.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>&gt;= 2.7.1.post4</p></td>
+</tr>
+</tbody>
+</table>
+<p>基础环境准备请参照 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>。本文示例实验环境为 8 * 昇腾910B3 64G。
+注：vllm ascend系列官方推荐版本配套已更新至 CANN9.0.0 torch 2.9.0 torch_npu 2.9.0 vllm-ascend 0.18.0(A3) 0.19.1(A5)，详情请参阅 <a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/v0.18.0/installation.html">vLLM Ascend 安装文档</a>。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>一级特性</p></th>
+<th class="head"><p>特性</p></th>
+<th class="head"><p>进展</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>训练范式</p></td>
+<td><p>CPT</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>SFT</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>DPO</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>RM</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p>分布式</p></td>
+<td><p>DDP</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>FSDP</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>FSDP2</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>DeepSpeed</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>MindSpeed(Megatron)</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p>低参微调</p></td>
+<td><p>FULL</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>LoRA</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>QLoRA</p></td>
+<td><p>暂不支持</p></td>
+</tr>
+<tr class="row-even"><td><p>RLHF</p></td>
+<td><p>GRPO</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>PPO</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p>性能优化</p></td>
+<td><p>FA 等融合算子</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>Liger-Kernel</p></td>
+<td><p>暂不支持</p></td>
+</tr>
+<tr class="row-even"><td><p>部署</p></td>
+<td><p>PT</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>vLLM</p></td>
+<td><p>已支持</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>SGLang</p></td>
+<td><p>暂不支持</p></td>
+</tr>
+</tbody>
+</table>
+<section id="sft">
+<h3>已验证 SFT 组合<a class="headerlink" href="#sft" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>algorithm</p></th>
+<th class="head"><p>model families</p></th>
+<th class="head"><p>strategy</p></th>
+<th class="head"><p>hardware</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-0.5B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-1.5B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-VL-3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen2.5-VL-7B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen2.5-Omni-3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3-30B-A3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-32B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3-VL-30B-A3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3-Omni-30B-A3B-Instruct</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>InternVL3-8B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Ovis2.5-2B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p>SFT</p></td>
+<td><p>Qwen3.5-27B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+<tr class="row-even"><td><p>SFT</p></td>
+<td><p>Qwen3.5-35B-A3B</p></td>
+<td><p>FSDP1/FSDP2/deepspeed/Megatron</p></td>
+<td><p>Atlas 900 A2 PODc/A3 SuperPoD</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="rl">
+<h3>已验证 RL 组合<a class="headerlink" href="#rl" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>algorithm</p></th>
+<th class="head"><p>model families</p></th>
+<th class="head"><p>strategy</p></th>
+<th class="head"><p>rollout engine</p></th>
+<th class="head"><p>hardware</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>GRPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GRPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>DPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>DPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>PPO</strong></p></td>
+<td><p>Qwen2.5-7B-Instruct</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>PPO</strong></p></td>
+<td><p>Qwen3-8B</p></td>
+<td><p>deepspeed</p></td>
+<td><p>vllm-ascend</p></td>
+<td><p>Atlas 900 A2 PODc</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h3>暂不支持或未完全验证<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>item</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Liger-kernel</p></td>
+</tr>
+<tr class="row-odd"><td><p>量化/QLoRA相关</p></td>
+</tr>
+<tr class="row-even"><td><p>使用sglang作为推理引擎</p></td>
+</tr>
+<tr class="row-odd"><td><p>使用megatron时开启ETP进行lora训练</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="peft-transformers-5-moe-fused-expert-lora">
+<h3>PEFT Transformers 5 MoE fused expert LoRA 限制<a class="headerlink" href="#peft-transformers-5-moe-fused-expert-lora" title="Link to this heading"></a></h3>
+<p>在使用 Qwen3.5-MoE、Qwen3-Omni-MoE 等 Transformers 5 MoE 结构模型进行 LoRA 训练时，部分 expert 权重可能不是普通 <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> 模块，而是 fused <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code>。这类参数需要依赖 PEFT 的 <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> 路径注入 LoRA。</p>
+<p>当前该路径在 <code class="docutils literal notranslate"><span class="pre">lora_dropout</span></code>、ZeRO-3/FSDP、多 adapter 等组合场景下仍未完全稳定。典型触发条件包括：</p>
+<ul class="simple">
+<li><p>使用 MoE 模型；</p></li>
+<li><p>使用 LoRA，并希望覆盖 fused expert 参数；</p></li>
+<li><p>模型配置或命令行 <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> 触发 PEFT 的 Transformers 5 MoE target conversion 路径；</p></li>
+<li><p>使用默认 <code class="docutils literal notranslate"><span class="pre">lora_dropout</span> <span class="pre">!=</span> <span class="pre">0</span></code>，或使用 ZeRO-3/FSDP 等参数分片后端。</p></li>
+</ul>
+<p>如果只是进行常规 Qwen3.5 GRPO/SFT LoRA 训练，建议避免额外指定 <code class="docutils literal notranslate"><span class="pre">--model_type</span></code> 去扩大触发范围；若模型配置本身已经触发该路径，则优先使用 full 参数训练或关闭对应 LoRA 组合。若确实需要训练 fused expert 参数，建议等待 PEFT 上游能力稳定，或在 <code class="docutils literal notranslate"><span class="pre">lora_dropout=0</span></code> 且目标模型、训练后端已单独验证的前提下使用。</p>
+</section>
+</section>
+<section id="id4">
+<h2>选择你的使用路线<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>场景</p></th>
+<th class="head"><p>推荐路线</p></th>
+<th class="head"><p>是否需要 MindSpeed</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>只做普通 SFT/LoRA/推理</p></td>
+<td><p>本地环境安装或镜像/容器环境安装</p></td>
+<td><p>不需要</p></td>
+</tr>
+<tr class="row-odd"><td><p>需要 Megatron-SWIFT 大模型训练</p></td>
+<td><p>先装基础环境，再装 MindSpeed/Megatron/mcore-bridge</p></td>
+<td><p>需要</p></td>
+</tr>
+<tr class="row-even"><td><p>需要 GRPO/PPO/DPO 等 RLHF</p></td>
+<td><p>基础训练环境 + vLLM-Ascend rollout/deploy</p></td>
+<td><p>通常不需要</p></td>
+</tr>
+<tr class="row-odd"><td><p>只是验证 NPU 是否可用</p></td>
+<td><p>跑 NPU 可用性检查脚本</p></td>
+<td><p>不需要</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h2>环境准备<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="id6">
+<h3>镜像/容器环境安装<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>官方 NPU 镜像已发布在 <a class="reference external" href="https://quay.io/repository/ascend/ms-swift?tab=tags">quay.io/ascend/ms-swift</a>。推荐优先根据设备代际、Python、CANN 和系统版本选择匹配的镜像标签；如需锁定分支或定制依赖，再使用项目提供的 Dockerfile 自行构建。容器方式的优势是依赖版本更容易固化，也便于在多台昇腾机器之间复现实验环境。</p>
+<p>下面以 A2、Python 3.11、CANN 9.0.0、Ubuntu 22.04 标签为例，实际使用时请以 Quay 标签页中适配当前机器和软件栈的最新标签为准：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>pull<span class="w"> </span>quay.io/ascend/ms-swift:v4.3.0-A2-py311-CANN9.0.0-ubuntu22.04
+<span class="nb">export</span><span class="w"> </span><span class="nv">IMAGE_NAME</span><span class="o">=</span>quay.io/ascend/ms-swift:v4.3.0-A2-py311-CANN9.0.0-ubuntu22.04
+<span class="nb">export</span><span class="w"> </span><span class="nv">WORKSPACE</span><span class="o">=</span>/path/to/workspace
+</pre></div>
+</div>
+<p>如果需要自行构建镜像，先 clone modelscope 仓库，然后使用仓库中的 <a class="reference external" href="https://github.com/modelscope/modelscope/blob/master/docker/Dockerfile.ascend">Dockerfile.ascend</a> 和 <a class="reference external" href="https://github.com/modelscope/modelscope/blob/master/docker/build_image.py">build_image.py</a>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/modelscope.git
+<span class="nb">cd</span><span class="w"> </span>modelscope
+<span class="nv">DOCKER_REGISTRY</span><span class="o">=</span>ms-swift<span class="w"> </span>python<span class="w"> </span>docker/build_image.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--image_type<span class="w"> </span>ascend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--python_version<span class="w"> </span><span class="m">3</span>.11.11<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--soc_version<span class="w"> </span>ascend910b1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--arch<span class="w"> </span>arm
+</pre></div>
+</div>
+<p>当前 <code class="docutils literal notranslate"><span class="pre">build_image.py</span></code> 生成的 Ascend 镜像名格式为 <code class="docutils literal notranslate"><span class="pre">{DOCKER_REGISTRY}:{swift_branch}-{atlas_hardware}-{python_tag}-{arch}</span></code>。以上命令以 ARM 架构的 Atlas 900 A2 PODc 为例，通常会生成 <code class="docutils literal notranslate"><span class="pre">ms-swift:main-A2-py311-arm</span></code>。如果使用自行构建的镜像，请按构建日志中的镜像名替换上面的 <code class="docutils literal notranslate"><span class="pre">IMAGE_NAME</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">IMAGE_NAME</span><span class="o">=</span>ms-swift:main-A2-py311-arm
+</pre></div>
+</div>
+<p>启动容器前建议先确认宿主机暴露的 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>/dev/davinci*
+</pre></div>
+</div>
+<p>启动容器时需要把 NPU 设备、驱动、固件、<code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 和必要日志目录挂载进去。下面示例按常见 8 卡设备 <code class="docutils literal notranslate"><span class="pre">davinci0</span></code> 到 <code class="docutils literal notranslate"><span class="pre">davinci7</span></code> 编写；部分机器会额外暴露到 <code class="docutils literal notranslate"><span class="pre">davinci15</span></code>，这时请按 <code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">/dev/davinci*</span></code> 的结果把对应设备都加到 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> 中：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>swift-ascend<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--network<span class="o">=</span>host<span class="w"> </span>--ipc<span class="o">=</span>host<span class="w"> </span>--shm-size<span class="o">=</span>128g<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci0<span class="w"> </span>--device<span class="o">=</span>/dev/davinci1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci2<span class="w"> </span>--device<span class="o">=</span>/dev/davinci3<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci4<span class="w"> </span>--device<span class="o">=</span>/dev/davinci5<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci6<span class="w"> </span>--device<span class="o">=</span>/dev/davinci7<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="o">=</span>/dev/davinci_manager<span class="w"> </span>--device<span class="o">=</span>/dev/devmm_svm<span class="w"> </span>--device<span class="o">=</span>/dev/hisi_hdc<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/Ascend/driver:/usr/local/Ascend/driver:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/Ascend/firmware:/usr/local/Ascend/firmware:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/etc/ascend_install.info:/etc/ascend_install.info:ro<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span>/var/log/npu:/var/log/npu<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-v<span class="w"> </span><span class="si">${</span><span class="nv">WORKSPACE</span><span class="si">}</span>:/workspace<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="si">${</span><span class="nv">IMAGE_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>/bin/bash
+</pre></div>
+</div>
+<p>进入容器后，建议先执行 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code>，再运行后文的 NPU 可用性检查脚本，确认容器内可以正确访问昇腾设备。如果容器内无法识别 NPU，请优先检查 <code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code>、<code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>、驱动目录和 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 是否正确挂载。</p>
+</section>
+<section id="id7">
+<h3>本地环境安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 创建新的 conda 虚拟环境（可选）</span>
+conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>swift-npu<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>-y
+conda<span class="w"> </span>activate<span class="w"> </span>swift-npu
+
+<span class="c1"># 注意进行后续操作前要先 source 激活 CANN 环境</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+
+<span class="c1"># 设置 pip 全局镜像（可选，加速下载）</span>
+pip<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span><span class="w"> </span>global.index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/
+pip<span class="w"> </span>install<span class="w"> </span>ms-swift<span class="w"> </span>-U
+
+<span class="c1"># 使用源码安装</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/ms-swift.git
+<span class="nb">cd</span><span class="w"> </span>ms-swift
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+
+<span class="c1"># 安装 torch_npu</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span>decorator
+<span class="c1"># 如果你想要使用 deepspeed（控制显存占用，训练速度会有一定下降）</span>
+pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+
+<span class="c1"># 如果需要使用 evaluation 功能，请安装以下包</span>
+pip<span class="w"> </span>install<span class="w"> </span>evalscope<span class="o">[</span>opencompass<span class="o">]</span>
+
+<span class="c1"># 如果需要使用 vllm-ascend 进行推理，请安装以下包（更多版本请参考 [vLLM-Ascend 官网](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)）</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.18.0
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.18.0
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>NPU 可用性检查<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>测试环境是否安装正确，NPU能否被正常加载：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_torch_npu_available</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">is_torch_npu_available</span><span class="p">())</span>  <span class="c1"># True</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>  <span class="c1"># 8</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;npu:0&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="mindspeed-megatron-swift">
+<h3>MindSpeed/Megatron-SWIFT 可选安装<a class="headerlink" href="#mindspeed-megatron-swift" title="Link to this heading"></a></h3>
+<p>如果需要使用 MindSpeed(Megatron-LM)，请按照下面引导安装必要依赖。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 获取并切换 Megatron-LM 至 v0.16.0 版本</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/NVIDIA/Megatron-LM.git
+<span class="nb">cd</span><span class="w"> </span>Megatron-LM
+git<span class="w"> </span>checkout<span class="w"> </span>core_v0.16.0
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 2. 获取并安装 MindSpeed</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://gitcode.com/Ascend/MindSpeed.git
+<span class="nb">cd</span><span class="w"> </span>MindSpeed
+git<span class="w"> </span>checkout<span class="w"> </span>core_r0.16.0
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 3. 获取并安装 mcore-bridge</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/modelscope/mcore-bridge.git
+<span class="nb">cd</span><span class="w"> </span>mcore-bridge
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+<span class="nb">cd</span><span class="w"> </span>..
+
+<span class="c1"># 4. 获取并安装 triton-ascend</span>
+pip<span class="w"> </span>install<span class="w"> </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.1<span class="w"> </span>--extra-index-url<span class="o">=</span>https://triton-ascend.osinfra.cn/pypi/simple
+
+<span class="c1"># 5. 设置环境变量</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_local_megatron_lm_path&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">MEGATRON_LM_PATH</span><span class="o">=</span>&lt;your_local_megatron_lm_path&gt;
+
+<span class="c1"># 6. 如需回退到 transformers 的 GatedDeltaNet 实现，可关闭 Megatron GDN</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">USE_MCORE_GDN</span><span class="o">=</span><span class="m">0</span>
+</pre></div>
+</div>
+<p>执行如下命令验证 MindSpeed(Megatron-LM) 是否配置成功：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import mindspeed.megatron_adaptor; from swift.megatron.init import init_megatron_env; init_megatron_env(); print(&#39;✓ NPU环境下的Megatron-SWIFT配置验证成功！&#39;)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-fla">
+<h3>Qwen3.5 FLA补丁说明<a class="headerlink" href="#qwen3-5-fla" title="Link to this heading"></a></h3>
+<p>当前仓库已经内置了面向昇腾 NPU 的 Qwen3.5 linear attention patch，无需用户再额外修改 <code class="docutils literal notranslate"><span class="pre">transformers</span></code> 或 <code class="docutils literal notranslate"><span class="pre">fla</span></code> 源码。该 patch 的目标不是直接替换整个 <code class="docutils literal notranslate"><span class="pre">flash-linear-attention</span></code> 包，而是在 <code class="docutils literal notranslate"><span class="pre">Qwen3.5</span></code> 实际调用的 <code class="docutils literal notranslate"><span class="pre">chunk_gated_delta_rule</span></code> 路径上，将底层 GPU Triton 算子重定向到 MindSpeed 的 NPU 实现。</p>
+<p>补丁生效时，ms-swift 会执行以下替换：</p>
+<ol class="arabic simple">
+<li><p>将 <code class="docutils literal notranslate"><span class="pre">transformers.utils.is_flash_linear_attention_available</span></code> 与 <code class="docutils literal notranslate"><span class="pre">transformers.utils.import_utils.is_flash_linear_attention_available</span></code> 置为 <code class="docutils literal notranslate"><span class="pre">True</span></code>，使 <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5.modeling_qwen3_5</span></code> 可以按 FLA fast path 完成初始化。</p></li>
+<li><p>将 <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5.modeling_qwen3_5.chunk_gated_delta_rule</span></code> 以及 <code class="docutils literal notranslate"><span class="pre">transformers.models.qwen3_5_moe.modeling_qwen3_5_moe.chunk_gated_delta_rule</span></code> 重定向到 ms-swift 内置实现 <code class="docutils literal notranslate"><span class="pre">swift.model.chunk_gated_delta_rule.chunk_gated_delta_rule</span></code>。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">swift.model.chunk_gated_delta_rule</span></code> 内部继续调用 MindSpeed 提供的原生 Triton 算子，包括：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_delta_h</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_o</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.chunk_scaled_dot_kkt</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.cumsum</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.solve_tril</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mindspeed.ops.triton.wy_fast</span></code></p></li>
+</ul>
+</li>
+<li><p>保留了 torch 原生 l2norm 小算子实现，减轻每层每步的 launch 开销以及冷启动中的 compile/autotune 开销，提升模型在 NPU 上的性能表现。</p></li>
+<li><p>对于 FLA 中依赖 <code class="docutils literal notranslate"><span class="pre">torch.cuda.current_device()</span></code> 初始化的 <code class="docutils literal notranslate"><span class="pre">FusedRMSNormGated</span></code>，NPU 上会保留 Qwen3.5 的原生 torch 路径，避免 CUDA-only 初始化逻辑带来的兼容性问题。</p></li>
+</ol>
+<p>可以将这条调用链理解为：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Qwen3.5 modeling.chunk_gated_delta_rule
+    -&gt; swift.model.chunk_gated_delta_rule.chunk_gated_delta_rule
+    -&gt; MindSpeed Triton kernels
+</pre></div>
+</div>
+<p>因此：</p>
+<ul class="simple">
+<li><p>该 patch 主要覆盖的是 <strong>Qwen3.5 linear attention 的 gated-delta-rule 路径</strong>；</p></li>
+<li><p>它并不等价于“将整个 fla 包完整替换为 MindSpeed”；</p></li>
+<li><p>若需要这条路径生效，请确保当前环境中可以正确导入 MindSpeed 和 triton ascend</p></li>
+<li><p>精度对齐验证版本：torch 2.9.0 + MindSpeed 0.16.0 + flash-linear-attention 0.4.2 + triton-ascend 3.2.1 + transformers 5.2.0</p></li>
+</ul>
+<p>当前 Qwen3.5 在 NPU 上如果走 transformers 后端或 Megatron-SWIFT 后端训练，还需要额外注意版本和功能约束：</p>
+<ol class="arabic simple">
+<li><p>当前 NPU 文档中约定的 MindSpeed 训练组合是 <code class="docutils literal notranslate"><span class="pre">Megatron-LM</span> <span class="pre">v0.16.0</span> <span class="pre">+</span> <span class="pre">MindSpeed</span> <span class="pre">core_r0.16.0</span></code>。在这个组合下，<code class="docutils literal notranslate"><span class="pre">megatron-core</span></code> 已包含 <code class="docutils literal notranslate"><span class="pre">core.ssm.gated_delta_net</span></code> 原生 GDN 内核，<code class="docutils literal notranslate"><span class="pre">mcore-bridge</span></code> 默认会按 <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=1</span></code> 走 Megatron-Core/MindSpeed GDN 路径。若显式设置 <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=0</span></code>，则会回退到由 <code class="docutils literal notranslate"><span class="pre">mcore-bridge</span></code> 包装的 transformers 版 GDN，并配合 ms-swift 内置的 Qwen3.5 FLA NPU 补丁，把 <code class="docutils literal notranslate"><span class="pre">chunk_gated_delta_rule</span></code> 重定向到 MindSpeed Triton 算子。</p></li>
+<li><p>目前无论使用 transformers 后端还是 Megatron-SWIFT 后端，也无论 Megatron-SWIFT 下使用 <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=1</span></code> 还是 <code class="docutils literal notranslate"><span class="pre">USE_MCORE_GDN=0</span></code>，都不要在 Qwen3.5 的 NPU 路径上开启序列相关特性，包括 SP（sequence parallel，序列并行）、CP（context parallel，上下文并行）或 packing/padding-free。相关 FLA Triton 算子在 NPU 侧还没有完整的原生支持，开启这类特性可能触发算子缺失、样本边界处理不完整或并行切分不匹配问题。</p></li>
+<li><p>因此当前建议：transformers 后端避免设置 <code class="docutils literal notranslate"><span class="pre">--sequence_parallel_size</span></code> 大于 <code class="docutils literal notranslate"><span class="pre">1</span></code>，并避免使用 <code class="docutils literal notranslate"><span class="pre">--packing</span> <span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">--padding_free</span> <span class="pre">true</span></code>；Megatron-SWIFT 后端<code class="docutils literal notranslate"><span class="pre">--context_parallel_size</span></code> 保持为 <code class="docutils literal notranslate"><span class="pre">1</span></code>，并同样避免使用 <code class="docutils literal notranslate"><span class="pre">--packing</span> <span class="pre">true</span></code> / <code class="docutils literal notranslate"><span class="pre">--padding_free</span> <span class="pre">true</span></code>。只有在目标 MindSpeed/FLA 版本明确补齐支持并完成分层验证后，才重新开启这些特性。</p></li>
+</ol>
+</section>
+<section id="id9">
+<h3>环境查看<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>查看NPU的P2P连接，这里看到每个NPU都通过7条HCCS与其他NPU互联</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info<span class="w"> </span>-t<span class="w"> </span>topo
+<span class="w">	   </span>NPU0<span class="w">       </span>NPU1<span class="w">       </span>NPU2<span class="w">       </span>NPU3<span class="w">       </span>NPU4<span class="w">       </span>NPU5<span class="w">       </span>NPU6<span class="w">       </span>NPU7<span class="w">       </span>CPU<span class="w"> </span>Affinity
+NPU0<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU1<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">144</span>-167
+NPU2<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU3<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">96</span>-119
+NPU4<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU5<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span><span class="m">0</span>-23
+NPU6<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span>HCCS<span class="w">       </span><span class="m">48</span>-71
+NPU7<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>HCCS<span class="w">       </span>X<span class="w">          </span><span class="m">48</span>-71
+
+Legend:
+
+<span class="w">  </span><span class="nv">X</span><span class="w">    </span><span class="o">=</span><span class="w"> </span>Self
+<span class="w">  </span><span class="nv">SYS</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>NUMA<span class="w"> </span>nodes.<span class="w"> </span>Nodes<span class="w"> </span>are<span class="w"> </span>connected<span class="w"> </span>through<span class="w"> </span>SMP,<span class="w"> </span>such<span class="w"> </span>as<span class="w"> </span>QPI,<span class="w"> </span>UPI.
+<span class="w">  </span><span class="nv">PHB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>PCIe<span class="w"> </span>and<span class="w"> </span>the<span class="w"> </span>PCIe<span class="w"> </span>host<span class="w"> </span>bridge<span class="w"> </span>of<span class="w"> </span>a<span class="w"> </span>CPU.
+<span class="w">  </span><span class="nv">PIX</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>a<span class="w"> </span>single<span class="w"> </span>PCIe<span class="w"> </span>switch
+<span class="w">  </span><span class="nv">PXB</span><span class="w">  </span><span class="o">=</span><span class="w"> </span>Path<span class="w"> </span>traversing<span class="w"> </span>multiple<span class="w"> </span>PCIe<span class="w"> </span>switches
+<span class="w">  </span><span class="nv">HCCS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>Connection<span class="w"> </span>traversing<span class="w"> </span>HCCS.
+<span class="w">  </span><span class="nv">NA</span><span class="w">   </span><span class="o">=</span><span class="w"> </span>Unknown<span class="w"> </span>relationship.
+</pre></div>
+</div>
+<p>查看NPU状态, npu-smi命令详解可以查看<a class="reference external" href="https://support.huawei.com/enterprise/zh/doc/EDOC1100079287/10dcd668">官方文档</a></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>valle<span class="o">)</span><span class="w"> </span>root@valle:~/src#<span class="w"> </span>npu-smi<span class="w"> </span>info
++------------------------------------------------------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>npu-smi<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">            </span>Version:<span class="w"> </span><span class="m">24</span>.1.rc1.b030<span class="w">                                        </span><span class="p">|</span>
++---------------------------+---------------+----------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>NPU<span class="w">   </span>Name<span class="w">                </span><span class="p">|</span><span class="w"> </span>Health<span class="w">        </span><span class="p">|</span><span class="w"> </span>Power<span class="o">(</span>W<span class="o">)</span><span class="w">    </span>Temp<span class="o">(</span>C<span class="o">)</span><span class="w">           </span>Hugepages-Usage<span class="o">(</span>page<span class="o">)</span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>Chip<span class="w">                      </span><span class="p">|</span><span class="w"> </span>Bus-Id<span class="w">        </span><span class="p">|</span><span class="w"> </span>AICore<span class="o">(</span>%<span class="o">)</span><span class="w">   </span>Memory-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">  </span>HBM-Usage<span class="o">(</span>MB<span class="o">)</span><span class="w">        </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">101</span>.8<span class="w">       </span><span class="m">43</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C1:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3318</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">1</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">92</span>.0<span class="w">        </span><span class="m">39</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:C2:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">2</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">102</span>.0<span class="w">       </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:81:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">3</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.8<span class="w">        </span><span class="m">40</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:82:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">4</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.6<span class="w">        </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:01:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">5</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">99</span>.7<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:02:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">6</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">103</span>.8<span class="w">       </span><span class="m">45</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:41:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3314</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+<span class="p">|</span><span class="w"> </span><span class="m">7</span><span class="w">     </span>910B3<span class="w">               </span><span class="p">|</span><span class="w"> </span>OK<span class="w">            </span><span class="p">|</span><span class="w"> </span><span class="m">98</span>.2<span class="w">        </span><span class="m">44</span><span class="w">                </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">             </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">                         </span><span class="p">|</span><span class="w"> </span><span class="m">0000</span>:42:00.0<span class="w">  </span><span class="p">|</span><span class="w"> </span><span class="m">0</span><span class="w">           </span><span class="m">0</span><span class="w">    </span>/<span class="w"> </span><span class="m">0</span><span class="w">          </span><span class="m">3315</span><span class="w"> </span>/<span class="w"> </span><span class="m">65536</span><span class="w">         </span><span class="p">|</span>
++<span class="o">===========================</span>+<span class="o">===============</span>+<span class="o">====================================================</span>+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="modelscope">
+<h2>快速跑通：ModelScope 模型 + 数据集<a class="headerlink" href="#modelscope" title="Link to this heading"></a></h2>
+<p>如果你想先用 ModelScope 上的模型和数据集快速验证环境，可以直接执行本节完成一次完整闭环：训练 LoRA、找到最新 checkpoint、Merge LoRA、命令行推理、启动服务、curl 验证。示例使用小模型和小规模采样，便于快速跑通；换成自己的模型或数据集时，只需要修改前面的 ID 变量。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">MODEL_ID</span><span class="o">=</span>Qwen/Qwen3-0.6B
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASET_ID</span><span class="o">=</span>AI-ModelScope/alpaca-gpt4-data-zh
+<span class="nb">export</span><span class="w"> </span><span class="nv">WORK_DIR</span><span class="o">=</span>output/npu-modelscope-qwen3-0_6b-lora
+</pre></div>
+</div>
+<p>训练并保存 LoRA checkpoint：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MODEL_ID</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span><span class="nv">$DATASET_ID</span><span class="c1">#1000 \</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span><span class="nv">$WORK_DIR</span>
+</pre></div>
+</div>
+<p>训练结束后，checkpoint 会保存在 <code class="docutils literal notranslate"><span class="pre">$WORK_DIR/*/checkpoint-*</span></code> 目录下。可以用下面的命令取最新 checkpoint，并将 LoRA 合并保存为完整模型权重：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">CKPT_DIR</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-dt<span class="w"> </span><span class="nv">$WORK_DIR</span>/*/checkpoint-*<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="k">)</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span><span class="nv">$CKPT_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">MERGED_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">CKPT_DIR</span><span class="si">}</span>-merged
+</pre></div>
+</div>
+<p>推理验证可以直接加载 LoRA checkpoint，也可以加载合并后的完整权重：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 直接加载 LoRA checkpoint</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span><span class="nv">$CKPT_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span>
+
+<span class="c1"># 加载 Merge 后的完整权重</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MERGED_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--temperature<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span>
+</pre></div>
+</div>
+<p>如果需要启动 OpenAI 兼容的部署服务，可以使用合并后的完整权重：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span><span class="nv">$MERGED_DIR</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">512</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--served_model_name<span class="w"> </span>npu-modelscope-qwen3-0_6b
+</pre></div>
+</div>
+<p>服务启动后，用 curl 验证接口：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>http://localhost:8000/v1/chat/completions<span class="w"> </span><span class="se">\</span>
+-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+-d<span class="w"> </span><span class="s1">&#39;{</span>
+<span class="s1">&quot;model&quot;: &quot;npu-modelscope-qwen3-0_6b&quot;,</span>
+<span class="s1">&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;用一句话介绍昇腾NPU。&quot;}],</span>
+<span class="s1">&quot;max_tokens&quot;: 128,</span>
+<span class="s1">&quot;temperature&quot;: 0</span>
+<span class="s1">}&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h2>训练<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<p>以下介绍LoRA的微调, 全参数微调设置参数<code class="docutils literal notranslate"><span class="pre">--tuner_type</span> <span class="pre">full</span></code>即可. <strong>更多训练脚本</strong>参考<a class="reference external" href="https://github.com/modelscope/ms-swift/tree/main/examples/ascend/train">这里</a>。如果需要了解预训练、SFT、LoRA、全参数训练、自定义数据集等通用能力，可以继续阅读<a class="reference internal" href="../Instruction/Pre-training-and-Fine-tuning.html"><span class="std std-doc">预训练与微调文档</span></a>。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>模型大小</p></th>
+<th class="head"><p>NPU数量</p></th>
+<th class="head"><p>deepspeed类型</p></th>
+<th class="head"><p>最大显存占用量</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>1</p></td>
+<td><p>None</p></td>
+<td><p>1 * 28 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>None</p></td>
+<td><p>4 * 22 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>zero2</p></td>
+<td><p>4 * 28 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>7B</p></td>
+<td><p>4</p></td>
+<td><p>zero3</p></td>
+<td><p>4 * 22 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>7B</p></td>
+<td><p>8</p></td>
+<td><p>None</p></td>
+<td><p>8 * 22 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>14B</p></td>
+<td><p>1</p></td>
+<td><p>None</p></td>
+<td><p>1 * 45 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>None</p></td>
+<td><p>8 * 51 GB</p></td>
+</tr>
+<tr class="row-odd"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>zero2</p></td>
+<td><p>8 * 49 GB</p></td>
+</tr>
+<tr class="row-even"><td><p>14B</p></td>
+<td><p>8</p></td>
+<td><p>zero3</p></td>
+<td><p>8 * 31 GB</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id11">
+<h3>单卡训练<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>通过如下命令启动单卡微调:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 实验环境: 昇腾910B3</span>
+<span class="c1"># 显存需求: 28 GB</span>
+<span class="c1"># 运行时长: 8小时</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>数据并行训练<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>我们使用其中的4卡进行ddp训练</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 实验环境: 4 * 昇腾910B3</span>
+<span class="c1"># 显存需求: 4 * 22 GB</span>
+<span class="c1"># 运行时长: 2小时</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="deepspeed">
+<h3>Deepspeed训练<a class="headerlink" href="#deepspeed" title="Link to this heading"></a></h3>
+<p>ZeRO2:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 实验环境: 4 * 昇腾910B3</span>
+<span class="c1"># 显存需求: 4 * 28GB</span>
+<span class="c1"># 运行时长: 3.5小时</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p>ZeRO3:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 实验环境: 4 * 昇腾910B3</span>
+<span class="c1"># 显存需求: 4 * 22 GB</span>
+<span class="c1"># 运行时长: 8.5小时</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/blossom-math-v2<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--deepspeed<span class="w"> </span>zero3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+</section>
+<section id="qwen3-5-lora">
+<h3>Qwen3.5 单机多卡 LoRA 示例<a class="headerlink" href="#qwen3-5-lora" title="Link to this heading"></a></h3>
+<p>下面给出一个更新模型的 NPU LoRA 示例。这里使用 Qwen3.5-4B 做演示，4 卡数据并行通常比单卡更快；如果本地已经下载好模型和数据集，可以把 <code class="docutils literal notranslate"><span class="pre">--model</span></code>、<code class="docutils literal notranslate"><span class="pre">--dataset</span></code> 替换成本地路径。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 实验环境: 4 * 昇腾910B3</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh#2000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--split_dataset_ratio<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--torch_dtype<span class="w"> </span>bfloat16<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--target_modules<span class="w"> </span>all-linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lora_alpha<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_length<span class="w"> </span><span class="m">2048</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--group_by_length<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_num_proc<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataloader_num_workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_steps<span class="w"> </span><span class="m">100</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_total_limit<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output/Qwen3.5-4B-NPU
+</pre></div>
+</div>
+<p>调参时可以先抓住三个目标：显存、吞吐和稳定性。</p>
+<ul class="simple">
+<li><p>降低显存：优先减小 <code class="docutils literal notranslate"><span class="pre">--max_length</span></code>、<code class="docutils literal notranslate"><span class="pre">--per_device_train_batch_size</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--lora_rank</span></code>；仍然 OOM 时再启用 <code class="docutils literal notranslate"><span class="pre">--deepspeed</span> <span class="pre">zero2/zero3</span></code>。ZeRO 可以明显降低显存压力，但会增加通信和调度开销。</p></li>
+<li><p>提高吞吐：在显存允许的情况下增大 <code class="docutils literal notranslate"><span class="pre">--per_device_train_batch_size</span></code>，再用 <code class="docutils literal notranslate"><span class="pre">--gradient_accumulation_steps</span></code> 保持全局 batch size；数据预处理较慢时增加 <code class="docutils literal notranslate"><span class="pre">--dataset_num_proc</span></code>，数据读取跟不上时增加 <code class="docutils literal notranslate"><span class="pre">--dataloader_num_workers</span></code>。</p></li>
+<li><p>控制保存成本：<code class="docutils literal notranslate"><span class="pre">--save_steps</span></code> 不宜过小，否则频繁保存会拖慢训练；<code class="docutils literal notranslate"><span class="pre">--save_total_limit</span> <span class="pre">2</span></code> 通常足够保留 best checkpoint 和 last checkpoint。</p></li>
+<li><p>提高稳定性：NPU 上建议优先使用 <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code>；如果遇到 loss 异常或 NaN，可以先缩小学习率、降低 batch，必要时再临时切到 <code class="docutils literal notranslate"><span class="pre">float32</span></code> 做对照定位。</p></li>
+</ul>
+<p>更多参数含义可以在<a class="reference internal" href="../Instruction/Command-line-parameters.html"><span class="std std-doc">命令行参数文档</span></a>中查询。</p>
+</section>
+<section id="npupatch">
+<h3>NPU模型Patch开关<a class="headerlink" href="#npupatch" title="Link to this heading"></a></h3>
+<p>ms-swift 在 NPU 环境下默认会启用模型层 patch，以适配部分 Transformers 模型在昇腾 NPU 上的算子和兼容性需求。通常不需要关闭；如果怀疑某个模型的 loss 异常、forward 报错与 NPU 模型 patch 有关，需要临时切回 Transformers 原生实现做对比，可以设置：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>swift<span class="w"> </span>sft<span class="w"> </span>...<span class="w"> </span>--enable_npu_model_patch<span class="w"> </span><span class="nb">false</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="merge-lora">
+<h2>模型保存、Merge LoRA 和断点续训<a class="headerlink" href="#merge-lora" title="Link to this heading"></a></h2>
+<p>训练时通过 <code class="docutils literal notranslate"><span class="pre">--output_dir</span></code> 指定输出目录，通过 <code class="docutils literal notranslate"><span class="pre">--save_steps</span></code> 控制 checkpoint 保存间隔，通过 <code class="docutils literal notranslate"><span class="pre">--save_total_limit</span></code> 控制最多保留多少个 checkpoint。LoRA 训练结束后，checkpoint 目录中会保存 adapter 权重、训练参数和 trainer 状态；常见目录形态如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>output/Qwen3.5-4B-NPU/vx-xxx/
+├── checkpoint-100/
+├── checkpoint-200/
+└── ...
+</pre></div>
+</div>
+<p>如果只做推理或继续 LoRA 训练，可以直接使用 checkpoint 目录。若希望得到一个独立的完整模型目录，便于 vLLM-Ascend 部署、离线分发或后续量化，可以执行 Merge LoRA：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>output/Qwen3.5-4B-NPU/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>合并后的模型默认保存在 <code class="docutils literal notranslate"><span class="pre">checkpoint-xxx-merged</span></code> 目录。之后可以像加载普通模型一样使用 <code class="docutils literal notranslate"><span class="pre">--model</span> <span class="pre">checkpoint-xxx-merged</span></code>。</p>
+<p>如果训练中断，需要从 checkpoint 恢复训练，请保持原训练参数不变，只额外增加 <code class="docutils literal notranslate"><span class="pre">--resume_from_checkpoint</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1,2,3<span class="w"> </span><span class="se">\</span>
+swift<span class="w"> </span>sft<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen3.5-4B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset<span class="w"> </span>AI-ModelScope/alpaca-gpt4-data-zh#2000<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--tuner_type<span class="w"> </span>lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>output/Qwen3.5-4B-NPU<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--resume_from_checkpoint<span class="w"> </span>output/Qwen3.5-4B-NPU/vx-xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--resume_from_checkpoint</span></code> 会恢复模型权重、优化器状态、随机种子和训练进度。如果只想加载模型权重而不恢复优化器和数据跳过状态，可以额外设置 <code class="docutils literal notranslate"><span class="pre">--resume_only_model</span> <span class="pre">true</span></code>。相关参数可参考<a class="reference internal" href="../Instruction/Command-line-parameters.html"><span class="std std-doc">命令行参数文档</span></a>中的 <code class="docutils literal notranslate"><span class="pre">resume_from_checkpoint</span></code>、<code class="docutils literal notranslate"><span class="pre">resume_only_model</span></code>、<code class="docutils literal notranslate"><span class="pre">save_steps</span></code> 和 <code class="docutils literal notranslate"><span class="pre">save_total_limit</span></code>。</p>
+</section>
+<section id="id13">
+<h2>推理<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<p>原始模型:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>LoRA微调后:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--load_data_args<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>全参数训练或 Merge LoRA 后的模型，可以通过 <code class="docutils literal notranslate"><span class="pre">--model</span></code> 指向对应的完整权重目录：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>infer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--stream<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h2>部署<a class="headerlink" href="#id14" title="Link to this heading"></a></h2>
+<section id="transformers">
+<h3>使用原生transformers进行部署<a class="headerlink" href="#transformers" title="Link to this heading"></a></h3>
+<p>原始模型:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>Qwen/Qwen2-7B-Instruct<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>LoRA微调后:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Merge LoRA 后部署完整权重</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+<section id="vllm-ascend">
+<h3>使用vLLM-ascend进行部署<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h3>
+<p>使用pypi进行安装：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 请以 vLLM-Ascend 官方兼容矩阵为准；以下为本文验证版本。</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.14.0
+pip<span class="w"> </span>install<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.14.0rc1
+</pre></div>
+</div>
+<p>原始模型：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>Qwen/Qwen2.5-7B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+<p>LoRA微调后:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xxx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+
+<span class="c1"># Merge LoRA 后部署完整权重</span>
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapters<span class="w"> </span>xx/checkpoint-xxx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--merge_lora<span class="w"> </span><span class="nb">true</span>
+
+<span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>swift<span class="w"> </span>deploy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model<span class="w"> </span>xxx/checkpoint-xxx-merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--infer_backend<span class="w"> </span>vllm<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_new_tokens<span class="w"> </span><span class="m">2048</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id15">
+<h2>评测<a class="headerlink" href="#id15" title="Link to this heading"></a></h2>
+<p>完成训练、推理或部署后，可以使用SWIFT内置的EvalScope能力对原始模型或微调后的checkpoint进行评测，完整参数说明与示例请参考<a class="reference internal" href="../Instruction/Evaluation.html"><span class="std std-doc">评测文档</span></a>。</p>
+</section>
+<section id="id16">
+<h2>发布<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<p>如果需要将NPU训练后的checkpoint、合并后的模型或量化后的模型发布到ModelScope/HuggingFace，可以使用<code class="docutils literal notranslate"><span class="pre">swift</span> <span class="pre">export</span></code>的推送能力，完整参数说明与示例请参考<a class="reference internal" href="../Instruction/Export-and-push.html#id3"><span class="std std-ref">导出与推送文档</span></a>。</p>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading"></a></h2>
+<p>更多通用问题请先查看<a class="reference internal" href="../Instruction/Frequently-asked-questions.html"><span class="std std-doc">常见问题整理</span></a>。下面记录 NPU 场景下更常遇到的问题和处理方式。</p>
+<section id="q1-npu">
+<h3>Q1: 如何确认当前环境已经正确识别 NPU？<a class="headerlink" href="#q1-npu" title="Link to this heading"></a></h3>
+<p>先确认已经 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code>，再执行本文安装章节中的环境检查脚本。正常情况下，<code class="docutils literal notranslate"><span class="pre">is_torch_npu_available()</span></code> 应返回 <code class="docutils literal notranslate"><span class="pre">True</span></code>，<code class="docutils literal notranslate"><span class="pre">torch.npu.device_count()</span></code> 应能看到可用 NPU 数量，且可以在 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 上创建 tensor。如果这里失败，优先检查 CANN、<code class="docutils literal notranslate"><span class="pre">torch</span></code>、<code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 版本是否和本文推荐版本一致。</p>
+</section>
+<section id="q2-fsdpdeepspeed-megatron-swift">
+<h3>Q2: 训练时应该选择 FSDP、DeepSpeed 还是 Megatron-SWIFT？<a class="headerlink" href="#q2-fsdpdeepspeed-megatron-swift" title="Link to this heading"></a></h3>
+<p>普通 SFT 优先参考本文兼容性表中的 <code class="docutils literal notranslate"><span class="pre">FSDP1/FSDP2/deepspeed</span></code> 组合；如果模型规模较大、需要更高并行能力，再使用 Megatron-SWIFT，并按安装章节额外安装 MindSpeed、Megatron-LM 和 mcore-bridge。DeepSpeed 可以降低显存压力，但速度可能下降，遇到性能问题时可以对比 FSDP 方案。</p>
+</section>
+<section id="q3-npu-patch">
+<h3>Q3: NPU 模型 Patch 需要手动关闭吗？<a class="headerlink" href="#q3-npu-patch" title="Link to this heading"></a></h3>
+<p>通常不需要。ms-swift 会在 NPU 环境下默认启用模型层 patch，以适配部分 Transformers 模型在昇腾 NPU 上的算子和兼容性需求。只有在排查 loss 异常、forward 报错，且怀疑问题来自 NPU patch 时，才建议临时加上 <code class="docutils literal notranslate"><span class="pre">--enable_npu_model_patch</span> <span class="pre">false</span></code> 和原生 Transformers 行为做对比。</p>
+</section>
+<section id="q4-vllm-ascend-rl-rollout">
+<h3>Q4: 使用 vLLM-Ascend 部署或 RL rollout 时需要注意什么？<a class="headerlink" href="#q4-vllm-ascend-rl-rollout" title="Link to this heading"></a></h3>
+<p>请安装本文推荐的 <code class="docutils literal notranslate"><span class="pre">vllm</span></code> 与 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 版本，并优先使用兼容性表中已经验证过的模型和算法组合。当前 <code class="docutils literal notranslate"><span class="pre">sglang</span></code> 推理引擎未在 NPU 场景下完成支持验证，如果需要 NPU 上的高性能推理或 RL rollout，建议优先使用 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code>。</p>
+</section>
+<section id="q5-source-set-env-sh">
+<h3>Q5: 忘记执行 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code> 会有什么表现？<a class="headerlink" href="#q5-source-set-env-sh" title="Link to this heading"></a></h3>
+<p>常见表现是 <code class="docutils literal notranslate"><span class="pre">is_torch_npu_available()</span></code> 返回 <code class="docutils literal notranslate"><span class="pre">False</span></code>、<code class="docutils literal notranslate"><span class="pre">torch.npu.device_count()</span></code> 为 0，或者运行时找不到 CANN/HCCL 相关动态库。进入新 shell 或新容器后，先执行：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+<p>如果系统安装了 NNAL/ATB 等组件，也需要按实际环境 source 对应的 <code class="docutils literal notranslate"><span class="pre">set_env.sh</span></code>。</p>
+</section>
+<section id="q6-torch-torch-npu">
+<h3>Q6: <code class="docutils literal notranslate"><span class="pre">torch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 版本不匹配怎么判断？<a class="headerlink" href="#q6-torch-torch-npu" title="Link to this heading"></a></h3>
+<p>优先对照本文推荐版本安装。版本不匹配时，常见现象包括 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败、NPU 设备不可见、算子注册失败、运行时报 C++/符号找不到等。可以先用下面的命令确认版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch, torch_npu; print(torch.__version__); print(torch_npu.__version__)&quot;</span>
+</pre></div>
+</div>
+<p>如果版本不一致，先卸载后按同一套 CANN/PyTorch/torch_npu 版本重新安装，不建议只升级其中一个包。</p>
+</section>
+<section id="q7-ascend-rt-visible-devices-nproc-per-node">
+<h3>Q7: <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> 和 <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code> 不一致会怎样？<a class="headerlink" href="#q7-ascend-rt-visible-devices-nproc-per-node" title="Link to this heading"></a></h3>
+<p>分布式训练时二者应该匹配。例如 <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES=0,1,2,3</span></code> 通常对应 <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE=4</span></code>。如果进程数大于可见设备数，可能出现 rank 绑卡失败、多个进程抢同一张卡、初始化卡住或 HCCL 报错；如果进程数小于可见设备数，则只有部分 NPU 会被使用。</p>
+</section>
+<section id="q8">
+<h3>Q8: 多卡训练卡住时先看什么？<a class="headerlink" href="#q8" title="Link to this heading"></a></h3>
+<p>先确认每个 rank 是否都已经启动、<code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code> 和 <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE</span></code> 是否匹配，再看日志停在数据预处理、模型构建、权重加载还是 HCCL 初始化阶段。NPU/HCCL 相关底层日志可以重点查看：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>~/ascend/log/debug/plog
+</pre></div>
+</div>
+<p>如果 Python 进程没有退出但长时间无输出，可以用 <code class="docutils literal notranslate"><span class="pre">pystack</span></code> 查看各 rank 当前栈，先判断是卡在数据、通信还是模型 forward/backward。</p>
+</section>
+<section id="q9-hccl">
+<h3>Q9: HCCL 连接或超时问题如何初步排查？<a class="headerlink" href="#q9-hccl" title="Link to this heading"></a></h3>
+<p>先用 <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> 和 <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span> <span class="pre">-t</span> <span class="pre">topo</span></code> 确认设备健康和拓扑，再检查是否有其他任务占用同一组 NPU。单机训练优先确认卡号、进程数和可见设备一致；多机训练还需要确认网络、rank 配置、通信端口和各节点环境变量一致。若同一机器上残留旧训练进程，先清理对应用户的训练进程后再重试。</p>
+</section>
+<section id="q10-npu-smi">
+<h3>Q10: 容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不可用通常是什么原因？<a class="headerlink" href="#q10-npu-smi" title="Link to this heading"></a></h3>
+<p>通常是设备或驱动文件没有挂载完整。优先检查 <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> 是否包含 <code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code>、<code class="docutils literal notranslate"><span class="pre">/dev/davinci_manager</span></code>、<code class="docutils literal notranslate"><span class="pre">/dev/devmm_svm</span></code>、<code class="docutils literal notranslate"><span class="pre">/dev/hisi_hdc</span></code>，以及 <code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend/driver</span></code>、<code class="docutils literal notranslate"><span class="pre">/usr/local/Ascend/firmware</span></code>、<code class="docutils literal notranslate"><span class="pre">/usr/local/sbin/npu-smi</span></code> 和 <code class="docutils literal notranslate"><span class="pre">/etc/ascend_install.info</span></code>。如果宿主机本身 <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> 失败，先修宿主机驱动环境。</p>
+</section>
+<section id="q11-transformers-vllm-ascend">
+<h3>Q11: 原生 transformers 部署和 vLLM-Ascend 部署怎么选？<a class="headerlink" href="#q11-transformers-vllm-ascend" title="Link to this heading"></a></h3>
+<p>原生 transformers 部署兼容性更好，适合先验证模型、adapter、模板和输出是否正确；vLLM-Ascend 更适合高吞吐服务、RL rollout 或需要 OpenAI 兼容接口的性能场景。遇到 vLLM-Ascend 版本或算子问题时，建议先用 transformers 后端确认模型本身可用，再切换到 vLLM-Ascend 排查性能后端问题。</p>
+</section>
+<section id="q12-vllm-ascend-device-type-undefined-symbol">
+<h3>Q12: vLLM-Ascend 报 device type 不匹配或 undefined symbol 怎么办？<a class="headerlink" href="#q12-vllm-ascend-device-type-undefined-symbol" title="Link to this heading"></a></h3>
+<p>这类问题通常不是训练脚本参数导致的，而是 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 轮子与当前硬件、PyTorch 或 C++ ABI 不匹配。可以先检查包内构建信息和当前版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import torch, vllm_ascend; print(torch.__version__); print(vllm_ascend.__file__)&quot;</span>
+</pre></div>
+</div>
+<p>如果报错信息包含 <code class="docutils literal notranslate"><span class="pre">Current</span> <span class="pre">device</span> <span class="pre">type</span> <span class="pre">...</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">match</span> <span class="pre">the</span> <span class="pre">installed</span> <span class="pre">version's</span> <span class="pre">device</span> <span class="pre">type</span> <span class="pre">...</span></code>、<code class="docutils literal notranslate"><span class="pre">undefined</span> <span class="pre">symbol</span></code> 等，建议按设备类型（A2/A3/其他）和官方兼容矩阵重装 <code class="docutils literal notranslate"><span class="pre">torch</span></code>、<code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>、<code class="docutils literal notranslate"><span class="pre">vllm</span></code>、<code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code>，不要只单独替换一个包。</p>
+</section>
+<section id="q13-fp8-npu">
+<h3>Q13: FP8 或量化模型可以直接在 NPU 上训练吗？<a class="headerlink" href="#q13-fp8-npu" title="Link to this heading"></a></h3>
+<p>不要默认可以。下载或加载大模型前，先检查 <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 是否包含 <code class="docutils literal notranslate"><span class="pre">quantization_config</span></code>，再检查 safetensors 的真实 dtype。当前 NPU 支持范围中量化/QLoRA 仍属于暂不支持或未完全验证能力；如果模型权重是 FP8 block quantized，而当前 NPU 软件栈不支持对应 FP8 路径，应先换用 BF16 权重，或离线转换为 BF16 后再训练/加载。</p>
+</section>
+<section id="q14-megatron-swift-megatron-mindspeed">
+<h3>Q14: Megatron-SWIFT 导入到错误的 Megatron/MindSpeed 怎么排查？<a class="headerlink" href="#q14-megatron-swift-megatron-mindspeed" title="Link to this heading"></a></h3>
+<p>跑 Megatron-SWIFT 前，<code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 和 <code class="docutils literal notranslate"><span class="pre">MEGATRON_LM_PATH</span></code> 必须指向同一份 Megatron-LM 源码树。否则 Python 可能能启动，但实际导入到的是另一套 Megatron/MindSpeed 组合，后续报错会很像模型或参数问题。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="nv">$PYTHONPATH</span>:&lt;your_local_megatron_lm_path&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">MEGATRON_LM_PATH</span><span class="o">=</span>&lt;your_local_megatron_lm_path&gt;
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import megatron, os; print(megatron.__file__); print(os.environ.get(&#39;MEGATRON_LM_PATH&#39;))&quot;</span>
+</pre></div>
+</div>
+<p>如果二者不一致，先修环境变量，再继续排查模型构建、权重加载或并行配置。</p>
+</section>
+</section>
+<section id="id17">
+<h2>NPU微信群<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png"><img alt="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png" src="https://raw.githubusercontent.com/modelscope/ms-swift/main/docs/resources/wechat/npu.png" style="width: 250px;" />
+</a>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../../../../../ms-swift/index.html" class="btn btn-neutral float-left" title="ms-swift" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../../source_en/BestPractices/NPU-support.html" class="btn btn-neutral float-right" title="NPU Support" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

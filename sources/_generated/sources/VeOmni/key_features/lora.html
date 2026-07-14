@@ -1,0 +1,872 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoRA Fine-Tuning &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/custom.css?v=55357535" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../../../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../../../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../../../../genindex.html" />
+    <link rel="search" title="搜索" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+
+    <!-- 非独立社区页面，直接按普通 Sphinx 逻辑渲染 -->
+    
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">LoRA Fine-Tuning</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../../_sources/sources/_generated/sources/VeOmni/key_features/lora.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lora-fine-tuning">
+<h1>LoRA Fine-Tuning<a class="headerlink" href="#lora-fine-tuning" title="Link to this heading"></a></h1>
+<p>VeOmni supports <a class="reference external" href="https://arxiv.org/abs/2106.09685">LoRA (Low-Rank Adaptation)</a> as a first-class
+feature of <code class="docutils literal notranslate"><span class="pre">BaseTrainer</span></code>. LoRA injects trainable low-rank matrices into selected linear layers
+while freezing the rest of the base model, enabling parameter-efficient fine-tuning with
+significantly reduced GPU memory.</p>
+<p>LoRA is implemented by VeOmni's <strong>own</strong> stack, <code class="docutils literal notranslate"><span class="pre">veomni.lora</span></code> — a PEFT-free
+<a class="reference external" href="https://huggingface.co/docs/peft"><code class="docutils literal notranslate"><span class="pre">peft.PeftModel</span></code></a> replacement (<code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel</span></code> /
+<code class="docutils literal notranslate"><span class="pre">VeOmniLoraConfig</span></code>). It supports PEFT's main features, adds MoE-LoRA and EP-LoRA, and is
+FSDP2-native. Crucially it stays <strong>format-compatible</strong> with PEFT: it reads and writes
+standard <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> + <code class="docutils literal notranslate"><span class="pre">adapter_model.{safetensors,bin}</span></code> files, so adapters
+train-here / load-there interchangeably with stock <code class="docutils literal notranslate"><span class="pre">peft</span></code>.</p>
+<hr class="docutils" />
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>No extra dependency is required to <em>train</em> LoRA — <code class="docutils literal notranslate"><span class="pre">veomni.lora</span></code> has no <code class="docutils literal notranslate"><span class="pre">peft</span></code> dependency:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>sync<span class="w"> </span>--extra<span class="w"> </span>gpu<span class="w"> </span>--dev
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">peft</span></code> is only needed to run the cross-compatibility interop test
+(<code class="docutils literal notranslate"><span class="pre">tests/lora/test_veomni_lora_native.py::test_peft_bidirectional_interop</span></code>, which
+<code class="docutils literal notranslate"><span class="pre">pytest.importorskip</span></code>s it). It ships inside the hardware extras (<code class="docutils literal notranslate"><span class="pre">peft==0.18.1</span></code> in
+<code class="docutils literal notranslate"><span class="pre">gpu</span></code> / <code class="docutils literal notranslate"><span class="pre">npu</span></code> / <code class="docutils literal notranslate"><span class="pre">npu_aarch64</span></code>), so the standard <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--extra</span> <span class="pre">gpu</span> <span class="pre">--dev</span></code> above already
+installs it — no separate extra is required.</p>
+</section>
+<hr class="docutils" />
+<section id="lora-config-definition">
+<h2>1. LoRA Config Definition<a class="headerlink" href="#lora-config-definition" title="Link to this heading"></a></h2>
+<p>LoRA is configured through the <code class="docutils literal notranslate"><span class="pre">model.lora_config</span></code> field in your YAML:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span><span class="w">          </span><span class="c1"># LoRA rank r</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span><span class="w">         </span><span class="c1"># Scaling factor α (effective scale = α / r)</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span><span class="w">     </span><span class="c1"># Target linear layer names (module name substrings)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">q_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">o_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gate_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">down_proj</span>
+</pre></div>
+</div>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rank</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Rank of the decomposition matrices A and B</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">alpha</span></code></p></td>
+<td><p>int</p></td>
+<td><p>LoRA scaling factor; effective scale = <code class="docutils literal notranslate"><span class="pre">alpha</span> <span class="pre">/</span> <span class="pre">rank</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">use_rslora</span></code></p></td>
+<td><p>bool (optional, default <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></td>
+<td><p>Rank-stabilised LoRA scaling (<code class="docutils literal notranslate"><span class="pre">alpha</span> <span class="pre">/</span> <span class="pre">sqrt(r)</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lora_modules</span></code></p></td>
+<td><p>list[str] or str</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> LoRA targets. List → PEFT substring/suffix match on module FQNs; a single <code class="docutils literal notranslate"><span class="pre">str</span></code> → regex (full match). Alias: <code class="docutils literal notranslate"><span class="pre">target_modules</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">exclude_modules</span></code></p></td>
+<td><p>list[str] or str (optional)</p></td>
+<td><p>Modules to skip even if matched by <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">target_parameters</span></code></p></td>
+<td><p>list[str] (optional)</p></td>
+<td><p>MoE-LoRA target — glob patterns matching the 3-D <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code>s on a v5 MoE experts module (e.g. <code class="docutils literal notranslate"><span class="pre">model.layers.*.mlp.experts.gate_up_proj</span></code>). Usually unnecessary: on fused-MoE models, listing <code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">up_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">down_proj</span></code> in <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> maps to these automatically. See §5 below.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">share_expert_lora</span></code></p></td>
+<td><p>bool (optional, default <code class="docutils literal notranslate"><span class="pre">false</span></code>)</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> is set: <code class="docutils literal notranslate"><span class="pre">false</span></code> → per-expert independent LoRA; <code class="docutils literal notranslate"><span class="pre">true</span></code> → a single LoRA pair shared across all experts of a layer. See §5.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lora_dropout</span></code></p></td>
+<td><p>float (optional, default <code class="docutils literal notranslate"><span class="pre">0.0</span></code>)</p></td>
+<td><p>Dropout applied to the LoRA input.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bias</span></code></p></td>
+<td><p>str (optional, default <code class="docutils literal notranslate"><span class="pre">none</span></code>)</p></td>
+<td><p>Which biases stay trainable: <code class="docutils literal notranslate"><span class="pre">none</span></code> / <code class="docutils literal notranslate"><span class="pre">all</span></code> / <code class="docutils literal notranslate"><span class="pre">lora_only</span></code> (PEFT semantics).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">rank_pattern</span></code></p></td>
+<td><p>dict[str,int] (optional)</p></td>
+<td><p>Per-module rank overrides, <code class="docutils literal notranslate"><span class="pre">{regex:</span> <span class="pre">r}</span></code> (first match wins).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">alpha_pattern</span></code></p></td>
+<td><p>dict[str,int] (optional)</p></td>
+<td><p>Per-module alpha overrides, <code class="docutils literal notranslate"><span class="pre">{regex:</span> <span class="pre">alpha}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lora_adapter</span></code></p></td>
+<td><p>str (optional)</p></td>
+<td><p>Path to a saved adapter directory to resume from.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_trainable</span></code></p></td>
+<td><p>bool (optional, default <code class="docutils literal notranslate"><span class="pre">true</span></code>)</p></td>
+<td><p>When resuming, set <code class="docutils literal notranslate"><span class="pre">false</span></code> to load adapters frozen for inference only.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> and <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> may be set together — the former installs
+<code class="docutils literal notranslate"><span class="pre">LoraLinear</span></code> on <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> layers (q/k/v/o, MLP, shared_expert, etc.), the latter installs
+VeOmni's MoE-LoRA wrappers on the fused experts <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code>s. At least one must be
+non-empty. On fused-MoE models the expert names <code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">up_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">down_proj</span></code> in
+<code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> are auto-mapped to the corresponding <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> (see §5), so you
+rarely need to write the glob patterns by hand. (Field names mirror <code class="docutils literal notranslate"><span class="pre">VeOmniLoraConfig</span></code>; the
+historical <code class="docutils literal notranslate"><span class="pre">rank</span></code>/<code class="docutils literal notranslate"><span class="pre">alpha</span></code>/<code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> YAML names and the PEFT-style
+<code class="docutils literal notranslate"><span class="pre">r</span></code>/<code class="docutils literal notranslate"><span class="pre">lora_alpha</span></code>/<code class="docutils literal notranslate"><span class="pre">target_modules</span></code> names are both accepted.)</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">modules_to_save</span></code> is parsed but not yet supported by the native stack (it raises a clear
+<code class="docutils literal notranslate"><span class="pre">NotImplementedError</span></code>); correctly seeding the extra trainable modules under FSDP2
+meta-device init is a planned follow-up.</p>
+</div></blockquote>
+<p>For <strong>resume training</strong>, add the <code class="docutils literal notranslate"><span class="pre">lora_adapter</span></code> key pointing to the saved adapter directory:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">q_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">k_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">v_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">o_proj</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">lora_adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./exp/my_run/global_step_500</span><span class="w">   </span><span class="c1"># HF adapter dir to resume from</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="lora-initialization-in-basetrainer">
+<h2>2. LoRA Initialization in BaseTrainer<a class="headerlink" href="#lora-initialization-in-basetrainer" title="Link to this heading"></a></h2>
+<p>LoRA wrapping happens in <code class="docutils literal notranslate"><span class="pre">BaseTrainer._setup_lora()</span></code>, called from <code class="docutils literal notranslate"><span class="pre">_freeze_model_module()</span></code>.
+A single native path wraps the model with <code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel</span></code>, handling dense <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code>
+LoRA, MoE expert LoRA, and the two combined:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># veomni/trainer/base.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_lora</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">lora_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">lora_config</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">lora_config</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..lora</span><span class="w"> </span><span class="kn">import</span> <span class="n">VeOmniLoraConfig</span><span class="p">,</span> <span class="n">VeOmniLoraModel</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">VeOmniLoraConfig</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">lora_config</span><span class="p">)</span>
+    <span class="n">lora_adapter_path</span> <span class="o">=</span> <span class="n">lora_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lora_adapter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">lora_adapter_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Resume: rebuild dense + MoE wrappers from the on-disk adapter_config.json</span>
+        <span class="c1"># (MoE mode lives in its `veomni_lora` block). Weights load later.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">VeOmniLoraModel</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">lora_adapter_path</span><span class="p">,</span>
+            <span class="n">is_trainable</span><span class="o">=</span><span class="n">lora_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_trainable&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">VeOmniLoraModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel</span></code> mirrors <code class="docutils literal notranslate"><span class="pre">peft.PeftModel</span></code> structurally: <code class="docutils literal notranslate"><span class="pre">model.base_model.model</span></code> is the
+original model, so every LoRA parameter FQN and every saved adapter key carries the
+<code class="docutils literal notranslate"><span class="pre">base_model.model.</span></code> prefix — byte-identical to a PEFT checkpoint. Attribute access and
+<code class="docutils literal notranslate"><span class="pre">forward</span></code> are forwarded to the wrapped model, so the trainer, loss computation, and
+<code class="docutils literal notranslate"><span class="pre">generate</span></code> are unchanged. After wrapping, the base model is fully frozen and only the LoRA
+parameters (dense <code class="docutils literal notranslate"><span class="pre">LoraLinear</span></code> and MoE-LoRA, if any) have <code class="docutils literal notranslate"><span class="pre">requires_grad=True</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">BaseTrainer._init_callbacks()</span></code> automatically selects <code class="docutils literal notranslate"><span class="pre">HFLoraCkptCallback</span></code>
+instead of <code class="docutils literal notranslate"><span class="pre">HuggingfaceCkptCallback</span></code> when <code class="docutils literal notranslate"><span class="pre">lora_config</span></code> is set:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">lora_config</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hf_ckpt_callback</span> <span class="o">=</span> <span class="n">HFLoraCkptCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hf_ckpt_callback</span> <span class="o">=</span> <span class="n">HuggingfaceCkptCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="weight-loading-with-lora">
+<h2>3. Weight Loading with LoRA<a class="headerlink" href="#weight-loading-with-lora" title="Link to this heading"></a></h2>
+<p>VeOmni LoRA training uses FSDP2 with <code class="docutils literal notranslate"><span class="pre">init_device:</span> <span class="pre">meta</span></code>. Weight loading goes through
+<code class="docutils literal notranslate"><span class="pre">build_parallelize_model</span></code> and then <code class="docutils literal notranslate"><span class="pre">post_process_after_weight_loading</span></code> in
+<code class="docutils literal notranslate"><span class="pre">torch_parallelize.py</span></code>. The LoRA-specific path:</p>
+<ol class="arabic simple">
+<li><p><strong>Base-model weights</strong>: loaded via <code class="docutils literal notranslate"><span class="pre">rank0_load_and_broadcast_weights</span></code> or
+<code class="docutils literal notranslate"><span class="pre">load_model_weights</span></code> — the standard FSDP2 path, unchanged for LoRA.</p></li>
+<li><p><strong>Adapter weights</strong> (resume only): <code class="docutils literal notranslate"><span class="pre">_build_parallelized_model</span></code> passes <code class="docutils literal notranslate"><span class="pre">adapter_path</span></code>
+to <code class="docutils literal notranslate"><span class="pre">build_parallelize_model</span></code>, which — for a <code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel</span></code> — calls the native
+<code class="docutils literal notranslate"><span class="pre">veomni.lora.weight_loading.load_lora_weights</span></code> (all-ranks read) or
+<code class="docutils literal notranslate"><span class="pre">rank0_load_and_broadcast_lora_weights</span></code> (rank-0 reads then broadcasts). Both read the
+PEFT-format adapter file natively (safetensors / torch, <strong>no <code class="docutils literal notranslate"><span class="pre">peft</span></code> import</strong>) and remap
+on-disk keys to model FQNs before dispatching into DTensors. EP-sharded LoRA tensors are
+sliced from the disk-side <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">...]</span></code> shape to the local <code class="docutils literal notranslate"><span class="pre">[E_local,</span> <span class="pre">...]</span></code> via the runtime
+parallel plan, exactly as on the base-weight path.</p></li>
+<li><p><strong>Adapter weight initialisation from scratch</strong>: <code class="docutils literal notranslate"><span class="pre">post_process_after_weight_loading</span></code>
+calls <code class="docutils literal notranslate"><span class="pre">_init_lora_parameter</span></code> for any LoRA parameter not yet filled, invoking
+<code class="docutils literal notranslate"><span class="pre">reset_lora_parameters</span></code> (kaiming <code class="docutils literal notranslate"><span class="pre">A</span></code> / zero <code class="docutils literal notranslate"><span class="pre">B</span></code>). For MoE wrappers the reset only fires
+when every wrapper parameter is still on meta device, so a partially-loaded wrapper is
+never clobbered.</p></li>
+</ol>
+<p><strong>Key difference from base model loading:</strong> the on-disk adapter keys omit the adapter-name
+infix (PEFT convention — e.g. <code class="docutils literal notranslate"><span class="pre">lora_A.weight</span></code>), whereas the live model stores them as
+<code class="docutils literal notranslate"><span class="pre">lora_A.&lt;adapter_name&gt;.weight</span></code>. <code class="docutils literal notranslate"><span class="pre">veomni.lora.state_dict.insert_adapter_name</span></code> /
+<code class="docutils literal notranslate"><span class="pre">strip_adapter_name</span></code> handle the translation in both directions.</p>
+</section>
+<hr class="docutils" />
+<section id="checkpoint-saving">
+<h2>4. Checkpoint Saving<a class="headerlink" href="#checkpoint-saving" title="Link to this heading"></a></h2>
+<section id="dcp-checkpoint-training-state">
+<h3>DCP checkpoint (training state)<a class="headerlink" href="#dcp-checkpoint-training-state" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">CheckpointerCallback._save_checkpoint</span></code> saves the full distributed state (model + optimizer +
+extra state) via PyTorch DCP. For LoRA training this includes both base-model parameters
+<strong>and</strong> adapter parameters; the optimizer state only covers the trainable adapter parameters.</p>
+</section>
+<section id="hf-lora-adapter-inference-artifact">
+<h3>HF LoRA adapter (inference artifact)<a class="headerlink" href="#hf-lora-adapter-inference-artifact" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">HFLoraCkptCallback._save_checkpoint</span></code> calls <code class="docutils literal notranslate"><span class="pre">save_lora_adapter_with_dcp</span></code>
+(<code class="docutils literal notranslate"><span class="pre">veomni/utils/save_safetensor_utils.py</span></code>), which:</p>
+<ol class="arabic simple">
+<li><p>Extracts adapter-only tensors via <code class="docutils literal notranslate"><span class="pre">veomni.lora.state_dict.get_lora_state_dict</span></code>
+(PEFT on-disk key format).</p></li>
+<li><p>Restores the EP shard dim on <code class="docutils literal notranslate"><span class="pre">Shard()</span></code>-placed LoRA tensors so DCP gathers the full
+<code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">...]</span></code> shape, then saves with <code class="docutils literal notranslate"><span class="pre">dcp.save</span></code> in parallel to a temporary DCP directory.</p></li>
+<li><p>Consolidates on rank 0 into <code class="docutils literal notranslate"><span class="pre">adapter_model.bin</span></code> and writes <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> via
+<code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel.get_lora_config().save_pretrained</span></code> — which embeds any MoE metadata
+(<code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> + <code class="docutils literal notranslate"><span class="pre">veomni_lora.moe_mode</span></code>) directly in the config. <strong>No separate
+sidecar.</strong></p></li>
+<li><p>Removes the temporary DCP directory.</p></li>
+</ol>
+<p>Output structure for each checkpoint:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;output_dir&gt;/
+├── checkpoints/
+│   └── global_step_N/          ← DCP checkpoint (resume training)
+│       ├── __0_0.distcp
+│       └── .metadata
+└── global_step_N/              ← HF adapter (inference / resume)
+    ├── adapter_config.json     ← PEFT-format; MoE mode in its `veomni_lora` block
+    └── adapter_model.bin
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="moe-lora">
+<h2>5. MoE-LoRA<a class="headerlink" href="#moe-lora" title="Link to this heading"></a></h2>
+<p>For MoE models on transformers v5, expert weights live as fused 3-D <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code>s on
+the experts module — not <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>experts.gate_up_proj  : nn.Parameter[E, 2*I, H]   # gate / up concatenated along dim-1
+experts.down_proj     : nn.Parameter[E, H,   I]
+</pre></div>
+</div>
+<p>PEFT's <code class="docutils literal notranslate"><span class="pre">target_modules</span></code> only matches <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> subclasses (typically <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code>) and
+therefore cannot reach these parameters. VeOmni's MoE-LoRA wrappers
+(<code class="docutils literal notranslate"><span class="pre">veomni/lora/moe_layers.py</span></code>) target them via <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code>, in two flavours:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Wrapper class</p></th>
+<th class="head"><p>Per-expert LoRA shape</p></th>
+<th class="head"><p>When to use</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Independent</strong> (default)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LoraIndependentExperts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">r,</span> <span class="pre">H]</span></code> / <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">O,</span> <span class="pre">r]</span></code></p></td>
+<td><p>Each expert gets its own LoRA pair; functional drop-in for PEFT 0.19's <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> 3-D path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Shared</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LoraSharedExperts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[r,</span> <span class="pre">H]</span></code> / <code class="docutils literal notranslate"><span class="pre">[O,</span> <span class="pre">r]</span></code></p></td>
+<td><p>A single LoRA pair shared across all experts of a layer; ~<code class="docutils literal notranslate"><span class="pre">E×</span></code> fewer LoRA parameters. PEFT does not support this natively.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h3>
+<p><strong>Recommended — semantic module names.</strong> For the supported fused-MoE models
+(see §5.2) just list the expert MLP module names <code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">up_proj</span></code> /
+<code class="docutils literal notranslate"><span class="pre">down_proj</span></code> in <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code>, exactly as you would for a dense model. VeOmni
+maps them onto the model's fused expert parameters automatically
+(<code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">up_proj</span></code> → <code class="docutils literal notranslate"><span class="pre">experts.gate_up_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">down_proj</span></code> →
+<code class="docutils literal notranslate"><span class="pre">experts.down_proj</span></code>):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">q_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">k_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">v_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">o_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">gate_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">up_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">down_proj</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">share_expert_lora</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">                           </span><span class="c1"># false = Independent, true = Shared</span>
+</pre></div>
+</div>
+<p>The mapping is driven by a per-model <code class="docutils literal notranslate"><span class="pre">_convert_lora_targets_to_parameters</span></code> hook
+(registered in the model's <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>) plus
+<code class="docutils literal notranslate"><span class="pre">veomni.lora.resolve_fused_moe_lora_targets</span></code>, invoked by
+<code class="docutils literal notranslate"><span class="pre">BaseTrainer._setup_lora</span></code> before the adapter is built. It is a <strong>no-op on dense
+models and on models without the hook</strong>, so <code class="docutils literal notranslate"><span class="pre">gate_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">up_proj</span></code> /
+<code class="docutils literal notranslate"><span class="pre">down_proj</span></code> there stay ordinary <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> LoRA targets.</p>
+<p><strong>Advanced — explicit <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code>.</strong> You can still point directly at the
+fused expert parameters with glob patterns (mixed freely with <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code>).
+This is equivalent to the recommended form above and is what gets serialized
+into <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">q_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">k_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">v_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">o_proj</span><span class="p p-Indicator">]</span><span class="w">    </span><span class="c1"># linear LoRA</span>
+<span class="w">    </span><span class="nt">target_parameters</span><span class="p">:</span><span class="w">                                 </span><span class="c1"># VeOmni MoE-LoRA</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model.layers.*.mlp.experts.gate_up_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">model.layers.*.mlp.experts.down_proj</span>
+<span class="w">    </span><span class="nt">share_expert_lora</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">                           </span><span class="c1"># false = Independent, true = Shared</span>
+</pre></div>
+</div>
+<p>For VLMs the FQN includes the wrapping <code class="docutils literal notranslate"><span class="pre">language_model.</span></code> prefix — see the
+multimodal example configs listed below.</p>
+</section>
+<section id="two-loras-on-the-fused-gate-up-proj">
+<h3>5.1 Two LoRAs on the fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code><a class="headerlink" href="#two-loras-on-the-fused-gate-up-proj" title="Link to this heading"></a></h3>
+<p>The wrapper does <strong>not</strong> allocate one rank-<code class="docutils literal notranslate"><span class="pre">r</span></code> LoRA over the fused <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">2I,</span> <span class="pre">H]</span></code> parameter.
+Because <code class="docutils literal notranslate"><span class="pre">SiLU(gate)</span> <span class="pre">*</span> <span class="pre">up</span></code> is non-linear, LoRA must be added <strong>before activation</strong>, not on
+the merged <code class="docutils literal notranslate"><span class="pre">gate_up</span></code>. The wrapper therefore allocates <strong>two independent rank-<code class="docutils literal notranslate"><span class="pre">r</span></code> LoRAs</strong> —
+one over the gate half, one over the up half:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Logical spec</p></th>
+<th class="head"><p>Shared mode (2-D)</p></th>
+<th class="head"><p>Independent mode (3-D)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gate_proj</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[r,H]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[I,r]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[E,r,H]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[E,I,r]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">up_proj</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[r,H]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[I,r]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[E,r,H]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[E,I,r]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">down_proj</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[r,I]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[H,r]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">A:[E,r,I]</span></code> / <code class="docutils literal notranslate"><span class="pre">B:[E,H,r]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>This costs <code class="docutils literal notranslate"><span class="pre">2r(H+I)</span></code> extra parameters vs <code class="docutils literal notranslate"><span class="pre">r(H+2I)</span></code> for a single LoRA, but doubles the
+effective joint output rank from <code class="docutils literal notranslate"><span class="pre">r</span></code> to <code class="docutils literal notranslate"><span class="pre">2r</span></code>. Users only write <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> in
+<code class="docutils literal notranslate"><span class="pre">target_parameters</span></code>; the wrapper auto-expands to the three logical specs.</p>
+</section>
+<section id="supported-models">
+<h3>5.2 Supported models<a class="headerlink" href="#supported-models" title="Link to this heading"></a></h3>
+<p>VeOmni MoE-LoRA wrappers require the <strong>v5 fused experts layout</strong> (<code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> +
+<code class="docutils literal notranslate"><span class="pre">down_proj</span></code> as 3-D <code class="docutils literal notranslate"><span class="pre">nn.Parameter</span></code>s) and will raise on any other layout.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Runtime expert layout</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qwen3_moe</span></code></p></td>
+<td><p>fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></p></td>
+<td><p>Reference; per-expert disk → fused via on-load converter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qwen3_5_moe</span></code></p></td>
+<td><p>fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></p></td>
+<td><p>Disk already v5 layout.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qwen3_vl_moe</span></code></p></td>
+<td><p>fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></p></td>
+<td><p>VLM; FQN includes <code class="docutils literal notranslate"><span class="pre">model.language_model.</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qwen3_omni_moe</span></code></p></td>
+<td><p>fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></p></td>
+<td><p>Thinker tower.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">deepseek_v3</span></code> (v5)</p></td>
+<td><p>fused <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code></p></td>
+<td><p>Per-expert disk → fused via on-load converter.</p></td>
+</tr>
+</tbody>
+</table>
+<p>DeepSeek-V3 also exposes <strong>shared experts</strong> (<code class="docutils literal notranslate"><span class="pre">mlp.shared_experts.{gate,up,down}_proj</span></code>)
+implemented as plain <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code>. Add them to <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> if you want PEFT to LoRA them
+too — they are orthogonal to the MoE-LoRA on the routed experts.</p>
+</section>
+<section id="forward-path-fused-triton-vs-eager">
+<h3>5.3 Forward path: fused triton vs eager<a class="headerlink" href="#forward-path-fused-triton-vs-eager" title="Link to this heading"></a></h3>
+<p>Each MoE-LoRA wrapper dispatches based on <code class="docutils literal notranslate"><span class="pre">model.ops_implementation.moe_implementation</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">moe_implementation</span></code></p></th>
+<th class="head"><p>non-EP</p></th>
+<th class="head"><p>EP</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">fused_triton</span></code></p></td>
+<td><p>fused triton kernel</p></td>
+<td><p>fused triton kernel</p></td>
+<td><p>Recommended for training.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">eager</span></code></p></td>
+<td><p>eager loop (reference)</p></td>
+<td><p>not supported (raises)</p></td>
+<td><p>Reference / fallback for NPU and Quack.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The fused path lives in <code class="docutils literal notranslate"><span class="pre">veomni/lora/ops/moe_group_gemm.py</span></code> and reuses the same
+<code class="docutils literal notranslate"><span class="pre">group_gemm_same_nk</span></code> / <code class="docutils literal notranslate"><span class="pre">group_gemm_same_mn</span></code> primitives (from <code class="docutils literal notranslate"><span class="pre">veomni/ops/kernels/moe/_kernels/</span></code>)
+as the non-LoRA MoE forward, so it inherits the same EP <code class="docutils literal notranslate"><span class="pre">all-to-all</span></code> dispatch pipeline. The
+LoRA fused pointers are bound by <code class="docutils literal notranslate"><span class="pre">veomni.ops.kernels.moe.apply_veomni_fused_moe_patch</span></code> via
+<code class="docutils literal notranslate"><span class="pre">veomni.lora.ops.bind_lora_moe_kernels</span></code>.</p>
+</section>
+<section id="expert-parallelism-ep">
+<h3>5.4 Expert Parallelism (EP)<a class="headerlink" href="#expert-parallelism-ep" title="Link to this heading"></a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">train.accelerator.ep_size</span> <span class="pre">&gt;</span> <span class="pre">1</span></code>, base experts are sharded along the expert dim by
+<code class="docutils literal notranslate"><span class="pre">ParallelPlan</span></code> (<code class="docutils literal notranslate"><span class="pre">Shard(0)</span></code> on <code class="docutils literal notranslate"><span class="pre">gate_up_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">down_proj</span></code>). MoE-LoRA tracks this layout:</p>
+<ul class="simple">
+<li><p><strong>Independent mode</strong>: LoRA tensors are 3-D <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">...]</span></code> and are EP-sharded along the
+expert dim, mirroring base experts.</p></li>
+<li><p><strong>Shared mode</strong>: LoRA tensors are 2-D and remain <strong>replicated</strong> across the EP group
+(the &quot;shared&quot; semantics is one LoRA per layer, not per expert). The wrapper installs a
+post-accumulate-grad hook that runs <code class="docutils literal notranslate"><span class="pre">all_reduce(SUM)</span></code> on the shared LoRA grads across
+the EP group, restoring the EP=1 + DP=N equivalence. The grad-norm path
+(<code class="docutils literal notranslate"><span class="pre">extra_parallel_fsdp2_clip_grad_norm</span></code>) is also taught — via
+<code class="docutils literal notranslate"><span class="pre">_collect_ep_replicated_lora_param_ids</span></code> in <code class="docutils literal notranslate"><span class="pre">veomni/optim/optimizer.py</span></code> — to skip the
+EP all-reduce for these replicated params so the global grad-norm matches EP=1.</p></li>
+</ul>
+<p>Both modes work with FSDP2 + EP. EP is only supported on the <code class="docutils literal notranslate"><span class="pre">fused_triton</span></code> forward path.</p>
+</section>
+<section id="save-load-artefacts">
+<h3>5.5 Save / load artefacts<a class="headerlink" href="#save-load-artefacts" title="Link to this heading"></a></h3>
+<p>A MoE-LoRA run writes only the two standard PEFT artefacts — <strong>no sidecar</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;output_dir&gt;/global_step_N/
+├── adapter_config.json     # PEFT-format; MoE mode/rank/alpha in its `veomni_lora` block
+└── adapter_model.bin       # PEFT-format — both linear LoRA and MoE-LoRA tensors
+</pre></div>
+</div>
+<p>At resume, <code class="docutils literal notranslate"><span class="pre">VeOmniLoraModel.from_pretrained</span></code> reads <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code>: the
+<code class="docutils literal notranslate"><span class="pre">veomni_lora.moe_mode</span></code> field decides which wrapper class to install
+(<code class="docutils literal notranslate"><span class="pre">LoraIndependentExperts</span></code> vs <code class="docutils literal notranslate"><span class="pre">LoraSharedExperts</span></code>) <strong>before</strong> weights are loaded. If a
+stock-PEFT adapter (no <code class="docutils literal notranslate"><span class="pre">veomni_lora</span></code> block) is loaded, the MoE mode is inferred from the
+on-disk LoRA tensor shapes (3-D per-expert → independent, 2-D → shared).</p>
+<p>The MoE-LoRA tensors in <code class="docutils literal notranslate"><span class="pre">adapter_model.bin</span></code> use PEFT-aligned FQNs
+(<code class="docutils literal notranslate"><span class="pre">base_model.model.&lt;...&gt;.&lt;spec&gt;.lora_A.&lt;adapter&gt;.weight</span></code>), so third-party PEFT tooling
+(HuggingFace Hub, <code class="docutils literal notranslate"><span class="pre">peft.PeftModel.from_pretrained</span></code>) can also load the file — though without
+VeOmni's wrappers re-installed first, the MoE-LoRA half of the keys will be dropped as
+<code class="docutils literal notranslate"><span class="pre">unexpected_keys</span></code>. The <code class="docutils literal notranslate"><span class="pre">veomni_lora</span></code> block is an unknown top-level key to <code class="docutils literal notranslate"><span class="pre">peft</span></code> and is
+ignored on its side, keeping the file loadable by both stacks.</p>
+</section>
+<section id="ready-to-use-configs">
+<h3>5.6 Ready-to-use configs<a class="headerlink" href="#ready-to-use-configs" title="Link to this heading"></a></h3>
+<p>Text-only:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../configs/text/qwen3_moe_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/text/qwen3_moe_lora.yaml</span></code></span></a> — Qwen3-MoE</p></li>
+<li><p><a class="reference internal" href="#../../configs/text/deepseek_v3_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/text/deepseek_v3_lora.yaml</span></code></span></a> — DeepSeek-V3 (v5), with EP=8</p></li>
+</ul>
+<p>Multimodal:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#../../configs/multimodal/qwen3_5_moe/qwen3_5_moe_vl_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/multimodal/qwen3_5_moe/qwen3_5_moe_vl_lora.yaml</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#../../configs/multimodal/qwen3_vl/qwen3_vl_moe_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/multimodal/qwen3_vl/qwen3_vl_moe_lora.yaml</span></code></span></a></p></li>
+<li><p><a class="reference internal" href="#../../configs/multimodal/qwen3_omni/qwen3_omni_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/multimodal/qwen3_omni/qwen3_omni_lora.yaml</span></code></span></a></p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="training-examples">
+<h2>6. Training Examples<a class="headerlink" href="#training-examples" title="Link to this heading"></a></h2>
+<section id="wan2-1-i2v-1-3b-lora-dit-fsdp2">
+<h3>6.1 Wan2.1-I2V-1.3B LoRA (DiT, FSDP2)<a class="headerlink" href="#wan2-1-i2v-1-3b-lora-dit-fsdp2" title="Link to this heading"></a></h3>
+<p>Config: <a class="reference internal" href="#../../configs/dit/wan2.1_I2V_1.3B_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/dit/wan2.1_I2V_1.3B_lora.yaml</span></code></span></a></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_q</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_k</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_v</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_out.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ffn.net.0.proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ffn.net.2</span>
+
+<span class="nt">train</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">init_device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meta</span>
+<span class="w">  </span><span class="nt">accelerator</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fsdp_config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fsdp_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fsdp2</span>
+</pre></div>
+</div>
+<p>Launch (8 GPUs, SP=2):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">SP_SIZE</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">8</span>
+
+bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_dit.py<span class="w"> </span>configs/dit/wan2.1_I2V_1.3B_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w">           </span>./Wan2.1-T2V-1.3B-Diffusers/transformer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.condition_model_path<span class="w"> </span>./Wan2.1-T2V-1.3B-Diffusers<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w">            </span>./my_dataset_offline<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.source_name<span class="w">           </span>my_dataset<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.training_task<span class="w">        </span>offline_training<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.global_batch_size<span class="w">    </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.micro_batch_size<span class="w">     </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.accelerator.ulysses_size<span class="w"> </span><span class="si">${</span><span class="nv">SP_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>./exp/wan_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.save_hf_weights<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.save_epochs<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.load_path<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.num_train_epochs<span class="w"> </span><span class="m">30</span>
+</pre></div>
+</div>
+<p>See <a class="reference internal" href="../examples/wan2.1_I2V_1.3B.html"><span class="std std-doc">Wan2.1-I2V-1.3B Training Guide</span></a> for the complete
+dataset preparation and inference workflow.</p>
+</section>
+<section id="qwen3-0-6b-lora-llm-fsdp2">
+<h3>6.2 Qwen3-0.6B LoRA (LLM, FSDP2)<a class="headerlink" href="#qwen3-0-6b-lora-llm-fsdp2" title="Link to this heading"></a></h3>
+<p>Config: <a class="reference internal" href="#../../configs/text/qwen3_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/text/qwen3_lora.yaml</span></code></span></a></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen3-0.6B-Base</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">attn_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flash_attention_2</span>
+<span class="w">    </span><span class="nt">cross_entropy_loss_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span>
+<span class="w">    </span><span class="nt">rms_norm_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span>
+<span class="w">    </span><span class="nt">swiglu_mlp_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span>
+<span class="w">    </span><span class="nt">rotary_pos_emb_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">q_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">k_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">o_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gate_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">up_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">down_proj</span>
+
+<span class="nt">train</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">init_device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meta</span><span class="w">          </span><span class="c1"># required for FSDP2</span>
+<span class="w">  </span><span class="nt">accelerator</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fsdp_config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fsdp_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fsdp2</span>
+</pre></div>
+</div>
+<p>Launch (8 GPUs, SP=2):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">SP_SIZE</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">8</span>
+
+bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>/path/to/Qwen3-0.6B-Base<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w">  </span>/path/to/tulu-3-sft-mixture/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.global_batch_size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.micro_batch_size<span class="w">  </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.num_train_epochs<span class="w">  </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>./exp/qwen3_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.save_hf_weights<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.load_path<span class="w"> </span>auto<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.wandb.enable<span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>To resume from a saved adapter:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>/path/to/Qwen3-0.6B-Base<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w">  </span>/path/to/tulu-3-sft-mixture/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>./exp/qwen3_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.load_path<span class="w"> </span>auto<span class="w">          </span><span class="c1"># auto-picks latest DCP checkpoint</span>
+</pre></div>
+</div>
+</section>
+<section id="qwen3-moe-lora-fsdp2-optional-ep">
+<h3>6.3 Qwen3-MoE LoRA (FSDP2, optional EP)<a class="headerlink" href="#qwen3-moe-lora-fsdp2-optional-ep" title="Link to this heading"></a></h3>
+<p>Config: <a class="reference internal" href="#../../configs/text/qwen3_moe_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/text/qwen3_moe_lora.yaml</span></code></span></a></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen3-30B-A3B-merge</span>
+<span class="w">  </span><span class="nt">ops_implementation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">attn_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flash_attention_2</span>
+<span class="w">    </span><span class="nt">moe_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span><span class="w">           </span><span class="c1"># EP (ep_size &gt; 1) REQUIRES fused_triton</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">    </span><span class="c1"># gate_proj/up_proj/down_proj auto-map to the fused expert parameters.</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">q_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">k_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">v_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">o_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">gate_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">up_proj</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">down_proj</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">share_expert_lora</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">                            </span><span class="c1"># one LoRA per layer (Mode 2)</span>
+
+<span class="nt">train</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">init_device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meta</span>
+<span class="w">  </span><span class="nt">accelerator</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ulysses_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">ep_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">                          </span><span class="c1"># set &gt;1 to enable EP; also set moe_implementation: fused_triton</span>
+<span class="w">    </span><span class="nt">fsdp_config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fsdp_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fsdp2</span>
+</pre></div>
+</div>
+<p>Launch (8 GPUs):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_moe_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w"> </span>/path/to/Qwen3-30B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w">  </span>/path/to/tulu-3-sft-mixture/data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>./exp/qwen3_moe_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.save_hf_weights<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.load_path<span class="w"> </span>auto
+</pre></div>
+</div>
+<p>Resume from a saved adapter (DCP path is auto-detected via <code class="docutils literal notranslate"><span class="pre">load_path:</span> <span class="pre">auto</span></code>; an HF
+adapter resume goes through <code class="docutils literal notranslate"><span class="pre">model.lora_config.lora_adapter</span></code>):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_text.py<span class="w"> </span>configs/text/qwen3_moe_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w">                 </span>/path/to/Qwen3-30B-A3B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.lora_config.lora_adapter<span class="w">   </span>./exp/qwen3_moe_lora/global_step_500
+</pre></div>
+</div>
+<p>DeepSeek-V3 (v5) follows the same shape — see
+<a class="reference internal" href="#../../configs/text/deepseek_v3_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/text/deepseek_v3_lora.yaml</span></code></span></a>, which
+sets <code class="docutils literal notranslate"><span class="pre">ep_size:</span> <span class="pre">8</span></code> and additionally LoRA-wraps DeepSeek's MLA projections
+(<code class="docutils literal notranslate"><span class="pre">q_a_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">q_b_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">kv_a_proj_with_mqa</span></code> / <code class="docutils literal notranslate"><span class="pre">kv_b_proj</span></code> / <code class="docutils literal notranslate"><span class="pre">o_proj</span></code>) via
+<code class="docutils literal notranslate"><span class="pre">lora_modules</span></code>.</p>
+</section>
+<hr class="docutils" />
+<section id="qwen-image-lora-dit-fsdp2">
+<h3>6.4 Qwen-Image LoRA (DiT, FSDP2)<a class="headerlink" href="#qwen-image-lora-dit-fsdp2" title="Link to this heading"></a></h3>
+<p>Config: <a class="reference internal" href="#../../configs/dit/qwen_image_lora.yaml"><span class="xref myst"><code class="docutils literal notranslate"><span class="pre">configs/dit/qwen_image_lora.yaml</span></code></span></a></p>
+<p>The Qwen-Image transformer uses a <strong>dual-stream</strong> MMDiT block: each <code class="docutils literal notranslate"><span class="pre">QwenImageTransformerBlock</span></code> carries a separate image-stream attention projection (<code class="docutils literal notranslate"><span class="pre">to_q</span></code>, <code class="docutils literal notranslate"><span class="pre">to_k</span></code>, <code class="docutils literal notranslate"><span class="pre">to_v</span></code>, <code class="docutils literal notranslate"><span class="pre">to_out.0</span></code>) and a text-stream one (<code class="docutils literal notranslate"><span class="pre">add_q_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">add_k_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">add_v_proj</span></code>, <code class="docutils literal notranslate"><span class="pre">to_add_out</span></code>), plus paired <code class="docutils literal notranslate"><span class="pre">img_mlp</span></code> / <code class="docutils literal notranslate"><span class="pre">txt_mlp</span></code> FeedForward sub-modules. The recommended target set covers both streams:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lora_config</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rank</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">128</span>
+<span class="w">    </span><span class="nt">alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64</span>
+<span class="w">    </span><span class="nt">lora_modules</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_q</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_k</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_v</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_out.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">add_q_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">add_k_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">add_v_proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">to_add_out</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">net.0.proj</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">net.2</span>
+
+<span class="nt">train</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">init_device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">meta</span>
+<span class="w">  </span><span class="nt">accelerator</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">fsdp_config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fsdp_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fsdp2</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">net.0.proj</span></code> and <code class="docutils literal notranslate"><span class="pre">net.2</span></code> are substring-matched, so they hit the Linear layers inside both <code class="docutils literal notranslate"><span class="pre">img_mlp</span></code> and <code class="docutils literal notranslate"><span class="pre">txt_mlp</span></code> (each is a <code class="docutils literal notranslate"><span class="pre">diffusers.models.attention.FeedForward</span></code>).</p>
+<p>Launch (e.g. 8 GPUs, single-node):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">8</span>
+
+bash<span class="w"> </span>train.sh<span class="w"> </span>tasks/train_dit.py<span class="w"> </span>configs/dit/qwen_image_lora.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.model_path<span class="w">           </span>/path/to/Qwen-Image/transformer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model.condition_model_path<span class="w"> </span>/path/to/Qwen-Image<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--data.train_path<span class="w">            </span>/path/to/dataset<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.global_batch_size<span class="w">    </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.micro_batch_size<span class="w">     </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>./exp/qwen_image_lora<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.save_hf_weights<span class="w"> </span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.num_train_epochs<span class="w"> </span><span class="m">3</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">HFLoraCkptCallback</span></code> writes the trained adapter to <code class="docutils literal notranslate"><span class="pre">${output_dir}/global_step_${step}/{adapter_config.json,</span> <span class="pre">adapter_model.{bin,safetensors}}</span></code>, which is the standard PEFT format consumable by <code class="docutils literal notranslate"><span class="pre">PeftModel.from_pretrained</span></code> and <code class="docutils literal notranslate"><span class="pre">diffusers</span></code>' <code class="docutils literal notranslate"><span class="pre">pipeline.transformer.load_lora_adapter</span></code> (the adapter keys carry the <code class="docutils literal notranslate"><span class="pre">base_model.model.</span></code> prefix expected by <code class="docutils literal notranslate"><span class="pre">peft</span></code>).</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="testing">
+<h2>7. Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h2>
+<p>The test suite is under <code class="docutils literal notranslate"><span class="pre">tests/lora/</span></code> and uses small MoE toy models.
+Suite layout:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Test</p></th>
+<th class="head"><p>Coverage</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_veomni_lora_native.py</span></code></p></td>
+<td><p>CPU, single-process: <code class="docutils literal notranslate"><span class="pre">VeOmniLoraConfig</span></code> round-trips, dense injection structure / no-op-at-init, <code class="docutils literal notranslate"><span class="pre">get_lora_state_dict</span></code> PEFT key format, save→<code class="docutils literal notranslate"><span class="pre">from_pretrained</span></code>→load parity, <code class="docutils literal notranslate"><span class="pre">merge_and_unload</span></code>, rank/alpha patterns, exclude_modules, rslora scaling, and <strong>bidirectional PEFT interop</strong> (gated on <code class="docutils literal notranslate"><span class="pre">peft</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_veomni_lora_moe_native.py</span></code></p></td>
+<td><p>CPU, single-process: native MoE injection (independent/shared), MoE metadata embedded in <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> (no sidecar), state-dict key format/rank, save→reload param round-trip, and MoE-mode inference when the <code class="docutils literal notranslate"><span class="pre">veomni_lora</span></code> block is absent.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_moe_lora_eager.py</span></code></p></td>
+<td><p>Wrapper layout + autograd parity for both Mode 1 (independent) and Mode 2 (shared); covers all v5 MoE configs (qwen3_moe / qwen3_5_moe / qwen3_vl_moe / qwen3_omni_moe / deepseek_v3).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_moe_lora_fused.py</span></code></p></td>
+<td><p>Triton fused MoE-LoRA kernel parity vs eager (forward + backward) and EP autograd-class parity vs non-EP under controlled inputs.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">test_moe_lora_trainer.py</span></code></p></td>
+<td><p>Production save/load/resume round-trip: writer (DCP shard + HF adapter) → DCP-resume subprocess → adapter-resume subprocess; bit-exact LoRA reload assertion. The yaml enables both <code class="docutils literal notranslate"><span class="pre">lora_modules</span></code> (linear LoRA on <code class="docutils literal notranslate"><span class="pre">q_proj</span></code>/<code class="docutils literal notranslate"><span class="pre">v_proj</span></code>) and <code class="docutils literal notranslate"><span class="pre">target_parameters</span></code> (MoE-LoRA wrappers), so both LoRA flavors round-trip end-to-end.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">test_moe_lora_ep2.py</span></code></p></td>
+<td><p>Trainer-driven EP=2 coverage: (a) integration assertions that the EP plumbing engages (plan-bridge fires, EP slicing happens at the right ratio, DCP consolidates EP shards before HF save); (b) <code class="docutils literal notranslate"><span class="pre">test_moe_lora_ep_save_load_parallel_align</span></code> -- one EP=2 seeder writes both an HF adapter (full <code class="docutils literal notranslate"><span class="pre">[E,</span> <span class="pre">r,</span> <span class="pre">H]</span></code>) and DCP shards, then three resumer subprocesses validate cross-EP adapter parity (EP=1 vs EP=2 adapter-load trajectories match) and EP=2 DCP round-trip parity (DCP-resumer trajectory matches the seeder's tail).</p></td>
+</tr>
+</tbody>
+</table>
+<p>Quick run (all four; ~10 min total on 4 GPUs):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-s<span class="w"> </span>tests/lora/
+</pre></div>
+</div>
+<p>Run just the production-shaped save/load/resume round-trip:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-s<span class="w"> </span>-v<span class="w"> </span>tests/lora/test_moe_lora_trainer.py::test_save_load_resume_round_trip
+</pre></div>
+</div>
+<p>Or as a manual torchrun against either <code class="docutils literal notranslate"><span class="pre">independent</span></code> or <code class="docutils literal notranslate"><span class="pre">shared</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>tests/lora/test_moe_lora_trainer.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/lora/qwen3_moe_toy_lora_independent.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train.checkpoint.output_dir<span class="w"> </span>/tmp/test_moe_lora_run
+</pre></div>
+</div>
+<p><strong>What the round-trip test verifies:</strong></p>
+<ol class="arabic simple">
+<li><p>Writer trains <code class="docutils literal notranslate"><span class="pre">max_steps=4</span></code>, writes DCP shards at step 2 / step 4 and the HF LoRA adapter (<code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> with the <code class="docutils literal notranslate"><span class="pre">veomni_lora</span></code> block + <code class="docutils literal notranslate"><span class="pre">adapter_model.bin</span></code>, no sidecar) at the same cadence; snapshots the full LoRA tensors at <code class="docutils literal notranslate"><span class="pre">on_train_begin</span></code> and <code class="docutils literal notranslate"><span class="pre">on_train_end</span></code>.</p></li>
+<li><p>DCP-resume subprocess loads the step-2 DCP shard, continues to step 4, and the resulting LoRA tensors must be <strong>bit-exact</strong> vs the writer's <code class="docutils literal notranslate"><span class="pre">on_train_end</span></code> snapshot (DCP ships model + optimizer + RNG + dataloader state).</p></li>
+<li><p>LoRA-adapter-resume subprocess loads the step-4 HF adapter via <code class="docutils literal notranslate"><span class="pre">model.lora_config.lora_adapter</span></code>, and the resulting <code class="docutils literal notranslate"><span class="pre">on_train_begin</span></code> snapshot (= post-load, pre-train) must be bit-exact vs the writer's <code class="docutils literal notranslate"><span class="pre">on_train_end</span></code> snapshot in bf16 (the on-disk adapter dtype).</p></li>
+</ol>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
