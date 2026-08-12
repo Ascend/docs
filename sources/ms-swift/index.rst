@@ -1,8 +1,8 @@
 ms-swift
-============
+========
 
-.. toctree::
-   :maxdepth: 3
+NPU 相关文档由 ms-swift 官方维护，请访问官方文档站：
 
-   ../_generated/sources/ms-swift/source/BestPractices/NPU-support
-   ../_generated/sources/ms-swift/source_en/BestPractices/NPU-support
+- GitHub：`ms-swift <https://github.com/modelscope/ms-swift>`_
+- 文档中心：`SWIFT Docs <https://swift.readthedocs.io/zh-cn/latest/>`_
+- NPU 支持：`NPU Support <https://swift.readthedocs.io/zh-cn/latest/source/BestPractices/NPU-support.html>`_

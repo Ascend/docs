@@ -1,9 +1,8 @@
 VeOmni
-============
+======
 
-.. toctree::
-   :maxdepth: 3
+昇腾相关文档由 VeOmni 官方维护，请访问官方文档站：
 
-   ../_generated/sources/VeOmni/get_started/installation/install_ascend_arm
-   ../_generated/sources/VeOmni/get_started/installation/install_ascend_x86
-   ../_generated/sources/VeOmni/hardware_support/get_started_npu
+- GitHub：`VeOmni <https://github.com/ByteDance-Seed/VeOmni>`_
+- 文档中心：`VeOmni Docs <https://veomni.readthedocs.io/en/latest/>`_
+- 昇腾教程：`Get Started on NPU <https://veomni.readthedocs.io/en/latest/hardware_support/get_started_npu.html>`_
