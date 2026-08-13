@@ -93,7 +93,7 @@
       }
       .card-desc { font-size: 0.92rem; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; flex-grow: 1; height: 3.2em; overflow: hidden; }
 
-      /* 三要素分散等距居中显示 */
+      /* 三要素分散等距居中显示；整段可点，避免点到空白处无响应 */
       .card-footer {
           border-top: 1px solid #f2f2f7;
           padding-top: 15px;
@@ -101,11 +101,19 @@
           justify-content: space-evenly;
           align-items: center;
           font-size: 0.88rem;
+          position: relative;
+          z-index: 2;
       }
       .card-footer a {
+          flex: 1;
+          text-align: center;
+          padding: 8px 4px;
           text-decoration: none;
           color: var(--ascend-blue);
           font-weight: 500;
+          cursor: pointer;
+          position: relative;
+          z-index: 2;
       }
       .card-footer a:hover { text-decoration: underline; }
       .split { display: none; }
@@ -131,7 +139,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
          <p class="card-desc">DeepSpeed is a deep learning optimization library that makes distributed training and inference easy, efficient, and effective. </p>
-         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/#huawei-ascend-npu" target="_blank" rel="noopener noreferrer">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/">文档中心</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/#huawei-ascend-npu">昇腾教程</a></div>
       </div>
 
       <!-- kernels -->
@@ -171,14 +179,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
          <p class="card-desc">Unified Efficient Fine-Tuning of 100+ LLMs & VLMs。</p>
-         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://llamafactory.readthedocs.io/zh-cn/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://llamafactory.readthedocs.io/zh-cn/latest/multibackend/npu/npu_installation.html" target="_blank" rel="noopener noreferrer">NPU 安装</a></div>
+         <div class="card-footer"><a href="https://github.com/hiyouga/LLaMA-Factory">官方链接</a><span class="split">|</span><a href="https://llamafactory.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://llamafactory.readthedocs.io/zh-cn/latest/multibackend/npu/npu_installation.html">NPU 安装</a></div>
       </div>
 
       <!-- ms-swift：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/swift.png')"></div><h3 class="card-title">ms-swift</h3></div>
          <p class="card-desc">高效微调框架，支持 600+ LLM 和 300+ MLLM 适配昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/modelscope/ms-swift" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/source/BestPractices/NPU-support.html" target="_blank" rel="noopener noreferrer">NPU 支持</a></div>
+         <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/BestPractices/NPU-support.html">NPU 支持</a></div>
       </div>
 
       <!-- ROLL -->
@@ -206,14 +214,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/VeOmni.png')"></div><h3 class="card-title">VeOmni</h3></div>
          <p class="card-desc">Scaling Any Modality Model Training with Model-Centric Distributed Recipe Zoo。</p>
-         <div class="card-footer"><a href="https://github.com/ByteDance-Seed/VeOmni" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://veomni.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://veomni.readthedocs.io/en/latest/hardware_support/get_started_npu.html" target="_blank" rel="noopener noreferrer">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/ByteDance-Seed/VeOmni">官方链接</a><span class="split">|</span><a href="https://veomni.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://veomni.readthedocs.io/en/latest/hardware_support/get_started_npu.html">昇腾教程</a></div>
       </div>
 
       <!-- verl：官方文档站已含昇腾教程，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/volcano.png')"></div><h3 class="card-title">verl</h3></div>
          <p class="card-desc">用于 LLM 的强化学习训练库，适配昇腾并行计算方案。</p>
-         <div class="card-footer"><a href="https://github.com/volcengine/verl" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/ascend_tutorial/index.html" target="_blank" rel="noopener noreferrer">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/ascend_tutorial/index.html">昇腾教程</a></div>
       </div>
 
       <!-- PyG -->
@@ -242,11 +250,11 @@
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="sources/lm_deploy/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_deploy/quick_start.html">快速上手</a></div>
       </div>
 
-      <!-- ONNX Runtime：CANN 文档外链官方站点，快速上手不再本地编译 -->
+      <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
          <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="sources/onnxruntime/install.html">安装指南</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html" target="_blank" rel="noopener noreferrer">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html">昇腾教程</a></div>
       </div>
 
       <!-- Sentence Transformers -->
@@ -274,7 +282,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">vLLM-Ascend</h3></div>
          <p class="card-desc">面向昇腾 NPU 的 vLLM 社区插件，支持主流大模型高性能推理加速。</p>
-         <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/quick_start.html" target="_blank" rel="noopener noreferrer">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/">文档中心</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -286,7 +294,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/triton-ascend.png')"></div><h3 class="card-title">Triton-Ascend</h3></div>
          <p class="card-desc">适配昇腾 NPU 的 Triton 语言后端，支持高性能算子开发与迁移。</p>
-         <div class="card-footer"><a href="https://github.com/triton-lang/triton-ascend" target="_blank" rel="noopener noreferrer">官方链接</a><span class="split">|</span><a href="https://triton-ascend.readthedocs.io/zh-cn/latest/" target="_blank" rel="noopener noreferrer">文档中心</a><span class="split">|</span><a href="https://triton-ascend.readthedocs.io/zh-cn/latest/quick_start.html" target="_blank" rel="noopener noreferrer">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/triton-lang/triton-ascend">官方链接</a><span class="split">|</span><a href="https://triton-ascend.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://triton-ascend.readthedocs.io/zh-cn/latest/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Liger-Kernel -->
