@@ -12,17 +12,15 @@ This repository is a collection of documentation for Ascend supported open sourc
 - `tutorial.rst`: more complex than quickstart, help people learn about **products** and solve **real world problems** by guiding them through **the entire workflow to complete a task**. See also in [Github tutorial guide](https://docs.github.com/en/contributing/style-guide-and-content-model/tutorial-content-type).
 - `faq.rst`: A frequently asked questions (FAQ) list.
 
-## Documentation Available in Open Source Projects
+## Documentation from Official Project Sites
 
-- `index.rst`: the index of the opensource project doc.
-- Additional source files will be automatically downloaded before running `make`. For details, see the `./Makefile`.
+Some communities already maintain Ascend/NPU documentation on their own sites. Those projects are linked from the homepage cards in `index.rst` (with `target="_blank"`) instead of being built locally. Examples: verl, LLaMA-Factory, ms-swift, VeOmni, vllm-ascend, Triton-Ascend, DeepSpeed, and ONNX Runtime quick start.
 
-Use the following command to add a subproject:
+To add such a project, create a lightweight `sources/<project>/index.rst` with links to the official docs, and add it to the hidden toctree in `index.rst` so it appears in the sidebar.
 
-```bash
-git submodule add https://github.com/project.git docs/_repos/dir/
+## Local Build Prerequisites
 
-```
+Before `make html`, the build fetches `ascend_config.json` via `scripts/fetch_ascend_data.py` (see `fetch-config` in `./Makefile`). No git submodules or document copying is involved.
 
 # Contributing
 
