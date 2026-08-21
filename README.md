@@ -14,7 +14,7 @@ This repository is a collection of documentation for Ascend supported open sourc
 
 ## Documentation from Official Project Sites
 
-Some communities already maintain Ascend/NPU documentation on their own sites. Those projects are linked from the homepage cards in `index.rst` (with `target="_blank"`) instead of being built locally. Examples: verl, LLaMA-Factory, ms-swift, VeOmni, vllm-ascend, Triton-Ascend, DeepSpeed, and ONNX Runtime quick start.
+Some communities already maintain Ascend/NPU documentation on their own sites. Those projects are linked from the homepage cards in `index.rst` instead of being built locally. Examples: verl, LLaMA-Factory, ms-swift, VeOmni, vllm-ascend, Triton-Ascend, DeepSpeed, ONNX Runtime, SGLang, LMDeploy, and ROLL.
 
 To add such a project, create a lightweight `sources/<project>/index.rst` with links to the official docs, and add it to the hidden toctree in `index.rst` so it appears in the sidebar.
 
