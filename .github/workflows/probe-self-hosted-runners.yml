@@ -1,11 +1,16 @@
-# Manual probe: can this repo schedule a job on the two NPU runner
-# labels, pull an AscendHub CANN image, and see the cards?
+# Manual probe: can this repo schedule a job on each NPU runner label,
+# pull the matching AscendHub CANN image, and see that many cards?
+#
+# Label shape: linux-aarch64-<chip>-<npu>
+#   chip: a2 (910B) or a3 (910C)
+#   npu:  available card count for that scale set (1 / 2 / 4 / 8 / 16)
 #
 # How to read a run:
 #   - Job stays queued: this repo has no matching scale set, or no idle capacity.
 #   - Job starts then fails on image pull / container create: runner is up; the
 #     container path is broken (wrong tag, hook, or device plugin).
-#   - Job is green and npu-smi lists devices: that label is usable.
+#   - Job is green and npu-smi lists the expected number of devices: that
+#     label is usable.
 #
 # schedule stays commented. Do not enable until someone decides this should
 # be a standing health check.
@@ -25,32 +30,28 @@ permissions:
 
 jobs:
   probe:
-    name: ${{ matrix.runner }}
-    runs-on: ${{ matrix.runner }}
+    name: linux-aarch64-${{ matrix.chip }}-${{ matrix.npu }}
+    runs-on: linux-aarch64-${{ matrix.chip }}-${{ matrix.npu }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - runner: linux-aarch64-a2-2
-            image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-          - runner: linux-aarch64-a3-2
-            image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+        chip: [a2, a3]
+        npu: [1, 2, 4, 8, 16]
     defaults:
       run:
         shell: bash
-    env:
-      ASCEND_RT_VISIBLE_DEVICES: "0,1"
     # container.image is required on these ARC runners; without it the job
     # may start but NPU is not allocated. Do not use ${{ env.* }} here —
     # that context is not available for image.
     container:
-      image: ${{ matrix.image }}
+      image: ${{ matrix.chip == 'a2' && 'swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12' || 'swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12' }}
     steps:
       - name: Probe host and NPU
         env:
-          RUNNER_LABEL: ${{ matrix.runner }}
-          IMAGE: ${{ matrix.image }}
+          RUNNER_LABEL: linux-aarch64-${{ matrix.chip }}-${{ matrix.npu }}
+          IMAGE: ${{ matrix.chip == 'a2' && 'swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12' || 'swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12' }}
+          NPU_COUNT: ${{ matrix.npu }}
         run: |
           set -euo pipefail
           export PATH="/usr/local/sbin:/usr/local/bin:${PATH}"
@@ -59,12 +60,24 @@ jobs:
             source /usr/local/Ascend/ascend-toolkit/set_env.sh
           fi
 
+          ids=()
+          i=0
+          while [ "${i}" -lt "${NPU_COUNT}" ]; do
+            ids+=("${i}")
+            i=$((i + 1))
+          done
+          IFS=,
+          export ASCEND_RT_VISIBLE_DEVICES="${ids[*]}"
+          unset IFS
+
           echo "=== runner ==="
           echo "RUNNER_NAME=${RUNNER_NAME:-}"
           echo "RUNNER_OS=${RUNNER_OS:-}"
           echo "RUNNER_ARCH=${RUNNER_ARCH:-}"
           echo "RUNNER_LABEL=${RUNNER_LABEL}"
           echo "IMAGE=${IMAGE}"
+          echo "NPU_COUNT=${NPU_COUNT}"
+          echo "ASCEND_RT_VISIBLE_DEVICES=${ASCEND_RT_VISIBLE_DEVICES}"
           hostname || true
           uname -a
 
@@ -76,8 +89,8 @@ jobs:
 
           npu_nodes="$(find /dev -maxdepth 1 -type c -name 'davinci[0-9]*' | wc -l | tr -d ' ')"
           echo "davinci_nodes=${npu_nodes}"
-          if [ "${npu_nodes}" -lt 2 ]; then
-            echo "expected at least 2 NPU device nodes on a *-2 runner, got ${npu_nodes}" >&2
+          if [ "${npu_nodes}" -lt "${NPU_COUNT}" ]; then
+            echo "expected at least ${NPU_COUNT} NPU device nodes on ${RUNNER_LABEL}, got ${npu_nodes}" >&2
             exit 1
           fi
 
@@ -94,7 +107,7 @@ jobs:
           set -euo pipefail
           echo "probe matrix result: ${PROBE_RESULT}"
           if [ "${PROBE_RESULT}" != "success" ]; then
-            echo "one or both runner labels failed or did not finish" >&2
+            echo "one or more runner labels failed or did not finish" >&2
             exit 1
           fi
-          echo "both linux-aarch64-a2-2 and linux-aarch64-a3-2 picked up a job and saw NPU"
+          echo "all linux-aarch64-a2/a3 labels (1/2/4/8/16 cards) picked up a job and saw NPU"
