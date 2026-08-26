@@ -1,0 +1,100 @@
+# Manual probe: can this repo schedule a job on the two NPU runner
+# labels, pull an AscendHub CANN image, and see the cards?
+#
+# How to read a run:
+#   - Job stays queued: this repo has no matching scale set, or no idle capacity.
+#   - Job starts then fails on image pull / container create: runner is up; the
+#     container path is broken (wrong tag, hook, or device plugin).
+#   - Job is green and npu-smi lists devices: that label is usable.
+#
+# schedule stays commented. Do not enable until someone decides this should
+# be a standing health check.
+name: Probe self-hosted runners
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '17 */6 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: linux-aarch64-a2-2
+            image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+          - runner: linux-aarch64-a3-2
+            image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+    defaults:
+      run:
+        shell: bash
+    env:
+      ASCEND_RT_VISIBLE_DEVICES: "0,1"
+    # container.image is required on these ARC runners; without it the job
+    # may start but NPU is not allocated. Do not use ${{ env.* }} here —
+    # that context is not available for image.
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Probe host and NPU
+        env:
+          RUNNER_LABEL: ${{ matrix.runner }}
+          IMAGE: ${{ matrix.image }}
+        run: |
+          set -euo pipefail
+          export PATH="/usr/local/sbin:/usr/local/bin:${PATH}"
+          if [ -f /usr/local/Ascend/ascend-toolkit/set_env.sh ]; then
+            # shellcheck disable=SC1091
+            source /usr/local/Ascend/ascend-toolkit/set_env.sh
+          fi
+
+          echo "=== runner ==="
+          echo "RUNNER_NAME=${RUNNER_NAME:-}"
+          echo "RUNNER_OS=${RUNNER_OS:-}"
+          echo "RUNNER_ARCH=${RUNNER_ARCH:-}"
+          echo "RUNNER_LABEL=${RUNNER_LABEL}"
+          echo "IMAGE=${IMAGE}"
+          hostname || true
+          uname -a
+
+          echo "=== devices ==="
+          ls -l /dev/davinci* /dev/davinci_manager /dev/devmm_svm /dev/hisi_hdc 2>&1 || true
+
+          echo "=== npu-smi ==="
+          npu-smi info
+
+          npu_nodes="$(find /dev -maxdepth 1 -type c -name 'davinci[0-9]*' | wc -l | tr -d ' ')"
+          echo "davinci_nodes=${npu_nodes}"
+          if [ "${npu_nodes}" -lt 2 ]; then
+            echo "expected at least 2 NPU device nodes on a *-2 runner, got ${npu_nodes}" >&2
+            exit 1
+          fi
+
+  summarize:
+    name: summarize
+    needs: probe
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report probe result
+        env:
+          PROBE_RESULT: ${{ needs.probe.result }}
+        run: |
+          set -euo pipefail
+          echo "probe matrix result: ${PROBE_RESULT}"
+          if [ "${PROBE_RESULT}" != "success" ]; then
+            echo "one or both runner labels failed or did not finish" >&2
+            exit 1
+          fi
+          echo "both linux-aarch64-a2-2 and linux-aarch64-a3-2 picked up a job and saw NPU"
