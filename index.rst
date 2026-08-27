@@ -210,6 +210,13 @@
          <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/install.html">安装指南</a><span class="split">|</span><a href="sources/trl/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- Twinkle：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/twinkle.png')"></div><h3 class="card-title">Twinkle</h3></div>
+         <p class="card-desc">轻量级 LLM 训练工作台，支持 SFT、GRPO、DPO 等，适配昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/twinkle">官方链接</a><span class="split">|</span><a href="https://modelscope.github.io/twinkle-web/zh/docs/">文档中心</a><span class="split">|</span><a href="https://modelscope.github.io/twinkle-web/zh/docs/usage-guide/npu-support/">NPU 支持</a></div>
+      </div>
+
       <!-- VeOmni：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/VeOmni.png')"></div><h3 class="card-title">VeOmni</h3></div>
@@ -407,6 +414,7 @@
    sources/roll/index.rst
    sources/torchtitan/index.rst
    sources/trl/index.rst
+   sources/twinkle/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
    sources/pyg/index.rst
