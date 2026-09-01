@@ -161,7 +161,7 @@ jobs:
       # Engine-fixed env: upstream repo + monitored doc come from the
       # caller's inputs (caller env does not cross the `uses:` boundary).
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
-      MONITORED_DOC_URL: ${{ inputs.doc_url }}
+      MONITORED_DOC_URL: ${{ format(inputs.doc_url, github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main') }}
       GH_TOKEN: ${{ github.token }}
       GH_API: https://api.github.com
       # Cluster-internal nginx PyPI cache fronts every package
@@ -410,51 +410,54 @@ jobs:
           set -euo pipefail
           DECISION_FILE="/tmp/.decision"
 
-          # Defaults so set -u stays safe; dispatch overwrites,
+          # Defaults so set -u stays safe; dispatch / PR overwrite,
           # schedule sources /tmp/.decision when present.
           need_to_test="false"
           reason=""
           ref=""
 
+          # Auto-fallback chain (shared by dispatch + PR):
+          #   /releases/latest -> /releases?per_page=20 -> /tags?per_page=1 -> /commits/HEAD.
+          # Each tier falls through on 404/empty. Defined before the if/elif
+          # so both branches can call it (a function inside an if block only
+          # exists on the branch that runs).
+          resolve_ref() {
+            local _ref=""
+            if curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
+              _ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
+            fi
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
+              _ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
+            fi
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
+              _ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
+            fi
+            # 4th tier: upstreams with no releases AND no tags (e.g. SpecForge).
+            # /commits/HEAD returns the default-branch HEAD sha; valid as a
+            # `git clone --branch` ref, no hardcoded branch name needed.
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
+              _ref=$(jq -r '.sha // empty' /tmp/r4.json)
+              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
+            fi
+            printf '%s' "$_ref"
+          }
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             need_to_test="true"
             reason="manual"
-            # Same auto-fallback chain as the monitor step: /releases/latest
-            # -> /releases?per_page=20 -> /tags?per_page=1 -> /commits/HEAD.
-            # Each curl is guarded with `|| true` + a jq presence check so a
-            # 404 or empty body falls through cleanly. The dispatch path
-            # picks `ref` (the tag_name, or commit SHA in the 4th tier)
-            # directly — no separate SHA lookup is needed for decision
-            # output, so this collapses to four jq expressions over
-            # /tmp/r{1,2,3,4}.json.
-            ref=""
-            if curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
-              ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
-            fi
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
-              ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
-            fi
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
-              ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
-            fi
-            # 4th fallback for upstreams that publish no GitHub Releases
-            # AND no tags (sgl-project/SpecForge is the canonical case —
-            # API returns 404 for /releases/latest, [] for /releases, and
-            # [] for /tags). /commits/HEAD resolves to the tip of the
-            # default branch (no hardcoded branch name — works for `main`,
-            # `master`, or any custom default). The test code uses the SHA
-            # as the <ref> in `git clone --branch <ref>`, so a commit SHA
-            # works as a clone ref. 
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
-              ref=$(jq -r '.sha // empty' /tmp/r4.json)
-              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
-            fi
+            ref=$(resolve_ref)
             [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref (auto-fallback chain exhausted)"; exit 1; }
             echo "monitor decision (manual override): ref=$ref need_to_test=true reason=manual"
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            need_to_test="true"
+            reason="pr"
+            ref=$(resolve_ref)
+            [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref for PR run (auto-fallback chain exhausted)"; exit 1; }
+            echo "monitor decision (pr run): ref=$ref need_to_test=true reason=pr"
           elif [ -f $DECISION_FILE ]; then
             . $DECISION_FILE
           fi

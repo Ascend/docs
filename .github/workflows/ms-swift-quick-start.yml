@@ -35,6 +35,14 @@ on:
     # workflow_dispatch instead.
     - cron: '30 */3 * * *'
   workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/ms-swift/**'
+      - 'tests/ms-swift/**'
 
 permissions:
   contents: read
@@ -58,7 +66,12 @@ jobs:
       upstream_repo: modelscope/ms-swift
       # Same URL the legacy workflow monitors: doc-hash state carries
       # over via the shared monitor-state-ms-swift- cache prefix.
-      doc_url: https://raw.githubusercontent.com/Ascend/ascend_docs/main/sources/ms-swift/quick_start.md
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/ms-swift/quick_start.md'
       doc_path: https://github.com/Ascend/ascend_docs/blob/main/sources/ms-swift/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
