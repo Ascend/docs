@@ -1,0 +1,68 @@
+# ms-swift quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine. See the
+# engine's `workflow_call.inputs` block for the full input contract.
+#
+# This file replaced the legacy monolithic workflow of the same name
+# (hard cutover; the old implementation lives in git history around
+# 4ee7f63). Cache keys (monitor-state-ms-swift-*) and artifact names
+# are derived from project=ms-swift, not from the workflow name, so
+# monitor state carried over unchanged.
+
+name: ms-swift-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'ms-swift-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch runs
+  # already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 3 hours: '30 */3 * * *' fires at minute 30 of every
+    # 3rd hour (00:30, 03:30, 06:30, ..., 21:30). GitHub Actions caps
+    # schedule at 5 min minimum, so tighter cadences need
+    # workflow_dispatch instead.
+    - cron: '30 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ms-swift-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-ms-swift-*), artifacts
+      # (ms-swift-quick-start-<run_id>) and the test working dir
+      # (workflows/projects/ms-swift).
+      project: ms-swift
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/ms-swift:/root/.cache/modelscope
+      timeout_minutes: 60
+      upstream_repo: modelscope/ms-swift
+      # Same URL the legacy workflow monitors: doc-hash state carries
+      # over via the shared monitor-state-ms-swift- cache prefix.
+      doc_url: https://raw.githubusercontent.com/Ascend/ascend_docs/main/sources/ms-swift/quick_start.md
+      doc_path: https://github.com/Ascend/ascend_docs/blob/main/sources/ms-swift/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.ms-swift.test_quick_start_ascend -v 2>&1
