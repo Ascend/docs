@@ -8,15 +8,15 @@ on:
     branches:
       - main
   workflow_dispatch:
-  
+
 permissions:
-  contents: write      
+  contents: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,9 +33,52 @@ jobs:
         run: |
           make html
 
+      # PR builds run untrusted code with a read-only token, so they cannot publish.
+      # The artifact name carries the PR number: workflow_run events do not populate
+      # `pull_requests` for fork PRs, and this is how pr-preview-deploy.yml recovers it.
+      - name: Upload site
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event_name == 'pull_request' && format('docs-preview-{0}', github.event.number) || 'docs-site' }}
+          path: _build/html
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gh-pages-write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: docs-site
+          path: _build/html
+
+      # force_orphan below rewrites gh-pages from scratch, which would drop the
+      # previews of every open PR. Carry them over into the new tree.
+      - name: Preserve open PR previews
+        env:
+          REPO: ${{ github.repository }}
+        run: |
+          if git clone --depth=1 --branch gh-pages --single-branch \
+              "https://github.com/${REPO}.git" /tmp/gh-pages 2>/dev/null; then
+            if [ -d /tmp/gh-pages/pr-preview ]; then
+              cp -r /tmp/gh-pages/pr-preview _build/html/
+              echo "Preserved previews:"
+              find /tmp/gh-pages/pr-preview -mindepth 1 -maxdepth 1 -type d
+            else
+              echo "No PR previews to preserve."
+            fi
+          else
+            echo "gh-pages branch not found; nothing to preserve."
+          fi
+
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: peaceiris/actions-gh-pages@v4
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,50 @@
+name: PR Preview Cleanup
+
+# pull_request_target carries a write token, which is only safe because this
+# workflow never checks out or executes pull request code: it checks out
+# gh-pages and deletes one directory.
+on:
+  pull_request_target:
+    types:
+      - closed
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  remove-preview:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gh-pages-write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+
+      - name: Remove preview directory
+        id: remove
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          set -euo pipefail
+          dir="pr-preview/pr-${PR_NUMBER}"
+          if [ ! -d "$dir" ]; then
+            echo "No preview at ${dir}."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -rq "$dir"
+          git commit -m "Remove preview for PR #${PR_NUMBER}"
+          git push
+          echo "removed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Update preview comment
+        if: steps.remove.outputs.removed == 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: docs-preview
+          number: ${{ github.event.number }}
+          message: |
+            📖 文档预览已随本 PR 关闭而清理。
