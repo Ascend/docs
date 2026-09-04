@@ -247,7 +247,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
          <p class="card-desc">C/C++ 实现的 Meta LLaMa 架构，深度适配昇腾后端。</p>
-         <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ggml-org/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/index.html">快速上手</a></div>
       </div>
 
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
