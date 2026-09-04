@@ -66,7 +66,10 @@ npu-smi info
 +===========================+===============+====================================================+
 ```
 
-> 如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动
+```{admonition} Note
+:class: note
+如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动
+```
 
 检查 Python 版本：
 
@@ -93,7 +96,10 @@ is_available: True
 count: 1
 ```
 
-> 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
+```{admonition} Note
+:class: note
+如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
+```
 
 安装 transformers / huggingface_hub：
 
@@ -126,7 +132,10 @@ python -c "import peft; print('peft', peft.__version__)"
 ```shell #test-result id="peft-install-binary" fuzzy='xxx'
 peft xxx
 ```
-- xxx 表示最新的版本号
+```{admonition} Note
+:class: note
+xxx 表示最新的版本号
+```
 <!--
 ```shell #test-setup
 uv pip uninstall peft -y
@@ -155,7 +164,10 @@ python -c "import peft; print('peft', peft.__version__)"
 ```shell #test-result id="peft-install-source" fuzzy='xxx'
 peft xxx
 ```
-- xxx 表示最新的版本号
+```{admonition} Note
+:class: note
+xxx 表示最新的版本号
+```
 
 ## 使用 PEFT 方法（例如 LoRA）准备训练模型
 
@@ -195,7 +207,10 @@ PY
 ls output/peft-adapter/adapter_config.json output/peft-adapter/adapter_model.safetensors
 ```
 
-> `<model_path>` 为上面“下载基础模型” 章节对应命令的输出
+```{admonition} Note
+:class: note
+`<model_path>` 为上面“下载基础模型” 章节对应命令的输出
+```
 
 输出结果如下：
 
@@ -234,7 +249,10 @@ PY
 trainable params: ... || all params: ... || trainable%: ...
 ```
 
-> 这里的 `<model_path>` 和上面 `apply-lora` 块里的一样，由「下载基础模型」一节的 `#test-setup store="model_path"` 捕获并注入；不需要在本块手动替换。
+```{admonition} Note
+:class: note
+`<model_path>` 是「下载基础模型」一节 `snapshot_download` 命令打印的路径。
+```
 
 ### 跑一次生成验证
 
@@ -264,9 +282,7 @@ PY
 Preheat the oven to 350 degrees and place the cookie dough...
 ```
 
-小贴士：
+## 外部链接
 
-- 如果要切换其他 PEFT 方法（如 AdaLoRA、IA3、VeRA 等），只需要把 `LoraConfig` 换成对应方法的 config 即可，调用方式保持不变。
-- `target_modules` 接受字符串列表、模块类或正则；不指定时，PEFT 会自动对所有 `nn.Linear` 子模块注入 LoRA。
-- `task_type` 用来辅助 PEFT 保存与任务相关的层；自回归 LM 任务填 `TaskType.CAUSAL_LM`，分类任务填 `TaskType.SEQ_CLS`。
-- 推理段 prompt 选的是英文烘焙场景：base 模型未针对该任务训练，生成内容是 base 的自然续写，验证 `PeftModel.from_pretrained` 链路可用即可。
+- GitHub：[huggingface/peft](https://github.com/huggingface/peft)
+- 文档中心：[PEFT Docs](https://huggingface.co/docs/peft)
