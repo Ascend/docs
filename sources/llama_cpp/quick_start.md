@@ -21,8 +21,6 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文覆盖单�
 
 ## 1. 加载 CANN 环境
 
-`cmake` 配置阶段会调用 `npu-smi` 探测 SoC 型号；常见容器布局里该命令在 `/usr/local/sbin`。
-
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export PATH=/usr/local/sbin:$PATH
@@ -35,8 +33,6 @@ export PATH=/usr/local/sbin:$PATH
 ```shell
 npu-smi info
 ```
-
-退出码为 0 即表示设备可见；表格中的功耗与 HBM 占用每次不同。
 
 :::{note}
 如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
@@ -88,11 +84,9 @@ build/bin/llama-completion
 ...
 ```
 
-首次全量编译可能耗时较久（数十分钟量级，视机器而定）。
+## 4. 准备 GGUF 模型
 
-## 4. 准备模型（GGUF）
-
-推理输入是 GGUF 文件；910B 上 CANN 后端支持 FP16、BF16、Q8_0、Q4_0（见 [CANN 后端 — DataType](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)）。下面从 Hugging Face 下载约 400 MB 的 Q4_0 示例，并用文件头前 4 字节 `GGUF` 校验。
+推理输入是 GGUF 文件；910B 上 CANN 后端支持 FP16、BF16、Q8_0、Q4_0（见 [CANN 后端 — DataType](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)）。下面从 Hugging Face 下载约 400 MB 的 Q4_0 示例。
 
 ```shell #test id="download-model"
 if [ ! -f qwen2.5-0.5b-instruct-q4_0.gguf ]; then
@@ -111,7 +105,7 @@ GGUF
 
 ## 5. 推理
 
-单卡用 `-sm none -mg <设备号>` 把全部算子钉在指定卡上；多卡用 `-sm layer` 按层拆分。
+单卡用 `-sm none -mg <设备号>` 指定全部算子到特定卡上；多卡用 `-sm layer` 按层拆分。
 
 | 参数 | 含义 |
 | --- | --- |
@@ -126,8 +120,6 @@ GGUF
 | `ASCEND_RT_VISIBLE_DEVICES` | 限制进程可见的 NPU 编号 |
 
 ### 5.1 单卡推理
-
-模型路径 `../qwen2.5-0.5b-instruct-q4_0.gguf` 相对仓库根目录。命令末尾的 `2>&1` 把日志和生成文本打到同一路，便于核对设备。
 
 ```shell #test id="infer"
 cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
@@ -172,22 +164,3 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-cli \
     -m ../qwen2.5-0.5b-instruct-q4_0.gguf \
     -ngl 99 -sm none -mg 0
 ```
-
-## 6. 下一步
-
-| 目标 | 参考 |
-| --- | --- |
-| CANN 环境变量、性能调优、完整模型支持表 | 上游 [docs/backend/CANN.md](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md) |
-| HTTP / OpenAI 兼容 API 服务 | 编译产物 `llama-server` |
-| Hugging Face → GGUF 转换与量化 | 上游 `convert_hf_to_gguf.py`、`llama-quantize` |
-
-## 故障排查
-
-| 现象 | 可能原因 | 建议 |
-| --- | --- | --- |
-| `cmake` 报 SoC 探测失败 | 未 `source set_env.sh`，或 `npu-smi` 不在 `PATH` | 重做第 1–2 节 |
-| 编译很久无报错 | 可能在拉 Hugging Face Web UI 资源 | 加 `-DLLAMA_USE_PREBUILT_UI=OFF` 后重新配置 |
-| `head -c 4` 不是 `GGUF` | 下载到了 HTML 错误页 | 检查 URL、网络与磁盘空间 |
-| 推理退出 0 但无 `CANN0` | NPU 未挂载或层未 offload 到 CANN | 检查 `ASCEND_RT_VISIBLE_DEVICES`、`-ngl`、`-v` 日志 |
-| 双卡推理只有 `CANN0`、没有 `CANN1` | 只暴露了一张卡，或未加 `-sm layer` | 检查可见设备是否为 `0,1`，以及 `-sm` |
-| `llama-completion` 卡住不输出 | 未加 `-no-cnv`，进入对话等待 | 加上 `-no-cnv` 或使用 `-p` 一次性生成 |
