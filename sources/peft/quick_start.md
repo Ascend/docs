@@ -1,14 +1,14 @@
-# 快速开始
+## 快速开始
 
-在单卡昇腾上对 Qwen2.5-3B-Instruct 应用 LoRA、保存并重新加载 PEFT 适配器。
+在单卡昇腾上演示 Qwen2.5-3B-Instruct 的 LoRA 微调：训练、保存适配器、再加载用于推理。
 
-## 前置条件
+### 前置条件
 
-### 硬件
+#### 硬件
 
 Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。
 
-### 基础软件
+#### 基础软件
 
 在跑本文档**之前**，你的机器上需要已经装好并可用：
 
@@ -16,7 +16,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需�
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
 - 与上面 CANN 匹配的 `torch` + `torch_npu`，且 `torch` 能正常 `import` 并 `torch.npu.is_available() == True`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）
 
-### 本文档示例使用的版本
+#### 本文档示例使用的版本
 
 **配套机器**：
 
@@ -40,7 +40,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | huggingface_hub | 最新稳定版（随 `transformers` 一起拉） |
 | 模型 | [Qwen/Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct) |
 
-### 前置安装
+#### 前置安装
 确认能看到 NPU 设备：
 
 ```shell
@@ -118,9 +118,9 @@ python -c "import transformers, huggingface_hub; print(f'transformers={transform
 transformers=xxx huggingface_hub=xxx
 ```
 
-## 安装 PEFT
+### 安装 PEFT
 
-### 使用 uv 进行安装
+#### 使用 uv 进行安装
 
 ```shell #test id="peft-install-binary"
 uv pip install --index-url https://mirrors.aliyun.com/pypi/simple peft
@@ -142,7 +142,7 @@ uv pip uninstall peft -y
 ```
 -->
 
-### 从源码安装
+#### 从源码安装
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
@@ -169,11 +169,11 @@ peft xxx
 xxx 表示最新的版本号
 ```
 
-## 使用 PEFT 方法（例如 LoRA）准备训练模型
+### 使用 PEFT 方法（例如 LoRA）准备训练模型
 
 将基础模型和 PEFT 配置包装起来 `get_peft_model`，并保存适配器。对于 Qwen2.5-3B-Instruct 这种 3B 模型，仅训练约 0.12% 的参数！
 
-### 下载基础模型
+#### 下载基础模型
 
 默认使用 **HuggingFace Hub** 进行模型下载。
 
@@ -181,7 +181,7 @@ xxx 表示最新的版本号
 python -c "from huggingface_hub import snapshot_download; print(snapshot_download('Qwen/Qwen2.5-3B-Instruct'))" | tail -n 1
 ```
 
-### 应用 LoRA 适配器
+#### 应用 LoRA 适配器
 
 把基础模型加载到 NPU 上（`bfloat16` 省显存），构造 `LoraConfig` 描述要插入的 LoRA 矩阵（rank=16 / alpha=32 / 自回归 LM 任务），再用 `get_peft_model` 包成 PEFT 模型——底座权重默认冻结，只有新注入的 LoRA 矩阵参与训练。
 
@@ -220,11 +220,11 @@ output/peft-adapter/adapter_config.json
 output/peft-adapter/adapter_model.safetensors
 ```
 
-## 加载用于推理的 PEFT 模型
+### 加载用于推理的 PEFT 模型
 
 推理的入口。PEFT 把「底座」与「适配器」解耦得很干净——同一份底座可以快速切换不同任务的适配器，无需拷贝整个模型。本节演示：先加载底座（与训练同源），再把上一步保存的 LoRA 适配器「贴」上去，最后用 `generate()` 端到端跑一次生成验证链路通。
 
-### 加载 PEFT 模型
+#### 加载 PEFT 模型
 
 推理的第一步：加载 `tokenizer` + 底座（`AutoModelForCausalLM`），然后用 `PeftModel.from_pretrained(base, "output/peft-adapter")` 把适配器「贴」上去——这一步在底座上原地构造 PEFT 包装，权重来自上一步保存的目录。
 
@@ -254,7 +254,7 @@ trainable params: ... || all params: ... || trainable%: ...
 `<model_path>` 是「下载基础模型」一节 `snapshot_download` 命令打印的路径。
 ```
 
-### 跑一次生成验证
+#### 跑一次生成验证
 
 端到端跑一次生成：tokenizer 把 prompt 编码成 ids，搬到 NPU 上，`model.generate(max_new_tokens=20, do_sample=False)` 续写 20 个 token，解码回文本。PEFT 模型继承 `PreTrainedModel` 接口，`generate` 调用方式与底座完全一致。
 
