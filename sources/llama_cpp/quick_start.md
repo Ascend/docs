@@ -1,8 +1,4 @@
-# 快速开始：在昇腾 NPU 上用 llama.cpp 做推理
-
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。下面从源码编译 llama.cpp 的 CANN 后端，下载一份 GGUF，完成单卡和双卡文本生成。
-
-[llama.cpp](https://github.com/ggml-org/llama.cpp) 是面向 GGUF 的轻量推理引擎。昇腾侧通过 `-DGGML_CANN=on` 把计算调度到 NPU，设备在日志里显示为 `CANN0`。
+# llama.cpp
 
 ## 前置条件
 
