@@ -84,6 +84,22 @@ build/bin/llama-completion
 
 推理输入是 GGUF 文件；910B 上 CANN 后端支持 FP16、BF16、Q8_0、Q4_0（见 [CANN 后端 — DataType](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)）。下面从 Hugging Face 下载约 400 MB 的 Q4_0 示例。
 
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llama.cpp'
+cached="$ci/qwen2.5-0.5b-instruct-q4_0.gguf"
+sum='7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+if [ -f "$cached" ]; then
+  if echo "$sum  $cached" | sha256sum -c >/dev/null 2>&1; then
+    cp -a "$cached" qwen2.5-0.5b-instruct-q4_0.gguf
+  else
+    rm -f "$cached"
+  fi
+fi
+```
+-->
+
 ```shell #test id="download-model"
 if [ ! -f qwen2.5-0.5b-instruct-q4_0.gguf ]; then
   curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 \
@@ -92,6 +108,21 @@ if [ ! -f qwen2.5-0.5b-instruct-q4_0.gguf ]; then
 fi
 head -c 4 qwen2.5-0.5b-instruct-q4_0.gguf
 ```
+
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llama.cpp'
+src='qwen2.5-0.5b-instruct-q4_0.gguf'
+sum='7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+echo "$sum  $src" | sha256sum -c
+if [ ! -f "$ci/qwen2.5-0.5b-instruct-q4_0.gguf" ]; then
+  mkdir -p "$ci"
+  cp -a "$src" "$ci/qwen2.5-0.5b-instruct-q4_0.gguf.part"
+  mv "$ci/qwen2.5-0.5b-instruct-q4_0.gguf.part" "$ci/qwen2.5-0.5b-instruct-q4_0.gguf"
+fi
+```
+-->
 
 输出结果如下：
 

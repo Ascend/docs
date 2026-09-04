@@ -48,6 +48,9 @@ jobs:
       # block sets ASCEND_RT_VISIBLE_DEVICES=0,1 and expects CANN1.
       test_runner: '["linux-aarch64-a2-2"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # Do not add a container bind-mount for /root/.cache: the runner
+      # NFS already persists that tree. Hidden #test-setup in the doc
+      # restores/saves the GGUF under /root/.cache/huggingface/llama.cpp/.
       # Compile-from-source budget. peft's 120 min is not enough for a
       # cold cmake + CANN backend build plus a 400 MB GGUF download.
       timeout_minutes: 240
