@@ -411,6 +411,7 @@
 
    sources/LLaMA-Factory/index.rst
    sources/ms-swift/index.rst
+   sources/peft/index.md
    sources/roll/index.rst
    sources/torchtitan/index.rst
    sources/trl/index.rst
