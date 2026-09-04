@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>llama.cpp &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="lmdeploy" href="../lm_deploy/index.html" />
+    <link rel="prev" title="快速开始" href="../pyg/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">llama.cpp</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认 CANN 与编译工具</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3. 获取源码并编译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gguf">4. 准备 GGUF 模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">5. 推理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">5.1 单卡推理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">5.2 多卡推理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">5.3 交互式对话（可选）</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">llama.cpp</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/llama_cpp/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="llama-cpp">
+<h1>llama.cpp<a class="headerlink" href="#llama-cpp" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文覆盖单卡与双卡。上游已验证的设备列表见 <a class="reference external" href="https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md">CANN 后端 — Devices</a>。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit + 驱动固件已安装并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>编译工具</p></td>
+<td><p>cmake ≥ 3.14、g++（C++17）、make、git</p></td>
+</tr>
+<tr class="row-even"><td><p>下载工具</p></td>
+<td><p>curl</p></td>
+</tr>
+<tr class="row-odd"><td><p>llama.cpp</p></td>
+<td><p>本文从 GitHub 源码编译，见下文</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="npu">
+<h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+</div>
+</section>
+<section id="id5">
+<h3>2.2 确认 CANN 与编译工具<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">cmake</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi
+cmake<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+cmake<span class="w"> </span>version<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>3. 获取源码并编译<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>克隆 <a class="reference external" href="https://github.com/ggml-org/llama.cpp">ggml-org/llama.cpp</a>，开启 CANN 后端后应生成 <code class="docutils literal notranslate"><span class="pre">llama-completion</span></code>（一次性文本生成）。将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标分支、tag 或 commit（上游默认分支为 <code class="docutils literal notranslate"><span class="pre">master</span></code>）。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>llama.cpp/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ggml-org/llama.cpp.git
+<span class="k">fi</span>
+<span class="nb">cd</span><span class="w"> </span>llama.cpp
+git<span class="w"> </span>checkout<span class="w"> </span>&lt;ref&gt;
+cmake<span class="w"> </span>-B<span class="w"> </span>build<span class="w"> </span>-DGGML_CANN<span class="o">=</span>on<span class="w"> </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release
+cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"> </span>--config<span class="w"> </span>Release<span class="w"> </span>-j<span class="k">$(</span>nproc<span class="k">)</span>
+ls<span class="w"> </span>build/bin/llama-completion
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+build/bin/llama-completion
+...
+</pre></div>
+</div>
+</section>
+<section id="gguf">
+<h2>4. 准备 GGUF 模型<a class="headerlink" href="#gguf" title="Link to this heading"></a></h2>
+<p>推理输入是 GGUF 文件；910B 上 CANN 后端支持 FP16、BF16、Q8_0、Q4_0（见 <a class="reference external" href="https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md">CANN 后端 — DataType</a>）。下面从 Hugging Face 下载约 400 MB 的 Q4_0 示例。</p>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llama.cpp'
+cached="$ci/qwen2.5-0.5b-instruct-q4_0.gguf"
+sum='7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+if [ -f "$cached" ]; then
+  if echo "$sum  $cached" | sha256sum -c >/dev/null 2>&1; then
+    cp -a "$cached" qwen2.5-0.5b-instruct-q4_0.gguf
+  else
+    rm -f "$cached"
+  fi
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>qwen2.5-0.5b-instruct-q4_0.gguf<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>curl<span class="w"> </span>-fL<span class="w"> </span>--retry<span class="w"> </span><span class="m">3</span><span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">5</span><span class="w"> </span>--connect-timeout<span class="w"> </span><span class="m">30</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>qwen2.5-0.5b-instruct-q4_0.gguf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_0.gguf
+<span class="k">fi</span>
+head<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>qwen2.5-0.5b-instruct-q4_0.gguf
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llama.cpp'
+src='qwen2.5-0.5b-instruct-q4_0.gguf'
+sum='7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+echo "$sum  $src" | sha256sum -c
+if [ ! -f "$ci/qwen2.5-0.5b-instruct-q4_0.gguf" ]; then
+  mkdir -p "$ci"
+  cp -a "$src" "$ci/qwen2.5-0.5b-instruct-q4_0.gguf.part"
+  mv "$ci/qwen2.5-0.5b-instruct-q4_0.gguf.part" "$ci/qwen2.5-0.5b-instruct-q4_0.gguf"
+fi
+```
+-->
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>GGUF
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>5. 推理<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>单卡用 <code class="docutils literal notranslate"><span class="pre">-sm</span> <span class="pre">none</span> <span class="pre">-mg</span> <span class="pre">&lt;设备号&gt;</span></code> 指定全部算子到特定卡上；多卡用 <code class="docutils literal notranslate"><span class="pre">-sm</span> <span class="pre">layer</span></code> 按层拆分。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>参数</p></th>
+<th class="head"><p>含义</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-m</span></code></p></td>
+<td><p>GGUF 模型路径</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span></code></p></td>
+<td><p>提示词</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-n</span></code></p></td>
+<td><p>最大生成 token 数。首次验证用 <code class="docutils literal notranslate"><span class="pre">64</span></code>，正式跑再改大</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-ngl</span></code></p></td>
+<td><p>offload 到 NPU 的层数。<code class="docutils literal notranslate"><span class="pre">99</span></code> 表示尽量全部，否则层会留在 CPU</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-no-cnv</span></code></p></td>
+<td><p>关闭自动对话。Instruct 类 GGUF 不加此项会等待键盘输入</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-v</span></code></p></td>
+<td><p>提高日志详细度，确认权重是否加载到 NPU</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-sm</span> <span class="pre">none</span> <span class="pre">-mg</span> <span class="pre">0</span></code></p></td>
+<td><p>单卡布局：全部算子跑在 0 号卡</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-sm</span> <span class="pre">layer</span></code></p></td>
+<td><p>多卡布局：按层拆到可见的多张卡</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code></p></td>
+<td><p>限制进程可见的 NPU 编号</p></td>
+</tr>
+</tbody>
+</table>
+<section id="id8">
+<h3>5.1 单卡推理<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>llama.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>./build/bin/llama-completion<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-m<span class="w"> </span>../qwen2.5-0.5b-instruct-q4_0.gguf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span><span class="s2">"Building a website can be done in 10 simple steps:"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-n<span class="w"> </span><span class="m">64</span><span class="w"> </span>-no-cnv<span class="w"> </span>-ngl<span class="w"> </span><span class="m">99</span><span class="w"> </span>-sm<span class="w"> </span>none<span class="w"> </span>-mg<span class="w"> </span><span class="m">0</span><span class="w"> </span>-v<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...using<span class="w"> </span>device<span class="w"> </span>CANN0...
+...CANN0<span class="w"> </span>model<span class="w"> </span>buffer<span class="w"> </span><span class="nv">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>5.2 多卡推理<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>有两张及以上 NPU 时，可用 <code class="docutils literal notranslate"><span class="pre">-sm</span> <span class="pre">layer</span></code> 把层拆到多卡。下面示例暴露 0、1 号卡：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>llama.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>./build/bin/llama-completion<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-m<span class="w"> </span>../qwen2.5-0.5b-instruct-q4_0.gguf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span><span class="s2">"Building a website can be done in 10 simple steps:"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-n<span class="w"> </span><span class="m">64</span><span class="w"> </span>-no-cnv<span class="w"> </span>-ngl<span class="w"> </span><span class="m">99</span><span class="w"> </span>-sm<span class="w"> </span>layer<span class="w"> </span>-v<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...using<span class="w"> </span>device<span class="w"> </span>CANN0...
+...using<span class="w"> </span>device<span class="w"> </span>CANN1...
+...CANN0<span class="w"> </span>model<span class="w"> </span>buffer<span class="w"> </span><span class="nv">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>...
+...CANN1<span class="w"> </span>model<span class="w"> </span>buffer<span class="w"> </span><span class="nv">size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>5.3 交互式对话（可选）<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">llama-cli</span></code> 面向多轮对话，启动后会等待键盘输入。想手动体验模型时可以使用：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>llama.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>./build/bin/llama-cli<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-m<span class="w"> </span>../qwen2.5-0.5b-instruct-q4_0.gguf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-ngl<span class="w"> </span><span class="m">99</span><span class="w"> </span>-sm<span class="w"> </span>none<span class="w"> </span>-mg<span class="w"> </span><span class="m">0</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../pyg/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../lm_deploy/index.html" class="btn btn-neutral float-right" title="lmdeploy" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
