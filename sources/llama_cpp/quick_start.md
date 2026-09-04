@@ -1,6 +1,6 @@
 # 快速开始：在昇腾 NPU 上用 llama.cpp 做推理
 
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。下面从源码编译 llama.cpp 的 CANN 后端，下载一份 GGUF，在单卡上完成一次文本生成。
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。下面从源码编译 llama.cpp 的 CANN 后端，下载一份 GGUF，完成单卡和双卡文本生成。
 
 [llama.cpp](https://github.com/ggml-org/llama.cpp) 是面向 GGUF 的轻量推理引擎。昇腾侧通过 `-DGGML_CANN=on` 把计算调度到 NPU，设备在日志里显示为 `CANN0`。
 
@@ -8,7 +8,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。上游已验证的设备列表见 [CANN 后端 — Devices](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)。
+Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文覆盖单卡与双卡。上游已验证的设备列表见 [CANN 后端 — Devices](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)。
 
 ### 软件
 
@@ -122,6 +122,7 @@ GGUF
 | `-no-cnv` | 关闭自动对话。Instruct 类 GGUF 不加此项会等待键盘输入 |
 | `-v` | 提高日志详细度，确认权重是否加载到 NPU |
 | `-sm none -mg 0` | 单卡布局：全部算子跑在 0 号卡 |
+| `-sm layer` | 多卡布局：按层拆到可见的多张卡 |
 | `ASCEND_RT_VISIBLE_DEVICES` | 限制进程可见的 NPU 编号 |
 
 ### 5.1 单卡推理
@@ -142,15 +143,24 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
 ...CANN0 model buffer size = ...
 ```
 
-### 5.2 多卡推理（可选）
+### 5.2 多卡推理
 
 有两张及以上 NPU 时，可用 `-sm layer` 把层拆到多卡。下面示例暴露 0、1 号卡：
 
-```shell
+```shell #test id="infer-multi"
 cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
     -m ../qwen2.5-0.5b-instruct-q4_0.gguf \
     -p "Building a website can be done in 10 simple steps:" \
     -n 64 -no-cnv -ngl 99 -sm layer -v 2>&1
+```
+
+输出结果如下：
+
+```shell #test-result id="infer-multi"
+...using device CANN0...
+...using device CANN1...
+...CANN0 model buffer size = ...
+...CANN1 model buffer size = ...
 ```
 
 ### 5.3 交互式对话（可选）
@@ -179,4 +189,5 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-cli \
 | 编译很久无报错 | 可能在拉 Hugging Face Web UI 资源 | 加 `-DLLAMA_USE_PREBUILT_UI=OFF` 后重新配置 |
 | `head -c 4` 不是 `GGUF` | 下载到了 HTML 错误页 | 检查 URL、网络与磁盘空间 |
 | 推理退出 0 但无 `CANN0` | NPU 未挂载或层未 offload 到 CANN | 检查 `ASCEND_RT_VISIBLE_DEVICES`、`-ngl`、`-v` 日志 |
+| 双卡推理只有 `CANN0`、没有 `CANN1` | 只暴露了一张卡，或未加 `-sm layer` | 检查可见设备是否为 `0,1`，以及 `-sm` |
 | `llama-completion` 卡住不输出 | 未加 `-no-cnv`，进入对话等待 | 加上 `-no-cnv` 或使用 `-p` 一次性生成 |
