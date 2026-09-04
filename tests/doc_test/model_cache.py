@@ -1,63 +1,4 @@
 """Model-hub cache validation: detect / purge stale safetensors shards.
-
-Used by ``prepare_environment`` of every quick-start test that
-downloads model weights via ``modelscope`` or HuggingFace Hub.
-The runner bind-mounts a host-side cache so it survives across CI
-runs — useful for hits, but stale files (from kill -9 / OOM /
-network drop) leak into the next run and trip
-``safetensors.safe_open`` on deserialization.
-
-This module validates each shard's header with the native
-``safetensors`` loader and ``rmtree``-s the parent model dir on
-any failure; the originating library will re-download the whole
-model on next access. ``report_<provider>_state`` is also exposed
-for pre-flight logging.
-
-Provider split
---------------
-
-The module is organized by *provider* (``modelscope`` /
-``huggingface``) rather than a single dispatcher: callers pick the
-provider explicitly via the function they import. Reasons:
-
-- Only two providers are in scope; a dispatch table is overkill.
-- Explicit imports make the project's chosen provider visible at
-  the call site — no hidden resolution.
-- Adding a third provider (e.g. OpenMind, HF 国内镜像) means adding
-  the same four functions (``resolve_<provider>_cache``,
-  ``report_<provider>_state``, ``purge_<provider>_corrupt``), no
-  dispatcher surgery.
-
-Helpers shared across providers
--------------------------------
-
-- ``ensure_safetensors`` — install ``safetensors`` if the CANN
-  base image doesn't ship it.
-- ``safetensors_header_ok`` — validate one shard via
-  ``safe_open``. Provider-agnostic because the safetensors file
-  format is the same regardless of which hub served it.
-- ``_curl_throughput_probe`` — shared throughput probe used by
-  both the modelscope.cn and hf-mirror.com reachability checks.
-- ``diagnose_mount_environment`` — mount / capability / network
-  diagnostics. The HF cache probe inside already speaks HF layout.
-
-Layouts
--------
-
-ModelScope (``$MODELSCOPE_CACHE`` / ``~/.cache/modelscope``)::
-
-    <cache_root>/hub/models/<org>/<model>/<revision>/*.safetensors
-
-Dotted model ids (``.`` → ``___``) live in a masked dir with a
-symlink of the original name; we walk the masked dir directly.
-
-HuggingFace Hub (``$HF_HUB_CACHE`` / ``~/.cache/huggingface/hub``)::
-
-    <cache_root>/models--<org>--<model>/
-        blobs/<sha256>           # real file content
-        snapshots/<commit_sha>/  # symlinks to blobs + small files
-            *.safetensors
-            model.safetensors.index.json
 """
 
 from __future__ import annotations
@@ -68,11 +9,6 @@ import shutil
 import subprocess
 from pathlib import Path
 
-# Cap on per-section file listings inside ``report_*_state`` so a
-# model with hundreds of tokenizer shards (e.g. some multilingual
-# tokenizers ship 100+ ``merges.txt``-style files) doesn't flood the
-# CI log. The total count + total size always print, so truncation is
-# obvious.
 _MAX_LISTED_FILES = 10
 
 
@@ -82,18 +18,6 @@ _MAX_LISTED_FILES = 10
 
 
 def ensure_safetensors() -> None:
-    """Defensively install ``safetensors`` if not already importable.
-
-    The CANN base image used by the runner may not ship
-    ``safetensors``; torch < 4.20 doesn't hard-depend on it. The
-    validation helpers below need it, so callers should invoke
-    this once in their ``prepare_environment`` before
-    ``purge_<provider>_corrupt``. No-op when already installed.
-
-    Inherits the parent env, so any ``PIP_INDEX_URL`` /
-    ``PIP_CONSTRAINT`` / ``UV_*`` configured by the workflow
-    carries through to the install.
-    """
     try:
         import safetensors  # noqa: F401
     except ImportError:
@@ -104,28 +28,8 @@ def ensure_safetensors() -> None:
 
 
 def safetensors_header_ok(path: Path) -> bool:
-    """Use safetensors' native loader to validate the file header.
-    Returns True iff ``safe_open`` accepts the file (header parses,
-    tensor offsets fit within the file). ``SafetensorError`` or
-    ``OSError`` means the shard is unusable.
-
-    Lazy import: the module itself loads fine on machines that
-    don't have ``safetensors`` installed yet — the import only
-    fires when a caller actually invokes this function. Callers
-    should run ``ensure_safetensors()`` once first if they intend
-    to call this in an environment where ``safetensors`` may be
-    missing.
-
-    Provider-agnostic: the safetensors file format is the same
-    whether the file was served by modelscope, HuggingFace Hub,
-    or any other mirror that ships identical weights.
-    """
     from safetensors import safe_open, SafetensorError  # noqa: I001
     try:
-        # framework='numpy' instead of 'pt': only ``.keys()`` is read so
-        # the framework is a no-op for our use case, but safetensors
-        # 0.8.0 makes ``framework`` required and 'pt' would force
-        # ``import torch`` — bare CANN 9.1.0 image doesn't ship torch.
         with safe_open(str(path), framework='numpy') as f:
             list(f.keys())  # force header read
     except (SafetensorError, OSError):
@@ -134,15 +38,6 @@ def safetensors_header_ok(path: Path) -> bool:
 
 
 def _curl_throughput_probe(url: str, label: str) -> None:
-    """Run ``curl -w`` against ``url``, print per-phase timing +
-    throughput + verdict. Shared by the modelscope and HF probes so
-    both report in the same format for easy side-by-side comparison.
-
-    Verdict thresholds:
-      > 10 MiB/s      healthy
-      1 – 10 MiB/s    slow — likely server-side throttling
-      < 1 MiB/s       very slow — investigate network path
-    """
     print(f'  network throughput (GET {label}):')
     try:
         out = subprocess.run(
@@ -211,47 +106,9 @@ def diagnose_mount_environment(
     cache_root: Path | None = None,
     model_id: str | None = None,
 ) -> None:
-    """Probe the container's view of ``cache_root`` to disambiguate
-    "the bind mount isn't visible" cases.
-
-    Companion to ``report_<provider>_state`` — called from
-    ``prepare_environment`` first so the cache-state log has its
-    environment context. Provider-agnostic: takes whatever
-    ``cache_root`` the caller passes (modelscope or HF).
-
-    Each probe answers a specific question:
-
-    - ``findmnt -T <path>`` — canonical "is this a mountpoint".
-      Empty output means it isn't.
-    - ``stat -c '%d:%i'`` on the path *and* its parent — mountpoint
-      detection without ``findmnt``: a separate mountpoint lives on
-      a different device (``st_dev``) than its parent.
-    - ``/proc/self/mountinfo`` — kernel-level mount table, more
-      authoritative than ``mount`` (which reads ``/etc/mtab`` /
-      ``/proc/mounts`` and can be filtered in some runtimes).
-    - ``hostname`` + ``/proc/1/cgroup`` — confirm we're inside a
-      Kubernetes pod (cgroup paths contain ``kubepods/``);
-      bind-mount behavior differs there.
-    - ``CapBnd`` from ``/proc/self/status`` — ``CAP_SYS_ADMIN``
-      (bit 21) is required for bind mounts on most runtimes;
-      absence explains silent bind-mount failures.
-    - ``df -h`` — backing filesystem / size for when the path *is*
-      a mountpoint (useful sanity check that it's actually
-      persistent).
-    - ``curl`` throughput to modelscope.cn — disambiguates "the
-      download is slow" (see :func:`_curl_throughput_probe`).
-    - HF default cache + ``curl`` throughput to hf-mirror.com —
-      fallback-mirror probe, used to decide whether to swap
-      ``snapshot_download`` providers. Only runs when ``model_id``
-      is provided.
-
-    All probes are read-only and have 5–65 s timeouts; missing tools
-    print ``(not available)`` rather than raising.
-    """
     cache_root = cache_root or resolve_modelscope_cache()
     print('mount-diag: probing container mount environment')
 
-    # findmnt — canonical "is this a mountpoint"
     print(f'  findmnt -T {cache_root}:')
     try:
         out = subprocess.run(
@@ -345,7 +202,6 @@ def diagnose_mount_environment(
     except OSError as e:
         print(f'    read /proc/1/cgroup failed: {e}')
 
-    # capabilities — CAP_SYS_ADMIN (bit 21) required for bind mounts
     print('  capabilities (from /proc/self/status):')
     try:
         cap_lines: list[str] = []
@@ -371,7 +227,6 @@ def diagnose_mount_environment(
     except OSError as e:
         print(f'    read /proc/self/status failed: {e}')
 
-    # df — backing filesystem / size
     print(f'  df -h {cache_root}:')
     try:
         out = subprocess.run(
@@ -390,26 +245,13 @@ def diagnose_mount_environment(
     except subprocess.TimeoutExpired:
         print('    (df timed out)')
 
-    # Network throughput — disambiguates "the download is slow".
-    # 7 MiB ``tokenizer.json`` is the probe: large enough to escape
-    # TCP slow-start, small enough to finish in seconds on a
-    # healthy link; ``%{speed_download}`` includes DNS+connect time
-    # so a slow DNS still shows up as low throughput.
     _curl_throughput_probe(
         'https://www.modelscope.cn/Qwen/Qwen2.5-3B-Instruct/'
         'resolve/master/tokenizer.json',
         'modelscope.cn/tokenizer.json',
     )
 
-    # HF fallback probe — only runs when caller passes ``model_id``.
-    # Checks (a) whether the model is already in HF's default cache
-    # ``~/.cache/huggingface/hub/`` so a future switch to
-    # ``huggingface_hub.snapshot_download`` would be a no-op download,
-    # and (b) throughput to ``hf-mirror.com`` so we can compare against
-    # modelscope.cn and decide whether the swap is worth it.
     if model_id:
-        # HF cache layout: ~/.cache/huggingface/hub/models--<org>--<model>/.
-        # The ``/`` separator in the model id becomes ``--`` in the dir name.
         hf_cache_root = resolve_huggingface_cache()
         hf_model_dir_name = 'models--' + model_id.replace('/', '--')
         hf_model_dir = hf_cache_root / hf_model_dir_name
@@ -443,13 +285,6 @@ def diagnose_mount_environment(
         else:
             print(f'    not present: {hf_model_dir}')
 
-        # Throughput to huggingface.co (HF's primary endpoint, which is
-        # what ``huggingface_hub.snapshot_download`` hits by default).
-        # Probe the *original* — not hf-mirror.com or any other mirror —
-        # so the comparison against modelscope.cn above is apples-to-
-        # apples (primary-of-A vs primary-of-B). Mirror speeds are a
-        # different question; the decision at hand is "should we switch
-        # providers", which is governed by primary throughput.
         _curl_throughput_probe(
             f'https://huggingface.co/{model_id}/resolve/main/tokenizer.json',
             'huggingface.co/tokenizer.json',
@@ -477,35 +312,12 @@ def resolve_modelscope_cache() -> Path:
 def report_modelscope_state(
     model_id: str, cache_root: Path | None = None,
 ) -> bool:
-    """Pre-flight log for ``model_id``; returns whether every expected
-    shard is present and header-valid.
-
-    Called from ``prepare_environment`` right before
-    ``snapshot_download`` so the CI log shows per-shard sizes +
-    validity (not just the aggregate ``cache: hit`` line from
-    ``purge_modelscope_corrupt``).
-
-    Walks the masked dir (``.`` → ``___``): ``Qwen/Qwen2.5-3B-Instruct``
-    lives at ``.../Qwen/Qwen2___5-3B-Instruct/`` on disk.
-
-    Stricter than ``snapshot_download`` (existence + size only):
-    parses the safetensors header to confirm tensor offsets fit —
-    catches truncated-content files the size check would silently
-    accept.
-
-    Returns True iff all expected shards (from ``index.json``) are
-    present and valid; single-file models fall back to "≥1 valid
-    shard". Does not modify disk state.
-    """
     cache_root = cache_root or resolve_modelscope_cache()
     org, _, model = model_id.partition('/')
     if not org or not model:
         raise ValueError(
             f'model_id must be "<org>/<model>", got {model_id!r}'
         )
-    # Modelscope masks dotted model ids on disk: ``Qwen2.5-...`` →
-    # ``Qwen2___5-...``. The original-id dir is a symlink; we walk the
-    # masked dir directly so we don't depend on symlink resolution.
     masked_model = model.replace('.', '___')
     masked_dir = cache_root / 'hub' / 'models' / org / masked_model
 
@@ -526,11 +338,6 @@ def report_modelscope_state(
         else:
             other_files.append(p)
 
-    # Determine *expected* shard set. Sharded models ship a
-    # ``model.safetensors.index.json`` whose ``weight_map`` lists every
-    # shard file by name — that's the ground truth for "did the download
-    # actually finish". Single-file models have no index.json; we fall
-    # back to "any safetensors file counts" for those.
     expected_shard_names: set[str] = set()
     for idx_path in masked_dir.rglob('model.safetensors.index.json'):
         try:
@@ -546,8 +353,6 @@ def report_modelscope_state(
         else set()
     )
 
-    # Validate present shards once; reuse for both per-shard log and
-    # aggregate return value.
     shard_status: list[tuple[Path, bool]] = [
         (p, safetensors_header_ok(p)) for p in safetensors_shards
     ]
@@ -595,11 +400,6 @@ def report_modelscope_state(
     if len(other_files) > _MAX_LISTED_FILES:
         print(f'    ... and {len(other_files) - _MAX_LISTED_FILES} more')
 
-    # Diagnostics: raw `ls` of the masked dir, for when "CI says X
-    # but my ls says Y" — typically a bind-mount issue. Print before
-    # the state line so the conclusion lines up with the evidence.
-    # Mount-level diagnostics live in ``diagnose_mount_environment``
-    # (called separately from ``prepare_environment``).
     print(f'  ls -la {masked_dir}/:')
     try:
         ls = subprocess.run(
@@ -625,9 +425,6 @@ def report_modelscope_state(
     except subprocess.TimeoutExpired:
         print('    (ls timed out)')
 
-    # HIT requires: (a) every expected shard present, (b) every
-    # present shard header-valid. When no index.json is present
-    # (single-file model), fall back to "at least one valid shard".
     if expected_shard_names:
         all_present = not missing_shard_names
         all_valid = all_present and corrupt_count == 0
@@ -655,38 +452,6 @@ def report_modelscope_state(
 
 
 def purge_modelscope_corrupt(cache_root: Path) -> None:
-    """Scan every ``*.safetensors`` file under each model dir and purge
-    the model dir if any shard is corrupt. ``modelscope`` will
-    re-download the whole model on next access. No-op when the
-    cache root is absent (fresh container, or first-time setup).
-
-    Walks the full model dir (not just ``blobs/``) because
-    ModelScope's layout is
-    ``<model_dir>/<revision>/*.safetensors`` — unlike HuggingFace
-    Hub which uses ``blobs/`` + symlinks. ``safe_open`` resolves
-    symlinks transparently, so this also catches a future
-    modelscope release that switches to the HF-style layout.
-
-    For dotted model ids (``Qwen2.5-...``), modelscope stores the
-    files in a masked dir (``.`` → ``___``) plus a *symlink* named
-    after the original id for readability. ``is_dir()`` follows the
-    symlink, so without the ``not is_symlink()`` filter both entries
-    match: each shard gets validated twice, and when a corrupt shard
-    triggers the purge, ``shutil.rmtree`` on the symlink entry raises
-    ``OSError`` (rmtree refuses symlinks by design) and crashes
-    ``prepare_environment`` — exactly in the scenario the purge
-    exists for. Skipping the symlink entries keeps the purge on the
-    masked dir only.
-
-    Parameters
-    ----------
-    cache_root : Path
-        The modelscope cache root (i.e. the value of
-        ``$MODELSCOPE_CACHE`` or its default ``~/.cache/modelscope``).
-        Passed in as a parameter so the function is reusable from
-        tests with a tmp dir and doesn't carry an implicit dependency
-        on a module-level constant.
-    """
     hub_models = cache_root / 'hub' / 'models'
     if not hub_models.exists():
         print(f'cache: miss ({hub_models} not present yet); nothing to validate')
@@ -726,21 +491,6 @@ def purge_modelscope_corrupt(cache_root: Path) -> None:
 
 
 def resolve_huggingface_cache() -> Path:
-    """Return the HuggingFace Hub cache root the same way
-    ``huggingface_hub`` does: prefer ``$HF_HUB_CACHE`` if set,
-    otherwise ``$HF_HOME/hub`` if ``HF_HOME`` is set, otherwise
-    ``~/.cache/huggingface/hub``.
-
-    Resolved at call time (not import time) so tests / subprocesses
-    that mutate the env get the right value.
-
-    Note on the default: ``huggingface_hub.constants.HF_HUB_CACHE``
-    resolves to ``HF_HOME/hub`` (so ``~/.cache/huggingface/hub``
-    when neither var is set). We replicate that resolution here to
-    avoid importing ``huggingface_hub`` at module load — the CANN
-    runner base image may not ship it yet, and
-    ``prepare_environment`` runs before the doc installs it.
-    """
     hub_cache = os.environ.get('HF_HUB_CACHE')
     if hub_cache:
         return Path(hub_cache)
@@ -753,54 +503,12 @@ def resolve_huggingface_cache() -> Path:
 def _huggingface_model_dir(
     model_id: str, cache_root: Path,
 ) -> Path:
-    """Resolve the on-disk model dir for ``model_id`` under HF's
-    default layout: ``<cache_root>/models--<org>--<model>/``.
-
-    HF replaces the ``/`` in the model id with ``--`` to flatten
-    the namespace into a single dir name. We don't validate the
-    id here — callers (report/purge) handle missing dirs cleanly.
-    """
     return cache_root / ('models--' + model_id.replace('/', '--'))
 
 
 def report_huggingface_state(
     model_id: str, cache_root: Path | None = None,
 ) -> bool:
-    """Pre-flight log for ``model_id`` against the HF Hub cache;
-    returns whether every expected shard is present and header-valid.
-
-    Layout walked::
-
-        <cache_root>/models--<org>--<model>/
-            refs/<rev>                 # tiny file holding commit SHA
-            snapshots/<commit_sha>/
-                *.safetensors           # symlinks into blobs/
-                model.safetensors.index.json
-            blobs/<sha256>              # real file content
-
-    For sharded models the expected shard set is read from
-    ``model.safetensors.index.json`` (just like the modelscope
-    report). For single-file models we fall back to "≥1 valid
-    shard" since HF doesn't ship an index.json in that case.
-
-    Revision resolution: HF may have multiple snapshot dirs under
-    ``snapshots/`` (one per commit), e.g. ``main``, a tagged
-    release SHA, or a previous install's pinned revision. We pick
-    the lexicographically first snapshot dir — in practice this is
-    ``main`` (created by ``huggingface_hub`` when ``revision`` is
-    not specified) since its name sorts before any 40-char SHA.
-    Callers that pin a specific revision should set
-    ``HF_HUB_CACHE`` to a per-revision cache root instead.
-
-    Stricter than ``snapshot_download`` (existence + size only):
-    parses the safetensors header to confirm tensor offsets fit —
-    catches truncated-content files the size check would silently
-    accept.
-
-    Returns True iff all expected shards (from ``index.json``) are
-    present and valid; single-file models fall back to "≥1 valid
-    shard". Does not modify disk state.
-    """
     cache_root = cache_root or resolve_huggingface_cache()
     org, _, model = model_id.partition('/')
     if not org or not model:
@@ -821,11 +529,6 @@ def report_huggingface_state(
         print(f'  state: MISS — snapshots dir not present ({snapshots_dir})')
         return False
 
-    # Pick a snapshot dir. Prefer 'main' if present (it's the
-    # default revision ``snapshot_download`` uses), otherwise the
-    # lexicographically first entry. 'main' sorts before any 40-char
-    # SHA, but an explicit lexicographic pick still gives a stable
-    # answer when 'main' is absent.
     snapshots = sorted(p for p in snapshots_dir.iterdir() if p.is_dir())
     if not snapshots:
         print('  state: MISS — no snapshot revisions')
@@ -837,10 +540,6 @@ def report_huggingface_state(
     print(f'  revision dir: {rev_dir}')
 
     safetensors_shards: list[Path] = sorted(rev_dir.glob('*.safetensors'))
-    # ``other_files`` in the rev dir: tokenizer / config / etc.
-    # Useful for "did the download at least *start*" sanity check,
-    # since on a partial download the small JSONs land first and
-    # the weight shards come later.
     other_files: list[Path] = [
         p for p in rev_dir.iterdir()
         if p.is_file() and p.suffix != '.safetensors'
@@ -888,8 +587,6 @@ def report_huggingface_state(
     for shard, ok in shard_status[:_MAX_LISTED_FILES]:
         size_gb = shard.stat().st_size / (1 << 30)
         marker = 'OK' if ok else 'CORRUPT'
-        # In HF layout the rev_dir holds symlinks; resolve so the
-        # "real size" matches what blobs/ actually has on disk.
         target = shard.resolve()
         print(f'    [{marker}] {shard.name}  {size_gb:.2f} GB'
               + (f'  -> {target}' if target != shard else ''))
@@ -913,9 +610,6 @@ def report_huggingface_state(
     if len(other_files) > _MAX_LISTED_FILES:
         print(f'    ... and {len(other_files) - _MAX_LISTED_FILES} more')
 
-    # Diagnostics: raw `ls` of the rev dir. Same motivation as the
-    # modelscope report — when "CI says X but my ls says Y" comes
-    # up, the bind-mount state is usually to blame.
     print(f'  ls -la {rev_dir}/:')
     try:
         ls = subprocess.run(
@@ -1006,10 +700,6 @@ def purge_huggingface_corrupt(cache_root: Path) -> None:
     ]
     purged = 0
     for model_dir in model_dirs:
-        # Walk every snapshot revision — a model with multiple
-        # revisions can have one corrupt one and one healthy one;
-        # we still purge the whole model dir since ``snapshot_download``
-        # recreates both consistently.
         snapshots_dir = model_dir / 'snapshots'
         if not snapshots_dir.is_dir():
             continue

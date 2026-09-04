@@ -1,30 +1,4 @@
-"""Markdown document label test base class: template method pre_process -> parse -> execute -> post_process.
-
-The contract is defined in docs/markdown_doc_test_label.md: every code block's info string carries
-``#test`` / ``#test-result`` / ``#test-setup`` labels, plus ``id=`` / ``store=`` /
-``load='x>>y'`` / ``fuzzy='xxx'`` parameters. This module turns the contract into an executable framework:
-
-* Parsing (``parse`` -> mistune AST + inner fence re-scan + ``_parse_block`` ->
-  ``_fold``) returns the ``SetupCommand`` / ``TestCommand`` main sequence +
-  the ``TestExpectedOutput`` registry;
-* Validation (``_validate``) is embedded in parsing; rules 2/5/7/10 + load-store ordering violations raise ``LabelSpecError``;
-* Execution (``execute``) runs commands in document order; ``SetupCommand`` captures stdout into
-  ``captures``; ``TestCommand`` substitutes ``<local>`` placeholders then runs, then looks up by id in
-  ``TestExpectedOutput`` for comparison;
-* Logging (``log`` / ``log_block``) uses a unified format; on failure, dumps the failing command itself + actual output.
-
-The parser relies on mistune v3's AST to handle the "outer fence + HTML comment span", and applies
-a line-scan to fences inside ``block_html.raw`` to rescue setups inside comments that got folded by the CommonMark HTML block
-parser (the v2 contract supports ``<!-- ```shell #test-setup ... ````<!-- ``` -->`` form inside
-comments, but no standard markdown library carves out the inner fence by itself).
-
-Subclasses get ``pre_process`` (fetch markdown text from ``MONITORED_DOC_URL``) and
-``post_process`` (no-op cleanup) as working defaults; override either to swap doc
-source or add teardown. Typical customisation lives in ``setUpClass`` /
-``prepare_environment`` (env-specific install) plus a single
-``def test_runs_doc(self): self.run_template()`` entry.
-``DEFAULT_COMMAND_TIMEOUT`` (timeout seconds shared by all subprocesses, default 1800)
-may also be overridden.
+"""Markdown document label test base class
 """
 
 from __future__ import annotations
@@ -50,23 +24,6 @@ import mistune
 
 @dataclass(frozen=True)
 class SetupCommand:
-    """#test-setup command: run + capture stdout.
-
-    ``hidden=True`` means the setup block sits inside an HTML comment (not rendered on the page), but it still participates in
-    execution and the store chain (contract rule 10).
-
-    ``load`` mirrors ``TestCommand.load`` — ``((store_var, local_name), ...)`` pairs for ``<local>``
-    placeholder substitution. ``substitute_placeholders`` runs on ``cmd`` before execution so a setup
-    block can reference earlier captures (e.g. a Step N setup block that needs Step N-1's path).
-    Without this, ``<placeholder>`` strings inside a heredoc body reach bash literally and break
-    downstream tooling — e.g. speculators' ``convert_model(model="<draft_path>")`` would call
-    huggingface_hub with the literal string ``<draft_path>`` and crash on repo-id validation.
-
-    ``__post_init__`` validates fields at construction time: cmd non-empty, store non-empty string,
-    load tuple shape (same contract as TestCommand.load). This is the "immutable contract" — when
-    the runner receives the dataclass, every field is guaranteed valid; no extra defense needed.
-    """
-
     cmd: str
     store: str | None
     hidden: bool
@@ -95,12 +52,6 @@ class SetupCommand:
 
 @dataclass(frozen=True)
 class TestCommand:
-    """#test command: run + compare against expected. Note: does not carry expected.
-
-    At comparison time, the runner looks up the expected output by ``id`` in the ``TestExpectedOutput`` registry.
-    ``__post_init__`` validates required fields + the load tuple shape.
-    """
-
     id: str
     cmd: str
     language: str
@@ -128,17 +79,6 @@ class TestCommand:
 
 @dataclass(frozen=True)
 class TestExpectedOutput:
-    """#test-result command: expected output, stored in the registry, not in the main sequence.
-
-    ``<local>`` placeholders in ``body`` are substituted by ``substitute_placeholders`` before comparison
-    (using the same captures); ``fuzzy`` is a non-greedy placeholder set (default
-    ``...``). Multiple are supported: each placeholder is a synonym for "non-greedy wildcard",
-    and any of them appearing in expected is treated as a wildcard.
-    When ``disable_fuzzy=True``, all placeholders (including the default ``...``) are matched literally.
-    ``__post_init__`` validates: required fields non-empty, fuzzy items non-empty strings,
-    fuzzy must be empty when ``disable_fuzzy=True`` (parse-time #test-result 扩展规则 3 already blocks this; defensive fallback here).
-    """
-
     id: str
     body: str
     fuzzy: tuple = ()  # tuple of placeholder strings; empty means use only the default '...'
@@ -237,32 +177,13 @@ def _rescan_fences(raw: str) -> list[tuple[str, str]]:
 # ============================================================
 
 
-# mistune module singleton: renderer='ast' yields a dict stream; plugins=[] disables all extensions to avoid
-# changing fence-splitting behavior. A test run calls once per doc, re-instantiation would be wasteful.
 _MD_AST = mistune.create_markdown(renderer='ast', plugins=[])
 
 
 class MarkdownDocTestBase(ABC):
-    """Abstract base class: template method ``pre_process`` -> ``parse`` -> ``execute`` -> ``post_process``.
-
-    Subclasses may override:
-        ``pre_process()`` -> ``str``    get the markdown text
-        ``post_process()`` -> ``None``   cleanup / report
-
-    Subclasses may override:
-        ``DEFAULT_COMMAND_TIMEOUT``      timeout shared by all subprocesses (seconds), default 1800
-
-    Usage (in a unittest TestCase subclass):
-        ``@unittest.skipIf(...)``        per-project gating
-        ``def test_runs_doc(self):``
-            ``self.run_template()``      template-method entry
-    """
-
     DEFAULT_COMMAND_TIMEOUT: int = 1800  # 30 minutes; subclasses with long training commands should override.
     USER_AGENT: str = 'markdown-doc-test/1.0'  # subclasses mirroring a monitored source override.
     ERROR_MARKERS: tuple[str, ...] = (
-        # stderr substrings that trigger a full dump (<= 256 KB) instead of head/tail.
-        # Generic markers; subclasses extend with project-specific ones (e.g. CANN ERR99999).
         '[ERROR]',
         'Traceback (most recent call last)',
     )
@@ -275,18 +196,10 @@ class MarkdownDocTestBase(ABC):
     _LABEL_TEST_RESULT = '#test-result'
     _LABEL_TEST_SETUP = '#test-setup'
     _KNOWN_LABELS = (_LABEL_TEST, _LABEL_TEST_RESULT, _LABEL_TEST_SETUP)
-    # Parameter names recognized by the contract (typo fail-fast): fuzzy / disable_fuzzy only allowed on #test-result,
-    # but _KNOWN_PARAMS is label-agnostic — label-specific checks happen in _parse_block.
     _KNOWN_PARAMS = frozenset({'id', 'store', 'load', 'fuzzy', 'disable_fuzzy'})
-    # Default non-greedy placeholder: when fuzzy= is not specified, this placeholder is always in effect.
-    # _parse_block auto-injects this item into the fuzzy field when fuzzies is empty.
     _DEFAULT_FUZZY_PLACEHOLDER = '...'
-    # The contract currently supports shell only. Other languages (text / console / python / etc.) directly trigger
-    # rule 7 violation. To add a new language, land the selector on the executor side first, then add to the tuple.
     _KNOWN_LANGUAGES = ('shell',)
 
-    # Value-less flag arguments (no ``=value``). After recognition, the value is ``['1']`` as a placeholder,
-    # actual semantics are decided by key name in _parse_block / compare_output.
     _FLAG_PARAMS = ('disable_fuzzy',)
 
     @staticmethod
@@ -345,8 +258,6 @@ class MarkdownDocTestBase(ABC):
     def _scan_blocks(self, text: str) -> list[dict]:
         """Identify code blocks, or code blocks inside HTML comments (<!-- -->)
         """
-        # mistune's Markdown.__call__ has no precise type annotation (returns list[dict]),
-        # so static checkers can't see the node fields; use Any here and access as dict.
         ast: Any = _MD_AST(text)
         blocks: list[dict] = []
         for node in ast:
@@ -354,9 +265,6 @@ class MarkdownDocTestBase(ABC):
                 raw = node['raw']
                 if not raw.lstrip().startswith('<!--'):
                     continue
-                # the raw field keeps the trailing newline (mistune copies the original text segment),
-                # an extra \n in bash -c has no effect, but keeping body without trailing newline
-                # makes unit test assertions more intuitive (cmd=='<expected lines>').
                 for info, body in _rescan_fences(raw):
                     blocks.append({
                         'info': info,
@@ -390,7 +298,6 @@ class MarkdownDocTestBase(ABC):
         if label_idx < 0:
             return None
 
-        # language: first token before the label (when label isn't first)
         language = parts[0] if label_idx > 0 else None
 
         param_strs = parts[label_idx + 1:]
@@ -428,13 +335,10 @@ class MarkdownDocTestBase(ABC):
             )
 
         disable_fuzzy = bool(params.get('disable_fuzzy'))
-        # fuzzy= and disable_fuzzy are mutually exclusive: the former wants placeholders, the latter explicitly cancels,
-        # #test-result 扩展规则 3 explicitly says writing both together is an error.
         if disable_fuzzy and fuzzies:
             raise LabelSpecError(
                 "disable_fuzzy conflicts with fuzzy=: pick one"
             )
-        # disable_fuzzy only allowed on #test-result (inherits fuzzy's label restriction).
         if disable_fuzzy and label != self._LABEL_TEST_RESULT:
             raise LabelSpecError(
                 f"disable_fuzzy is only valid on #test-result, got {label}"
@@ -444,20 +348,12 @@ class MarkdownDocTestBase(ABC):
         for raw in params.get('load', []):
             loads.append(self._parse_load_value(raw))
 
-        # Reject unknown parameters (typo fail-fast)
         unknown = set(params) - self._KNOWN_PARAMS
         if unknown:
             raise LabelSpecError(
                 f'unknown parameter(s): {sorted(unknown)}'
             )
 
-        # Inject default placeholder: for #test-result without fuzzy= and without disable_fuzzy,
-        # the fuzzy field auto-contains '...'. Treat '...' as a member of the placeholder set uniformly,
-        # the dataclass self-describes all placeholders in effect for a block; compare_output
-        # reads this field directly (no need to embed the default).
-        # Note: fuzzy= and disable_fuzzy are mutually exclusive (#test-result 扩展规则 3); here when disable_fuzzy is true
-        # fuzzies must be empty, so "fuzzies empty && disable_fuzzy true" is equivalent to "disable",
-        # no default is added.
         if (
             label == self._LABEL_TEST_RESULT
             and not fuzzies
@@ -479,7 +375,6 @@ class MarkdownDocTestBase(ABC):
 
     def _validate(self, parsed: list[dict]) -> None:
         """Rules 2/5/7/10/11 validation. Any violation raises ``LabelSpecError``."""
-        # Rule 10: HTML comments only allow #test-setup
         for p in parsed:
             if p['hidden'] and p['label'] != self._LABEL_TEST_SETUP:
                 raise LabelSpecError(
@@ -487,8 +382,6 @@ class MarkdownDocTestBase(ABC):
                     f'got {p["label"]}'
                 )
 
-        # Rule 7: #test / #test-setup must specify a language, and it must be in the contract whitelist
-        # (currently shell only)
         for p in parsed:
             if p['label'] not in (self._LABEL_TEST, self._LABEL_TEST_SETUP):
                 continue
@@ -504,7 +397,6 @@ class MarkdownDocTestBase(ABC):
                     f'block body={p["body"]!r}'
                 )
 
-        # Rule 2: id unique within same type
         seen_ids: dict[str, set[str]] = {
             label: set() for label in self._KNOWN_LABELS
         }
@@ -518,10 +410,6 @@ class MarkdownDocTestBase(ABC):
                 )
             bucket.add(p['id'])
 
-        # Rule 5 (forward only): every #test must have a matching #test-result by id.
-        # Orphan #test-result (with no #test) is intentionally NOT validated — extra result
-        # blocks are simply ignored at runtime, so commented-out examples in the doc don't
-        # break parsing. Symmetric pass belongs here if that trade-off changes.
         result_ids = {
             p['id'] for p in parsed
             if p['label'] == self._LABEL_TEST_RESULT and p['id']
@@ -538,9 +426,6 @@ class MarkdownDocTestBase(ABC):
             if p['label'] == self._LABEL_TEST_RESULT and not p['id']:
                 raise LabelSpecError('#test-result block must have id=')
 
-        # Rule 11: load references must come after store (document order)
-        # #test-setup inside HTML comments also counts toward seen_stores, because when they execute
-        # they still write captures.
         seen_stores: set[str] = set()
         for p in parsed:
             if p['label'] == self._LABEL_TEST_SETUP and p['store']:
@@ -599,12 +484,6 @@ class MarkdownDocTestBase(ABC):
 
     def _run_one(self, cmd, results, env, cwd, timeout, idx):
         if isinstance(cmd, SetupCommand):
-            # Substitute ``<placeholder>`` from earlier captures BEFORE bash sees the
-            # command — same load= contract as TestCommand. Without this, a setup
-            # block whose heredoc references a prior capture (e.g. speculators'
-            # ``convert_model(model="<draft_path>")``) would call into python with
-            # the literal string ``<draft_path>``, which then trips e.g.
-            # huggingface_hub's repo-id validator and masks the real flow.
             actual_cmd = self.substitute_placeholders(
                 cmd.cmd, cmd.load, self._captures
             )
@@ -614,16 +493,6 @@ class MarkdownDocTestBase(ABC):
                     f'setup command failed (rc={rc}); CMD stderr:\n{err.rstrip() or "(empty)"}'
                 )
             if cmd.store:
-                # Strip trailing whitespace from captured stdout:
-                # subprocess output always ends with \n, and injecting
-                # that \n into a multi-line command with `\` continuations
-                # splits the command at the substitution point — e.g.
-                # `--adapters <ckpt> \` becomes two lines after
-                # substitution because <ckpt> carries the capture's
-                # trailing \n, breaking the line continuation and
-                # confusing the heredoc that follows. rstrip() (not
-                # rstrip('\n')) preserves internal newlines for multi-
-                # line captures while normalizing the boundary.
                 self._captures[cmd.store] = out.rstrip()
                 self.log(
                     f'[Step {idx}] captured {cmd.store!r} '
@@ -692,9 +561,6 @@ class MarkdownDocTestBase(ABC):
                 'workflow which sets it; no local fallback by design.'
             )
 
-        # urllib has no default timeout: network noise can hang. Retry once with 30s timeout each.
-        # NPU runners can reach api.github.com but not raw.githubusercontent.com.
-        # Contents API URLs need Accept: raw plus the workflow token.
         last_err: Exception | None = None
         headers = {'User-Agent': self.USER_AGENT}
         token = os.environ.get('GITHUB_TOKEN') or os.environ.get('GH_TOKEN')
@@ -847,7 +713,6 @@ class MarkdownDocTestBase(ABC):
         """
         raw_blocks = self._scan_blocks(text)
         parsed = [self._parse_block(b) for b in raw_blocks]
-        # Filter out unlabeled plain blocks (rule 9)
         parsed = [p for p in parsed if p is not None]
         self._validate(parsed)
         return self._fold(parsed)
@@ -893,16 +758,12 @@ class MarkdownDocTestBase(ABC):
         """
         if disable_fuzzy:
             return self._literal_match(actual, expected)
-        # Split expected by all placeholders; join segments with non-greedy cross-line match.
-        # ``str.split(sep)`` only supports a single sep, so use a regex split for many.
-        # Placeholder order doesn't matter: split uses occurrence position.
         placeholders: list[str]
         if isinstance(fuzzy, str):
             placeholders = [fuzzy]
         else:
             placeholders = list(fuzzy)
         if not placeholders:
-            # Empty fuzzy + non-disable_fuzzy -> literal match (same as disable_fuzzy)
             return self._literal_match(actual, expected)
         sep_pattern = '|'.join(re.escape(p) for p in placeholders)
         parts = re.split(sep_pattern, expected)

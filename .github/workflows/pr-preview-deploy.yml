@@ -1,0 +1,206 @@
+name: PR Preview Deploy
+
+# Runs in a trusted context: the workflow definition always comes from the
+# default branch and no pull request code is checked out here. Its only inputs
+# are the artifact produced by the (untrusted) PR build and the GitHub API.
+on:
+  workflow_run:
+    workflows: ["Github Pages"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+  pages: read
+
+jobs:
+  deploy-preview:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: gh-pages-write
+    steps:
+      # A fork PR builds its own copy of the build workflow, so the artifact name
+      # is attacker-controlled. Accept digits only, and require the PR it names to
+      # actually be the one that produced this run.
+      - name: Resolve and verify PR number
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runId = context.payload.workflow_run.id;
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              { owner: context.repo.owner, repo: context.repo.repo, run_id: runId },
+            );
+            const match = artifacts
+              .map((a) => /^docs-preview-(\d+)$/.exec(a.name))
+              .find(Boolean);
+            if (!match) {
+              core.warning('No docs-preview-<number> artifact in run ' + runId);
+              return;
+            }
+            const number = Number(match[1]);
+            const builtSha = context.payload.workflow_run.head_sha;
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: number,
+            });
+            // Also skips stale builds: a newer push to the same PR moved head.sha
+            // on, and deploying this one would resurrect an older preview.
+            if (pr.data.head.sha !== builtSha) {
+              core.warning(
+                `PR #${number} is at ${pr.data.head.sha}, not the built ${builtSha}.`,
+              );
+              return;
+            }
+            // Read the site URL instead of hardcoding it, so forks used for
+            // rehearsing this workflow link to their own Pages site.
+            let base = `https://${context.repo.owner}.github.io/${context.repo.repo}`;
+            try {
+              const pages = await github.rest.repos.getPages(context.repo);
+              base = pages.data.html_url.replace(/\/+$/, '');
+            } catch (error) {
+              core.warning(`Could not read Pages config (${error.message}); using ${base}`);
+            }
+            core.setOutput('deploy', 'true');
+            core.setOutput('number', String(number));
+            core.setOutput('sha', builtSha);
+            core.setOutput('base', base);
+
+      - if: steps.pr.outputs.deploy == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-preview-${{ steps.pr.outputs.number }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: site
+
+      # Deep-link to sources/<project>/ when the PR touches exactly one project.
+      # Paths are taken from the GitHub API (not PR code) and only used if the
+      # matching index.html is already in the downloaded artifact.
+      - name: Resolve preview landing page
+        if: steps.pr.outputs.deploy == 'true'
+        id: landing
+        uses: actions/github-script@v7
+        env:
+          PR_NUMBER: ${{ steps.pr.outputs.number }}
+          PAGES_BASE: ${{ steps.pr.outputs.base }}
+          BUILT_SHA: ${{ steps.pr.outputs.sha }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const number = process.env.PR_NUMBER;
+            const base = process.env.PAGES_BASE.replace(/\/+$/, '');
+            const sha = process.env.BUILT_SHA;
+            const siteRoot = `${base}/pr-preview/pr-${number}/`;
+
+            const footer = [
+              `构建自 \`${sha}\`。`,
+              '每次推送后自动更新，PR 关闭时自动清理。',
+            ];
+
+            const homepageMessage = [
+              `📖 **文档预览**：${siteRoot}`,
+              '',
+              ...footer,
+            ].join('\n');
+
+            const write = (primary, extraLines) => {
+              core.info(`Preview landing: ${primary}`);
+              const lines = [`📖 **文档预览**：${primary}`, ''];
+              if (extraLines.length) {
+                lines.push(...extraLines, '');
+              }
+              lines.push(...footer);
+              core.setOutput('message', lines.join('\n'));
+            };
+
+            // sources/<project>/...rst|md — project slugs match this tree
+            // (peft, ms-swift, LLaMA-Factory). Reject `..` and anything else.
+            const DOC_PATH = /^sources\/([A-Za-z0-9._-]+)\/[A-Za-z0-9._/-]+\.(rst|md)$/;
+
+            const matchDoc = (filename) => {
+              if (!filename || filename.includes('..')) {
+                return null;
+              }
+              const match = DOC_PATH.exec(filename);
+              return match ? match[1] : null;
+            };
+
+            const projectIndexUrl = (project) => {
+              const indexFile = path.join('site', 'sources', project, 'index.html');
+              if (!fs.existsSync(indexFile)) {
+                return null;
+              }
+              return `${siteRoot}sources/${project}/`;
+            };
+
+            try {
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: Number(number),
+              });
+
+              const projects = new Set();
+              for (const file of files) {
+                for (const name of [file.filename, file.previous_filename]) {
+                  const project = matchDoc(name);
+                  if (project) {
+                    projects.add(project);
+                  }
+                }
+              }
+
+              const linked = [...projects].sort().flatMap((project) => {
+                const url = projectIndexUrl(project);
+                return url ? [`- [\`${project}\`](${url})`] : [];
+              });
+
+              if (projects.size === 1) {
+                const project = [...projects][0];
+                const projectUrl = projectIndexUrl(project);
+                if (projectUrl) {
+                  write(projectUrl, [`也可打开[整站首页](${siteRoot})。`]);
+                  return;
+                }
+              }
+
+              if (projects.size > 1 && linked.length) {
+                write(siteRoot, ['本 PR 改动了多个项目：', ...linked]);
+                return;
+              }
+
+              write(siteRoot, []);
+            } catch (error) {
+              core.warning(
+                `Could not resolve landing page (${error.message}); linking to site root`,
+              );
+              core.setOutput('message', homepageMessage);
+            }
+
+      - name: Deploy preview
+        if: steps.pr.outputs.deploy == 'true'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site
+          destination_dir: pr-preview/pr-${{ steps.pr.outputs.number }}
+          commit_message: "Deploy preview for PR #${{ steps.pr.outputs.number }}"
+
+      - name: Comment preview URL
+        if: steps.pr.outputs.deploy == 'true'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: docs-preview
+          number: ${{ steps.pr.outputs.number }}
+          message: ${{ steps.landing.outputs.message }}

@@ -32,6 +32,27 @@ Here is how you can create a new docs:
 1. Create a rst file. You can put it anywhere, but it must be better to classify it.
 2. Add the rst into the index.rst
 
+## PR preview
+
+Every pull request gets a rendered preview of the whole site. Once the `Github Pages`
+build finishes (about 10 minutes), a bot comments the link on the PR.
+
+If the PR changes documentation under exactly one `sources/<project>/` directory,
+the link opens that project's page:
+
+```
+https://ascend.github.io/docs/pr-preview/pr-<PR number>/sources/<project>/
+```
+
+Otherwise (no project docs, or more than one project) it opens the site homepage:
+
+```
+https://ascend.github.io/docs/pr-preview/pr-<PR number>/
+```
+
+It is rebuilt on every push and deleted when the PR is closed. If the build fails,
+no preview is published — check the failure in the Actions tab.
+
 # Building locally
 
 When the development is ready, you can check and test it locally by following the directives below:
