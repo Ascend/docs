@@ -1,0 +1,72 @@
+# peft quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+
+name: peft-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'peft-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 3 hours: '30 */3 * * *' fires at minute 30 of every
+    # 3rd hour (00:30, 03:30, 06:30, ..., 21:30). GitHub Actions caps
+    # schedule at 5 min minimum, so tighter cadences need
+    # workflow_dispatch instead.
+    - cron: '30 */3 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/peft/**'
+      - 'tests/peft/**'
+
+permissions:
+  contents: read
+
+jobs:
+  peft-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-peft-*), artifacts
+      # (peft-quick-start-<run_id>) and the test working dir
+      # (workflows/tests/peft).
+      project: peft
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # 2 h budget. Cold-cache download of Qwen2.5-3B-Instruct observed
+      # ~80 min on linux-aarch64-a2-1 at ~1.2 MB/s; with the redundant
+      # container bind-mount removed (NFS already mounts /root/.cache),
+      # a fresh cache needs the full 80 min for the missing shard.
+      # Hot-cache runs (post warm-up) finish in <5 min and use a small
+      # fraction of this budget.
+      timeout_minutes: 120
+      upstream_repo: huggingface/peft
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/peft/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/peft/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.peft.test_quick_start_ascend -v 2>&1

@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Ascend/ascend_docs/blob/main/.github/workflows/schemas/result.schema.json",
+  "title": "Guard job result",
+  "description": "Machine-readable result.json uploaded by every example or quick-start job, success or failure.",
+  "type": "object",
+  "required": [
+    "trigger",
+    "target_repo",
+    "target_ref",
+    "path",
+    "image",
+    "job_status"
+  ],
+  "properties": {
+    "trigger": {
+      "type": "string",
+      "description": "How this run was started. Typical values: workflow_dispatch, schedule."
+    },
+    "target_repo": {
+      "type": "string",
+      "pattern": "^[^/]+/[^/]+$",
+      "description": "Repository that was checked out and tested, owner/name."
+    },
+    "target_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Branch, tag, or SHA that was tested."
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Example script or documented path that this job exercised."
+    },
+    "image": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Container image used to run the job."
+    },
+    "job_status": {
+      "type": "string",
+      "enum": ["success", "failure", "cancelled"],
+      "description": "GitHub job conclusion for this result."
+    }
+  }
+}
