@@ -433,7 +433,7 @@
    :caption: 🚀 推理与服务
 
    sources/llama_cpp/index.rst
-   sources/llm_compressor/index.md
+   sources/llm_compressor/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
