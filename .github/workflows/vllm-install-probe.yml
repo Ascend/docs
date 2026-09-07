@@ -46,7 +46,16 @@ jobs:
           export PATH="/usr/local/sbin:/usr/local/bin:$PATH"
           npu-smi info || true
           echo "PIP_INDEX_URL=${PIP_INDEX_URL}"
-          python -c "import os, urllib.request; urllib.request.urlopen(os.environ['PIP_INDEX_URL'], timeout=5); print('cluster_pypi: ok')"
+          # Bare GET of /pypi/simple can 429; reachability is enough.
+          python -c "
+          import os, urllib.error, urllib.request
+          url = os.environ['PIP_INDEX_URL']
+          try:
+              urllib.request.urlopen(url, timeout=5)
+              print('cluster_pypi: ok')
+          except urllib.error.HTTPError as e:
+              print(f'cluster_pypi: HTTP {e.code}')
+          "
           ls -ld /root/.cache || true
 
       - name: Checkout
