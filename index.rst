@@ -175,6 +175,13 @@
    <h2 class="scene-header">🧠 大模型/多模态训练与微调</h2>
    <div class="grid-container">
 
+      <!-- axolotl -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/axolotl.png')"></div><h3 class="card-title">axolotl</h3></div>
+         <p class="card-desc">LLM 微调框架，支持在昇腾 NPU 上做 LoRA 监督微调。</p>
+         <div class="card-footer"><a href="https://github.com/axolotl-ai-cloud/axolotl">官方链接</a><span class="split">|</span><a href="https://docs.axolotl.ai/">文档中心</a><span class="split">|</span><a href="sources/axolotl/index.html">快速上手</a></div>
+      </div>
+
       <!-- LLaMA-Factory：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
@@ -409,6 +416,7 @@
    :hidden:
    :caption: 🧠 训练与微调框架
 
+   sources/axolotl/index.rst
    sources/LLaMA-Factory/index.rst
    sources/ms-swift/index.rst
    sources/peft/index.md
