@@ -32,10 +32,11 @@ python -c "from importlib.metadata import version; print('vllm', version('vllm')
 
 输出结果如下：
 
-```shell #test-result id="install-vllm" fuzzy='xxx'
-...vllm 0.23.0
+```shell #test-result id="install-vllm"
+...
+vllm 0.23.0
 vllm-ascend 0.23.0
-torch 2.10.0xxx
+torch 2.10.0
 torch-npu 2.10.0.post4
 triton-ascend 3.2.2
 ```
