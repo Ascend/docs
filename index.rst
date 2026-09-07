@@ -414,7 +414,7 @@
    sources/peft/index.md
    sources/roll/index.rst
    sources/torchtitan/index.rst
-   TRL <sources/trl/quick_start.md>
+   sources/trl/quick_start.md
    sources/twinkle/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
