@@ -1,14 +1,14 @@
-## 快速开始
+# llm-compressor
 
 在单卡昇腾上安装 llm-compressor，对公开小模型做一次 W4A16 GPTQ，再保存、重载并完成一次前向。
 
-### 前置条件
+## 前置条件
 
-#### 硬件
+### 硬件
 
 Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。
 
-#### 软件
+### 软件
 
 | 类别 | 要求 |
 | --- | --- |
@@ -22,7 +22,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
-### 1. 加载 CANN 环境
+## 1. 加载 CANN 环境
 
 新开终端后 CANN 变量不会自动生效。常见容器里 `npu-smi` 在 `/usr/local/sbin`，需要把该目录加入 `PATH`。
 
@@ -31,9 +31,9 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export PATH=/usr/local/sbin:$PATH
 ```
 
-### 2. 检查环境是否就绪
+## 2. 检查环境是否就绪
 
-#### 2.1 确认 NPU 在线
+### 2.1 确认 NPU 在线
 
 下面确认驱动能看到设备。表格中的功耗、HBM 占用每次不同，不必与样例逐字一致。
 
@@ -43,7 +43,7 @@ npu-smi info
 
 如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
 
-#### 2.2 确认工具可用
+### 2.2 确认工具可用
 
 下面确认 CANN 已加载，并且 `npu-smi` 与 `python` 都在 `PATH` 里。
 
@@ -60,7 +60,7 @@ python --version
 Python 3.12...
 ```
 
-### 3. 安装 PyTorch NPU 栈
+## 3. 安装 PyTorch NPU 栈
 
 昇腾上的 `torch_npu` 要从华为 PyPI 额外索引安装，并钉死与 CANN 9.1.0 匹配的版本。`numpy` 和 `pyyaml` 也要一起装：缺了会在 `import torch_npu` 之前失败。
 
@@ -82,7 +82,7 @@ npu_available True
 
 `npu_available` 必须是 `True`。`torch` 版本串可能带 `+cpu` 后缀，以 `npu_available True` 为准。
 
-### 4. 安装 llm-compressor
+## 4. 安装 llm-compressor
 
 将 `<UPSTREAM_REF>` 换成目标 PyPI 版本号（撰写时最新正式版是 `0.13.0`）。
 
@@ -106,7 +106,7 @@ python -c "import llmcompressor; print('llmcompressor', llmcompressor.__version_
 llmcompressor ...
 ```
 
-### 5. 在 NPU 上做一次单层 W4A16 GPTQ
+## 5. 在 NPU 上做一次单层 W4A16 GPTQ
 
 下面从 Hugging Face 下载公开小模型 `nm-testing/tinysmokeqwen3`（不必事先准备权重），用 8 条本地校准文本只量化第 3 层的 `q_proj`。`oneshot` 把压缩后的模型写到本机 `~/llm-compressor-work/compressed`，随后从该目录重载并做一次前向。
 
