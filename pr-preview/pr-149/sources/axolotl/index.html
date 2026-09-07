@@ -1,0 +1,428 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>axolotl &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="LLaMA-Factory" href="../LLaMA-Factory/index.html" />
+    <link rel="prev" title="推理" href="../transformers/inference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">axolotl</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pytorch-npu">3. 安装 PyTorch NPU 栈</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">4. 安装 axolotl</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">5. 准备数据和配置</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#npu">6. 在 NPU 上训练</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">axolotl</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/axolotl/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="axolotl">
+<h1>axolotl<a class="headerlink" href="#axolotl" title="Link to this heading"></a></h1>
+<p>本文在单卡昇腾 NPU 上安装 <a class="reference external" href="https://github.com/axolotl-ai-cloud/axolotl">axolotl</a>，并对 <a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a> 完成 3 步 LoRA 监督微调。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>），单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-even"><td><p>PyTorch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch==2.11.0</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.11.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>axolotl</p></td>
+<td><p>从 PyPI 安装当前正式版（<code class="docutils literal notranslate"><span class="pre">--no-deps</span></code>）</p></td>
+</tr>
+<tr class="row-even"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONNOUSERSITE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">PYTHONNOUSERSITE=1</span></code> 令 Python 忽略用户目录中的包，避免旧版 CANN 相关包干扰依赖解析。</p>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>2. 检查环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>确认 NPU 在线；找不到 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 时参阅 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="pytorch-npu">
+<h2>3. 安装 PyTorch NPU 栈<a class="headerlink" href="#pytorch-npu" title="Link to this heading"></a></h2>
+<p>从华为 PyPI 额外索引安装与 CANN 9.1.0 匹配的 <code class="docutils literal notranslate"><span class="pre">torch==2.11.0</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu==2.11.0</span></code>，并一并装上 <code class="docutils literal notranslate"><span class="pre">numpy</span></code>、<code class="docutils literal notranslate"><span class="pre">pyyaml</span></code>。版本行出现 <code class="docutils literal notranslate"><span class="pre">2.11.0+cpu</span></code> 属正常，<code class="docutils literal notranslate"><span class="pre">npu_available</span></code> 须为 <code class="docutils literal notranslate"><span class="pre">True</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.11.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.11.0<span class="w"> </span>numpy<span class="w"> </span>pyyaml
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...torch<span class="w"> </span><span class="m">2</span>.11.0...
+torch_npu<span class="w"> </span><span class="m">2</span>.11.0
+npu_available<span class="w"> </span>True
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>4. 安装 axolotl<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>NPU 栈就绪后，用 <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span> <span class="pre">--no-deps</span></code> 安装当前正式版 axolotl，并补齐 LoRA 训练所需的其余包。不要用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">axolotl[deepspeed]</span></code>；<code class="docutils literal notranslate"><span class="pre">bitsandbytes</span></code> 只为满足 import，不用 4-bit / 8-bit。</p>
+<!--
+```shell #test-setup store="axolotl_ver"
+echo "${UPSTREAM_REF#v}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span><span class="s2">"axolotl==&lt;ver&gt;"</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'packaging==26.0'</span><span class="w"> </span><span class="s1">'huggingface_hub==1.17.0'</span><span class="w"> </span><span class="s1">'peft==0.19.1'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'tokenizers==0.22.2'</span><span class="w"> </span><span class="s1">'transformers==5.14.1'</span><span class="w"> </span><span class="s1">'accelerate==1.13.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'datasets==4.8.4'</span><span class="w"> </span><span class="s1">'trl==1.8.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>sentencepiece<span class="w"> </span>einops<span class="w"> </span>colorama<span class="w"> </span>fire<span class="w"> </span>addict<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'typer==0.25.1'</span><span class="w"> </span><span class="s1">'pydantic==2.12.5'</span><span class="w"> </span><span class="s1">'python-dotenv==1.0.1'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>requests<span class="w"> </span>art<span class="w"> </span><span class="s1">'hf_xet==1.4.3'</span><span class="w"> </span>hf_transfer<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'axolotl-contribs-lgpl==0.0.7'</span><span class="w"> </span><span class="s1">'axolotl-contribs-mit==0.0.6'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'bitsandbytes==0.49.1'</span><span class="w"> </span>scipy<span class="w"> </span>evaluate<span class="w"> </span>tensorboard<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'schedulefree==1.4.1'</span><span class="w"> </span>numba<span class="w"> </span>posthog<span class="w"> </span>fastcore<span class="w"> </span>triton<span class="w"> </span>wandb<span class="w"> </span>torchao
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import axolotl; print('axolotl', axolotl.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...axolotl<span class="w"> </span>&lt;ver&gt;
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>5. 准备数据和配置<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>工作目录为 <code class="docutils literal notranslate"><span class="pre">/root/axolotl-qs</span></code>。先从 Hugging Face Hub 把模型链到该目录，再按下面内容保存训练数据和 LoRA 配置。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/axolotl-qs
+rm<span class="w"> </span>-f<span class="w"> </span>/root/axolotl-qs/model
+ln<span class="w"> </span>-s<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>python<span class="w"> </span>-c<span class="w"> </span><span class="s1">'from huggingface_hub import snapshot_download; print(snapshot_download("Qwen/Qwen2.5-0.5B-Instruct"))'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">'^/'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span>/root/axolotl-qs/model
+ls<span class="w"> </span>/root/axolotl-qs/model/config.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/axolotl-qs/model/config.json
+</pre></div>
+</div>
+<p>训练数据如下，保存为 <code class="docutils literal notranslate"><span class="pre">/root/axolotl-qs/tiny_alpaca.jsonl</span></code>：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Translate to English."</span><span class="p">,</span><span class="w"> </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">"你好"</span><span class="p">,</span><span class="w"> </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Name a color."</span><span class="p">,</span><span class="w"> </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blue"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Add the numbers."</span><span class="p">,</span><span class="w"> </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2 and 3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"instruction"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Say yes or no."</span><span class="p">,</span><span class="w"> </span><span class="nt">"input"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w"> </span><span class="nt">"output"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Yes"</span><span class="p">}</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > /root/axolotl-qs/tiny_alpaca.jsonl <<'EOF'
+{"instruction": "Translate to English.", "input": "你好", "output": "Hello"}
+{"instruction": "Name a color.", "input": "", "output": "Blue"}
+{"instruction": "Add the numbers.", "input": "2 and 3", "output": "5"}
+{"instruction": "Say yes or no.", "input": "", "output": "Yes"}
+EOF
+```
+-->
+<p>LoRA 配置如下，保存为 <code class="docutils literal notranslate"><span class="pre">/root/axolotl-qs/lora-npu.yml</span></code>：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">base_model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/root/axolotl-qs/model</span>
+<span class="nt">model_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AutoModelForCausalLM</span>
+<span class="nt">tokenizer_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AutoTokenizer</span>
+<span class="nt">load_in_8bit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">load_in_4bit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">strict</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">datasets</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/root/axolotl-qs/tiny_alpaca.jsonl</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alpaca</span>
+<span class="w">    </span><span class="nt">ds_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span>
+<span class="nt">dataset_prepared_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/root/axolotl-qs/prepared</span>
+<span class="nt">val_set_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">output_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/root/axolotl-qs/outputs</span>
+<span class="nt">sequence_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">256</span>
+<span class="nt">sample_packing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">pad_to_sequence_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">adapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lora</span>
+<span class="nt">lora_r</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+<span class="nt">lora_alpha</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">16</span>
+<span class="nt">lora_dropout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.05</span>
+<span class="nt">lora_target_linear</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">gradient_accumulation_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">micro_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">num_epochs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">max_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="nt">optimizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">adamw_torch</span>
+<span class="nt">lr_scheduler</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cosine</span>
+<span class="nt">learning_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0002</span>
+<span class="nt">bf16</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">tf32</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">gradient_checkpointing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">flash_attention</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">attn_implementation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eager</span>
+<span class="nt">lora_mlp_kernel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">lora_qkv_kernel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">lora_o_kernel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">lora_embedding_kernel</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">logging_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">warmup_steps</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">saves_per_epoch</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">save_total_limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="nt">trust_remote_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > /root/axolotl-qs/lora-npu.yml <<'YAML'
+base_model: /root/axolotl-qs/model
+model_type: AutoModelForCausalLM
+tokenizer_type: AutoTokenizer
+load_in_8bit: false
+load_in_4bit: false
+strict: false
+datasets:
+  - path: /root/axolotl-qs/tiny_alpaca.jsonl
+    type: alpaca
+    ds_type: json
+dataset_prepared_path: /root/axolotl-qs/prepared
+val_set_size: 0
+output_dir: /root/axolotl-qs/outputs
+sequence_len: 256
+sample_packing: false
+pad_to_sequence_len: false
+adapter: lora
+lora_r: 8
+lora_alpha: 16
+lora_dropout: 0.05
+lora_target_linear: true
+gradient_accumulation_steps: 1
+micro_batch_size: 1
+num_epochs: 1
+max_steps: 3
+optimizer: adamw_torch
+lr_scheduler: cosine
+learning_rate: 0.0002
+bf16: true
+tf32: false
+gradient_checkpointing: true
+flash_attention: false
+attn_implementation: eager
+lora_mlp_kernel: false
+lora_qkv_kernel: false
+lora_o_kernel: false
+lora_embedding_kernel: false
+logging_steps: 1
+warmup_steps: 0
+saves_per_epoch: 1
+save_total_limit: 1
+trust_remote_code: false
+YAML
+```
+-->
+</section>
+<hr class="docutils" />
+<section id="npu">
+<h2>6. 在 NPU 上训练<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<p>单卡昇腾用 <code class="docutils literal notranslate"><span class="pre">--launcher</span> <span class="pre">python</span></code>（默认 accelerate 会找 CUDA）。训练日志里的 <code class="docutils literal notranslate"><span class="pre">&quot;device&quot;:</span> <span class="pre">&quot;npu:0&quot;</span></code> 表示这一次跑在 NPU 上。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>axolotl<span class="w"> </span>train<span class="w"> </span>/root/axolotl-qs/lora-npu.yml<span class="w"> </span>--launcher<span class="w"> </span>python<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+<span class="w">  </span><span class="s2">"device"</span>:<span class="w"> </span><span class="s2">"npu:0"</span>,
+...Training<span class="w"> </span>completed!...
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../transformers/inference.html" class="btn btn-neutral float-left" title="推理" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../LLaMA-Factory/index.html" class="btn btn-neutral float-right" title="LLaMA-Factory" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
