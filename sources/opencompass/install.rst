@@ -1,5 +1,10 @@
+:orphan:
+
 安装指南
 ==============
+
+.. note::
+   与 CANN 9.1 / 910B 配套、命令已被看护的安装与评测步骤见 :doc:`index`。
 
 本教程面向使用 OpenCompass & 昇腾的开发者，帮助完成昇腾环境下 OpenCompass 的安装。
 
