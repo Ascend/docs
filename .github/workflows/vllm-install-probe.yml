@@ -1,0 +1,63 @@
+# Throwaway probe: official pip install of vllm + vllm-ascend on the
+# Hong Kong A2 runner. Do not merge. Close the PR after the run.
+#
+# Uses a local file:// doc URL so a fork PR can still execute the
+# commands (the shared QS engine fetches raw.githubusercontent.com
+# on Ascend/docs and 404s for fork SHAs).
+
+name: vllm-install-probe
+
+concurrency:
+  group: ${{ format('vllm-install-probe-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/vllm_install_probe/**'
+      - 'tests/vllm_install_probe/**'
+      - '.github/workflows/vllm-install-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: linux-aarch64-a2-1
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    env:
+      # Same cluster PyPI cache the QS engine injects. Do not add
+      # --volume: /root/.cache is already NFS-mounted on this runner.
+      PIP_INDEX_URL: http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple
+      PIP_EXTRA_INDEX_URL: https://repo.huaweicloud.com/ascend/repos/pypi
+      PIP_TRUSTED_HOST: cache-service.nginx-pypi-cache.svc.cluster.local
+      PIP_TIMEOUT: '120'
+    steps:
+      - name: Probe NPU and cache
+        run: |
+          set -euo pipefail
+          export PATH="/usr/local/sbin:/usr/local/bin:$PATH"
+          npu-smi info || true
+          echo "PIP_INDEX_URL=${PIP_INDEX_URL}"
+          python -c "import os, urllib.request; urllib.request.urlopen(os.environ['PIP_INDEX_URL'], timeout=5); print('cluster_pypi: ok')"
+          ls -ld /root/.cache || true
+
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run official pip install from the probe doc
+        env:
+          NPU_READY: 'true'
+          UPSTREAM_REF: v0.23.0
+        run: |
+          set -euo pipefail
+          export MONITORED_DOC_URL="file://${GITHUB_WORKSPACE}/sources/vllm_install_probe/quick_start.md"
+          python -m pip install 'mistune>=3,<4'
+          python -m unittest tests.vllm_install_probe.test_quick_start_ascend -v 2>&1
