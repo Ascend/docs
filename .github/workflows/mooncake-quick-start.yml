@@ -48,13 +48,13 @@ jobs:
       # GitHub-hosted ubuntu-latest.
       test_runner: '["linux-aarch64-a2-2"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-      # Only this host file. ADXL reads per-NPU NIC IPs from
-      # /etc/hccn.conf; the Hong Kong A2 runner does not inject it
-      # when container.image is set (PR run 34183509168 failed on
-      # `ls /etc/hccn.conf`). Do not add --device, driver, or
-      # /root/.cache volumes: image allocates NPUs, NFS already
-      # mounts the cache tree.
-      container_options: --volume=/etc/hccn.conf:/etc/hccn.conf:ro
+      # Do not pass container_options. Hong Kong A2 is ARC k8s
+      # (/home/runner/k8s/index.js); Docker create options including
+      # --volume are ignored (run 34184104089 still had no
+      # /etc/hccn.conf). image allocates NPUs; NFS already mounts
+      # /root/.cache. ADXL's /etc/hccn.conf is recovered in the
+      # test prepare_environment hook from hccn_tool or an
+      # already-present copy.
       timeout_minutes: 240
       upstream_repo: kvcache-ai/Mooncake
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
