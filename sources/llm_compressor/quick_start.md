@@ -18,13 +18,11 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | llm-compressor | 从 PyPI 安装发布版，见下文 |
 | 模型 | [nm-testing/tinysmokeqwen3](https://huggingface.co/nm-testing/tinysmokeqwen3)（约 10 MB） |
 
-配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
-
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。推荐配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 
-新开终端后 CANN 变量不会自动生效。常见容器里 `npu-smi` 在 `/usr/local/sbin`，需要把该目录加入 `PATH`。
+常见容器里 `npu-smi` 在 `/usr/local/sbin`，需要把该目录加入 `PATH`。
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
@@ -34,8 +32,6 @@ export PATH=/usr/local/sbin:$PATH
 ## 2. 检查环境是否就绪
 
 ### 2.1 确认 NPU 在线
-
-下面确认驱动能看到设备。表格中的功耗、HBM 占用每次不同，不必与样例逐字一致。
 
 ```shell
 npu-smi info
@@ -80,8 +76,6 @@ torch_npu 2.10.0.post4
 npu_available True
 ```
 
-`npu_available` 必须是 `True`。`torch` 版本串可能带 `+cpu` 后缀，以 `npu_available True` 为准。
-
 ## 4. 安装 llm-compressor
 
 将 `<UPSTREAM_REF>` 换成目标 PyPI 版本号（撰写时最新正式版是 `0.13.0`）。
@@ -108,7 +102,7 @@ llmcompressor ...
 
 ## 5. 在 NPU 上做一次单层 W4A16 GPTQ
 
-下面从 Hugging Face 下载公开小模型 `nm-testing/tinysmokeqwen3`（不必事先准备权重），用 8 条本地校准文本只量化第 3 层的 `q_proj`。`oneshot` 把压缩后的模型写到本机 `~/llm-compressor-work/compressed`，随后从该目录重载并做一次前向。
+下面从 Hugging Face 下载公开小模型 `nm-testing/tinysmokeqwen3`，用 8 条本地校准文本只量化第 3 层的 `q_proj`。`oneshot` 把压缩后的模型写到本机 `~/llm-compressor-work/compressed`，随后从该目录重载并做一次前向。
 
 保存为 `oneshot_forward.py`：
 
@@ -254,4 +248,4 @@ lm_head_quantized False
 logits.device npu:0
 ```
 
-进程须退出码为 0，且 `logits.device` 必须是 `npu:0`；若打印 `cpu`，那是静默回退，视为失败。
+进程须退出码为 0，且 `logits.device` 必须是 `npu:0`；若打印 `cpu`，则为静默回退，视为失败。
