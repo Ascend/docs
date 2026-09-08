@@ -1,0 +1,541 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenRLHF &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="peft" href="../peft/index.html" />
+    <link rel="prev" title="ms-swift" href="../ms-swift/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">OpenRLHF</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pytorch-npu">3. 安装 PyTorch NPU 栈</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openrlhf-npu">4. 让 OpenRLHF 走 NPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flash-attn">5. 补一份 flash_attn 占位包</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">6. 克隆 OpenRLHF 并安装依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">7. 准备模型和数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#npu">8. 在 NPU 上训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">常见问题</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">OpenRLHF</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/openrlhf/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="openrlhf">
+<h1>OpenRLHF<a class="headerlink" href="#openrlhf" title="Link to this heading"></a></h1>
+<p>本文在单卡昇腾 NPU 上安装 <a class="reference external" href="https://github.com/OpenRLHF/OpenRLHF">OpenRLHF</a>，并对 <a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a> 完成 4 步 LoRA 监督微调。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>），单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-even"><td><p>PyTorch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch==2.11.0</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.11.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>OpenRLHF</p></td>
+<td><p>从 GitHub 克隆当前正式 Release，见第 6 节</p></td>
+</tr>
+<tr class="row-even"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+<p>上游安装说明见 <a class="reference external" href="https://github.com/OpenRLHF/OpenRLHF#installation">OpenRLHF Quick Start — Installation</a>。本文镜像是 aarch64，不能走那里的 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">openrlhf</span></code>，改用克隆源码。</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONNOUSERSITE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">PYTHONNOUSERSITE=1</span></code> 让 Python 忽略用户目录里的包，避免旧版 CANN 相关包干扰依赖解析。</p>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>2. 检查环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>确认 NPU 在线；找不到 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 时参阅 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="pytorch-npu">
+<h2>3. 安装 PyTorch NPU 栈<a class="headerlink" href="#pytorch-npu" title="Link to this heading"></a></h2>
+<p>从 PyTorch CPU 轮子和华为昇腾索引安装与 CANN 9.1.0 匹配的 <code class="docutils literal notranslate"><span class="pre">torch==2.11.0</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu==2.11.0</span></code>，并一并装上 <code class="docutils literal notranslate"><span class="pre">numpy</span></code>、<code class="docutils literal notranslate"><span class="pre">pyyaml</span></code>。版本行出现 <code class="docutils literal notranslate"><span class="pre">2.11.0+cpu</span></code> 属正常，<code class="docutils literal notranslate"><span class="pre">npu_available</span></code> 须为 <code class="docutils literal notranslate"><span class="pre">True</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.11.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.11.0<span class="w"> </span>numpy<span class="w"> </span>pyyaml
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...torch<span class="w"> </span><span class="m">2</span>.11.0...
+torch_npu<span class="w"> </span><span class="m">2</span>.11.0
+npu_available<span class="w"> </span>True
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="openrlhf-npu">
+<h2>4. 让 OpenRLHF 走 NPU<a class="headerlink" href="#openrlhf-npu" title="Link to this heading"></a></h2>
+<p>OpenRLHF 通过 <code class="docutils literal notranslate"><span class="pre">torch.cuda</span></code> 选设备。下面把 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code> 写入 <code class="docutils literal notranslate"><span class="pre">sitecustomize.py</span></code>，新的 Python 进程会把 <code class="docutils literal notranslate"><span class="pre">torch.cuda</span></code> 映射到 NPU。</p>
+<p>工作目录为 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/openrlhf-qs
+</pre></div>
+</div>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs/enable_npu.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">site</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">site</span><span class="o">.</span><span class="n">getsitepackages</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="s2">"sitecustomize.py"</span>
+<span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"from torch_npu.contrib import transfer_to_npu</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p /root/openrlhf-qs
+cat > /root/openrlhf-qs/enable_npu.py <<'PY'
+from pathlib import Path
+import site
+
+path = Path(site.getsitepackages()[0]) / "sitecustomize.py"
+path.write_text("from torch_npu.contrib import transfer_to_npu\n")
+print(path)
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>/root/openrlhf-qs/enable_npu.py
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torch; print(torch.zeros(1, device='cuda').device)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...sitecustomize.py
+npu:0
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="flash-attn">
+<h2>5. 补一份 flash_attn 占位包<a class="headerlink" href="#flash-attn" title="Link to this heading"></a></h2>
+<p>OpenRLHF 启动训练时会立刻 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">flash_attn</span></code>，与是否启用 Flash Attention 无关。昇腾上没有 CUDA 版这个包，下面写入一份只满足 import 的占位包。第 8 节用 <code class="docutils literal notranslate"><span class="pre">--ds.attn_implementation</span> <span class="pre">eager</span></code>，不要加 <code class="docutils literal notranslate"><span class="pre">--ds.packing_samples</span></code>。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs/write_flash_attn_stub.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"/root/openrlhf-qs/flash_attn"</span><span class="p">)</span>
+<span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"utils"</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"__init__.py"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+<span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"utils"</span> <span class="o">/</span> <span class="s2">"__init__.py"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
+<span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"bert_padding.py"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+    <span class="s2">"from einops import rearrange</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"def index_first_axis(*args, **kwargs):</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    raise RuntimeError('packing needs CUDA flash_attn')</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"def unpad_input(*args, **kwargs):</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    raise RuntimeError('packing needs CUDA flash_attn')</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"def pad_input(*args, **kwargs):</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    raise RuntimeError('packing needs CUDA flash_attn')</span><span class="se">\n</span><span class="s2">"</span>
+<span class="p">)</span>
+<span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">"utils"</span> <span class="o">/</span> <span class="s2">"distributed.py"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+    <span class="s2">"def all_gather(*args, **kwargs):</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="s2">"    raise RuntimeError('ring attention needs CUDA flash_attn')</span><span class="se">\n</span><span class="s2">"</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > /root/openrlhf-qs/write_flash_attn_stub.py <<'PY'
+from pathlib import Path
+
+root = Path("/root/openrlhf-qs/flash_attn")
+(root / "utils").mkdir(parents=True, exist_ok=True)
+(root / "__init__.py").write_text("")
+(root / "utils" / "__init__.py").write_text("")
+(root / "bert_padding.py").write_text(
+    "from einops import rearrange\n"
+    "\n"
+    "def index_first_axis(*args, **kwargs):\n"
+    "    raise RuntimeError('packing needs CUDA flash_attn')\n"
+    "\n"
+    "def unpad_input(*args, **kwargs):\n"
+    "    raise RuntimeError('packing needs CUDA flash_attn')\n"
+    "\n"
+    "def pad_input(*args, **kwargs):\n"
+    "    raise RuntimeError('packing needs CUDA flash_attn')\n"
+)
+(root / "utils" / "distributed.py").write_text(
+    "def all_gather(*args, **kwargs):\n"
+    "    raise RuntimeError('ring attention needs CUDA flash_attn')\n"
+)
+print(root)
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>/root/openrlhf-qs/write_flash_attn_stub.py
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/openrlhf-qs/flash_attn
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>6. 克隆 OpenRLHF 并安装依赖<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>把 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成 <a class="reference external" href="https://github.com/OpenRLHF/OpenRLHF/releases">Releases</a> 里当前正式 tag，克隆后把源码目录加入 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code>。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<!--
+```shell #test-setup load="upstream_ref>>ref"
+ci='/root/.cache/huggingface/openrlhf'
+cached="$ci/OpenRLHF"
+dest='/root/openrlhf-qs/OpenRLHF'
+if [ -d "$cached/.git" ]; then
+  tag=$(git -C "$cached" describe --tags --exact-match 2>/dev/null || true)
+  if [ "$tag" = "<ref>" ]; then
+    mkdir -p /root/openrlhf-qs
+    rm -rf "$dest"
+    cp -a "$cached" "$dest"
+  else
+    rm -rf "$cached"
+  fi
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/openrlhf-qs
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>/root/openrlhf-qs/OpenRLHF/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span><span class="s2">"&lt;ref&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/OpenRLHF/OpenRLHF.git<span class="w"> </span>/root/openrlhf-qs/OpenRLHF
+<span class="k">fi</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/root/openrlhf-qs/OpenRLHF:/root/openrlhf-qs:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="k">:-</span><span class="si">}</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import openrlhf; print(openrlhf.__file__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/openrlhf-qs/OpenRLHF/openrlhf/__init__.py
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+ci='/root/.cache/huggingface/openrlhf'
+src='/root/openrlhf-qs/OpenRLHF'
+cached="$ci/OpenRLHF"
+if [ -d "$src/.git" ]; then
+  mkdir -p "$ci"
+  rm -rf "${cached}.part" "$cached"
+  cp -a "$src" "${cached}.part"
+  mv "${cached}.part" "$cached"
+fi
+```
+-->
+<p>安装 SFT 路径需要的包：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>accelerate<span class="w"> </span>aiohttp<span class="w"> </span>datasets<span class="w"> </span><span class="s1">'deepspeed==0.19.5'</span><span class="w"> </span>einops<span class="w"> </span><span class="s1">'grpcio&gt;=1.74.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'huggingface_hub&gt;=1.0.0'</span><span class="w"> </span>jsonlines<span class="w"> </span>loralib<span class="w"> </span>optimum<span class="w"> </span><span class="s1">'optree&gt;=0.15.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>packaging<span class="w"> </span>peft<span class="w"> </span>pylatexenc<span class="w"> </span>tensorboard<span class="w"> </span>torchdata<span class="w"> </span>torchmetrics<span class="w"> </span>tqdm<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s1">'transformers==5.15.0'</span><span class="w"> </span>transformers_stream_generator
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import deepspeed, transformers; print('deepspeed', deepspeed.__version__); print('transformers', transformers.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...deepspeed<span class="w"> </span><span class="m">0</span>.19.5
+transformers<span class="w"> </span><span class="m">5</span>.15.0
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>7. 准备模型和数据<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>从 Hugging Face Hub 下载底座模型，并链到工作目录：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/openrlhf-qs
+rm<span class="w"> </span>-f<span class="w"> </span>/root/openrlhf-qs/model
+ln<span class="w"> </span>-s<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>python<span class="w"> </span>-c<span class="w"> </span><span class="s1">'from huggingface_hub import snapshot_download; print(snapshot_download("Qwen/Qwen2.5-0.5B-Instruct"))'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">'^/'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span>/root/openrlhf-qs/model
+ls<span class="w"> </span>/root/openrlhf-qs/model/config.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/openrlhf-qs/model/config.json
+</pre></div>
+</div>
+<p>训练数据如下，保存为 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs/tiny_sft.jsonl</span></code>：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Translate to English: 你好"</span><span class="p">,</span><span class="w"> </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hello"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Name a color."</span><span class="p">,</span><span class="w"> </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Blue"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Add 2 and 3."</span><span class="p">,</span><span class="w"> </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="p">}</span>
+<span class="p">{</span><span class="nt">"question"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Say yes or no."</span><span class="p">,</span><span class="w"> </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Yes"</span><span class="p">}</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > /root/openrlhf-qs/tiny_sft.jsonl <<'EOF'
+{"question": "Translate to English: 你好", "response": "Hello"}
+{"question": "Name a color.", "response": "Blue"}
+{"question": "Add 2 and 3.", "response": "5"}
+{"question": "Say yes or no.", "response": "Yes"}
+EOF
+```
+-->
+</section>
+<hr class="docutils" />
+<section id="npu">
+<h2>8. 在 NPU 上训练<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<p>下面用 4 条样本做 1 个 epoch 的 LoRA，确认能在 NPU 上跑完。日志里的 <code class="docutils literal notranslate"><span class="pre">npu::npu_format_cast</span></code> 和 <code class="docutils literal notranslate"><span class="pre">device='npu'</span></code> 表示这一次跑在 NPU 上。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/root/openrlhf-qs/OpenRLHF:/root/openrlhf-qs:<span class="si">${</span><span class="nv">PYTHONPATH</span><span class="k">:-</span><span class="si">}</span>
+deepspeed<span class="w"> </span>--module<span class="w"> </span>openrlhf.cli.train_sft<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.max_len<span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.dataset<span class="w"> </span>/root/openrlhf-qs/tiny_sft.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.input_key<span class="w"> </span>question<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.output_key<span class="w"> </span>response<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--train.batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--train.micro_batch_size<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.max_samples<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model.model_name_or_path<span class="w"> </span>/root/openrlhf-qs/model<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ckpt.output_dir<span class="w"> </span>/root/openrlhf-qs/ckpt<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ckpt.save_steps<span class="w"> </span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--logger.logging_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--eval.steps<span class="w"> </span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ds.zero_stage<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ds.adam_offload<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--train.max_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ds.param_dtype<span class="w"> </span>bf16<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ds.attn_implementation<span class="w"> </span>eager<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--adam.lr<span class="w"> </span>5e-6<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--ds.lora.rank<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model.gradient_checkpointing_enable<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data.dataloader_num_workers<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...Setting<span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>...
+...npu::npu_format_cast...
+...device<span class="o">=</span><span class="s1">'npu'</span>...
+...Train<span class="w"> </span>step<span class="w"> </span>of<span class="w"> </span>epoch<span class="w"> </span><span class="m">0</span>:<span class="w"> </span><span class="m">100</span>%...
+...exits<span class="w"> </span>successfully.
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id7">
+<h2>常见问题<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>现象</p></th>
+<th class="head"><p>处理</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">openrlhf</span></code> 报平台或 wheel 错误</p></td>
+<td><p>回到第 6 节克隆源码，不要装 PyPI 包装</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">npu_available</span> <span class="pre">False</span></code></p></td>
+<td><p>回到第 3 节核对 CANN、驱动与 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 安装</p></td>
+</tr>
+<tr class="row-even"><td><p>写入 <code class="docutils literal notranslate"><span class="pre">sitecustomize.py</span></code> 后张量仍在 <code class="docutils literal notranslate"><span class="pre">cpu</span></code></p></td>
+<td><p>回到第 4 节确认 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code> 已写入且 import 显示 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">flash_attn</span></code></p></td>
+<td><p>回到第 5 节写入占位包，并确认 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 含 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packing</span> <span class="pre">needs</span> <span class="pre">CUDA</span> <span class="pre">flash_attn</span></code> / <code class="docutils literal notranslate"><span class="pre">ring</span> <span class="pre">attention</span> <span class="pre">needs</span> <span class="pre">CUDA</span> <span class="pre">flash_attn</span></code></p></td>
+<td><p>不要加 <code class="docutils literal notranslate"><span class="pre">--ds.packing_samples</span></code> 或 <code class="docutils literal notranslate"><span class="pre">--ds.ring_attn_size</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>FusedAdam / decorator / scipy 相关报错</p></td>
+<td><p>确认训练命令含 <code class="docutils literal notranslate"><span class="pre">--ds.adam_offload</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../ms-swift/index.html" class="btn btn-neutral float-left" title="ms-swift" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../peft/index.html" class="btn btn-neutral float-right" title="peft" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
