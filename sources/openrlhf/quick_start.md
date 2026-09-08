@@ -18,9 +18,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**），单卡。
 | OpenRLHF | 从 GitHub 克隆当前正式 Release，见第 6 节 |
 | 模型 | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) |
 
-**配套机器**：Atlas 900 A2 PODc（Ascend 910B4）。**配套镜像**：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
-
-上游安装说明见 [OpenRLHF Quick Start — Installation](https://github.com/OpenRLHF/OpenRLHF#installation)。本文镜像是 aarch64，不能走那里的 `pip install openrlhf`，改用克隆源码。
+**配套机器**：Atlas 900 A2 PODc（Ascend 910B4）。**配套镜像**：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。上游安装说明见 [OpenRLHF Quick Start — Installation](https://github.com/OpenRLHF/OpenRLHF#installation)。
 
 ---
 
@@ -29,10 +27,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**），单卡。
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export PATH=/usr/local/sbin:/usr/local/bin:$PATH
-export PYTHONNOUSERSITE=1
 ```
-
-`PYTHONNOUSERSITE=1` 让 Python 忽略用户目录里的包，避免旧版 CANN 相关包干扰依赖解析。
 
 ---
 
@@ -359,16 +354,3 @@ deepspeed --module openrlhf.cli.train_sft \
 ...Train step of epoch 0: 100%...
 ...exits successfully.
 ```
-
----
-
-## 常见问题
-
-| 现象 | 处理 |
-| --- | --- |
-| `pip install openrlhf` 报平台或 wheel 错误 | 回到第 6 节克隆源码，不要装 PyPI 包装 |
-| `npu_available False` | 回到第 3 节核对 CANN、驱动与 `torch_npu` 安装 |
-| 写入 `sitecustomize.py` 后张量仍在 `cpu` | 回到第 4 节确认 `transfer_to_npu` 已写入且 import 显示 `npu:0` |
-| `ModuleNotFoundError: flash_attn` | 回到第 5 节写入占位包，并确认 `PYTHONPATH` 含 `/root/openrlhf-qs` |
-| `packing needs CUDA flash_attn` / `ring attention needs CUDA flash_attn` | 不要加 `--ds.packing_samples` 或 `--ds.ring_attn_size` |
-| FusedAdam / decorator / scipy 相关报错 | 确认训练命令含 `--ds.adam_offload` |
