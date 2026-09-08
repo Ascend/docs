@@ -70,7 +70,7 @@ ls /usr/include/glog/logging.h /usr/include/gflags/gflags.h
 
 ## 4. 获取源码并编译 Ascend Direct
 
-克隆上游仓库，检出要用的 ref，打开 `-DUSE_ASCEND_DIRECT=ON`，只编译 `transfer_engine_ascend_direct_perf`。将 `<ref>` 换成目标分支、tag 或 commit，上游默认分支为 `main`。
+克隆上游仓库，检出要用的 ref，打开 `-DUSE_ASCEND_DIRECT=ON`，只编译 `transfer_engine_ascend_direct_perf`。将 `<ref>` 换成目标分支、tag 或 commit，上游仓库默认分支为 `main`。
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
@@ -109,13 +109,13 @@ build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
 ...
 ```
 
-`-DWITH_STORE=OFF` 与 `-DUSE_ETCD=OFF` 关掉这次用不到的 Store 和元数据后端。完整组件请按上游 [Build Guide](https://kvcache-ai.github.io/Mooncake/getting_started/build.html) 打开对应选项。
+`-DWITH_STORE=OFF` 与 `-DUSE_ETCD=OFF` 关掉这次用不到的 Store 和元数据后端。完整组件请按上游社区 [Build Guide](https://kvcache-ai.github.io/Mooncake/getting_started/build.html) 打开对应选项。
 
 ## 5. 在两张 NPU 之间做一次写传输
 
 例程是双进程：先启动 target，在 NPU 0 上注册设备内存并监听；再启动 initiator，在 NPU 1 上把一块 device buffer 写到 target。`P2PHANDSHAKE` 会给 target 选一个实际端口，initiator 的 `--segment_id` 必须填日志里那一行 `listening on <IP>:<port>`。
 
-`block_iteration=1`、`batch_size=2`、`block_size=16384` 把传输规模压小，正式测带宽再按上游 [Ascend Direct Transport](https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html) 加大。glog 默认打到 stderr，所以命令末尾有 `2>&1`。
+`block_iteration=1`、`batch_size=2`、`block_size=16384` 把传输规模压小，正式测带宽再按上游社区 [Ascend Direct Transport](https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html) 加大。glog 默认打到 stderr，所以命令末尾有 `2>&1`。
 
 ```shell #test id="transfer"
 cd Mooncake
@@ -178,6 +178,6 @@ exit "$xfer_ec"
 ...Test completed: duration ...
 ```
 
-initiator 日志里的 `Success to initialize adxl engine` 表示这次走了 Ascend Direct。`Test completed:` 表示这一轮写传输跑完。上游例程在传输失败时仍可能打印后两句并返回 0，所以上面的命令会再扫 `getTransferStatus FAILED`、`Sync data transfer timeout` 和 `Failed to install Ascend transport`。
+initiator 日志里的 `Success to initialize adxl engine` 表示这次走了 Ascend Direct。`Test completed:` 表示这一轮写传输跑完。上游社区例程在传输失败时仍可能打印后两句并返回 0，所以上面的命令会再扫 `getTransferStatus FAILED`、`Sync data transfer timeout` 和 `Failed to install Ascend transport`。
 
 二进制默认 `--local_server_name` 指向实验室地址，必须改成 `127.0.0.1`。
