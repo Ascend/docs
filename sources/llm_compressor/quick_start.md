@@ -167,7 +167,6 @@ logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
 inner = getattr(qc, "quantization_config", qc)
 group0 = inner.config_groups["group_0"]
-print("LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0")
 print("weight_num_bits", group0.weights.num_bits)
 print("targeted", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
@@ -190,7 +189,6 @@ from llmcompressor.modifiers.gptq import GPTQModifier
 
 model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
-# oneshot 写入量化结果的目录，不是事先准备好的权重路径
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
 model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
@@ -232,7 +230,6 @@ logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
 inner = getattr(qc, "quantization_config", qc)
 group0 = inner.config_groups["group_0"]
-print("LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0")
 print("weight_num_bits", group0.weights.num_bits)
 print("targeted", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
@@ -251,7 +248,6 @@ python oneshot_forward.py
 
 ```shell #test-result id="oneshot-forward"
 ...
-LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0
 weight_num_bits 4
 targeted True
 lm_head_quantized False
