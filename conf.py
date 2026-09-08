@@ -71,7 +71,7 @@ language = 'zh_CN'
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     '.github', 'tests',
-                    # Included into sources/llm_compressor/index.md; excluding
+                    # Included into sources/llm_compressor/index.rst; excluding
                     # the file itself avoids a nested sidebar「快速开始」.
                     'sources/llm_compressor/quick_start.md']
 
