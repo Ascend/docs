@@ -315,7 +315,6 @@ llmcompressor<span class="w"> </span>...
 <span class="n">qc</span> <span class="o">=</span> <span class="n">reloaded</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">quantization_config</span>
 <span class="n">inner</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">qc</span><span class="p">,</span> <span class="s2">"quantization_config"</span><span class="p">,</span> <span class="n">qc</span><span class="p">)</span>
 <span class="n">group0</span> <span class="o">=</span> <span class="n">inner</span><span class="o">.</span><span class="n">config_groups</span><span class="p">[</span><span class="s2">"group_0"</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">"LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"weight_num_bits"</span><span class="p">,</span> <span class="n">group0</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">num_bits</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"targeted"</span><span class="p">,</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">self_attn</span><span class="o">.</span><span class="n">q_proj</span><span class="p">,</span> <span class="s2">"quantization_scheme"</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"lm_head_quantized"</span><span class="p">,</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">reloaded</span><span class="o">.</span><span class="n">lm_head</span><span class="p">,</span> <span class="s2">"quantization_scheme"</span><span class="p">))</span>
@@ -338,7 +337,6 @@ from llmcompressor.modifiers.gptq import GPTQModifier
 
 model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
-# oneshot 写入量化结果的目录，不是事先准备好的权重路径
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
 model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
@@ -380,7 +378,6 @@ logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
 inner = getattr(qc, "quantization_config", qc)
 group0 = inner.config_groups["group_0"]
-print("LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0")
 print("weight_num_bits", group0.weights.num_bits)
 print("targeted", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
@@ -394,7 +391,6 @@ PY
 </div>
 <p>输出结果如下：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-<span class="nv">LLM_COMPRESSOR_WORKLOAD_DEVICE</span><span class="o">=</span>npu:0
 weight_num_bits<span class="w"> </span><span class="m">4</span>
 targeted<span class="w"> </span>True
 lm_head_quantized<span class="w"> </span>False
