@@ -189,6 +189,13 @@
          <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/BestPractices/NPU-support.html">NPU 支持</a></div>
       </div>
 
+      <!-- OpenRLHF -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/openrlhf.png')"></div><h3 class="card-title">OpenRLHF</h3></div>
+         <p class="card-desc">基于 Ray 与 DeepSpeed 的 RLHF 框架，支持在昇腾 NPU 上做 LoRA 监督微调。</p>
+         <div class="card-footer"><a href="https://github.com/OpenRLHF/OpenRLHF">官方链接</a><span class="split">|</span><a href="https://openrlhf.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="sources/openrlhf/index.html">快速上手</a></div>
+      </div>
+
       <!-- ROLL：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/roll.png')"></div><h3 class="card-title">ROLL</h3></div>
@@ -411,6 +418,7 @@
 
    sources/LLaMA-Factory/index.rst
    sources/ms-swift/index.rst
+   sources/openrlhf/index.rst
    sources/peft/index.md
    sources/roll/index.rst
    sources/torchtitan/index.rst
