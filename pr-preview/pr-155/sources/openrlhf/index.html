@@ -82,7 +82,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#id5">6. 克隆 OpenRLHF 并安装依赖</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">7. 准备模型和数据</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#npu">8. 在 NPU 上训练</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">常见问题</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
@@ -182,8 +181,7 @@
 </tr>
 </tbody>
 </table>
-<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
-<p>上游安装说明见 <a class="reference external" href="https://github.com/OpenRLHF/OpenRLHF#installation">OpenRLHF Quick Start — Installation</a>。本文镜像是 aarch64，不能走那里的 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">openrlhf</span></code>，改用克隆源码。</p>
+<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。上游安装说明见 <a class="reference external" href="https://github.com/OpenRLHF/OpenRLHF#installation">OpenRLHF Quick Start — Installation</a>。</p>
 </section>
 </section>
 <hr class="docutils" />
@@ -191,10 +189,8 @@
 <h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
-<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONNOUSERSITE</span><span class="o">=</span><span class="m">1</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">PYTHONNOUSERSITE=1</span></code> 让 Python 忽略用户目录里的包，避免旧版 CANN 相关包干扰依赖解析。</p>
 </section>
 <hr class="docutils" />
 <section id="id4">
@@ -473,37 +469,6 @@ deepspeed<span class="w"> </span>--module<span class="w"> </span>openrlhf.cli.tr
 ...exits<span class="w"> </span>successfully.
 </pre></div>
 </div>
-</section>
-<hr class="docutils" />
-<section id="id7">
-<h2>常见问题<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>现象</p></th>
-<th class="head"><p>处理</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">openrlhf</span></code> 报平台或 wheel 错误</p></td>
-<td><p>回到第 6 节克隆源码，不要装 PyPI 包装</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">npu_available</span> <span class="pre">False</span></code></p></td>
-<td><p>回到第 3 节核对 CANN、驱动与 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 安装</p></td>
-</tr>
-<tr class="row-even"><td><p>写入 <code class="docutils literal notranslate"><span class="pre">sitecustomize.py</span></code> 后张量仍在 <code class="docutils literal notranslate"><span class="pre">cpu</span></code></p></td>
-<td><p>回到第 4 节确认 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code> 已写入且 import 显示 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">flash_attn</span></code></p></td>
-<td><p>回到第 5 节写入占位包，并确认 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 含 <code class="docutils literal notranslate"><span class="pre">/root/openrlhf-qs</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packing</span> <span class="pre">needs</span> <span class="pre">CUDA</span> <span class="pre">flash_attn</span></code> / <code class="docutils literal notranslate"><span class="pre">ring</span> <span class="pre">attention</span> <span class="pre">needs</span> <span class="pre">CUDA</span> <span class="pre">flash_attn</span></code></p></td>
-<td><p>不要加 <code class="docutils literal notranslate"><span class="pre">--ds.packing_samples</span></code> 或 <code class="docutils literal notranslate"><span class="pre">--ds.ring_attn_size</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>FusedAdam / decorator / scipy 相关报错</p></td>
-<td><p>确认训练命令含 <code class="docutils literal notranslate"><span class="pre">--ds.adam_offload</span></code></p></td>
-</tr>
-</tbody>
-</table>
 </section>
 </section>
 
