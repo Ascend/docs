@@ -221,7 +221,7 @@ ls<span class="w"> </span>/usr/include/glog/logging.h<span class="w"> </span>/us
 </section>
 <section id="ascend-direct">
 <h2>4. 获取源码并编译 Ascend Direct<a class="headerlink" href="#ascend-direct" title="Link to this heading"></a></h2>
-<p>克隆上游仓库，检出要用的 ref，打开 <code class="docutils literal notranslate"><span class="pre">-DUSE_ASCEND_DIRECT=ON</span></code>，只编译 <code class="docutils literal notranslate"><span class="pre">transfer_engine_ascend_direct_perf</span></code>。将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标分支、tag 或 commit，上游默认分支为 <code class="docutils literal notranslate"><span class="pre">main</span></code>。</p>
+<p>克隆上游仓库，检出要用的 ref，打开 <code class="docutils literal notranslate"><span class="pre">-DUSE_ASCEND_DIRECT=ON</span></code>，只编译 <code class="docutils literal notranslate"><span class="pre">transfer_engine_ascend_direct_perf</span></code>。将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标分支、tag 或 commit，上游仓库默认分支为 <code class="docutils literal notranslate"><span class="pre">main</span></code>。</p>
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
@@ -256,12 +256,12 @@ build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
 ...
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">-DWITH_STORE=OFF</span></code> 与 <code class="docutils literal notranslate"><span class="pre">-DUSE_ETCD=OFF</span></code> 关掉这次用不到的 Store 和元数据后端。完整组件请按上游 <a class="reference external" href="https://kvcache-ai.github.io/Mooncake/getting_started/build.html">Build Guide</a> 打开对应选项。</p>
+<p><code class="docutils literal notranslate"><span class="pre">-DWITH_STORE=OFF</span></code> 与 <code class="docutils literal notranslate"><span class="pre">-DUSE_ETCD=OFF</span></code> 关掉这次用不到的 Store 和元数据后端。完整组件请按上游社区 <a class="reference external" href="https://kvcache-ai.github.io/Mooncake/getting_started/build.html">Build Guide</a> 打开对应选项。</p>
 </section>
 <section id="id5">
 <h2>5. 在两张 NPU 之间做一次写传输<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <p>例程是双进程：先启动 target，在 NPU 0 上注册设备内存并监听；再启动 initiator，在 NPU 1 上把一块 device buffer 写到 target。<code class="docutils literal notranslate"><span class="pre">P2PHANDSHAKE</span></code> 会给 target 选一个实际端口，initiator 的 <code class="docutils literal notranslate"><span class="pre">--segment_id</span></code> 必须填日志里那一行 <code class="docutils literal notranslate"><span class="pre">listening</span> <span class="pre">on</span> <span class="pre">&lt;IP&gt;:&lt;port&gt;</span></code>。</p>
-<p><code class="docutils literal notranslate"><span class="pre">block_iteration=1</span></code>、<code class="docutils literal notranslate"><span class="pre">batch_size=2</span></code>、<code class="docutils literal notranslate"><span class="pre">block_size=16384</span></code> 把传输规模压小，正式测带宽再按上游 <a class="reference external" href="https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html">Ascend Direct Transport</a> 加大。glog 默认打到 stderr，所以命令末尾有 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">block_iteration=1</span></code>、<code class="docutils literal notranslate"><span class="pre">batch_size=2</span></code>、<code class="docutils literal notranslate"><span class="pre">block_size=16384</span></code> 把传输规模压小，正式测带宽再按上游社区 <a class="reference external" href="https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html">Ascend Direct Transport</a> 加大。glog 默认打到 stderr，所以命令末尾有 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code>。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>Mooncake
 <span class="nb">export</span><span class="w"> </span><span class="nv">GLOG_logtostderr</span><span class="o">=</span><span class="m">1</span>
 build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf<span class="w"> </span><span class="se">\</span>
@@ -320,7 +320,7 @@ build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf<span c
 ...Test<span class="w"> </span>completed:<span class="w"> </span>duration<span class="w"> </span>...
 </pre></div>
 </div>
-<p>initiator 日志里的 <code class="docutils literal notranslate"><span class="pre">Success</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">adxl</span> <span class="pre">engine</span></code> 表示这次走了 Ascend Direct。<code class="docutils literal notranslate"><span class="pre">Test</span> <span class="pre">completed:</span></code> 表示这一轮写传输跑完。上游例程在传输失败时仍可能打印后两句并返回 0，所以上面的命令会再扫 <code class="docutils literal notranslate"><span class="pre">getTransferStatus</span> <span class="pre">FAILED</span></code>、<code class="docutils literal notranslate"><span class="pre">Sync</span> <span class="pre">data</span> <span class="pre">transfer</span> <span class="pre">timeout</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Failed</span> <span class="pre">to</span> <span class="pre">install</span> <span class="pre">Ascend</span> <span class="pre">transport</span></code>。</p>
+<p>initiator 日志里的 <code class="docutils literal notranslate"><span class="pre">Success</span> <span class="pre">to</span> <span class="pre">initialize</span> <span class="pre">adxl</span> <span class="pre">engine</span></code> 表示这次走了 Ascend Direct。<code class="docutils literal notranslate"><span class="pre">Test</span> <span class="pre">completed:</span></code> 表示这一轮写传输跑完。上游社区例程在传输失败时仍可能打印后两句并返回 0，所以上面的命令会再扫 <code class="docutils literal notranslate"><span class="pre">getTransferStatus</span> <span class="pre">FAILED</span></code>、<code class="docutils literal notranslate"><span class="pre">Sync</span> <span class="pre">data</span> <span class="pre">transfer</span> <span class="pre">timeout</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Failed</span> <span class="pre">to</span> <span class="pre">install</span> <span class="pre">Ascend</span> <span class="pre">transport</span></code>。</p>
 <p>二进制默认 <code class="docutils literal notranslate"><span class="pre">--local_server_name</span></code> 指向实验室地址，必须改成 <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>。</p>
 </section>
 </section>
