@@ -83,7 +83,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/Diffusers/quick_start.md',
                     'sources/torchtune/quick_start.md',
                     'sources/xtuner/quick_start.md',
-                    'sources/ktransformers/quick_start.md']
+                    'sources/ktransformers/quick_start.md',
+                    'sources/mooncake/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
