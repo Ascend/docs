@@ -182,13 +182,12 @@
 </tr>
 </tbody>
 </table>
-<p>配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
-<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。</p>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。推荐配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
 </section>
 </section>
 <section id="cann">
 <h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
-<p>新开终端后 CANN 变量不会自动生效。常见容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 在 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code>，需要把该目录加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>。</p>
+<p>常见容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 在 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code>，需要把该目录加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:<span class="nv">$PATH</span>
 </pre></div>
@@ -198,7 +197,6 @@
 <h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
 <section id="npu">
 <h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
-<p>下面确认驱动能看到设备。表格中的功耗、HBM 占用每次不同，不必与样例逐字一致。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
@@ -235,7 +233,6 @@ torch_npu<span class="w"> </span><span class="m">2</span>.10.0.post4
 npu_available<span class="w"> </span>True
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">npu_available</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">True</span></code>。<code class="docutils literal notranslate"><span class="pre">torch</span></code> 版本串可能带 <code class="docutils literal notranslate"><span class="pre">+cpu</span></code> 后缀，以 <code class="docutils literal notranslate"><span class="pre">npu_available</span> <span class="pre">True</span></code> 为准。</p>
 </section>
 <section id="id6">
 <h2>4. 安装 llm-compressor<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
@@ -259,7 +256,7 @@ llmcompressor<span class="w"> </span>...
 </section>
 <section id="npu-w4a16-gptq">
 <h2>5. 在 NPU 上做一次单层 W4A16 GPTQ<a class="headerlink" href="#npu-w4a16-gptq" title="Link to this heading"></a></h2>
-<p>下面从 Hugging Face 下载公开小模型 <code class="docutils literal notranslate"><span class="pre">nm-testing/tinysmokeqwen3</span></code>（不必事先准备权重），用 8 条本地校准文本只量化第 3 层的 <code class="docutils literal notranslate"><span class="pre">q_proj</span></code>。<code class="docutils literal notranslate"><span class="pre">oneshot</span></code> 把压缩后的模型写到本机 <code class="docutils literal notranslate"><span class="pre">~/llm-compressor-work/compressed</span></code>，随后从该目录重载并做一次前向。</p>
+<p>下面从 Hugging Face 下载公开小模型 <code class="docutils literal notranslate"><span class="pre">nm-testing/tinysmokeqwen3</span></code>，用 8 条本地校准文本只量化第 3 层的 <code class="docutils literal notranslate"><span class="pre">q_proj</span></code>。<code class="docutils literal notranslate"><span class="pre">oneshot</span></code> 把压缩后的模型写到本机 <code class="docutils literal notranslate"><span class="pre">~/llm-compressor-work/compressed</span></code>，随后从该目录重载并做一次前向。</p>
 <p>保存为 <code class="docutils literal notranslate"><span class="pre">oneshot_forward.py</span></code>：</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -397,7 +394,7 @@ lm_head_quantized<span class="w"> </span>False
 logits.device<span class="w"> </span>npu:0
 </pre></div>
 </div>
-<p>进程须退出码为 0，且 <code class="docutils literal notranslate"><span class="pre">logits.device</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>；若打印 <code class="docutils literal notranslate"><span class="pre">cpu</span></code>，那是静默回退，视为失败。</p>
+<p>进程须退出码为 0，且 <code class="docutils literal notranslate"><span class="pre">logits.device</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>；若打印 <code class="docutils literal notranslate"><span class="pre">cpu</span></code>，则为静默回退，视为失败。</p>
 </section>
 </section>
 
