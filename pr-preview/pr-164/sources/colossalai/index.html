@@ -1,0 +1,422 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ColossalAI &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="ms-swift" href="../ms-swift/index.html" />
+    <link rel="prev" title="LLaMA-Factory" href="../LLaMA-Factory/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ColossalAI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pytorch-npu">3. 安装 PyTorch NPU 栈</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">4. 安装 ColossalAI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#npu">5. 在 NPU 上做一步训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">故障排查</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ColossalAI</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/colossalai/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="colossalai">
+<h1>ColossalAI<a class="headerlink" href="#colossalai" title="Link to this heading"></a></h1>
+<p>本文在单卡昇腾 NPU 上安装 <a class="reference external" href="https://github.com/hpcaitech/ColossalAI">ColossalAI</a>，并用 <code class="docutils literal notranslate"><span class="pre">Booster</span></code> + <code class="docutils literal notranslate"><span class="pre">TorchDDPPlugin</span></code> 对 <a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen/Qwen2.5-0.5B</a> 做一步训练。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>），单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-even"><td><p>PyTorch</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch==2.9.0</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.9.0.post2</span></code>，见第 3 节</p></td>
+</tr>
+<tr class="row-odd"><td><p>ColossalAI</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">colossalai==0.5.0</span> <span class="pre">--no-deps</span></code>，见第 4 节</p></td>
+</tr>
+<tr class="row-even"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen/Qwen2.5-0.5B</a></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:<span class="nv">$PATH</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONNOUSERSITE</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>2. 检查环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>确认 NPU 在线；找不到 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 时参阅 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="pytorch-npu">
+<h2>3. 安装 PyTorch NPU 栈<a class="headerlink" href="#pytorch-npu" title="Link to this heading"></a></h2>
+<p>从华为昇腾索引安装与 CANN 9.1.0 匹配的 <code class="docutils literal notranslate"><span class="pre">torch==2.9.0</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu==2.9.0.post2</span></code>，并一并装上 <code class="docutils literal notranslate"><span class="pre">numpy</span></code>、<code class="docutils literal notranslate"><span class="pre">pyyaml</span></code>。<code class="docutils literal notranslate"><span class="pre">npu_available</span></code> 须为 <code class="docutils literal notranslate"><span class="pre">True</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.9.0.post2<span class="w"> </span>numpy<span class="w"> </span>pyyaml
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+torch<span class="w"> </span><span class="m">2</span>.9.0...
+torch_npu<span class="w"> </span><span class="m">2</span>.9.0.post2
+npu_available<span class="w"> </span>True
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>4. 安装 ColossalAI<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>不要写 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">colossalai</span></code>：上游把 torch 钉在 <code class="docutils literal notranslate"><span class="pre">&lt;=2.5.1</span></code>，会换掉第 3 节的 NPU 栈。先装 <code class="docutils literal notranslate"><span class="pre">colossalai==0.5.0</span> <span class="pre">--no-deps</span></code>，再装 Booster 导入所需的 <code class="docutils literal notranslate"><span class="pre">transformers</span></code>、<code class="docutils literal notranslate"><span class="pre">peft</span></code>、<code class="docutils literal notranslate"><span class="pre">galore_torch</span></code>、<code class="docutils literal notranslate"><span class="pre">bitsandbytes</span></code>、<code class="docutils literal notranslate"><span class="pre">einops</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">colossalai</span><span class="o">==</span><span class="m">0</span>.5.0<span class="w"> </span>--no-deps
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>transformers<span class="w"> </span>peft<span class="w"> </span>galore_torch<span class="w"> </span>bitsandbytes<span class="w"> </span>einops
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torch, torch_npu, colossalai; from colossalai.accelerator import get_accelerator; print('torch', torch.__version__); print('colossalai', colossalai.__version__); acc = get_accelerator(); print('accel_name', acc.name); print('accel_device', acc.get_current_device()); print('npu_available', torch.npu.is_available())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+torch<span class="w"> </span><span class="m">2</span>.9.0...
+colossalai<span class="w"> </span><span class="m">0</span>.5.0
+accel_name<span class="w"> </span>npu
+accel_device<span class="w"> </span>npu:0
+npu_available<span class="w"> </span>True
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">accel_name</span></code> 为 <code class="docutils literal notranslate"><span class="pre">npu</span></code>、<code class="docutils literal notranslate"><span class="pre">accel_device</span></code> 为 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 只说明设备探测成功。pip 提示 <code class="docutils literal notranslate"><span class="pre">torch&lt;=2.5.1</span></code> 冲突是预期现象。</p>
+</section>
+<hr class="docutils" />
+<section id="npu">
+<h2>5. 在 NPU 上做一步训练<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<p>下面用 <code class="docutils literal notranslate"><span class="pre">launch</span></code> 与 <code class="docutils literal notranslate"><span class="pre">Booster(plugin=TorchDDPPlugin())</span></code> 包住 Qwen2.5-0.5B，做一次前向、反向和 <code class="docutils literal notranslate"><span class="pre">optimizer.step()</span></code>。<code class="docutils literal notranslate"><span class="pre">world_size=1</span></code> 为单进程；首次验证用 <code class="docutils literal notranslate"><span class="pre">bfloat16</span></code> 降低显存。</p>
+<p>工作目录为 <code class="docutils literal notranslate"><span class="pre">/root/colossalai-qs</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/colossalai-qs
+</pre></div>
+</div>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">/root/colossalai-qs/train_one_step.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.optim</span><span class="w"> </span><span class="kn">import</span> <span class="n">AdamW</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">colossalai</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colossalai.accelerator</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_accelerator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colossalai.booster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Booster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">colossalai.booster.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">TorchDDPPlugin</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s2">"Qwen/Qwen2.5-0.5B"</span>
+<span class="n">colossalai</span><span class="o">.</span><span class="n">launch</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">world_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s2">"127.0.0.1"</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">29599</span><span class="p">)</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">get_accelerator</span><span class="p">()</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">tokenizer</span><span class="o">.</span><span class="n">pad_token</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">eos_token</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">,</span> <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">AdamW</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+<span class="n">booster</span> <span class="o">=</span> <span class="n">Booster</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="n">TorchDDPPlugin</span><span class="p">())</span>
+<span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">booster</span><span class="o">.</span><span class="n">boost</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"accel_name"</span><span class="p">,</span> <span class="n">acc</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"accel_device"</span><span class="p">,</span> <span class="n">acc</span><span class="o">.</span><span class="n">get_current_device</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"boosted_param_device"</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="s2">"ColossalAI on Ascend NPU"</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">"pt"</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">acc</span><span class="o">.</span><span class="n">get_current_device</span><span class="p">())</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">enc</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+<span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">enc</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">enc</span><span class="p">[</span><span class="s2">"input_ids"</span><span class="p">])</span><span class="o">.</span><span class="n">loss</span>
+<span class="n">booster</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+<span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p /root/colossalai-qs
+cat > /root/colossalai-qs/train_one_step.py <<'PY'
+import torch
+from torch.optim import AdamW
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import colossalai
+from colossalai.accelerator import get_accelerator
+from colossalai.booster import Booster
+from colossalai.booster.plugin import TorchDDPPlugin
+
+model_id = "Qwen/Qwen2.5-0.5B"
+colossalai.launch(rank=0, world_size=1, host="127.0.0.1", port=29599)
+acc = get_accelerator()
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+model = AutoModelForCausalLM.from_pretrained(
+    model_id, torch_dtype=torch.bfloat16,
+)
+optimizer = AdamW(model.parameters(), lr=1e-5)
+booster = Booster(plugin=TorchDDPPlugin())
+model, optimizer, _, _, _ = booster.boost(model, optimizer)
+print("accel_name", acc.name)
+print("accel_device", acc.get_current_device())
+print("boosted_param_device", next(model.parameters()).device)
+enc = tokenizer("ColossalAI on Ascend NPU", return_tensors="pt")
+enc = {k: v.to(acc.get_current_device()) for k, v in enc.items()}
+loss = model(**enc, labels=enc["input_ids"]).loss
+booster.backward(loss, optimizer)
+optimizer.step()
+optimizer.zero_grad()
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>/root/colossalai-qs/train_one_step.py
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+accel_name<span class="w"> </span>npu
+accel_device<span class="w"> </span>npu:0
+boosted_param_device<span class="w"> </span>npu:0
+</pre></div>
+</div>
+<p>导入时可能出现 <code class="docutils literal notranslate"><span class="pre">tensornvme</span></code>、<code class="docutils literal notranslate"><span class="pre">apex</span></code> 警告，昇腾上可忽略。<code class="docutils literal notranslate"><span class="pre">boosted_param_device</span></code> 为 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 表示参数已放到 NPU。</p>
+</section>
+<hr class="docutils" />
+<section id="id6">
+<h2>故障排查<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>现象</p></th>
+<th class="head"><p>可能原因</p></th>
+<th class="head"><p>建议</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch</span></code> 报缺 <code class="docutils literal notranslate"><span class="pre">numpy</span></code> 或 <code class="docutils literal notranslate"><span class="pre">yaml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 未声明这两项依赖</p></td>
+<td><p>与 torch 栈一起安装 <code class="docutils literal notranslate"><span class="pre">numpy</span></code> <code class="docutils literal notranslate"><span class="pre">pyyaml</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span></code> 为 <code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>未 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>，或设备未挂进容器</p></td>
+<td><p>重做第 1–2 节</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">accel_name</span></code> 为 <code class="docutils literal notranslate"><span class="pre">cpu</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 没装上，或 NPU 不可用</p></td>
+<td><p>重做第 3 节</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">accel_name</span></code> 为 <code class="docutils literal notranslate"><span class="pre">cuda</span></code></p></td>
+<td><p>当前进程里 CUDA 版 torch 可用</p></td>
+<td><p>卸掉 CUDA 版 torch</p></td>
+</tr>
+<tr class="row-even"><td><p>pip 把 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 降到 <code class="docutils literal notranslate"><span class="pre">2.5.1</span></code> 或更低</p></td>
+<td><p>安装 ColossalAI 时没加 <code class="docutils literal notranslate"><span class="pre">--no-deps</span></code></p></td>
+<td><p>卸掉后按第 3–4 节重装</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">galore_torch</span></code>、<code class="docutils literal notranslate"><span class="pre">peft</span></code> 或 <code class="docutils literal notranslate"><span class="pre">einops</span></code></p></td>
+<td><p>只装了 <code class="docutils literal notranslate"><span class="pre">--no-deps</span></code> 的 ColossalAI</p></td>
+<td><p>按第 4 节把导入期依赖装上</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">boosted_param_device</span></code> 为 <code class="docutils literal notranslate"><span class="pre">cpu</span></code> 但退出码 0</p></td>
+<td><p>模型没放到 NPU</p></td>
+<td><p>检查可见设备和 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Address</span> <span class="pre">already</span> <span class="pre">in</span> <span class="pre">use</span></code></p></td>
+<td><p>端口 <code class="docutils literal notranslate"><span class="pre">29599</span></code> 被占用</p></td>
+<td><p>换一个端口，或结束占用该端口的进程</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h2>外部链接<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/hpcaitech/ColossalAI">hpcaitech/ColossalAI</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://colossalai.readthedocs.io/en/latest/">Colossal-AI Docs</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../LLaMA-Factory/index.html" class="btn btn-neutral float-left" title="LLaMA-Factory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../ms-swift/index.html" class="btn btn-neutral float-right" title="ms-swift" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
