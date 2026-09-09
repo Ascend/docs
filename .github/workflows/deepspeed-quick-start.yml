@@ -1,0 +1,34 @@
+# DeepSpeed quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+name: deepspeed-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'deepspeed-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  # Every 3 hours at minute 0, offset from peft (minute 30) to avoid NPU runner contention.
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/deepspeed/**'
+      - 'tests/deepspeed/**'
+
+permissions:
+  contents: read
+
+jobs:
+  deepspeed-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: deepspeed
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: ''
+      timeout_minutes: 180
+      upstream_repo: deepspeedai/DeepSpeed
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/deepspeed/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/deepspeed/quick_start.md
+      test_command: python -m unittest tests.deepspeed.test_quick_start_ascend -v 2>&1
