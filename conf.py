@@ -70,7 +70,11 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
-                    '.github', 'tests']
+                    '.github', 'tests',
+                    # Included into sources/diffsynth_studio/index.rst;
+                    # excluding the file itself avoids a nested sidebar
+                    # 「快速开始」.
+                    'sources/diffsynth_studio/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------

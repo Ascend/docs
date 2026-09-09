@@ -323,6 +323,13 @@
          <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- DiffSynth-Studio -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffsynth_studio.png')"></div><h3 class="card-title">DiffSynth-Studio</h3></div>
+         <p class="card-desc">ModelScope 的扩散模型引擎，支持在昇腾 NPU 上文生图。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/DiffSynth-Studio">官方链接</a><span class="split">|</span><a href="https://diffsynth-studio-doc.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="sources/diffsynth_studio/index.html">快速上手</a></div>
+      </div>
+
       <!-- LM-Eval -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">lm-evaluation-harness</h3></div>
@@ -447,6 +454,7 @@
    :caption: 🎨 多模态、应用与评测
 
    sources/Diffusers/index.rst
+   sources/diffsynth_studio/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
