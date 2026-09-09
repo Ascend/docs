@@ -153,7 +153,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ray.png')"></div><h3 class="card-title">Ray</h3></div>
          <p class="card-desc">Ray is a unified framework for scaling AI and Python applications. </p>
-         <div class="card-footer"><a href="https://github.com/ray-project/ray">官方链接</a><span class="split">|</span><a href="sources/Ray/quick_start.html">安装指南</a><span class="split">|</span><a href="sources/Ray/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ray-project/ray">官方链接</a><span class="split">|</span><a href="sources/Ray/usage.html">使用说明</a><span class="split">|</span><a href="sources/Ray/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- Ray -->
@@ -455,4 +455,3 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
-
