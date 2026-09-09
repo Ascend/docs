@@ -77,11 +77,11 @@ npu_available True
 
 ## 4. 安装 ColossalAI
 
-不要写 `pip install colossalai`：上游把 torch 钉在 `<=2.5.1`，会换掉第 3 节的 NPU 栈。先装 `colossalai==0.5.0 --no-deps`，再装 Booster 导入所需的 `transformers`、`peft`、`galore_torch`、`bitsandbytes`、`einops`。
+不要写 `pip install colossalai`：上游把 torch 钉在 `<=2.5.1`，会换掉第 3 节的 NPU 栈。先装 `colossalai==0.5.0 --no-deps`，再装 Booster 导入所需的 `transformers==4.51.3`、`peft`、`galore_torch`、`bitsandbytes`、`einops`。
 
 ```shell #test id="install-colossalai"
 python -m pip install colossalai==0.5.0 --no-deps
-python -m pip install transformers peft galore_torch bitsandbytes einops
+python -m pip install transformers==4.51.3 peft galore_torch bitsandbytes einops
 python -c "import torch, torch_npu, colossalai; from colossalai.accelerator import get_accelerator; print('torch', torch.__version__); print('colossalai', colossalai.__version__); acc = get_accelerator(); print('accel_name', acc.name); print('accel_device', acc.get_current_device()); print('npu_available', torch.npu.is_available())"
 ```
 
@@ -102,7 +102,7 @@ npu_available True
 
 ## 5. 在 NPU 上做一步训练
 
-下面用 `launch` 与 `Booster(plugin=TorchDDPPlugin())` 包住 Qwen2.5-0.5B，做一次前向、反向和 `optimizer.step()`。`world_size=1` 为单进程；首次验证用 `bfloat16` 降低显存。
+下面用 `launch` 与 `Booster(plugin=TorchDDPPlugin())` 包住 Qwen2.5-0.5B，做一次前向、反向和 `optimizer.step()`。`world_size=1` 为单进程；首次验证用 `bfloat16` 降低显存。随机种子固定为 `42`，并打印这一步的 `loss`。
 
 工作目录为 `/root/colossalai-qs`：
 
@@ -115,11 +115,16 @@ mkdir -p /root/colossalai-qs
 ```python
 import torch
 from torch.optim import AdamW
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 import colossalai
 from colossalai.accelerator import get_accelerator
 from colossalai.booster import Booster
 from colossalai.booster.plugin import TorchDDPPlugin
+
+SEED = 42
+set_seed(SEED)
+torch.npu.manual_seed(SEED)
+torch.npu.manual_seed_all(SEED)
 
 model_id = "Qwen/Qwen2.5-0.5B"
 colossalai.launch(rank=0, world_size=1, host="127.0.0.1", port=29599)
@@ -133,12 +138,17 @@ model = AutoModelForCausalLM.from_pretrained(
 optimizer = AdamW(model.parameters(), lr=1e-5)
 booster = Booster(plugin=TorchDDPPlugin())
 model, optimizer, _, _, _ = booster.boost(model, optimizer)
+model.train()
+set_seed(SEED)
+torch.npu.manual_seed(SEED)
+torch.npu.manual_seed_all(SEED)
 print("accel_name", acc.name)
 print("accel_device", acc.get_current_device())
 print("boosted_param_device", next(model.parameters()).device)
 enc = tokenizer("ColossalAI on Ascend NPU", return_tensors="pt")
 enc = {k: v.to(acc.get_current_device()) for k, v in enc.items()}
 loss = model(**enc, labels=enc["input_ids"]).loss
+print("loss", f"{float(loss.item()):.6f}")
 booster.backward(loss, optimizer)
 optimizer.step()
 optimizer.zero_grad()
@@ -150,11 +160,16 @@ mkdir -p /root/colossalai-qs
 cat > /root/colossalai-qs/train_one_step.py <<'PY'
 import torch
 from torch.optim import AdamW
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 import colossalai
 from colossalai.accelerator import get_accelerator
 from colossalai.booster import Booster
 from colossalai.booster.plugin import TorchDDPPlugin
+
+SEED = 42
+set_seed(SEED)
+torch.npu.manual_seed(SEED)
+torch.npu.manual_seed_all(SEED)
 
 model_id = "Qwen/Qwen2.5-0.5B"
 colossalai.launch(rank=0, world_size=1, host="127.0.0.1", port=29599)
@@ -168,12 +183,17 @@ model = AutoModelForCausalLM.from_pretrained(
 optimizer = AdamW(model.parameters(), lr=1e-5)
 booster = Booster(plugin=TorchDDPPlugin())
 model, optimizer, _, _, _ = booster.boost(model, optimizer)
+model.train()
+set_seed(SEED)
+torch.npu.manual_seed(SEED)
+torch.npu.manual_seed_all(SEED)
 print("accel_name", acc.name)
 print("accel_device", acc.get_current_device())
 print("boosted_param_device", next(model.parameters()).device)
 enc = tokenizer("ColossalAI on Ascend NPU", return_tensors="pt")
 enc = {k: v.to(acc.get_current_device()) for k, v in enc.items()}
 loss = model(**enc, labels=enc["input_ids"]).loss
+print("loss", f"{float(loss.item()):.6f}")
 booster.backward(loss, optimizer)
 optimizer.step()
 optimizer.zero_grad()
@@ -182,7 +202,7 @@ PY
 -->
 
 ```shell #test id="train"
-python /root/colossalai-qs/train_one_step.py
+PYTHONHASHSEED=42 python /root/colossalai-qs/train_one_step.py
 ```
 
 输出结果如下：
@@ -192,9 +212,10 @@ python /root/colossalai-qs/train_one_step.py
 accel_name npu
 accel_device npu:0
 boosted_param_device npu:0
+loss 5.531600
 ```
 
-导入时可能出现 `tensornvme`、`apex` 警告，昇腾上可忽略。`boosted_param_device` 为 `npu:0` 表示参数已放到 NPU。
+导入时可能出现 `tensornvme`、`apex` 警告，昇腾上可忽略。`boosted_param_device` 为 `npu:0` 表示参数已放到 NPU。`PYTHONHASHSEED=42` 与脚本里的 `SEED = 42` 一起冻结随机性；`loss 5.531600` 是这一步训练的结果。
 
 ---
 
@@ -215,3 +236,4 @@ boosted_param_device npu:0
 
 - GitHub：[hpcaitech/ColossalAI](https://github.com/hpcaitech/ColossalAI)
 - 文档中心：[Colossal-AI Docs](https://colossalai.readthedocs.io/en/latest/)
+
