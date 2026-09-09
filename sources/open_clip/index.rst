@@ -5,4 +5,4 @@ open_clip
    :maxdepth: 2
 
    install.rst
-   quick_start.rst
+   quick_start.md
