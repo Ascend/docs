@@ -341,7 +341,6 @@ exit 1
 输出结果如下：
 
 ```shell #test-result id="start-backend"
-...
 vLLM /health OK
 ```
 
