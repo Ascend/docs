@@ -1,0 +1,37 @@
+# InternLM Ascend Quick Start guard. The NPU guide postdates the latest release,
+# so the shared engine monitors upstream main's commit SHA through fixed_ref.
+name: internlm-quick-start
+
+concurrency:
+  group: internlm-quick-start
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '35 */12 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/internlm/**'
+      - 'tests/internlm/**'
+      - '.github/workflows/internlm-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  internlm-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: internlm
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/internlm:/root/.cache/modelscope
+      timeout_minutes: 180
+      upstream_repo: InternLM/InternLM
+      fixed_ref: main
+      doc_url: 'https://api.github.com/repos/Ascend/docs/contents/sources/internlm/quick_start.md?ref={0}'
+      doc_path: https://github.com/Ascend/docs/blob/${{ github.sha }}/sources/internlm/quick_start.md
+      test_command: python -m unittest tests.internlm.test_quick_start_ascend -v 2>&1
