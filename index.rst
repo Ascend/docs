@@ -250,6 +250,13 @@
          <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- llm-d -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
+         <p class="card-desc">Kubernetes 原生的分布式 LLM 推理栈，可在单卡昇腾上走无集群最小路径。</p>
+         <div class="card-footer"><a href="https://github.com/llm-d/llm-d">官方链接</a><span class="split">|</span><a href="https://llm-d.ai">文档中心</a><span class="split">|</span><a href="sources/llm_d/index.html">快速上手</a></div>
+      </div>
+
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">lmdeploy</h3></div>
@@ -426,6 +433,7 @@
    :caption: 🚀 推理与服务
 
    sources/llama_cpp/index.rst
+   sources/llm_d/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
