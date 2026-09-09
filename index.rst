@@ -311,6 +311,13 @@
          <div class="card-footer"><a href="https://github.com/linkedin/Liger-Kernel">官方链接</a><span class="split">|</span><a href="sources/liger-kernel/install.html">安装指南</a><span class="split">|</span><a href="sources/liger-kernel/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- flash-linear-attention -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">flash-linear-attention</h3></div>
+         <p class="card-desc">高效线性注意力算子库，支持通过 Triton-Ascend 在昇腾 NPU 上训练。</p>
+         <div class="card-footer"><a href="https://github.com/fla-org/flash-linear-attention">官方链接</a><span class="split">|</span><a href="https://github.com/fla-org/flash-linear-attention/blob/main/INSTALL.md#ascend-npu">安装指南</a><span class="split">|</span><a href="sources/flash-linear-attention/quick_start.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
@@ -440,6 +447,7 @@
 
    sources/triton-ascend/index.rst
    sources/liger-kernel/index.rst
+   sources/flash-linear-attention/index.md
 
 .. toctree::
    :maxdepth: 1
@@ -455,4 +463,3 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
-
