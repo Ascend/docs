@@ -97,7 +97,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#id6">5. 安装 FlagScale</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fl-npu">6. 确认 FL 插件选中了 NPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#inference">7. 用离线 inference 做一次双卡生成</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">故障排查</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
@@ -234,7 +233,7 @@ python<span class="w"> </span>--version
 </section>
 <section id="vllm-ascend">
 <h2>3. 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
-<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton，第一次推理报错。</p>
+<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
@@ -505,47 +504,6 @@ output.outputs<span class="o">[</span><span class="m">0</span><span class="o">]<
 </pre></div>
 </div>
 <p>生成的文字每次可能不同，不必和样例一致。<code class="docutils literal notranslate"><span class="pre">Platform</span> <span class="pre">plugin</span> <span class="pre">fl</span> <span class="pre">is</span> <span class="pre">activated</span></code>、<code class="docutils literal notranslate"><span class="pre">NPU</span> <span class="pre">compatibility</span> <span class="pre">enabled</span></code>、<code class="docutils literal notranslate"><span class="pre">backend=hccl</span></code> 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code>。</p>
-</section>
-<section id="id7">
-<h2>故障排查<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>现象</p></th>
-<th class="head"><p>可能原因</p></th>
-<th class="head"><p>建议</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Only</span> <span class="pre">one</span> <span class="pre">platform</span> <span class="pre">plugin</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">activated</span></code></p></td>
-<td><p>同时装了 ascend 与 fl，却没设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code></p></td>
-<td><p>按第 6 节导出这两个变量</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device_type</span></code> 不是 <code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
-<td><p>插件没激活，或 <code class="docutils literal notranslate"><span class="pre">VLLM_FL_PLATFORM</span></code> 没设</p></td>
-<td><p>重做第 4、6 节</p></td>
-</tr>
-<tr class="row-even"><td><p>EngineCore 报找不到 <code class="docutils literal notranslate"><span class="pre">libatb.so</span></code></p></td>
-<td><p>只 source 了 toolkit，没 source ATB</p></td>
-<td><p>按第 1 节再加上 ATB 的 <code class="docutils literal notranslate"><span class="pre">set_env.sh</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Cannot</span> <span class="pre">re-initialize</span> <span class="pre">NPU</span> <span class="pre">in</span> <span class="pre">forked</span> <span class="pre">subprocess</span></code></p></td>
-<td><p>没用 spawn</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_WORKER_MULTIPROC_METHOD=spawn</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flagscale</span> <span class="pre">inference</span></code> 立刻返回、没有生成</p></td>
-<td><p>没加 <code class="docutils literal notranslate"><span class="pre">--test</span></code>，runner 在后台启动</p></td>
-<td><p>加上 <code class="docutils literal notranslate"><span class="pre">--test</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>退出码 0 但没有 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code></p></td>
-<td><p>运行脚本末尾的 <code class="docutils literal notranslate"><span class="pre">sync</span></code> 把失败盖掉了</p></td>
-<td><p>检查日志是否出现 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code>，不要只看退出码</p></td>
-</tr>
-<tr class="row-even"><td><p>只有一张卡可见</p></td>
-<td><p>容器或环境没挂第二张卡</p></td>
-<td><p>检查 <code class="docutils literal notranslate"><span class="pre">/dev/davinci1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES=0,1</span></code></p></td>
-</tr>
-</tbody>
-</table>
 </section>
 </section>
 
