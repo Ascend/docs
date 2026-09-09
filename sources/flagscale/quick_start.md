@@ -94,7 +94,7 @@ vllm-ascend 0.23.0
 [FlagGems](https://github.com/flagos-ai/FlagGems) 提供给 FL 插件调度的算子。[vllm-plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) 是 vLLM 的平台插件，注册名 `fl`。环境里同时有 `vllm-ascend` 与 `fl` 时，一次只允许激活一个平台插件，下文会设 `VLLM_PLUGINS=fl`。
 
 ```shell #test id="install-flag-stack"
-python -m pip install scikit-build-core pybind11 ninja cmake
+python -m pip install scikit-build-core pybind11 ninja cmake sqlalchemy==2.0.48
 if [ ! -d FlagGems/.git ]; then
   rm -rf FlagGems
   GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1 \
