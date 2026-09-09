@@ -262,6 +262,11 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
          <p class="card-desc">面向 vLLM 部署的模型压缩库，在昇腾上完成 GPTQ 量化与 NPU 前向。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
+      <!-- llm-d -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
+         <p class="card-desc">Kubernetes 原生的分布式 LLM 推理栈，可在单卡昇腾上走无集群最小路径。</p>
+         <div class="card-footer"><a href="https://github.com/llm-d/llm-d">官方链接</a><span class="split">|</span><a href="https://llm-d.ai">文档中心</a><span class="split">|</span><a href="sources/llm_d/index.html">快速上手</a></div>
       </div>
 
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
@@ -442,6 +447,7 @@
 
    sources/llama_cpp/index.rst
    sources/llm_compressor/index.rst
+   sources/llm_d/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
