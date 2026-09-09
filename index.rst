@@ -139,7 +139,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
          <p class="card-desc">DeepSpeed is a deep learning optimization library that makes distributed training and inference easy, efficient, and effective. </p>
-         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/">文档中心</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/#huawei-ascend-npu">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="sources/deepspeed/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- kernels -->
@@ -398,7 +398,7 @@
    :caption: 🏗️  基础设施与框架
 
    sources/accelerate/index.rst
-   sources/deepspeed/index.rst
+   sources/deepspeed/quick_start.md
    sources/kernels/index.rst
    sources/pytorch/index.rst
    sources/Ray/index.rst
