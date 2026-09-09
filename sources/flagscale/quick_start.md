@@ -63,7 +63,7 @@ Python 3.12...
 
 ## 3. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton，第一次推理报错。
+分三步安装，不要合成一次 `pip install`。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。
 
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.23.0
@@ -361,15 +361,3 @@ output.outputs[0].text=...
 ```
 
 生成的文字每次可能不同，不必和样例一致。`Platform plugin fl is activated`、`NPU compatibility enabled`、`backend=hccl` 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 `output.outputs[0].text=`。
-
-## 故障排查
-
-| 现象 | 可能原因 | 建议 |
-| --- | --- | --- |
-| `Only one platform plugin can be activated` | 同时装了 ascend 与 fl，却没设 `VLLM_PLUGINS=fl` | 按第 6 节导出这两个变量 |
-| `device_type` 不是 `npu` | 插件没激活，或 `VLLM_FL_PLATFORM` 没设 | 重做第 4、6 节 |
-| EngineCore 报找不到 `libatb.so` | 只 source 了 toolkit，没 source ATB | 按第 1 节再加上 ATB 的 `set_env.sh` |
-| `Cannot re-initialize NPU in forked subprocess` | 没用 spawn | `export VLLM_WORKER_MULTIPROC_METHOD=spawn` |
-| `flagscale inference` 立刻返回、没有生成 | 没加 `--test`，runner 在后台启动 | 加上 `--test` |
-| 退出码 0 但没有 `output.outputs[0].text=` | 运行脚本末尾的 `sync` 把失败盖掉了 | 检查日志是否出现 `output.outputs[0].text=`，不要只看退出码 |
-| 只有一张卡可见 | 容器或环境没挂第二张卡 | 检查 `/dev/davinci1` 和 `ASCEND_RT_VISIBLE_DEVICES=0,1` |
