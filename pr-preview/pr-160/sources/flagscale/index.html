@@ -1,0 +1,583 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FlagScale &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="llama.cpp" href="../llama_cpp/index.html" />
+    <link rel="prev" title="快速开始" href="../pyg/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">FlagScale</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认工具可用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#vllm-ascend">3. 安装 vLLM-Ascend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flaggems-vllm-fl">4. 安装 FlagGems 与 vLLM FL 插件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">5. 安装 FlagScale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fl-npu">6. 确认 FL 插件选中了 NPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inference">7. 用离线 inference 做一次双卡生成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">故障排查</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">FlagScale</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/flagscale/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="flagscale">
+<h1>FlagScale<a class="headerlink" href="#flagscale" title="Link to this heading"></a></h1>
+<p>在两张昇腾卡上安装 vLLM-Ascend，再装 FlagGems 与 vLLM FL 插件，用 FlagScale 对 <a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen2.5-0.5B</a> 做一次离线推理。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为两张卡，tensor parallel 为 2。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit + 驱动固件已安装，并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ATB</p></td>
+<td><p>Ascend Transformer Boost。vLLM 子进程要加载 <code class="docutils literal notranslate"><span class="pre">libatb.so</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>vLLM-Ascend</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vllm</span></code> / <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 均为 <code class="docutils literal notranslate"><span class="pre">0.23.0</span></code>，见下文安装</p></td>
+</tr>
+<tr class="row-even"><td><p>FlagGems</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v5.3.4</span></code>，见下文安装</p></td>
+</tr>
+<tr class="row-odd"><td><p>vllm-plugin-FL</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v0.3.0-rc1.post1</span></code>，注册名 <code class="docutils literal notranslate"><span class="pre">fl</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>FlagScale</p></td>
+<td><p>上游 Release tag，撰写时为 <code class="docutils literal notranslate"><span class="pre">v2.0.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen/Qwen2.5-0.5B</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。推荐配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+</section>
+</section>
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<p>常见容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 在 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code>，需要把该目录加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>。后面的 vLLM 还依赖 ATB。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/latest/atb/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/sbin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="npu">
+<h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>表格里应能看到至少两张卡。若 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+</div>
+</section>
+<section id="id5">
+<h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi<span class="w"> </span>&gt;/dev/null
+python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="vllm-ascend">
+<h2>3. 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
+<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton，第一次推理报错。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata as m</span>
+<span class="s2">for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:</span>
+<span class="s2">    print(n, m.version(n))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+torch<span class="w"> </span><span class="m">2</span>.10.0...
+torch-npu<span class="w"> </span><span class="m">2</span>.10.0.post4
+vllm<span class="w"> </span><span class="m">0</span>.23.0...
+vllm-ascend<span class="w"> </span><span class="m">0</span>.23.0
+</pre></div>
+</div>
+</section>
+<section id="flaggems-vllm-fl">
+<h2>4. 安装 FlagGems 与 vLLM FL 插件<a class="headerlink" href="#flaggems-vllm-fl" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/flagos-ai/FlagGems">FlagGems</a> 提供给 FL 插件调度的算子。<a class="reference external" href="https://github.com/flagos-ai/vllm-plugin-FL">vllm-plugin-FL</a> 是 vLLM 的平台插件，注册名 <code class="docutils literal notranslate"><span class="pre">fl</span></code>。环境里同时有 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 与 <code class="docutils literal notranslate"><span class="pre">fl</span></code> 时，一次只允许激活一个平台插件，下文会设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>scikit-build-core<span class="w"> </span>pybind11<span class="w"> </span>ninja<span class="w"> </span>cmake
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>FlagGems/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>FlagGems
+<span class="w">  </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v5.3.4<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/flagos-ai/FlagGems.git<span class="w"> </span>FlagGems
+<span class="k">fi</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span>./FlagGems
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>vllm-plugin-FL/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>vllm-plugin-FL
+<span class="w">  </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v0.3.0-rc1.post1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/flagos-ai/vllm-plugin-FL.git<span class="w"> </span>vllm-plugin-FL
+<span class="k">fi</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span>./vllm-plugin-FL
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import flag_gems; from importlib.metadata import version; print('flag_gems', version('flag_gems')); print('vllm_fl', version('vllm-plugin-fl'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+flag_gems<span class="w"> </span><span class="m">5</span>.3.4...
+vllm_fl<span class="w"> </span><span class="m">0</span>.3...
+</pre></div>
+</div>
+<p>导入 FlagGems 时可能看到 <code class="docutils literal notranslate"><span class="pre">get_device_capability</span> <span class="pre">returned</span> <span class="pre">None</span></code> 的警告，这是 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的兼容性提示，不是安装失败。</p>
+</section>
+<section id="id6">
+<h2>5. 安装 FlagScale<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标 Release tag。克隆目录用 <code class="docutils literal notranslate"><span class="pre">FlagScale</span></code>，不要用当前目录下的 <code class="docutils literal notranslate"><span class="pre">flagscale/</span></code>，以免挡住已安装的包。<code class="docutils literal notranslate"><span class="pre">--no-deps</span></code> 避免元数据去拉一份不匹配的 torch。CLI 还需要 <code class="docutils literal notranslate"><span class="pre">hydra-core</span></code>、<code class="docutils literal notranslate"><span class="pre">omegaconf</span></code> 和 <code class="docutils literal notranslate"><span class="pre">typer</span></code>。<code class="docutils literal notranslate"><span class="pre">v2.0.0</span></code> 是 GitHub Release 的 tag 名；包装版本仍是 <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>，所以下面打印出来的是 <code class="docutils literal notranslate"><span class="pre">flagscale</span> <span class="pre">1.0.0</span></code>。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>FlagScale/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>FlagScale
+<span class="w">  </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/flagos-ai/FlagScale.git<span class="w"> </span>FlagScale
+<span class="k">fi</span>
+git<span class="w"> </span>-C<span class="w"> </span>FlagScale<span class="w"> </span>describe<span class="w"> </span>--tags<span class="w"> </span>--exact-match
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span>-e<span class="w"> </span>./FlagScale
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>hydra-core<span class="w"> </span>omegaconf<span class="w"> </span>typer<span class="w"> </span>pyyaml<span class="w"> </span>packaging
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from importlib.metadata import version; print('flagscale', version('flagscale'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&lt;ref&gt;
+...
+flagscale<span class="w"> </span><span class="m">1</span>.0.0...
+</pre></div>
+</div>
+</section>
+<section id="fl-npu">
+<h2>6. 确认 FL 插件选中了 NPU<a class="headerlink" href="#fl-npu" title="Link to this heading"></a></h2>
+<p>推理前要设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code> 和 <code class="docutils literal notranslate"><span class="pre">VLLM_FL_PLATFORM=ascend</span></code>。不设时两个平台插件一起加载会直接报错，属预期行为。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">probe_fl_platform.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">vllm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">vllm_fl</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm.platforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_platform</span> <span class="k">as</span> <span class="n">p</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'vllm'</span><span class="p">,</span> <span class="n">vllm</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'platform_name'</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'device_type'</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">device_type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'dist_backend'</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">dist_backend</span><span class="p">)</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > probe_fl_platform.py <<'PY'
+import vllm
+import vllm_fl
+from vllm.platforms import current_platform as p
+
+print('vllm', vllm.__version__)
+print('platform_name', type(p).__name__)
+print('device_type', p.device_type)
+print('dist_backend', p.dist_backend)
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_PLUGINS</span><span class="o">=</span>fl
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_FL_PLATFORM</span><span class="o">=</span>ascend
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_LOGGING_LEVEL</span><span class="o">=</span>INFO
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+python<span class="w"> </span>probe_fl_platform.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...Platform<span class="w"> </span>plugin<span class="w"> </span>fl<span class="w"> </span>is<span class="w"> </span>activated...
+platform_name<span class="w"> </span>PlatformFL
+device_type<span class="w"> </span>npu
+dist_backend<span class="w"> </span>hccl
+...
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">device_type</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">npu</span></code>，<code class="docutils literal notranslate"><span class="pre">dist_backend</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">hccl</span></code>，<code class="docutils literal notranslate"><span class="pre">platform_name</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">PlatformFL</span></code>。若这里是 <code class="docutils literal notranslate"><span class="pre">cuda</span></code> / <code class="docutils literal notranslate"><span class="pre">cpu</span></code>，或插件名不是 <code class="docutils literal notranslate"><span class="pre">fl</span></code>，先回到第 4–5 节，不要开始推理。</p>
+</section>
+<section id="inference">
+<h2>7. 用离线 inference 做一次双卡生成<a class="headerlink" href="#inference" title="Link to this heading"></a></h2>
+<p>下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。<code class="docutils literal notranslate"><span class="pre">--test</span></code> 让推理在前台跑完才返回；末尾的 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code> 把打在 stderr 的设备日志并进标准输出。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml</span></code>：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_self_</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">inference</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qwen25_05b_tp2_ascend</span>
+
+<span class="nt">experiment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">exp_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qwen25_05b</span>
+<span class="w">  </span><span class="nt">exp_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qs_out</span>
+<span class="w">  </span><span class="nt">task</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inference</span>
+<span class="w">    </span><span class="nt">backend</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vllm</span>
+<span class="w">    </span><span class="nt">entrypoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flagscale/inference/inference_llm.py</span>
+<span class="w">  </span><span class="nt">runner</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hostfile</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">envs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">HYDRA_FULL_ERROR</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">ASCEND_VISIBLE_DEVICES</span><span class="p">:</span><span class="w"> </span><span class="s">"0,1"</span>
+<span class="w">    </span><span class="nt">ASCEND_RT_VISIBLE_DEVICES</span><span class="p">:</span><span class="w"> </span><span class="s">"0,1"</span>
+<span class="w">    </span><span class="nt">HCCL_WHITELIST_DISABLE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">HCCL_CONNECT_TIMEOUT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600</span>
+<span class="w">    </span><span class="nt">PYTHONHASHSEED</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">VLLM_TARGET_DEVICE</span><span class="p">:</span><span class="w"> </span><span class="s">"npu"</span>
+<span class="w">    </span><span class="nt">VLLM_PLUGINS</span><span class="p">:</span><span class="w"> </span><span class="s">"fl"</span>
+<span class="w">    </span><span class="nt">VLLM_FL_PLATFORM</span><span class="p">:</span><span class="w"> </span><span class="s">"ascend"</span>
+<span class="w">    </span><span class="nt">VLLM_LOGGING_LEVEL</span><span class="p">:</span><span class="w"> </span><span class="s">"INFO"</span>
+<span class="w">    </span><span class="nt">VLLM_WORKER_MULTIPROC_METHOD</span><span class="p">:</span><span class="w"> </span><span class="s">"spawn"</span>
+
+<span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">run</span>
+
+<span class="nt">hydra</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${experiment.exp_dir}/hydra</span>
+</pre></div>
+</div>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">FlagScale/qs_conf/inference/qwen25_05b_tp2_ascend.yaml</span></code>：</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">llm</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-0.5B</span>
+<span class="w">  </span><span class="nt">tokenizer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Qwen/Qwen2.5-0.5B</span>
+<span class="w">  </span><span class="nt">trust_remote_code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">tensor_parallel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">  </span><span class="nt">pipeline_parallel_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">gpu_memory_utilization</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.4</span>
+<span class="w">  </span><span class="nt">seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">  </span><span class="nt">enforce_eager</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">max_model_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">  </span><span class="nt">max_num_batched_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
+<span class="w">  </span><span class="nt">max_num_seqs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">attention_backend</span><span class="p">:</span><span class="w"> </span><span class="s">"TORCH_SDPA"</span>
+<span class="w">  </span><span class="nt">disable_custom_all_reduce</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">generate</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">prompts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<span class="w">    </span><span class="s">"The</span><span class="nv"> </span><span class="s">first</span><span class="nv"> </span><span class="s">President</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">United</span><span class="nv"> </span><span class="s">States"</span><span class="p p-Indicator">,</span>
+<span class="w">  </span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">sampling</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">top_p</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span>
+<span class="w">    </span><span class="nt">top_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">temperature</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="w">    </span><span class="nt">seed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+<span class="w">    </span><span class="nt">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p FlagScale/qs_conf/inference
+cat > FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml <<'YAML'
+defaults:
+  - _self_
+  - inference: qwen25_05b_tp2_ascend
+
+experiment:
+  exp_name: qwen25_05b
+  exp_dir: qs_out
+  task:
+    type: inference
+    backend: vllm
+    entrypoint: flagscale/inference/inference_llm.py
+  runner:
+    hostfile: null
+  envs:
+    HYDRA_FULL_ERROR: 1
+    ASCEND_VISIBLE_DEVICES: "0,1"
+    ASCEND_RT_VISIBLE_DEVICES: "0,1"
+    HCCL_WHITELIST_DISABLE: 1
+    HCCL_CONNECT_TIMEOUT: 600
+    PYTHONHASHSEED: 0
+    VLLM_TARGET_DEVICE: "npu"
+    VLLM_PLUGINS: "fl"
+    VLLM_FL_PLATFORM: "ascend"
+    VLLM_LOGGING_LEVEL: "INFO"
+    VLLM_WORKER_MULTIPROC_METHOD: "spawn"
+
+action: run
+
+hydra:
+  run:
+    dir: ${experiment.exp_dir}/hydra
+YAML
+cat > FlagScale/qs_conf/inference/qwen25_05b_tp2_ascend.yaml <<'YAML'
+llm:
+  model: Qwen/Qwen2.5-0.5B
+  tokenizer: Qwen/Qwen2.5-0.5B
+  trust_remote_code: true
+  tensor_parallel_size: 2
+  pipeline_parallel_size: 1
+  gpu_memory_utilization: 0.4
+  seed: 1234
+  enforce_eager: true
+  max_model_len: 512
+  max_num_batched_tokens: 512
+  max_num_seqs: 1
+  attention_backend: "TORCH_SDPA"
+  disable_custom_all_reduce: true
+
+generate:
+  prompts: [
+    "The first President of the United States",
+  ]
+  sampling:
+    top_p: 0.1
+    top_k: 1
+    temperature: 0.0
+    seed: 1234
+    max_tokens: 8
+YAML
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_PLUGINS</span><span class="o">=</span>fl
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_FL_PLATFORM</span><span class="o">=</span>ascend
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_LOGGING_LEVEL</span><span class="o">=</span>INFO
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_WORKER_MULTIPROC_METHOD</span><span class="o">=</span>spawn
+<span class="nb">cd</span><span class="w"> </span>FlagScale
+flagscale<span class="w"> </span>inference<span class="w"> </span>qwen25_05b<span class="w"> </span>--config<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/qs_conf/qwen25_05b_tp2_ascend.yaml"</span><span class="w"> </span>--test<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...Platform<span class="w"> </span>plugin<span class="w"> </span>fl<span class="w"> </span>is<span class="w"> </span>activated...NPU<span class="w"> </span>compatibility<span class="w"> </span>enabled:<span class="w"> </span>torch.Event<span class="w"> </span>-&gt;<span class="w"> </span>torch.npu.Event...backend<span class="o">=</span>hccl...
+output.outputs<span class="o">[</span><span class="m">0</span><span class="o">]</span>.text<span class="o">=</span>...
+</pre></div>
+</div>
+<p>生成的文字每次可能不同，不必和样例一致。<code class="docutils literal notranslate"><span class="pre">Platform</span> <span class="pre">plugin</span> <span class="pre">fl</span> <span class="pre">is</span> <span class="pre">activated</span></code>、<code class="docutils literal notranslate"><span class="pre">NPU</span> <span class="pre">compatibility</span> <span class="pre">enabled</span></code>、<code class="docutils literal notranslate"><span class="pre">backend=hccl</span></code> 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code>。</p>
+</section>
+<section id="id7">
+<h2>故障排查<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>现象</p></th>
+<th class="head"><p>可能原因</p></th>
+<th class="head"><p>建议</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Only</span> <span class="pre">one</span> <span class="pre">platform</span> <span class="pre">plugin</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">activated</span></code></p></td>
+<td><p>同时装了 ascend 与 fl，却没设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code></p></td>
+<td><p>按第 6 节导出这两个变量</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">device_type</span></code> 不是 <code class="docutils literal notranslate"><span class="pre">npu</span></code></p></td>
+<td><p>插件没激活，或 <code class="docutils literal notranslate"><span class="pre">VLLM_FL_PLATFORM</span></code> 没设</p></td>
+<td><p>重做第 4、6 节</p></td>
+</tr>
+<tr class="row-even"><td><p>EngineCore 报找不到 <code class="docutils literal notranslate"><span class="pre">libatb.so</span></code></p></td>
+<td><p>只 source 了 toolkit，没 source ATB</p></td>
+<td><p>按第 1 节再加上 ATB 的 <code class="docutils literal notranslate"><span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Cannot</span> <span class="pre">re-initialize</span> <span class="pre">NPU</span> <span class="pre">in</span> <span class="pre">forked</span> <span class="pre">subprocess</span></code></p></td>
+<td><p>没用 spawn</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">VLLM_WORKER_MULTIPROC_METHOD=spawn</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flagscale</span> <span class="pre">inference</span></code> 立刻返回、没有生成</p></td>
+<td><p>没加 <code class="docutils literal notranslate"><span class="pre">--test</span></code>，runner 在后台启动</p></td>
+<td><p>加上 <code class="docutils literal notranslate"><span class="pre">--test</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>退出码 0 但没有 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code></p></td>
+<td><p>运行脚本末尾的 <code class="docutils literal notranslate"><span class="pre">sync</span></code> 把失败盖掉了</p></td>
+<td><p>检查日志是否出现 <code class="docutils literal notranslate"><span class="pre">output.outputs[0].text=</span></code>，不要只看退出码</p></td>
+</tr>
+<tr class="row-even"><td><p>只有一张卡可见</p></td>
+<td><p>容器或环境没挂第二张卡</p></td>
+<td><p>检查 <code class="docutils literal notranslate"><span class="pre">/dev/davinci1</span></code> 和 <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES=0,1</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../pyg/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../llama_cpp/index.html" class="btn btn-neutral float-right" title="llama.cpp" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
