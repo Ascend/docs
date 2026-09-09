@@ -313,6 +313,13 @@
          <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
       </div>
 
+      <!-- FlagScale -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">FlagScale</h3></div>
+         <p class="card-desc">面向大模型训练、推理与服务的编排工具，昇腾路径通过 vLLM FL 插件做双卡离线推理。</p>
+         <div class="card-footer"><a href="https://github.com/flagos-ai/FlagScale">官方链接</a><span class="split">|</span><a href="https://github.com/flagos-ai/FlagScale">文档中心</a><span class="split">|</span><a href="sources/flagscale/index.html">快速上手</a></div>
+      </div>
+
       <!-- llama.cpp -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
@@ -573,6 +580,7 @@
    sources/bitsandbytes/index.rst
    sources/ktransformers/index.rst
    sources/cache-dit/index.rst
+   sources/flagscale/index.rst
    sources/llama_cpp/index.rst
    sources/internlm/index.rst
    sources/llm_compressor/index.rst
