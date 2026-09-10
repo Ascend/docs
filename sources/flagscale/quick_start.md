@@ -1,12 +1,12 @@
 # FlagScale
 
-在两张昇腾卡上安装 vLLM-Ascend，再装 FlagGems 与 vLLM FL 插件，用 FlagScale 对 [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) 做一次离线推理。
+在两张昇腾卡上安装 vLLM-Ascend，用 FlagScale 对 [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) 做一次离线推理。
 
 ## 前置条件
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为两张卡，tensor parallel 为 2。
+Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示例为两张卡，tensor parallel 为 2。
 
 ### 软件
 
@@ -15,10 +15,8 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
 | ATB | Ascend Transformer Boost。vLLM 子进程要加载 `libatb.so` |
 | Python | 3.12 |
-| vLLM | `0.24.0`，与 vllm-plugin-FL 对齐，见下文安装 |
-| vLLM-Ascend | `0.23.0`，只用来提供 `torch` / `torch-npu` / `triton-ascend` |
-| FlagGems | `v5.3.4`，见下文安装 |
-| vllm-plugin-FL | `v0.3.0-rc1.post1`，注册名 `fl` |
+| vLLM | `0.23.0` |
+| vLLM-Ascend | `0.23.0`，注册名 `ascend` |
 | FlagScale | 上游 Release tag，撰写时为 `v2.0.0` |
 | 模型 | [Qwen/Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) |
 
@@ -64,10 +62,10 @@ Python 3.12...
 
 ## 3. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。先装社区 vLLM **0.24.0**（FL 插件需要这个版本的平台 API），再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。社区 wheel 会带上 CUDA 通信库 `flashinfer`，昇腾上没有 `libcudart`，双卡初始化会失败，所以装完后卸掉。
+分三步安装，不要合成一次 `pip install`。先装社区 vLLM `0.23.0`，再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。社区 wheel 会带上 CUDA 通信库 `flashinfer`，昇腾上没有 `libcudart`，双卡初始化会失败，所以装完后卸掉。
 
 ```shell #test id="install-vllm"
-python -m pip install --retries 3 vllm==0.24.0
+python -m pip install --retries 3 vllm==0.23.0
 python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
@@ -87,60 +85,11 @@ for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
 ...
 torch 2.10.0...
 torch-npu 2.10.0.post4
-vllm 0.24.0...
+vllm 0.23.0...
 vllm-ascend 0.23.0
 ```
 
-## 4. 安装 FlagGems 与 vLLM FL 插件
-
-[FlagGems](https://github.com/flagos-ai/FlagGems) 提供算子，[vllm-plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) 是注册名为 `fl` 的平台插件；与 `vllm-ascend` 同时存在时只激活一个，下文设 `VLLM_PLUGINS=fl`。这份插件 tag 和社区 vLLM 0.24 的注意力接口差两处，克隆后改完再安装。
-
-```shell #test id="install-flag-stack"
-python -m pip install scikit-build-core pybind11 ninja cmake sqlalchemy==2.0.48
-if [ ! -d FlagGems/.git ]; then
-  rm -rf FlagGems
-  GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1 \
-    git clone --depth 1 --branch v5.3.4 \
-    https://github.com/flagos-ai/FlagGems.git FlagGems
-fi
-python -m pip install --no-build-isolation --no-deps ./FlagGems
-if [ ! -d vllm-plugin-FL/.git ]; then
-  rm -rf vllm-plugin-FL
-  GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1 \
-    git clone --depth 1 --branch v0.3.0-rc1.post1 \
-    https://github.com/flagos-ai/vllm-plugin-FL.git vllm-plugin-FL
-fi
-python - <<'PY'
-from pathlib import Path
-p = Path("vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/ascend/impl/attention.py")
-text = p.read_text()
-text = text.replace('return "ASCEND_FL"', 'return "CUSTOM"', 1)
-old = "    reorder_batch_threshold: ClassVar[int] = 1\n"
-new = (
-    "    reorder_batch_threshold: ClassVar[int] = 1\n"
-    "    supports_update_block_table: ClassVar[bool] = False\n"
-)
-if "supports_update_block_table" not in text:
-    if old not in text:
-        raise SystemExit("attention builder header missing")
-    text = text.replace(old, new, 1)
-p.write_text(text)
-PY
-python -m pip install --no-build-isolation --no-deps ./vllm-plugin-FL
-python -c "import flag_gems; from importlib.metadata import version; print('flag_gems', version('flag_gems')); print('vllm_fl', version('vllm-plugin-fl'))"
-```
-
-输出结果如下：
-
-```shell #test-result id="install-flag-stack"
-...
-flag_gems 5.3.4...
-vllm_fl 0.3...
-```
-
-导入 FlagGems 时可能看到 `get_device_capability returned None` 的警告，这是 `torch_npu` 的兼容性提示，不是安装失败。
-
-## 5. 安装 FlagScale
+## 4. 安装 FlagScale
 
 将 `<ref>` 换成目标 Release tag。克隆目录用 `FlagScale`，不要用当前目录下的 `flagscale/`，以免挡住已安装的包。`--no-deps` 避免元数据去拉一份不匹配的 torch。CLI 还需要 `hydra-core`、`omegaconf` 和 `typer`。`v2.0.0` 是 GitHub Release 的 tag 名；包装版本仍是 `1.0.0`，所以下面打印出来的是 `flagscale 1.0.0`。
 
@@ -171,61 +120,57 @@ python -c "from importlib.metadata import version; print('flagscale', version('f
 flagscale 1.0.0...
 ```
 
-## 6. 确认 FL 插件选中了 NPU
+## 5. 确认昇腾插件选中了 NPU
 
-推理前要设 `VLLM_PLUGINS=fl` 和 `VLLM_FL_PLATFORM=ascend`。不设时两个平台插件一起加载会直接报错，属预期行为。
+推理前设 `VLLM_PLUGINS=ascend`，让 vLLM 选用昇腾平台插件。
 
-保存为 `probe_fl_platform.py`：
+保存为 `probe_ascend_platform.py`：
 
 ```python
 import vllm
-import vllm_fl
+import vllm_ascend
 from vllm.platforms import current_platform as p
 
 print('vllm', vllm.__version__)
 print('platform_name', type(p).__name__)
 print('device_type', p.device_type)
-print('dist_backend', p.dist_backend)
 ```
 
 <!--
 ```shell #test-setup
-cat > probe_fl_platform.py <<'PY'
+cat > probe_ascend_platform.py <<'PY'
 import vllm
-import vllm_fl
+import vllm_ascend
 from vllm.platforms import current_platform as p
 
 print('vllm', vllm.__version__)
 print('platform_name', type(p).__name__)
 print('device_type', p.device_type)
-print('dist_backend', p.dist_backend)
 PY
 ```
 -->
 
 ```shell #test id="probe"
-export VLLM_PLUGINS=fl
-export VLLM_FL_PLATFORM=ascend
+export VLLM_PLUGINS=ascend
 export VLLM_LOGGING_LEVEL=INFO
 export ASCEND_RT_VISIBLE_DEVICES=0,1
-python probe_fl_platform.py 2>&1
+python probe_ascend_platform.py 2>&1
 ```
 
 输出结果如下：
 
 ```shell #test-result id="probe"
-...Platform plugin fl is activated...
-platform_name PlatformFL
+...Platform plugin ascend is activated...
+platform_name NPUPlatform
 device_type npu
-dist_backend hccl
 ...
 ```
 
-`device_type` 必须是 `npu`，`dist_backend` 必须是 `hccl`，`platform_name` 必须是 `PlatformFL`。若这里是 `cuda` / `cpu`，或插件名不是 `fl`，先回到第 4–5 节，不要开始推理。
+`device_type` 必须是 `npu`，`platform_name` 必须是 `NPUPlatform`。若这里是 `cuda` / `cpu`，或没有出现 `Platform plugin ascend is activated`，先回到第 3–4 节，不要开始推理。
 
-## 7. 用离线 inference 做一次双卡生成
+## 6. 用离线 inference 做一次双卡生成
 
-下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。`--test` 让推理在前台跑完才返回；末尾的 `2>&1` 把打在 stderr 的设备日志并进标准输出。当前 `triton-ascend` 编不了 FlagGems 5.3.4 的昇腾 kernel，所以设 `USE_FLAGGEMS=0`，算子改走 `torch_npu`。
+下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。`--test` 让推理在前台跑完才返回；末尾的 `2>&1` 把打在 stderr 的设备日志并进标准输出。
 
 保存为 `FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml`：
 
@@ -251,9 +196,7 @@ experiment:
     HCCL_CONNECT_TIMEOUT: 600
     PYTHONHASHSEED: 0
     VLLM_TARGET_DEVICE: "npu"
-    VLLM_PLUGINS: "fl"
-    VLLM_FL_PLATFORM: "ascend"
-    USE_FLAGGEMS: "0"
+    VLLM_PLUGINS: "ascend"
     VLLM_LOGGING_LEVEL: "INFO"
     VLLM_WORKER_MULTIPROC_METHOD: "spawn"
 
@@ -318,9 +261,7 @@ experiment:
     HCCL_CONNECT_TIMEOUT: 600
     PYTHONHASHSEED: 0
     VLLM_TARGET_DEVICE: "npu"
-    VLLM_PLUGINS: "fl"
-    VLLM_FL_PLATFORM: "ascend"
-    USE_FLAGGEMS: "0"
+    VLLM_PLUGINS: "ascend"
     VLLM_LOGGING_LEVEL: "INFO"
     VLLM_WORKER_MULTIPROC_METHOD: "spawn"
 
@@ -361,9 +302,7 @@ YAML
 
 ```shell #test id="inference"
 export PYTHONHASHSEED=0
-export VLLM_PLUGINS=fl
-export VLLM_FL_PLATFORM=ascend
-export USE_FLAGGEMS=0
+export VLLM_PLUGINS=ascend
 export VLLM_LOGGING_LEVEL=INFO
 export ASCEND_RT_VISIBLE_DEVICES=0,1
 export ASCEND_VISIBLE_DEVICES=0,1
@@ -375,8 +314,8 @@ flagscale inference qwen25_05b --config "$PWD/qs_conf/qwen25_05b_tp2_ascend.yaml
 输出结果如下：
 
 ```shell #test-result id="inference"
-...Platform plugin fl is activated...NPU compatibility enabled: torch.Event -> torch.npu.Event...backend=hccl...
+...Platform plugin ascend is activated...backend=hccl...
 output.outputs[0].text=...
 ```
 
-生成的文字每次可能不同，不必和样例一致。`Platform plugin fl is activated`、`NPU compatibility enabled`、`backend=hccl` 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 `output.outputs[0].text=`。
+生成的文字每次可能不同，不必和样例一致。`Platform plugin ascend is activated`、`backend=hccl` 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 `output.outputs[0].text=`。
