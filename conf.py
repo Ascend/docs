@@ -70,10 +70,7 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
-                    '.github', 'tests',
-                    # Included into sources/xllm/index.rst; excluding
-                    # the file itself avoids a nested sidebar「快速开始」.
-                    'sources/xllm/quick_start.md']
+                    '.github', 'tests']
 
 
 # -- Options for HTML output -------------------------------------------------
