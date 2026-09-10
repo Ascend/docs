@@ -1,0 +1,552 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>onnxruntime &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="sentence-transformers" href="../sentence_transformers/index.html" />
+    <link rel="prev" title="lmdeploy" href="../lm_deploy/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">onnxruntime</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认工具可用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3. 安装编译工具</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4. 获取源码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#onnxruntime-cann">5. 编译 onnxruntime-cann</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wheel">6. 安装 wheel 与算子编译依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">7. 确认昇腾后端</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#onnx">8. 造一个最小 ONNX 模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">9. 用昇腾跑第一次推理</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">onnxruntime</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/onnxruntime/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="onnxruntime">
+<h1>onnxruntime<a class="headerlink" href="#onnxruntime" title="Link to this heading"></a></h1>
+<p>本文在单卡昇腾上从 <a class="reference external" href="https://github.com/microsoft/onnxruntime">ONNX Runtime</a> 当前正式 Release 源码编译 <code class="docutils literal notranslate"><span class="pre">onnxruntime-cann</span></code>，当场生成一个最小加法模型，并用 <a class="reference external" href="https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html">CANN Execution Provider</a> 做一次推理。包名是 <code class="docutils literal notranslate"><span class="pre">onnxruntime-cann</span></code>，导入名仍是 <code class="docutils literal notranslate"><span class="pre">onnxruntime</span></code>；不要再装一份 CPU 包 <code class="docutils literal notranslate"><span class="pre">onnxruntime</span></code>，两个包会抢同一个导入名。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-even"><td><p>编译</p></td>
+<td><p>gcc-12、g++-12、cmake 3.28 到 3.31、ninja、git</p></td>
+</tr>
+<tr class="row-odd"><td><p>包管理</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 装好 CANN 与驱动。推荐配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>onnxruntime-cann</p></td>
+<td><p>当前 GitHub 正式 Release 源码编译</p></td>
+</tr>
+<tr class="row-odd"><td><p>numpy</p></td>
+<td><p>1.26.x，必须 <code class="docutils literal notranslate"><span class="pre">&lt;2</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<p>常见容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 位于 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code> 或 <code class="docutils literal notranslate"><span class="pre">/usr/local/bin</span></code>。先把这两个目录放进 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>，再加载 CANN：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="npu">
+<h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+</section>
+<section id="id5">
+<h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi<span class="w"> </span>&gt;/dev/null
+python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>3. 安装编译工具<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>Ubuntu 22.04 默认 gcc 11 编不了 aarch64 上的 ONNX Runtime，需要 gcc-12。cmake 需要 3.28 及以上且不要装到 4；<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span></code> 装的 cmake 要放到 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 前面，否则会继续用系统自带的 3.22。</p>
+<!--
+```shell #test-setup
+if getent hosts cache-service.nginx-pypi-cache.svc.cluster.local >/dev/null 2>&1 \
+    && [ -f /etc/apt/sources.list ]; then
+  sed -Ei 's@(ports|archive).ubuntu.com@cache-service.nginx-pypi-cache.svc.cluster.local:8081@g' /etc/apt/sources.list
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive
+<span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>gcc-12<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>g++-12<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>ninja<span class="w"> </span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>apt-get<span class="w"> </span>update
+<span class="w">  </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>gcc-12<span class="w"> </span>g++-12<span class="w"> </span>ninja-build<span class="w"> </span>git
+<span class="k">fi</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="s1">'cmake&gt;=3.28,&lt;4'</span><span class="w"> </span><span class="s1">'numpy&lt;2'</span><span class="w"> </span>packaging<span class="w"> </span>wheel<span class="w"> </span>setuptools
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>python<span class="w"> </span>-c<span class="w"> </span><span class="s1">'import sysconfig; print(sysconfig.get_path("scripts"))'</span><span class="k">)</span><span class="s2">:</span><span class="nv">$PATH</span><span class="s2">"</span>
+<span class="nb">hash</span><span class="w"> </span>-r
+gcc-12<span class="w"> </span>--version<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+cmake<span class="w"> </span>--version<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...gcc-12...
+cmake<span class="w"> </span>version<span class="w"> </span><span class="m">3</span>.3...
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>4. 获取源码<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>工作目录为 <code class="docutils literal notranslate"><span class="pre">/root/onnxruntime-qs</span></code>。把 <code class="docutils literal notranslate"><span class="pre">&lt;UPSTREAM_REF&gt;</span></code> 换成 <a class="reference external" href="https://github.com/microsoft/onnxruntime/releases">Releases</a> 里当前正式 tag。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<!--
+```shell #test-setup load="upstream_ref>>UPSTREAM_REF"
+wd=/root/onnxruntime-qs
+ci=/root/.cache/huggingface/onnxruntime
+ref='<UPSTREAM_REF>'
+mkdir -p "$wd/dist"
+for w in "$ci/wheels/$ref"/onnxruntime_cann-*.whl; do
+  [ -f "$w" ] || continue
+  if python -m zipfile -l "$w" >/dev/null 2>&1; then
+    cp -a "$w" "$wd/dist/"
+  else
+    rm -f "$w"
+  fi
+done
+if [ -d "$ci/src/$ref/.git" ] && [ ! -d "$wd/onnxruntime/.git" ]; then
+  rm -rf "$wd/onnxruntime"
+  git clone --depth 1 "$ci/src/$ref" "$wd/onnxruntime"
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/onnxruntime-qs
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>/root/onnxruntime-qs/onnxruntime/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span><span class="s2">"&lt;UPSTREAM_REF&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/microsoft/onnxruntime.git<span class="w"> </span>/root/onnxruntime-qs/onnxruntime
+<span class="k">fi</span>
+ls<span class="w"> </span>/root/onnxruntime-qs/onnxruntime/build.sh
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/onnxruntime-qs/onnxruntime/build.sh
+</pre></div>
+</div>
+</section>
+<section id="onnxruntime-cann">
+<h2>5. 编译 onnxruntime-cann<a class="headerlink" href="#onnxruntime-cann" title="Link to this heading"></a></h2>
+<p>开启 CANN Execution Provider 并打出 Python wheel。工作目录里如果已有 <code class="docutils literal notranslate"><span class="pre">dist/onnxruntime_cann-*.whl</span></code>，这一步会跳过编译；首次编译可能要几十分钟，并行路数封顶 32。</p>
+<!--
+```shell #test-setup
+wd=/root/onnxruntime-qs
+ci=/root/.cache/huggingface/onnxruntime
+if [ -d "$ci/cmake-mirror" ] && [ -d "$wd/onnxruntime" ]; then
+  ln -sfn "$ci/cmake-mirror" "$wd/onnxruntime/.cmake-mirror"
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/root/onnxruntime-qs
+<span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">compgen</span><span class="w"> </span>-G<span class="w"> </span><span class="s2">"dist/onnxruntime_cann-*.whl"</span><span class="w"> </span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">cd</span><span class="w"> </span>onnxruntime
+<span class="w">  </span><span class="nb">export</span><span class="w"> </span><span class="nv">CC</span><span class="o">=</span>gcc-12<span class="w"> </span><span class="nv">CXX</span><span class="o">=</span>g++-12
+<span class="w">  </span><span class="nv">njobs</span><span class="o">=</span><span class="k">$(</span>nproc<span class="k">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$njobs</span><span class="s2">"</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">njobs</span><span class="o">=</span><span class="m">32</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="nv">MIRROR</span><span class="o">=()</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span>.cmake-mirror<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">MIRROR</span><span class="o">+=(</span>--cmake_deps_mirror_dir<span class="w"> </span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/.cmake-mirror"</span><span class="o">)</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>./build.sh<span class="w"> </span>--config<span class="w"> </span>Release<span class="w"> </span>--build_shared_lib<span class="w"> </span>--use_cann<span class="w"> </span>--build_wheel<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--parallel<span class="w"> </span><span class="s2">"</span><span class="nv">$njobs</span><span class="s2">"</span><span class="w"> </span>--skip_tests<span class="w"> </span>--skip_submodule_sync<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--compile_no_warning_as_error<span class="w"> </span>--allow_running_as_root<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cmake_generator<span class="w"> </span>Ninja<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cmake_extra_defines<span class="w"> </span><span class="nv">onnxruntime_BUILD_UNIT_TESTS</span><span class="o">=</span>OFF<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">"</span><span class="si">${</span><span class="nv">MIRROR</span><span class="p">[@]</span><span class="si">}</span><span class="s2">"</span>
+<span class="w">  </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/onnxruntime-qs/dist
+<span class="w">  </span>cp<span class="w"> </span>-a<span class="w"> </span>build/Linux/Release/dist/onnxruntime_cann-*.whl<span class="w"> </span>/root/onnxruntime-qs/dist/
+<span class="k">fi</span>
+ls<span class="w"> </span>/root/onnxruntime-qs/dist/onnxruntime_cann-*.whl
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...onnxruntime_cann-...whl
+</pre></div>
+</div>
+<!--
+```shell #test-setup load="upstream_ref>>UPSTREAM_REF"
+wd=/root/onnxruntime-qs
+ci=/root/.cache/huggingface/onnxruntime
+ref='<UPSTREAM_REF>'
+mkdir -p "$ci/wheels/$ref"
+for w in "$wd/dist"/onnxruntime_cann-*.whl; do
+  [ -f "$w" ] || continue
+  base=$(basename "$w")
+  dest="$ci/wheels/$ref/$base"
+  if [ -f "$dest" ]; then
+    continue
+  fi
+  cp -a "$w" "${dest}.part"
+  mv "${dest}.part" "$dest"
+done
+if [ -d "$wd/onnxruntime/.git" ] && [ ! -d "$ci/src/$ref/.git" ]; then
+  mkdir -p "$ci/src"
+  rm -rf "$ci/src/${ref}.part"
+  git clone --depth 1 "$wd/onnxruntime" "$ci/src/${ref}.part"
+  mv "$ci/src/${ref}.part" "$ci/src/$ref"
+fi
+```
+-->
+</section>
+<section id="wheel">
+<h2>6. 安装 wheel 与算子编译依赖<a class="headerlink" href="#wheel" title="Link to this heading"></a></h2>
+<p>把刚编出的 <code class="docutils literal notranslate"><span class="pre">onnxruntime-cann</span></code> 装进当前 Python。<code class="docutils literal notranslate"><span class="pre">onnx</span></code> 用来当场生成模型；这个 wheel 按 NumPy 1.x 编译，不钉 <code class="docutils literal notranslate"><span class="pre">numpy&lt;2</span></code> 时 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">onnxruntime</span></code> 会失败。CANN 编译算子还要用 <code class="docutils literal notranslate"><span class="pre">decorator</span></code>、<code class="docutils literal notranslate"><span class="pre">scipy</span></code>、<code class="docutils literal notranslate"><span class="pre">attrs</span></code>、<code class="docutils literal notranslate"><span class="pre">psutil</span></code>、<code class="docutils literal notranslate"><span class="pre">sympy</span></code>，不装的话第一次 <code class="docutils literal notranslate"><span class="pre">sess.run()</span></code> 会报 <code class="docutils literal notranslate"><span class="pre">aclgrphBuildInitialize</span></code> 或 <code class="docutils literal notranslate"><span class="pre">aclopCompileAndExecute</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/root/onnxruntime-qs/dist/onnxruntime_cann-*.whl<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>onnx<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'numpy&lt;2'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>decorator<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'scipy&gt;=1.11,&lt;1.15'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>attrs<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>psutil<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>sympy
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from importlib.metadata import version; print('onnxruntime-cann', version('onnxruntime-cann'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...onnxruntime-cann<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>7. 确认昇腾后端<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>下面列出当前 Python 里已注册的 Execution Provider。没有 <code class="docutils literal notranslate"><span class="pre">CANNExecutionProvider</span></code> 时不要继续推理，先看文末常见问题。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import onnxruntime; print(onnxruntime.get_available_providers())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...CANNExecutionProvider...
+</pre></div>
+</div>
+<p>列表里有 CPU 并不等于这次推理会走 CPU。真正决定后端的是下一节创建 <code class="docutils literal notranslate"><span class="pre">InferenceSession</span></code> 时传入的 <code class="docutils literal notranslate"><span class="pre">providers</span></code>。</p>
+</section>
+<section id="onnx">
+<h2>8. 造一个最小 ONNX 模型<a class="headerlink" href="#onnx" title="Link to this heading"></a></h2>
+<p>用已安装的 <code class="docutils literal notranslate"><span class="pre">onnx</span></code> 写一个两向量相加的图，生成工作目录里的 <code class="docutils literal notranslate"><span class="pre">add_model.onnx</span></code>。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">/root/onnxruntime-qs/make_add_model.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">onnx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">onnx</span><span class="w"> </span><span class="kn">import</span> <span class="n">TensorProto</span><span class="p">,</span> <span class="n">helper</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_tensor_value_info</span><span class="p">(</span><span class="s2">"X"</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_tensor_value_info</span><span class="p">(</span><span class="s2">"Y"</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_tensor_value_info</span><span class="p">(</span><span class="s2">"Z"</span><span class="p">,</span> <span class="n">TensorProto</span><span class="o">.</span><span class="n">FLOAT</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_graph</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">helper</span><span class="o">.</span><span class="n">make_node</span><span class="p">(</span><span class="s2">"Add"</span><span class="p">,</span> <span class="p">[</span><span class="s2">"X"</span><span class="p">,</span> <span class="s2">"Y"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"Z"</span><span class="p">])],</span>
+    <span class="s2">"add"</span><span class="p">,</span>
+    <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span>
+    <span class="p">[</span><span class="n">z</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">make_model</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">opset_imports</span><span class="o">=</span><span class="p">[</span><span class="n">helper</span><span class="o">.</span><span class="n">make_opsetid</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="mi">13</span><span class="p">)])</span>
+<span class="n">onnx</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">"add_model.onnx"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"wrote add_model.onnx"</span><span class="p">)</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p /root/onnxruntime-qs
+cat > /root/onnxruntime-qs/make_add_model.py <<'PY'
+import onnx
+from onnx import TensorProto, helper
+
+x = helper.make_tensor_value_info("X", TensorProto.FLOAT, [2])
+y = helper.make_tensor_value_info("Y", TensorProto.FLOAT, [2])
+z = helper.make_tensor_value_info("Z", TensorProto.FLOAT, [2])
+graph = helper.make_graph(
+    [helper.make_node("Add", ["X", "Y"], ["Z"])],
+    "add",
+    [x, y],
+    [z],
+)
+model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 13)])
+onnx.save(model, "add_model.onnx")
+print("wrote add_model.onnx")
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/root/onnxruntime-qs
+python<span class="w"> </span>make_add_model.py
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>wrote<span class="w"> </span>add_model.onnx
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h2>9. 用昇腾跑第一次推理<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>ONNX Runtime 默认 <code class="docutils literal notranslate"><span class="pre">enable_fallback=1</span></code>：CANN 会话创建失败时会静默改在 CPU 上重建会话，加法结果仍然正确。这里只注册 <code class="docutils literal notranslate"><span class="pre">CANNExecutionProvider</span></code>，并同时关掉会话级和 Python 级回退。</p>
+<p>输入是 <code class="docutils literal notranslate"><span class="pre">[1.0,</span> <span class="pre">2.0]</span></code> 和 <code class="docutils literal notranslate"><span class="pre">[3.0,</span> <span class="pre">4.0]</span></code>，昇腾上的加法结果应是 <code class="docutils literal notranslate"><span class="pre">[4.0,</span> <span class="pre">6.0]</span></code>。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">/root/onnxruntime-qs/infer_add.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">onnxruntime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ort</span>
+
+<span class="n">so</span> <span class="o">=</span> <span class="n">ort</span><span class="o">.</span><span class="n">SessionOptions</span><span class="p">()</span>
+<span class="n">so</span><span class="o">.</span><span class="n">add_session_config_entry</span><span class="p">(</span><span class="s2">"session.disable_cpu_ep_fallback"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">)</span>
+<span class="n">sess</span> <span class="o">=</span> <span class="n">ort</span><span class="o">.</span><span class="n">InferenceSession</span><span class="p">(</span>
+    <span class="s2">"add_model.onnx"</span><span class="p">,</span>
+    <span class="n">sess_options</span><span class="o">=</span><span class="n">so</span><span class="p">,</span>
+    <span class="n">providers</span><span class="o">=</span><span class="p">[</span><span class="s2">"CANNExecutionProvider"</span><span class="p">],</span>
+    <span class="n">enable_fallback</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">providers</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">get_providers</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">providers</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">providers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"CANNExecutionProvider"</span><span class="p">,</span> <span class="n">providers</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">{</span><span class="s2">"X"</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">"Y"</span><span class="p">:</span> <span class="n">y</span><span class="p">})[</span><span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"result"</span><span class="p">,</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">out</span><span class="p">])</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p /root/onnxruntime-qs
+cat > /root/onnxruntime-qs/infer_add.py <<'PY'
+import numpy as np
+import onnxruntime as ort
+
+so = ort.SessionOptions()
+so.add_session_config_entry("session.disable_cpu_ep_fallback", "1")
+sess = ort.InferenceSession(
+    "add_model.onnx",
+    sess_options=so,
+    providers=["CANNExecutionProvider"],
+    enable_fallback=False,
+)
+providers = sess.get_providers()
+print(providers)
+assert providers[0] == "CANNExecutionProvider", providers
+x = np.array([1.0, 2.0], dtype=np.float32)
+y = np.array([3.0, 4.0], dtype=np.float32)
+out = sess.run(None, {"X": x, "Y": y})[0]
+print("result", [float(v) for v in out])
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/root/onnxruntime-qs
+python<span class="w"> </span>infer_add.py
+</pre></div>
+</div>
+<p>输出结果如下。第一项必须是 <code class="docutils literal notranslate"><span class="pre">CANNExecutionProvider</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...CANNExecutionProvider...
+result<span class="w"> </span><span class="o">[</span><span class="m">4</span>.0,<span class="w"> </span><span class="m">6</span>.0<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../lm_deploy/index.html" class="btn btn-neutral float-left" title="lmdeploy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../sentence_transformers/index.html" class="btn btn-neutral float-right" title="sentence-transformers" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
