@@ -95,7 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#id6">3. 安装系统工具</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#go-1-22-6">4. 安装 Go 1.22.6</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#envoy-1-39-0">5. 安装 Envoy 1.39.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">6. 克隆 AIBrix 并编译网关</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">6. 获取 AIBrix 源码并编译网关</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#vllm-ascend">7. 安装 vLLM-Ascend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id8">8. 启动 vLLM-Ascend 后端</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#local-mode">9. 配置网关并启动 local mode</a></li>
@@ -210,10 +210,7 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">备注</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
-</div>
 </section>
 <section id="id5">
 <h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
@@ -352,7 +349,7 @@ fi
 </div>
 </section>
 <section id="id7">
-<h2>6. 克隆 AIBrix 并编译网关<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<h2>6. 获取 AIBrix 源码并编译网关<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
 <p>克隆 release tag（<code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 可改为例如 <code class="docutils literal notranslate"><span class="pre">v0.7.0</span></code>）。只用下面的 <code class="docutils literal notranslate"><span class="pre">go</span> <span class="pre">build</span></code>，不要跑 <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">build-gateway-plugins-nozmq</span></code>。</p>
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -422,6 +419,24 @@ echo pprof_port_wrapped
 <section id="vllm-ascend">
 <h2>7. 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
 <p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton，第一次推理报错。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">.aibrix-quick-start/print_pkg_versions.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">m</span>
+
+<span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'torch'</span><span class="p">,</span> <span class="s1">'torch-npu'</span><span class="p">,</span> <span class="s1">'vllm'</span><span class="p">,</span> <span class="s1">'vllm-ascend'</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+mkdir -p .aibrix-quick-start
+cat > .aibrix-quick-start/print_pkg_versions.py <<'PY'
+import importlib.metadata as m
+
+for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
+    print(n, m.version(n))
+PY
+```
+-->
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
@@ -430,9 +445,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata as m</span>
-<span class="s2">for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:</span>
-<span class="s2">    print(n, m.version(n))"</span>
+python<span class="w"> </span>.aibrix-quick-start/print_pkg_versions.py
 </pre></div>
 </div>
 <p>输出结果如下：</p>
