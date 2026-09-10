@@ -6,7 +6,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。编译 LMCache-Ascend 时把 `SOC_VERSION` 设成 `Ascend910B4`。
+Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。编译会读 `npu-smi` 得到芯片型号，A2 上常见 `Ascend910B3` 或 `Ascend910B4`；没有 `npu-smi` 时再设 `SOC_VERSION`。
 
 ### 软件
 
@@ -282,7 +282,7 @@ PY
 ```shell #test id="install-lmcache-ascend"
 python patch_lmcache_ascend.py
 rm -rf LMCache-Ascend/build
-SOC_VERSION=Ascend910B4 python -m pip install -v --no-build-isolation -e ./LMCache-Ascend
+python -m pip install -v --no-build-isolation -e ./LMCache-Ascend
 python -c "import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend import _build_info as b; import lmcache_ascend.c_ops; print('lmcache', lmcache.__version__); print('soc', b.__soc_version__); print('c_ops_ok', True); print('npu_available', torch.npu.is_available())"
 ```
 
@@ -293,12 +293,12 @@ python -c "import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend
 patched_ok True
 ...
 lmcache <ver>
-soc Ascend910B4
+soc Ascend910B...
 c_ops_ok True
 npu_available True
 ```
 
-`soc` 必须是编译时设的 `Ascend910B4`。缺 `numaif.h` 时先回到第 3 节。
+`soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。缺 `numaif.h` 时先回到第 3 节。
 
 ## 7. 用离线 LLM 做一次 KV 卸载
 
