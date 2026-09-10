@@ -39,9 +39,7 @@ export PATH=/usr/local/sbin:/usr/sbin:$PATH
 npu-smi info
 ```
 
-:::{note}
 如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
-:::
 
 ### 2.2 确认工具可用
 
@@ -195,7 +193,7 @@ fi
 ...1.39.0...
 ```
 
-## 6. 克隆 AIBrix 并编译网关
+## 6. 获取 AIBrix 源码并编译网关
 
 克隆 release tag（`<ref>` 可改为例如 `v0.7.0`）。只用下面的 `go build`，不要跑 `make build-gateway-plugins-nozmq`。
 
@@ -276,6 +274,27 @@ echo pprof_port_wrapped
 
 分三步安装，不要合成一次 `pip install`。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton，第一次推理报错。
 
+保存为 `.aibrix-quick-start/print_pkg_versions.py`：
+
+```python
+import importlib.metadata as m
+
+for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
+    print(n, m.version(n))
+```
+
+<!--
+```shell #test-setup
+mkdir -p .aibrix-quick-start
+cat > .aibrix-quick-start/print_pkg_versions.py <<'PY'
+import importlib.metadata as m
+
+for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
+    print(n, m.version(n))
+PY
+```
+-->
+
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.23.0
 python -m pip install \
@@ -285,9 +304,7 @@ python -m pip install \
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend==3.2.2
-python -c "import importlib.metadata as m
-for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
-    print(n, m.version(n))"
+python .aibrix-quick-start/print_pkg_versions.py
 ```
 
 输出结果如下：
