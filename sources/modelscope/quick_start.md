@@ -156,7 +156,7 @@ transformers xxx
 **NPU 设备放哪**：modelscope 的 `pipeline(..., device=...)` 目前只接受 `cpu` / `cuda` / `gpu`（`modelscope/utils/device.py` 的 `verify_device` 会拒绝 `npu`），所以本文档走 `AutoModelForCausalLM` 加载后显式 `.to('npu:0')` —— 模型权重下载由 modelscope 的 `from_pretrained` 补丁完成（`snapshot_download`），设备放置由 torch_npu 接管。
 ```
 
-下载模型到 ModelScope Hub 缓存（大陆网络更稳；CI 上 `/root/.cache` 为持久化挂载，`~/.cache/modelscope` 落在其中，重复运行命中缓存）：
+下载模型到 ModelScope Hub 缓存：
 
 ```shell #test-setup
 modelscope download --model Qwen/Qwen2.5-0.5B-Instruct
@@ -216,5 +216,5 @@ generated: xxx
 
 ```{admonition} Note
 :class: note
-`model device: npu:0` 说明模型权重确实落在昇腾设备上，不是 CPU 兜底。generated 是模型生成内容，随采样变化，这里只校验「生成成功且非空」。
+`model device: npu:0` 说明模型权重确实落在昇腾设备上，不是 CPU 兜底。
 ```
