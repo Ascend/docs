@@ -243,6 +243,13 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- aibrix -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">aibrix</h3></div>
+         <p class="card-desc">可组合的 GenAI 推理基础设施，支持在昇腾上用 local mode 转发 OpenAI 兼容请求。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/aibrix">官方链接</a><span class="split">|</span><a href="https://aibrix.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="sources/aibrix/index.html">快速上手</a></div>
+      </div>
+
       <!-- llama.cpp -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
@@ -425,6 +432,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/aibrix/index.rst
    sources/llama_cpp/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
