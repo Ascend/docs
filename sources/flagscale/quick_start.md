@@ -64,7 +64,7 @@ Python 3.12...
 
 ## 3. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。先装社区 vLLM **0.24.0**（FL 插件需要这个版本的平台 API），再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。
+分三步安装，不要合成一次 `pip install`。先装社区 vLLM **0.24.0**（FL 插件需要这个版本的平台 API），再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。社区 wheel 会带上 CUDA 通信库 `flashinfer`，昇腾上没有 `libcudart`，双卡初始化会失败，所以装完后卸掉。
 
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.24.0
@@ -75,6 +75,7 @@ python -m pip install \
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend==3.2.2
+python -m pip uninstall -y flashinfer flashinfer-python flashinfer-cubin
 python -c "import importlib.metadata as m
 for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
