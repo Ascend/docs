@@ -471,4 +471,5 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/modelscope/index.md
 
