@@ -209,7 +209,7 @@ dist_backend hccl
 
 ## 7. 用离线 inference 做一次双卡生成
 
-下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。`--test` 让推理在前台跑完才返回；末尾的 `2>&1` 把打在 stderr 的设备日志并进标准输出。
+下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。`--test` 让推理在前台跑完才返回；末尾的 `2>&1` 把打在 stderr 的设备日志并进标准输出。`triton-ascend` 编不了 FlagGems 5.3.4 的昇腾 `pow` kernel，所以用 `VLLM_FL_FLAGOS_BLACKLIST_APPEND` 排除这几个算子，改走 `torch_npu`。
 
 保存为 `FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml`：
 
@@ -237,6 +237,7 @@ experiment:
     VLLM_TARGET_DEVICE: "npu"
     VLLM_PLUGINS: "fl"
     VLLM_FL_PLATFORM: "ascend"
+    VLLM_FL_FLAGOS_BLACKLIST_APPEND: "pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_"
     VLLM_LOGGING_LEVEL: "INFO"
     VLLM_WORKER_MULTIPROC_METHOD: "spawn"
 
@@ -304,6 +305,7 @@ experiment:
     VLLM_TARGET_DEVICE: "npu"
     VLLM_PLUGINS: "fl"
     VLLM_FL_PLATFORM: "ascend"
+    VLLM_FL_FLAGOS_BLACKLIST_APPEND: "pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_"
     VLLM_LOGGING_LEVEL: "INFO"
     VLLM_WORKER_MULTIPROC_METHOD: "spawn"
 
@@ -347,6 +349,7 @@ YAML
 export PYTHONHASHSEED=0
 export VLLM_PLUGINS=fl
 export VLLM_FL_PLATFORM=ascend
+export VLLM_FL_FLAGOS_BLACKLIST_APPEND=pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_
 export VLLM_LOGGING_LEVEL=INFO
 export ASCEND_RT_VISIBLE_DEVICES=0,1
 export ASCEND_VISIBLE_DEVICES=0,1
