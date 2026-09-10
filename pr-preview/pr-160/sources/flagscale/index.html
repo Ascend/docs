@@ -369,7 +369,7 @@ dist_backend<span class="w"> </span>hccl
 </section>
 <section id="inference">
 <h2>7. 用离线 inference 做一次双卡生成<a class="headerlink" href="#inference" title="Link to this heading"></a></h2>
-<p>下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。<code class="docutils literal notranslate"><span class="pre">--test</span></code> 让推理在前台跑完才返回；末尾的 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code> 把打在 stderr 的设备日志并进标准输出。<code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> 编不了 FlagGems 5.3.4 的昇腾 <code class="docutils literal notranslate"><span class="pre">pow</span></code> kernel，所以用 <code class="docutils literal notranslate"><span class="pre">VLLM_FL_FLAGOS_BLACKLIST_APPEND</span></code> 排除这几个算子，改走 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>。</p>
+<p>下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。<code class="docutils literal notranslate"><span class="pre">--test</span></code> 让推理在前台跑完才返回；末尾的 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code> 把打在 stderr 的设备日志并进标准输出。当前 <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> 编不了 FlagGems 5.3.4 的昇腾 kernel，所以设 <code class="docutils literal notranslate"><span class="pre">USE_FLAGGEMS=0</span></code>，算子改走 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>。</p>
 <p>保存为 <code class="docutils literal notranslate"><span class="pre">FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml</span></code>：</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_self_</span>
@@ -394,7 +394,7 @@ dist_backend<span class="w"> </span>hccl
 <span class="w">    </span><span class="nt">VLLM_TARGET_DEVICE</span><span class="p">:</span><span class="w"> </span><span class="s">"npu"</span>
 <span class="w">    </span><span class="nt">VLLM_PLUGINS</span><span class="p">:</span><span class="w"> </span><span class="s">"fl"</span>
 <span class="w">    </span><span class="nt">VLLM_FL_PLATFORM</span><span class="p">:</span><span class="w"> </span><span class="s">"ascend"</span>
-<span class="w">    </span><span class="nt">VLLM_FL_FLAGOS_BLACKLIST_APPEND</span><span class="p">:</span><span class="w"> </span><span class="s">"pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_"</span>
+<span class="w">    </span><span class="nt">USE_FLAGGEMS</span><span class="p">:</span><span class="w"> </span><span class="s">"0"</span>
 <span class="w">    </span><span class="nt">VLLM_LOGGING_LEVEL</span><span class="p">:</span><span class="w"> </span><span class="s">"INFO"</span>
 <span class="w">    </span><span class="nt">VLLM_WORKER_MULTIPROC_METHOD</span><span class="p">:</span><span class="w"> </span><span class="s">"spawn"</span>
 
@@ -459,7 +459,7 @@ experiment:
     VLLM_TARGET_DEVICE: "npu"
     VLLM_PLUGINS: "fl"
     VLLM_FL_PLATFORM: "ascend"
-    VLLM_FL_FLAGOS_BLACKLIST_APPEND: "pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_"
+    USE_FLAGGEMS: "0"
     VLLM_LOGGING_LEVEL: "INFO"
     VLLM_WORKER_MULTIPROC_METHOD: "spawn"
 
@@ -500,7 +500,7 @@ YAML
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_PLUGINS</span><span class="o">=</span>fl
 <span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_FL_PLATFORM</span><span class="o">=</span>ascend
-<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_FL_FLAGOS_BLACKLIST_APPEND</span><span class="o">=</span>pow,pow_scalar,pow_tensor_scalar,pow_tensor_scalar_,pow_tensor_tensor,pow_tensor_tensor_
+<span class="nb">export</span><span class="w"> </span><span class="nv">USE_FLAGGEMS</span><span class="o">=</span><span class="m">0</span>
 <span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_LOGGING_LEVEL</span><span class="o">=</span>INFO
 <span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
 <span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1
