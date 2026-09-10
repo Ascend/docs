@@ -236,7 +236,7 @@ python<span class="w"> </span>--version
 </section>
 <section id="vllm-ascend">
 <h2>3. 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
-<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。先装社区 vLLM <strong>0.24.0</strong>（FL 插件需要这个版本的平台 API），再装 <code class="docutils literal notranslate"><span class="pre">vllm-ascend==0.23.0</span></code> 换成昇腾 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 栈。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton。</p>
+<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。先装社区 vLLM <strong>0.24.0</strong>（FL 插件需要这个版本的平台 API），再装 <code class="docutils literal notranslate"><span class="pre">vllm-ascend==0.23.0</span></code> 换成昇腾 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 栈。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton。社区 wheel 会带上 CUDA 通信库 <code class="docutils literal notranslate"><span class="pre">flashinfer</span></code>，昇腾上没有 <code class="docutils literal notranslate"><span class="pre">libcudart</span></code>，双卡初始化会失败，所以装完后卸掉。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.24.0
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
@@ -245,6 +245,7 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>uninstall<span class="w"> </span>-y<span class="w"> </span>flashinfer<span class="w"> </span>flashinfer-python<span class="w"> </span>flashinfer-cubin
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata as m</span>
 <span class="s2">for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:</span>
 <span class="s2">    print(n, m.version(n))"</span>
