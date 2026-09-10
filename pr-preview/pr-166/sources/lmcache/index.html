@@ -156,7 +156,7 @@
 <h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。编译 LMCache-Ascend 时把 <code class="docutils literal notranslate"><span class="pre">SOC_VERSION</span></code> 设成 <code class="docutils literal notranslate"><span class="pre">Ascend910B4</span></code>。</p>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。编译会读 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 得到芯片型号，A2 上常见 <code class="docutils literal notranslate"><span class="pre">Ascend910B3</span></code> 或 <code class="docutils literal notranslate"><span class="pre">Ascend910B4</span></code>；没有 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 时再设 <code class="docutils literal notranslate"><span class="pre">SOC_VERSION</span></code>。</p>
 </section>
 <section id="id3">
 <h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
@@ -418,7 +418,7 @@ PY
 <p>编译前删掉 <code class="docutils literal notranslate"><span class="pre">LMCache-Ascend/build</span></code>。CANN 把昇腾核目标链接进 <code class="docutils literal notranslate"><span class="pre">.o</span></code> 时会原地改文件，留着上次的产物再编，链接器会报 <code class="docutils literal notranslate"><span class="pre">unknown</span> <span class="pre">file</span> <span class="pre">type</span></code>。用 <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">./LMCache-Ascend</span></code> 安装，不要 <code class="docutils literal notranslate"><span class="pre">cd</span></code> 进克隆目录。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>patch_lmcache_ascend.py
 rm<span class="w"> </span>-rf<span class="w"> </span>LMCache-Ascend/build
-<span class="nv">SOC_VERSION</span><span class="o">=</span>Ascend910B4<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>--no-build-isolation<span class="w"> </span>-e<span class="w"> </span>./LMCache-Ascend
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>--no-build-isolation<span class="w"> </span>-e<span class="w"> </span>./LMCache-Ascend
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend import _build_info as b; import lmcache_ascend.c_ops; print('lmcache', lmcache.__version__); print('soc', b.__soc_version__); print('c_ops_ok', True); print('npu_available', torch.npu.is_available())"</span>
 </pre></div>
 </div>
@@ -427,12 +427,12 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import
 patched_ok<span class="w"> </span>True
 ...
 lmcache<span class="w"> </span>&lt;ver&gt;
-soc<span class="w"> </span>Ascend910B4
+soc<span class="w"> </span>Ascend910B...
 c_ops_ok<span class="w"> </span>True
 npu_available<span class="w"> </span>True
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">soc</span></code> 必须是编译时设的 <code class="docutils literal notranslate"><span class="pre">Ascend910B4</span></code>。缺 <code class="docutils literal notranslate"><span class="pre">numaif.h</span></code> 时先回到第 3 节。</p>
+<p><code class="docutils literal notranslate"><span class="pre">soc</span></code> 应和本机 <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span> <span class="pre">-t</span> <span class="pre">board</span></code> 的 Chip Name 一致。缺 <code class="docutils literal notranslate"><span class="pre">numaif.h</span></code> 时先回到第 3 节。</p>
 </section>
 <section id="llm-kv">
 <h2>7. 用离线 LLM 做一次 KV 卸载<a class="headerlink" href="#llm-kv" title="Link to this heading"></a></h2>
