@@ -93,7 +93,7 @@ vllm-ascend 0.23.0
 
 ## 4. 安装 FlagGems 与 vLLM FL 插件
 
-[FlagGems](https://github.com/flagos-ai/FlagGems) 提供算子，[vllm-plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) 是注册名为 `fl` 的平台插件；与 `vllm-ascend` 同时存在时只激活一个，下文设 `VLLM_PLUGINS=fl`。社区 vLLM 0.24 只接受名为 `CUSTOM` 的第三方注意力后端，克隆后改这一处再安装。
+[FlagGems](https://github.com/flagos-ai/FlagGems) 提供算子，[vllm-plugin-FL](https://github.com/flagos-ai/vllm-plugin-FL) 是注册名为 `fl` 的平台插件；与 `vllm-ascend` 同时存在时只激活一个，下文设 `VLLM_PLUGINS=fl`。这份插件 tag 和社区 vLLM 0.24 的注意力接口差两处，克隆后改完再安装。
 
 ```shell #test id="install-flag-stack"
 python -m pip install scikit-build-core pybind11 ninja cmake sqlalchemy==2.0.48
@@ -114,7 +114,17 @@ python - <<'PY'
 from pathlib import Path
 p = Path("vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/ascend/impl/attention.py")
 text = p.read_text()
-p.write_text(text.replace('return "ASCEND_FL"', 'return "CUSTOM"', 1))
+text = text.replace('return "ASCEND_FL"', 'return "CUSTOM"', 1)
+old = "    reorder_batch_threshold: ClassVar[int] = 1\n"
+new = (
+    "    reorder_batch_threshold: ClassVar[int] = 1\n"
+    "    supports_update_block_table: ClassVar[bool] = False\n"
+)
+if "supports_update_block_table" not in text:
+    if old not in text:
+        raise SystemExit("attention builder header missing")
+    text = text.replace(old, new, 1)
+p.write_text(text)
 PY
 python -m pip install --no-build-isolation --no-deps ./vllm-plugin-FL
 python -c "import flag_gems; from importlib.metadata import version; print('flag_gems', version('flag_gems')); print('vllm_fl', version('vllm-plugin-fl'))"
