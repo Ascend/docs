@@ -292,6 +292,13 @@
          <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/">文档中心</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- xllm：官方文档站已含完整 NPU 说明，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">xllm</h3></div>
+         <p class="card-desc">高效易用的开源智能推理框架，为模型在国产芯片上的推理提供企业级服务保障与高性能引擎计算能力。</p>
+         <div class="card-footer"><a href="https://github.com/xLLM-AI/xllm">官方链接</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/">文档中心</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/getting_started/launch_xllm/">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">⚙️ 算子开发与编程</h2>
@@ -432,6 +439,7 @@
    sources/sglang/index.rst
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
+   sources/xllm/index.rst
 
 .. toctree::
    :maxdepth: 1
