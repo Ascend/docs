@@ -15,7 +15,8 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
 | ATB | Ascend Transformer Boost。vLLM 子进程要加载 `libatb.so` |
 | Python | 3.12 |
-| vLLM-Ascend | `vllm` / `vllm-ascend` 均为 `0.23.0`，见下文安装 |
+| vLLM | `0.24.0`，与 vllm-plugin-FL 对齐，见下文安装 |
+| vLLM-Ascend | `0.23.0`，只用来提供 `torch` / `torch-npu` / `triton-ascend` |
 | FlagGems | `v5.3.4`，见下文安装 |
 | vllm-plugin-FL | `v0.3.0-rc1.post1`，注册名 `fl` |
 | FlagScale | 上游 Release tag，撰写时为 `v2.0.0` |
@@ -63,10 +64,10 @@ Python 3.12...
 
 ## 3. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。
+分三步安装，不要合成一次 `pip install`。先装社区 vLLM **0.24.0**（FL 插件需要这个版本的平台 API），再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。
 
 ```shell #test id="install-vllm"
-python -m pip install --retries 3 vllm==0.23.0
+python -m pip install --retries 3 vllm==0.24.0
 python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
@@ -85,7 +86,7 @@ for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
 ...
 torch 2.10.0...
 torch-npu 2.10.0.post4
-vllm 0.23.0...
+vllm 0.24.0...
 vllm-ascend 0.23.0
 ```
 
