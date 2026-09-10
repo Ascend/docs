@@ -208,8 +208,7 @@ PYTHONHASHSEED=42 python /root/colossalai-qs/train_one_step.py
 输出结果如下：
 
 ```shell #test-result id="train"
-...
-accel_name npu
+...accel_name npu
 accel_device npu:0
 boosted_param_device npu:0
 loss 5.531600
