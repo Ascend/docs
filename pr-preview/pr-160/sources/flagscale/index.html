@@ -262,7 +262,7 @@ vllm-ascend<span class="w"> </span><span class="m">0</span>.23.0
 </section>
 <section id="flaggems-vllm-fl">
 <h2>4. 安装 FlagGems 与 vLLM FL 插件<a class="headerlink" href="#flaggems-vllm-fl" title="Link to this heading"></a></h2>
-<p><a class="reference external" href="https://github.com/flagos-ai/FlagGems">FlagGems</a> 提供给 FL 插件调度的算子。<a class="reference external" href="https://github.com/flagos-ai/vllm-plugin-FL">vllm-plugin-FL</a> 是 vLLM 的平台插件，注册名 <code class="docutils literal notranslate"><span class="pre">fl</span></code>。环境里同时有 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 与 <code class="docutils literal notranslate"><span class="pre">fl</span></code> 时，一次只允许激活一个平台插件，下文会设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code>。</p>
+<p><a class="reference external" href="https://github.com/flagos-ai/FlagGems">FlagGems</a> 提供算子，<a class="reference external" href="https://github.com/flagos-ai/vllm-plugin-FL">vllm-plugin-FL</a> 是注册名为 <code class="docutils literal notranslate"><span class="pre">fl</span></code> 的平台插件；与 <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 同时存在时只激活一个，下文设 <code class="docutils literal notranslate"><span class="pre">VLLM_PLUGINS=fl</span></code>。社区 vLLM 0.24 只接受名为 <code class="docutils literal notranslate"><span class="pre">CUSTOM</span></code> 的第三方注意力后端，克隆后改这一处再安装。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>scikit-build-core<span class="w"> </span>pybind11<span class="w"> </span>ninja<span class="w"> </span>cmake<span class="w"> </span><span class="nv">sqlalchemy</span><span class="o">==</span><span class="m">2</span>.0.48
 <span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span>FlagGems/.git<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
 <span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>FlagGems
@@ -277,6 +277,12 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 <span class="w">    </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v0.3.0-rc1.post1<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>https://github.com/flagos-ai/vllm-plugin-FL.git<span class="w"> </span>vllm-plugin-FL
 <span class="k">fi</span>
+python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">p = Path("vllm-plugin-FL/vllm_fl/dispatch/backends/vendor/ascend/impl/attention.py")</span>
+<span class="s">text = p.read_text()</span>
+<span class="s">p.write_text(text.replace('return "ASCEND_FL"', 'return "CUSTOM"', 1))</span>
+<span class="s">PY</span>
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span>./vllm-plugin-FL
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import flag_gems; from importlib.metadata import version; print('flag_gems', version('flag_gems')); print('vllm_fl', version('vllm-plugin-fl'))"</span>
 </pre></div>
@@ -412,7 +418,6 @@ dist_backend<span class="w"> </span>hccl
 <span class="w">  </span><span class="nt">max_model_len</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
 <span class="w">  </span><span class="nt">max_num_batched_tokens</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">512</span>
 <span class="w">  </span><span class="nt">max_num_seqs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">  </span><span class="nt">attention_backend</span><span class="p">:</span><span class="w"> </span><span class="s">"TORCH_SDPA"</span>
 <span class="w">  </span><span class="nt">disable_custom_all_reduce</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 
 <span class="nt">generate</span><span class="p">:</span>
@@ -477,7 +482,6 @@ llm:
   max_model_len: 512
   max_num_batched_tokens: 512
   max_num_seqs: 1
-  attention_backend: "TORCH_SDPA"
   disable_custom_all_reduce: true
 
 generate:
