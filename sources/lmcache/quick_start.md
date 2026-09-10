@@ -289,7 +289,6 @@ python -c "import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend
 输出结果如下：
 
 ```shell #test-result id="install-lmcache-ascend" load="lmcache_ver>>ver"
-...
 patched_ok True
 ...
 lmcache <ver>
