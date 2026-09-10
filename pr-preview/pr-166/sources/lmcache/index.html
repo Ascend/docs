@@ -1,0 +1,585 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LMCache &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="lmdeploy" href="../lm_deploy/index.html" />
+    <link rel="prev" title="快速开始" href="../llama_cpp/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">LMCache</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认工具可用</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3. 安装编译依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vllm-ascend">4. 安装 vLLM-Ascend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">5. 安装 lmcache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lmcache-ascend">6. 克隆并编译 LMCache-Ascend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#llm-kv">7. 用离线 LLM 做一次 KV 卸载</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">LMCache</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/lmcache/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lmcache">
+<h1>LMCache<a class="headerlink" href="#lmcache" title="Link to this heading"></a></h1>
+<p>在单卡昇腾上安装 vLLM-Ascend，编译 <a class="reference external" href="https://github.com/LMCache/LMCache-Ascend">LMCache-Ascend</a>，再用 <code class="docutils literal notranslate"><span class="pre">vllm.LLM</span></code> 运行 KV 卸载连接器。主仓 <a class="reference external" href="https://github.com/LMCache/LMCache">LMCache/LMCache</a> 没有昇腾实现，昇腾侧在同组织的 <strong>LMCache-Ascend</strong>。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。编译 LMCache-Ascend 时把 <code class="docutils literal notranslate"><span class="pre">SOC_VERSION</span></code> 设成 <code class="docutils literal notranslate"><span class="pre">Ascend910B4</span></code>。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit + 驱动固件已安装，并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>ATB</p></td>
+<td><p>Ascend Transformer Boost。vLLM EngineCore 子进程要加载 <code class="docutils literal notranslate"><span class="pre">libatb.so</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>编译依赖</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cmake</span></code>、<code class="docutils literal notranslate"><span class="pre">ninja</span></code>、<code class="docutils literal notranslate"><span class="pre">libnuma-dev</span></code>，见下文安装</p></td>
+</tr>
+<tr class="row-even"><td><p>vLLM-Ascend</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">vllm</span></code> / <code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 均为 <code class="docutils literal notranslate"><span class="pre">0.23.0</span></code>，见下文安装</p></td>
+</tr>
+<tr class="row-odd"><td><p>LMCache</p></td>
+<td><p>PyPI <code class="docutils literal notranslate"><span class="pre">lmcache</span></code> 的版本号等于 Release tag 去掉开头的 <code class="docutils literal notranslate"><span class="pre">v</span></code>，再编译 LMCache-Ascend</p></td>
+</tr>
+<tr class="row-even"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。推荐配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+</section>
+</section>
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/latest/atb/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/sbin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="npu">
+<h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+</section>
+<section id="id5">
+<h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi<span class="w"> </span>&gt;/dev/null
+python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>3. 安装编译依赖<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>LMCache-Ascend 的 C++ 插件需要 <code class="docutils literal notranslate"><span class="pre">cmake</span></code>、<code class="docutils literal notranslate"><span class="pre">ninja</span></code> 和 NUMA 头文件。没有就装上。</p>
+<!--
+```shell #test-setup
+if getent hosts cache-service.nginx-pypi-cache.svc.cluster.local >/dev/null 2>&1 \
+    && [ -f /etc/apt/sources.list ]; then
+  sed -Ei 's@(ports|archive).ubuntu.com@cache-service.nginx-pypi-cache.svc.cluster.local:8081@g' /etc/apt/sources.list
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>cmake<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">||</span><span class="w"> </span>!<span class="w"> </span><span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>ninja<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>/usr/include/numaif.h<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>apt-get<span class="w"> </span>update
+<span class="w">  </span><span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>cmake<span class="w"> </span>ninja-build<span class="w"> </span>libnuma-dev
+<span class="k">fi</span>
+cmake<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+cmake<span class="w"> </span>version<span class="w"> </span><span class="m">3</span>...
+</pre></div>
+</div>
+</section>
+<section id="vllm-ascend">
+<h2>4. 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
+<p>分三步安装，不要合成一次 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>。最后一步必须 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>，否则会留下社区 CUDA 版 Triton，第一次推理报错。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata as m</span>
+<span class="s2">for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:</span>
+<span class="s2">    print(n, m.version(n))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+torch<span class="w"> </span><span class="m">2</span>.10.0...
+torch-npu<span class="w"> </span><span class="m">2</span>.10.0.post4
+vllm<span class="w"> </span><span class="m">0</span>.23.0...
+vllm-ascend<span class="w"> </span><span class="m">0</span>.23.0
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>5. 安装 lmcache<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>将 <code class="docutils literal notranslate"><span class="pre">&lt;ver&gt;</span></code> 换成目标 tag 去掉开头的 <code class="docutils literal notranslate"><span class="pre">v</span></code>。撰写时最新 Release 是 <code class="docutils literal notranslate"><span class="pre">v0.4.4</span></code>，对应 <code class="docutils literal notranslate"><span class="pre">lmcache==0.4.4</span></code>。</p>
+<!--
+```shell #test-setup store="lmcache_ver"
+echo "${UPSTREAM_REF#v}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">NO_CUDA_EXT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span><span class="nv">lmcache</span><span class="o">==</span>&lt;ver&gt;<span class="w"> </span>--no-deps
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>aiofile<span class="w"> </span>aiofiles<span class="w"> </span>blake3<span class="w"> </span>aiohttp<span class="w"> </span>msgspec<span class="w"> </span>numpy<span class="w"> </span>psutil<span class="w"> </span>pyyaml<span class="w"> </span>pyzmq<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>redis<span class="w"> </span>safetensors<span class="w"> </span>sortedcontainers<span class="w"> </span>transformers<span class="w"> </span>huggingface_hub
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata as m; print('lmcache', m.version('lmcache'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+lmcache<span class="w"> </span>&lt;ver&gt;
+</pre></div>
+</div>
+</section>
+<section id="lmcache-ascend">
+<h2>6. 克隆并编译 LMCache-Ascend<a class="headerlink" href="#lmcache-ascend" title="Link to this heading"></a></h2>
+<p>克隆 release tag（<code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 可改为例如 <code class="docutils literal notranslate"><span class="pre">v0.4.4</span></code>）。主仓在 GitHub；子模块和主仓分开拉。若 <code class="docutils literal notranslate"><span class="pre">LMCache-Ascend/csrc/hixl/CMakeLists.txt</span></code> 已经在，就跳过 clone。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>LMCache-Ascend/csrc/hixl/CMakeLists.txt<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>LMCache-Ascend
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/LMCache/LMCache-Ascend.git<span class="w"> </span>LMCache-Ascend<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>LMCache-Ascend
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="k">fi</span>
+<span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GIT_HTTP_VERSION</span><span class="o">=</span>HTTP/1.1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>git<span class="w"> </span>-C<span class="w"> </span>LMCache-Ascend<span class="w"> </span>submodule<span class="w"> </span>update<span class="w"> </span>--init<span class="w"> </span>--recursive
+git<span class="w"> </span>-C<span class="w"> </span>LMCache-Ascend<span class="w"> </span>describe<span class="w"> </span>--tags<span class="w"> </span>--exact-match
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+&lt;ref&gt;
+</pre></div>
+</div>
+<p>最新 Release <code class="docutils literal notranslate"><span class="pre">v0.4.4</span></code> 在 CANN 9.1 上编 HIXL 会缺 <code class="docutils literal notranslate"><span class="pre">runtime/rt_external_device.h</span></code>，在 vLLM 0.23 上会拒两参数 KV connector；克隆后先跑下面的补丁再编译。源码里已经有对应内容时脚本会跳过。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">patch_lmcache_ascend.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">cmake</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"LMCache-Ascend/csrc/hixl/CMakeLists.txt"</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">cmake</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+<span class="n">runtime</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{ASCEND_CANN_PACKAGE_PATH}</span><span class="s2">/$</span><span class="si">{ARCH_SUBDIR}</span><span class="s2">/pkg_inc/runtime"</span>
+<span class="n">pkg</span> <span class="o">=</span> <span class="s2">"$</span><span class="si">{ASCEND_CANN_PACKAGE_PATH}</span><span class="s2">/$</span><span class="si">{ARCH_SUBDIR}</span><span class="s2">/pkg_inc"</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"/pkg_inc\s*$"</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">runtime</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="s2">"hixl cmake include line not found"</span><span class="p">)</span>
+    <span class="n">cmake</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">runtime</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">    "</span> <span class="o">+</span> <span class="n">pkg</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+    <span class="s2">"LMCache-Ascend/lmcache_ascend/integration/vllm/"</span>
+    <span class="s2">"lmcache_ascend_connector_v1.py"</span>
+<span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+<span class="k">if</span> <span class="s2">"kv_cache_config"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+    <span class="n">old_init</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    def __init__(self, vllm_config: </span><span class="se">\"</span><span class="s2">VllmConfig</span><span class="se">\"</span><span class="s2">, role: KVConnectorRole) -&gt; None:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        super().__init__(vllm_config=vllm_config, role=role)</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="n">new_init</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    def __init__(</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        self,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        vllm_config: </span><span class="se">\"</span><span class="s2">VllmConfig</span><span class="se">\"</span><span class="s2">,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        role: KVConnectorRole,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        kv_cache_config=None,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"    ) -&gt; None:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        super().__init__(</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"            vllm_config=vllm_config,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"            role=role,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"            kv_cache_config=kv_cache_config,</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"        )</span><span class="se">\n</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">old_init</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="s2">"connector __init__ not found"</span><span class="p">)</span>
+    <span class="n">conn</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old_init</span><span class="p">,</span> <span class="n">new_init</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"patched_ok"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > patch_lmcache_ascend.py <<'PY'
+import re
+from pathlib import Path
+
+cmake = Path("LMCache-Ascend/csrc/hixl/CMakeLists.txt")
+text = cmake.read_text()
+runtime = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc/runtime"
+pkg = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc"
+if not re.search(r"/pkg_inc\s*$", text, re.M):
+    if runtime not in text:
+        raise SystemExit("hixl cmake include line not found")
+    cmake.write_text(text.replace(runtime, runtime + "\n    " + pkg, 1))
+
+conn = Path(
+    "LMCache-Ascend/lmcache_ascend/integration/vllm/"
+    "lmcache_ascend_connector_v1.py"
+)
+text = conn.read_text()
+if "kv_cache_config" not in text:
+    old_init = (
+        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
+        "    def __init__(self, vllm_config: \"VllmConfig\", role: KVConnectorRole) -> None:\n"
+        "        super().__init__(vllm_config=vllm_config, role=role)\n"
+    )
+    new_init = (
+        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
+        "    def __init__(\n"
+        "        self,\n"
+        "        vllm_config: \"VllmConfig\",\n"
+        "        role: KVConnectorRole,\n"
+        "        kv_cache_config=None,\n"
+        "    ) -> None:\n"
+        "        super().__init__(\n"
+        "            vllm_config=vllm_config,\n"
+        "            role=role,\n"
+        "            kv_cache_config=kv_cache_config,\n"
+        "        )\n"
+    )
+    if old_init not in text:
+        raise SystemExit("connector __init__ not found")
+    conn.write_text(text.replace(old_init, new_init, 1))
+print("patched_ok", True)
+PY
+```
+-->
+<p>编译前删掉 <code class="docutils literal notranslate"><span class="pre">LMCache-Ascend/build</span></code>。CANN 把昇腾核目标链接进 <code class="docutils literal notranslate"><span class="pre">.o</span></code> 时会原地改文件，留着上次的产物再编，链接器会报 <code class="docutils literal notranslate"><span class="pre">unknown</span> <span class="pre">file</span> <span class="pre">type</span></code>。用 <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">./LMCache-Ascend</span></code> 安装，不要 <code class="docutils literal notranslate"><span class="pre">cd</span></code> 进克隆目录。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>patch_lmcache_ascend.py
+rm<span class="w"> </span>-rf<span class="w"> </span>LMCache-Ascend/build
+<span class="nv">SOC_VERSION</span><span class="o">=</span>Ascend910B4<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-v<span class="w"> </span>--no-build-isolation<span class="w"> </span>-e<span class="w"> </span>./LMCache-Ascend
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend import _build_info as b; import lmcache_ascend.c_ops; print('lmcache', lmcache.__version__); print('soc', b.__soc_version__); print('c_ops_ok', True); print('npu_available', torch.npu.is_available())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+patched_ok<span class="w"> </span>True
+...
+lmcache<span class="w"> </span>&lt;ver&gt;
+soc<span class="w"> </span>Ascend910B4
+c_ops_ok<span class="w"> </span>True
+npu_available<span class="w"> </span>True
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">soc</span></code> 必须是编译时设的 <code class="docutils literal notranslate"><span class="pre">Ascend910B4</span></code>。缺 <code class="docutils literal notranslate"><span class="pre">numaif.h</span></code> 时先回到第 3 节。</p>
+</section>
+<section id="llm-kv">
+<h2>7. 用离线 LLM 做一次 KV 卸载<a class="headerlink" href="#llm-kv" title="Link to this heading"></a></h2>
+<p>第一次跑通不要开 <code class="docutils literal notranslate"><span class="pre">vllm</span> <span class="pre">serve</span></code>，服务进程不会自己退出。下面用和上游 <code class="docutils literal notranslate"><span class="pre">examples/offload.py</span></code> 同一套连接器，换成 Hugging Face 上的 Qwen2.5-0.5B-Instruct，并把 <code class="docutils literal notranslate"><span class="pre">max_model_len</span></code> 收到 512、<code class="docutils literal notranslate"><span class="pre">gpu_memory_utilization</span></code> 收到 0.4，方便单卡几分钟内结束。</p>
+<p><code class="docutils literal notranslate"><span class="pre">VLLM_WORKER_MULTIPROC_METHOD=spawn</span></code> 避免父进程初始化过 NPU 之后子进程再 <code class="docutils literal notranslate"><span class="pre">fork</span></code>。<code class="docutils literal notranslate"><span class="pre">PYTHONHASHSEED=0</span></code> 让 LMCache 跨进程的 token hash 稳定。<code class="docutils literal notranslate"><span class="pre">VLLM_LOGGING_LEVEL=INFO</span></code> 让昇腾插件和 LMCache 引擎的设备日志打出来。脚本必须先 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">vllm</span></code>，再 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">lmcache_ascend</span></code>，后者只在检测到 vLLM 已经加载时才会把设备检测换成 NPU 版。末尾 <code class="docutils literal notranslate"><span class="pre">2&gt;&amp;1</span></code> 把打在 stderr 的设备日志并进标准输出。</p>
+<p>保存为 <code class="docutils literal notranslate"><span class="pre">offload_qs.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLM</span><span class="p">,</span> <span class="n">SamplingParams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">vllm.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">KVTransferConfig</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">lmcache_ascend</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lmcache.integration.vllm.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ENGINE_NAME</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lmcache.v1.cache_engine</span><span class="w"> </span><span class="kn">import</span> <span class="n">LMCacheEngineBuilder</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"LMCACHE_CHUNK_SIZE"</span><span class="p">,</span> <span class="s2">"256"</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"LMCACHE_LOCAL_CPU"</span><span class="p">,</span> <span class="s2">"True"</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"LMCACHE_MAX_LOCAL_CPU_SIZE"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">)</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s2">"Qwen/Qwen2.5-0.5B-Instruct"</span><span class="p">)</span>
+    <span class="n">ktc</span> <span class="o">=</span> <span class="n">KVTransferConfig</span><span class="p">(</span>
+        <span class="n">kv_connector</span><span class="o">=</span><span class="s2">"LMCacheAscendConnectorV1Dynamic"</span><span class="p">,</span>
+        <span class="n">kv_role</span><span class="o">=</span><span class="s2">"kv_both"</span><span class="p">,</span>
+        <span class="n">kv_connector_module_path</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">"lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1"</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">llm</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+        <span class="n">enforce_eager</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">kv_transfer_config</span><span class="o">=</span><span class="n">ktc</span><span class="p">,</span>
+        <span class="n">max_model_len</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">gpu_memory_utilization</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+        <span class="n">trust_remote_code</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">SamplingParams</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">llm</span><span class="o">.</span><span class="n">generate</span><span class="p">([</span><span class="s2">"Hello, my name is"</span><span class="p">,</span> <span class="s2">"Tell me a short story"</span><span class="p">],</span> <span class="n">params</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"current_device"</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"npu:</span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">current_device</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"npu_available"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"workload_ok"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">LMCacheEngineBuilder</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">ENGINE_NAME</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+cat > offload_qs.py <<'PY'
+import os
+
+from huggingface_hub import snapshot_download
+from vllm import LLM, SamplingParams
+from vllm.config import KVTransferConfig
+import lmcache_ascend
+import torch
+import torch_npu
+from lmcache.integration.vllm.utils import ENGINE_NAME
+from lmcache.v1.cache_engine import LMCacheEngineBuilder
+
+
+def main():
+    os.environ.setdefault("LMCACHE_CHUNK_SIZE", "256")
+    os.environ.setdefault("LMCACHE_LOCAL_CPU", "True")
+    os.environ.setdefault("LMCACHE_MAX_LOCAL_CPU_SIZE", "2")
+
+    model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
+    ktc = KVTransferConfig(
+        kv_connector="LMCacheAscendConnectorV1Dynamic",
+        kv_role="kv_both",
+        kv_connector_module_path=(
+            "lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1"
+        ),
+    )
+    llm = LLM(
+        model=model,
+        enforce_eager=True,
+        kv_transfer_config=ktc,
+        max_model_len=512,
+        gpu_memory_utilization=0.4,
+        trust_remote_code=True,
+    )
+    params = SamplingParams(temperature=0, top_p=0.95, max_tokens=8)
+    llm.generate(["Hello, my name is", "Tell me a short story"], params)
+    print("current_device", f"npu:{torch.npu.current_device()}")
+    print("npu_available", torch.npu.is_available())
+    print("workload_ok", True)
+    LMCacheEngineBuilder.destroy(ENGINE_NAME)
+
+
+if __name__ == "__main__":
+    main()
+PY
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONHASHSEED</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_WORKER_MULTIPROC_METHOD</span><span class="o">=</span>spawn
+<span class="nb">export</span><span class="w"> </span><span class="nv">VLLM_LOGGING_LEVEL</span><span class="o">=</span>INFO
+python<span class="w"> </span>offload_qs.py<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...Platform<span class="w"> </span>plugin<span class="w"> </span>ascend<span class="w"> </span>is<span class="w"> </span>activated...Using<span class="w"> </span>NPU<span class="w"> </span><span class="k">for</span><span class="w"> </span>LMCache<span class="w"> </span>engine...
+current_device<span class="w"> </span>npu:0
+npu_available<span class="w"> </span>True
+workload_ok<span class="w"> </span>True
+...
+</pre></div>
+</div>
+<p>生成文字每次可能不同。<code class="docutils literal notranslate"><span class="pre">current_device</span> <span class="pre">npu:0</span></code> 和 <code class="docutils literal notranslate"><span class="pre">Using</span> <span class="pre">NPU</span> <span class="pre">for</span> <span class="pre">LMCache</span> <span class="pre">engine</span></code> 才是这一次上了昇腾、并且 LMCache 引擎也在 NPU 上的证据。结束时 ZMQ 可能打一条 <code class="docutils literal notranslate"><span class="pre">Assertion</span> <span class="pre">failed:</span> <span class="pre">pfd.revents</span></code>，只要退出码是 0、上面几行都在，可以忽略。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../llama_cpp/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../lm_deploy/index.html" class="btn btn-neutral float-right" title="lmdeploy" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
