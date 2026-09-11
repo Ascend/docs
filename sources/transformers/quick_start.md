@@ -43,8 +43,8 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 镜像通常已经包含兼容的 `torch` / `torch_npu`。如果本地镜像没有提供，
 请先按照 CANN 与 PyTorch-NPU 的兼容矩阵安装对应版本。
 
-首次运行示例会自动从 Hugging Face 下载公开的 `Qwen/Qwen2.5-1.5B`；也可以
-通过环境变量 `QUICK_START_MODEL` 指定本地已下载的模型路径，实现离线加载。
+模型 `Qwen/Qwen2.5-1.5B` 权重约 3 GB，下载步骤见下文「下载模型」一节；
+也可以通过环境变量 `QUICK_START_MODEL` 指定本地已下载的模型路径，实现离线加载。
 
 ## 检查前置是否满足
 
@@ -95,6 +95,27 @@ python -c "import accelerate, transformers; print('transformers', transformers._
 ```shell #test-result id="install-transformers" fuzzy="xxx"
 transformers xxx
 accelerate xxx
+```
+
+## 下载模型
+
+模型权重约 3 GB，首次下载需要一些时间，建议单独执行，便于排查网络问题。
+如果访问 Hugging Face 较慢，可先切换到国内镜像（该设置只影响当前终端）：
+
+```shell
+export HF_ENDPOINT=https://hf-mirror.com
+```
+
+下载到本地 Hugging Face 缓存目录：
+
+```shell #test id="download-model"
+python -c "from huggingface_hub import snapshot_download; print('downloaded to:', snapshot_download('Qwen/Qwen2.5-1.5B'))"
+```
+
+输出结果如下（缓存路径因环境而异）：
+
+```shell #test-result id="download-model"
+downloaded to: ...
 ```
 
 ## 运行文本生成
