@@ -81,7 +81,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
     _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
 
-    _MODEL_ID = 'Qwen/Qwen2.5-1.5B'
+    _MODEL_ID = 'Qwen/Qwen2.5-1.5B-Instruct'
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
