@@ -5,7 +5,7 @@ transformers
     :maxdepth: 2
 
     install.rst
-    quick_start
+    quick_start.md
     modeldownload.rst
     fine-tune.rst
     inference.rst
