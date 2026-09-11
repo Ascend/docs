@@ -70,7 +70,10 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
-                    '.github', 'tests']
+                    '.github', 'tests',
+                    # Included by sources/ktransformers/index.rst; keep it out of
+                    # the sidebar so the landing page is not a nested duplicate.
+                    'sources/ktransformers/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
