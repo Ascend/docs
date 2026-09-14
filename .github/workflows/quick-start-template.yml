@@ -70,6 +70,10 @@ on:
         description: Upstream repo (owner/name) polled for releases; recorded as target_repo in result.json
         type: string
         required: true
+      fixed_ref:
+        description: Optional upstream tag, branch, or SHA to test instead of resolving the latest release; its commit SHA is monitored for changes
+        type: string
+        default: ''
       doc_url:
         description: URL of the monitored quick-start doc; the monitor hashes it and the test fetches the same URL
         type: string
@@ -162,6 +166,7 @@ jobs:
       # Engine-fixed env: upstream repo + monitored doc come from the
       # caller's inputs (caller env does not cross the `uses:` boundary).
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+      FIXED_REF: ${{ inputs.fixed_ref }}
       MONITORED_DOC_URL: ${{ format(inputs.doc_url, github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main') }}
       GH_TOKEN: ${{ github.token }}
       GH_API: https://api.github.com
@@ -263,7 +268,9 @@ jobs:
           echo "monitor cache: release(id=$last_release_id) doc(hash=$doc_hash) test(result=$test_result error=$test_error)"
 
           # ----- release signal -----
-          # Automatic fallback chain — no caller input needed:
+          # A caller-provided FIXED_REF is resolved to its current commit SHA so
+          # mutable branches still fire the change signal. Without FIXED_REF,
+          # use the automatic fallback chain:
           #   1. /releases/latest          (default path; most upstreams)
           #   2. /releases?per_page=20     (covers prerelease-only repos, e.g.
           #                                 torchtitan pre-stable where
@@ -298,7 +305,20 @@ jobs:
           # at one step falls through cleanly to the next instead of
           # aborting the whole monitor cycle.
           : > /tmp/release.json  # start empty; each step either writes or leaves empty
-          if curl -fsSL --retry 3 --max-time 30 \
+          if [ -n "$FIXED_REF" ]; then
+            if curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/$FIXED_REF" \
+                -o /tmp/fixed-ref.json 2>/dev/null; then
+              jq --arg ref "$FIXED_REF" \
+                '{id: (.sha // ""), tag_name: $ref}' \
+                /tmp/fixed-ref.json > /tmp/release.json
+              echo "monitor: release source=/commits/$FIXED_REF (caller-fixed ref)"
+            else
+              jq -n --arg ref "$FIXED_REF" \
+                '{id: "", tag_name: $ref}' > /tmp/release.json
+              echo "monitor: failed to resolve fixed ref $FIXED_REF; release signal unavailable"
+            fi
+          elif curl -fsSL --retry 3 --max-time 30 \
               "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null \
               && jq -e '.tag_name // empty' /tmp/r1.json > /dev/null 2>&1; then
             mv /tmp/r1.json /tmp/release.json
@@ -450,13 +470,23 @@ jobs:
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             need_to_test="true"
             reason="manual"
-            ref=$(resolve_ref)
+            if [ -n "$FIXED_REF" ]; then
+              ref="$FIXED_REF"
+              echo "monitor: ref source=caller-fixed ref ($ref)"
+            else
+              ref=$(resolve_ref)
+            fi
             [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref (auto-fallback chain exhausted)"; exit 1; }
             echo "monitor decision (manual override): ref=$ref need_to_test=true reason=manual"
           elif [ "$EVENT_NAME" = "pull_request" ]; then
             need_to_test="true"
             reason="pr"
-            ref=$(resolve_ref)
+            if [ -n "$FIXED_REF" ]; then
+              ref="$FIXED_REF"
+              echo "monitor: ref source=caller-fixed ref ($ref)"
+            else
+              ref=$(resolve_ref)
+            fi
             [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref for PR run (auto-fallback chain exhausted)"; exit 1; }
             echo "monitor decision (pr run): ref=$ref need_to_test=true reason=pr"
           elif [ -f $DECISION_FILE ]; then
