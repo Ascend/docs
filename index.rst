@@ -336,6 +336,13 @@
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
       </div>
+      <!-- xDiT -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xdit.png')"></div><h3 class="card-title">xDiT</h3></div>
+         <p class="card-desc">扩散模型推理加速框架，支持昇腾 NPU 单卡/多卡加速图像生成。</p>
+         <div class="card-footer"><a href="https://github.com/xdit-project/xDiT">官方链接</a><span class="split">|</span><a href="sources/xdit/index.html">快速上手</a></div>
+      </div>
+
 
       <!-- LM-Eval -->
       <div class="project-card">
@@ -463,6 +470,7 @@
    :caption: 🎨 多模态、应用与评测
 
    sources/Diffusers/index.rst
+   sources/xdit/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
