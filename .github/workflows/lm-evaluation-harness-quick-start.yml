@@ -1,0 +1,36 @@
+# lm-evaluation-harness quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+name: lm-evaluation-harness-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'lm-evaluation-harness-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/lm_evaluation/**'
+      - 'tests/lm_evaluation/**'
+
+permissions:
+  contents: read
+
+jobs:
+  lm-evaluation-harness-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: lm-evaluation-harness
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/lm-evaluation-harness:/root/.cache/modelscope
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+        --volume=/data/ci-cache/hf/lm-evaluation-harness:/root/.cache/huggingface
+      timeout_minutes: 180
+      upstream_repo: EleutherAI/lm-evaluation-harness
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/lm_evaluation/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/lm_evaluation/quick_start.md
+      test_command: python -m unittest tests.lm_evaluation.test_quick_start_ascend -v 2>&1
