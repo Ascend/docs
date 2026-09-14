@@ -1,0 +1,34 @@
+# xdit quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+name: xdit-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'xdit-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '45 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/xdit/**'
+      - 'tests/xdit/**'
+
+permissions:
+  contents: read
+
+jobs:
+  xdit-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: xdit
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/xdit:/root/.cache/modelscope:z
+      timeout_minutes: 90
+      upstream_repo: xdit-project/xDiT
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/xdit/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/xdit/quick_start.md
+      test_command: python -m unittest tests.xdit.test_quick_start_ascend -v 2>&1
