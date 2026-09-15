@@ -232,5 +232,5 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-server \
 
 - 上游仓库与总说明：[ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)
 - CANN 后端的设备、精度与环境变量：[docs/backend/CANN.md](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)
-- 命令行对话：[`llama-cli`](https://github.com/ggml-org/llama.cpp/blob/master/tools/cli/README.md)
-- HTTP 服务与自带 Web 页面：[`llama-server`](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)
+- 命令行对话：[llama-cli](https://github.com/ggml-org/llama.cpp/blob/master/tools/cli/README.md)
+- HTTP 服务与自带 Web 页面：[llama-server](https://github.com/ggml-org/llama.cpp/blob/master/tools/server/README.md)
