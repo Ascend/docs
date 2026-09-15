@@ -69,7 +69,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
@@ -119,9 +118,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#id7">4. 准备模型</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id8">5. 转写</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id9">5.1 单卡转写</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#http">5.2 HTTP 推理服务（可选）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">5.2 浏览器转写</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">6. 更多文档</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="install.html">安装指南</a></li>
@@ -196,10 +196,7 @@
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
-<div class="admonition note">
-<p class="admonition-title">备注</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
-</div>
 </section>
 <section id="id5">
 <h3>2.2 确认 CANN 与编译工具<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
@@ -209,16 +206,17 @@
 cmake<span class="w"> </span>--version
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-cmake<span class="w"> </span>version<span class="w"> </span>...
-</pre></div>
-</div>
+<!--
+```shell #test-result id="check-tools"
+...
+cmake version ...
+```
+-->
 </section>
 </section>
 <section id="id6">
 <h2>3. 获取源码并编译<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<p>克隆 <a class="reference external" href="https://github.com/ggml-org/whisper.cpp">ggml-org/whisper.cpp</a>，开启 CANN 后端后应生成 <code class="docutils literal notranslate"><span class="pre">whisper-cli</span></code>。将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标分支、tag 或 commit（上游默认分支为 <code class="docutils literal notranslate"><span class="pre">master</span></code>）。</p>
+<p>克隆 <a class="reference external" href="https://github.com/ggml-org/whisper.cpp">ggml-org/whisper.cpp</a>，开启 CANN 后端后应生成 <code class="docutils literal notranslate"><span class="pre">whisper-cli</span></code>。同一次编译还会生成 <code class="docutils literal notranslate"><span class="pre">whisper-server</span></code>，后面的可选步骤会用到。将 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成目标分支、tag 或 commit（上游默认分支为 <code class="docutils literal notranslate"><span class="pre">master</span></code>）。</p>
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
@@ -234,12 +232,13 @@ cmake<span class="w"> </span>--build<span class="w"> </span>build<span class="w"
 ls<span class="w"> </span>build/bin/whisper-cli
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+<!--
+```shell #test-result id="compile"
+...
 build/bin/whisper-cli
 ...
-</pre></div>
-</div>
+```
+-->
 </section>
 <section id="id7">
 <h2>4. 准备模型<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
@@ -283,11 +282,10 @@ if [ ! -f "$ci/ggml-tiny.en.bin" ]; then
   mv "$ci/ggml-tiny.en.bin.part" "$ci/ggml-tiny.en.bin"
 fi
 ```
+```shell #test-result id="download-model"
+lmgg
+```
 -->
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lmgg
-</pre></div>
-</div>
 </section>
 <section id="id8">
 <h2>5. 转写<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
@@ -308,6 +306,12 @@ fi
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-t</span></code></p></td>
 <td><p>推理线程数。首次验证用 <code class="docutils literal notranslate"><span class="pre">4</span></code></p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-tp</span></code></p></td>
+<td><p>采样温度。<code class="docutils literal notranslate"><span class="pre">0</span></code> 为贪心解码，同一音频与模型下转写可复现</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-nf</span></code></p></td>
+<td><p>关闭温度回退，避免解码重试时升高温度导致输出变化</p></td>
+</tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--device</span></code></p></td>
 <td><p>使用的 NPU 编号</p></td>
 </tr>
@@ -318,30 +322,40 @@ fi
 </table>
 <section id="id9">
 <h3>5.1 单卡转写<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">whisper-cli</span></code> 没有随机种子开关。下面显式加上 <code class="docutils literal notranslate"><span class="pre">-tp</span> <span class="pre">0</span> <span class="pre">-nf</span></code>，关闭采样随机性和温度回退，同一条音频每次转写应一致。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>whisper.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>./build/bin/whisper-cli<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-m<span class="w"> </span>models/ggml-tiny.en.bin<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-f<span class="w"> </span>samples/jfk.wav<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>-t<span class="w"> </span><span class="m">4</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="w">    </span>-t<span class="w"> </span><span class="m">4</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span>-tp<span class="w"> </span><span class="m">0</span><span class="w"> </span>-nf<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-whisper_backend_init_gpu:<span class="w"> </span>using<span class="w"> </span>CANN0<span class="w"> </span>backend
-...ask<span class="w"> </span>not<span class="w"> </span>what<span class="w"> </span>your<span class="w"> </span>country...
+<p>完整输出较长，其中应包含：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>...
+whisper_backend_init_gpu: using CANN0 backend
+...
+CI_PENDING_TRANSCRIPT
+...
 </pre></div>
 </div>
 </section>
-<section id="http">
-<h3>5.2 HTTP 推理服务（可选）<a class="headerlink" href="#http" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">whisper-server</span></code> 把转写包成 HTTP 服务，启动后不会自己退出。</p>
+<section id="id10">
+<h3>5.2 浏览器转写<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">whisper-server</span></code> 会启动本地 HTTP 服务，并自带 Web 页面。启动后用浏览器打开 http://127.0.0.1:8080 ，即可选择音频文件做转写。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>whisper.cpp<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>./build/bin/whisper-server<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-m<span class="w"> </span>models/ggml-tiny.en.bin<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-t<span class="w"> </span><span class="m">4</span><span class="w"> </span>--device<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span>
 </pre></div>
 </div>
-<p>服务就绪后打开 <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8080</span></code>，或向 <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/inference</span></code> 上传音频。</p>
 </section>
+</section>
+<section id="id11">
+<h2>6. 更多文档<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>上游仓库与总说明：<a class="reference external" href="https://github.com/ggml-org/whisper.cpp">ggml-org/whisper.cpp</a></p></li>
+<li><p>命令行转写：<a class="reference external" href="https://github.com/ggml-org/whisper.cpp/blob/master/examples/cli/README.md">whisper-cli</a></p></li>
+<li><p>HTTP 服务与自带 Web 页面：<a class="reference external" href="https://github.com/ggml-org/whisper.cpp/blob/master/examples/server/README.md">whisper-server</a></p></li>
+</ul>
 </section>
 </section>
 <div class="toctree-wrapper compound">
