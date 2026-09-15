@@ -1,0 +1,92 @@
+# ModelScope quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image, upstream repo, monitored doc
+# and the test entry command. The guard loop, cache I/O, state relay
+# and publishing all live in the engine. See the engine's
+# `workflow_call.inputs` block for the full input contract.
+#
+# Engine-fixed behaviours this trigger relies on (declared in the
+# engine, NOT here):
+#   * cache key prefix: monitor-state-modelscope-  (from inputs.project)
+#   * artifact name:    modelscope-quick-start-<run_id>
+#   * result.json is written by the engine and validated against
+#     schemas/result.schema.json before upload.
+#
+# ModelScope note: the doc exercises the hub client itself - source
+# install at the latest release tag + `modelscope download` +
+# AutoModelForCausalLM text generation on NPU (modelscope's
+# verify_device whitelist rejects device='npu', so pipeline() is not
+# usable; see the doc's 使用样例 note).
+#
+# Model downloads land in /root/.cache/modelscope: no explicit bind
+# mount is needed because NFS already mounts /root/.cache (same setup
+# as the peft / comfyui triggers).
+
+name: modelscope-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'modelscope-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Same 12 h cadence as the comfyui trigger, minute offset (55 vs 45)
+    # so the two jobs don't contend for the single NPU runner slot.
+    - cron: '55 */12 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/modelscope/**'
+      - 'tests/modelscope/**'
+
+permissions:
+  contents: read
+
+jobs:
+  modelscope-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-modelscope-*), artifacts
+      # (modelscope-quick-start-<run_id>) and the test working dir
+      # (tests/modelscope).
+      project: modelscope
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # 2 h budget: cold run reuses the image torch stack + source
+      # installs modelscope at the latest release tag (uv pip install -e
+      # '.[framework]', whose aarch64 resolver is steered off CUDA wheels
+      # by the CUDA exclusion list) + pulls Qwen2.5-0.5B-Instruct (~1 GB,
+      # warm after the first run via the NFS-mounted /root/.cache) + a
+      # single-card text-generation smoke on a 910B4. Covers several
+      # retries on dependency flakes.
+      timeout_minutes: 120
+      upstream_repo: modelscope/modelscope
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/modelscope/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/modelscope/quick_start.md
+      # cwd is the repo root inside the checkout; env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.modelscope.test_quick_start_ascend -v 2>&1

@@ -379,6 +379,12 @@
          <div class="card-footer"><a href="https://github.com/ggerganov/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/whisper_cpp/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- ModelScope -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ModelScope</h3></div>
+         <p class="card-desc">「模型即服务」(MaaS) 开放平台，汇集 AI 社区最先进的机器学习模型。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/modelscope">官方链接</a><span class="split">|</span><a href="sources/modelscope/quick_start.html">快速上手</a></div>
+      </div>
    </div>
 
 .. -----------------------------------------
@@ -455,4 +461,5 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/modelscope/index.md
 
