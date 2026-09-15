@@ -139,12 +139,24 @@ GGUF
 | `--seed` | 随机种子。 |
 | `-ngl` | offload 到 NPU 的层数。`99` 表示尽量全部，否则层会留在 CPU |
 | `-no-cnv` | 关闭自动对话。Instruct 类 GGUF 不加此项会等待键盘输入 |
-| `-v` | 提高日志详细度，确认权重是否加载到 NPU |
 | `-sm none -mg 0` | 单卡布局：全部算子跑在 0 号卡 |
 | `-sm layer` | 多卡布局：按层拆到可见的多张卡 |
 | `ASCEND_RT_VISIBLE_DEVICES` | 限制进程可见的 NPU 编号 |
 
 ### 5.1 单卡推理
+
+<!--
+```shell #test id="infer-device"
+cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
+    -m ../qwen2.5-0.5b-instruct-q4_0.gguf \
+    -p "Building a website can be done in 10 simple steps:" \
+    -n 64 -no-cnv -ngl 99 -sm none -mg 0 --seed 42 -v 2>&1
+```
+```shell #test-result id="infer-device"
+...using device CANN0...
+...CANN0 model buffer size = ...
+```
+-->
 
 ```shell #test id="infer"
 cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
@@ -156,8 +168,6 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
 完整输出较长，其中应包含：
 
 ```shell #test-result id="infer"
-...using device CANN0...
-...CANN0 model buffer size = ...
 ...
 Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
 ...
@@ -166,6 +176,21 @@ Building a website can be done in 10 simple steps: building a website is a great
 ### 5.2 多卡推理
 
 有两张及以上 NPU 时，可用 `-sm layer` 把层拆到多卡。下面示例暴露 0、1 号卡：
+
+<!--
+```shell #test id="infer-multi-device"
+cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
+    -m ../qwen2.5-0.5b-instruct-q4_0.gguf \
+    -p "Building a website can be done in 10 simple steps:" \
+    -n 64 -no-cnv -ngl 99 -sm layer --seed 42 -v 2>&1
+```
+```shell #test-result id="infer-multi-device"
+...using device CANN0...
+...using device CANN1...
+...CANN0 model buffer size = ...
+...CANN1 model buffer size = ...
+```
+-->
 
 ```shell #test id="infer-multi"
 cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
@@ -177,10 +202,6 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
 完整输出较长，其中应包含：
 
 ```shell #test-result id="infer-multi"
-...using device CANN0...
-...using device CANN1...
-...CANN0 model buffer size = ...
-...CANN1 model buffer size = ...
 ...
 Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
 You
