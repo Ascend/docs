@@ -167,7 +167,7 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
 
 完整输出较长，其中应包含：
 
-```shell #test-result id="infer"
+```text #test-result id="infer"
 ...
 Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
 ...
@@ -201,7 +201,7 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
 
 完整输出较长，其中应包含：
 
-```shell #test-result id="infer-multi"
+```text #test-result id="infer-multi"
 ...
 Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
 You
