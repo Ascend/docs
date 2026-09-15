@@ -145,6 +145,8 @@ lmgg
 
 ### 5.1 单卡转写
 
+`whisper-cli` 没有随机种子开关。下面显式加上 `-tp 0 -nf`，关闭采样随机性和温度回退，同一条音频每次转写应一致。
+
 ```shell #test id="transcribe"
 cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-cli \
     -m models/ggml-tiny.en.bin \
