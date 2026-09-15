@@ -375,10 +375,13 @@ class MarkdownDocTestBase(ABC):
 
     def _validate(self, parsed: list[dict]) -> None:
         """Rules 2/5/7/10/11 validation. Any violation raises ``LabelSpecError``."""
+        # #test stays visible: that is the command the reader copies.
+        # #test-setup / #test-result may sit in HTML comments so the
+        # rendered page does not show CI-only injection or expected output.
         for p in parsed:
-            if p['hidden'] and p['label'] != self._LABEL_TEST_SETUP:
+            if p['hidden'] and p['label'] == self._LABEL_TEST:
                 raise LabelSpecError(
-                    f'HTML comment can only contain #test-setup, '
+                    f'HTML comment cannot contain #test, '
                     f'got {p["label"]}'
                 )
 
