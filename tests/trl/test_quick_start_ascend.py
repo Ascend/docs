@@ -102,14 +102,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         with open(cls._CONSTRAINTS_FILE, 'w', encoding='utf-8') as fh:
             fh.write('\n'.join(cls._CUDA_CONSTRAINTS) + '\n')
         os.environ['PIP_CONSTRAINT'] = cls._CONSTRAINTS_FILE
-        os.environ['UV_CONSTRAINT'] = cls._CONSTRAINTS_FILE
 
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
-
-        subprocess.run(
-            ['python', '-m', 'pip', 'install', 'uv'],
-            check=True,
-        )
 
         _PROBE_SCRIPT = (
             'import torch, torch_npu\n'

@@ -10,41 +10,13 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需�
 
 ### 基础软件
 
-在跑本文档**之前**，你的机器上需要已经装好并可用：
+在运行本文档示例之前，你的机器上需要已经装好并可用：
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与上面 CANN 匹配的 `torch` + `torch_npu`，且 `torch` 能正常 `import` 并 `torch.npu.is_available() == True`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）
+- 根据 CANN 版本安装匹配的 `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-### 本文档示例使用的版本
-
-**配套机器**：
-
-- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）
-- **操作系统**：Ubuntu 22.04
-
-**配套镜像**：
-
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-
-**软件版本**：
-
-| 组件 | 版本 |
-| --- | --- |
-| Python | 3.12 |
-| CANN | 9.1.0 |
-| torch | 2.9.0+cpu |
-| torch_npu | 2.9.0.post2 |
-| transformers | `>=4.56.2,<5.0` |
-| accelerate | `>=1.4.0` |
-| datasets | `>=4.7.0` |
-| peft | 最新 release |
-| modelscope | 1.37.0 |
-| trl | 最新 release（PyPI） |
-| 模型 | [Qwen/Qwen2.5-0.5B-Instruct](https://www.modelscope.cn/models/Qwen/Qwen2.5-0.5B-Instruct)，约 1 GB |
-| 数据集 | `HuggingFaceH4/ultrafeedback_binarized` |
-
-### 前置安装
+### 检查设备
 
 确认能看到 NPU 设备：
 
@@ -52,96 +24,34 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 npu-smi info
 ```
 
-输出类似：
-
-```
-+------------------------------------------------------------------------------------------------+
-| npu-smi 25.5.2                   Version: 25.5.2                                               |
-+---------------------------+---------------+----------------------------------------------------+
-| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
-| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
-+===========================+===============+====================================================+
-| 5     910B4               | OK            | 89.9        39                0    / 0             |
-| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
-+===========================+===============+====================================================+
-+---------------------------+---------------+----------------------------------------------------+
-| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
-+===========================+===============+====================================================+
-| No running processes found in NPU 5                                                            |
-+===========================+===============+====================================================+
-```
+确认命令能够列出 NPU 设备，且设备的 `Health` 状态为 `OK`。
 
 ```{admonition} Note
 :class: note
 如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动
 ```
 
-检查 Python 版本：
+## 安装 TRL 和示例依赖
 
-```shell #test id="check-py"
-python --version
-```
-输出结果如下：
-```shell #test-result id="check-py" fuzzy='xxx'
-Python 3.12.xxx
-```
+使用 pip 安装 TRL、PEFT 和 ModelScope，安装完成后验证这些软件包可以正常导入：
 
-检查 NPU 设备运行时可用：
-
-```shell #test id="check-npu-runtime"
-python -c "import torch, torch_npu; print(f'torch={torch.__version__}'); print(f'torch_npu={torch_npu.__version__}'); print('is_available:', torch.npu.is_available()); 
-print('count:', torch.npu.device_count())"
+```shell #test id="install-trl"
+python -m pip install "trl[peft]" "transformers>=4.56.2,<5.0" "modelscope==1.37.0"
+python -c "import trl, peft, modelscope; print('TRL environment ready')"
 ```
 
 输出结果如下：
 
-```shell #test-result id="check-npu-runtime" fuzzy='xxx'
-torch=xxx
-torch_npu=xxx
-is_available: True
-count: 1
+```shell #test-result id="install-trl"
+...
+TRL environment ready
 ```
-
-```{admonition} Note
-:class: note
-如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵
-```
-
-安装 `transformers` / `peft` / `modelscope`，装完打印版本验证。示例数据集来自 ModelScope：
-
-```shell #test id="install-deps"
-uv pip install 'transformers>=4.56.2,<5.0' 'peft' 'modelscope==1.37.0'
-python -c "import transformers, peft, modelscope; print(f'transformers={transformers.__version__} peft={peft.__version__} modelscope={modelscope.__version__}')"
-```
-
-输出结果如下：
-
-```shell #test-result id="install-deps" fuzzy='xxx'
-transformers=xxx peft=xxx modelscope=1.37.0
-```
-
-## 安装 TRL
-
-用 uv 安装 PyPI 最新 release，装完打印版本验证：
-
-```shell #test id="trl-install-binary"
-uv pip install trl
-python -c "import trl; print('trl', trl.__version__)"
-```
-
-输出结果类似如下：
-
-```shell #test-result id="trl-install-binary" fuzzy='xxx'
-trl xxx
-```
-- xxx 表示最新的版本号
 
 ## 使用样例：最小 SFT LoRA 后训练
 
 用 ModelScope 数据集 `HuggingFaceH4/ultrafeedback_binarized` 的 SFT 子集对 Qwen2.5-0.5B-Instruct 做 5 步 LoRA SFT。模型由脚本内的 `snapshot_download` 首次运行时自动下载到默认缓存（约 1 GB），数据集经 ModelScope 自动下载；`SFTTrainer` 通过 `peft_config` 注入 LoRA 适配器，底座权重冻结、只训练新注入的低秩矩阵；训练完成后把适配器保存到 `output/trl-sft-lora`。
 
-```shell #test id="sft-lora"
-python << 'PY'
+```python #test id="sft-lora"
 import os
 import shutil
 import torch
@@ -191,7 +101,6 @@ print("model device:", next(trainer.model.parameters()).device)
 trainer.train()
 trainer.save_model("output/trl-sft-lora")
 print("TRL_SFT_DONE")
-PY
 ```
 
 输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：
@@ -205,8 +114,7 @@ TRL_SFT_DONE
 
 同一个模型与 LoRA 配置，把 `SFTTrainer` / `SFTConfig` 换成 `DPOTrainer` / `DPOConfig` 就是偏好优化：ModelScope 数据集 `HuggingFaceH4/ultrafeedback_binarized` 的 `prompt` / `chosen` / `rejected` 三段对话让模型更倾向 `chosen` 而非 `rejected` 的回答。这里跑 3 步 DPO LoRA，产物保存到 `output/trl-dpo-lora`。
 
-```shell #test id="dpo-lora"
-python << 'PY'
+```python #test id="dpo-lora"
 import os
 import shutil
 import torch
@@ -268,7 +176,6 @@ print("model device:", next(trainer.model.parameters()).device)
 trainer.train()
 trainer.save_model("output/trl-dpo-lora")
 print("TRL_DPO_DONE")
-PY
 ```
 
 输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：
