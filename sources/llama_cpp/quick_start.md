@@ -159,13 +159,7 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/llama-completion \
 ...using device CANN0...
 ...CANN0 model buffer size = ...
 ...
-Building a website can be done in 10 simple steps: http://www.google.com/developers/10steps
-
-Now, try to make a website with a simple login system using HTML5. 
-
-To do this, we need to create a basic website with HTML5, CSS3 and JavaScript. 
-
-In this project, we will create a basic website with a login system
+Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
 ...
 ```
 
@@ -188,13 +182,8 @@ cd llama.cpp && ASCEND_RT_VISIBLE_DEVICES=0,1 ./build/bin/llama-completion \
 ...CANN0 model buffer size = ...
 ...CANN1 model buffer size = ...
 ...
-Building a website can be done in 10 simple steps: http://www.google.com/developers/10steps
-
-Now, try to make a website with a simple login system using HTML5. 
-
-To do this, we need to create a basic website with HTML5, CSS3 and JavaScript. 
-
-In this project, we will create a basic website with a login system
+Building a website can be done in 10 simple steps: building a website is a great way to increase your online presence, and this post will help you get started. These steps are all the tools you will need to build your website, and you can learn them one at a time, and you can build a website in the 10 steps as the next step.
+You
 ...
 ```
 
