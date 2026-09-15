@@ -1,0 +1,34 @@
+# lightx2v quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+name: lightx2v-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'lightx2v-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '45 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/lightx2v/**'
+      - 'tests/lightx2v/**'
+
+permissions:
+  contents: read
+
+jobs:
+  lightx2v-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: lightx2v
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/lightx2v:/root/.cache/modelscope
+      timeout_minutes: 240
+      upstream_repo: ModelTC/LightX2V
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/lightx2v/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/lightx2v/quick_start.md
+      test_command: python -m unittest tests.lightx2v.test_quick_start_ascend -v 2>&1
