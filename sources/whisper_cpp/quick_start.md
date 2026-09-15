@@ -31,9 +31,7 @@ export PATH=/usr/local/sbin:$PATH
 npu-smi info
 ```
 
-:::{note}
 如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
-:::
 
 ### 2.2 确认 CANN 与编译工具
 
@@ -45,16 +43,16 @@ command -v npu-smi
 cmake --version
 ```
 
-输出结果如下：
-
+<!--
 ```shell #test-result id="check-tools"
 ...
 cmake version ...
 ```
+-->
 
 ## 3. 获取源码并编译
 
-克隆 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)，开启 CANN 后端后应生成 `whisper-cli`。将 `<ref>` 换成目标分支、tag 或 commit（上游默认分支为 `master`）。
+克隆 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)，开启 CANN 后端后应生成 `whisper-cli`。同一次编译还会生成 `whisper-server`，后面的可选步骤会用到。将 `<ref>` 换成目标分支、tag 或 commit（上游默认分支为 `master`）。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -73,13 +71,13 @@ cmake --build build --config Release -j$(nproc)
 ls build/bin/whisper-cli
 ```
 
-输出结果如下：
-
+<!--
 ```shell #test-result id="compile"
 ...
 build/bin/whisper-cli
 ...
 ```
+-->
 
 ## 4. 准备模型
 
@@ -126,13 +124,10 @@ if [ ! -f "$ci/ggml-tiny.en.bin" ]; then
   mv "$ci/ggml-tiny.en.bin.part" "$ci/ggml-tiny.en.bin"
 fi
 ```
--->
-
-输出结果如下：
-
 ```shell #test-result id="download-model"
 lmgg
 ```
+-->
 
 ## 5. 转写
 
@@ -143,6 +138,8 @@ lmgg
 | `-m` | ggml 模型路径 |
 | `-f` | 输入音频 |
 | `-t` | 推理线程数。首次验证用 `4` |
+| `-tp` | 采样温度。`0` 为贪心解码，同一音频与模型下转写可复现 |
+| `-nf` | 关闭温度回退，避免解码重试时升高温度导致输出变化 |
 | `--device` | 使用的 NPU 编号 |
 | `ASCEND_RT_VISIBLE_DEVICES` | 限制进程可见的 NPU 编号 |
 
@@ -152,20 +149,22 @@ lmgg
 cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-cli \
     -m models/ggml-tiny.en.bin \
     -f samples/jfk.wav \
-    -t 4 --device 0 2>&1
+    -t 4 --device 0 -tp 0 -nf 2>&1
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
-```shell #test-result id="transcribe"
+```text #test-result id="transcribe"
 ...
 whisper_backend_init_gpu: using CANN0 backend
-...ask not what your country...
+...
+CI_PENDING_TRANSCRIPT
+...
 ```
 
-### 5.2 HTTP 推理服务（可选）
+### 5.2 浏览器转写
 
-`whisper-server` 把转写包成 HTTP 服务，启动后不会自己退出。
+`whisper-server` 会启动本地 HTTP 服务，并自带 Web 页面。启动后用浏览器打开 http://127.0.0.1:8080 ，即可选择音频文件做转写。
 
 ```shell
 cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-server \
@@ -174,4 +173,8 @@ cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-server \
     --host 127.0.0.1 --port 8080
 ```
 
-服务就绪后打开 `http://127.0.0.1:8080`，或向 `POST /inference` 上传音频。
+## 6. 更多文档
+
+- 上游仓库与总说明：[ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)
+- 命令行转写：[whisper-cli](https://github.com/ggml-org/whisper.cpp/blob/master/examples/cli/README.md)
+- HTTP 服务与自带 Web 页面：[whisper-server](https://github.com/ggml-org/whisper.cpp/blob/master/examples/server/README.md)

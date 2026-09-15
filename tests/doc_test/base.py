@@ -375,12 +375,9 @@ class MarkdownDocTestBase(ABC):
 
     def _validate(self, parsed: list[dict]) -> None:
         """Rules 2/5/7/10/11 validation. Any violation raises ``LabelSpecError``."""
-        for p in parsed:
-            if p['hidden'] and p['label'] != self._LABEL_TEST_SETUP:
-                raise LabelSpecError(
-                    f'HTML comment can only contain #test-setup, '
-                    f'got {p["label"]}'
-                )
+        # HTML comments may hide any labeled fence. The rendered page
+        # drops them; the runner still executes #test / #test-setup and
+        # still compares #test-result.
 
         for p in parsed:
             if p['label'] not in (self._LABEL_TEST, self._LABEL_TEST_SETUP):
