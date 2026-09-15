@@ -69,21 +69,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">TRL</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">前置安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">检查设备</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">安装 TRL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">安装 TRL 和示例依赖</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sft-lora">使用样例：最小 SFT LoRA 后训练</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#dpo-lora">切换方法：偏好优化 DPO LoRA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">结果验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">结果验证</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
@@ -154,145 +152,37 @@
 </section>
 <section id="id3">
 <h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
-<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<p>在运行本文档示例之前，你的机器上需要已经装好并可用：</p>
 <ul class="simple">
 <li><p>可用的 Python 环境</p></li>
 <li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
-<li><p>与上面 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，且 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 能正常 <code class="docutils literal notranslate"><span class="pre">import</span></code> 并 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span> <span class="pre">==</span> <span class="pre">True</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）</p></li>
+<li><p>根据 CANN 版本安装匹配的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>）</p></li>
 </ul>
 </section>
 <section id="id4">
-<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
-<p><strong>配套机器</strong>：</p>
-<ul class="simple">
-<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）</p></li>
-<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
-</ul>
-<p><strong>配套镜像</strong>：</p>
-<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
-<p><strong>软件版本</strong>：</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p>组件</p></th>
-<th class="head"><p>版本</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>Python</p></td>
-<td><p>3.12</p></td>
-</tr>
-<tr class="row-odd"><td><p>CANN</p></td>
-<td><p>9.1.0</p></td>
-</tr>
-<tr class="row-even"><td><p>torch</p></td>
-<td><p>2.9.0+cpu</p></td>
-</tr>
-<tr class="row-odd"><td><p>torch_npu</p></td>
-<td><p>2.9.0.post2</p></td>
-</tr>
-<tr class="row-even"><td><p>transformers</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=4.56.2,&lt;5.0</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>accelerate</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=1.4.0</span></code></p></td>
-</tr>
-<tr class="row-even"><td><p>datasets</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=4.7.0</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>peft</p></td>
-<td><p>最新 release</p></td>
-</tr>
-<tr class="row-even"><td><p>modelscope</p></td>
-<td><p>1.37.0</p></td>
-</tr>
-<tr class="row-odd"><td><p>trl</p></td>
-<td><p>最新 release（PyPI）</p></td>
-</tr>
-<tr class="row-even"><td><p>模型</p></td>
-<td><p><a class="reference external" href="https://www.modelscope.cn/models/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a>，约 1 GB</p></td>
-</tr>
-<tr class="row-odd"><td><p>数据集</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">HuggingFaceH4/ultrafeedback_binarized</span></code></p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="id5">
-<h3>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<h3>检查设备<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p>确认能看到 NPU 设备：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
-<p>输出类似：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+------------------------------------------------------------------------------------------------+</span>
-<span class="o">|</span> <span class="n">npu</span><span class="o">-</span><span class="n">smi</span> <span class="mf">25.5.2</span>                   <span class="n">Version</span><span class="p">:</span> <span class="mf">25.5.2</span>                                               <span class="o">|</span>
-<span class="o">+---------------------------+---------------+----------------------------------------------------+</span>
-<span class="o">|</span> <span class="n">NPU</span>   <span class="n">Name</span>                <span class="o">|</span> <span class="n">Health</span>        <span class="o">|</span> <span class="n">Power</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>    <span class="n">Temp</span><span class="p">(</span><span class="n">C</span><span class="p">)</span>           <span class="n">Hugepages</span><span class="o">-</span><span class="n">Usage</span><span class="p">(</span><span class="n">page</span><span class="p">)</span><span class="o">|</span>
-<span class="o">|</span> <span class="n">Chip</span>                      <span class="o">|</span> <span class="n">Bus</span><span class="o">-</span><span class="n">Id</span>        <span class="o">|</span> <span class="n">AICore</span><span class="p">(</span><span class="o">%</span><span class="p">)</span>   <span class="n">Memory</span><span class="o">-</span><span class="n">Usage</span><span class="p">(</span><span class="n">MB</span><span class="p">)</span>  <span class="n">HBM</span><span class="o">-</span><span class="n">Usage</span><span class="p">(</span><span class="n">MB</span><span class="p">)</span>        <span class="o">|</span>
-<span class="o">+===========================+===============+====================================================+</span>
-<span class="o">|</span> <span class="mi">5</span>     <span class="mi">910</span><span class="n">B4</span>               <span class="o">|</span> <span class="n">OK</span>            <span class="o">|</span> <span class="mf">89.9</span>        <span class="mi">39</span>                <span class="mi">0</span>    <span class="o">/</span> <span class="mi">0</span>             <span class="o">|</span>
-<span class="o">|</span> <span class="mi">0</span>                         <span class="o">|</span> <span class="mi">0000</span><span class="p">:</span><span class="mi">41</span><span class="p">:</span><span class="mf">00.0</span>  <span class="o">|</span> <span class="mi">0</span>           <span class="mi">0</span>    <span class="o">/</span> <span class="mi">0</span>          <span class="mi">2922</span> <span class="o">/</span> <span class="mi">32768</span>         <span class="o">|</span>
-<span class="o">+===========================+===============+====================================================+</span>
-<span class="o">+---------------------------+---------------+----------------------------------------------------+</span>
-<span class="o">|</span> <span class="n">NPU</span>     <span class="n">Chip</span>              <span class="o">|</span> <span class="n">Process</span> <span class="nb">id</span>    <span class="o">|</span> <span class="n">Process</span> <span class="n">name</span>             <span class="o">|</span> <span class="n">Process</span> <span class="n">memory</span><span class="p">(</span><span class="n">MB</span><span class="p">)</span>      <span class="o">|</span>
-<span class="o">+===========================+===============+====================================================+</span>
-<span class="o">|</span> <span class="n">No</span> <span class="n">running</span> <span class="n">processes</span> <span class="n">found</span> <span class="ow">in</span> <span class="n">NPU</span> <span class="mi">5</span>                                                            <span class="o">|</span>
-<span class="o">+===========================+===============+====================================================+</span>
-</pre></div>
-</div>
+<p>确认命令能够列出 NPU 设备，且设备的 <code class="docutils literal notranslate"><span class="pre">Health</span></code> 状态为 <code class="docutils literal notranslate"><span class="pre">OK</span></code>。</p>
 <div class="note admonition">
 <p class="admonition-title">Note</p>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动</p>
 </div>
-<p>检查 Python 版本：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
-</pre></div>
-</div>
-<p>检查 NPU 设备运行时可用：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torch, torch_npu; print(f'torch={torch.__version__}'); print(f'torch_npu={torch_npu.__version__}'); print('is_available:', torch.npu.is_available()); </span>
-<span class="s2">print('count:', torch.npu.device_count())"</span>
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span>xxx
-<span class="nv">torch_npu</span><span class="o">=</span>xxx
-is_available:<span class="w"> </span>True
-count:<span class="w"> </span><span class="m">1</span>
-</pre></div>
-</div>
-<div class="note admonition">
-<p class="admonition-title">Note</p>
-<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵</p>
-</div>
-<p>安装 <code class="docutils literal notranslate"><span class="pre">transformers</span></code> / <code class="docutils literal notranslate"><span class="pre">peft</span></code> / <code class="docutils literal notranslate"><span class="pre">modelscope</span></code>，装完打印版本验证。示例数据集来自 ModelScope：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'transformers&gt;=4.56.2,&lt;5.0'</span><span class="w"> </span><span class="s1">'peft'</span><span class="w"> </span><span class="s1">'modelscope==1.37.0'</span>
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import transformers, peft, modelscope; print(f'transformers={transformers.__version__} peft={peft.__version__} modelscope={modelscope.__version__}')"</span>
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">transformers</span><span class="o">=</span>xxx<span class="w"> </span><span class="nv">peft</span><span class="o">=</span>xxx<span class="w"> </span><span class="nv">modelscope</span><span class="o">=</span><span class="m">1</span>.37.0
-</pre></div>
-</div>
 </section>
 </section>
-<section id="id6">
-<h2>安装 TRL<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<p>用 uv 安装 PyPI 最新 release，装完打印版本验证：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>trl
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import trl; print('trl', trl.__version__)"</span>
+<section id="id5">
+<h2>安装 TRL 和示例依赖<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>使用 pip 安装 TRL、PEFT 和 ModelScope，安装完成后验证这些软件包可以正常导入：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"trl[peft]"</span><span class="w"> </span>modelscope
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import trl, peft, modelscope; print('TRL environment ready')"</span>
 </pre></div>
 </div>
-<p>输出结果类似如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>trl<span class="w"> </span>xxx
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>TRL<span class="w"> </span>environment<span class="w"> </span>ready
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>xxx 表示最新的版本号</p></li>
-</ul>
 </section>
 <section id="sft-lora">
 <h2>使用样例：最小 SFT LoRA 后训练<a class="headerlink" href="#sft-lora" title="Link to this heading"></a></h2>
@@ -430,8 +320,8 @@ TRL_DPO_DONE
 </pre></div>
 </div>
 </section>
-<section id="id7">
-<h2>结果验证<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<section id="id6">
+<h2>结果验证<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <p>检查两个输出目录中的 LoRA 适配器产物：<code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code>（LoRA 配置）与 <code class="docutils literal notranslate"><span class="pre">adapter_model.safetensors</span></code>（适配器权重）。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>output/trl-sft-lora/adapter_config.json<span class="w"> </span>output/trl-sft-lora/adapter_model.safetensors
 </pre></div>
