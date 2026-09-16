@@ -51,8 +51,7 @@ TRL environment ready
 
 用 ModelScope 数据集 `HuggingFaceH4/ultrafeedback_binarized` 的 SFT 子集对 Qwen2.5-0.5B-Instruct 做 5 步 LoRA SFT。模型由脚本内的 `snapshot_download` 首次运行时自动下载到默认缓存（约 1 GB），数据集经 ModelScope 自动下载；`SFTTrainer` 通过 `peft_config` 注入 LoRA 适配器，底座权重冻结、只训练新注入的低秩矩阵；训练完成后把适配器保存到 `output/trl-sft-lora`。
 
-```shell #test id="sft-lora"
-python << 'PY'
+```python #test id="sft-lora"
 import os
 import shutil
 import torch
@@ -102,7 +101,6 @@ print("model device:", next(trainer.model.parameters()).device)
 trainer.train()
 trainer.save_model("output/trl-sft-lora")
 print("TRL_SFT_DONE")
-PY
 ```
 
 输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：
@@ -116,8 +114,7 @@ TRL_SFT_DONE
 
 同一个模型与 LoRA 配置，把 `SFTTrainer` / `SFTConfig` 换成 `DPOTrainer` / `DPOConfig` 就是偏好优化：ModelScope 数据集 `HuggingFaceH4/ultrafeedback_binarized` 的 `prompt` / `chosen` / `rejected` 三段对话让模型更倾向 `chosen` 而非 `rejected` 的回答。这里跑 3 步 DPO LoRA，产物保存到 `output/trl-dpo-lora`。
 
-```shell #test id="dpo-lora"
-python << 'PY'
+```python #test id="dpo-lora"
 import os
 import shutil
 import torch
@@ -179,7 +176,6 @@ print("model device:", next(trainer.model.parameters()).device)
 trainer.train()
 trainer.save_model("output/trl-dpo-lora")
 print("TRL_DPO_DONE")
-PY
 ```
 
 输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：

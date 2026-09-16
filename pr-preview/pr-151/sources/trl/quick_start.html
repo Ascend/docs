@@ -188,57 +188,55 @@ TRL<span class="w"> </span>environment<span class="w"> </span>ready
 <section id="sft-lora">
 <h2>使用样例：最小 SFT LoRA 后训练<a class="headerlink" href="#sft-lora" title="Link to this heading"></a></h2>
 <p>用 ModelScope 数据集 <code class="docutils literal notranslate"><span class="pre">HuggingFaceH4/ultrafeedback_binarized</span></code> 的 SFT 子集对 Qwen2.5-0.5B-Instruct 做 5 步 LoRA SFT。模型由脚本内的 <code class="docutils literal notranslate"><span class="pre">snapshot_download</span></code> 首次运行时自动下载到默认缓存（约 1 GB），数据集经 ModelScope 自动下载；<code class="docutils literal notranslate"><span class="pre">SFTTrainer</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">peft_config</span></code> 注入 LoRA 适配器，底座权重冻结、只训练新注入的低秩矩阵；训练完成后把适配器保存到 <code class="docutils literal notranslate"><span class="pre">output/trl-sft-lora</span></code>。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span><span class="s">&lt;&lt; 'PY'</span>
-<span class="s">import os</span>
-<span class="s">import shutil</span>
-<span class="s">import torch</span>
-<span class="s">import torch_npu</span>
-<span class="s">from datasets import load_dataset</span>
-<span class="s">from modelscope import snapshot_download</span>
-<span class="s">from peft import LoraConfig, TaskType</span>
-<span class="s">from trl import SFTConfig, SFTTrainer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modelscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">trl</span><span class="w"> </span><span class="kn">import</span> <span class="n">SFTConfig</span><span class="p">,</span> <span class="n">SFTTrainer</span>
 
-<span class="s">print("TRL_SFT_BEGIN")</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TRL_SFT_BEGIN"</span><span class="p">)</span>
 
-<span class="s">ds_path = snapshot_download(</span>
-<span class="s">    'HuggingFaceH4/ultrafeedback_binarized', repo_type='dataset',</span>
-<span class="s">)</span>
-<span class="s">data_dir = './ultrafeedback_sft'</span>
-<span class="s">if os.path.isdir(data_dir):</span>
-<span class="s">    shutil.rmtree(data_dir)</span>
-<span class="s">os.makedirs(data_dir, exist_ok=True)</span>
-<span class="s">for name in os.listdir(os.path.join(ds_path, 'data')):</span>
-<span class="s">    if name.startswith('train_sft-'):</span>
-<span class="s">        shutil.copy2(os.path.join(ds_path, 'data', name), data_dir)</span>
-<span class="s">train_dataset = load_dataset(</span>
-<span class="s">    'parquet', data_files=os.path.join(data_dir, 'train_sft-*.parquet'),</span>
-<span class="s">    split='train',</span>
-<span class="s">).select_columns(['messages'])</span>
+<span class="n">ds_path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span>
+    <span class="s1">'HuggingFaceH4/ultrafeedback_binarized'</span><span class="p">,</span> <span class="n">repo_type</span><span class="o">=</span><span class="s1">'dataset'</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="s1">'./ultrafeedback_sft'</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'train_sft-'</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">data_dir</span><span class="p">)</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
+    <span class="s1">'parquet'</span><span class="p">,</span> <span class="n">data_files</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">'train_sft-*.parquet'</span><span class="p">),</span>
+    <span class="n">split</span><span class="o">=</span><span class="s1">'train'</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">select_columns</span><span class="p">([</span><span class="s1">'messages'</span><span class="p">])</span>
 
-<span class="s">model = snapshot_download('Qwen/Qwen2.5-0.5B-Instruct')</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen2.5-0.5B-Instruct'</span><span class="p">)</span>
 
-<span class="s">trainer = SFTTrainer(</span>
-<span class="s">    model=model,</span>
-<span class="s">    train_dataset=train_dataset,</span>
-<span class="s">    peft_config=LoraConfig(r=8, lora_alpha=32, task_type=TaskType.CAUSAL_LM),</span>
-<span class="s">    args=SFTConfig(</span>
-<span class="s">        output_dir="output/trl-sft-lora",</span>
-<span class="s">        max_steps=5,</span>
-<span class="s">        per_device_train_batch_size=1,</span>
-<span class="s">        gradient_accumulation_steps=1,</span>
-<span class="s">        learning_rate=1e-4,</span>
-<span class="s">        max_length=512,</span>
-<span class="s">        logging_steps=1,</span>
-<span class="s">        save_strategy="no",</span>
-<span class="s">        report_to="none",</span>
-<span class="s">        model_init_kwargs={"dtype": torch.bfloat16},</span>
-<span class="s">    ),</span>
-<span class="s">)</span>
-<span class="s">print("model device:", next(trainer.model.parameters()).device)</span>
-<span class="s">trainer.train()</span>
-<span class="s">trainer.save_model("output/trl-sft-lora")</span>
-<span class="s">print("TRL_SFT_DONE")</span>
-<span class="s">PY</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">SFTTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">peft_config</span><span class="o">=</span><span class="n">LoraConfig</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">lora_alpha</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">CAUSAL_LM</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">SFTConfig</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">"output/trl-sft-lora"</span><span class="p">,</span>
+        <span class="n">max_steps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">logging_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">save_strategy</span><span class="o">=</span><span class="s2">"no"</span><span class="p">,</span>
+        <span class="n">report_to</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+        <span class="n">model_init_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"dtype"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"model device:"</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">trainer</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s2">"output/trl-sft-lora"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TRL_SFT_DONE"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：</p>
@@ -250,69 +248,67 @@ TRL_SFT_DONE
 <section id="dpo-lora">
 <h2>切换方法：偏好优化 DPO LoRA<a class="headerlink" href="#dpo-lora" title="Link to this heading"></a></h2>
 <p>同一个模型与 LoRA 配置，把 <code class="docutils literal notranslate"><span class="pre">SFTTrainer</span></code> / <code class="docutils literal notranslate"><span class="pre">SFTConfig</span></code> 换成 <code class="docutils literal notranslate"><span class="pre">DPOTrainer</span></code> / <code class="docutils literal notranslate"><span class="pre">DPOConfig</span></code> 就是偏好优化：ModelScope 数据集 <code class="docutils literal notranslate"><span class="pre">HuggingFaceH4/ultrafeedback_binarized</span></code> 的 <code class="docutils literal notranslate"><span class="pre">prompt</span></code> / <code class="docutils literal notranslate"><span class="pre">chosen</span></code> / <code class="docutils literal notranslate"><span class="pre">rejected</span></code> 三段对话让模型更倾向 <code class="docutils literal notranslate"><span class="pre">chosen</span></code> 而非 <code class="docutils literal notranslate"><span class="pre">rejected</span></code> 的回答。这里跑 3 步 DPO LoRA，产物保存到 <code class="docutils literal notranslate"><span class="pre">output/trl-dpo-lora</span></code>。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span><span class="s">&lt;&lt; 'PY'</span>
-<span class="s">import os</span>
-<span class="s">import shutil</span>
-<span class="s">import torch</span>
-<span class="s">import torch_npu</span>
-<span class="s">from datasets import load_dataset</span>
-<span class="s">from modelscope import snapshot_download</span>
-<span class="s">from peft import LoraConfig, TaskType</span>
-<span class="s">from transformers import AutoModelForCausalLM, AutoTokenizer</span>
-<span class="s">from trl import DPOConfig, DPOTrainer</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modelscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">peft</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoraConfig</span><span class="p">,</span> <span class="n">TaskType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">trl</span><span class="w"> </span><span class="kn">import</span> <span class="n">DPOConfig</span><span class="p">,</span> <span class="n">DPOTrainer</span>
 
-<span class="s">print("TRL_DPO_BEGIN")</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TRL_DPO_BEGIN"</span><span class="p">)</span>
 
-<span class="s">ds_path = snapshot_download(</span>
-<span class="s">    'HuggingFaceH4/ultrafeedback_binarized', repo_type='dataset',</span>
-<span class="s">)</span>
-<span class="s">data_dir = './ultrafeedback_prefs'</span>
-<span class="s">if os.path.isdir(data_dir):</span>
-<span class="s">    shutil.rmtree(data_dir)</span>
-<span class="s">os.makedirs(data_dir, exist_ok=True)</span>
-<span class="s">for name in os.listdir(os.path.join(ds_path, 'data')):</span>
-<span class="s">    if name.startswith('train_prefs-'):</span>
-<span class="s">        shutil.copy2(os.path.join(ds_path, 'data', name), data_dir)</span>
-<span class="s">train_dataset = load_dataset(</span>
-<span class="s">    'parquet', data_files=os.path.join(data_dir, 'train_prefs-*.parquet'),</span>
-<span class="s">    split='train',</span>
-<span class="s">)</span>
+<span class="n">ds_path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span>
+    <span class="s1">'HuggingFaceH4/ultrafeedback_binarized'</span><span class="p">,</span> <span class="n">repo_type</span><span class="o">=</span><span class="s1">'dataset'</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="s1">'./ultrafeedback_prefs'</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">data_dir</span><span class="p">):</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">'train_prefs-'</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ds_path</span><span class="p">,</span> <span class="s1">'data'</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">data_dir</span><span class="p">)</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
+    <span class="s1">'parquet'</span><span class="p">,</span> <span class="n">data_files</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s1">'train_prefs-*.parquet'</span><span class="p">),</span>
+    <span class="n">split</span><span class="o">=</span><span class="s1">'train'</span><span class="p">,</span>
+<span class="p">)</span>
 
-<span class="s"># prompt 列是纯字符串，chosen / rejected 是 messages 列表；把 prompt 转成</span>
-<span class="s"># 单条 user 消息即可让 DPOTrainer 按 conversational 格式处理</span>
-<span class="s">def to_conversational(example):</span>
-<span class="s">    example['prompt'] = [{'role': 'user', 'content': example['prompt']}]</span>
-<span class="s">    return example</span>
+<span class="c1"># prompt 列是纯字符串，chosen / rejected 是 messages 列表；把 prompt 转成</span>
+<span class="c1"># 单条 user 消息即可让 DPOTrainer 按 conversational 格式处理</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_conversational</span><span class="p">(</span><span class="n">example</span><span class="p">):</span>
+    <span class="n">example</span><span class="p">[</span><span class="s1">'prompt'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[{</span><span class="s1">'role'</span><span class="p">:</span> <span class="s1">'user'</span><span class="p">,</span> <span class="s1">'content'</span><span class="p">:</span> <span class="n">example</span><span class="p">[</span><span class="s1">'prompt'</span><span class="p">]}]</span>
+    <span class="k">return</span> <span class="n">example</span>
 
-<span class="s">train_dataset = train_dataset.map(to_conversational)</span>
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">to_conversational</span><span class="p">)</span>
 
-<span class="s">model_path = snapshot_download('Qwen/Qwen2.5-0.5B-Instruct')</span>
-<span class="s">model = AutoModelForCausalLM.from_pretrained(model_path, dtype=torch.bfloat16)</span>
-<span class="s">tokenizer = AutoTokenizer.from_pretrained(model_path)</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen2.5-0.5B-Instruct'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
 
-<span class="s">trainer = DPOTrainer(</span>
-<span class="s">    model=model,</span>
-<span class="s">    ref_model=None,</span>
-<span class="s">    processing_class=tokenizer,</span>
-<span class="s">    train_dataset=train_dataset,</span>
-<span class="s">    peft_config=LoraConfig(r=8, lora_alpha=32, task_type=TaskType.CAUSAL_LM),</span>
-<span class="s">    args=DPOConfig(</span>
-<span class="s">        output_dir="output/trl-dpo-lora",</span>
-<span class="s">        max_steps=3,</span>
-<span class="s">        per_device_train_batch_size=1,</span>
-<span class="s">        gradient_accumulation_steps=1,</span>
-<span class="s">        learning_rate=1e-4,</span>
-<span class="s">        max_length=512,</span>
-<span class="s">        logging_steps=1,</span>
-<span class="s">        save_strategy="no",</span>
-<span class="s">        report_to="none",</span>
-<span class="s">    ),</span>
-<span class="s">)</span>
-<span class="s">print("model device:", next(trainer.model.parameters()).device)</span>
-<span class="s">trainer.train()</span>
-<span class="s">trainer.save_model("output/trl-dpo-lora")</span>
-<span class="s">print("TRL_DPO_DONE")</span>
-<span class="s">PY</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">DPOTrainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">ref_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">processing_class</span><span class="o">=</span><span class="n">tokenizer</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">peft_config</span><span class="o">=</span><span class="n">LoraConfig</span><span class="p">(</span><span class="n">r</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">lora_alpha</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">task_type</span><span class="o">=</span><span class="n">TaskType</span><span class="o">.</span><span class="n">CAUSAL_LM</span><span class="p">),</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">DPOConfig</span><span class="p">(</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="s2">"output/trl-dpo-lora"</span><span class="p">,</span>
+        <span class="n">max_steps</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">per_device_train_batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">gradient_accumulation_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+        <span class="n">logging_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">save_strategy</span><span class="o">=</span><span class="s2">"no"</span><span class="p">,</span>
+        <span class="n">report_to</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"model device:"</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">trainer</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">trainer</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s2">"output/trl-dpo-lora"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"TRL_DPO_DONE"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：</p>
