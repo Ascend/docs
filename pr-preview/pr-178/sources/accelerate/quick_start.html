@@ -1,0 +1,697 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>快速开始 &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="DeepSpeed" href="../deepspeed/index.html" />
+    <link rel="prev" title="accelerate" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">accelerate</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">快速开始</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">前置条件</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id3">硬件</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id4">基础软件</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id5">本文档示例使用的版本</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">前置安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#accelerate">安装 Accelerate</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#uv">使用 uv 进行安装</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id7">从源码安装</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cli">CLI 自检</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">训练</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id9">写最小训练脚本</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#accelerate-launch">用 accelerate launch 启动多卡训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id10">单卡训练</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#accelerator-prepare">独立 Accelerator.prepare</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ddp-bf16">多卡 DDP bf16混合精度路径</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">分布式评估</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">大模型推理</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#init-empty-weights">init_empty_weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#load-checkpoint-and-dispatch">load_checkpoint_and_dispatch</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#id1">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">accelerate</a></li>
+      <li class="breadcrumb-item active">快速开始</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/accelerate/quick_start.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="id1">
+<h1>快速开始<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
+<p>在双卡昇腾 NPU 上跑通 <a class="reference external" href="https://github.com/huggingface/accelerate">Accelerate</a> 的三大核心能力：</p>
+<ul class="simple">
+<li><p><strong>训练</strong>：多卡 DDP 训练（fp32 + bf16）+ 单卡训练。</p></li>
+<li><p><strong>分布式评估</strong>：DDP 双进程下 <code class="docutils literal notranslate"><span class="pre">gather_for_metrics</span></code> 真的跨卡集合通信（hccl 后端）。</p></li>
+<li><p><strong>大模型推理</strong>：<code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 把大模型骨架以 meta 占位符方式创建（0 显存），<code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code> 真实走一遍权重跨卡分片。</p></li>
+</ul>
+<p>DDP 训练与跨卡集合通信都需要至少 2 张 NPU。</p>
+<section id="id2">
+<h2>前置条件<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>硬件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="id4">
+<h3>基础软件<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>与上面 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，且 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 能正常 <code class="docutils literal notranslate"><span class="pre">import</span></code> 并 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span> <span class="pre">==</span> <span class="pre">True</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 2）</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.9.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.9.0.post2</p></td>
+</tr>
+<tr class="row-even"><td><p>transformers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;5.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerate</p></td>
+<td><p>最新 release 的源码/二进制</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id6">
+<h2>前置安装<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+| 1     910B4               | OK            | 89.9        39                0    / 0             |
+| 1                         | 0000:42:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
+| No running processes found in NPU 1                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<p>检查 torch / torch_npu 是否装好且 NPU 设备可用：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torch, torch_npu; print('torch=', torch.__version__); print('torch_npu=', torch_npu.__version__); print('is_available:', torch.npu.is_available()); print('count:', torch.npu.device_count())"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span>xxx
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span>xxx
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵。</p>
+</div>
+</section>
+<section id="accelerate">
+<h2>安装 Accelerate<a class="headerlink" href="#accelerate" title="Link to this heading"></a></h2>
+<section id="uv">
+<h3>使用 uv 进行安装<a class="headerlink" href="#uv" title="Link to this heading"></a></h3>
+<p>通过 PyPI 镜像直接装最新 release 的二进制 wheel：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple<span class="w"> </span>accelerate
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import accelerate; print('accelerate', accelerate.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>accelerate<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号</p>
+</div>
+<!--
+```shell #test-setup
+uv pip uninstall accelerate -y
+```
+-->
+</section>
+<section id="id7">
+<h3>从源码安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<!-- 工作流注入的 UPSTREAM_REF（最新 release tag）通过这个隐藏的 #test-setup 捕获并注入到下方 install 命令中-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆上游仓库并 checkout 到工作流注入的最新 release tag，安装并且验证：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/huggingface/accelerate.git
+<span class="nb">cd</span><span class="w"> </span>accelerate
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import accelerate; print('accelerate', accelerate.__version__)"</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 是 GitHub workflow 注入的 accelerate 最新 release tag，由前面隐藏的 <code class="docutils literal notranslate"><span class="pre">#test-setup</span> <span class="pre">store=&quot;upstream_ref&quot;</span></code> 捕获并填到这里。</p>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>accelerate<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号。</p>
+</div>
+</section>
+</section>
+<section id="cli">
+<h2>CLI 自检<a class="headerlink" href="#cli" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">accelerate</span> <span class="pre">env</span></code> 打印出当前环境对 PyTorch / 分布式后端 / 设备信息的探测结果。在昇腾 NPU 上跑应当能看到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 已被识别：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>env
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+Copy-and-paste<span class="w"> </span>the<span class="w"> </span>text<span class="w"> </span>below<span class="w"> </span><span class="k">in</span><span class="w"> </span>your<span class="w"> </span>GitHub<span class="w"> </span>issue
+
+-<span class="w"> </span><span class="sb">`</span>Accelerate<span class="sb">`</span><span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>Platform:<span class="w"> </span>xxx
+-<span class="w"> </span><span class="sb">`</span>accelerate<span class="sb">`</span><span class="w"> </span>bash<span class="w"> </span>location:<span class="w"> </span>xxx
+-<span class="w"> </span>Python<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>Numpy<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>PyTorch<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>PyTorch<span class="w"> </span>accelerator:<span class="w"> </span>NPU
+-<span class="w"> </span>System<span class="w"> </span>RAM:<span class="w"> </span>xxx
+-<span class="w"> </span>CANN<span class="w"> </span>version:<span class="w"> </span>xxx
+...
+</pre></div>
+</div>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">accelerator:</span> <span class="pre">NPU</span></code> 是 accelerate 探测到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 后给出的标识；<code class="docutils literal notranslate"><span class="pre">CANN</span> <span class="pre">version</span></code> 一行只有在 NPU 环境才会出现。如果 <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">accelerator</span></code> 不是 <code class="docutils literal notranslate"><span class="pre">NPU</span></code>，多半是 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 没被 import 到——回到「基础软件」一节检查。</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示版本号。</p>
+</div>
+</section>
+<section id="id8">
+<h2>训练<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>下面把训练循环压到最小，目标是验证 <code class="docutils literal notranslate"><span class="pre">Accelerator.prepare</span></code> / <code class="docutils literal notranslate"><span class="pre">Accelerator.backward</span></code> 在 NPU 上跑通。模型只用一个小线性层，但走的是 Accelerate 的全套适配路径。</p>
+<section id="id9">
+<h3>写最小训练脚本<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>写最小训练脚本，保存为 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>&gt;<span class="w"> </span>train_npu.py<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
+<span class="s">import torch</span>
+<span class="s">from torch import nn</span>
+<span class="s">from torch.utils.data import DataLoader, TensorDataset</span>
+<span class="s">from accelerate import Accelerator</span>
+
+
+<span class="s">def build():</span>
+<span class="s">    # Toy regression: y = 2 * x + 1, learned by a single linear layer.</span>
+<span class="s">    x = torch.linspace(-1.0, 1.0, 64).unsqueeze(1)</span>
+<span class="s">    y = 2 * x + 1 + 0.05 * torch.randn_like(x)</span>
+<span class="s">    ds = TensorDataset(x, y)</span>
+<span class="s">    loader = DataLoader(ds, batch_size=8, shuffle=True)</span>
+<span class="s">    model = nn.Linear(1, 1)</span>
+<span class="s">    optim = torch.optim.SGD(model.parameters(), lr=0.1)</span>
+<span class="s">    return loader, model, optim</span>
+
+
+<span class="s">def main():</span>
+<span class="s">    accelerator = Accelerator()</span>
+<span class="s">    loader, model, optim = build()</span>
+<span class="s">    model, optim, loader = accelerator.prepare(model, optim, loader)</span>
+<span class="s">    loss_fn = nn.MSELoss()</span>
+<span class="s">    for step, (xb, yb) in enumerate(loader):</span>
+<span class="s">        preds = model(xb)</span>
+<span class="s">        loss = loss_fn(preds, yb)</span>
+<span class="s">        accelerator.backward(loss)</span>
+<span class="s">        optim.step()</span>
+<span class="s">        optim.zero_grad()</span>
+<span class="s">        # 3 steps are enough to drive loss below 0.5 on this toy task.</span>
+<span class="s">        if step == 2:</span>
+<span class="s">            break</span>
+<span class="s">    # accelerator.print only emits on the main process, so the #test-result</span>
+<span class="s">    # below sees exactly one line regardless of --num_processes.</span>
+<span class="s">    accelerator.print(</span>
+<span class="s">        f"device={accelerator.device.type} "</span>
+<span class="s">        f"final_loss={loss.item():.4f}"</span>
+<span class="s">    )</span>
+
+
+<span class="s">if __name__ == "__main__":</span>
+<span class="s">    main()</span>
+<span class="s">PY</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/train_npu.py"</span>
+</pre></div>
+</div>
+</section>
+<section id="accelerate-launch">
+<h3>用 accelerate launch 启动多卡训练<a class="headerlink" href="#accelerate-launch" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>--mixed_precision<span class="w"> </span>no<span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 是上面「写最小训练脚本」一节生成的脚本绝对路径（即 <code class="docutils literal notranslate"><span class="pre">${PWD}/train_npu.py</span></code>）。</p>
+</div>
+<p>输出结果类似：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>xxx
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>单卡训练<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> + 完整训练循环（forward + <code class="docutils literal notranslate"><span class="pre">accelerator.backward</span></code> + <code class="docutils literal notranslate"><span class="pre">optim.step</span></code>），验证单卡 NPU 上完整训练链路：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import torch</span>
+<span class="s2">from torch import nn</span>
+<span class="s2">from torch.utils.data import DataLoader, TensorDataset</span>
+<span class="s2">from accelerate import Accelerator</span>
+
+<span class="s2">x = torch.linspace(-1.0, 1.0, 64).unsqueeze(1)</span>
+<span class="s2">y = 2 * x + 1 + 0.05 * torch.randn_like(x)</span>
+<span class="s2">ds = TensorDataset(x, y)</span>
+<span class="s2">loader = DataLoader(ds, batch_size=8, shuffle=True)</span>
+<span class="s2">model = nn.Linear(1, 1)</span>
+<span class="s2">optim = torch.optim.SGD(model.parameters(), lr=0.1)</span>
+
+<span class="s2">accelerator = Accelerator()</span>
+<span class="s2">model, optim, loader = accelerator.prepare(model, optim, loader)</span>
+<span class="s2">loss_fn = nn.MSELoss()</span>
+<span class="s2">for step, (xb, yb) in enumerate(loader):</span>
+<span class="s2">    preds = model(xb)</span>
+<span class="s2">    loss = loss_fn(preds, yb)</span>
+<span class="s2">    accelerator.backward(loss)</span>
+<span class="s2">    optim.step()</span>
+<span class="s2">    optim.zero_grad()</span>
+<span class="s2">    if step == 2:</span>
+<span class="s2">        break</span>
+<span class="s2">print(f'device={accelerator.device.type} final_loss={loss.item():.4f}')</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>xxx
+</pre></div>
+</div>
+</section>
+<section id="accelerator-prepare">
+<h3>独立 Accelerator.prepare<a class="headerlink" href="#accelerator-prepare" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> + <code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 跑一次 forward，验证 Accelerate 在 NPU 上：</p>
+<ol class="arabic simple">
+<li><p><strong>设备探测</strong>：<code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> 自动识别 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>、拿到 <code class="docutils literal notranslate"><span class="pre">device='npu:0'</span></code>；</p></li>
+<li><p><strong>NPU 放置</strong>：<code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 在非 distributed 上下文只做 <code class="docutils literal notranslate"><span class="pre">model.to(self.device)</span></code>，权重真在 NPU 上分配；</p></li>
+<li><p><strong>真 kernel 跑</strong>：<code class="docutils literal notranslate"><span class="pre">prepared(x)</span></code> 在 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 上跑一次 1×1 matmul + bias add，NPU kernel 真跑了一次。</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import torch</span>
+<span class="s2">from torch import nn</span>
+<span class="s2">from accelerate import Accelerator</span>
+
+<span class="s2">accelerator = Accelerator()</span>
+<span class="s2">model = nn.Linear(1, 1)</span>
+<span class="s2">prepared = accelerator.prepare(model)</span>
+<span class="s2"># prepare moves the model to the device, NOT your inputs —</span>
+<span class="s2"># data tensors must be placed explicitly.</span>
+<span class="s2">x = torch.tensor([[0.5]], device=accelerator.device)</span>
+<span class="s2">y = prepared(x)</span>
+<span class="s2">print(f'device={y.device.type}')</span>
+<span class="s2">print(f'shape={list(y.shape)}')"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu
+<span class="nv">shape</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span><span class="o">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 这一行是 Accelerate 的核心 abstraction，同一份脚本不写一行 <code class="docutils literal notranslate"><span class="pre">.cuda()</span></code> / <code class="docutils literal notranslate"><span class="pre">.npu()</span></code>，能自动适配 CPU / CUDA / NPU / XPU / MPS。</p>
+</section>
+<section id="ddp-bf16">
+<h3>多卡 DDP bf16混合精度路径<a class="headerlink" href="#ddp-bf16" title="Link to this heading"></a></h3>
+<p>把「写最小训练脚本」一节生成的脚本 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code> 再跑一遍，但把 <code class="docutils literal notranslate"><span class="pre">--mixed_precision</span></code> 从 <code class="docutils literal notranslate"><span class="pre">no</span></code> 切到 <code class="docutils literal notranslate"><span class="pre">bf16</span></code>，验证 Accelerate 的 autocast 包装在 NPU 运行：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>--mixed_precision<span class="w"> </span>bf16<span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 是上面「写最小训练脚本」一节生成的脚本绝对路径（即 <code class="docutils literal notranslate"><span class="pre">${PWD}/train_npu.py</span></code>）。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>xxx
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>分布式评估<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>验证 DDP 起 2 个 rank 后，<code class="docutils literal notranslate"><span class="pre">Accelerator.gather_for_metrics</span></code> 在 NPU 上到底有没有真的做跨卡 <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>（hccl 后端），还是悄悄退化成单进程 identity。</p>
+<p>写一个跨卡测试脚本 <code class="docutils literal notranslate"><span class="pre">gather_npu.py</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>&gt;<span class="w"> </span>gather_npu.py<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
+<span class="s">import torch</span>
+<span class="s">from accelerate import Accelerator</span>
+
+<span class="s">accelerator = Accelerator()</span>
+<span class="s">x = torch.tensor([1, 2, 3], device=accelerator.device)</span>
+<span class="s">(gathered,) = accelerator.gather_for_metrics((x,))</span>
+<span class="s"># accelerator.print only emits on the main process — without this guard</span>
+<span class="s"># the #test-result below would see two copies of each line.</span>
+<span class="s">accelerator.print(f'world={accelerator.num_processes}')</span>
+<span class="s">accelerator.print(f'device={gathered.device.type}')</span>
+<span class="s">accelerator.print(f'gathered={gathered.tolist()}')</span>
+<span class="s">PY</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/gather_npu.py"</span>
+</pre></div>
+</div>
+<p>用 <code class="docutils literal notranslate"><span class="pre">accelerate</span> <span class="pre">launch</span></code> 把脚本起成 2 个 rank，验证 <code class="docutils literal notranslate"><span class="pre">gather_for_metrics</span></code> 真的跨卡 <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 是 <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;${PWD}/gather_npu.py&quot;</span></code> 的输出。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">world</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">device</span><span class="o">=</span>npu
+<span class="nv">gathered</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h2>大模型推理<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>大模型（几十 GB 量级）一次性加载会撑爆显存。Accelerate 的解法分两步：先 <a class="reference external" href="https://huggingface.co/docs/accelerate/main/en/usage_guides/big_modeling#initializing-an-empty-model"><code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code></a> 在 <code class="docutils literal notranslate"><span class="pre">meta</span></code> device 上建一个 0 显存的空骨架，再 <a class="reference external" href="https://huggingface.co/docs/accelerate/main/en/usage_guides/big_modeling#sharding-checkpoints"><code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code></a> 按 <code class="docutils literal notranslate"><span class="pre">device_map</span></code> 把分片权重塞到各张 NPU 上。本节用两个 toy 例子把这两步各自跑一遍。</p>
+<section id="init-empty-weights">
+<h3>init_empty_weights<a class="headerlink" href="#init-empty-weights" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">from transformers import LlamaConfig, LlamaForCausalLM</span>
+<span class="s2">from accelerate import init_empty_weights</span>
+
+<span class="s2"># Inline config: 1 层 / 1 head / hidden=64 —— 没有 hub 网络依赖。</span>
+<span class="s2">config = LlamaConfig(</span>
+<span class="s2">    vocab_size=32,</span>
+<span class="s2">    hidden_size=64,</span>
+<span class="s2">    intermediate_size=64,</span>
+<span class="s2">    num_hidden_layers=1,</span>
+<span class="s2">    num_attention_heads=1,</span>
+<span class="s2">    max_position_embeddings=64,</span>
+<span class="s2">)</span>
+<span class="s2">with init_empty_weights():</span>
+<span class="s2">    model = LlamaForCausalLM(config)</span>
+<span class="s2">n_params = sum(p.numel() for p in model.state_dict().values())</span>
+<span class="s2">first_dev = next(model.parameters()).device</span>
+<span class="s2">print(f'empty_model_params={n_params}')</span>
+<span class="s2">print(f'device={first_dev}')</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">empty_model_params</span><span class="o">=</span>xxx
+<span class="nv">device</span><span class="o">=</span>meta
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">device=meta</span></code> 是 <code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 的合同行为：参数不在真实设备上，而是 PyTorch 的 meta 占位符，所以这一步<strong>不占 NPU 显存</strong>。</p>
+</section>
+<section id="load-checkpoint-and-dispatch">
+<h3>load_checkpoint_and_dispatch<a class="headerlink" href="#load-checkpoint-and-dispatch" title="Link to this heading"></a></h3>
+<p>在 <code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 建好的空骨架上跑 <code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code>，验证 Accelerate 在 NPU 上真的把权重分到不同卡——前 10 层放 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>、后 10 层放 <code class="docutils literal notranslate"><span class="pre">npu:1</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import os, torch, gc</span>
+<span class="s2">from transformers import LlamaConfig, LlamaForCausalLM</span>
+<span class="s2">from accelerate import init_empty_weights</span>
+
+<span class="s2"># 20 层 / hidden=512 ≈ 80M 参数 bf16，~160 MB</span>
+<span class="s2">config = LlamaConfig(</span>
+<span class="s2">    vocab_size=32000, hidden_size=512, intermediate_size=1024,</span>
+<span class="s2">    num_hidden_layers=20, num_attention_heads=8, max_position_embeddings=64,</span>
+<span class="s2">)</span>
+<span class="s2">with init_empty_weights():</span>
+<span class="s2">    model = LlamaForCausalLM(config)</span>
+<span class="s2"># save_pretrained 需要真实 tensor，先 to_empty 到 CPU + 填随机权重</span>
+<span class="s2">model.to_empty(device='cpu')</span>
+<span class="s2">with torch.no_grad():</span>
+<span class="s2">    for p in model.parameters():</span>
+<span class="s2">        p.data = torch.randn(p.shape, device='cpu', dtype=p.dtype) * 0.02</span>
+<span class="s2">os.makedirs('/tmp/fake-llama-dispatch', exist_ok=True)</span>
+<span class="s2">model.save_pretrained('/tmp/fake-llama-dispatch', safe_serialization=True)</span>
+<span class="s2">del model</span>
+<span class="s2">gc.collect()</span>
+<span class="s2">print('/tmp/fake-llama-dispatch')</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>用 <code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 建好的空骨架上跑 <code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code>，验证 Accelerate 在 NPU 上真的把权重分到两张卡（前 10 层 npu:0、后 10 层 npu:1）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import torch</span>
+<span class="s2">from transformers import LlamaConfig, LlamaForCausalLM</span>
+<span class="s2">from accelerate import init_empty_weights, load_checkpoint_and_dispatch</span>
+
+<span class="s2">config = LlamaConfig(</span>
+<span class="s2">    vocab_size=32000, hidden_size=512, intermediate_size=1024,</span>
+<span class="s2">    num_hidden_layers=20, num_attention_heads=8, max_position_embeddings=64,</span>
+<span class="s2">)</span>
+<span class="s2"># 显式 device_map：前 10 层 + embed 在 npu:0，后 10 层 + norm + lm_head 在 npu:1</span>
+<span class="s2">device_map = {'model.embed_tokens': 'npu:0'}</span>
+<span class="s2">device_map.update({f'model.layers.{i}': 'npu:0' for i in range(10)})</span>
+<span class="s2">device_map.update({f'model.layers.{i}': 'npu:1' for i in range(10, 20)})</span>
+<span class="s2">device_map.update({'model.norm': 'npu:1', 'lm_head': 'npu:1'})</span>
+
+<span class="s2">with init_empty_weights():</span>
+<span class="s2">    skeleton = LlamaForCausalLM(config)</span>
+<span class="s2">loaded = load_checkpoint_and_dispatch(</span>
+<span class="s2">    skeleton,</span>
+<span class="s2">    checkpoint='&lt;ckpt&gt;',</span>
+<span class="s2">    device_map=device_map,</span>
+<span class="s2">    no_split_module_classes=['LlamaDecoderLayer'],</span>
+<span class="s2">)</span>
+
+<span class="s2"># 验证：前 / 后层落在不同卡</span>
+<span class="s2">dev_first = loaded.model.layers[0].self_attn.q_proj.weight.device</span>
+<span class="s2">dev_last = loaded.model.layers[-1].self_attn.q_proj.weight.device</span>
+
+<span class="s2"># 跑一次 forward：dispatch hook 自动跨卡转 tensor</span>
+<span class="s2">x = torch.tensor([[1, 2, 3]], device=loaded.device)</span>
+<span class="s2">out = loaded(input_ids=x).logits</span>
+
+<span class="s2">print(f'first_layer_device={dev_first}')</span>
+<span class="s2">print(f'last_layer_device={dev_last}')</span>
+<span class="s2">print(f'out_device={out.device.type}')</span>
+<span class="s2">print(f'out_shape={list(out.shape)}')</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ckpt&gt;</span></code> 是上面 toy checkpoint 构建命令输出的目录（即 <code class="docutils literal notranslate"><span class="pre">/tmp/fake-llama-dispatch</span></code>）。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">first_layer_device</span><span class="o">=</span>npu:0
+<span class="nv">last_layer_device</span><span class="o">=</span>npu:1
+<span class="nv">out_device</span><span class="o">=</span>npu
+<span class="nv">out_shape</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">32000</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="index.html" class="btn btn-neutral float-left" title="accelerate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../deepspeed/index.html" class="btn btn-neutral float-right" title="DeepSpeed" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

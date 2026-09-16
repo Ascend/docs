@@ -1,0 +1,379 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRL &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="Twinkle" href="../twinkle/index.html" />
+    <link rel="prev" title="快速开始" href="../torchtitan/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TRL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">检查设备</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">安装 TRL 和示例依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sft-lora">使用样例：最小 SFT LoRA 后训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dpo-lora">切换方法：偏好优化 DPO LoRA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">结果验证</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">TRL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/trl/quick_start.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="trl">
+<h1>TRL<a class="headerlink" href="#trl" title="Link to this heading"></a></h1>
+<p>TRL 用同一套 <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> / <code class="docutils literal notranslate"><span class="pre">Config</span></code> API 覆盖 SFT / DPO / GRPO / PPO 等后训练方法。本示例在单卡昇腾 NPU 上，用同一个 Qwen2.5-0.5B-Instruct 模型先跑通最小 SFT LoRA，再换成 <code class="docutils literal notranslate"><span class="pre">DPOTrainer</span></code> 跑通偏好优化 DPO LoRA，并验证两种方法的产物。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在运行本文档示例之前，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>根据 CANN 版本安装匹配的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>检查设备<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>确认命令能够列出 NPU 设备，且设备的 <code class="docutils literal notranslate"><span class="pre">Health</span></code> 状态为 <code class="docutils literal notranslate"><span class="pre">OK</span></code>。</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动</p>
+</div>
+</section>
+</section>
+<section id="id5">
+<h2>安装 TRL 和示例依赖<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>使用 pip 安装 TRL、PEFT 和 ModelScope，安装完成后验证这些软件包可以正常导入：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"trl[peft]"</span><span class="w"> </span><span class="s2">"transformers&gt;=4.56.2,&lt;5.0"</span><span class="w"> </span><span class="s2">"modelscope==1.37.0"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import trl, peft, modelscope; print('TRL environment ready')"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+TRL<span class="w"> </span>environment<span class="w"> </span>ready
+</pre></div>
+</div>
+</section>
+<section id="sft-lora">
+<h2>使用样例：最小 SFT LoRA 后训练<a class="headerlink" href="#sft-lora" title="Link to this heading"></a></h2>
+<p>用 ModelScope 数据集 <code class="docutils literal notranslate"><span class="pre">HuggingFaceH4/ultrafeedback_binarized</span></code> 的 SFT 子集对 Qwen2.5-0.5B-Instruct 做 5 步 LoRA SFT。模型由脚本内的 <code class="docutils literal notranslate"><span class="pre">snapshot_download</span></code> 首次运行时自动下载到默认缓存（约 1 GB），数据集经 ModelScope 自动下载；<code class="docutils literal notranslate"><span class="pre">SFTTrainer</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">peft_config</span></code> 注入 LoRA 适配器，底座权重冻结、只训练新注入的低秩矩阵；训练完成后把适配器保存到 <code class="docutils literal notranslate"><span class="pre">output/trl-sft-lora</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span><span class="s">&lt;&lt; 'PY'</span>
+<span class="s">import os</span>
+<span class="s">import shutil</span>
+<span class="s">import torch</span>
+<span class="s">import torch_npu</span>
+<span class="s">from datasets import load_dataset</span>
+<span class="s">from modelscope import snapshot_download</span>
+<span class="s">from peft import LoraConfig, TaskType</span>
+<span class="s">from trl import SFTConfig, SFTTrainer</span>
+
+<span class="s">print("TRL_SFT_BEGIN")</span>
+
+<span class="s">ds_path = snapshot_download(</span>
+<span class="s">    'HuggingFaceH4/ultrafeedback_binarized', repo_type='dataset',</span>
+<span class="s">)</span>
+<span class="s">data_dir = './ultrafeedback_sft'</span>
+<span class="s">if os.path.isdir(data_dir):</span>
+<span class="s">    shutil.rmtree(data_dir)</span>
+<span class="s">os.makedirs(data_dir, exist_ok=True)</span>
+<span class="s">for name in os.listdir(os.path.join(ds_path, 'data')):</span>
+<span class="s">    if name.startswith('train_sft-'):</span>
+<span class="s">        shutil.copy2(os.path.join(ds_path, 'data', name), data_dir)</span>
+<span class="s">train_dataset = load_dataset(</span>
+<span class="s">    'parquet', data_files=os.path.join(data_dir, 'train_sft-*.parquet'),</span>
+<span class="s">    split='train',</span>
+<span class="s">).select_columns(['messages'])</span>
+
+<span class="s">model = snapshot_download('Qwen/Qwen2.5-0.5B-Instruct')</span>
+
+<span class="s">trainer = SFTTrainer(</span>
+<span class="s">    model=model,</span>
+<span class="s">    train_dataset=train_dataset,</span>
+<span class="s">    peft_config=LoraConfig(r=8, lora_alpha=32, task_type=TaskType.CAUSAL_LM),</span>
+<span class="s">    args=SFTConfig(</span>
+<span class="s">        output_dir="output/trl-sft-lora",</span>
+<span class="s">        max_steps=5,</span>
+<span class="s">        per_device_train_batch_size=1,</span>
+<span class="s">        gradient_accumulation_steps=1,</span>
+<span class="s">        learning_rate=1e-4,</span>
+<span class="s">        max_length=512,</span>
+<span class="s">        logging_steps=1,</span>
+<span class="s">        save_strategy="no",</span>
+<span class="s">        report_to="none",</span>
+<span class="s">        model_init_kwargs={"dtype": torch.bfloat16},</span>
+<span class="s">    ),</span>
+<span class="s">)</span>
+<span class="s">print("model device:", next(trainer.model.parameters()).device)</span>
+<span class="s">trainer.train()</span>
+<span class="s">trainer.save_model("output/trl-sft-lora")</span>
+<span class="s">print("TRL_SFT_DONE")</span>
+<span class="s">PY</span>
+</pre></div>
+</div>
+<p>输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+TRL_SFT_DONE
+</pre></div>
+</div>
+</section>
+<section id="dpo-lora">
+<h2>切换方法：偏好优化 DPO LoRA<a class="headerlink" href="#dpo-lora" title="Link to this heading"></a></h2>
+<p>同一个模型与 LoRA 配置，把 <code class="docutils literal notranslate"><span class="pre">SFTTrainer</span></code> / <code class="docutils literal notranslate"><span class="pre">SFTConfig</span></code> 换成 <code class="docutils literal notranslate"><span class="pre">DPOTrainer</span></code> / <code class="docutils literal notranslate"><span class="pre">DPOConfig</span></code> 就是偏好优化：ModelScope 数据集 <code class="docutils literal notranslate"><span class="pre">HuggingFaceH4/ultrafeedback_binarized</span></code> 的 <code class="docutils literal notranslate"><span class="pre">prompt</span></code> / <code class="docutils literal notranslate"><span class="pre">chosen</span></code> / <code class="docutils literal notranslate"><span class="pre">rejected</span></code> 三段对话让模型更倾向 <code class="docutils literal notranslate"><span class="pre">chosen</span></code> 而非 <code class="docutils literal notranslate"><span class="pre">rejected</span></code> 的回答。这里跑 3 步 DPO LoRA，产物保存到 <code class="docutils literal notranslate"><span class="pre">output/trl-dpo-lora</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span><span class="s">&lt;&lt; 'PY'</span>
+<span class="s">import os</span>
+<span class="s">import shutil</span>
+<span class="s">import torch</span>
+<span class="s">import torch_npu</span>
+<span class="s">from datasets import load_dataset</span>
+<span class="s">from modelscope import snapshot_download</span>
+<span class="s">from peft import LoraConfig, TaskType</span>
+<span class="s">from transformers import AutoModelForCausalLM, AutoTokenizer</span>
+<span class="s">from trl import DPOConfig, DPOTrainer</span>
+
+<span class="s">print("TRL_DPO_BEGIN")</span>
+
+<span class="s">ds_path = snapshot_download(</span>
+<span class="s">    'HuggingFaceH4/ultrafeedback_binarized', repo_type='dataset',</span>
+<span class="s">)</span>
+<span class="s">data_dir = './ultrafeedback_prefs'</span>
+<span class="s">if os.path.isdir(data_dir):</span>
+<span class="s">    shutil.rmtree(data_dir)</span>
+<span class="s">os.makedirs(data_dir, exist_ok=True)</span>
+<span class="s">for name in os.listdir(os.path.join(ds_path, 'data')):</span>
+<span class="s">    if name.startswith('train_prefs-'):</span>
+<span class="s">        shutil.copy2(os.path.join(ds_path, 'data', name), data_dir)</span>
+<span class="s">train_dataset = load_dataset(</span>
+<span class="s">    'parquet', data_files=os.path.join(data_dir, 'train_prefs-*.parquet'),</span>
+<span class="s">    split='train',</span>
+<span class="s">)</span>
+
+<span class="s"># prompt 列是纯字符串，chosen / rejected 是 messages 列表；把 prompt 转成</span>
+<span class="s"># 单条 user 消息即可让 DPOTrainer 按 conversational 格式处理</span>
+<span class="s">def to_conversational(example):</span>
+<span class="s">    example['prompt'] = [{'role': 'user', 'content': example['prompt']}]</span>
+<span class="s">    return example</span>
+
+<span class="s">train_dataset = train_dataset.map(to_conversational)</span>
+
+<span class="s">model_path = snapshot_download('Qwen/Qwen2.5-0.5B-Instruct')</span>
+<span class="s">model = AutoModelForCausalLM.from_pretrained(model_path, dtype=torch.bfloat16)</span>
+<span class="s">tokenizer = AutoTokenizer.from_pretrained(model_path)</span>
+
+<span class="s">trainer = DPOTrainer(</span>
+<span class="s">    model=model,</span>
+<span class="s">    ref_model=None,</span>
+<span class="s">    processing_class=tokenizer,</span>
+<span class="s">    train_dataset=train_dataset,</span>
+<span class="s">    peft_config=LoraConfig(r=8, lora_alpha=32, task_type=TaskType.CAUSAL_LM),</span>
+<span class="s">    args=DPOConfig(</span>
+<span class="s">        output_dir="output/trl-dpo-lora",</span>
+<span class="s">        max_steps=3,</span>
+<span class="s">        per_device_train_batch_size=1,</span>
+<span class="s">        gradient_accumulation_steps=1,</span>
+<span class="s">        learning_rate=1e-4,</span>
+<span class="s">        max_length=512,</span>
+<span class="s">        logging_steps=1,</span>
+<span class="s">        save_strategy="no",</span>
+<span class="s">        report_to="none",</span>
+<span class="s">    ),</span>
+<span class="s">)</span>
+<span class="s">print("model device:", next(trainer.model.parameters()).device)</span>
+<span class="s">trainer.train()</span>
+<span class="s">trainer.save_model("output/trl-dpo-lora")</span>
+<span class="s">print("TRL_DPO_DONE")</span>
+<span class="s">PY</span>
+</pre></div>
+</div>
+<p>输出结果类似如下（训练日志走 stderr，stdout 只保留首尾标记）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+TRL_DPO_DONE
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>结果验证<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>检查两个输出目录中的 LoRA 适配器产物：<code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code>（LoRA 配置）与 <code class="docutils literal notranslate"><span class="pre">adapter_model.safetensors</span></code>（适配器权重）。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>output/trl-sft-lora/adapter_config.json<span class="w"> </span>output/trl-sft-lora/adapter_model.safetensors
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>output/trl-sft-lora/adapter_config.json
+output/trl-sft-lora/adapter_model.safetensors
+</pre></div>
+</div>
+<p>检查 DPO 输出目录的适配器产物：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>output/trl-dpo-lora/adapter_config.json<span class="w"> </span>output/trl-dpo-lora/adapter_model.safetensors
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>output/trl-dpo-lora/adapter_config.json
+output/trl-dpo-lora/adapter_model.safetensors
+</pre></div>
+</div>
+<p>更多方法（GRPO / PPO / Reward / KTO 等）入口形态一致，切换对应的 <code class="docutils literal notranslate"><span class="pre">Trainer</span></code> / <code class="docutils literal notranslate"><span class="pre">Config</span></code> 即可；GRPO 依赖 vLLM 生成，不在本示例运行。更多用法见 <a class="reference external" href="https://github.com/huggingface/trl/tree/main/examples">TRL examples</a>。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../torchtitan/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../twinkle/index.html" class="btn btn-neutral float-right" title="Twinkle" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

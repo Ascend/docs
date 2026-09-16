@@ -1,0 +1,694 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>llm-d &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="lmdeploy" href="../lm_deploy/index.html" />
+    <link rel="prev" title="快速开始" href="../llama_cpp/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">llm-d</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann-nnal">1. 加载 CANN 与 NNAL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#npu">2. 确认 NPU 在线</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vllm-ascend">3. 安装 vLLM Ascend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#epp">4. 构建 EPP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#envoy">5. 获取 Envoy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">6. 准备 llm-d 配置</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vllm">7. 启动 vLLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">8. 启动 EPP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">9. 启动 Envoy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">10. 发送请求验证</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">11. 确认跑在 NPU 上</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">12. 清理</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">llm-d</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/llm_d/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="llm-d">
+<h1>llm-d<a class="headerlink" href="#llm-d" title="Link to this heading"></a></h1>
+<p>在一台机器、一张昇腾 NPU 上，用三个普通进程搭起 <a class="reference external" href="https://github.com/llm-d/llm-d">llm-d</a> 的最小推理路径。</p>
+<p>llm-d 是架在推理引擎之上的路由层。最小部署是三个进程：</p>
+<ul class="simple">
+<li><p><strong>vLLM worker</strong>：真正跑模型，本文用 <a class="reference external" href="https://github.com/vllm-project/vllm-ascend">vllm-ascend</a>。</p></li>
+<li><p><strong>EPP</strong>：Endpoint Picker，根据本地 <code class="docutils literal notranslate"><span class="pre">endpoints.yaml</span></code> 选 worker，二进制来自 <a class="reference external" href="https://github.com/llm-d/llm-d-router">llm-d-router</a>。</p></li>
+<li><p><strong>Envoy</strong>：接收客户端请求，先问 EPP，再转到选中的 worker。</p></li>
+</ul>
+<p>请求路径：客户端 <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">:8081</span></code> → Envoy → EPP <code class="docutils literal notranslate"><span class="pre">:9002</span></code> 做路由决策 → vLLM <code class="docutils literal notranslate"><span class="pre">:8000</span></code>。</p>
+<p>本文基于上游 <a class="reference external" href="https://github.com/llm-d/llm-d/tree/v0.9.0/guides/no-kubernetes-deployment">no-kubernetes-deployment</a> 指南，把 model server 换成 vllm-ascend，并把模型换成适合单卡验证的 <a class="reference external" href="https://huggingface.co/Qwen/Qwen3-0.6B">Qwen/Qwen3-0.6B</a>。</p>
+<p>工作目录统一用 <code class="docutils literal notranslate"><span class="pre">/root/llm-d</span></code>。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 9.1.0，并且可以 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/ascend-toolkit/set_env.sh</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>NNAL</p></td>
+<td><p>并且可以 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">/usr/local/Ascend/nnal/atb/set_env.sh</span></code>。vLLM-Ascend 会加载 ATB，只 source CANN 不够</p></td>
+</tr>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>配套机器</strong>：Atlas 900 A2（Ascend 910B4）。<strong>配套镜像</strong>：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+<p><strong>版本要求</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>llm-d 配置仓</p></td>
+<td><p>当前最新 Release tag（克隆时换成要用的 tag）</p></td>
+</tr>
+<tr class="row-odd"><td><p>EPP（llm-d-router）</p></td>
+<td><p>v0.10.0</p></td>
+</tr>
+<tr class="row-even"><td><p>Go</p></td>
+<td><p>1.26.6 linux-arm64</p></td>
+</tr>
+<tr class="row-odd"><td><p>vLLM</p></td>
+<td><p>0.23.0</p></td>
+</tr>
+<tr class="row-even"><td><p>vllm-ascend</p></td>
+<td><p>0.23.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton-ascend</p></td>
+<td><p>3.2.2</p></td>
+</tr>
+<tr class="row-even"><td><p>Envoy</p></td>
+<td><p>1.33.2 linux-aarch64</p></td>
+</tr>
+<tr class="row-odd"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen3-0.6B">Qwen/Qwen3-0.6B</a></p></td>
+</tr>
+</tbody>
+</table>
+<p>安装 vLLM 0.23.0 时，pip 可能先拉 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 2.11.0。随后安装 <code class="docutils literal notranslate"><span class="pre">vllm-ascend==0.23.0</span></code> 会按插件约束把 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch-npu</span></code> 降到 2.10.0。</p>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 装好 CANN、NNAL 与驱动。</p>
+</section>
+</section>
+<section id="cann-nnal">
+<h2>1. 加载 CANN 与 NNAL<a class="headerlink" href="#cann-nnal" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 在常见容器里位于 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code> 或 <code class="docutils literal notranslate"><span class="pre">/usr/local/bin</span></code>。下面只加载一次；后面的命令都假定仍在这个 shell 里。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+</pre></div>
+</div>
+</section>
+<section id="npu">
+<h2>2. 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出结果如下（设备表、功耗、HBM 每次都不同，不必和任何截图逐字一致）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...NPU...
+</pre></div>
+</div>
+<p>若提示找不到 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code>，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+<p>启动前确认本机这些端口空闲：<code class="docutils literal notranslate"><span class="pre">8000</span></code>（vLLM）、<code class="docutils literal notranslate"><span class="pre">8081</span></code>（Envoy 入口）、<code class="docutils literal notranslate"><span class="pre">9002</span></code> / <code class="docutils literal notranslate"><span class="pre">9003</span></code> / <code class="docutils literal notranslate"><span class="pre">9090</span></code>（EPP）、<code class="docutils literal notranslate"><span class="pre">19000</span></code>（Envoy 管理口）。</p>
+</section>
+<section id="vllm-ascend">
+<h2>3. 安装 vLLM Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">torch</span></code> 2.10 会顺带装上社区版 CUDA Triton。这个包没有昇腾后端，所以最后再装一次 <code class="docutils literal notranslate"><span class="pre">vllm-ascend==0.23.0</span></code> 要求的 <code class="docutils literal notranslate"><span class="pre">triton-ascend==3.2.2</span></code>，覆盖那个目录，并且加 <code class="docutils literal notranslate"><span class="pre">--force-reinstall</span> <span class="pre">--no-deps</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.23.0
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from importlib.metadata import version; print('vllm', version('vllm')); print('vllm-ascend', version('vllm-ascend')); print('triton-ascend', version('triton-ascend'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...vllm<span class="w"> </span><span class="m">0</span>.23.0
+vllm-ascend<span class="w"> </span><span class="m">0</span>.23.0
+triton-ascend<span class="w"> </span><span class="m">3</span>.2.2
+</pre></div>
+</div>
+</section>
+<section id="epp">
+<h2>4. 构建 EPP<a class="headerlink" href="#epp" title="Link to this heading"></a></h2>
+<p>EPP 来自 <code class="docutils literal notranslate"><span class="pre">llm-d-router</span></code> 的 <code class="docutils literal notranslate"><span class="pre">cmd/epp</span></code>。<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">build-epp</span></code> 会起 builder 容器。没有 Docker 时，用 Go 1.26.6 直接 <code class="docutils literal notranslate"><span class="pre">go</span> <span class="pre">build</span></code>。<code class="docutils literal notranslate"><span class="pre">go.mod</span></code> 精确要求这个版本。</p>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+go_tar="$ci/go1.26.6.linux-arm64.tar.gz"
+sum='d0507e9e9d7fe012aae570108cbd76c15de879e17130ab8cb90d4d7445cb1f2e'
+mkdir -p /root/llm-d/bin
+if [ -f "$go_tar" ]; then
+  if echo "$sum  $go_tar" | sha256sum -c >/dev/null 2>&1; then
+    if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.26.6'; then
+      rm -rf /root/llm-d/go
+      tar -C /root/llm-d -xzf "$go_tar"
+    fi
+  else
+    rm -f "$go_tar"
+  fi
+fi
+if [ -x "$ci/epp-v0.10.0" ] && [ -s "$ci/epp-v0.10.0" ]; then
+  cp -a "$ci/epp-v0.10.0" /root/llm-d/bin/epp
+  chmod 0755 /root/llm-d/bin/epp
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d/bin
+<span class="k">if</span><span class="w"> </span>!<span class="w"> </span>/root/llm-d/go/bin/go<span class="w"> </span>version<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">'go1.26.6'</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>/root/llm-d/go1.26.6.linux-arm64.tar.gz<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>curl<span class="w"> </span>-fL<span class="w"> </span>--retry<span class="w"> </span><span class="m">3</span><span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">5</span><span class="w"> </span>--connect-timeout<span class="w"> </span><span class="m">30</span><span class="w"> </span>--max-time<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>-o<span class="w"> </span>/root/llm-d/go1.26.6.linux-arm64.tar.gz<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>https://go.dev/dl/go1.26.6.linux-arm64.tar.gz
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/llm-d/go
+<span class="w">  </span>tar<span class="w"> </span>-C<span class="w"> </span>/root/llm-d<span class="w"> </span>-xzf<span class="w"> </span>/root/llm-d/go1.26.6.linux-arm64.tar.gz
+<span class="k">fi</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">GOROOT</span><span class="o">=</span>/root/llm-d/go
+<span class="nb">export</span><span class="w"> </span><span class="nv">GOPATH</span><span class="o">=</span>/root/llm-d/gopath
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$GOROOT</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$GOPATH</span><span class="s2">"</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-x<span class="w"> </span>/root/llm-d/bin/epp<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/llm-d/llm-d-router
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>v0.10.0<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>https://github.com/llm-d/llm-d-router<span class="w"> </span>/root/llm-d/llm-d-router<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/llm-d/llm-d-router
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="w">  </span><span class="nb">cd</span><span class="w"> </span>/root/llm-d/llm-d-router
+<span class="w">  </span>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>/root/llm-d/bin/epp<span class="w"> </span>./cmd/epp
+<span class="k">fi</span>
+/root/llm-d/go/bin/go<span class="w"> </span>version
+<span class="nb">test</span><span class="w"> </span>-x<span class="w"> </span>/root/llm-d/bin/epp
+/root/llm-d/bin/epp<span class="w"> </span>--help<span class="w"> </span>&gt;/dev/null
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+sum='d0507e9e9d7fe012aae570108cbd76c15de879e17130ab8cb90d4d7445cb1f2e'
+mkdir -p "$ci"
+if [ -f /root/llm-d/go1.26.6.linux-arm64.tar.gz ]; then
+  echo "$sum  /root/llm-d/go1.26.6.linux-arm64.tar.gz" | sha256sum -c
+  cp -a /root/llm-d/go1.26.6.linux-arm64.tar.gz "$ci/go1.26.6.linux-arm64.tar.gz.part"
+  mv "$ci/go1.26.6.linux-arm64.tar.gz.part" "$ci/go1.26.6.linux-arm64.tar.gz"
+elif [ -f "$ci/go1.26.6.linux-arm64.tar.gz" ]; then
+  echo "$sum  $ci/go1.26.6.linux-arm64.tar.gz" | sha256sum -c
+fi
+test -x /root/llm-d/bin/epp
+cp -a /root/llm-d/bin/epp "$ci/epp-v0.10.0.part"
+mv "$ci/epp-v0.10.0.part" "$ci/epp-v0.10.0"
+```
+-->
+</section>
+<section id="envoy">
+<h2>5. 获取 Envoy<a class="headerlink" href="#envoy" title="Link to this heading"></a></h2>
+<p>Envoy v1.33.2 官方 Release 直接提供 Linux ARM64 二进制，不需要 Docker，也不需要从源码编译。</p>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+cached="$ci/envoy-1.33.2-linux-aarch_64"
+sum='81ec3689a82122eff0ca680c48176f4d351b6f9881a79cc9d9078a6fb4b0b6a8'
+mkdir -p /root/llm-d/bin
+if [ -f "$cached" ]; then
+  if echo "$sum  $cached" | sha256sum -c >/dev/null 2>&1; then
+    cp -a "$cached" /root/llm-d/bin/envoy
+    chmod 0755 /root/llm-d/bin/envoy
+  else
+    rm -f "$cached"
+  fi
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d/bin
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-x<span class="w"> </span>/root/llm-d/bin/envoy<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>curl<span class="w"> </span>-fL<span class="w"> </span>--retry<span class="w"> </span><span class="m">3</span><span class="w"> </span>--retry-delay<span class="w"> </span><span class="m">5</span><span class="w"> </span>--connect-timeout<span class="w"> </span><span class="m">30</span><span class="w"> </span>--max-time<span class="w"> </span><span class="m">1800</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>/root/llm-d/bin/envoy.part<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>https://github.com/envoyproxy/envoy/releases/download/v1.33.2/envoy-1.33.2-linux-aarch_64
+<span class="w">  </span>chmod<span class="w"> </span><span class="m">0755</span><span class="w"> </span>/root/llm-d/bin/envoy.part
+<span class="w">  </span>mv<span class="w"> </span>/root/llm-d/bin/envoy.part<span class="w"> </span>/root/llm-d/bin/envoy
+<span class="k">fi</span>
+/root/llm-d/bin/envoy<span class="w"> </span>--version
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+sum='81ec3689a82122eff0ca680c48176f4d351b6f9881a79cc9d9078a6fb4b0b6a8'
+echo "$sum  /root/llm-d/bin/envoy" | sha256sum -c
+mkdir -p "$ci"
+cp -a /root/llm-d/bin/envoy "$ci/envoy-1.33.2-linux-aarch_64.part"
+mv "$ci/envoy-1.33.2-linux-aarch_64.part" "$ci/envoy-1.33.2-linux-aarch_64"
+```
+-->
+<p>输出里应含 <code class="docutils literal notranslate"><span class="pre">1.33.2</span></code>。</p>
+</section>
+<section id="id4">
+<h2>6. 准备 llm-d 配置<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>克隆 llm-d 仓，只取 no-kubernetes 指南里的三份 YAML。默认 EPP 去读 <code class="docutils literal notranslate"><span class="pre">/etc/epp/endpoints.yaml</span></code>，默认模型是 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen3-32B</span></code>。单机验证改成工作目录里的绝对路径，以及 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen3-0.6B</span></code>。<code class="docutils literal notranslate"><span class="pre">address</span></code> 必须是字面 IPv4，file-discovery 不会解析主机名。</p>
+<p>将下面克隆命令里的 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 换成要用的 llm-d Release tag（例如 <code class="docutils literal notranslate"><span class="pre">v0.9.0</span></code>）。</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+guide="$ci/guides/${UPSTREAM_REF}"
+dest='/root/llm-d/src/guides/no-kubernetes-deployment'
+if [ -s "$guide/config.yaml" ] && [ -s "$guide/endpoints.yaml" ] && [ -s "$guide/envoy.yaml" ]; then
+  if grep -q '/etc/epp/endpoints.yaml' "$guide/config.yaml" \
+    && grep -q 'Qwen/Qwen3-32B' "$guide/endpoints.yaml" \
+    && grep -q '8081' "$guide/envoy.yaml"; then
+    mkdir -p "$dest/router/epp" "$dest/router/envoy"
+    cp -a "$guide/config.yaml" "$dest/router/epp/config.yaml"
+    cp -a "$guide/endpoints.yaml" "$dest/router/epp/endpoints.yaml"
+    cp -a "$guide/envoy.yaml" "$dest/router/envoy/envoy.yaml"
+  else
+    rm -rf "$guide"
+  fi
+fi
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>/root/llm-d/src/guides/no-kubernetes-deployment/router/epp/config.yaml<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/llm-d/src
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nv">GIT_TERMINAL_PROMPT</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>https://github.com/llm-d/llm-d<span class="w"> </span>/root/llm-d/src<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">    </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/llm-d/src
+<span class="w">    </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="k">fi</span>
+cp<span class="w"> </span>/root/llm-d/src/guides/no-kubernetes-deployment/router/epp/config.yaml<span class="w"> </span>/root/llm-d/config.yaml
+cp<span class="w"> </span>/root/llm-d/src/guides/no-kubernetes-deployment/router/epp/endpoints.yaml<span class="w"> </span>/root/llm-d/endpoints.yaml
+cp<span class="w"> </span>/root/llm-d/src/guides/no-kubernetes-deployment/router/envoy/envoy.yaml<span class="w"> </span>/root/llm-d/envoy.yaml
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">'s|/etc/epp/endpoints.yaml|/root/llm-d/endpoints.yaml|'</span><span class="w"> </span>/root/llm-d/config.yaml
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">'s|Qwen/Qwen3-32B|Qwen/Qwen3-0.6B|'</span><span class="w"> </span>/root/llm-d/endpoints.yaml
+grep<span class="w"> </span><span class="s1">'/root/llm-d/endpoints.yaml'</span><span class="w"> </span>/root/llm-d/config.yaml
+grep<span class="w"> </span><span class="s1">'Qwen/Qwen3-0.6B'</span><span class="w"> </span>/root/llm-d/endpoints.yaml
+</pre></div>
+</div>
+<!--
+```shell #test-setup
+set -euo pipefail
+ci='/root/.cache/huggingface/llm_d'
+src='/root/llm-d/src/guides/no-kubernetes-deployment'
+guide="$ci/guides/${UPSTREAM_REF}"
+mkdir -p "$guide"
+cp -a "$src/router/epp/config.yaml" "$guide/config.yaml.part"
+mv "$guide/config.yaml.part" "$guide/config.yaml"
+cp -a "$src/router/epp/endpoints.yaml" "$guide/endpoints.yaml.part"
+mv "$guide/endpoints.yaml.part" "$guide/endpoints.yaml"
+cp -a "$src/router/envoy/envoy.yaml" "$guide/envoy.yaml.part"
+mv "$guide/envoy.yaml.part" "$guide/envoy.yaml"
+```
+-->
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>.../root/llm-d/endpoints.yaml...Qwen/Qwen3-0.6B...
+</pre></div>
+</div>
+</section>
+<section id="vllm">
+<h2>7. 启动 vLLM<a class="headerlink" href="#vllm" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--max-model-len</span> <span class="pre">2048</span></code> 把上下文压到第一次验证够用的长度，KV cache 更小，启动更快。<code class="docutils literal notranslate"><span class="pre">--gpu-memory-utilization</span> <span class="pre">0.3</span></code> 因为 0.6B 用不了一整张 910B。<code class="docutils literal notranslate"><span class="pre">--served-model-name</span> <span class="pre">Qwen/Qwen3-0.6B</span></code> 必须和 <code class="docutils literal notranslate"><span class="pre">endpoints.yaml</span></code> 里的 <code class="docutils literal notranslate"><span class="pre">model</span></code> 标签一致，否则 EPP 选不中这个 worker。<code class="docutils literal notranslate"><span class="pre">--enforce-eager</span></code> 关掉 graph 捕获，第一次启动更快，初始化日志也更完整。权重默认从 Hugging Face Hub 拉取。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTORCH_NPU_ALLOC_CONF</span><span class="o">=</span>expandable_segments:True
+port_busy<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span>&gt;/dev/tcp/127.0.0.1/<span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="o">)</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+vllm_alive<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span>/root/llm-d/vllm.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/vllm.pid<span class="k">)</span>
+<span class="w">  </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span>tr<span class="w"> </span><span class="s1">'\0'</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span>&lt;<span class="w"> </span><span class="s2">"/proc/</span><span class="nv">$pid</span><span class="s2">/cmdline"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>vllm
+<span class="o">}</span>
+<span class="k">if</span><span class="w"> </span>vllm_alive<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'vllm already running'</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">8000</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'port 8000 is already in use by another process'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>setsid<span class="w"> </span>-f<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">'echo $$ &gt; /root/llm-d/vllm.pid; exec vllm serve Qwen/Qwen3-0.6B --host 127.0.0.1 --port 8000 --served-model-name Qwen/Qwen3-0.6B --max-model-len 2048 --max-num-seqs 4 --gpu-memory-utilization 0.3 --trust-remote-code --enforce-eager &gt;/root/llm-d/vllm.log 2&gt;&amp;1'</span>
+<span class="k">fi</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">50</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-s<span class="w"> </span>/root/llm-d/vllm.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">0</span>.2
+<span class="k">done</span>
+<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/vllm.pid<span class="k">)</span>
+<span class="nv">ok</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">480</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'vllm process exited'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span>tail<span class="w"> </span>-c<span class="w"> </span><span class="m">8000</span><span class="w"> </span>/root/llm-d/vllm.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>curl<span class="w"> </span>-sf<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://127.0.0.1:8000/v1/models<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">'Qwen/Qwen3-0.6B'</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>curl<span class="w"> </span>-sS<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://127.0.0.1:8000/v1/models
+<span class="w">    </span><span class="nv">ok</span><span class="o">=</span><span class="m">1</span>
+<span class="w">    </span><span class="k">break</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">5</span>
+<span class="k">done</span>
+<span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ok</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>8. 启动 EPP<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">--pool-name</span></code> 和 <code class="docutils literal notranslate"><span class="pre">--pool-namespace</span></code> 在 file-discovery 模式下不是 Kubernetes 对象，只出现在指标和日志里。<code class="docutils literal notranslate"><span class="pre">--secure-serving=false</span></code> 因为 Envoy 和 EPP 同机，不走 TLS。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d
+port_busy<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span>&gt;/dev/tcp/127.0.0.1/<span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="o">)</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+epp_alive<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span>/root/llm-d/epp.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/epp.pid<span class="k">)</span>
+<span class="w">  </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span>tr<span class="w"> </span><span class="s1">'\0'</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span>&lt;<span class="w"> </span><span class="s2">"/proc/</span><span class="nv">$pid</span><span class="s2">/cmdline"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>/root/llm-d/bin/epp
+<span class="o">}</span>
+<span class="k">if</span><span class="w"> </span>epp_alive<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'epp already running'</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">9002</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">9003</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">9090</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'EPP ports 9002/9003/9090 are already in use'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>setsid<span class="w"> </span>-f<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">'echo $$ &gt; /root/llm-d/epp.pid; exec /root/llm-d/bin/epp --config-file=/root/llm-d/config.yaml --pool-name=file-discovery --pool-namespace=default --grpc-port=9002 --grpc-health-port=9003 --metrics-port=9090 --secure-serving=false --v=2 &gt;/root/llm-d/epp.log 2&gt;&amp;1'</span>
+<span class="k">fi</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">50</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-s<span class="w"> </span>/root/llm-d/epp.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">0</span>.2
+<span class="k">done</span>
+<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/epp.pid<span class="k">)</span>
+<span class="nv">ok</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">60</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'epp process exited'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span>tail<span class="w"> </span>-c<span class="w"> </span><span class="m">8000</span><span class="w"> </span>/root/llm-d/epp.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="nv">body</span><span class="o">=</span><span class="k">$(</span>curl<span class="w"> </span>-sf<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://127.0.0.1:9090/metrics<span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">body</span><span class="p">:</span><span class="nv">0</span><span class="p">:</span><span class="nv">200</span><span class="si">}</span><span class="s2">"</span>
+<span class="w">    </span><span class="nv">ok</span><span class="o">=</span><span class="m">1</span>
+<span class="w">    </span><span class="k">break</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">2</span>
+<span class="k">done</span>
+<span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ok</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>9. 启动 Envoy<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>配置里的入口是 <code class="docutils literal notranslate"><span class="pre">0.0.0.0:8081</span></code>，管理口是 <code class="docutils literal notranslate"><span class="pre">127.0.0.1:19000</span></code>。<code class="docutils literal notranslate"><span class="pre">--concurrency</span> <span class="pre">2</span></code> 对单卡验证够用。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/llm-d
+port_busy<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">(</span><span class="nb">echo</span><span class="w"> </span>&gt;/dev/tcp/127.0.0.1/<span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span><span class="o">)</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span>
+<span class="o">}</span>
+envoy_alive<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span>/root/llm-d/envoy.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/envoy.pid<span class="k">)</span>
+<span class="w">  </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span>tr<span class="w"> </span><span class="s1">'\0'</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span>&lt;<span class="w"> </span><span class="s2">"/proc/</span><span class="nv">$pid</span><span class="s2">/cmdline"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>envoy
+<span class="o">}</span>
+<span class="k">if</span><span class="w"> </span>envoy_alive<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'envoy already running'</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">8081</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>port_busy<span class="w"> </span><span class="m">19000</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'Envoy ports 8081/19000 are already in use'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>setsid<span class="w"> </span>-f<span class="w"> </span>sh<span class="w"> </span>-c<span class="w"> </span><span class="s1">'echo $$ &gt; /root/llm-d/envoy.pid; exec /root/llm-d/bin/envoy --service-node envoy-proxy --log-level warn --concurrency 2 --drain-strategy immediate --drain-time-s 60 -c /root/llm-d/envoy.yaml &gt;/root/llm-d/envoy.log 2&gt;&amp;1'</span>
+<span class="k">fi</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">50</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-s<span class="w"> </span>/root/llm-d/envoy.pid<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">0</span>.2
+<span class="k">done</span>
+<span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span>/root/llm-d/envoy.pid<span class="k">)</span>
+<span class="nv">ok</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">60</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s1">'envoy process exited'</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">    </span>tail<span class="w"> </span>-c<span class="w"> </span><span class="m">8000</span><span class="w"> </span>/root/llm-d/envoy.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>curl<span class="w"> </span>-sf<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://127.0.0.1:19000/ready<span class="w"> </span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>curl<span class="w"> </span>-sS<span class="w"> </span>--max-time<span class="w"> </span><span class="m">5</span><span class="w"> </span>http://127.0.0.1:19000/ready
+<span class="w">    </span><span class="nv">ok</span><span class="o">=</span><span class="m">1</span>
+<span class="w">    </span><span class="k">break</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">2</span>
+<span class="k">done</span>
+<span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ok</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h2>10. 发送请求验证<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>请求打到 Envoy 的 8081 端口，经过 EPP 选路，再由 vLLM 生成。<code class="docutils literal notranslate"><span class="pre">max_tokens</span></code> 只取 8，用来确认全链通。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-sS<span class="w"> </span>http://127.0.0.1:8081/v1/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"model":"Qwen/Qwen3-0.6B","prompt":"Hello","max_tokens":8,"temperature":0}'</span>
+</pre></div>
+</div>
+<p>输出结果如下（生成文本每次不同，关键是 JSON 类型和模型名；<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-sS</span></code> 默认打成一行）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...text_completion...Qwen/Qwen3-0.6B...
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>11. 确认跑在 NPU 上<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Platform</span> <span class="pre">plugin</span> <span class="pre">ascend</span> <span class="pre">is</span> <span class="pre">activated</span></code> 只说明插件被发现了，不说明设备初始化成功。初始化日志里的 <code class="docutils literal notranslate"><span class="pre">backend=hccl</span></code> 才表示这次 worker 走了昇腾通信后端。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>grep<span class="w"> </span>-m1<span class="w"> </span><span class="s1">'backend=hccl'</span><span class="w"> </span>/root/llm-d/vllm.log
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...backend<span class="o">=</span>hccl...
+</pre></div>
+</div>
+<p>若这一行不存在，先看 <code class="docutils literal notranslate"><span class="pre">/root/llm-d/vllm.log</span></code> 是否在更早阶段就失败（缺 NNAL、卡不可见、权重没下完）。不要只凭 <code class="docutils literal notranslate"><span class="pre">/v1/models</span></code> 返回 200 下结论。</p>
+</section>
+<section id="id9">
+<h2>12. 清理<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>只读取本任务写下的 PID 文件。先看 <code class="docutils literal notranslate"><span class="pre">/proc/&lt;pid&gt;/cmdline</span></code> 是不是自己的进程，再结束对应进程组。对不上就丢掉这个文件。不要 <code class="docutils literal notranslate"><span class="pre">pkill</span> <span class="pre">-f</span> <span class="pre">vllm</span></code> / <code class="docutils literal notranslate"><span class="pre">pkill</span> <span class="pre">-f</span> <span class="pre">epp</span></code> / <code class="docutils literal notranslate"><span class="pre">pkill</span> <span class="pre">-f</span> <span class="pre">envoy</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>stop_one<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">f</span><span class="o">=</span><span class="s2">"</span><span class="nv">$1</span><span class="s2">"</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span><span class="nv">needle</span><span class="o">=</span><span class="s2">"</span><span class="nv">$2</span><span class="s2">"</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="m">0</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="nb">local</span><span class="w"> </span>pid
+<span class="w">  </span><span class="nv">pid</span><span class="o">=</span><span class="k">$(</span>cat<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span><span class="k">)</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-r<span class="w"> </span><span class="s2">"/proc/</span><span class="nv">$pid</span><span class="s2">/cmdline"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="m">0</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="s2">"</span><span class="k">$(</span>tr<span class="w"> </span><span class="s1">'\0'</span><span class="w"> </span><span class="s1">' '</span><span class="w"> </span>&lt;<span class="w"> </span><span class="s2">"/proc/</span><span class="nv">$pid</span><span class="s2">/cmdline"</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span>*<span class="s2">"</span><span class="nv">$needle</span><span class="s2">"</span>*<span class="o">)</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span>*<span class="o">)</span>
+<span class="w">      </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="m">0</span>
+<span class="w">      </span><span class="p">;;</span>
+<span class="w">  </span><span class="k">esac</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">kill</span><span class="w"> </span>--<span class="w"> </span>-<span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">kill</span><span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>_<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">50</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">      </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">break</span>
+<span class="w">      </span>sleep<span class="w"> </span><span class="m">0</span>.2
+<span class="w">    </span><span class="k">done</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-0<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span>--<span class="w"> </span>-<span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="s2">"</span><span class="nv">$pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span>
+<span class="o">}</span>
+stop_one<span class="w"> </span>/root/llm-d/envoy.pid<span class="w"> </span>envoy
+stop_one<span class="w"> </span>/root/llm-d/epp.pid<span class="w"> </span>/root/llm-d/bin/epp
+stop_one<span class="w"> </span>/root/llm-d/vllm.pid<span class="w"> </span>vllm
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../llama_cpp/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../lm_deploy/index.html" class="btn btn-neutral float-right" title="lmdeploy" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
