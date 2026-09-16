@@ -52,7 +52,7 @@ cmake version ...
 
 ## 3. 获取源码并编译
 
-克隆 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)，开启 CANN 后端后应生成 `whisper-cli`。同一次编译还会生成 `whisper-server`，后面的可选步骤会用到。将 `<ref>` 换成目标分支、tag 或 commit（上游默认分支为 `master`）。
+克隆 [ggml-org/whisper.cpp](https://github.com/ggml-org/whisper.cpp)，开启 CANN 后端后应生成 `whisper-cli`。同一次编译还会生成 `whisper-server`，后面的可选步骤会用到。将 `<ref>` 换成目标分支、tag 或 commit。
 
 <!--
 ```shell #test-setup store="upstream_ref"
