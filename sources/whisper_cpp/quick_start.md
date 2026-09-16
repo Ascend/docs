@@ -160,7 +160,8 @@ cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-cli \
 ...
 whisper_backend_init_gpu: using CANN0 backend
 ...
-CI_PENDING_TRANSCRIPT
+[00:00:00.000 --> 00:00:07.960]   And so my fellow Americans ask not what your country can do for you
+[00:00:07.960 --> 00:00:10.760]   ask what you can do for your country.
 ...
 ```
 
