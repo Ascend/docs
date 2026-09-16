@@ -292,6 +292,12 @@
          <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/">文档中心</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- LightX2V -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lightx2v.png')"></div><h3 class="card-title">LightX2V</h3></div>
+         <p class="card-desc">轻量级图像/视频生成推理框架，适配昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/ModelTC/LightX2V">官方链接</a><span class="split">|</span><a href="sources/lightx2v/quick_start.html">快速上手</a></div>
+      </div>
    </div>
 
    <h2 class="scene-header">⚙️ 算子开发与编程</h2>
@@ -432,6 +438,7 @@
    sources/sglang/index.rst
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
+   sources/lightx2v/quick_start.md
 
 .. toctree::
    :maxdepth: 1
