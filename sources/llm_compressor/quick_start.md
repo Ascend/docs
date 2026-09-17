@@ -12,13 +12,17 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 
 | 类别 | 要求 |
 | --- | --- |
-| CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
-| Python | 3.12 |
-| PyTorch | `torch==2.10.0` 与 `torch_npu==2.10.0.post4`，见下文安装 |
-| llm-compressor | 从 PyPI 安装发布版，见下文 |
+| CANN | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
+| Python | 落在官方配套表给出的范围内，并满足 llm-compressor 下限；当前正式版要求 `>=3.10` |
+| PyTorch | 安装官方当前推荐的 `torch` 与 `torch_npu`，见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) 和 [PyTorch 安装包](https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download) |
+| llm-compressor | 从 PyPI 安装当前正式版；用 `--no-build-isolation` 对着已装的 torch 装 |
 | 模型 | [nm-testing/tinysmokeqwen3](https://huggingface.co/nm-testing/tinysmokeqwen3)（约 10 MB） |
 
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。推荐配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
+
+### 本文验证环境
+
+本文在配套镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` 上验证，镜像内为 CANN 9.1.0 与 Python 3.12。本次按官方当前推荐对解析到 `torch 2.12.0+cpu` 与 `torch_npu 2.12.0`。这不是唯一支持组合。
 
 ## 1. 加载 CANN 环境
 
@@ -49,36 +53,33 @@ command -v npu-smi
 python --version
 ```
 
-输出结果如下：
-
+<!--
 ```shell #test-result id="check-tools"
 ...
-Python 3.12...
+Python ...
 ```
+-->
 
 ## 3. 安装 PyTorch NPU 栈
 
-昇腾上的 `torch_npu` 要从华为 PyPI 额外索引安装，并钉死与 CANN 9.1.0 匹配的版本。`numpy` 和 `pyyaml` 也要一起装：缺了会在 `import torch_npu` 之前失败。
-
 ```shell #test id="install-torch"
-python -m pip install --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
-  --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi \
-  torch==2.10.0 torch_npu==2.10.0.post4 numpy pyyaml
+python -m pip install \
+  --index-url https://download.pytorch.org/whl/cpu \
+  --extra-index-url https://pypi.org/simple \
+  torch_npu numpy pyyaml
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-输出结果如下：
-
+<!--
 ```shell #test-result id="install-torch"
 ...
-torch 2.10.0...
-torch_npu 2.10.0.post4
 npu_available True
 ```
+-->
 
 ## 4. 安装 llm-compressor
 
-将 `<UPSTREAM_REF>` 换成目标 PyPI 版本号（撰写时最新正式版是 `0.13.0`）。
+NPU 栈就绪后，用 `--no-build-isolation` 安装当前正式版，让构建对着已装的 torch。将 `<UPSTREAM_REF>` 换成目标 PyPI 版本号；撰写时最新正式版是 `0.13.0`。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -87,18 +88,16 @@ echo "${UPSTREAM_REF}"
 -->
 
 ```shell #test id="install-llmcompressor" load="upstream_ref>>UPSTREAM_REF"
-python -m pip install --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
-  --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi \
-  llmcompressor==<UPSTREAM_REF> torch==2.10.0 torch_npu==2.10.0.post4
+python -m pip install --no-build-isolation "llmcompressor==<UPSTREAM_REF>"
 python -c "import llmcompressor; print('llmcompressor', llmcompressor.__version__)"
 ```
 
-输出结果如下：
-
+<!--
 ```shell #test-result id="install-llmcompressor"
 ...
 llmcompressor ...
 ```
+-->
 
 ## 5. 在 NPU 上做一次单层 W4A16 GPTQ
 
@@ -238,7 +237,7 @@ PY
 python oneshot_forward.py
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="oneshot-forward"
 ...
@@ -248,4 +247,8 @@ lm_head_quantized False
 logits.device npu:0
 ```
 
-进程须退出码为 0，且 `logits.device` 必须是 `npu:0`；若打印 `cpu`，则为静默回退，视为失败。
+## 6. 官方文档
+
+- 上游仓库：[vllm-project/llm-compressor](https://github.com/vllm-project/llm-compressor)
+- 文档中心：[LLM Compressor Docs](https://docs.vllm.ai/projects/llm-compressor/en/latest/)
+- oneshot 与 GPTQ：[oneshot](https://docs.vllm.ai/projects/llm-compressor/en/latest/guides/entrypoints/oneshot)
