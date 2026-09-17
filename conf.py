@@ -74,7 +74,10 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     # Guard / CI source of truth; Sphinx includes it into
                     # sources/llama_cpp/index.rst so the sidebar landing page
                     # is the tutorial, not a nested「快速开始」child page.
-                    'sources/llama_cpp/quick_start.md']
+                    'sources/llama_cpp/quick_start.md',
+                    # Included into sources/llm_compressor/index.rst; excluding
+                    # the file itself avoids a nested sidebar「快速开始」.
+                    'sources/llm_compressor/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
