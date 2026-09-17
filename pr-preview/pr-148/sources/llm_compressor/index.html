@@ -29,7 +29,7 @@
     <link rel="index" title="索引" href="../../genindex.html" />
     <link rel="search" title="搜索" href="../../search.html" />
     <link rel="next" title="lmdeploy" href="../lm_deploy/index.html" />
-    <link rel="prev" title="快速开始" href="../llama_cpp/quick_start.html" /> 
+    <link rel="prev" title="llama.cpp" href="../llama_cpp/index.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -69,7 +69,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../peft/index.html#id1">快速开始</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
@@ -85,17 +84,19 @@
 <li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文验证环境</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id5">2. 检查环境是否就绪</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认工具可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">2.2 确认工具可用</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pytorch-npu">3. 安装 PyTorch NPU 栈</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">4. 安装 llm-compressor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4. 安装 llm-compressor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#npu-w4a16-gptq">5. 在 NPU 上做一次单层 W4A16 GPTQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">6. 官方文档</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
@@ -166,23 +167,27 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>CANN</p></td>
-<td><p>toolkit + 驱动固件已安装，并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>。版本按 <a class="reference external" href="https://www.hiascend.com/developer/download/compatibility">昇腾软件配套清单</a> 选择</p></td>
 </tr>
 <tr class="row-odd"><td><p>Python</p></td>
-<td><p>3.12</p></td>
+<td><p>落在官方配套表给出的范围内，并满足 llm-compressor 下限；当前正式版要求 <code class="docutils literal notranslate"><span class="pre">&gt;=3.10</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>PyTorch</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">torch==2.10.0</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.10.0.post4</span></code>，见下文安装</p></td>
+<td><p>安装官方当前推荐的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，见 <a class="reference external" href="https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md">CANN 与 PyTorch 配套表</a> 和 <a class="reference external" href="https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download">PyTorch 安装包</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>llm-compressor</p></td>
-<td><p>从 PyPI 安装发布版，见下文</p></td>
+<td><p>从 PyPI 安装当前正式版；用 <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> 对着已装的 torch 装</p></td>
 </tr>
 <tr class="row-even"><td><p>模型</p></td>
 <td><p><a class="reference external" href="https://huggingface.co/nm-testing/tinysmokeqwen3">nm-testing/tinysmokeqwen3</a>（约 10 MB）</p></td>
 </tr>
 </tbody>
 </table>
-<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。推荐配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。</p>
+</section>
+<section id="id4">
+<h3>本文验证环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>本文在配套镜像 <code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code> 上验证，镜像内为 CANN 9.1.0 与 Python 3.12。本次按官方当前推荐对解析到 <code class="docutils literal notranslate"><span class="pre">torch</span> <span class="pre">2.12.0+cpu</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu</span> <span class="pre">2.12.0</span></code>。这不是唯一支持组合。</p>
 </section>
 </section>
 <section id="cann">
@@ -193,8 +198,8 @@
 </pre></div>
 </div>
 </section>
-<section id="id4">
-<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <section id="npu">
 <h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
@@ -202,57 +207,56 @@
 </div>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
 </section>
-<section id="id5">
-<h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<section id="id6">
+<h3>2.2 确认工具可用<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
 <span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi
 python<span class="w"> </span>--version
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-Python<span class="w"> </span><span class="m">3</span>.12...
-</pre></div>
-</div>
+<!--
+```shell #test-result id="check-tools"
+...
+Python ...
+```
+-->
 </section>
 </section>
 <section id="pytorch-npu">
 <h2>3. 安装 PyTorch NPU 栈<a class="headerlink" href="#pytorch-npu" title="Link to this heading"></a></h2>
-<p>昇腾上的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 要从华为 PyPI 额外索引安装，并钉死与 CANN 9.1.0 匹配的版本。<code class="docutils literal notranslate"><span class="pre">numpy</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pyyaml</span></code> 也要一起装：缺了会在 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 之前失败。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.10.0<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.10.0.post4<span class="w"> </span>numpy<span class="w"> </span>pyyaml
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>torch_npu<span class="w"> </span>numpy<span class="w"> </span>pyyaml
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"</span>
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-torch<span class="w"> </span><span class="m">2</span>.10.0...
-torch_npu<span class="w"> </span><span class="m">2</span>.10.0.post4
-npu_available<span class="w"> </span>True
-</pre></div>
-</div>
+<!--
+```shell #test-result id="install-torch"
+...
+npu_available True
+```
+-->
 </section>
-<section id="id6">
-<h2>4. 安装 llm-compressor<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<p>将 <code class="docutils literal notranslate"><span class="pre">&lt;UPSTREAM_REF&gt;</span></code> 换成目标 PyPI 版本号（撰写时最新正式版是 <code class="docutils literal notranslate"><span class="pre">0.13.0</span></code>）。</p>
+<section id="id7">
+<h2>4. 安装 llm-compressor<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>NPU 栈就绪后，用 <code class="docutils literal notranslate"><span class="pre">--no-build-isolation</span></code> 安装当前正式版，让构建对着已装的 torch。将 <code class="docutils literal notranslate"><span class="pre">&lt;UPSTREAM_REF&gt;</span></code> 换成目标 PyPI 版本号；撰写时最新正式版是 <code class="docutils literal notranslate"><span class="pre">0.13.0</span></code>。</p>
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
 ```
 -->
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi/variant<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">llmcompressor</span><span class="o">==</span>&lt;UPSTREAM_REF&gt;<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.10.0<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.10.0.post4
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span><span class="s2">"llmcompressor==&lt;UPSTREAM_REF&gt;"</span>
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import llmcompressor; print('llmcompressor', llmcompressor.__version__)"</span>
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-llmcompressor<span class="w"> </span>...
-</pre></div>
-</div>
+<!--
+```shell #test-result id="install-llmcompressor"
+...
+llmcompressor ...
+```
+-->
 </section>
 <section id="npu-w4a16-gptq">
 <h2>5. 在 NPU 上做一次单层 W4A16 GPTQ<a class="headerlink" href="#npu-w4a16-gptq" title="Link to this heading"></a></h2>
@@ -386,7 +390,7 @@ PY
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>oneshot_forward.py
 </pre></div>
 </div>
-<p>输出结果如下：</p>
+<p>完整输出较长，其中应包含：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
 weight_num_bits<span class="w"> </span><span class="m">4</span>
 targeted<span class="w"> </span>True
@@ -394,7 +398,14 @@ lm_head_quantized<span class="w"> </span>False
 logits.device<span class="w"> </span>npu:0
 </pre></div>
 </div>
-<p>进程须退出码为 0，且 <code class="docutils literal notranslate"><span class="pre">logits.device</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>；若打印 <code class="docutils literal notranslate"><span class="pre">cpu</span></code>，则为静默回退，视为失败。</p>
+</section>
+<section id="id8">
+<h2>6. 官方文档<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>上游仓库：<a class="reference external" href="https://github.com/vllm-project/llm-compressor">vllm-project/llm-compressor</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">LLM Compressor Docs</a></p></li>
+<li><p>oneshot 与 GPTQ：<a class="reference external" href="https://docs.vllm.ai/projects/llm-compressor/en/latest/guides/entrypoints/oneshot">oneshot</a></p></li>
+</ul>
 </section>
 </section>
 
@@ -402,7 +413,7 @@ logits.device<span class="w"> </span>npu:0
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
-        <a href="../llama_cpp/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../llama_cpp/index.html" class="btn btn-neutral float-left" title="llama.cpp" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
         <a href="../lm_deploy/index.html" class="btn btn-neutral float-right" title="lmdeploy" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
