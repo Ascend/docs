@@ -44,7 +44,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         path_dirs = '/usr/local/sbin:/usr/local/bin'
         current_path = os.environ.get('PATH', '')
         os.environ['PATH'] = f'{path_dirs}:{current_path}'
-        os.environ['PYTHONNOUSERSITE'] = '1'
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
         if os.path.isfile(cls._CANN_SET_ENV):
