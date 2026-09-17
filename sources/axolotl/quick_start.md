@@ -83,12 +83,26 @@ python -c "import axolotl; print('axolotl', axolotl.__version__)"
 
 ## 5. 准备数据和配置
 
-工作目录为 `/root/axolotl-qs`。先从 Hugging Face Hub 把模型链到该目录，再按下面内容保存训练数据和 LoRA 配置。
+本示例的工作目录为 `/root/axolotl-qs`。先从 Hugging Face Hub 把 [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) 下载到 `/root/axolotl-qs/model`，再按下面内容保存训练数据和 LoRA 配置。
+
+```shell
+mkdir -p /root/axolotl-qs
+python -c 'from huggingface_hub import snapshot_download; snapshot_download("Qwen/Qwen2.5-0.5B-Instruct", local_dir="/root/axolotl-qs/model")'
+```
+
+<!--
+```shell #test-setup
+mkdir -p /root/axolotl-qs
+rm -rf /root/axolotl-qs/model
+export HF_HOME=/root/.cache/huggingface
+ln -s "$(python -c 'from huggingface_hub import snapshot_download; print(snapshot_download("Qwen/Qwen2.5-0.5B-Instruct"))' | grep '^/' | tail -n 1)" /root/axolotl-qs/model
+test -f /root/axolotl-qs/model/config.json
+```
+-->
+
+确认模型文件已就位：
 
 ```shell #test id="download-model"
-mkdir -p /root/axolotl-qs
-rm -f /root/axolotl-qs/model
-ln -s "$(python -c 'from huggingface_hub import snapshot_download; print(snapshot_download("Qwen/Qwen2.5-0.5B-Instruct"))' | grep '^/' | tail -n 1)" /root/axolotl-qs/model
 ls /root/axolotl-qs/model/config.json
 ```
 
