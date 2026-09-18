@@ -257,6 +257,13 @@
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/get_started/ascend/get_started.html">昇腾教程</a></div>
       </div>
 
+      <!-- InternLM -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">InternLM</h3></div>
+         <p class="card-desc">开源大语言模型系列，支持在昇腾 NPU 上进行 Transformers 推理。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/InternLM">官方链接</a><span class="split">|</span><a href="https://github.com/InternLM/InternLM/blob/main/ecosystem/README_npu.md">NPU 指南</a><span class="split">|</span><a href="sources/internlm/quick_start.html">快速上手</a></div>
+      </div>
+
       <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
@@ -426,6 +433,7 @@
    :caption: 🚀 推理与服务
 
    sources/llama_cpp/index.rst
+   sources/internlm/index.md
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
@@ -455,4 +463,3 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
-
