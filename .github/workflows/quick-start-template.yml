@@ -1,44 +1,5 @@
 # Quick Start guard engine - the common, reusable part of the quick
 # start guarding pipeline.
-#
-# The guard logic below (monitor / decide / record / publish) is
-# ported verbatim from the legacy single-project workflow
-# ms-swift-quick-start.yml (4ee7f63); only the project-specific
-# values are parameterized as workflow_call inputs (see the
-# `on.workflow_call.inputs` block below for the full input contract).
-# Do not editorialize the bash here - when the guard logic evolves,
-# re-port it from the legacy workflow.
-#
-# Division of labor:
-#   * The caller (per-project thin trigger, e.g.
-#     ms-swift-quick-start.yml) owns: cron schedule, dispatch,
-#     workflow-level concurrency, and every project variant, declared
-#     as inputs here. Note that caller env does NOT cross the `uses:`
-#     boundary.
-#   * This engine owns the fixed guard loop: restore monitor state ->
-#     monitor (release > doc > retry) -> decide -> test -> record ->
-#     validate + publish result.json -> persist monitor state.
-#   * Two runner classes (engine-fixed, not project-configurable): the
-#     cache I/O jobs (restore-cache / publish-and-persist) run on
-#     GitHub-hosted ubuntu-latest because the self-hosted NPU runner
-#     can't reach the cache blob storage and can't compute a consistent
-#     cache version hash (platform / compression differences); only the
-#     test job runs on the project-declared runner inside its container.
-#   * The cluster pip/uv mirror env lives here at test-job level: the
-#     framework dependency (mistune) is installed by the test step's
-#     `python -m pip install 'mistune>=3,<4>'` (see step below), BEFORE
-#     the test process imports. This must be in job env (not in the
-#     test step's `env:` block) because the test-process bootstrap
-#     triggers as soon as `unittest` loads `test_quick_start_ascend`,
-#     before any project Python hook could override it. A project test
-#     subclass may still override PIP_INDEX_URL etc. with direct
-#     assignment in prepare_environment.
-#
-# Test-process env contract (read-only from the test side):
-#   MONITORED_DOC_URL   doc to fetch and execute (inputs.doc_url)
-#   UPSTREAM_REF        release tag substituted into the doc's <ref>
-#   NPU_READY           'true'; gates the project's E2E test class
-#   UV_* / PIP_*        cluster mirror defaults (overridable in hook)
 
 name: quick-start-template
 
@@ -46,7 +7,7 @@ on:
   workflow_call:
     inputs:
       project:
-        description: Project name (e.g. ms-swift); namespaces cache keys, artifact names; the doc lives under sources/<project>/ and the test under tests/<project>/
+        description: Project directory under tests/; namespaces cache keys (monitor-state-<project>_*), artifacts (<project>-quick-start-<run_id>) and the test working directory.
         type: string
         required: true
       test_runner:
@@ -58,7 +19,7 @@ on:
         type: string
         required: true
       container_options:
-        description: Container options for the test job (device mounts, read-only volumes, shm size, ...). Default empty when no extra options are needed.
+        description: Container options for the test job (device mounts, read-only volumes, shm size, ...)
         type: string
         required: false
         default: ''
@@ -75,7 +36,7 @@ on:
         type: string
         default: ''
       doc_url:
-        description: URL of the monitored quick-start doc; the monitor hashes it and the test fetches the same URL
+        description: URL of the monitored quick-start doc; the monitor hashes it and the test fetches the same URL. Use {0} as placeholder for the upstream ref / PR head SHA (filled by the engine).
         type: string
         required: true
       doc_path:
@@ -83,7 +44,7 @@ on:
         type: string
         required: true
       test_command:
-        description: Test entry command, executed with cwd = repo root (inside the workflows checkout)
+        description: Test entry command, executed with cwd = repo root (inside the `workflows` checkout)
         type: string
         required: true
 
@@ -94,15 +55,6 @@ permissions:
   contents: read
 
 jobs:
-  # Restore the previous run's monitor state on a GitHub-hosted
-  # ubuntu-latest runner, then ship the four tracked fields as job
-  # outputs to test (which runs on a self-hosted NPU
-  # runner that can't reach the cache blob storage and can't be
-  # trusted to compute the same cache version hash because of
-  # platform / compression differences). Doing the restore here
-  # keeps save (publish-and-persist, also ubuntu-latest) and
-  # restore on the same runner type, so the cache version hash
-  # is consistent across write and read.
   restore-cache:
     name: restore monitor state from cache
     runs-on: ubuntu-latest
@@ -113,17 +65,31 @@ jobs:
       cache_test_error:      ${{ steps.read-monitor.outputs.cache_test_error }}
     steps:
       - name: Restore monitor state
+        id: cache-restore
         uses: actions/cache/restore@v6
         with:
           path: .monitor-state
-          key: cache-not-used-restore-keys-only
-          restore-keys: monitor-state-${{ inputs.project }}-
+          # Per-run key always misses; restore-keys picks the latest
+          # save. The '_' terminator makes this prefix match only keys
+          # of the very same project (see header comment).
+          key: quick-start-monitor-state-${{ inputs.project }}_${{ github.run_id }}
+          restore-keys: |
+            quick-start-monitor-state-${{ inputs.project }}_
 
-      # Re-emit each field as a separate step output rather than passing
-      # the raw file content as one big string - keeps the materializer
-      # in test trivially shell-quotable. Cold cache =
-      # no outputs written; downstream needs.X.outputs.Y evaluates
-      # to '' and the materializer writes empty values into .monitor.
+      - name: Verify matched cache key
+        env:
+          PROJECT: ${{ inputs.project }}
+          MATCHED_KEY: ${{ steps.cache-restore.outputs.cache-matched-key }}
+        run: |
+          set -euo pipefail
+          if [ -n "$MATCHED_KEY" ] \
+            && ! printf '%s' "$MATCHED_KEY" | grep -Eq "^quick-start-monitor-state-${PROJECT}_[0-9]+$"; then
+            echo "::warning::monitor-state cache cross-talk: matched key '$MATCHED_KEY' is not owned by project '$PROJECT' - discarding cache (cold start)"
+            rm -rf .monitor-state
+          else
+            echo "matched cache key ok: ${MATCHED_KEY:-cold start}"
+          fi
+
       - id: read-monitor
         run: |
           set -euo pipefail
@@ -167,18 +133,13 @@ jobs:
       # caller's inputs (caller env does not cross the `uses:` boundary).
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
       FIXED_REF: ${{ inputs.fixed_ref }}
+      # {0} in doc_url is filled by the engine: PR head SHA on PR runs,
+      # 'main' otherwise. Same-repo PRs (head SHA exists on Ascend/docs)
+      # test the PR-version of the doc; fork PRs 404 on doc fetch —
+      # accepted, since the content lands on Ascend/docs post-merge.
       MONITORED_DOC_URL: ${{ format(inputs.doc_url, github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main') }}
       GH_TOKEN: ${{ github.token }}
       GH_API: https://api.github.com
-      # Cluster-internal nginx PyPI cache fronts every package
-      # (PEP 517 build deps + NPU wheels), so installs don't fall
-      # back to external mirrors the runner can't reach. These are
-      # cluster-level defaults: a project test subclass may override
-      # them via direct assignment in prepare_environment (they must
-      # be in job env because the test process's mistune install
-      # (`python -m pip install 'mistune>=3,<4>'` in the test step
-      # below) reads PIP_INDEX_URL before any project Python hook
-      # runs).
       UV_INDEX_URL: "http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple"
       UV_EXTRA_INDEX_URL: "https://repo.huaweicloud.com/ascend/repos/pypi"
       UV_INDEX_STRATEGY: "unsafe-best-match"
@@ -191,11 +152,6 @@ jobs:
       PIP_TRUSTED_HOST: "cache-service.nginx-pypi-cache.svc.cluster.local"
       PIP_TIMEOUT: "120"
     steps:
-      # Diagnostics only. No `source set_env.sh` here: an export inside
-      # this step wouldn't survive the step boundary anyway - the CANN
-      # env the test actually runs with is sourced inside the project
-      # test subclass's prepare_environment (test process, same env as
-      # the doc commands).
       - name: Print context and probe NPU
         run: |
           echo "=========================================="
@@ -213,12 +169,6 @@ jobs:
           path: workflows
           fetch-depth: 1
 
-      # restore-cache ran on ubuntu-latest (the only runner that can reach
-      # the cache blob storage) and shipped each tracked field as a job
-      # output. Reconstruct the same bash-sourceable key=value file
-      # here so the monitor step below can `.` it as if it had been
-      # restored locally. Cold cache means upstream outputs are empty
-      # strings; the monitor step's lower-case defaults handle that.
       - name: Materialize monitor state file
         env:
           RESTORED_LAST_RELEASE_ID: ${{ needs.restore-cache.outputs.cache_last_release_id }}
@@ -237,13 +187,17 @@ jobs:
           echo "materialized .monitor-state/.monitor:"
           cat .monitor-state/.monitor
 
-      # Schedule-only: this step is what maintains .monitor-state/.monitor
-      # (the failure flag / last_release_id / doc_hash). Dispatch is a
-      # one-shot read-only path that must not mutate that state -
-      # otherwise a manual run would clobber the failure flag the next
-      # schedule cycle needs to decide whether to retry. The dispatch
-      # branch in `decide` below fetches the latest release tag
-      # independently.
+      - name: Bootstrap curl, jq, and git
+        run: |
+          set -euo pipefail
+          if command -v curl >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 && command -v git >/dev/null 2>&1; then
+            echo "bootstrap: curl, jq, and git already present"
+            exit 0
+          fi
+          apt-get update -qq
+          apt-get install -y -qq curl jq git
+          echo "bootstrap: curl $(curl --version | head -1) jq $(jq --version) git $(git --version)"
+
       - name: Monitor upstream release and doc
         id: monitor
         if: github.event_name == 'schedule'
@@ -270,35 +224,8 @@ jobs:
           # ----- release signal -----
           # A caller-provided FIXED_REF is resolved to its current commit SHA so
           # mutable branches still fire the change signal. Without FIXED_REF,
-          # use the automatic fallback chain:
-          #   1. /releases/latest          (default path; most upstreams)
-          #   2. /releases?per_page=20     (covers prerelease-only repos, e.g.
-          #                                 torchtitan pre-stable where
-          #                                 /releases/latest 404s because every
-          #                                 release is marked prerelease; picks
-          #                                 most recent non-draft by published_at)
-          #   3. /tags?per_page=1          (covers repos that never publish
-          #                                 GitHub Releases — Ascend/vision is
-          #                                 the canonical case; /releases/latest
-          #                                 404s AND /releases returns [])
-          #   4. /commits/HEAD             (covers repos with NO releases AND
-          #                                 NO tags — sgl-project/SpecForge is
-          #                                 the canonical case; all three
-          #                                 above return empty. Returns the
-          #                                 default-branch HEAD SHA which is
-          #                                 used as both id (change-detection
-          #                                 key — fires NEED_TO_TEST on every
-          #                                 new push) and tag_name (clone ref
-          #                                 — `git clone --branch <sha>` is
-          #                                 valid). No hardcoded branch name;
-          #                                 works for `main` / `master` /
-          #                                 custom default. Cost: noisy —
-          #                                 SpecForge commits every 1–5 days
-          #                                 so 6h schedule fires ~1x per cycle
-          #                                 on average; accepted as the price
-          #                                 of monitoring tagless upstreams
-          #                                 uniformly with the release/tag
-          #                                 path.)
+          # retain main's automatic fallback chain:
+          # /releases/latest -> /releases -> /tags -> /commits/HEAD -> main.
           # Each step normalizes to {id, tag_name} so the downstream .id /
           # .tag_name reads are uniform across sources. `set -e` is masked
           # via `|| true` + jq presence checks so a 404 (or an empty body)
@@ -330,9 +257,9 @@ jobs:
               /tmp/r2.json > /tmp/release.json
             echo "monitor: release source=/releases?per_page=20 (prerelease fallback)"
           elif curl -fsSL --retry 3 --max-time 30 \
-              "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
-            jq -r 'if (.[0] // null) != null then {id: .[0].commit.sha, tag_name: .[0].name} else empty end' \
-              /tmp/r3.json > /tmp/release.json
+              "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null \
+              && jq -e '(.[0] // null) != null' /tmp/r3.json > /dev/null 2>&1; then
+            jq -r '{id: .[0].commit.sha, tag_name: .[0].name}' /tmp/r3.json > /tmp/release.json
             echo "monitor: release source=/tags?per_page=1 (tags-only fallback)"
           elif curl -fsSL --retry 3 --max-time 30 \
               "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
@@ -340,7 +267,8 @@ jobs:
               /tmp/r4.json > /tmp/release.json
             echo "monitor: release source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
           else
-            echo "monitor: all four release sources failed; treating as no signal"
+            jq -n '{id: "", tag_name: "main"}' > /tmp/release.json
+            echo "monitor: release source=fallback/main (all four API tiers failed)"
           fi
           CURRENT_RELEASE_ID=$(jq -r '.id // empty' /tmp/release.json)
           CURRENT_RELEASE_TAG=$(jq -r '.tag_name // empty' /tmp/release.json)
@@ -362,12 +290,6 @@ jobs:
           fi
 
           # ----- doc signal (only if release didn't fire) -----
-          # raw.githubusercontent.com is not always reachable from the
-          # NPU runner (cluster firewall). Treat a fetch failure as
-          # "doc signal unknown" rather than aborting the whole cycle:
-          # doc is the lower-priority signal, release (when it fires)
-          # already covers the test path, and a missed doc signal just
-          # delays the next doc-driven cycle until the next schedule.
           if [ "$SKIP_DOC" = "false" ]; then
             if ! CURRENT_DOC_HASH=$(curl -fsSL --retry 3 --max-time 30 \
                                     -H "Authorization: Bearer $GH_TOKEN" \
@@ -431,64 +353,46 @@ jobs:
           set -euo pipefail
           DECISION_FILE="/tmp/.decision"
 
-          # Defaults so set -u stays safe; dispatch / PR overwrite,
+          # Defaults so set -u stays safe; dispatch overwrites,
           # schedule sources /tmp/.decision when present.
           need_to_test="false"
           reason=""
           ref=""
 
-          # Auto-fallback chain (shared by dispatch + PR):
-          #   /releases/latest -> /releases?per_page=20 -> /tags?per_page=1 -> /commits/HEAD.
-          # Each tier falls through on 404/empty. Defined before the if/elif
-          # so both branches can call it (a function inside an if block only
-          # exists on the branch that runs).
-          resolve_ref() {
-            local _ref=""
-            if curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
-              _ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
-            fi
-            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
-              _ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
-            fi
-            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
-              _ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
-            fi
-            # 4th tier: upstreams with no releases AND no tags (e.g. SpecForge).
-            # /commits/HEAD returns the default-branch HEAD sha; valid as a
-            # `git clone --branch` ref, no hardcoded branch name needed.
-            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
-              _ref=$(jq -r '.sha // empty' /tmp/r4.json)
-              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
-            fi
-            printf '%s' "$_ref"
-          }
-
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
             need_to_test="true"
-            reason="manual"
+            if [ "$EVENT_NAME" = "pull_request" ]; then
+              reason="pr"
+            else
+              reason="manual"
+            fi
             if [ -n "$FIXED_REF" ]; then
               ref="$FIXED_REF"
               echo "monitor: ref source=caller-fixed ref ($ref)"
             else
-              ref=$(resolve_ref)
+              if curl -fsSL --retry 3 --max-time 30 \
+                  "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
+                ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
+              fi
+              if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                  "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
+                ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
+              fi
+              if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                  "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
+                ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
+              fi
+              if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                  "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
+                ref=$(jq -r '.sha // empty' /tmp/r4.json)
+                echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
+              fi
+              if [ -z "$ref" ]; then
+                ref="main"
+                echo "monitor: ref source=fallback/main (all four API tiers failed)"
+              fi
             fi
-            [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref (auto-fallback chain exhausted)"; exit 1; }
-            echo "monitor decision (manual override): ref=$ref need_to_test=true reason=manual"
-          elif [ "$EVENT_NAME" = "pull_request" ]; then
-            need_to_test="true"
-            reason="pr"
-            if [ -n "$FIXED_REF" ]; then
-              ref="$FIXED_REF"
-              echo "monitor: ref source=caller-fixed ref ($ref)"
-            else
-              ref=$(resolve_ref)
-            fi
-            [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref for PR run (auto-fallback chain exhausted)"; exit 1; }
-            echo "monitor decision (pr run): ref=$ref need_to_test=true reason=pr"
+            echo "monitor decision ($reason): ref=$ref need_to_test=true"
           elif [ -f $DECISION_FILE ]; then
             . $DECISION_FILE
           fi
@@ -500,16 +404,7 @@ jobs:
             echo "test_ref=$ref" >> "$GITHUB_OUTPUT"
             echo "Monitor fired: reason=$reason ref=$ref"
 
-            # /releases/latest returns .id as the release id (not the
-            # commit SHA); /releases?per_page=20 same. /tags carries the
-            # commit SHA in .commit.sha, but the dispatch path above
-            # doesn't keep that side — and the auto-fallback chain means
-            # the monitor can't tell which source fired. Always doing the
-            # /commits/$ref lookup is one extra API call per fire but
-            # uniformly correct. (Optimization: when /tags fired we
-            # could read .commit.sha directly, but tracking which source
-            # fired across the bash steps would add state for a marginal
-            # saving — not worth it.)
+            [ -n "$ref" ] || { echo "ERROR: monitor fired (reason=$reason) with empty ref - no upstream ref to test"; exit 1; }
             SHA=$(curl -fsSL "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/$ref" \
               | jq -r '.sha // empty')
             [ -z "$SHA" ] && { echo "failed to resolve $ref"; exit 1; }
@@ -521,7 +416,7 @@ jobs:
           fi
 
       # The project's test entry: everything project-specific (env prep,
-      # installs, doc fetch/parse/execute) lives in projects/<project>'s
+      # installs, doc fetch/parse/execute) lives in tests/<project>'s
       # test command; the engine only supplies the env contract below
       # plus the cluster mirror env from job env.
       - name: Run quick start test
@@ -547,13 +442,6 @@ jobs:
           python -m pip install 'mistune>=3,<4'
           ${{ inputs.test_command }}
 
-      # Schedule + need_to_test - dispatch forces need_to_test=true
-      # but must not mutate monitor state (otherwise it would clobber
-      # the failure flag the next schedule cycle uses to decide
-      # whether to retry). need_to_test is set BEFORE test.conclusion
-      # is known, so this step still runs through the failure path -
-      # writing the new failure flag is what makes the next cycle
-      # decide to retry.
       - name: Record monitor outcome
         id: record-monitor-outcome
         if: |
@@ -598,13 +486,6 @@ jobs:
               ERROR="unknown conclusion (${CONCLUSION})"
               ;;
           esac
-
-          # REASON is guaranteed non-empty here: this step's if: gates on
-          # need_to_test=true, which the decide step sets together with
-          # REASON in the same cycle. Overwriting test_result / test_error
-          # unconditionally is therefore safe -- there is no "REASON empty"
-          # branch to preserve. A retry on a still-pending failure is
-          # handled by the monitor step's TEST_RESULT=failure branch.
 
           last_release_id=""
           doc_hash=""
@@ -798,4 +679,4 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: .monitor-state
-          key: monitor-state-${{ inputs.project }}-${{ github.run_id }}
+          key: quick-start-monitor-state-${{ inputs.project }}_${{ github.run_id }}

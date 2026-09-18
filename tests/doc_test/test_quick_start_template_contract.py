@@ -25,6 +25,17 @@ class TestQuickStartTemplateContract(unittest.TestCase):
         self.assertIn("caller-fixed ref", text)
         self.assertIn("ref=\"$FIXED_REF\"", text)
 
+    def test_fixed_ref_keeps_latest_cache_isolation_and_pr_validation(self) -> None:
+        text = TEMPLATE.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "quick-start-monitor-state-${{ inputs.project }}_${{ github.run_id }}",
+            text,
+        )
+        self.assertIn('"$EVENT_NAME" = "pull_request"', text)
+        self.assertIn('reason="pr"', text)
+        self.assertIn('ref="$FIXED_REF"', text)
+
 
 if __name__ == "__main__":
     unittest.main()

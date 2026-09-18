@@ -70,7 +70,11 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
-                    '.github', 'tests']
+                    '.github', 'tests',
+                    # Guard / CI source of truth; Sphinx includes it into
+                    # sources/llama_cpp/index.rst so the sidebar landing page
+                    # is the tutorial, not a nested「快速开始」child page.
+                    'sources/llama_cpp/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
