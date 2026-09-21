@@ -69,7 +69,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 f'setup: skipping CANN env source ({cls._CANN_SET_ENV} not present)'
             )
 
-        os.environ['PYTHONNOUSERSITE'] = '1'
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
         if not os.environ.get('UPSTREAM_REF', '').strip():
             os.environ['UPSTREAM_REF'] = '0.5.4'
