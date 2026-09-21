@@ -1,8 +1,7 @@
 stable-diffusion-webui
-============================
+======================
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 1
 
-    install.rst
-    quick_start.rst
+   快速开始 <quick_start.md>
