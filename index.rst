@@ -257,6 +257,13 @@
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/get_started/ascend/get_started.html">昇腾教程</a></div>
       </div>
 
+      <!-- FastChat -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/fastchat.png')"></div><h3 class="card-title">FastChat</h3></div>
+         <p class="card-desc">训练、服务和评测大语言模型的开源平台，支持昇腾 NPU 上的对话与 OpenAI 兼容 API。</p>
+         <div class="card-footer"><a href="https://github.com/lm-sys/FastChat">官方链接</a><span class="split">|</span><a href="sources/fastchat/index.html">快速上手</a></div>
+      </div>
+
       <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
@@ -427,6 +434,7 @@
 
    sources/llama_cpp/index.rst
    sources/lm_deploy/index.rst
+   sources/fastchat/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
    sources/sglang/index.rst
