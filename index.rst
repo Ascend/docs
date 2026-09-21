@@ -243,6 +243,13 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- cache-dit：官方文档已含昇腾说明，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
+         <p class="card-desc">A PyTorch-native Inference Engine with Cache, Parallelism, Quantization and CPU Offload for DiTs.</p>
+         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
+      </div>
+
       <!-- llama.cpp -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
@@ -425,6 +432,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
