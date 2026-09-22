@@ -318,7 +318,7 @@ AIBrix gateway is running!
 
 ## 7. 发一次推理
 
-经 `127.0.0.1:10080` 发送一次 chat completion。
+经 `127.0.0.1:10080` 发送一次 chat completion，`seed` 为 42。
 
 ```python #test id="infer"
 import json
@@ -329,6 +329,7 @@ payload = {
     'messages': [{'role': 'user', 'content': 'Say hi in one sentence.'}],
     'max_tokens': 32,
     'temperature': 0,
+    'seed': 42,
 }
 request = urllib.request.Request(
     'http://127.0.0.1:10080/v1/chat/completions',
