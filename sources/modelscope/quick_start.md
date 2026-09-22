@@ -1,14 +1,14 @@
-# Quick Start (Ascend NPU)
+## Quick Start (Ascend NPU)
 
 在单卡昇腾 NPU 上跑通 [ModelScope](https://modelscope.cn) 的最小链路：从源码安装 modelscope，通过 ModelScope Hub 下载 Qwen2.5-0.5B-Instruct，并在 NPU 上做一次文本生成推理。
 
-## 前置条件
+### 前置条件
 
-### 硬件
+#### 硬件
 
 Atlas 900 A2 / A3 训练系列产品（Ascend 910B4 / 910B 等），并按需完成物理机或容器内的设备挂载。
 
-### 基础软件
+#### 基础软件
 
 在跑本文档**之前**，你的机器上需要已经装好并可用：
 
@@ -16,7 +16,7 @@ Atlas 900 A2 / A3 训练系列产品（Ascend 910B4 / 910B 等），并按需完
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
 - 与上面 CANN 匹配的 `torch` + `torch_npu`，且 `torch` 能正常 `import` 并 `torch.npu.is_available() == True`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）
 
-### 本文档示例使用的版本
+#### 本文档示例使用的版本
 
 **配套机器**：
 
@@ -39,7 +39,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | modelscope | 最新 release 的源码 |
 | 模型 | [Qwen/Qwen2.5-0.5B-Instruct](https://modelscope.cn/models/Qwen/Qwen2.5-0.5B-Instruct) |
 
-## 前置安装
+### 前置安装
 
 确认能看到 NPU 设备：
 
@@ -98,16 +98,16 @@ count: 1
 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
 ```
 
-## 安装 modelscope
+### 安装 modelscope
 
-### 使用 pip 进行安装（二进制，用户自选）
+#### 使用 pip 进行安装（二进制，用户自选）
 
 ```shell
 uv pip install modelscope
 python -c "import modelscope; print('modelscope', modelscope.__version__)"
 ```
 
-### 从源码安装
+#### 从源码安装
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -147,7 +147,7 @@ modelscope importable
 transformers xxx
 ```
 
-## 使用样例
+### 使用样例
 
 在单卡昇腾 NPU 上用 modelscope 下载 Qwen2.5-0.5B-Instruct 并做一次文本生成。
 
