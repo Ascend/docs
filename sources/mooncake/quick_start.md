@@ -1,23 +1,29 @@
 # Mooncake
 
-本文在两张昇腾 NPU 上从源码编译 [Mooncake](https://github.com/kvcache-ai/Mooncake) Transfer Engine，并用 Ascend Direct 做一次设备间写传输。
+本文在昇腾 NPU 上安装社区官方包 [mooncake-transfer-engine-npu](https://pypi.org/project/mooncake-transfer-engine-npu/)，并用 TransferEngine 在两张 NPU 之间传输一块数据。
+
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
 ## 前置条件
 
 ### 硬件
 
-Atlas 800T 或 900 A2 训练系列，芯片为 Ascend 910B。本文示例为两张卡：一张跑 target，一张跑 initiator。
+Atlas 800T 或 900 A2 训练系列，芯片为 Ascend 910B。本文使用两张 NPU：接收端在 0 号卡，发送端在 1 号卡。
 
 ### 软件
 
-| 类别 | 要求 |
-| --- | --- |
-| CANN | toolkit 与驱动已安装，并能 `source /usr/local/Ascend/ascend-toolkit/set_env.sh` |
-| 设备网卡配置 | `/etc/hccn.conf` 存在。驱动安装时写入；容器里把宿主机这份文件挂进来 |
-| 编译工具 | cmake、g++、make、git、pkg-config |
-| 依赖库 | glog、gflags、libibverbs、jsoncpp、yaml-cpp、OpenSSL、libcurl，见第 3 节 |
 
-**配套机器**：Atlas 900 A2，双卡 910B。**配套镜像**：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+| 类别       | 要求                                                                                                                                                  |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CANN     | toolkit 与驱动已安装，并能 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
+| Python   | 落在社区 Quick Start 给出的范围内；NPU 包要求 `>=3.9`，社区文档写 3.10 或更新                                                                                              |
+| PyTorch  | 安装与当前 CANN 配套的 `torch_npu`。版本按上面的配套清单选择，命令里不写死版本号                                                                                                   |
+| 运行时库     | Ubuntu 上需要 `libcurl4`、`libibverbs1`、`rdma-core`、`librdmacm1`、`libnuma1`、`liburing2`                                                                 |
+| Mooncake | 安装社区当前发布的 `mooncake-transfer-engine-npu`，见 [Quick Start](https://kvcache-ai.github.io/Mooncake/getting_started/quick-start.html)                    |
+| 设备网卡配置   | `/etc/hccn.conf` 存在。驱动安装时写入；容器里把宿主机这份文件挂进来                                                                                                          |
+
+
+本文验证环境：Atlas 900 A2、两张 Ascend 910B、Python 3.12、torch 2.12.0、torch_npu 2.12.0、mooncake-transfer-engine-npu 0.3.13.post1、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。这不是唯一支持组合。
 
 ## 1. 加载 CANN 环境
 
@@ -26,17 +32,13 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-Ascend Direct 会读 `/etc/hccn.conf` 里每张卡的设备网卡 IP。没有这份文件时，后面的传输会在 ADXL 初始化阶段失败。
+Ascend 传输会读 `/etc/hccn.conf` 里每张卡的设备网卡 IP。没有这份文件时，后面的传输初始化会失败。
 
 ```shell #test id="hccn"
 ls /etc/hccn.conf
 ```
 
-输出结果如下：
 
-```shell #test-result id="hccn"
-/etc/hccn.conf
-```
 
 ## 2. 确认 NPU 在线
 
@@ -46,138 +48,129 @@ npu-smi info
 
 至少两张卡。找不到 `npu-smi` 时，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
 
-## 3. 安装编译依赖
+## 3. 安装运行时库
 
-下列包提供 Transfer Engine 链接所需的头文件与库。
 
 ```shell #test id="deps"
 apt-get update
 apt-get install -y --no-install-recommends \
-    build-essential cmake git pkg-config \
-    libgoogle-glog-dev libgflags-dev libibverbs-dev \
-    libjsoncpp-dev libnuma-dev libyaml-cpp-dev \
-    libssl-dev libcurl4-openssl-dev
-ls /usr/include/glog/logging.h /usr/include/gflags/gflags.h
+    libcurl4 libibverbs1 rdma-core librdmacm1 libnuma1 liburing2
+dpkg -s libibverbs1 libcurl4 librdmacm1 libnuma1 liburing2
+```
+
+
+
+## 4. 安装 PyTorch NPU 栈
+
+```shell #test id="install-torch"
+python -m pip install \
+  --index-url https://download.pytorch.org/whl/cpu \
+  --extra-index-url https://pypi.org/simple \
+  torch_npu numpy pyyaml
+python -c "import numpy, yaml, torch, torch_npu; n = torch.npu.device_count(); assert torch.npu.is_available() and n >= 2, (torch.npu.is_available(), n); print('npu_available', torch.npu.is_available())"
+```
+
+
+
+## 5. 安装 Mooncake NPU 包
+
+```shell #test id="install"
+python -m pip install mooncake-transfer-engine-npu
+python -c "from mooncake.store import MooncakeDistributedStore; from mooncake.engine import TransferEngine; print('mooncake_npu_import', 'ok')"
+```
+
+
+
+## 6. 使用 Ascend Direct 在两张 NPU 之间传输
+
+本例通过公开的 Python API 模拟推理服务迁移一块 KV Cache 数据。接收端占用 0 号 NPU，发送端占用 1 号 NPU，传输协议使用 `ascend`。
+
+接收端在 0 号卡上登记 65536 字节，并把实际监听地址写到 `mooncake_te_handshake.txt`。
+
+```python
+import time
+
+import torch
+import torch_npu
+from mooncake.engine import TransferEngine
+
+torch.npu.set_device(0)
+nbytes = 65536
+buf = torch.zeros(nbytes, dtype=torch.uint8, device="npu:0")
+
+engine = TransferEngine()
+engine.initialize("127.0.0.1:16001", "P2PHANDSHAKE", "ascend", "")
+engine.register_memory(buf.data_ptr(), buf.nbytes, "*")
+
+endpoint = f"127.0.0.1:{engine.get_rpc_port()}"
+with open("mooncake_te_handshake.txt", "w", encoding="utf-8") as handle:
+    handle.write(f"{endpoint}\n{buf.data_ptr()}\n{nbytes}\n{buf.device}\n")
+print(f"target_ready {buf.device} {endpoint}", flush=True)
+while True:
+    time.sleep(60)
+```
+
+
+
+发送端先把整块数据复制下来，作为传输前的内容。写入接收端后清空本卡缓冲，再把同一块数据读回来。
+
+```python #test id="transfer"
+import torch
+import torch_npu
+from mooncake.engine import TransferEngine
+
+lines = open("mooncake_te_handshake.txt", encoding="utf-8").read().splitlines()
+endpoint, ptr_s, nbytes_s, target_device = lines[:4]
+remote_ptr = int(ptr_s)
+nbytes = int(nbytes_s)
+
+torch.npu.set_device(1)
+src = torch.full((nbytes,), 0x5A, dtype=torch.uint8, device="npu:1")
+before = src.detach().cpu().clone()
+
+engine = TransferEngine()
+engine.initialize("127.0.0.1:16002", "P2PHANDSHAKE", "ascend", "")
+engine.register_memory(src.data_ptr(), src.nbytes, "*")
+engine.transfer_sync_write(endpoint, src.data_ptr(), remote_ptr, nbytes)
+src.zero_()
+torch.npu.synchronize()
+engine.transfer_sync_read(endpoint, src.data_ptr(), remote_ptr, nbytes)
+torch.npu.synchronize()
+after = src.detach().cpu()
+matched = int((before == after).sum())
+
+shown = " ".join(f"{int(value):02x}" for value in before[:8])
+readback = " ".join(f"{int(value):02x}" for value in after[:8])
+print(f"target_device {target_device}")
+print(f"initiator_device {src.device}")
+print(f"before {shown}")
+print(f"after {readback}")
+print(f"matched_bytes {matched}")
+print(f"total_bytes {before.numel()}")
 ```
 
 输出结果如下：
 
-```shell #test-result id="deps"
-...
-/usr/include/gflags/gflags.h
-/usr/include/glog/logging.h
+```text #test-result id="transfer"
+target_device npu:0
+initiator_device npu:1
+before 5a 5a 5a 5a 5a 5a 5a 5a
+after 5a 5a 5a 5a 5a 5a 5a 5a
+matched_bytes 65536
+total_bytes 65536
 ```
 
-## 4. 获取源码并编译 Ascend Direct
 
-克隆上游仓库，检出要用的 ref，打开 `-DUSE_ASCEND_DIRECT=ON`，只编译 `transfer_engine_ascend_direct_perf`。将 `<ref>` 换成目标分支、tag 或 commit，上游仓库默认分支为 `main`。
-<!--
-```shell #test-setup store="upstream_ref"
-echo "${UPSTREAM_REF}"
-```
--->
 
-```shell #test id="compile" load="upstream_ref>>ref"
-if [ ! -d Mooncake/.git ]; then
-  GIT_HTTP_VERSION=HTTP/1.1 git clone --depth 1 --branch <ref> \
-    https://github.com/kvcache-ai/Mooncake.git
-fi
-cd Mooncake
-if [ ! -f extern/pybind11/CMakeLists.txt ]; then
-  GIT_HTTP_VERSION=HTTP/1.1 git submodule update --init --depth 1 extern/pybind11
-fi
-cmake -S . -B build \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DUSE_ASCEND_DIRECT=ON \
-    -DBUILD_EXAMPLES=ON \
-    -DBUILD_UNIT_TESTS=OFF \
-    -DWITH_STORE=OFF \
-    -DWITH_STORE_RUST=OFF \
-    -DWITH_EP=OFF \
-    -DWITH_P2P_STORE=OFF \
-    -DUSE_ETCD=OFF \
-    -DUSE_REDIS=OFF
-cmake --build build --target transfer_engine_ascend_direct_perf -j$(nproc)
-ls build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
-```
+## 7. 更多文档
 
-输出结果如下：
+Store、vLLM / SGLang 对接和多机部署与社区相同，按社区手册继续即可。
 
-```shell #test-result id="compile"
-...
-build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
-...
-```
+- 上游仓库：[kvcache-ai/Mooncake](https://github.com/kvcache-ai/Mooncake)
+- 社区 Quick Start 与 NPU 安装：[Quick Start](https://kvcache-ai.github.io/Mooncake/getting_started/quick-start.html)
+- 从源码编译与后端选项：[Build Guide](https://kvcache-ai.github.io/Mooncake/getting_started/build.html)
+- Ascend Direct 传输：[Ascend Direct Transport](https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html)
+- Store 部署与调优：[Mooncake Store Deployment](https://kvcache-ai.github.io/Mooncake/deployment/mooncake-store-deployment-guide.html)
+- 对接 SGLang：[SGLang Integration](https://kvcache-ai.github.io/Mooncake/deployment/integrations/sglang/)
+- 对接 vLLM：[vLLM Integration](https://kvcache-ai.github.io/Mooncake/deployment/integrations/vllm/)
 
-`-DWITH_STORE=OFF` 与 `-DUSE_ETCD=OFF` 关掉这次用不到的 Store 和元数据后端。完整组件请按上游社区 [Build Guide](https://kvcache-ai.github.io/Mooncake/getting_started/build.html) 打开对应选项。
-
-## 5. 在两张 NPU 之间做一次写传输
-
-例程是双进程：先启动 target，在 NPU 0 上注册设备内存并监听；再启动 initiator，在 NPU 1 上把一块 device buffer 写到 target。`P2PHANDSHAKE` 会给 target 选一个实际端口，initiator 的 `--segment_id` 必须填日志里那一行 `listening on <IP>:<port>`。
-
-`block_iteration=1`、`batch_size=2`、`block_size=16384` 把传输规模压小，正式测带宽再按上游社区 [Ascend Direct Transport](https://kvcache-ai.github.io/Mooncake/design/transfer-engine/ascend_direct_transport.html) 加大。glog 默认打到 stderr，所以命令末尾有 `2>&1`。
-
-```shell #test id="transfer"
-cd Mooncake
-export GLOG_logtostderr=1
-build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf \
-    --mode=target \
-    --device_logicid=0 \
-    --local_server_name=127.0.0.1:12345 \
-    --metadata_server=P2PHANDSHAKE \
-    --block_iteration=1 \
-    --batch_size=2 \
-    --block_size=16384 \
-    > /tmp/mooncake-target.log 2>&1 &
-target_pid=$!
-for _ in $(seq 1 60); do
-    if ! kill -0 "$target_pid" 2>/dev/null; then
-        echo "target exited before listen" >&2
-        cat /tmp/mooncake-target.log >&2
-        exit 1
-    fi
-    endpoint=$(grep -Eo 'listening on [^[:space:]]+:[0-9]+' /tmp/mooncake-target.log | tail -1 | awk '{print $3}')
-    if [ -n "$endpoint" ]; then
-        break
-    fi
-    sleep 1
-done
-if [ -z "$endpoint" ]; then
-    echo "target did not print a listening endpoint" >&2
-    cat /tmp/mooncake-target.log >&2
-    kill "$target_pid" 2>/dev/null || true
-    exit 1
-fi
-build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf \
-    --mode=initiator \
-    --device_logicid=1 \
-    --local_server_name=127.0.0.1:12346 \
-    --metadata_server=P2PHANDSHAKE \
-    --segment_id="$endpoint" \
-    --operation=write \
-    --block_iteration=1 \
-    --batch_size=2 \
-    --block_size=16384 \
-    2>&1 | tee /tmp/mooncake-initiator.log
-xfer_ec=${PIPESTATUS[0]}
-kill "$target_pid" 2>/dev/null || true
-wait "$target_pid" 2>/dev/null || true
-if grep -qE 'getTransferStatus FAILED|Sync data transfer timeout|Failed to install Ascend transport' \
-    /tmp/mooncake-initiator.log /tmp/mooncake-target.log; then
-    echo "transfer reported FAILED/TIMEOUT or Ascend transport failed to install" >&2
-    exit 1
-fi
-exit "$xfer_ec"
-```
-
-输出结果如下：
-
-```shell #test-result id="transfer"
-...Success to initialize adxl engine:...
-...submit transfer suc.
-...Test completed: duration ...
-```
-
-initiator 日志里的 `Success to initialize adxl engine` 表示这次走了 Ascend Direct。`Test completed:` 表示这一轮写传输跑完。上游社区例程在传输失败时仍可能打印后两句并返回 0，所以上面的命令会再扫 `getTransferStatus FAILED`、`Sync data transfer timeout` 和 `Failed to install Ascend transport`。
-
-二进制默认 `--local_server_name` 指向实验室地址，必须改成 `127.0.0.1`。
