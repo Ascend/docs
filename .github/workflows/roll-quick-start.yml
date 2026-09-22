@@ -1,0 +1,36 @@
+# roll quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+name: roll-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'roll-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '35 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/roll/**'
+      - 'tests/roll/**'
+
+permissions:
+  contents: read
+
+jobs:
+  roll-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: roll
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --shm-size=32g
+        --volume=/data/ci-cache/modelscope/roll:/root/.cache/modelscope
+      timeout_minutes: 240
+      upstream_repo: alibaba/ROLL
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/roll/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/roll/quick_start.md
+      test_command: python -m unittest tests.roll.test_quick_start_ascend -v 2>&1
+
