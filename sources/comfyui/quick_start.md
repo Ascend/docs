@@ -1,16 +1,16 @@
-# 快速开始 (Ascend NPU)
+## 快速开始 (Ascend NPU)
 
 在单卡昇腾 NPU 上部署 ComfyUI，并用上游自带的 API 例程 `script_examples/basic_api_example.py` 通过 `/prompt` 接口提交默认文生图工作流，端到端产出一张 PNG。
 
 > ComfyUI 原生支持昇腾 NPU：检测到 `torch_npu` 且 `torch.npu.is_available()` 为真时，设备管理自动选用 `npu` 设备，无需额外启动参数。本文以无头服务（默认端口 8188）+ API 例程的方式运行，全程无需人工交互；交互式 Web UI 用户浏览器访问 `http://<机器IP>:8188` 即可。
 
-## 前置条件
+### 前置条件
 
-### 硬件
+#### 硬件
 
 Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设备挂载。
 
-### 基础软件
+#### 基础软件
 
 在跑本文档**之前**，你的机器上需要已经装好并可用：
 
@@ -24,7 +24,7 @@ Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
-### 本文档示例使用的版本
+#### 本文档示例使用的版本
 
 **配套机器**：
 
@@ -43,7 +43,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 | huggingface_hub | 最新稳定版 |
 | 模型 | [stable-diffusion-v1-5/stable-diffusion-v1-5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) 的 `v1-5-pruned-emaonly.safetensors`（经 Hugging Face 下载） |
 
-## 环境检查
+### 环境检查
 
 检查 Python 版本：
 
@@ -77,7 +77,7 @@ count: 1
 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
 ```
 
-## 获取代码
+### 获取代码
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -102,7 +102,7 @@ HEAD xxx
 
 \<ref> 为流水线注入的上游最新 release tag。
 
-## 安装依赖
+### 安装依赖
 
 ComfyUI 的 `requirements.txt` 里 `torchvision` / `torchaudio` 未 pin 版本。为避免 pip 解析器为满足「最新 torchvision/torchaudio」而把已装好的 `torch 2.9.0` 升级、破坏 torch ↔ torch_npu ↔ CANN 配套，先显式安装与 torch 2.9.0 配套的 pair（`torchvision 0.24.x` ↔ `torchaudio 2.9.x`），已装则跳过；再装 `requirements.txt`（已满足的 `torch` 不会被改动）与 `huggingface_hub`：
 
@@ -131,7 +131,7 @@ python -c "import torchsde, einops, transformers, tokenizers, safetensors, aioht
 deps ok
 ```
 
-## 下载模型
+### 下载模型
 
 默认使用 **Hugging Face Hub** 进行模型下载。
 
@@ -162,7 +162,7 @@ print(d)
 - `allow_patterns` 只下载 `v1-5-pruned-emaonly.safetensors`（约 4.3 GB，SD 1.5 单文件 checkpoint，即 `basic_api_example.py` 默认工作流引用的 `ckpt_name`），跳过仓库里的 diffusers 分片格式，首次运行请耐心等待。
 ```
 
-## 启动服务（单卡 NPU）
+### 启动服务（单卡 NPU）
 
 把 checkpoint 链接进 `models/checkpoints/`（`CheckpointLoaderSimple` 的 `ckpt_name` 按文件名索引），后台启动 ComfyUI 服务：
 
@@ -212,7 +212,7 @@ comfy device: npu...
 `get_torch_device()` 与服务进程走同一套检测逻辑，单卡上返回 `npu:0`。
 ```
 
-## 运行 API 例程（文生图）
+### 运行 API 例程（文生图）
 
 提交上游例程 `script_examples/basic_api_example.py`（默认文生图工作流：SD 1.5，512x512，20 步 euler），轮询 `/queue` 等待出图完成：
 
@@ -259,7 +259,7 @@ ls output/ComfyUI_*.png | tail -n 1
 - 20 步 SD 1.5 在单卡 NPU 上数分钟内完成；若 15 分钟未排空按失败处理。
 ```
 
-## 检查生成结果
+### 检查生成结果
 
 ```shell #test id="check-png"
 cd ComfyUI
@@ -285,7 +285,7 @@ png ok: ...ComfyUI_000xxx bytes
 校验 PNG 魔数与体积下限，确保 NPU 上产出的不是空图或损坏文件。
 ```
 
-## 清理
+### 清理
 
 <!--
 ```shell #test-setup load="server_pid>>pid"
