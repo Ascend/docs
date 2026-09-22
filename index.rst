@@ -246,7 +246,7 @@
       <!-- aibrix -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">aibrix</h3></div>
-         <p class="card-desc">可组合的 GenAI 推理基础设施，支持在昇腾上用 local mode 转发 OpenAI 兼容请求。</p>
+         <p class="card-desc">vLLM 的推理网关。本文用 local mode，在一张昇腾卡上把一次 OpenAI 兼容请求转到一个 vLLM 引擎。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/aibrix">官方链接</a><span class="split">|</span><a href="https://aibrix.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="sources/aibrix/index.html">快速上手</a></div>
       </div>
 
