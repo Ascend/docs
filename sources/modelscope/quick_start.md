@@ -1,4 +1,4 @@
-## Quick Start (Ascend NPU)
+## 快速开始
 
 在单卡昇腾 NPU 上跑通 [ModelScope](https://modelscope.cn) 的最小链路：从源码安装 modelscope，通过 ModelScope Hub 下载 Qwen2.5-0.5B-Instruct，并在 NPU 上做一次文本生成推理。
 
