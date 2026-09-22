@@ -284,13 +284,3 @@ png ok: ...ComfyUI_000xxx bytes
 :class: note
 校验 PNG 魔数与体积下限，确保 NPU 上产出的不是空图或损坏文件。
 ```
-
-### 清理
-
-<!--
-```shell #test-setup load="server_pid>>pid"
-kill -9 <pid> 2>/dev/null || true
-sleep 2
-echo "comfyui stopped"
-```
--->
