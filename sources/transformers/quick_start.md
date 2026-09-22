@@ -1,4 +1,4 @@
-# Transformers Ascend 快速开始
+# 快速开始
 
 本文介绍通过 Transformers 在昇腾 NPU 上进行模型推理的两种方式：
 `AutoModelForCausalLM` 与 `pipeline`，并给出完整的对话流程示例。
