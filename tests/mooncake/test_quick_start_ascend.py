@@ -34,9 +34,9 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     """End-to-end test: fetch doc -> validate contract -> run ``#test-setup``
     / ``#test`` in order -> compare against ``#test-result``."""
 
-    # cmake + Ascend Direct compile can take over an hour; the base
-    # class uses one timeout for every subprocess.
-    DEFAULT_COMMAND_TIMEOUT = 7200
+    # torch_npu plus a two-NPU TransferEngine write/readback.
+    # The base class uses one timeout for every subprocess.
+    DEFAULT_COMMAND_TIMEOUT = 1800
     USER_AGENT = 'ascend-docs/quick-start'
     ERROR_MARKERS = (
         *MarkdownDocTestBase.ERROR_MARKERS,
@@ -310,6 +310,15 @@ echo "setup: hccn probe end"
         """
         if _e2e_enabled():
             cls.prepare_environment()
+
+    def post_process(self) -> None:
+        """Stop the target process started by the hidden ``#test-setup``."""
+        pid_path = 'mooncake-target.pid'
+        if os.path.isfile(pid_path):
+            with open(pid_path, encoding='utf-8') as handle:
+                pid = handle.read().strip()
+            if pid.isdigit():
+                subprocess.run(['kill', pid], check=False)
 
     @unittest.skipIf(
         not _e2e_enabled(),
