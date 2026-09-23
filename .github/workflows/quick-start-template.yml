@@ -628,12 +628,17 @@ jobs:
       - name: Validate result.json against schema
         if: always()
         run: |
+          set -euo pipefail
           if [ ! -s output/result.json ]; then
             echo "result.json is empty; skipping schema validation"
             exit 0
           fi
-          python3 -m pip install -q check-jsonschema
-          check-jsonschema \
+          # Isolate the CLI from runner-level ~/.local packages. A stale Click
+          # installation can otherwise make check-jsonschema fail on import.
+          schema_venv="$RUNNER_TEMP/quick-start-schema-venv"
+          python3 -m venv "$schema_venv"
+          "$schema_venv/bin/python" -m pip install -q check-jsonschema
+          "$schema_venv/bin/check-jsonschema" \
             --schemafile workflows/.github/workflows/schemas/result.schema.json output/result.json
 
       - name: Upload result.json
