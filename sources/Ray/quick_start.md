@@ -1,4 +1,4 @@
-# 快速开始
+# Ray
 
 在两张昇腾 NPU 上验证 Ray 原生 `NPU` 资源发现、Task/Actor 设备隔离，
 并在每个 Ray Worker 中执行一次真实的 `torch_npu` 运算。本文基于 Ray
@@ -57,18 +57,28 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 python --version
 ```
 
-```shell #test-result id="check-py" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="check-py" fuzzy="xxx"
 Python 3.12.xxx
 ```
 
 检查 Torch、Torch-NPU 和 NPU 设备：
 
-```shell #test id="check-torch"
-python -c "import torch, torch_npu; print('torch=', torch.__version__); print('torch_npu=', torch_npu.__version__); print('is_available:', torch.npu.is_available()); print('count:', torch.npu.device_count())"
+```python #test id="check-torch"
+import torch
+import torch_npu
+
+print("torch=", torch.__version__)
+print("torch_npu=", torch_npu.__version__)
+print("is_available:", torch.npu.is_available())
+print("count:", torch.npu.device_count())
 ```
 
-```shell #test-result id="check-torch" fuzzy="xxx"
-torch= 2.9.0xxx
+输出结果如下：
+
+```text #test-result id="check-torch"
+torch= 2.9.0+cpu
 torch_npu= 2.9.0.post2
 is_available: True
 count: 2
@@ -92,7 +102,9 @@ python -m pip install -q -U "ray[default]"
 python -c "import ray; print('ray', ray.__version__)"
 ```
 
-```shell #test-result id="ray-install" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="ray-install" fuzzy="xxx"
 ray xxx
 ```
 
@@ -101,8 +113,7 @@ ray xxx
 Ray 优先通过 AscendCL 探测设备数量，并以 `/dev/davinci*` 作为回退，
 随后把设备发布为逻辑 `NPU` 资源。
 
-```shell #test id="ray-detects-npus"
-python - <<'PY'
+```python #test id="ray-detects-npus"
 import ray
 from ray._private.accelerators import NPUAcceleratorManager
 
@@ -113,10 +124,11 @@ assert count == 2, resources
 print("Ray NPU resources:", count)
 print("Ascend type:", NPUAcceleratorManager.get_current_node_accelerator_type())
 ray.shutdown()
-PY
 ```
 
-```shell #test-result id="ray-detects-npus" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="ray-detects-npus" fuzzy="xxx"
 Ray NPU resources: 2
 Ascend type: xxx
 ```
@@ -127,8 +139,7 @@ Ascend type: xxx
 设备 ID 写入 `ASCEND_RT_VISIBLE_DEVICES`，`torch_npu` 再通过隔离后的
 设备视图执行真实运算。
 
-```shell #test id="ray-isolates-npus"
-python - <<'PY'
+```python #test id="ray-isolates-npus"
 import os
 import ray
 
@@ -165,10 +176,11 @@ print("assigned NPU IDs:", ",".join(ids))
 print("tensor sums:", ",".join(str(value) for value in values))
 ray.kill(actor)
 ray.shutdown()
-PY
 ```
 
-```shell #test-result id="ray-isolates-npus"
+输出结果如下：
+
+```text #test-result id="ray-isolates-npus"
 assigned NPU IDs: 0,1
 tensor sums: 4.0,4.0
 ```

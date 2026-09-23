@@ -29,6 +29,12 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn('resources={"NPU": 1}', text)
         self.assertIn("ASCEND_RT_VISIBLE_DEVICES", text)
         self.assertNotIn("ray job submit", text)
+        self.assertTrue(text.startswith("# Ray\n"))
+        self.assertNotIn("python - <<'PY'", text)
+        for test_id in ("check-torch", "ray-detects-npus", "ray-isolates-npus"):
+            self.assertIn(f'```python #test id="{test_id}"', text)
+        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertIn("torch= 2.9.0+cpu", text)
 
     def test_legacy_general_usage_is_preserved_separately(self) -> None:
         text = USAGE.read_text(encoding="utf-8")
@@ -37,6 +43,17 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn("ray job submit", text)
         self.assertIn("RAY_DEDUP_LOGS", text)
         self.assertIn("--dashboard-host", text)
+        self.assertTrue(text.startswith(":orphan:\n"))
+
+    def test_project_is_one_sidebar_page(self) -> None:
+        project_index = (SOURCE_DIR / "index.rst").read_text(encoding="utf-8")
+        homepage = (ROOT / "index.rst").read_text(encoding="utf-8")
+
+        self.assertEqual(
+            project_index,
+            ".. include:: quick_start.md\n   :parser: myst_parser.sphinx_\n",
+        )
+        self.assertIn('href="sources/Ray/index.html">快速上手', homepage)
 
     def test_workflow_keeps_the_two_npu_runtime(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
