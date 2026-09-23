@@ -124,15 +124,12 @@ uv pip install -e '.[framework]'
 uv pip install 'transformers<5.0'
 python -c "import modelscope; print('modelscope importable')"
 ```
-\<ref> 为安装的最新的 release 分支
 
 输出结果类似如下：
 
 ```shell #test-result id="modelscope-install-source" fuzzy='xxx'
 modelscope importable
 ```
-
-- xxx 表示最新的版本号
 
 验证 modelscope 和 transformers 均可导入：
 
@@ -147,14 +144,17 @@ modelscope importable
 transformers xxx
 ```
 
+```{admonition} Note
+:class: note
+上文 `<ref>` 为安装的最新的 release 分支；`xxx` 表示最新的版本号。
+```
+
 ### 使用样例
 
 在单卡昇腾 NPU 上用 modelscope 下载 Qwen2.5-0.5B-Instruct 并做一次文本生成。
 
-```{admonition} Note
-:class: note
 **NPU 设备放哪**：modelscope 的 `pipeline(..., device=...)` 目前只接受 `cpu` / `cuda` / `gpu`（`modelscope/utils/device.py` 的 `verify_device` 会拒绝 `npu`），所以本文档走 `AutoModelForCausalLM` 加载后显式 `.to('npu:0')` —— 模型权重下载由 modelscope 的 `from_pretrained` 补丁完成（`snapshot_download`），设备放置由 torch_npu 接管。
-```
+
 
 下载模型到 ModelScope Hub 缓存：
 
@@ -164,8 +164,7 @@ modelscope download --model Qwen/Qwen2.5-0.5B-Instruct
 
 在 NPU 上做文本生成推理：
 
-```shell #test id="ms-npu-infer"
-python - <<'PY'
+```python #test id="ms-npu-infer"
 import sys
 import torch
 
@@ -204,7 +203,6 @@ generated_ids = [
 ]
 response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
 print('generated:', response)
-PY
 ```
 
 输出结果类似如下：
