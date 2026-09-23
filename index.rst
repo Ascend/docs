@@ -175,6 +175,13 @@
    <h2 class="scene-header">🧠 大模型/多模态训练与微调</h2>
    <div class="grid-container">
 
+      <!-- axolotl -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/axolotl.png')"></div><h3 class="card-title">axolotl</h3></div>
+         <p class="card-desc">LLM 微调框架，支持在昇腾 NPU 上做 LoRA 监督微调。</p>
+         <div class="card-footer"><a href="https://github.com/axolotl-ai-cloud/axolotl">官方链接</a><span class="split">|</span><a href="https://docs.axolotl.ai/">文档中心</a><span class="split">|</span><a href="sources/axolotl/index.html">快速上手</a></div>
+      </div>
+
       <!-- LLaMA-Factory：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
@@ -247,7 +254,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
          <p class="card-desc">C/C++ 实现的 Meta LLaMa 架构，深度适配昇腾后端。</p>
-         <div class="card-footer"><a href="https://github.com/ggerganov/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/llama_cpp/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ggml-org/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/index.html">快速上手</a></div>
+      </div>
+
+      <!-- llm-compressor -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
+         <p class="card-desc">面向 vLLM 部署的模型压缩库，在昇腾上完成 GPTQ 量化与 NPU 前向。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
       </div>
 
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
@@ -383,7 +397,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/whisper_cpp.png')"></div><h3 class="card-title">whisper.cpp</h3></div>
          <p class="card-desc">Whisper 模型高性能推理语音识别框架。</p>
-         <div class="card-footer"><a href="https://github.com/ggerganov/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/install.html">安装指南</a><span class="split">|</span><a href="sources/whisper_cpp/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ggml-org/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/index.html">快速上手</a></div>
       </div>
 
    </div>
@@ -416,6 +430,7 @@
    :hidden:
    :caption: 🧠 训练与微调框架
 
+   sources/axolotl/index.rst
    sources/LLaMA-Factory/index.rst
    sources/ms-swift/index.rst
    sources/peft/index.md
@@ -433,6 +448,7 @@
    :caption: 🚀 推理与服务
 
    sources/llama_cpp/index.rst
+   sources/llm_compressor/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst

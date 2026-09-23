@@ -13,7 +13,7 @@ import urllib.request
 from abc import ABC
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import mistune
 
@@ -27,6 +27,7 @@ class SetupCommand:
     cmd: str
     store: str | None
     hidden: bool
+    language: str
     load: tuple = ()  # ((store_var, local_name), ...)
 
     def __post_init__(self) -> None:
@@ -37,6 +38,10 @@ class SetupCommand:
         if self.store is not None and not self.store:
             raise LabelSpecError(
                 'SetupCommand.store must be None or a non-empty string'
+            )
+        if not self.language:
+            raise LabelSpecError(
+                'SetupCommand.language must be non-empty'
             )
         for i, item in enumerate(self.load):
             if (
@@ -198,7 +203,7 @@ class MarkdownDocTestBase(ABC):
     _KNOWN_LABELS = (_LABEL_TEST, _LABEL_TEST_RESULT, _LABEL_TEST_SETUP)
     _KNOWN_PARAMS = frozenset({'id', 'store', 'load', 'fuzzy', 'disable_fuzzy'})
     _DEFAULT_FUZZY_PLACEHOLDER = '...'
-    _KNOWN_LANGUAGES = ('shell',)
+    _KNOWN_LANGUAGES = ('shell', 'python')
 
     _FLAG_PARAMS = ('disable_fuzzy',)
 
@@ -375,12 +380,9 @@ class MarkdownDocTestBase(ABC):
 
     def _validate(self, parsed: list[dict]) -> None:
         """Rules 2/5/7/10/11 validation. Any violation raises ``LabelSpecError``."""
-        for p in parsed:
-            if p['hidden'] and p['label'] != self._LABEL_TEST_SETUP:
-                raise LabelSpecError(
-                    f'HTML comment can only contain #test-setup, '
-                    f'got {p["label"]}'
-                )
+        # HTML comments may hide any labeled fence. The rendered page
+        # drops them; the runner still executes #test / #test-setup and
+        # still compares #test-result.
 
         for p in parsed:
             if p['label'] not in (self._LABEL_TEST, self._LABEL_TEST_SETUP):
@@ -455,6 +457,7 @@ class MarkdownDocTestBase(ABC):
                     store=p['store'],
                     hidden=p['hidden'],
                     load=p['load'],
+                    language=p['language'],
                 ))
             elif p['label'] == self._LABEL_TEST:
                 commands.append(TestCommand(
@@ -482,12 +485,25 @@ class MarkdownDocTestBase(ABC):
     # Private: per-step execution details
     # ============================================================
 
+    # ClassVar (not bare type annotation) silences ruff RUF012: this is a class-level
+    # constant the runner reads by language, not a default value for an instance attr.
+    # Subclasses override via ``_LANG_RUNNER = {**_LANG_RUNNER, ...}`` (e.g. tests
+    # redirect ``python`` to ``sys.executable`` on macOS where ``python`` is absent).
+    # tuple (not list) — argv passed to ``subprocess.run`` is spread, so no in-place
+    # mutation ever happens.
+    _LANG_RUNNER: ClassVar[dict[str, tuple[str, ...]]] = {
+        'shell':  ('bash', '-c'),
+        'python': ('python', '-c'),
+    }
+
     def _run_one(self, cmd, results, env, cwd, timeout, idx):
         if isinstance(cmd, SetupCommand):
             actual_cmd = self.substitute_placeholders(
                 cmd.cmd, cmd.load, self._captures
             )
-            rc, out, err = self.run_command(actual_cmd, env, cwd, timeout)
+            rc, out, err = self.run_command(
+                actual_cmd, env, cwd, timeout, language=cmd.language,
+            )
             if rc != 0:
                 raise AssertionError(
                     f'setup command failed (rc={rc}); CMD stderr:\n{err.rstrip() or "(empty)"}'
@@ -513,7 +529,9 @@ class MarkdownDocTestBase(ABC):
             expected_body = self.substitute_placeholders(
                 expected_obj.body, expected_obj.load, self._captures
             )
-            rc, actual, err = self.run_command(actual_cmd, env, cwd, timeout)
+            rc, actual, err = self.run_command(
+                actual_cmd, env, cwd, timeout, language=cmd.language,
+            )
             if rc != 0:
                 raise AssertionError(
                     f'test command failed (rc={rc}); CMD stderr:\n{err.rstrip() or "(empty)"}'
@@ -627,9 +645,14 @@ class MarkdownDocTestBase(ABC):
             self.post_process()
 
     def run_command(
-        self, cmd: str, env: dict, cwd, timeout: int
+        self, cmd: str, env: dict, cwd, timeout: int, language: str = 'shell',
     ) -> tuple[int, str, str]:
-        """``bash -c`` + forced flush + on error dump all stderr (<= 256 KB).
+        """Dispatch by ``language`` via ``_LANG_RUNNER`` (default shell → ``bash -c``).
+
+        Subprocess argv list form (not ``shell=True``) — quoted bodies don't get re-interpreted
+        by an outer shell, so a python block with ``$x`` reaches python verbatim and surfaces as
+        a SyntaxError instead of being silently expanded. That's the intended boundary: each
+        block declares its language, the runner respects it.
 
         On stdout error path dump first 2000 + last 2000 chars; stderr matching any substring in
         ``self.ERROR_MARKERS`` dumps everything (<= 256 KB), since error markers often sit in the
@@ -638,11 +661,19 @@ class MarkdownDocTestBase(ABC):
         On ``subprocess.TimeoutExpired`` the partial stdout/stderr carried on ``e`` is dumped using the same
         rule before re-raising, so a timeout doesn't strand the reader with only a bare traceback.
         """
-        self.log(f'CMD start (timeout={timeout}s): {cmd[:2000]}')
+        runner = self._LANG_RUNNER.get(language)
+        if runner is None:
+            # _validate already blocks this; defensive here so an unknown language
+            # doesn't fall through to a default runner and silently mask the bug.
+            raise AssertionError(
+                f'unsupported language {language!r}; '
+                f'known={sorted(self._LANG_RUNNER)}'
+            )
+        self.log(f'CMD start (lang={language} timeout={timeout}s): {cmd[:2000]}')
         t0 = time.time()
         try:
             proc = subprocess.run(
-                ['bash', '-c', cmd],
+                [*runner, cmd],
                 env=env,
                 cwd=cwd,
                 capture_output=True,
