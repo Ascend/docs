@@ -71,10 +71,13 @@ language = 'zh_CN'
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     '.github', 'tests',
-                    # Guard / CI source of truth; Sphinx includes it into
-                    # sources/llama_cpp/index.rst so the sidebar landing page
+                    # Guard / CI source of truth; Sphinx includes each into
+                    # the project index.rst so the sidebar landing page
                     # is the tutorial, not a nested「快速开始」child page.
-                    'sources/llama_cpp/quick_start.md']
+                    'sources/llama_cpp/quick_start.md',
+                    'sources/whisper_cpp/quick_start.md',
+                    'sources/llm_compressor/quick_start.md',
+                    'sources/axolotl/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
