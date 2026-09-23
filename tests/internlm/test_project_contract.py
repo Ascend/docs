@@ -27,6 +27,12 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn("internlm3-8b-instruct", text)
         self.assertIn(").npu()", text)
         self.assertNotIn("bitsandbytes", text)
+        self.assertTrue(text.startswith("# InternLM\n"))
+        self.assertNotIn("python - <<'PY'", text)
+        for test_id in ("check-torch", "install-deps", "download-model", "npu-inference"):
+            self.assertIn(f'```python #test id="{test_id}"', text)
+        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertIn("torch: 2.9.0+cpu", text)
 
     def test_workflow_tracks_main_and_serializes_the_model_cache(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
@@ -42,9 +48,14 @@ class TestProjectContract(unittest.TestCase):
 
     def test_project_is_reachable_from_the_site_navigation(self) -> None:
         index = (ROOT / "index.rst").read_text(encoding="utf-8")
+        project_index = ROOT / "sources" / "internlm" / "index.rst"
 
-        self.assertIn("sources/internlm/index.md", index)
-        self.assertIn("sources/internlm/quick_start.html", index)
+        self.assertIn("sources/internlm/index.rst", index)
+        self.assertIn('href="sources/internlm/index.html">快速上手', index)
+        self.assertEqual(
+            project_index.read_text(encoding="utf-8"),
+            ".. include:: quick_start.md\n   :parser: myst_parser.sphinx_\n",
+        )
 
 
 if __name__ == "__main__":

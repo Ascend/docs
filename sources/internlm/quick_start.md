@@ -1,4 +1,4 @@
-# 快速开始
+# InternLM
 
 在单张昇腾 NPU 上运行 [InternLM](https://github.com/InternLM/InternLM)
 上游 `ecosystem/README_npu.md` 中的 Transformers 推理链路：下载
@@ -48,14 +48,15 @@ Atlas 900 A2 / A3 训练系列产品或者其他兼容的 Ascend NPU，至少有
 python --version
 ```
 
-```shell #test-result id="check-python" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="check-python" fuzzy="xxx"
 Python 3.12.xxx
 ```
 
 检查 PyTorch-NPU 和当前可见设备：
 
-```shell #test id="check-torch"
-python - <<'PY'
+```python #test id="check-torch"
 import torch
 import torch_npu
 
@@ -65,11 +66,12 @@ print("torch:", torch.__version__)
 print("torch_npu:", torch_npu.__version__)
 print("npu_available:", torch.npu.is_available())
 print("npu_count:", torch.npu.device_count())
-PY
 ```
 
-```shell #test-result id="check-torch" fuzzy="xxx"
-torch: 2.9.0xxx
+输出结果如下：
+
+```text #test-result id="check-torch"
+torch: 2.9.0+cpu
 torch_npu: 2.9.0.post2
 npu_available: True
 npu_count: 1
@@ -94,7 +96,9 @@ printf 'InternLM checkout: %s\n' "$(git -C internlm-src rev-parse --short HEAD)"
 echo "upstream NPU guide: OK"
 ```
 
-```shell #test-result id="checkout-upstream" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="checkout-upstream" fuzzy="xxx"
 InternLM checkout: xxx
 upstream NPU guide: OK
 ```
@@ -105,22 +109,25 @@ InternLM3 的模型卡要求 Transformers 4.48 或更新版本。这里采用上
 对应的 4.48.0，并固定 ModelScope 版本；`torch` 与 `torch_npu` 属于前置环境，
 不在这一步重复替换。
 
-```shell #test id="install-deps"
+```shell #test-setup
 uv pip install \
   "transformers==4.48.0" \
   "modelscope==1.37.0" \
   sentencepiece \
   safetensors
-python - <<'PY'
+```
+
+```python #test id="install-deps"
 import modelscope
 import transformers
 
 print("transformers:", transformers.__version__)
 print("modelscope:", modelscope.__version__)
-PY
 ```
 
-```shell #test-result id="install-deps"
+输出结果如下：
+
+```text #test-result id="install-deps"
 ...transformers: 4.48.0
 modelscope: 1.37.0
 ```
@@ -130,23 +137,30 @@ modelscope: 1.37.0
 通过上游 Model Zoo 提供的 ModelScope 仓库下载模型。CI 将 ModelScope 默认缓存目录
 挂载到持久化磁盘；首次运行需要下载模型，后续运行复用已校验的缓存。
 
-```shell #test id="download-model"
-set -euo pipefail
-mkdir -p /root/internlm-quick-start
-model_dir="$(python - <<'PY' | sed -n 's/^MODEL_DIR=//p' | tail -n 1
+```python #test id="download-model"
+from contextlib import redirect_stdout
+from io import StringIO
+from pathlib import Path
 from modelscope import snapshot_download
 
-model_dir = snapshot_download("Shanghai_AI_Laboratory/internlm3-8b-instruct")
-print(f"MODEL_DIR={model_dir}")
-PY
-)"
-test -n "$model_dir"
-test -f "$model_dir/config.json"
-ln -sfn "$model_dir" /root/internlm-quick-start/model
-echo "model: /root/internlm-quick-start/model/config.json"
+with redirect_stdout(StringIO()):
+    model_dir = Path(snapshot_download("Shanghai_AI_Laboratory/internlm3-8b-instruct")).resolve()
+assert (model_dir / "config.json").is_file()
+
+link = Path("/root/internlm-quick-start/model")
+link.parent.mkdir(parents=True, exist_ok=True)
+if link.is_symlink():
+    link.unlink()
+elif link.exists():
+    raise RuntimeError(f"model link path already exists: {link}")
+link.symlink_to(model_dir, target_is_directory=True)
+assert (link / "config.json").is_file()
+print(f"model: {link / 'config.json'}")
 ```
 
-```shell #test-result id="download-model"
+输出结果如下：
+
+```text #test-result id="download-model"
 model: /root/internlm-quick-start/model/config.json
 ```
 
@@ -156,8 +170,7 @@ model: /root/internlm-quick-start/model/config.json
 FP16 和 `.npu()`。为了让持续集成的耗时和输出稳定，将生成长度缩短为 64 token，
 并关闭随机采样；测试只验证设备、生成 token 数和非空响应，不绑定具体自然语言答案。
 
-```shell #test id="npu-inference"
-python - <<'PY'
+```python #test id="npu-inference"
 import torch
 import torch_npu
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -206,10 +219,11 @@ print("model device:", model_device)
 print("generated tokens:", new_tokens.shape[-1])
 print("response:", response.replace("\n", " "))
 print("NPU inference PASSED")
-PY
 ```
 
-```shell #test-result id="npu-inference" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="npu-inference" fuzzy="xxx"
 model device: npu:0
 generated tokens: xxx
 response: xxx
