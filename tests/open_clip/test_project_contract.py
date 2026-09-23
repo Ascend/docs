@@ -28,6 +28,12 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn("pretrained=\"laion2b_s34b_b79k\"", text)
         self.assertIn("--dataset-type synthetic", text)
         self.assertIn("NPU training PASSED", text)
+        self.assertTrue(text.startswith("# open_clip\n"))
+        self.assertNotIn("python - <<'PY'", text)
+        self.assertIn('```python #test id="check-torch"', text)
+        self.assertIn('```python #test id="npu-inference"', text)
+        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertIn("torch: 2.9.0+cpu", text)
 
     def test_install_page_no_longer_conflicts_with_the_guarded_stack(self) -> None:
         text = (SOURCE_DIR / "install.rst").read_text(encoding="utf-8")
@@ -35,6 +41,17 @@ class TestProjectContract(unittest.TestCase):
         self.assertNotIn("2.2.0", text)
         self.assertNotIn("open_cliop", text)
         self.assertIn("quick_start", text)
+        self.assertTrue(text.startswith(":orphan:\n"))
+
+    def test_project_is_one_sidebar_page(self) -> None:
+        project_index = (SOURCE_DIR / "index.rst").read_text(encoding="utf-8")
+        homepage = (ROOT / "index.rst").read_text(encoding="utf-8")
+
+        self.assertEqual(
+            project_index,
+            ".. include:: quick_start.md\n   :parser: myst_parser.sphinx_\n",
+        )
+        self.assertIn('href="sources/open_clip/index.html">快速上手', homepage)
 
     def test_workflow_preserves_the_validated_runtime_and_cache(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")

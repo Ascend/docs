@@ -1,4 +1,4 @@
-# 快速开始
+# open_clip
 
 在单卡昇腾 NPU 上运行 [open_clip](https://github.com/mlfoundations/open_clip)
 官方 README 的预训练图文相似度示例，并用上游测试已有的 synthetic 数据方式
@@ -44,14 +44,15 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少有�
 python --version
 ```
 
-```shell #test-result id="check-python" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="check-python" fuzzy="xxx"
 Python 3.12.xxx
 ```
 
 检查 PyTorch-NPU 和可见设备：
 
-```shell #test id="check-torch"
-python - <<'PY'
+```python #test id="check-torch"
 import torch
 import torch_npu
 
@@ -59,11 +60,12 @@ print("torch:", torch.__version__)
 print("torch_npu:", torch_npu.__version__)
 print("npu_available:", torch.npu.is_available())
 print("npu_count:", torch.npu.device_count())
-PY
 ```
 
-```shell #test-result id="check-torch" fuzzy="xxx"
-torch: 2.9.0xxx
+输出结果如下：
+
+```text #test-result id="check-torch"
+torch: 2.9.0+cpu
 torch_npu: 2.9.0.post2
 npu_available: True
 npu_count: 1
@@ -87,7 +89,9 @@ uv pip install -e . --no-deps
 python -c "import open_clip; print('open_clip', open_clip.__version__)"
 ```
 
-```shell #test-result id="install-open-clip" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="install-open-clip" fuzzy="xxx"
 open_clip xxx
 ```
 
@@ -96,8 +100,7 @@ open_clip xxx
 本例来自 open_clip README 的 `ViT-B-32` 推理流程。与 CUDA 示例相比，
 只增加 `torch_npu` 导入、`device="npu:0"`，并把输入移动到同一张 NPU。
 
-```shell #test id="npu-inference"
-python - <<'PY'
+```python #test id="npu-inference"
 import torch
 import torch_npu
 from PIL import Image
@@ -134,10 +137,11 @@ assert top_label == "a diagram"
 print("device:", next(model.parameters()).device)
 print("top label:", top_label)
 print("NPU inference PASSED")
-PY
 ```
 
-```shell #test-result id="npu-inference"
+输出结果如下：
+
+```text #test-result id="npu-inference"
 device: npu:0
 top label: a diagram
 NPU inference PASSED
@@ -171,7 +175,9 @@ python -m open_clip_train.main \
 echo "NPU training PASSED"
 ```
 
-```shell #test-result id="npu-training" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="npu-training" fuzzy="xxx"
 xxxRunning with a single process. Device npu:0.xxx
 xxxTrain Epoch: 0xxx
 NPU training PASSED
