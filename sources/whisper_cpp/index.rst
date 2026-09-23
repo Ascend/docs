@@ -1,8 +1,7 @@
-whisper.cpp
-===========
+.. include:: quick_start.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 2
+   :hidden:
 
-   install.rst
-   quick_start.rst
+   install
