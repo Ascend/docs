@@ -26,6 +26,12 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn('python -m pip install -q ".[npu]"', text)
         self.assertIn("loss.backward()", text)
         self.assertIn("torch.npu.synchronize()", text)
+        self.assertTrue(text.startswith("# flash-linear-attention\n"))
+        self.assertNotIn("python - <<'PY'", text)
+        self.assertIn('```python #test id="check-npu"', text)
+        self.assertIn('```python #test id="gdn-forward-backward"', text)
+        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertIn("torch xxx+cpu", text)
 
     def test_workflow_preserves_the_validated_environment(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
@@ -40,9 +46,14 @@ class TestProjectContract(unittest.TestCase):
 
     def test_project_is_reachable_from_the_site_navigation(self) -> None:
         index = (ROOT / "index.rst").read_text(encoding="utf-8")
+        project_index = ROOT / "sources" / "flash-linear-attention" / "index.rst"
 
-        self.assertIn("sources/flash-linear-attention/index.md", index)
-        self.assertIn("sources/flash-linear-attention/quick_start.html", index)
+        self.assertIn("sources/flash-linear-attention/index.rst", index)
+        self.assertIn('href="sources/flash-linear-attention/"', index)
+        self.assertEqual(
+            project_index.read_text(encoding="utf-8"),
+            ".. include:: quick_start.md\n   :parser: myst_parser.sphinx_\n",
+        )
 
 
 if __name__ == "__main__":

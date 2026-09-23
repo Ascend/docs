@@ -1,4 +1,4 @@
-# 快速开始
+# flash-linear-attention
 
 在单张昇腾 NPU 上安装 flash-linear-attention，验证 Triton-Ascend backend，并完成一次真实的前向与反向计算。本文基于上游
 [Ascend NPU 安装说明](https://github.com/fla-org/flash-linear-attention/blob/main/INSTALL.md#ascend-npu)
@@ -51,7 +51,9 @@ command -v npu-smi >/dev/null
 printf 'CANN ready\n'
 ```
 
-```shell #test-result id="check-cann"
+输出结果如下：
+
+```text #test-result id="check-cann"
 CANN ready
 ```
 
@@ -77,7 +79,9 @@ python -m pip install -q ".[npu]" \
 python -c "import fla; print('fla', fla.__version__)"
 ```
 
-```shell #test-result id="install-fla" fuzzy="xxx"
+输出结果如下：
+
+```text #test-result id="install-fla" fuzzy="xxx"
 fla xxx
 ```
 
@@ -85,8 +89,7 @@ fla xxx
 
 flash-linear-attention 通过 Triton runtime 识别 `npu` backend，并将 `fla.utils.IS_NPU` 设置为 `True`。
 
-```shell #test id="check-npu"
-python - <<'PY'
+```python #test id="check-npu"
 import torch
 import torch_npu
 import triton
@@ -102,11 +105,12 @@ print("torch_npu", torch_npu.__version__)
 print("triton", triton.__version__)
 print("device_platform", device_platform)
 print("npu_available", torch.npu.is_available())
-PY
 ```
 
-```shell #test-result id="check-npu" fuzzy="xxx"
-torch xxx
+输出结果如下：
+
+```text #test-result id="check-npu" fuzzy="xxx"
+torch xxx+cpu
 torch_npu xxx
 triton xxx
 device_platform npu
@@ -119,8 +123,7 @@ npu_available True
 
 下面的配置来自上游 `GatedDeltaNet` 测试所使用的小型 shape。该链路会实际执行线性层、Causal Conv1D、Gated Delta Rule 和门控 RMSNorm，并验证输出与输入梯度均为有限值。
 
-```shell #test id="gdn-forward-backward"
-python - <<'PY'
+```python #test id="gdn-forward-backward"
 import torch
 import torch_npu
 
@@ -161,10 +164,11 @@ print("device", y.device.type)
 print("output_shape", tuple(y.shape))
 print("forward_finite", torch.isfinite(y).all().item())
 print("backward_finite", torch.isfinite(x.grad).all().item())
-PY
 ```
 
-```shell #test-result id="gdn-forward-backward"
+输出结果如下：
+
+```text #test-result id="gdn-forward-backward"
 device npu
 output_shape (1, 128, 512)
 forward_finite True
