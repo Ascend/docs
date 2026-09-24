@@ -1,16 +1,14 @@
 # InternLM
 
-在单张昇腾 NPU 上运行 [InternLM](https://github.com/InternLM/InternLM)
-上游 `ecosystem/README_npu.md` 中的 Transformers 推理链路：下载
-InternLM3-8B-Instruct，以 FP16 加载到 `npu:0`，并完成一次确定性的文本生成。
+在单张昇腾 NPU 上使用 [InternLM](https://github.com/InternLM/InternLM)：
+下载 InternLM3-8B-Instruct 模型，以 FP16 加载到 `npu:0`，并生成一段文本。
 
 ## 前置条件
 
 ### 硬件
 
 Atlas 900 A2 / A3 训练系列产品或者其他兼容的 Ascend NPU，至少有一张可用
-设备，并已完成驱动和设备配置。CI 使用 `linux-aarch64-a2-1` Runner，由 Runner
-自动提供一张配置完好的 NPU，不需要额外传入设备挂载参数。
+设备，并已完成驱动和设备配置。
 
 ### 基础软件
 
@@ -36,9 +34,8 @@ Atlas 900 A2 / A3 训练系列产品或者其他兼容的 Ascend NPU，至少有
 | 精度 | FP16 |
 | NPU | Ascend 910B4 × 1 |
 
-上游最近的 GitHub release 早于 InternLM3 的 NPU 指南，因此本文不使用旧 release，
-而是由工作流注入并持续监控 `main`。依赖版本则固定为本 Quick Start 的已知兼容栈，
-避免包的自动升级改变验证结果。
+本文使用 InternLM `main` 分支及上表所示的依赖组合。安装其他版本时，
+请先核对模型与 Transformers、PyTorch-NPU 的兼容性。
 
 ### 检查前置条件
 
@@ -79,8 +76,8 @@ npu_count: 1
 
 ## 获取 InternLM 上游源码
 
-工作流把受监控的上游分支写入 `UPSTREAM_REF`。下面 checkout 同一个 ref，并确认
-其中确实包含 InternLM3-8B-Instruct 的官方 NPU Transformers 示例。
+获取 InternLM 官方源码。将 `<ref>` 替换为 `main`；仓库中的
+`ecosystem/README_npu.md` 提供更多 NPU 使用说明。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -105,9 +102,8 @@ upstream NPU guide: OK
 
 ## 安装推理依赖
 
-InternLM3 的模型卡要求 Transformers 4.48 或更新版本。这里采用上游 NPU 指南
-对应的 4.48.0，并固定 ModelScope 版本；`torch` 与 `torch_npu` 属于前置环境，
-不在这一步重复替换。
+安装模型推理和下载所需的 Python 包。本文使用 Transformers 4.48.0 和
+ModelScope 1.37.0；已在前置环境中安装的 `torch` 与 `torch_npu` 无需重复安装。
 
 ```shell #test-setup
 uv pip install \
@@ -134,8 +130,8 @@ modelscope: 1.37.0
 
 ## 下载 InternLM3-8B-Instruct
 
-通过上游 Model Zoo 提供的 ModelScope 仓库下载模型。CI 将 ModelScope 默认缓存目录
-挂载到持久化磁盘；首次运行需要下载模型，后续运行复用已校验的缓存。
+从 ModelScope 下载 InternLM3-8B-Instruct。首次运行需要下载模型；后续运行
+可复用本机缓存。下面在当前目录创建 `internlm-model` 链接，供推理步骤使用。
 
 ```python #test id="download-model"
 from contextlib import redirect_stdout
@@ -147,8 +143,7 @@ with redirect_stdout(StringIO()):
     model_dir = Path(snapshot_download("Shanghai_AI_Laboratory/internlm3-8b-instruct")).resolve()
 assert (model_dir / "config.json").is_file()
 
-link = Path("/root/internlm-quick-start/model")
-link.parent.mkdir(parents=True, exist_ok=True)
+link = Path.cwd() / "internlm-model"
 if link.is_symlink():
     link.unlink()
 elif link.exists():
@@ -161,21 +156,21 @@ print(f"model: {link / 'config.json'}")
 输出结果如下：
 
 ```text #test-result id="download-model"
-model: /root/internlm-quick-start/model/config.json
+model: xxx/internlm-model/config.json
 ```
 
 ## 单卡 NPU 推理
 
-以下流程保留上游示例的 `AutoTokenizer`、`AutoModelForCausalLM`、chat template、
-FP16 和 `.npu()`。为了让持续集成的耗时和输出稳定，将生成长度缩短为 64 token，
-并关闭随机采样；测试只验证设备、生成 token 数和非空响应，不绑定具体自然语言答案。
+加载 tokenizer 和模型，将模型与输入移到 NPU，然后根据提问生成回答。
+`max_new_tokens=64` 限制回答长度，`do_sample=False` 关闭随机采样。
 
 ```python #test id="npu-inference"
 import torch
 import torch_npu
+from pathlib import Path
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-model_dir = "/root/internlm-quick-start/model"
+model_dir = str(Path.cwd() / "internlm-model")
 tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=True)
 model = AutoModelForCausalLM.from_pretrained(
     model_dir,
@@ -230,5 +225,5 @@ response: xxx
 NPU inference PASSED
 ```
 
-本 Quick Start 只看护 InternLM 上游已经存在的单卡 Transformers NPU 推理入口，
-不覆盖多卡 HCCL、量化、服务部署以及外部训练框架。
+看到 `NPU inference PASSED` 表示模型已在单张 NPU 上完成文本生成。
+多卡推理、量化和服务部署不在本文范围内。
