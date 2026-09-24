@@ -61,7 +61,7 @@ cann_ready True
 
 ## 3. 安装 PyTorch NPU
 
-安装官方当前推荐的 `torch_npu`，同时安装 `numpy` 和 `pyyaml`。主索引是 CPU 轮子源，extra 是 PyPI。结果里的 `xxx` 是实际版本号。
+安装官方当前推荐的 `torch_npu`，同时安装 `numpy` 和 `pyyaml`。主索引是 CPU 轮子源，extra 是 PyPI。结果里的 `xxx` 是实际版本号，`torch` 这一行带 `+cpu`。
 
 ```shell #test id="install-torch"
 python -m pip install -q \
@@ -74,7 +74,7 @@ python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version_
 执行之后的结果如下：
 
 ```text #test-result id="install-torch" fuzzy="xxx"
-torch xxx
+torch xxx+cpu
 torch_npu xxx
 npu_available True
 ```
