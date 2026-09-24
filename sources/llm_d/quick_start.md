@@ -10,11 +10,11 @@ llm-d 是架在推理引擎之上的路由层。最小部署是三个进程：
 
 请求路径：客户端 `POST :8081` → Envoy → EPP `:9002` 做路由决策 → vLLM `:8000`。
 
-本文基于上游 [no-kubernetes-deployment](https://github.com/llm-d/llm-d/tree/v0.9.0/guides/no-kubernetes-deployment) 指南，把 model server 换成 vllm-ascend，并把模型换成适合单卡验证的 [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)。
-
-工作目录统一用 `/root/llm-d`。
+本文基于上游 [no-kubernetes-deployment](https://github.com/llm-d/llm-d/tree/v0.9.0/guides/no-kubernetes-deployment) 指南，把 model server 换成 vllm-ascend，并把模型换成适合单卡验证的 [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)。工作目录统一用 `/root/llm-d`。
 
 ## 前置条件
+
+
 
 ### 硬件
 
@@ -22,34 +22,42 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 
 ### 软件
 
-| 类别 | 要求 |
-| --- | --- |
-| CANN | toolkit 9.1.0，并且可以 `source /usr/local/Ascend/ascend-toolkit/set_env.sh` |
-| NNAL | 并且可以 `source /usr/local/Ascend/nnal/atb/set_env.sh`。vLLM-Ascend 会加载 ATB，只 source CANN 不够 |
-| Python | 3.12 |
 
-**配套机器**：Atlas 900 A2（Ascend 910B4）。**配套镜像**：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+| 类别     | 要求                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------- |
+| CANN   | toolkit 已安装，并且可以 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`                                   |
+| NNAL   | 可以 `source /usr/local/Ascend/nnal/atb/set_env.sh`                                                       |
+| Python | 落在当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 的范围内 |
 
-**版本要求**
 
-| 组件 | 版本 |
-| --- | --- |
-| llm-d 配置仓 | 当前最新 Release tag（克隆时换成要用的 tag） |
-| EPP（llm-d-router） | v0.10.0 |
-| Go | 1.26.6 linux-arm64 |
-| vLLM | 0.23.0 |
-| vllm-ascend | 0.23.0 |
-| triton-ascend | 3.2.2 |
-| Envoy | 1.33.2 linux-aarch64 |
-| 模型 | [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B) |
 
-安装 vLLM 0.23.0 时，pip 可能先拉 `torch` 2.11.0。随后安装 `vllm-ascend==0.23.0` 会按插件约束把 `torch` / `torch-npu` 降到 2.10.0。
+
+### 本文验证环境
+
+下表是编写本文时跑通的组合，不是唯一支持组合。
+
+
+| 项目            | 内容                                                                              |
+| ------------- | ------------------------------------------------------------------------------- |
+| 机器            | Atlas 900 A2，Ascend 910B4，单卡                                                    |
+| 镜像            | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| Python        | 3.12，来自上面的镜像                                                                    |
+| CANN          | 9.1.0                                                                           |
+| llm-d 配置仓     | Release tag，看护里替换尖括号里的版本                                                        |
+| EPP           | llm-d-router v0.10.0                                                            |
+| Go            | 1.26.6 linux-arm64                                                              |
+| vLLM          | 0.23.0                                                                          |
+| vllm-ascend   | 0.23.0                                                                          |
+| triton-ascend | 3.2.2                                                                           |
+| Envoy         | 1.33.2 linux-aarch64                                                            |
+| 模型            | [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)                       |
+
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 装好 CANN、NNAL 与驱动。
 
 ## 1. 加载 CANN 与 NNAL
 
-`npu-smi` 在常见容器里位于 `/usr/local/sbin` 或 `/usr/local/bin`。下面只加载一次；后面的命令都假定仍在这个 shell 里。
+加载 CANN 与 NNAL，并把 `/usr/local/sbin` 和 `/usr/local/bin` 加入 `PATH`。
 
 ```shell
 export PATH=/usr/local/sbin:/usr/local/bin:$PATH
@@ -57,16 +65,31 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 source /usr/local/Ascend/nnal/atb/set_env.sh
 ```
 
+
+
 ## 2. 确认 NPU 在线
 
-```shell #test id="npu-smi"
+```shell
 npu-smi info
 ```
 
-输出结果如下（设备表、功耗、HBM 每次都不同，不必和任何截图逐字一致）：
+输出类似：
 
-```shell #test-result id="npu-smi"
-...NPU...
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B3               | OK            | 91.3        36                0    / 0             |
+| 0                         | 0000:C1:00.0  | 0           0    / 0          3465 / 65536         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
 ```
 
 若提示找不到 `npu-smi`，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
@@ -75,7 +98,7 @@ npu-smi info
 
 ## 3. 安装 vLLM Ascend
 
-`torch` 2.10 会顺带装上社区版 CUDA Triton。这个包没有昇腾后端，所以最后再装一次 `vllm-ascend==0.23.0` 要求的 `triton-ascend==3.2.2`，覆盖那个目录，并且加 `--force-reinstall --no-deps`。
+安装 `vllm`、`vllm-ascend` 和 `triton-ascend`。
 
 ```shell #test id="install"
 python -m pip install --retries 3 vllm==0.23.0
@@ -89,17 +112,19 @@ python -m pip install --force-reinstall --no-deps \
 python -c "from importlib.metadata import version; print('vllm', version('vllm')); print('vllm-ascend', version('vllm-ascend')); print('triton-ascend', version('triton-ascend'))"
 ```
 
-输出结果如下：
+<!--
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install"
 ...vllm 0.23.0
 vllm-ascend 0.23.0
 triton-ascend 3.2.2
 ```
+-->
 
 ## 4. 构建 EPP
 
-EPP 来自 `llm-d-router` 的 `cmd/epp`。`make build-epp` 会起 builder 容器。没有 Docker 时，用 Go 1.26.6 直接 `go build`。`go.mod` 精确要求这个版本。
+用 Go 1.26.6 编译 `llm-d-router` 的 `cmd/epp`。
 
 <!--
 ```shell #test-setup
@@ -125,7 +150,7 @@ fi
 ```
 -->
 
-```shell #test-setup
+```shell #test id="build-epp"
 mkdir -p /root/llm-d/bin
 if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.26.6'; then
   if [ ! -f /root/llm-d/go1.26.6.linux-arm64.tar.gz ]; then
@@ -156,6 +181,12 @@ test -x /root/llm-d/bin/epp
 /root/llm-d/bin/epp --help >/dev/null
 ```
 
+输出结果如下：
+
+```shell #test-result id="build-epp"
+go version go1.26.6 linux/arm64
+```
+
 <!--
 ```shell #test-setup
 set -euo pipefail
@@ -177,7 +208,7 @@ mv "$ci/epp-v0.10.0.part" "$ci/epp-v0.10.0"
 
 ## 5. 获取 Envoy
 
-Envoy v1.33.2 官方 Release 直接提供 Linux ARM64 二进制，不需要 Docker，也不需要从源码编译。
+下载 Envoy 1.33.2 的 Linux ARM64 二进制。
 
 <!--
 ```shell #test-setup
@@ -197,7 +228,7 @@ fi
 ```
 -->
 
-```shell #test-setup
+```shell #test id="install-envoy"
 mkdir -p /root/llm-d/bin
 if [ ! -x /root/llm-d/bin/envoy ]; then
   curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 --max-time 1800 \
@@ -207,6 +238,12 @@ if [ ! -x /root/llm-d/bin/envoy ]; then
   mv /root/llm-d/bin/envoy.part /root/llm-d/bin/envoy
 fi
 /root/llm-d/bin/envoy --version
+```
+
+输出里应包含：
+
+```shell #test-result id="install-envoy"
+.../root/llm-d/bin/envoy  version: .../1.33.2/Clean/RELEASE/BoringSSL...
 ```
 
 <!--
@@ -221,13 +258,11 @@ mv "$ci/envoy-1.33.2-linux-aarch_64.part" "$ci/envoy-1.33.2-linux-aarch_64"
 ```
 -->
 
-输出里应含 `1.33.2`。
-
 ## 6. 准备 llm-d 配置
 
-克隆 llm-d 仓，只取 no-kubernetes 指南里的三份 YAML。默认 EPP 去读 `/etc/epp/endpoints.yaml`，默认模型是 `Qwen/Qwen3-32B`。单机验证改成工作目录里的绝对路径，以及 `Qwen/Qwen3-0.6B`。`address` 必须是字面 IPv4，file-discovery 不会解析主机名。
+克隆 llm-d，把 no-kubernetes 指南里的三份 YAML 复制到工作目录，并把模型改成 `Qwen/Qwen3-0.6B`。复制后的 `endpoints.yaml` 使用字面 IPv4 地址。
 
-将下面克隆命令里的 `<ref>` 换成要用的 llm-d Release tag（例如 `v0.9.0`）。
+将下面克隆命令里的 `<ref>` 换成要用的 llm-d Release tag，例如 `v0.9.0`。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -294,15 +329,18 @@ mv "$guide/envoy.yaml.part" "$guide/envoy.yaml"
 
 输出结果如下：
 
-```shell #test-result id="prepare-config"
-.../root/llm-d/endpoints.yaml...Qwen/Qwen3-0.6B...
+```text #test-result id="prepare-config"
+      path: /root/llm-d/endpoints.yaml  # EPP must have network access to all worker IPs for metrics scraping
+      model: Qwen/Qwen3-0.6B
 ```
+
+
 
 ## 7. 启动 vLLM
 
-`--max-model-len 2048` 把上下文压到第一次验证够用的长度，KV cache 更小，启动更快。`--gpu-memory-utilization 0.3` 因为 0.6B 用不了一整张 910B。`--served-model-name Qwen/Qwen3-0.6B` 必须和 `endpoints.yaml` 里的 `model` 标签一致，否则 EPP 选不中这个 worker。`--enforce-eager` 关掉 graph 捕获，第一次启动更快，初始化日志也更完整。权重默认从 Hugging Face Hub 拉取。
+在 0 号卡上启动 vLLM，模型与服务名都是 `Qwen/Qwen3-0.6B`。
 
-```shell #test-setup
+```shell #test id="start-vllm"
 mkdir -p /root/llm-d
 export ASCEND_RT_VISIBLE_DEVICES=0
 export PYTORCH_NPU_ALLOC_CONF=expandable_segments:True
@@ -316,7 +354,7 @@ vllm_alive() {
   tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q vllm
 }
 if vllm_alive; then
-  echo 'vllm already running'
+  echo 'vllm already running' >&2
 else
   if port_busy 8000; then
     echo 'port 8000 is already in use by another process' >&2
@@ -346,11 +384,19 @@ done
 [ "$ok" = 1 ]
 ```
 
+完整输出较长，其中应包含：
+
+```text #test-result id="start-vllm"
+...Qwen/Qwen3-0.6B...
+```
+
+
+
 ## 8. 启动 EPP
 
-`--pool-name` 和 `--pool-namespace` 在 file-discovery 模式下不是 Kubernetes 对象，只出现在指标和日志里。`--secure-serving=false` 因为 Envoy 和 EPP 同机，不走 TLS。
+启动 EPP，配置文件是工作目录里的 `config.yaml`。
 
-```shell #test-setup
+```shell #test id="start-epp"
 mkdir -p /root/llm-d
 port_busy() {
   (echo >/dev/tcp/127.0.0.1/"$1") >/dev/null 2>&1
@@ -362,7 +408,7 @@ epp_alive() {
   tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q /root/llm-d/bin/epp
 }
 if epp_alive; then
-  echo 'epp already running'
+  echo 'epp already running' >&2
 else
   if port_busy 9002 || port_busy 9003 || port_busy 9090; then
     echo 'EPP ports 9002/9003/9090 are already in use' >&2
@@ -382,8 +428,7 @@ for _ in $(seq 1 60); do
     tail -c 8000 /root/llm-d/epp.log >&2 || true
     exit 1
   fi
-  if body=$(curl -sf --max-time 5 http://127.0.0.1:9090/metrics); then
-    echo "${body:0:200}"
+  if curl -sf --max-time 5 http://127.0.0.1:9090/metrics | grep -m1 '^# HELP inference_extension_info '; then
     ok=1
     break
   fi
@@ -392,11 +437,19 @@ done
 [ "$ok" = 1 ]
 ```
 
+输出结果如下：
+
+```text #test-result id="start-epp"
+# HELP inference_extension_info [ALPHA] General information of the current build of Inference Extension.
+```
+
+
+
 ## 9. 启动 Envoy
 
-配置里的入口是 `0.0.0.0:8081`，管理口是 `127.0.0.1:19000`。`--concurrency 2` 对单卡验证够用。
+启动 Envoy，入口端口是 8081，管理端口是 19000。
 
-```shell #test-setup
+```shell #test id="start-envoy"
 mkdir -p /root/llm-d
 port_busy() {
   (echo >/dev/tcp/127.0.0.1/"$1") >/dev/null 2>&1
@@ -408,7 +461,7 @@ envoy_alive() {
   tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null | grep -q envoy
 }
 if envoy_alive; then
-  echo 'envoy already running'
+  echo 'envoy already running' >&2
 else
   if port_busy 8081 || port_busy 19000; then
     echo 'Envoy ports 8081/19000 are already in use' >&2
@@ -438,75 +491,44 @@ done
 [ "$ok" = 1 ]
 ```
 
+输出结果如下：
+
+```shell #test-result id="start-envoy"
+LIVE
+```
+
+
+
 ## 10. 发送请求验证
 
-请求打到 Envoy 的 8081 端口，经过 EPP 选路，再由 vLLM 生成。`max_tokens` 只取 8，用来确认全链通。
+把补全请求发到 Envoy 的 8081 端口。`temperature` 为 0，`seed` 为 42，`max_tokens` 为 8。
 
 ```shell #test id="e2e"
 curl -sS http://127.0.0.1:8081/v1/completions \
   -H 'Content-Type: application/json' \
-  -d '{"model":"Qwen/Qwen3-0.6B","prompt":"Hello","max_tokens":8,"temperature":0}'
+  -d '{"model":"Qwen/Qwen3-0.6B","prompt":"Hello","max_tokens":8,"temperature":0,"seed":42}'
 ```
 
-输出结果如下（生成文本每次不同，关键是 JSON 类型和模型名；`curl -sS` 默认打成一行）：
+完整输出较长，其中应包含：
 
-```shell #test-result id="e2e"
+```text #test-result id="e2e"
 ...text_completion...Qwen/Qwen3-0.6B...
 ```
 
+
+
 ## 11. 确认跑在 NPU 上
 
-`Platform plugin ascend is activated` 只说明插件被发现了，不说明设备初始化成功。初始化日志里的 `backend=hccl` 才表示这次 worker 走了昇腾通信后端。
+在 vLLM 日志里查看昇腾通信后端。
 
 ```shell #test id="npu-anchor"
 grep -m1 'backend=hccl' /root/llm-d/vllm.log
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="npu-anchor"
 ...backend=hccl...
 ```
 
-若这一行不存在，先看 `/root/llm-d/vllm.log` 是否在更早阶段就失败（缺 NNAL、卡不可见、权重没下完）。不要只凭 `/v1/models` 返回 200 下结论。
-
-## 12. 清理
-
-只读取本任务写下的 PID 文件。先看 `/proc/<pid>/cmdline` 是不是自己的进程，再结束对应进程组。对不上就丢掉这个文件。不要 `pkill -f vllm` / `pkill -f epp` / `pkill -f envoy`。
-
-```shell #test-setup
-stop_one() {
-  local f="$1"
-  local needle="$2"
-  if [ ! -f "$f" ]; then
-    return 0
-  fi
-  local pid
-  pid=$(cat "$f")
-  if [ -z "$pid" ] || [ ! -r "/proc/$pid/cmdline" ]; then
-    rm -f "$f"
-    return 0
-  fi
-  case "$(tr '\0' ' ' < "/proc/$pid/cmdline")" in
-    *"$needle"*) ;;
-    *)
-      rm -f "$f"
-      return 0
-      ;;
-  esac
-  if kill -0 "$pid" 2>/dev/null; then
-    kill -- -"$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
-    for _ in $(seq 1 50); do
-      kill -0 "$pid" 2>/dev/null || break
-      sleep 0.2
-    done
-    if kill -0 "$pid" 2>/dev/null; then
-      kill -9 -- -"$pid" 2>/dev/null || kill -9 "$pid" 2>/dev/null || true
-    fi
-  fi
-  rm -f "$f"
-}
-stop_one /root/llm-d/envoy.pid envoy
-stop_one /root/llm-d/epp.pid /root/llm-d/bin/epp
-stop_one /root/llm-d/vllm.pid vllm
-```
+Kubernetes 部署、多模型路由和其余模块与上游社区相同。见 [llm-d 文档](https://llm-d.ai)。
