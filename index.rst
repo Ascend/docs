@@ -253,7 +253,7 @@
       <!-- FlagScale -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">FlagScale</h3></div>
-         <p class="card-desc">面向大模型训练、推理与服务的编排工具，昇腾路径通过 vLLM FL 插件做双卡离线推理。</p>
+         <p class="card-desc">面向大模型训练、推理与服务的统一命令行。本文在昇腾上用 vLLM-Ascend 做一次双卡离线推理。</p>
          <div class="card-footer"><a href="https://github.com/flagos-ai/FlagScale">官方链接</a><span class="split">|</span><a href="https://github.com/flagos-ai/FlagScale">文档中心</a><span class="split">|</span><a href="sources/flagscale/index.html">快速上手</a></div>
       </div>
 
