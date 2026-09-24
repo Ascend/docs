@@ -347,7 +347,7 @@
       <!-- OpenCompass -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencompass.png')"></div><h3 class="card-title">opencompass</h3></div>
-         <p class="card-desc">大模型标准测试工具。</p>
+         <p class="card-desc">开源大模型评测框架。本文在单卡上对 Qwen2-0.5B-Instruct 做 GSM8K 生成评测。</p>
          <div class="card-footer"><a href="https://github.com/open-compass/opencompass">官方链接</a><span class="split">|</span><a href="sources/opencompass/install.html">安装指南</a><span class="split">|</span><a href="sources/opencompass/index.html">快速上手</a></div>
       </div>
 
