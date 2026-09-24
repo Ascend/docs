@@ -95,7 +95,7 @@ python -c "import open_clip; print('open_clip', open_clip.__version__)"
 open_clip xxx
 ```
 
-## Quick Start：单卡预训练图文推理
+## 单卡预训练图文推理
 
 本例来自 open_clip README 的 `ViT-B-32` 推理流程。与 CUDA 示例相比，
 只增加 `torch_npu` 导入、`device="npu:0"`，并把输入移动到同一张 NPU。
