@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeepSpeed &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="kernels" href="../kernels/index.html" />
+    <link rel="prev" title="快速开始" href="../accelerate/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">DeepSpeed</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">安装 DeepSpeed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">运行示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#torchvision">安装 torchvision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">编写训练脚本</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">单卡训练</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">多卡分布式训练</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">更多用法</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">DeepSpeed</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/deepspeed/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deepspeed">
+<h1>DeepSpeed<a class="headerlink" href="#deepspeed" title="Link to this heading"></a></h1>
+<p>在昇腾 NPU 上安装 DeepSpeed，用 CIFAR10 图像分类跑通第一次训练，并理解 DeepSpeed 的工作流程。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 800T / 900 A2 训练服务器（Ascend 910B），并按需完成物理机或容器内的设备挂载。本文先单卡训练，再双卡分布式（需要 2 张卡）。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在运行本文档示例之前，你的机器上已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>与 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>）</p></li>
+</ul>
+<p>本文档示例在 Python 3.12、CANN 9.1.0、torch 2.9.0、torch_npu 2.9.0.post2 环境下验证通过。</p>
+</section>
+</section>
+<section id="id4">
+<h2>安装 DeepSpeed<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>通过 pip 安装 DeepSpeed，并确认可以正常导入：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>deepspeed
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import deepspeed; print('deepspeed', deepspeed.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下，其中 <code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际版本号：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+deepspeed<span class="w"> </span>xxx
+</pre></div>
+</div>
+<p>确认 DeepSpeed 已识别昇腾 NPU 加速器（输出 <code class="docutils literal notranslate"><span class="pre">accelerator:</span> <span class="pre">npu</span></code> 即接入成功）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from deepspeed.accelerator import get_accelerator; print('accelerator:', get_accelerator()._name)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>accelerator:<span class="w"> </span>npu
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>运行示例<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="torchvision">
+<h3>安装 torchvision<a class="headerlink" href="#torchvision" title="Link to this heading"></a></h3>
+<p>CIFAR10 数据集的加载依赖 torchvision。torchvision 与 torch 版本严格配套，固定版本以避免 pip 连带升级 torch：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"torchvision==0.24.*"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torchvision; print('torchvision', torchvision.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下，其中 <code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际版本号：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+torchvision<span class="w"> </span>xxx
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>编写训练脚本<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>下面这段 CIFAR10 训练脚本分 4 个模块，展示了 DeepSpeed 的完整工作流程。先把脚本写入 <code class="docutils literal notranslate"><span class="pre">train_cifar10.py</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">script</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2">import os</span>
+<span class="s2">import urllib.request</span>
+<span class="s2">import zipfile</span>
+<span class="s2">from pathlib import Path</span>
+
+<span class="s2">import torch</span>
+<span class="s2">import torch.nn as nn</span>
+<span class="s2">import torchvision</span>
+<span class="s2">from torchvision import transforms</span>
+<span class="s2">import deepspeed</span>
+
+<span class="s2">MICRO_BATCH = 8</span>
+
+<span class="s2"># ===== 模块 1：准备数据 =====</span>
+<span class="s2"># CIFAR10 数据集首次运行时自动下载：从 ModelScope 镜像获取并解压。</span>
+<span class="s2">data_dir = Path('./data')</span>
+<span class="s2">if not (data_dir / 'cifar-10-batches-py').exists():</span>
+<span class="s2">    data_dir.mkdir(parents=True, exist_ok=True)</span>
+<span class="s2">    archive = data_dir / 'cifar-10-batches-py.zip'</span>
+<span class="s2">    urllib.request.urlretrieve(</span>
+<span class="s2">        'https://modelscope.cn/api/v1/datasets/studyhard1/cifar10-dataset/repo?Revision=master&amp;FilePath=cifar-10-batches-py.zip',</span>
+<span class="s2">        archive)</span>
+<span class="s2">    with zipfile.ZipFile(archive) as zf:</span>
+<span class="s2">        zf.extractall(data_dir)</span>
+<span class="s2">transform = transforms.Compose([</span>
+<span class="s2">    transforms.ToTensor(),</span>
+<span class="s2">    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),</span>
+<span class="s2">    transforms.ConvertImageDtype(torch.bfloat16),</span>
+<span class="s2">])</span>
+<span class="s2">trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)</span>
+<span class="s2"># 每个 rank 独立从 DataLoader 取 micro batch。</span>
+<span class="s2">trainloader = torch.utils.data.DataLoader(trainset, batch_size=MICRO_BATCH, shuffle=True)</span>
+
+<span class="s2"># ===== 模块 2：定义模型 =====</span>
+<span class="s2"># 一个用于图像分类的小型 CNN。DeepSpeed 兼容任意 PyTorch 模型，无需修改模型代码。</span>
+<span class="s2">class Net(nn.Module):</span>
+<span class="s2">    def __init__(self):</span>
+<span class="s2">        super().__init__()</span>
+<span class="s2">        self.conv1 = nn.Conv2d(3, 6, 5)</span>
+<span class="s2">        self.pool = nn.MaxPool2d(2, 2)</span>
+<span class="s2">        self.conv2 = nn.Conv2d(6, 16, 5)</span>
+<span class="s2">        self.fc1 = nn.Linear(16 * 5 * 5, 120)</span>
+<span class="s2">        self.fc2 = nn.Linear(120, 84)</span>
+<span class="s2">        self.fc3 = nn.Linear(84, 10)</span>
+
+<span class="s2">    def forward(self, x):</span>
+<span class="s2">        x = self.pool(torch.relu(self.conv1(x)))</span>
+<span class="s2">        x = self.pool(torch.relu(self.conv2(x)))</span>
+<span class="s2">        x = x.view(-1, 16 * 5 * 5)</span>
+<span class="s2">        x = torch.relu(self.fc1(x))</span>
+<span class="s2">        x = torch.relu(self.fc2(x))</span>
+<span class="s2">        return self.fc3(x)</span>
+
+<span class="s2"># ===== 模块 3：配置 DeepSpeed 并初始化引擎 =====</span>
+<span class="s2"># 全局 batch = 每卡 batch × 卡数；WORLD_SIZE 由 deepspeed 启动器注入，直接 python 运行时为 1。</span>
+<span class="s2">world_size = int(os.environ.get('WORLD_SIZE', 1))</span>
+<span class="s2"># deepspeed.initialize() 是 DeepSpeed 的入口，优化器、ZeRO 显存优化和 BF16 混合精度在此注入，返回封装后的模型引擎。</span>
+<span class="s2">ds_config = {</span>
+<span class="s2">    'train_batch_size': MICRO_BATCH * world_size,</span>
+<span class="s2">    'optimizer': {</span>
+<span class="s2">        'type': 'Adam',</span>
+<span class="s2">        'params': {'lr': 0.001},</span>
+<span class="s2">    },</span>
+<span class="s2">    'zero_optimization': {'stage': 1},</span>
+<span class="s2">    'bf16': {'enabled': True},</span>
+<span class="s2">}</span>
+<span class="s2">model = Net()</span>
+<span class="s2">model_engine, optimizer, _, _ = deepspeed.initialize(</span>
+<span class="s2">    model=model, model_parameters=model.parameters(), config=ds_config)</span>
+
+<span class="s2"># ===== 模块 4：训练循环 =====</span>
+<span class="s2"># model_engine.backward() 和 model_engine.step() 替换了原生 API，DeepSpeed 在此接管梯度计算与参数更新。</span>
+<span class="s2"># 多卡时仅 rank 0 打印，避免输出交错。</span>
+<span class="s2">criterion = nn.CrossEntropyLoss()</span>
+<span class="s2">for epoch in range(1):</span>
+<span class="s2">    epoch_loss = 0.0   # 整轮累计，用于末尾报告平均 loss</span>
+<span class="s2">    running_loss = 0.0  # 最近 100 步累计，用于过程打印</span>
+<span class="s2">    steps = 0</span>
+<span class="s2">    for i, data in enumerate(trainloader):</span>
+<span class="s2">        inputs, labels = data[0].to(model_engine.device), data[1].to(model_engine.device)</span>
+<span class="s2">        outputs = model_engine(inputs)</span>
+<span class="s2">        loss = criterion(outputs, labels)</span>
+<span class="s2">        model_engine.backward(loss)</span>
+<span class="s2">        model_engine.step()</span>
+<span class="s2">        epoch_loss += loss.item()</span>
+<span class="s2">        running_loss += loss.item()</span>
+<span class="s2">        steps += 1</span>
+<span class="s2">        if i % 100 == 99:</span>
+<span class="s2">            if model_engine.global_rank == 0:</span>
+<span class="s2">                print(f'[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 100:.3f}')</span>
+<span class="s2">            running_loss = 0.0</span>
+<span class="s2">if model_engine.global_rank == 0:</span>
+<span class="s2">    print(f'epoch {epoch + 1} avg loss: {epoch_loss / steps:.3f}')</span>
+<span class="s2">    print('Finished Training')</span>
+<span class="s2">"""</span>
+
+<span class="n">Path</span><span class="p">(</span><span class="s2">"train_cifar10.py"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">script</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>脚本已写入 <code class="docutils literal notranslate"><span class="pre">train_cifar10.py</span></code>。</p>
+</section>
+<section id="id7">
+<h3>单卡训练<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>用 deepspeed 启动器拉起 1 个训练进程：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>deepspeed<span class="w"> </span>--num_gpus<span class="w"> </span><span class="m">1</span><span class="w"> </span>train_cifar10.py
+</pre></div>
+</div>
+<p>输出结果如下（训练日志较长，此处仅保留末尾几行；<code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际 loss）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+epoch<span class="w"> </span><span class="m">1</span><span class="w"> </span>avg<span class="w"> </span>loss:<span class="w"> </span>xxx
+Finished<span class="w"> </span>Training
+...
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>多卡分布式训练<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>DeepSpeed 的核心价值在分布式：同一份脚本不改一行代码，只把 <code class="docutils literal notranslate"><span class="pre">--num_gpus</span></code> 改成 2。DeepSpeed 会自动：</p>
+<ul class="simple">
+<li><p>拉起 2 个训练进程，注入 <code class="docutils literal notranslate"><span class="pre">RANK</span></code> / <code class="docutils literal notranslate"><span class="pre">WORLD_SIZE</span></code> / <code class="docutils literal notranslate"><span class="pre">LOCAL_RANK</span></code>；</p></li>
+<li><p>建立 HCCL 通信后端，初始化分布式环境；</p></li>
+<li><p>全局 batch（每卡 8 × 2 卡 = 16）自动调度，ZeRO-1 把优化器状态分片到 2 卡。</p></li>
+</ul>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>deepspeed<span class="w"> </span>--num_gpus<span class="w"> </span><span class="m">2</span><span class="w"> </span>train_cifar10.py
+</pre></div>
+</div>
+<p>输出结果如下（<code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际 loss）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+epoch<span class="w"> </span><span class="m">1</span><span class="w"> </span>avg<span class="w"> </span>loss:<span class="w"> </span>xxx
+Finished<span class="w"> </span>Training
+...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id9">
+<h2>更多用法<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>更多用法见 DeepSpeedExamples：https://github.com/deepspeedai/DeepSpeedExamples</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../accelerate/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../kernels/index.html" class="btn btn-neutral float-right" title="kernels" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

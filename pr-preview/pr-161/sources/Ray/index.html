@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ray &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="transformers" href="../transformers/index.html" />
+    <link rel="prev" title="FAQ" href="../pytorch/faq.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Ray</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">检查前置是否满足</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">安装 Ray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ray-npu">查看 Ray 检测到的 NPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#task-actor-npu">在 Task 和 Actor 中使用 NPU</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Ray</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/Ray/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ray">
+<h1>Ray<a class="headerlink" href="#ray" title="Link to this heading"></a></h1>
+<p>使用 Ray 将 Task 和 Actor 分别调度到两张昇腾 NPU，并在各自的进程中
+运行 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 张量计算。通过本示例，可以了解 Ray 如何发现 NPU、
+分配设备以及隔离任务。更多调度方式参见 Ray 的
+<a class="reference external" href="https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html">Accelerator Support</a> 文档。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品，至少有两张可用的 Ascend NPU，并已完成
+物理机或容器中的设备与驱动配置。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在运行本文档之前，机器上需要已经安装并可用：</p>
+<ul class="simple">
+<li><p>Linux aarch64 操作系统；</p></li>
+<li><p>可用的 Python 环境；</p></li>
+<li><p>可用的 CANN toolkit 和驱动；</p></li>
+<li><p>与 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，且
+<code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span> <span class="pre">==</span> <span class="pre">True</span></code>；</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 能正常显示 NPU 设备。</p></li>
+</ul>
+<p>CANN 与 PyTorch-NPU 的安装和版本匹配可参考
+<a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>。</p>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 2）；</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04。</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.9.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.9.0.post2</p></td>
+</tr>
+<tr class="row-even"><td><p>Ray</p></td>
+<td><p>当前最新 release，Linux aarch64 wheel</p></td>
+</tr>
+<tr class="row-odd"><td><p>NPU</p></td>
+<td><p>Ascend 910B4 × 2</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h3>检查前置是否满足<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Python 3.12.xxx
+</pre></div>
+</div>
+<p>检查 Torch、Torch-NPU 和 NPU 设备：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"torch="</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"torch_npu="</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"is_available:"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"count:"</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>torch= 2.9.0+cpu
+torch_npu= 2.9.0.post2
+is_available: True
+count: 2
+</pre></div>
+</div>
+<p>确认 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 可以看到两张 NPU：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在或 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，请先修复驱动、CANN、
+Torch 与 Torch-NPU 的版本匹配问题。</p>
+</section>
+</section>
+<section id="id6">
+<h2>安装 Ray<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>安装当前最新 Ray release，并验证安装结果：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span>-U<span class="w"> </span><span class="s2">"ray[default]"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import ray; print('ray', ray.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ray xxx
+</pre></div>
+</div>
+</section>
+<section id="ray-npu">
+<h2>查看 Ray 检测到的 NPU<a class="headerlink" href="#ray-npu" title="Link to this heading"></a></h2>
+<p>启动 Ray 后，查看集群中注册的 <code class="docutils literal notranslate"><span class="pre">NPU</span></code> 资源数量。下面的环境应显示两张 NPU。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">include_dashboard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_to_driver</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">resources</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">cluster_resources</span><span class="p">()</span>
+<span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">resources</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"NPU"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="n">resources</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Ray NPU resources:"</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Ray NPU resources: 2
+</pre></div>
+</div>
+</section>
+<section id="task-actor-npu">
+<h2>在 Task 和 Actor 中使用 NPU<a class="headerlink" href="#task-actor-npu" title="Link to this heading"></a></h2>
+<p>下面分别启动一个 Actor 和一个 Task，各请求一张 NPU。Ray 会将分配的设备
+ID 写入 <code class="docutils literal notranslate"><span class="pre">ASCEND_RT_VISIBLE_DEVICES</span></code>；两个进程各自在可见的 NPU 上计算。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ray</span>
+
+<span class="n">ray</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">include_dashboard</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">log_to_driver</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">assigned_npu</span><span class="p">():</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ray</span><span class="o">.</span><span class="n">get_runtime_context</span><span class="p">()</span><span class="o">.</span><span class="n">get_accelerator_ids</span><span class="p">()[</span><span class="s2">"NPU"</span><span class="p">]]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ids</span>
+    <span class="n">visible</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"ASCEND_RT_VISIBLE_DEVICES"</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">visible</span> <span class="o">==</span> <span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="n">visible</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"npu:0"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">value</span>
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">"NPU"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NPUActor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">assigned_npu</span><span class="p">()</span>
+
+<span class="nd">@ray</span><span class="o">.</span><span class="n">remote</span><span class="p">(</span><span class="n">resources</span><span class="o">=</span><span class="p">{</span><span class="s2">"NPU"</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">npu_task</span><span class="p">():</span>
+    <span class="k">return</span> <span class="n">assigned_npu</span><span class="p">()</span>
+
+<span class="n">actor</span> <span class="o">=</span> <span class="n">NPUActor</span><span class="o">.</span><span class="n">remote</span><span class="p">()</span>
+<span class="n">actor_result</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">actor</span><span class="o">.</span><span class="n">ping</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+<span class="n">task_result</span> <span class="o">=</span> <span class="n">ray</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">npu_task</span><span class="o">.</span><span class="n">remote</span><span class="p">())</span>
+<span class="n">ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">actor_result</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">task_result</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+<span class="n">values</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">actor_result</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">task_result</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+<span class="k">assert</span> <span class="n">ids</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"0"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">],</span> <span class="n">ids</span>
+<span class="k">assert</span> <span class="n">values</span> <span class="o">==</span> <span class="p">[</span><span class="mf">4.0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">],</span> <span class="n">values</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"assigned NPU IDs:"</span><span class="p">,</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"tensor sums:"</span><span class="p">,</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">))</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">actor</span><span class="p">)</span>
+<span class="n">ray</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>assigned NPU IDs: 0,1
+tensor sums: 4.0,4.0
+</pre></div>
+</div>
+<p>Ray 的 NPU 是逻辑资源。<code class="docutils literal notranslate"><span class="pre">resources={&quot;NPU&quot;:</span> <span class="pre">0.25}</span></code> 这样的请求允许多个
+任务共享一张 NPU，但不会提供显存或算力隔离，应用仍需自行保证共享安全。</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../pytorch/faq.html" class="btn btn-neutral float-left" title="FAQ" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../transformers/index.html" class="btn btn-neutral float-right" title="transformers" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

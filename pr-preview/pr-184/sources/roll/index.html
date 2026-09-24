@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROLL &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="torchtitan" href="../torchtitan/index.html" />
+    <link rel="prev" title="peft" href="../peft/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ROLL</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">安装 ROLL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#frozenlake-agentic">运行示例：FrozenLake agentic 强化学习</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">更多用法</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ROLL</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/roll/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="roll">
+<h1>ROLL<a class="headerlink" href="#roll" title="Link to this heading"></a></h1>
+<p>在昇腾 NPU 上安装 ROLL，并用 FrozenLake agentic 强化学习跑通一次完整的训练闭环。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>硬件</strong>：Atlas 900 A2 PODc / Ascend 910B 训练系列，单卡。</p></li>
+<li><p><strong>软件</strong>：已装好 CANN（toolkit 与驱动），并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>，Python 版本不低于 3.10。参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>。</p></li>
+</ul>
+<p>本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。</p>
+</section>
+<section id="cann">
+<h2>加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h2>安装 ROLL<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p><strong>使用源码安装 ROLL</strong> ：</p>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/alibaba/ROLL.git
+<span class="nb">cd</span><span class="w"> </span>ROLL
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"ROLL </span><span class="k">$(</span>git<span class="w"> </span>describe<span class="w"> </span>--tags<span class="w"> </span>--exact-match<span class="w"> </span>HEAD<span class="k">)</span><span class="s2">"</span>
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 为最新正式 release tag。</p>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ROLL<span class="w"> </span>xxx
+</pre></div>
+</div>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">xxx</span></code> 为实际安装到的 release 版本号，如 <code class="docutils literal notranslate"><span class="pre">v0.3.0</span></code>。</p>
+</section>
+<section id="frozenlake-agentic">
+<h2>运行示例：FrozenLake agentic 强化学习<a class="headerlink" href="#frozenlake-agentic" title="Link to this heading"></a></h2>
+<p>FrozenLake 是 ROLL 官方快速入门的示例：Qwen2.5-0.5B-Instruct 作为策略模型，在 4×4 冰面网格中逐轮输出移动方向，绕开冰洞到达终点，环境按结果返回奖励。</p>
+<p><strong>安装 vLLM 与 triton。</strong> 安装 vLLM 与 vLLM-Ascend，配套版本的 torch、torch_npu、torchvision、torchaudio 会作为依赖自动装上；安装 triton-ascend，其配套的社区 triton 同样由依赖自动带入。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://repo.huaweicloud.com/repository/pypi/simple<span class="w"> </span><span class="nv">vllm</span><span class="o">==</span><span class="m">0</span>.23.0
+pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://repo.huaweicloud.com/repository/pypi/simple<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span>vllm-ascend<span class="o">==</span><span class="m">0</span>.23.0
+pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://repo.huaweicloud.com/repository/pypi/simple<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span>triton-ascend<span class="o">==</span><span class="m">3</span>.2.2
+</pre></div>
+</div>
+<p><strong>安装示例依赖。</strong> 按昇腾镜像的依赖清单安装 agentic 示例所需组件：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ROLL
+grep<span class="w"> </span>-v<span class="w"> </span><span class="s1">'^gem-llm'</span><span class="w"> </span>requirements_common.txt<span class="w"> </span>&gt;<span class="w"> </span>requirements_npu.txt
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">'s/^decord /decord2 /'</span><span class="w"> </span>requirements_vision.txt
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements_npu.txt
+pip<span class="w"> </span>install<span class="w"> </span>--ignore-requires-python<span class="w"> </span>gem-llm<span class="o">==</span><span class="m">0</span>.0.4
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"numpy==1.26.4"</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"transformers==4.57.6"</span><span class="w"> </span><span class="s2">"tensorboard==2.20.0"</span><span class="w"> </span><span class="s2">"antlr4-python3-runtime==4.9.3"</span>
+rm<span class="w"> </span>requirements_npu.txt
+</pre></div>
+</div>
+<p><strong>写入示例配置。</strong> 配置基于官方 agentic demo，修改参数完成 NPU 适配。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="s2">"""</span>
+<span class="s2"># 环境定义沿用官方 examples/config/traj_envs.yaml，NPU 上训练仅支持 FSDP2。</span>
+<span class="s2">defaults:</span>
+<span class="s2">  - ../config/traj_envs@_here_</span>
+
+<span class="s2">hydra:</span>
+<span class="s2">  run:</span>
+<span class="s2">    dir: .</span>
+<span class="s2">  output_subdir: null</span>
+
+<span class="s2">exp_name: "roll-quick-start-npu"</span>
+<span class="s2">seed: 42</span>
+<span class="s2">logging_dir: ./output/logs</span>
+<span class="s2">output_dir: ./output</span>
+<span class="s2">render_save_dir: ./output/render</span>
+<span class="s2">system_envs:</span>
+<span class="s2">  USE_MODELSCOPE: '1'</span>
+<span class="s2">  # RL 权重刷新场景需禁用 FRACTAL_NZ。</span>
+<span class="s2">  VLLM_ASCEND_ENABLE_NZ: '0'</span>
+<span class="s2">  # 允许同卡多进程由 HCCL 自动分配 device 侧端口。</span>
+<span class="s2">  HCCL_NPU_SOCKET_PORT_RANGE: auto</span>
+
+<span class="s2">track_with: tensorboard</span>
+<span class="s2">tracker_kwargs:</span>
+<span class="s2">  log_dir: ./output/tensorboard</span>
+
+<span class="s2">num_gpus_per_node: 1</span>
+
+<span class="s2"># 单卡快速跑通：只训练 1 步，批量收缩。</span>
+<span class="s2">max_steps: 1</span>
+<span class="s2">save_steps: 1000</span>
+<span class="s2">logging_steps: 1</span>
+<span class="s2">eval_steps: 1000</span>
+<span class="s2">resume_from_checkpoint: false</span>
+
+<span class="s2">rollout_batch_size: 8</span>
+<span class="s2">val_batch_size: 2</span>
+<span class="s2">sequence_length: 2048</span>
+<span class="s2">max_tokens_per_step: 128</span>
+
+<span class="s2">ppo_epochs: 1</span>
+<span class="s2">adv_estimator: "grpo"</span>
+<span class="s2">init_kl_coef: 0.0</span>
+<span class="s2">whiten_advantages: true</span>
+<span class="s2">entropy_loss_coef: 0</span>
+
+<span class="s2">pretrain: Qwen/Qwen2.5-0.5B-Instruct</span>
+<span class="s2">reward_pretrain: Qwen/Qwen2.5-0.5B-Instruct</span>
+
+<span class="s2">actor_train:</span>
+<span class="s2">  model_args:</span>
+<span class="s2">    # NPU 通过 transformers 使用 fa2，不能使用 flash_attn 包。</span>
+<span class="s2">    attn_implementation: fa2</span>
+<span class="s2">    disable_gradient_checkpointing: false</span>
+<span class="s2">    dtype: bf16</span>
+<span class="s2">    model_type: ~</span>
+<span class="s2">  training_args:</span>
+<span class="s2">    learning_rate: 1.0e-6</span>
+<span class="s2">    per_device_train_batch_size: 1</span>
+<span class="s2">    gradient_accumulation_steps: 2</span>
+<span class="s2">  data_args:</span>
+<span class="s2">    template: qwen2_5</span>
+<span class="s2">  strategy_args:</span>
+<span class="s2">    # NPU 不支持 Megatron，训练策略使用 FSDP2。</span>
+<span class="s2">    strategy_name: fsdp2_train</span>
+<span class="s2">    strategy_config:</span>
+<span class="s2">      fsdp_size: 1</span>
+<span class="s2">      param_dtype: bf16</span>
+<span class="s2">      reduce_dtype: bf16</span>
+<span class="s2">      reshard_after_forward: true</span>
+<span class="s2">      offload_policy: false</span>
+<span class="s2">      use_batched_model_update: false</span>
+<span class="s2">  device_mapping: list(range(0,1))</span>
+<span class="s2">  infer_batch_size: 1</span>
+
+<span class="s2">actor_infer:</span>
+<span class="s2">  model_args:</span>
+<span class="s2">    disable_gradient_checkpointing: true</span>
+<span class="s2">    dtype: bf16</span>
+<span class="s2">  generating_args:</span>
+<span class="s2">    max_new_tokens: 128</span>
+<span class="s2">    temperature: 0.99</span>
+<span class="s2">    num_return_sequences: 1</span>
+<span class="s2">  data_args:</span>
+<span class="s2">    template: qwen2_5</span>
+<span class="s2">  strategy_args:</span>
+<span class="s2">    strategy_name: vllm</span>
+<span class="s2">    strategy_config:</span>
+<span class="s2">      gpu_memory_utilization: 0.8</span>
+<span class="s2">      block_size: 16</span>
+<span class="s2">      load_format: auto</span>
+<span class="s2">  device_mapping: list(range(0,1))</span>
+<span class="s2">  infer_batch_size: 1</span>
+
+<span class="s2">reference:</span>
+<span class="s2">  model_args:</span>
+<span class="s2">    attn_implementation: fa2</span>
+<span class="s2">    disable_gradient_checkpointing: true</span>
+<span class="s2">    dtype: bf16</span>
+<span class="s2">    model_type: ~</span>
+<span class="s2">  data_args:</span>
+<span class="s2">    template: qwen2_5</span>
+<span class="s2">  strategy_args:</span>
+<span class="s2">    strategy_name: hf_infer</span>
+<span class="s2">    strategy_config: ~</span>
+<span class="s2">  device_mapping: list(range(0,1))</span>
+<span class="s2">  infer_batch_size: 1</span>
+
+<span class="s2">train_env_manager:</span>
+<span class="s2">  max_env_num_per_worker: 8</span>
+<span class="s2">  num_env_groups: 4</span>
+<span class="s2">  group_size: 2</span>
+<span class="s2">  tags: [FrozenLake]</span>
+<span class="s2">  num_groups_partition: [4]</span>
+
+<span class="s2">val_env_manager:</span>
+<span class="s2">  max_env_num_per_worker: 2</span>
+<span class="s2">  num_env_groups: 2</span>
+<span class="s2">  group_size: 1</span>
+<span class="s2">  tags: [FrozenLake]</span>
+<span class="s2">  num_groups_partition: [2]</span>
+
+<span class="s2">custom_envs:</span>
+<span class="s2">  FrozenLake:</span>
+<span class="s2">    $</span><span class="si">{custom_env.FrozenLake}</span>
+<span class="s2">"""</span>
+
+<span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"ROLL/examples/agentic_frozen_lake_npu/quick_start_npu.yaml"</span><span class="p">)</span>
+<span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"config written"</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>config<span class="w"> </span>written<span class="w"> </span>ROLL/examples/agentic_frozen_lake_npu/quick_start_npu.yaml
+</pre></div>
+</div>
+<p><strong>启动训练。</strong> 从仓库根目录运行 agentic pipeline 入口脚本，ROLL 自动拉起 Ray 集群。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>ROLL
+python<span class="w"> </span>examples/start_agentic_pipeline.py<span class="w"> </span>--config_path<span class="w"> </span>agentic_frozen_lake_npu<span class="w"> </span>--config_name<span class="w"> </span>quick_start_npu
+</pre></div>
+</div>
+<p><strong>查看训练产物。</strong> 训练指标写入 output/tensorboard：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">tensorboard_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"ROLL/output/tensorboard/roll-quick-start-npu"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"训练产物已生成"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"训练指标路径：</span><span class="si">{</span><span class="n">tensorboard_dir</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>训练产物已生成
+训练指标路径：ROLL/output/tensorboard/roll-quick-start-npu
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h2>更多用法<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p>多卡并行、vLLM 高吞吐 rollout、Megatron 后端与 SFT/DPO 等其他 pipeline 见官方文档：https://alibaba.github.io/ROLL/docs/QuickStart/single_node_quick_start</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../peft/index.html" class="btn btn-neutral float-left" title="peft" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../torchtitan/index.html" class="btn btn-neutral float-right" title="torchtitan" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
