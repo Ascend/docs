@@ -1,28 +1,28 @@
 # LMCache
 
-在单卡昇腾上安装 vLLM-Ascend，编译 [LMCache-Ascend](https://github.com/LMCache/LMCache-Ascend)，再用 `vllm.LLM` 运行 KV 卸载连接器。主仓 [LMCache/LMCache](https://github.com/LMCache/LMCache) 没有昇腾实现，昇腾侧在同组织的 **LMCache-Ascend**。
+LMCache 是大模型推理的 KV cache 管理层，把已经算过的 KV cache 卸到 CPU 等存储里再复用。昇腾实现在 [LMCache-Ascend](https://github.com/LMCache/LMCache-Ascend)。主仓 [LMCache](https://github.com/LMCache/LMCache) 没有昇腾实现。这篇在单卡上安装 vLLM-Ascend 和 LMCache-Ascend，再用 `vllm.LLM` 做一次离线 KV 卸载。
 
 ## 前置条件
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。编译会读 `npu-smi` 得到芯片型号，A2 上常见 `Ascend910B3` 或 `Ascend910B4`；没有 `npu-smi` 时再设 `SOC_VERSION`。
+Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单卡。编译会读 `npu-smi` 得到芯片型号，A2 上常见 `Ascend910B3` 或 `Ascend910B4`。没有 `npu-smi` 时再设 `SOC_VERSION`。
 
 ### 软件
 
+| 类别 | 要求 |
+| --- | --- |
+| CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
+| ATB | Ascend Transformer Boost。vLLM EngineCore 子进程要加载 `libatb.so` |
+| Python | 3.10 到 3.13，见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| 编译依赖 | `cmake`、`ninja`、`libnuma-dev`，见下文安装 |
+| vLLM-Ascend | 装带轮子的最新 `vllm-ascend`，`vllm` 装与之主版本号相同的版本，见下文安装 |
+| LMCache | PyPI `lmcache` 的版本号等于 Release tag 去掉开头的 `v`，再编译 LMCache-Ascend |
+| 模型 | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) |
 
-| 类别          | 要求                                                                              |
-| ----------- | ------------------------------------------------------------------------------- |
-| CANN        | toolkit + 驱动固件已安装，并可 `source set_env.sh`                                        |
-| ATB         | Ascend Transformer Boost。vLLM EngineCore 子进程要加载 `libatb.so`                     |
-| Python      | 3.12                                                                            |
-| 编译依赖        | `cmake`、`ninja`、`libnuma-dev`，见下文安装                                             |
-| vLLM-Ascend | `vllm` / `vllm-ascend` 均为 `0.23.0`，见下文安装                                        |
-| LMCache     | PyPI `lmcache` 的版本号等于 Release tag 去掉开头的 `v`，再编译 LMCache-Ascend                  |
-| 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) |
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
-
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。推荐配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+本文验证环境：镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，Python 3.12。这一行记录的是本文跑通时的环境。
 
 ## 1. 加载 CANN 环境
 
@@ -32,8 +32,6 @@ source /usr/local/Ascend/nnal/atb/latest/atb/set_env.sh
 export PATH=/usr/local/sbin:/usr/sbin:$PATH
 ```
 
-
-
 ## 2. 检查环境是否就绪
 
 ### 2.1 确认 NPU 在线
@@ -42,29 +40,42 @@ export PATH=/usr/local/sbin:/usr/sbin:$PATH
 npu-smi info
 ```
 
-如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。 
+输出类似：
+
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:c1:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+```
+
+如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
 
 ### 2.2 确认工具可用
 
-下面确认 CANN 已加载，并且 `npu-smi` 与 `python` 都在 `PATH` 里。
+下面确认 CANN 已加载，并且 `python` 在 `PATH` 里。
 
 ```shell #test id="check-tools"
 test -n "$ASCEND_HOME_PATH"
-command -v npu-smi >/dev/null
 python --version
 ```
 
-输出结果如下：
+<!--
+完整输出较长，其中应包含：
 
 ```shell #test-result id="check-tools"
-Python 3.12...
+Python 3...
 ```
-
-
+-->
 
 ## 3. 安装编译依赖
 
-LMCache-Ascend 的 C++ 插件需要 `cmake`、`ninja` 和 NUMA 头文件。没有就装上。
+安装 `cmake`、`ninja` 和 NUMA 头文件。
 
 <!--
 ```shell #test-setup
@@ -76,55 +87,55 @@ fi
 -->
 
 ```shell #test id="install-system-prereqs"
-if ! command -v cmake >/dev/null 2>&1 \
-    || ! command -v ninja >/dev/null 2>&1 \
-    || [ ! -f /usr/include/numaif.h ]; then
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install -y cmake ninja-build libnuma-dev
-fi
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install -y cmake ninja-build libnuma-dev
 cmake --version
 ```
 
-输出结果如下：
+<!--
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-system-prereqs"
 ...
 cmake version 3...
 ```
+-->
 
 ## 4. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton，第一次推理报错。
+先装带轮子的最新 `vllm-ascend`，再以 `--no-deps` 安装主版本号相同的 `vllm`，最后用 `--force-reinstall --no-deps` 重装同一版 `triton-ascend`。安装写法见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
 
 ```shell #test id="install-vllm"
-python -m pip install --retries 3 vllm==0.23.0
-python -m pip install \
+python -m pip install --prefer-binary \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  vllm-ascend==0.23.0
+  vllm-ascend
+va=$(python -c "import importlib.metadata as m; print(m.version('vllm-ascend').split('.post')[0])")
+python -m pip install --retries 3 --no-deps "vllm==$va"
+ta=$(python -c "import importlib.metadata as m; print(m.version('triton-ascend'))")
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  triton-ascend==3.2.2
+  "triton-ascend==$ta"
 python -c "import importlib.metadata as m
 for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
 ```
 
-输出结果如下：
+<!--
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-vllm"
 ...
-torch 2.10.0...
-torch-npu 2.10.0.post4
-vllm 0.23.0...
-vllm-ascend 0.23.0
+torch ...
+torch-npu ...
+vllm ...
+vllm-ascend ...
 ```
-
-
+-->
 
 ## 5. 安装 lmcache
 
-将 `<ver>` 换成目标 tag 去掉开头的 `v`。撰写时最新 Release 是 `v0.4.4`，对应 `lmcache==0.4.4`。
+将 `<ver>` 换成最新 Release 的 tag 去掉开头的 `v`。
 
 <!--
 ```shell #test-setup store="lmcache_ver"
@@ -140,18 +151,18 @@ python -m pip install \
 python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache'))"
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-lmcache" load="lmcache_ver>>ver"
 ...
 lmcache <ver>
 ```
 
-
+> `<ver>` 是最新 Release 去掉开头的 `v`。撰写时最新 Release 是 `v0.4.4`，对应 `lmcache==0.4.4`。
 
 ## 6. 克隆并编译 LMCache-Ascend
 
-克隆 release tag（`<ref>` 可改为例如 `v0.4.4`）。主仓在 GitHub；子模块和主仓分开拉。若 `LMCache-Ascend/csrc/hixl/CMakeLists.txt` 已经在，就跳过 clone。
+将 `<ref>` 换成最新 Release 的 tag。主仓在 GitHub。子模块和主仓分开拉。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -174,18 +185,18 @@ GIT_TERMINAL_PROMPT=0 GIT_HTTP_VERSION=HTTP/1.1 \
 git -C LMCache-Ascend describe --tags --exact-match
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="clone-lmcache-ascend" load="upstream_ref>>ref"
 ...
 <ref>
 ```
 
-最新 Release `v0.4.4` 在 CANN 9.1 上编 HIXL 会缺 `runtime/rt_external_device.h`，在 vLLM 0.23 上会拒两参数 KV connector；克隆后先跑下面的补丁再编译。源码里已经有对应内容时脚本会跳过。
+> `<ref>` 是最新 Release 的 tag。撰写时为 `v0.4.4`。
 
-保存为 `patch_lmcache_ascend.py`：
+运行下面的脚本，再编译。脚本给 HIXL 的编译补上 `pkg_inc` 头文件目录，并把 `LMCacheAscendConnectorV1Dynamic.__init__` 改成透传 `*args, **kwargs`。源码里已经是这两种形态时，脚本不改文件。
 
-```python
+```python #test id="patch-lmcache-ascend"
 import re
 from pathlib import Path
 
@@ -203,93 +214,45 @@ conn = Path(
     "lmcache_ascend_connector_v1.py"
 )
 text = conn.read_text()
-if "kv_cache_config" not in text:
-    old_init = (
-        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
-        "    def __init__(self, vllm_config: \"VllmConfig\", role: KVConnectorRole) -> None:\n"
-        "        super().__init__(vllm_config=vllm_config, role=role)\n"
+marker = "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):"
+if marker not in text:
+    raise SystemExit("connector class not found")
+has_forwarder = "def __init__(self, *args, **kwargs)" in text
+has_override = "def __init__" in text
+if has_override and not has_forwarder:
+    init_pat = re.compile(
+        r"    def __init__\(self,.*?\) -> None:\n"
+        r"        super\(\)\.__init__\(.*?\)\n",
+        re.S,
     )
-    new_init = (
-        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
-        "    def __init__(\n"
-        "        self,\n"
-        "        vllm_config: \"VllmConfig\",\n"
-        "        role: KVConnectorRole,\n"
-        "        kv_cache_config=None,\n"
-        "    ) -> None:\n"
-        "        super().__init__(\n"
-        "            vllm_config=vllm_config,\n"
-        "            role=role,\n"
-        "            kv_cache_config=kv_cache_config,\n"
-        "        )\n"
+    forwarder = (
+        "    def __init__(self, *args, **kwargs) -> None:\n"
+        "        super().__init__(*args, **kwargs)\n"
     )
-    if old_init not in text:
+    new_text, n = init_pat.subn(forwarder, text, count=1)
+    if n == 0:
         raise SystemExit("connector __init__ not found")
-    conn.write_text(text.replace(old_init, new_init, 1))
+    conn.write_text(new_text)
 print("patched_ok", True)
 ```
 
-<!--
-```shell #test-setup
-cat > patch_lmcache_ascend.py <<'PY'
-import re
-from pathlib import Path
+输出结果如下：
 
-cmake = Path("LMCache-Ascend/csrc/hixl/CMakeLists.txt")
-text = cmake.read_text()
-runtime = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc/runtime"
-pkg = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc"
-if not re.search(r"/pkg_inc\s*$", text, re.M):
-    if runtime not in text:
-        raise SystemExit("hixl cmake include line not found")
-    cmake.write_text(text.replace(runtime, runtime + "\n    " + pkg, 1))
-
-conn = Path(
-    "LMCache-Ascend/lmcache_ascend/integration/vllm/"
-    "lmcache_ascend_connector_v1.py"
-)
-text = conn.read_text()
-if "kv_cache_config" not in text:
-    old_init = (
-        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
-        "    def __init__(self, vllm_config: \"VllmConfig\", role: KVConnectorRole) -> None:\n"
-        "        super().__init__(vllm_config=vllm_config, role=role)\n"
-    )
-    new_init = (
-        "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):\n"
-        "    def __init__(\n"
-        "        self,\n"
-        "        vllm_config: \"VllmConfig\",\n"
-        "        role: KVConnectorRole,\n"
-        "        kv_cache_config=None,\n"
-        "    ) -> None:\n"
-        "        super().__init__(\n"
-        "            vllm_config=vllm_config,\n"
-        "            role=role,\n"
-        "            kv_cache_config=kv_cache_config,\n"
-        "        )\n"
-    )
-    if old_init not in text:
-        raise SystemExit("connector __init__ not found")
-    conn.write_text(text.replace(old_init, new_init, 1))
-print("patched_ok", True)
-PY
+```shell #test-result id="patch-lmcache-ascend"
+patched_ok True
 ```
--->
 
-编译前删掉 `LMCache-Ascend/build`。CANN 把昇腾核目标链接进 `.o` 时会原地改文件，留着上次的产物再编，链接器会报 `unknown file type`。用 `-e ./LMCache-Ascend` 安装，不要 `cd` 进克隆目录。
+删除已有的 `LMCache-Ascend/build`，再在当前目录安装 `./LMCache-Ascend`。
 
 ```shell #test id="install-lmcache-ascend"
-python patch_lmcache_ascend.py
 rm -rf LMCache-Ascend/build
 python -m pip install -v --no-build-isolation -e ./LMCache-Ascend
 python -c "import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend import _build_info as b; import lmcache_ascend.c_ops; print('lmcache', lmcache.__version__); print('soc', b.__soc_version__); print('c_ops_ok', True); print('npu_available', torch.npu.is_available())"
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-lmcache-ascend" load="lmcache_ver>>ver"
-patched_ok True
 ...
 lmcache <ver>
 soc Ascend910B...
@@ -297,18 +260,30 @@ c_ops_ok True
 npu_available True
 ```
 
-`soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。缺 `numaif.h` 时先回到第 3 节。
+`soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新执行补丁和编译，再继续第 7 节。
 
 ## 7. 用离线 LLM 做一次 KV 卸载
 
-第一次跑通不要开 `vllm serve`，服务进程不会自己退出。下面用和上游 `examples/offload.py` 同一套连接器，换成 Hugging Face 上的 Qwen2.5-0.5B-Instruct，并把 `max_model_len` 收到 512、`gpu_memory_utilization` 收到 0.4，方便单卡几分钟内结束。
+用 `vllm.LLM` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。连接器与上游 `examples/offload.py` 相同。
 
-`VLLM_WORKER_MULTIPROC_METHOD=spawn` 避免父进程初始化过 NPU 之后子进程再 `fork`。`PYTHONHASHSEED=0` 让 LMCache 跨进程的 token hash 稳定。`VLLM_LOGGING_LEVEL=INFO` 让昇腾插件和 LMCache 引擎的设备日志打出来。脚本必须先 `import vllm`，再 `import lmcache_ascend`，后者只在检测到 vLLM 已经加载时才会把设备检测换成 NPU 版。末尾 `2>&1` 把打在 stderr 的设备日志并进标准输出。
+| 参数 | 含义 |
+| --- | --- |
+| `temperature` | `0`，固定本次生成 |
+| `top_p` | `0.95` |
+| `max_tokens` | `8` |
+| `max_model_len` | `512` |
+| `gpu_memory_utilization` | `0.4` |
 
-保存为 `offload_qs.py`：
+运行下面的脚本。
 
-```python
+```python #test id="offload"
 import os
+import sys
+
+os.environ["PYTHONHASHSEED"] = "0"
+os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
+os.environ["VLLM_LOGGING_LEVEL"] = "INFO"
+os.dup2(sys.stdout.fileno(), sys.stderr.fileno())
 
 from huggingface_hub import snapshot_download
 from vllm import LLM, SamplingParams
@@ -342,7 +317,12 @@ def main():
         trust_remote_code=True,
     )
     params = SamplingParams(temperature=0, top_p=0.95, max_tokens=8)
-    llm.generate(["Hello, my name is", "Tell me a short story"], params)
+    outputs = llm.generate(
+        ["Hello, my name is", "Tell me a short story"],
+        params,
+    )
+    for item in outputs:
+        print("reply", item.outputs[0].text)
     print("current_device", f"npu:{torch.npu.current_device()}")
     print("npu_available", torch.npu.is_available())
     print("workload_ok", True)
@@ -353,66 +333,9 @@ if __name__ == "__main__":
     main()
 ```
 
-<!--
-```shell #test-setup
-cat > offload_qs.py <<'PY'
-import os
+完整输出较长，其中应包含：
 
-from huggingface_hub import snapshot_download
-from vllm import LLM, SamplingParams
-from vllm.config import KVTransferConfig
-import lmcache_ascend
-import torch
-import torch_npu
-from lmcache.integration.vllm.utils import ENGINE_NAME
-from lmcache.v1.cache_engine import LMCacheEngineBuilder
-
-
-def main():
-    os.environ.setdefault("LMCACHE_CHUNK_SIZE", "256")
-    os.environ.setdefault("LMCACHE_LOCAL_CPU", "True")
-    os.environ.setdefault("LMCACHE_MAX_LOCAL_CPU_SIZE", "2")
-
-    model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
-    ktc = KVTransferConfig(
-        kv_connector="LMCacheAscendConnectorV1Dynamic",
-        kv_role="kv_both",
-        kv_connector_module_path=(
-            "lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1"
-        ),
-    )
-    llm = LLM(
-        model=model,
-        enforce_eager=True,
-        kv_transfer_config=ktc,
-        max_model_len=512,
-        gpu_memory_utilization=0.4,
-        trust_remote_code=True,
-    )
-    params = SamplingParams(temperature=0, top_p=0.95, max_tokens=8)
-    llm.generate(["Hello, my name is", "Tell me a short story"], params)
-    print("current_device", f"npu:{torch.npu.current_device()}")
-    print("npu_available", torch.npu.is_available())
-    print("workload_ok", True)
-    LMCacheEngineBuilder.destroy(ENGINE_NAME)
-
-
-if __name__ == "__main__":
-    main()
-PY
-```
--->
-
-```shell #test id="offload"
-export PYTHONHASHSEED=0
-export VLLM_WORKER_MULTIPROC_METHOD=spawn
-export VLLM_LOGGING_LEVEL=INFO
-python offload_qs.py 2>&1
-```
-
-输出结果如下：
-
-```shell #test-result id="offload"
+```text #test-result id="offload"
 ...Platform plugin ascend is activated...Using NPU for LMCache engine...
 current_device npu:0
 npu_available True
@@ -420,4 +343,8 @@ workload_ok True
 ...
 ```
 
-生成文字每次可能不同。`current_device npu:0` 和 `Using NPU for LMCache engine` 才是这一次上了昇腾、并且 LMCache 引擎也在 NPU 上的证据。结束时 ZMQ 可能打一条 `Assertion failed: pfd.revents`，只要退出码是 0、上面几行都在，可以忽略。
+脚本会打印两条 `reply`。结束时若出现 `Assertion failed: pfd.revents`，退出码为 0 且上面几行都在即可。
+
+## 8. 更多文档
+
+存储后端、框架对接和多机部署与社区相同。见 [LMCache 文档](https://docs.lmcache.ai/)。昇腾侧仓库见 [LMCache-Ascend](https://github.com/LMCache/LMCache-Ascend)。
