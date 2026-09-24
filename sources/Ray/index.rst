@@ -1,7 +1,2 @@
-Ray
-============
-
-.. toctree::
-   :maxdepth: 2
-
-   quick_start.rst
+.. include:: quick_start.md
+   :parser: myst_parser.sphinx_
