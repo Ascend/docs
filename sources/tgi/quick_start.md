@@ -87,7 +87,7 @@ protoc --version
 输出结果如下：
 
 ```shell #test-result id="check-system-deps"
-libprotoc 3.21.12
+libprotoc ...
 ```
 
 #### 获取源码
@@ -144,8 +144,8 @@ python -c "import torch, torch_npu; print(f'torch={torch.__version__}'); print(f
 输出结果如下：
 
 ```shell #test-result id="check-npu-runtime"
-torch=2.9.0+cpu
-torch_npu=2.9.0.post2
+torch=...
+torch_npu=...
 is_available: True
 count: 2
 ```
@@ -169,7 +169,7 @@ rustc --version
 输出结果如下：
 
 ```shell #test-result id="check-toolchain"
-rustc 1.85.1 (4eb161250 2025-03-15)
+rustc 1.85.1 ...
 ```
 
 > TGI 仓库根目录的 `rust-toolchain.toml` 固定 1.85.1，因此这里直接安装该版本。
@@ -238,8 +238,8 @@ Rust 侧产物为两个可执行文件，都在 `tgi/target/release-opt/` 下：
 `text-generation-launcher` 与 `text-generation-router`（注意
 `-p text-generation-router-v3` 是包名，产出的二进制叫
 `text-generation-router`，launcher 运行时按这个名字拉起它）。
-`--version` 输出编译期写入的版本号（fork 当前 workspace 版本为
-`3.3.6-dev0`，未随 tag 更新），`import text_generation_server`
+`--version` 输出编译期写入的版本号（版本号随 fork 的 workspace 版本
+变化，未随 tag 固定，以实际输出为准），`import text_generation_server`
 验证 Python server 已装进当前环境：
 
 ```shell #test id="check-build"
@@ -253,8 +253,8 @@ python -c "import text_generation_server; print('server import ok')"
 输出结果如下：
 
 ```shell #test-result id="check-build"
-text-generation-launcher 3.3.6-dev0
-text-generation-router-v3 3.3.6-dev0
+text-generation-launcher ...
+text-generation-router-v3 ...
 server import ok
 ```
 
@@ -322,7 +322,7 @@ curl -4s http://127.0.0.1:8080/info | python -c 'import json,sys; d=json.load(sy
 
 ```shell #test-result id="check-info"
 router: text-generation-router
-version: 3.3.6-dev0
+version: ...
 max_input_tokens: 100
 max_total_tokens: 128
 ```
@@ -433,7 +433,7 @@ echo "TGI-TP2-OK: $REPLY"
 输出结果如下（`...` 为模型回复内容，与单卡基线一致）：
 
 ```shell #test-result id="smoke-tp2"
-info: text-generation-router 3.3.6-dev0 100 128
+info: text-generation-router ... 100 128
 TGI-TP2-OK: 2  The question is: ...
 ```
 
@@ -458,12 +458,3 @@ npu-smi info 2>/dev/null | grep -c text-generation || true
 ```
 
 > 若输出非 `0`，用 `./stop-tgi.sh --force` 清理。
-
-### 小贴士
-
-- **更多卡**：`--num-shard N` 配合 `ASCEND_VISIBLE_DEVICES=0,1,...,N-1` 即可做 N 卡 HCCL 张量并行。
-- **输出一致性对比**：`do_sample=false` 贪心解码下，相同模型与参数的输出是确定的——双卡验证正是用它断言张量并行不改变输出。
-- **常用查询**：`curl -4 http://127.0.0.1:8080/info` 查看服务信息，
-  `curl -4 http://127.0.0.1:8080/v1/chat/completions` 走 OpenAI 兼容接口。
-- **官方文档**：本页只覆盖 Ascend NPU 适配的构建、启动与验证；模型管理、
-  推理参数、并发等其余用法与上游一致，详见[官方文档中心](https://huggingface.co/docs/text-generation-inference/)。
