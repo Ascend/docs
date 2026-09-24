@@ -147,7 +147,8 @@ echo "${UPSTREAM_REF#v}"
 NO_CUDA_EXT=1 python -m pip install --no-build-isolation lmcache==<ver> --no-deps
 python -m pip install \
   aiofile aiofiles blake3 aiohttp msgspec numpy psutil pyyaml pyzmq \
-  redis safetensors sortedcontainers transformers huggingface_hub
+  redis safetensors sortedcontainers transformers huggingface_hub \
+  prometheus_client py-cpuinfo
 python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache'))"
 ```
 
