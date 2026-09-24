@@ -31,7 +31,7 @@ Atlas 900 A2 / A3 训练系列产品或者其他兼容的 Ascend NPU，至少有
 | torch_npu | 2.9.0.post2 |
 | transformers | 4.48.0 |
 | modelscope | 1.37.0 |
-| InternLM | `main`，由工作流解析并监控其 commit SHA |
+| InternLM | `main` |
 | 模型 | `Shanghai_AI_Laboratory/internlm3-8b-instruct` |
 | 精度 | FP16 |
 | NPU | Ascend 910B4 × 1 |
@@ -164,7 +164,7 @@ print(f"model: {link / 'config.json'}")
 model: /root/internlm-quick-start/model/config.json
 ```
 
-## Quick Start：单卡 NPU 推理
+## 单卡 NPU 推理
 
 以下流程保留上游示例的 `AutoTokenizer`、`AutoModelForCausalLM`、chat template、
 FP16 和 `.npu()`。为了让持续集成的耗时和输出稳定，将生成长度缩短为 64 token，
