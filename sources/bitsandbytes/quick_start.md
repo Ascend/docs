@@ -74,7 +74,6 @@ python --version
 
 <!--
 ```shell #test-result id="check-tools"
-...
 Python ...
 ```
 -->
