@@ -62,8 +62,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         already ship ``LD_LIBRARY_PATH``, which would otherwise hide the
         CANN increment from ``set_env.sh``.
         """
-        os.environ['PYTHONNOUSERSITE'] = '1'
-
         if os.path.isfile(cls._CANN_SET_ENV):
             merged = subprocess.run(
                 ['bash', '-c', f'source {cls._CANN_SET_ENV} >/dev/null 2>&1; env'],
