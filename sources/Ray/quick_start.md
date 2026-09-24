@@ -1,17 +1,16 @@
 # Ray
 
-在两张昇腾 NPU 上验证 Ray 原生 `NPU` 资源发现、Task/Actor 设备隔离，
-并在每个 Ray Worker 中执行一次真实的 `torch_npu` 运算。本文基于 Ray
-上游的 [Accelerator Support](https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html)
-文档编写。
+使用 Ray 将 Task 和 Actor 分别调度到两张昇腾 NPU，并在各自的进程中
+运行 `torch_npu` 张量计算。通过本示例，可以了解 Ray 如何发现 NPU、
+分配设备以及隔离任务。更多调度方式参见 Ray 的
+[Accelerator Support](https://docs.ray.io/en/latest/ray-core/scheduling/accelerators.html) 文档。
 
 ## 前置条件
 
 ### 硬件
 
 Atlas 900 A2 / A3 训练系列产品，至少有两张可用的 Ascend NPU，并已完成
-物理机或容器中的设备与驱动配置。CI 使用 `linux-aarch64-a2-2` Runner，
-由 Runner 自动提供两张配置完好的 NPU。
+物理机或容器中的设备与驱动配置。
 
 ### 基础软件
 
@@ -108,21 +107,18 @@ python -c "import ray; print('ray', ray.__version__)"
 ray xxx
 ```
 
-## 验证 Ray 自动发现 NPU
+## 查看 Ray 检测到的 NPU
 
-Ray 优先通过 AscendCL 探测设备数量，并以 `/dev/davinci*` 作为回退，
-随后把设备发布为逻辑 `NPU` 资源。
+启动 Ray 后，查看集群中注册的 `NPU` 资源数量。下面的环境应显示两张 NPU。
 
 ```python #test id="ray-detects-npus"
 import ray
-from ray._private.accelerators import NPUAcceleratorManager
 
 ray.init(include_dashboard=False, log_to_driver=False)
 resources = ray.cluster_resources()
 count = int(resources.get("NPU", 0))
 assert count == 2, resources
 print("Ray NPU resources:", count)
-print("Ascend type:", NPUAcceleratorManager.get_current_node_accelerator_type())
 ray.shutdown()
 ```
 
@@ -130,20 +126,18 @@ ray.shutdown()
 
 ```text #test-result id="ray-detects-npus" fuzzy="xxx"
 Ray NPU resources: 2
-Ascend type: xxx
 ```
 
-## 验证 Task 与 Actor 的 NPU 隔离
+## 在 Task 和 Actor 中使用 NPU
 
-下面的 Actor 持续占用一张 NPU，Task 应获得另一张。Ray 把分配到的物理
-设备 ID 写入 `ASCEND_RT_VISIBLE_DEVICES`，`torch_npu` 再通过隔离后的
-设备视图执行真实运算。
+下面分别启动一个 Actor 和一个 Task，各请求一张 NPU。Ray 会将分配的设备
+ID 写入 `ASCEND_RT_VISIBLE_DEVICES`；两个进程各自在可见的 NPU 上计算。
 
 ```python #test id="ray-isolates-npus"
 import os
 import ray
 
-ray.init(resources={"NPU": 2}, include_dashboard=False, log_to_driver=False)
+ray.init(include_dashboard=False, log_to_driver=False)
 
 def assigned_npu():
     import torch
