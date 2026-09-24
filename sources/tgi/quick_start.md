@@ -224,9 +224,17 @@ uv）：
 cd tgi
 python -m pip install -q uv
 uv pip install --no-build-isolation -r server/requirements_ascend.txt
-uv pip install --no-build-isolation -e server
-make -C server gen-server
+uv pip install --no-build-isolation --no-deps -e server
+uv pip install --no-build-isolation "grpcio-tools==1.84.0" "mypy-protobuf==3.6.0"
+make -C server gen-server-raw
 ```
+
+> `-e server` 加 `--no-deps`：依赖一律以锁定文件为准，避免按 pyproject 的
+> 宽松版本范围重新解析引入漂移。proto 代码生成用 `gen-server-raw`（只做
+> 编译）：`gen-server` 目标会额外按过期的 `requirements_gen.txt` 安装依赖，
+> 覆盖锁定文件的版本（例如把 `typing_extensions` 降级到 4.13，与
+> `pydantic-core` 不兼容，server 启动即崩溃）。`grpcio-tools` 固定
+> `1.84.0`，与锁定文件的 `grpcio` 版本一致。
 
 > 锁定文件里 kernels 固定 0.5.0：它是 server 的构建插件，0.5.0 自带
 > `kernels.lockfile`，构建时不会去下载 CUDA 专属内核；更新的版本缺该文件，
