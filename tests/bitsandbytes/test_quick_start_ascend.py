@@ -76,8 +76,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         if path_dirs not in current_path:
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
 
-        os.environ['PYTHONNOUSERSITE'] = '1'
-
     @classmethod
     def setUpClass(cls) -> None:
         """Run env setup once per class. ``@unittest.skipIf`` only skips
