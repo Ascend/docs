@@ -265,7 +265,7 @@
       <!-- llm-d -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
-         <p class="card-desc">Kubernetes 原生的分布式 LLM 推理栈，可在单卡昇腾上走无集群最小路径。</p>
+         <p class="card-desc">架在推理引擎上的路由层。本文在单卡昇腾上用三个进程走通一次补全。</p>
          <div class="card-footer"><a href="https://github.com/llm-d/llm-d">官方链接</a><span class="split">|</span><a href="https://llm-d.ai">文档中心</a><span class="split">|</span><a href="sources/llm_d/index.html">快速上手</a></div>
       </div>
 
