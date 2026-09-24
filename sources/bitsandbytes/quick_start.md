@@ -91,9 +91,11 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-输出：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-torch"
+...
+torch ...+cpu
 ...
 npu_available True
 ```
@@ -127,9 +129,7 @@ lib BNBNativeLibrary
 
 在 CPU 上构造 `Linear4bit(64, 32)`，搬到 `npu:0` 后做一次 float16 前向。
 
-保存为 `nf4_forward.py`：
-
-```python
+```python #test id="nf4-forward"
 import torch
 import torch_npu
 import bitsandbytes as bnb
@@ -149,38 +149,6 @@ print("out.device", out.device)
 print("out.shape", tuple(out.shape))
 print("out.dtype", out.dtype)
 print("NF4 forward on Ascend NPU: OK")
-```
-
-<!--
-```shell #test-setup
-cat > nf4_forward.py <<'PY'
-import torch
-import torch_npu
-import bitsandbytes as bnb
-
-layer = bnb.nn.Linear4bit(
-    64, 32, bias=False, compute_dtype=torch.float16, quant_type="nf4",
-    compress_statistics=False,
-)
-layer = layer.to("npu:0")
-x = torch.randn(4, 64, dtype=torch.float16, device="npu:0")
-out = layer(x)
-weight = layer.weight
-print("weight.device", weight.device)
-print("weight.dtype", weight.dtype)
-print("weight.bnb_quantized", weight.bnb_quantized)
-print("out.device", out.device)
-print("out.shape", tuple(out.shape))
-print("out.dtype", out.dtype)
-print("NF4 forward on Ascend NPU: OK")
-PY
-```
--->
-
-运行：
-
-```shell #test id="nf4-forward"
-python nf4_forward.py
 ```
 
 输出结果如下：
