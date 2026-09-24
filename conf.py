@@ -77,6 +77,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/llama_cpp/quick_start.md',
                     'sources/whisper_cpp/quick_start.md',
                     'sources/llm_compressor/quick_start.md',
+                    'sources/axolotl/quick_start.md',
                     'sources/lmcache/quick_start.md']
 
 
