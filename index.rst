@@ -393,6 +393,12 @@
          <div class="card-footer"><a href="https://github.com/ggml-org/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/index.html">快速上手</a></div>
       </div>
 
+      <!-- ComfyUI -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ComfyUI</h3></div>
+         <p class="card-desc">模块化的 Stable Diffusion 节点式图形界面与后端，原生适配昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/comfyanonymous/ComfyUI">官方链接</a><span class="split">|</span><a href="sources/comfyui/quick_start.html">快速上手</a></div>
+      </div>
    </div>
 
 .. -----------------------------------------
@@ -471,4 +477,5 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/comfyui/index.md
 
