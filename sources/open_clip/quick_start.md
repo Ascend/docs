@@ -1,17 +1,15 @@
 # open_clip
 
-在单卡昇腾 NPU 上运行 [open_clip](https://github.com/mlfoundations/open_clip)
-官方 README 的预训练图文相似度示例，并用上游测试已有的 synthetic 数据方式
-完成一次最小训练：先确认 `ViT-B-32` 图片最匹配 `a diagram`，再验证 RN50
-能够在 `npu:0` 上执行前向、反向和优化器更新。
+在单张昇腾 NPU 上，使用 [open_clip](https://github.com/mlfoundations/open_clip)
+的预训练模型比较图片与文本的相似度，再用合成数据运行一次 RN50 训练。
+完成后，可以确认模型推理和训练都能在 `npu:0` 上运行。
 
 ## 前置条件
 
 ### 硬件
 
 Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少有一张可用
-的 Ascend NPU，并已完成物理机或容器中的设备与驱动配置。CI 使用
-`linux-aarch64-a2-1` Runner，由 Runner 自动提供一张配置完好的 NPU。
+的 Ascend NPU，并已完成物理机或容器中的设备与驱动配置。
 
 ### 基础软件
 
@@ -32,7 +30,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少有�
 | torch | 2.9.0+cpu |
 | torchvision | 0.24.0 |
 | torch_npu | 2.9.0.post2 |
-| open_clip | 工作流注入的最新 release 源码 |
+| open_clip | 最新 release |
 | 模型 | `ViT-B-32` / `laion2b_s34b_b79k` |
 | NPU | Ascend 910B4 × 1 |
 
@@ -73,7 +71,8 @@ npu_count: 1
 
 ## 安装 open_clip
 
-下面安装工作流解析出的最新 GitHub release，而不是静态固定 open_clip 版本。
+从 [open_clip Releases](https://github.com/mlfoundations/open_clip/releases) 选择
+最新正式版本，将命令中的 `<ref>` 替换为对应的标签，再安装 open_clip。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -84,6 +83,7 @@ printf '%s\n' "$UPSTREAM_REF"
 ```shell #test id="install-open-clip" load="upstream_ref>>ref"
 git clone --depth 1 --branch <ref> https://github.com/mlfoundations/open_clip.git open-clip-src
 cd open-clip-src
+python -m pip install -U uv
 uv pip install -r requirements-training.txt
 uv pip install -e . --no-deps
 python -c "import open_clip; print('open_clip', open_clip.__version__)"
@@ -97,8 +97,8 @@ open_clip xxx
 
 ## 单卡预训练图文推理
 
-本例来自 open_clip README 的 `ViT-B-32` 推理流程。与 CUDA 示例相比，
-只增加 `torch_npu` 导入、`device="npu:0"`，并把输入移动到同一张 NPU。
+使用预训练 `ViT-B-32` 模型，分别提取图片和三个候选文本的特征，
+选择与图片最匹配的描述。模型与输入都放在同一张 NPU 上。
 
 ```python #test id="npu-inference"
 import torch
@@ -149,10 +149,8 @@ NPU inference PASSED
 
 ## 单卡最小训练验证
 
-本步骤来自上游 `tests/test_training_simple.py` 的 RN50 synthetic training 用例。
-它不下载训练数据，只把上游测试规模缩小为 4 个样本，并增加
-`--device npu:0` 和 `--precision fp32`；因此会真实执行损失计算、反向传播和
-优化器更新，同时保持 Quick Start 足够轻量。
+使用 4 个自动生成的样本运行一次 RN50 单卡训练，无需下载训练数据。
+命令会在 `npu:0` 上以 FP32 精度完成损失计算、反向传播和模型参数更新。
 
 ```shell #test id="npu-training"
 set -euo pipefail
@@ -183,5 +181,5 @@ xxxTrain Epoch: 0xxx
 NPU training PASSED
 ```
 
-该示例覆盖真实权重单卡推理和 synthetic 数据单卡训练，不覆盖 HCCL 多卡训练、
-FSDP、音频模型、CoCa、INT8 或 `torch.compile`。
+看到 `NPU training PASSED` 表示单卡训练命令已运行完成。多卡训练和其他模型
+不在本文范围内。
