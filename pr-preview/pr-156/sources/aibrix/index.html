@@ -242,16 +242,19 @@
 <section id="id6">
 <h3>2.2 确认工具可用<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
 <p>确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
-<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi<span class="w"> </span>&gt;/dev/null
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-eu
+<span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"ASCEND_HOME_PATH set"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi
 python<span class="w"> </span>--version
 </pre></div>
 </div>
-<!--
-```shell #test-result id="check-tools"
-Python ...
-```
--->
+<p>输出中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ASCEND_HOME_PATH<span class="w"> </span><span class="nb">set</span>
+...npu-smi
+Python<span class="w"> </span>...
+</pre></div>
+</div>
 </section>
 </section>
 <section id="id7">
@@ -265,11 +268,10 @@ apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w">
 ss<span class="w"> </span>--version
 </pre></div>
 </div>
-<!--
-```shell #test-result id="install-system-prereqs"
-...ss utility, iproute2-...
-```
--->
+<p>完整输出较长，其中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...ss<span class="w"> </span>utility,<span class="w"> </span>iproute2-...
+</pre></div>
+</div>
 </section>
 <section id="go">
 <h3>3.2 安装 Go<a class="headerlink" href="#go" title="Link to this heading"></a></h3>
@@ -287,11 +289,10 @@ tar<span class="w"> </span>-C<span class="w"> </span>.aibrix-quick-start/toolcha
 .aibrix-quick-start/toolchain/go/bin/go<span class="w"> </span>version
 </pre></div>
 </div>
-<!--
-```shell #test-result id="install-go"
-go version go... linux/arm64
-```
--->
+<p>输出中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>go<span class="w"> </span>version<span class="w"> </span>go...<span class="w"> </span>linux/arm64
+</pre></div>
+</div>
 </section>
 <section id="envoy">
 <h3>3.3 安装 Envoy<a class="headerlink" href="#envoy" title="Link to this heading"></a></h3>
@@ -308,15 +309,14 @@ chmod<span class="w"> </span>+x<span class="w"> </span>.aibrix-quick-start/bin/e
 .aibrix-quick-start/bin/envoy<span class="w"> </span>--version
 </pre></div>
 </div>
-<!--
-```shell #test-result id="install-envoy"
-...version...
-```
--->
+<p>输出中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...version...
+</pre></div>
+</div>
 </section>
 <section id="vllm-ascend">
 <h3>3.4 安装 vLLM-Ascend<a class="headerlink" href="#vllm-ascend" title="Link to this heading"></a></h3>
-<p>安装 <code class="docutils literal notranslate"><span class="pre">vllm</span></code>、<code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 和 <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code>。安装说明见 <a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/latest/installation.html">vLLM-Ascend 安装说明</a>。</p>
+<p>安装 <code class="docutils literal notranslate"><span class="pre">vllm</span></code>、<code class="docutils literal notranslate"><span class="pre">vllm-ascend</span></code> 和 <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code>，再用 <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">show</span></code> 打印这三个包的名称。安装说明见 <a class="reference external" href="https://docs.vllm.ai/projects/ascend/en/latest/installation.html">vLLM-Ascend 安装说明</a>。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-eu
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu/<span class="w"> </span><span class="se">\</span>
@@ -328,13 +328,19 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--retries<span class="w"> </span><span class="m">3</span><span class="w"> </span>--force-reinstall<span class="w"> </span>--no-deps<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--extra-index-url<span class="w"> </span>https://mirrors.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>triton-ascend
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>show<span class="w"> </span>vllm<span class="w"> </span>vllm-ascend<span class="w"> </span>triton-ascend
 </pre></div>
 </div>
-<!--
-```shell #test-result id="install-vllm"
+<p>完整输出较长，其中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+Name:<span class="w"> </span>vllm
 ...
-```
--->
+Name:<span class="w"> </span>vllm-ascend
+...
+Name:<span class="w"> </span>triton-ascend
+...
+</pre></div>
+</div>
 </section>
 </section>
 <section id="id8">
@@ -351,11 +357,10 @@ git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> 
 git<span class="w"> </span>-C<span class="w"> </span>.aibrix-quick-start/aibrix<span class="w"> </span>describe<span class="w"> </span>--tags<span class="w"> </span>--exact-match
 </pre></div>
 </div>
-<!--
-```shell #test-result id="clone-aibrix" load="upstream_ref>>ref"
-<ref>
-```
--->
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&lt;ref&gt;
+</pre></div>
+</div>
 <p>编译 <code class="docutils literal notranslate"><span class="pre">gateway-plugins</span></code>。<code class="docutils literal notranslate"><span class="pre">GOPATH</span></code> 与 <code class="docutils literal notranslate"><span class="pre">GOCACHE</span></code> 放在工作目录。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-eu
 <span class="nb">export</span><span class="w"> </span><span class="nv">GOPATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/.aibrix-quick-start/gopath"</span>
@@ -366,12 +371,11 @@ mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span>
 <span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/../toolchain/go/bin/go"</span><span class="w"> </span>version<span class="w"> </span>-m<span class="w"> </span>bin/gateway-plugins
 </pre></div>
 </div>
-<!--
-```shell #test-result id="build-gateway"
-bin/gateway-plugins: go...
+<p>完整输出较长，其中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bin/gateway-plugins:<span class="w"> </span>go...
 ...
-```
--->
+</pre></div>
+</div>
 </section>
 <section id="id9">
 <h2>5. 启动 vLLM-Ascend 后端<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
@@ -417,16 +421,14 @@ cat<span class="w"> </span>.aibrix-quick-start/vllm.log
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>grep<span class="w"> </span>-F<span class="w"> </span><span class="s1">'backend=hccl'</span><span class="w"> </span>.aibrix-quick-start/vllm.log
 </pre></div>
 </div>
-<!--
-```shell #test-result id="backend-on-npu"
-...backend=hccl...
-```
--->
+<p>完整输出较长，其中应包含：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...backend<span class="o">=</span>hccl...
+</pre></div>
+</div>
 </section>
 <section id="local-mode">
 <h2>6. 配置网关并启动 local mode<a class="headerlink" href="#local-mode" title="Link to this heading"></a></h2>
-<p>写入 <code class="docutils literal notranslate"><span class="pre">.aibrix-quick-start/endpoints.yaml</span></code>。模型名是 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-0.5B-Instruct</span></code>，引擎地址是 <code class="docutils literal notranslate"><span class="pre">127.0.0.1:8000</span></code>。</p>
-<p>保存为 <code class="docutils literal notranslate"><span class="pre">.aibrix-quick-start/endpoints.yaml</span></code>：</p>
+<p>把下面的内容写入 <code class="docutils literal notranslate"><span class="pre">.aibrix-quick-start/endpoints.yaml</span></code>。模型名写 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-0.5B-Instruct</span></code>，引擎写 <code class="docutils literal notranslate"><span class="pre">vllm</span></code>，后端地址写 <code class="docutils literal notranslate"><span class="pre">127.0.0.1:8000</span></code>。</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"Qwen/Qwen2.5-0.5B-Instruct"</span>
 <span class="w">    </span><span class="nt">engine</span><span class="p">:</span><span class="w"> </span><span class="s">"vllm"</span>
@@ -461,7 +463,7 @@ AIBrix<span class="w"> </span>gateway<span class="w"> </span>is<span class="w"> 
 </section>
 <section id="id10">
 <h2>7. 发一次推理<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
-<p>经 <code class="docutils literal notranslate"><span class="pre">127.0.0.1:10080</span></code> 发送一次 chat completion，<code class="docutils literal notranslate"><span class="pre">seed</span></code> 为 42。</p>
+<p>通过网关向已经启动的 vLLM 发一条对话，请模型用一句话打招呼。请求发到 <code class="docutils literal notranslate"><span class="pre">127.0.0.1:10080</span></code>，<code class="docutils literal notranslate"><span class="pre">seed</span></code> 是 42。输出与下面的结果相同。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
 
