@@ -377,10 +377,19 @@ uv）：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>tgi
 python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span>uv
 uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>-r<span class="w"> </span>server/requirements_ascend.txt
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>-e<span class="w"> </span>server
-make<span class="w"> </span>-C<span class="w"> </span>server<span class="w"> </span>gen-server
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span>--no-deps<span class="w"> </span>-e<span class="w"> </span>server
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span><span class="s2">"grpcio-tools==1.84.0"</span><span class="w"> </span><span class="s2">"mypy-protobuf==3.6.0"</span>
+make<span class="w"> </span>-C<span class="w"> </span>server<span class="w"> </span>gen-server-raw
 </pre></div>
 </div>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">server</span></code> 加 <code class="docutils literal notranslate"><span class="pre">--no-deps</span></code>：依赖一律以锁定文件为准，避免按 pyproject 的
+宽松版本范围重新解析引入漂移。proto 代码生成用 <code class="docutils literal notranslate"><span class="pre">gen-server-raw</span></code>（只做
+编译）：<code class="docutils literal notranslate"><span class="pre">gen-server</span></code> 目标会额外按过期的 <code class="docutils literal notranslate"><span class="pre">requirements_gen.txt</span></code> 安装依赖，
+覆盖锁定文件的版本（例如把 <code class="docutils literal notranslate"><span class="pre">typing_extensions</span></code> 降级到 4.13，与
+<code class="docutils literal notranslate"><span class="pre">pydantic-core</span></code> 不兼容，server 启动即崩溃）。<code class="docutils literal notranslate"><span class="pre">grpcio-tools</span></code> 固定
+<code class="docutils literal notranslate"><span class="pre">1.84.0</span></code>，与锁定文件的 <code class="docutils literal notranslate"><span class="pre">grpcio</span></code> 版本一致。</p>
+</div></blockquote>
 <blockquote>
 <div><p>锁定文件里 kernels 固定 0.5.0：它是 server 的构建插件，0.5.0 自带
 <code class="docutils literal notranslate"><span class="pre">kernels.lockfile</span></code>，构建时不会去下载 CUDA 专属内核；更新的版本缺该文件，
