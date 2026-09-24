@@ -292,6 +292,13 @@
          <div class="card-footer"><a href="https://github.com/sgl-project/sglang">官方链接</a><span class="split">|</span><a href="https://docs.sglang.io/">文档中心</a><span class="split">|</span><a href="https://docs.sglang.io/docs/hardware-platforms/ascend-npus/getting-started/quick_start">快速上手</a></div>
       </div>
 
+      <!-- TGI：昇腾适配发布在 cosdt fork，本地编译维护 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">text-generation-inference</h3></div>
+         <p class="card-desc">大语言模型推理服务框架，支持单卡与多卡 HCCL 张量并行。</p>
+         <div class="card-footer"><a href="https://github.com/cosdt/text-generation-inference">官方链接</a><span class="split">|</span><a href="https://huggingface.co/docs/text-generation-inference/">文档中心</a><span class="split">|</span><a href="sources/tgi/index.html">快速上手</a></div>
+      </div>
+
       <!-- torchchat -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchchat</h3></div>
@@ -446,6 +453,7 @@
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
    sources/sglang/index.rst
+   sources/tgi/index.md
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
 
