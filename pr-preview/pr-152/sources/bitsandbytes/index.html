@@ -66,6 +66,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
@@ -83,20 +84,23 @@
 <li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文验证环境</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">2. 检查环境是否就绪</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id5">2. 检查环境是否就绪</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#npu">2.1 确认 NPU 在线</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id5">2.2 确认工具可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">2.2 确认工具可用</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#pytorch-npu">3. 安装 PyTorch NPU 栈</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">4. 安装 bitsandbytes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4. 安装 bitsandbytes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#npu-nf4-linear4bit">5. 在 NPU 上做一次 NF4 Linear4bit 前向</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">6. 更多文档</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
@@ -149,12 +153,12 @@
              
   <section id="bitsandbytes">
 <h1>bitsandbytes<a class="headerlink" href="#bitsandbytes" title="Link to this heading"></a></h1>
-<p>在单卡昇腾上安装 bitsandbytes，用默认后端完成一次 NF4 <code class="docutils literal notranslate"><span class="pre">Linear4bit</span></code> 前向。</p>
+<p>bitsandbytes 是 8-bit / 4-bit 量化库。本文在单卡昇腾上安装它，并用默认后端完成一次 NF4 <code class="docutils literal notranslate"><span class="pre">Linear4bit</span></code> 前向。</p>
 <section id="id1">
 <h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="id2">
 <h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
-<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列（Ascend <strong>910B</strong>）。本文示例为单卡。</p>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列，Ascend <strong>910B</strong>。本文示例为单卡。</p>
 </section>
 <section id="id3">
 <h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
@@ -166,86 +170,106 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>CANN</p></td>
-<td><p>toolkit + 驱动固件已安装，并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code></p></td>
+<td><p>toolkit 与驱动已安装，并能 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>。版本按 <a class="reference external" href="https://www.hiascend.com/developer/download/compatibility">昇腾软件配套清单</a> 选择</p></td>
 </tr>
 <tr class="row-odd"><td><p>Python</p></td>
-<td><p>3.12</p></td>
+<td><p>落在官方配套表给出的范围内，并满足 bitsandbytes 下限；当前正式版要求 <code class="docutils literal notranslate"><span class="pre">&gt;=3.10</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>PyTorch</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">torch==2.9.0</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.9.0.post2</span></code>，见下文安装</p></td>
+<td><p>安装官方当前推荐的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 与 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，见 <a class="reference external" href="https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md">CANN 与 PyTorch 配套表</a> 和 <a class="reference external" href="https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download">PyTorch 安装包</a></p></td>
 </tr>
 <tr class="row-odd"><td><p>bitsandbytes</p></td>
-<td><p>从 PyPI 安装发布版，见下文</p></td>
+<td><p>从 PyPI 安装最新发布版</p></td>
 </tr>
 </tbody>
 </table>
-<p>配套镜像：<code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code>。</p>
 <p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。</p>
+</section>
+<section id="id4">
+<h3>本文验证环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>本文在配套镜像 <code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code> 上验证，镜像内为 CANN 9.1.0 与 Python 3.12。这不是唯一支持组合。</p>
 </section>
 </section>
 <section id="cann">
 <h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
-<p>新开终端后 CANN 变量不会自动生效。常见容器里 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 在 <code class="docutils literal notranslate"><span class="pre">/usr/local/sbin</span></code>，需要把该目录加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>。</p>
+<p>加载 CANN 环境变量，并把 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 所在目录加入 <code class="docutils literal notranslate"><span class="pre">PATH</span></code>。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:<span class="nv">$PATH</span>
 </pre></div>
 </div>
 </section>
-<section id="id4">
-<h2>2. 检查环境是否就绪<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<section id="id5">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
 <section id="npu">
 <h3>2.1 确认 NPU 在线<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
-<p>下面确认驱动能看到设备。表格中的功耗、HBM 占用每次不同，不必与样例逐字一致。</p>
+<p>确认驱动能看到设备。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 5     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 5                                                            |
++===========================+===============+====================================================+
 </pre></div>
 </div>
 <p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 找不到，回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
 </section>
-<section id="id5">
-<h3>2.2 确认工具可用<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
-<p>下面确认 CANN 已加载，并且 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 与 <code class="docutils literal notranslate"><span class="pre">python</span></code> 都在 <code class="docutils literal notranslate"><span class="pre">PATH</span></code> 里。</p>
+<section id="id6">
+<h3>2.2 确认工具可用<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>确认 CANN 已加载，并且 Python 可用。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
-<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi
 python<span class="w"> </span>--version
 </pre></div>
 </div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-Python<span class="w"> </span><span class="m">3</span>.12...
-</pre></div>
-</div>
+<!--
+```shell #test-result id="check-tools"
+Python ...
+```
+-->
 </section>
 </section>
 <section id="pytorch-npu">
 <h2>3. 安装 PyTorch NPU 栈<a class="headerlink" href="#pytorch-npu" title="Link to this heading"></a></h2>
-<p>昇腾上的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 要从华为 PyPI 额外索引安装，并钉死与 CANN 匹配的版本。<code class="docutils literal notranslate"><span class="pre">numpy</span></code> 和 <code class="docutils literal notranslate"><span class="pre">pyyaml</span></code> 也要一起装：<code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的 wheel 没有声明这两项依赖，缺了会在显式 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 之前失败。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.9.0.post2<span class="w"> </span>numpy<span class="w"> </span>pyyaml
+<p>安装 CPU 版 PyTorch、配套的 torch_npu、numpy 和 pyyaml。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--index-url<span class="w"> </span>https://download.pytorch.org/whl/cpu<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--extra-index-url<span class="w"> </span>https://pypi.org/simple<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>torch_npu<span class="w"> </span>numpy<span class="w"> </span>pyyaml
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"</span>
 </pre></div>
 </div>
-<p>输出结果如下：</p>
+<p>完整输出较长，其中应包含：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
-torch<span class="w"> </span><span class="m">2</span>.9.0...
-torch_npu<span class="w"> </span><span class="m">2</span>.9.0.post2
+torch<span class="w"> </span>...+cpu
+...
 npu_available<span class="w"> </span>True
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">npu_available</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">True</span></code>。<code class="docutils literal notranslate"><span class="pre">False</span></code> 时不要继续，先查 CANN、驱动和可见设备。</p>
 </section>
-<section id="id6">
-<h2>4. 安装 bitsandbytes<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
-<p>将 <code class="docutils literal notranslate"><span class="pre">&lt;UPSTREAM_REF&gt;</span></code> 换成目标 PyPI 版本号（撰写时最新正式版是 <code class="docutils literal notranslate"><span class="pre">0.50.2</span></code>）。</p>
+<section id="id7">
+<h2>4. 安装 bitsandbytes<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>安装最新版本。</p>
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
 ```
 -->
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">bitsandbytes</span><span class="o">==</span>&lt;UPSTREAM_REF&gt;
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-build-isolation<span class="w"> </span><span class="s2">"bitsandbytes==&lt;UPSTREAM_REF&gt;"</span>
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import bitsandbytes as bnb; import bitsandbytes.cextension as ce; print('bitsandbytes', bnb.__version__); print('BNB_BACKEND', ce.BNB_BACKEND); print('lib', type(ce.lib).__name__)"</span>
 </pre></div>
 </div>
-<p>输出结果如下：</p>
+<p>输出：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
 bitsandbytes<span class="w"> </span>...
 BNB_BACKEND<span class="w"> </span>CPU
@@ -255,8 +279,7 @@ lib<span class="w"> </span>BNBNativeLibrary
 </section>
 <section id="npu-nf4-linear4bit">
 <h2>5. 在 NPU 上做一次 NF4 Linear4bit 前向<a class="headerlink" href="#npu-nf4-linear4bit" title="Link to this heading"></a></h2>
-<p>下面在 CPU 上构造 <code class="docutils literal notranslate"><span class="pre">Linear4bit(64,</span> <span class="pre">32)</span></code>，搬到 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 量化，再用 float16 输入做一次前向。进程须退出码为 0，且 <code class="docutils literal notranslate"><span class="pre">out.device</span></code> 必须是 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>；若打印 <code class="docutils literal notranslate"><span class="pre">cpu</span></code>，那是静默回退，视为失败。</p>
-<p>保存为 <code class="docutils literal notranslate"><span class="pre">nf4_forward.py</span></code>：</p>
+<p>在 CPU 上构造 <code class="docutils literal notranslate"><span class="pre">Linear4bit(64,</span> <span class="pre">32)</span></code>，搬到 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 后做一次 float16 前向。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">bitsandbytes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bnb</span>
@@ -278,35 +301,6 @@ lib<span class="w"> </span>BNBNativeLibrary
 <span class="nb">print</span><span class="p">(</span><span class="s2">"NF4 forward on Ascend NPU: OK"</span><span class="p">)</span>
 </pre></div>
 </div>
-<!--
-```shell #test-setup
-cat > nf4_forward.py <<'PY'
-import torch
-import torch_npu
-import bitsandbytes as bnb
-
-layer = bnb.nn.Linear4bit(
-    64, 32, bias=False, compute_dtype=torch.float16, quant_type="nf4",
-    compress_statistics=False,
-)
-layer = layer.to("npu:0")
-x = torch.randn(4, 64, dtype=torch.float16, device="npu:0")
-out = layer(x)
-weight = layer.weight
-print("weight.device", weight.device)
-print("weight.dtype", weight.dtype)
-print("weight.bnb_quantized", weight.bnb_quantized)
-print("out.device", out.device)
-print("out.shape", tuple(out.shape))
-print("out.dtype", out.dtype)
-print("NF4 forward on Ascend NPU: OK")
-PY
-```
--->
-<p>运行：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>nf4_forward.py
-</pre></div>
-</div>
 <p>输出结果如下：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>weight.device<span class="w"> </span>npu:0
 weight.dtype<span class="w"> </span>torch.uint8
@@ -317,6 +311,10 @@ out.dtype<span class="w"> </span>torch.float16
 NF4<span class="w"> </span>forward<span class="w"> </span>on<span class="w"> </span>Ascend<span class="w"> </span>NPU:<span class="w"> </span>OK
 </pre></div>
 </div>
+</section>
+<section id="id8">
+<h2>6. 更多文档<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>8-bit 优化器、模型量化和其余模块的用法与社区相同，见 <a class="reference external" href="https://huggingface.co/docs/bitsandbytes">bitsandbytes 文档</a>。</p>
 </section>
 </section>
 
