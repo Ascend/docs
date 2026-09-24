@@ -155,7 +155,7 @@ print(f"model: {link / 'config.json'}")
 
 输出结果如下：
 
-```text #test-result id="download-model"
+```text #test-result id="download-model" fuzzy="xxx"
 model: xxx/internlm-model/config.json
 ```
 

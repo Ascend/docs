@@ -111,6 +111,12 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         if _e2e_enabled():
             cls.prepare_environment()
 
+    def test_model_download_output_accepts_absolute_working_directory(self) -> None:
+        _, expected = self.parse(self.pre_process())
+        result = expected["download-model"]
+        actual = "model: /tmp/docs/internlm-model/config.json\n"
+        self.assertTrue(self.compare_output(actual, result.body, result.fuzzy))
+
     @unittest.skipIf(
         not _e2e_enabled(),
         "end-to-end requires an Ascend NPU runner; set NPU_READY=true",
