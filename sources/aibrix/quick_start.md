@@ -64,16 +64,22 @@ npu-smi info
 确认 CANN 已加载，并且 `npu-smi` 与 `python` 都在 `PATH` 里。
 
 ```shell #test id="check-tools"
+set -eu
 test -n "$ASCEND_HOME_PATH"
-command -v npu-smi >/dev/null
+echo "ASCEND_HOME_PATH set"
+command -v npu-smi
 python --version
 ```
 
-<!--
+输出中应包含：
+
 ```shell #test-result id="check-tools"
+ASCEND_HOME_PATH set
+...npu-smi
 Python ...
 ```
--->
+
+
 
 ## 3. 安装依赖
 
@@ -83,8 +89,6 @@ Python ...
 
 安装 `iproute2`，其中包含 `ss`。
 
-
-
 ```shell #test id="install-system-prereqs"
 set -eu
 apt-get update
@@ -92,11 +96,13 @@ apt-get install -y iproute2
 ss --version
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="install-system-prereqs"
 ...ss utility, iproute2-...
 ```
--->
+
+
 
 ### 3.2 安装 Go
 
@@ -116,11 +122,13 @@ tar -C .aibrix-quick-start/toolchain -xzf .aibrix-quick-start/go.tar.gz
 .aibrix-quick-start/toolchain/go/bin/go version
 ```
 
-<!--
+输出中应包含：
+
 ```shell #test-result id="install-go"
 go version go... linux/arm64
 ```
--->
+
+
 
 ### 3.3 安装 Envoy
 
@@ -139,15 +147,17 @@ chmod +x .aibrix-quick-start/bin/envoy
 .aibrix-quick-start/bin/envoy --version
 ```
 
-<!--
+输出中应包含：
+
 ```shell #test-result id="install-envoy"
 ...version...
 ```
--->
+
+
 
 ### 3.4 安装 vLLM-Ascend
 
-安装 `vllm`、`vllm-ascend` 和 `triton-ascend`。安装说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
+安装 `vllm`、`vllm-ascend` 和 `triton-ascend`，再用 `pip show` 打印这三个包的名称。安装说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
 
 ```shell #test id="install-vllm"
 set -eu
@@ -161,19 +171,26 @@ python -m pip install --retries 3 \
 python -m pip install --retries 3 --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend
+python -m pip show vllm vllm-ascend triton-ascend
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="install-vllm"
 ...
+Name: vllm
+...
+Name: vllm-ascend
+...
+Name: triton-ascend
+...
 ```
--->
+
+
 
 ## 4. 获取 AIBrix 源码并编译网关
 
 克隆 release tag。`<ref>` 在看护里替换成上游版本，本地可写成例如 `v0.7.0`。
-
-
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -188,11 +205,11 @@ git clone --depth 1 --branch <ref> https://github.com/vllm-project/aibrix.git .a
 git -C .aibrix-quick-start/aibrix describe --tags --exact-match
 ```
 
-<!--
+输出结果如下：
+
 ```shell #test-result id="clone-aibrix" load="upstream_ref>>ref"
 <ref>
 ```
--->
 
 编译 `gateway-plugins`。`GOPATH` 与 `GOCACHE` 放在工作目录。
 
@@ -206,12 +223,14 @@ CGO_ENABLED=0 "$PWD/../toolchain/go/bin/go" build -tags=nozmq -o bin/gateway-plu
 "$PWD/../toolchain/go/bin/go" version -m bin/gateway-plugins
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="build-gateway"
 bin/gateway-plugins: go...
 ...
 ```
--->
+
+
 
 ## 5. 启动 vLLM-Ascend 后端
 
@@ -263,17 +282,17 @@ vLLM /health OK
 grep -F 'backend=hccl' .aibrix-quick-start/vllm.log
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="backend-on-npu"
 ...backend=hccl...
 ```
--->
+
+
 
 ## 6. 配置网关并启动 local mode
 
-写入 `.aibrix-quick-start/endpoints.yaml`。模型名是 `Qwen/Qwen2.5-0.5B-Instruct`，引擎地址是 `127.0.0.1:8000`。
-
-保存为 `.aibrix-quick-start/endpoints.yaml`：
+把下面的内容写入 `.aibrix-quick-start/endpoints.yaml`。模型名写 `Qwen/Qwen2.5-0.5B-Instruct`，引擎写 `vllm`，后端地址写 `127.0.0.1:8000`。
 
 ```yaml
 models:
@@ -296,8 +315,6 @@ EOF
 ```
 -->
 
-
-
 启动 local mode。
 
 ```shell #test id="start-gateway"
@@ -318,7 +335,7 @@ AIBrix gateway is running!
 
 ## 7. 发一次推理
 
-经 `127.0.0.1:10080` 发送一次 chat completion，`seed` 为 42。
+通过网关向已经启动的 vLLM 发一条对话，请模型用一句话打招呼。请求发到 `127.0.0.1:10080`，`seed` 是 42。输出与下面的结果相同。
 
 ```python #test id="infer"
 import json
