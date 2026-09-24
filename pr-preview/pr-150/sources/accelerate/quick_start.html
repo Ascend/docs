@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>快速开始 &mdash; 昇腾开源  文档</title>
+  <title>accelerate &mdash; 昇腾开源  文档</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
@@ -27,9 +27,7 @@
       <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../../genindex.html" />
-    <link rel="search" title="搜索" href="../../search.html" />
-    <link rel="next" title="DeepSpeed" href="../deepspeed/index.html" />
-    <link rel="prev" title="安装指南" href="install.html" /> 
+    <link rel="search" title="搜索" href="../../search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,16 +54,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">accelerate</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="install.html">安装指南</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">快速开始</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id2">前置准备</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id3">模型训练</a></li>
-</ul>
-</li>
-</ul>
-</li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">accelerate</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
@@ -130,10 +120,9 @@
           <div role="navigation" aria-label="页面导航">
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">accelerate</a></li>
-      <li class="breadcrumb-item active">快速开始</li>
+      <li class="breadcrumb-item active">accelerate</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../../_sources/sources/accelerate/quick_start.rst.txt" rel="nofollow"> 查看页面源码</a>
+            <a href="../../_sources/sources/accelerate/quick_start.md.txt" rel="nofollow"> 查看页面源码</a>
       </li>
   </ul>
   <hr/>
@@ -141,147 +130,519 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="id1">
-<h1>快速开始<a class="headerlink" href="#id1" title="Link to this heading"></a></h1>
-<div class="admonition note">
-<p class="admonition-title">备注</p>
-<p>阅读本篇前，请确保已按照 <a class="reference internal" href="../ascend/quick_install.html"><span class="doc">安装指南</span></a> 准备好昇腾环境及 Accelerate</p>
-</div>
-<p>本教程以一个简单的 NLP 模型为例，讲述如何使用 Accelerate 在昇腾 NPU 上进行模型的训练。</p>
+  <section id="accelerate">
+<h1>accelerate<a class="headerlink" href="#accelerate" title="Link to this heading"></a></h1>
+<p>在双卡昇腾 NPU 上跑通 <a class="reference external" href="https://github.com/huggingface/accelerate">Accelerate</a> 的三大核心能力：</p>
+<ul class="simple">
+<li><p><strong>训练</strong>：多卡 DDP 训练（fp32 + bf16）+ 单卡训练。</p></li>
+<li><p><strong>分布式评估</strong>：DDP 双进程下 <code class="docutils literal notranslate"><span class="pre">gather_for_metrics</span></code> 真的跨卡集合通信（hccl 后端）。</p></li>
+<li><p><strong>大模型推理</strong>：<code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 把大模型骨架以 meta 占位符方式创建（0 显存），<code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code> 真实走一遍权重跨卡分片。</p></li>
+</ul>
+<p>DDP 训练与跨卡集合通信都需要至少 2 张 NPU。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="id2">
-<h2>前置准备<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
-<p>本篇将使用到 HuggingFace 其他工具链及 scikit-learn 库，请使用以下指令安装：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">datasets</span> <span class="n">evaluate</span> <span class="n">transformers</span> <span class="n">scikit</span><span class="o">-</span><span class="n">learn</span> <span class="o">-</span><span class="n">i</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">pypi</span><span class="o">.</span><span class="n">tuna</span><span class="o">.</span><span class="n">tsinghua</span><span class="o">.</span><span class="n">edu</span><span class="o">.</span><span class="n">cn</span><span class="o">/</span><span class="n">simple</span>
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>与上面 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，且 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 能正常 <code class="docutils literal notranslate"><span class="pre">import</span></code> 并 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span> <span class="pre">==</span> <span class="pre">True</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 2）</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.9.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.9.0.post2</p></td>
+</tr>
+<tr class="row-even"><td><p>transformers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;5.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerate</p></td>
+<td><p>最新 release 的源码/二进制</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id5">
+<h2>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
-<p>本篇样例代码为 Accelrate 官方样例，需提前进行下载</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">huggingface</span><span class="o">/</span><span class="n">accelerate</span><span class="o">.</span><span class="n">git</span>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+| 1     910B4               | OK            | 89.9        39                0    / 0             |
+| 1                         | 0000:42:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
+| No running processes found in NPU 1                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<p>检查 torch / torch_npu 是否装好且 NPU 设备可用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch='</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu='</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'is_available:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'count:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.9.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.9.0.post2
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵。</p>
+</div>
+</section>
+<section id="id6">
+<h2>安装 Accelerate<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="uv">
+<h3>使用 uv 进行安装<a class="headerlink" href="#uv" title="Link to this heading"></a></h3>
+<p>通过 PyPI 镜像直接装最新 release 的二进制 wheel：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple<span class="w"> </span>accelerate
+</pre></div>
+</div>
+<p>验证装上的版本(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">accelerate</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'accelerate'</span><span class="p">,</span> <span class="n">accelerate</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>accelerate<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号</p>
+</div>
+<!--
+```shell #test-setup
+uv pip uninstall accelerate -y
+```
+-->
+</section>
+<section id="id7">
+<h3>从源码安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<!-- 工作流注入的 UPSTREAM_REF（最新 release tag）通过这个隐藏的 #test-setup 捕获并注入到下方 install 命令中-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆上游仓库并 checkout 到当前 accelerate 的最新 release tag，安装并且验证：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/huggingface/accelerate.git
+<span class="nb">cd</span><span class="w"> </span>accelerate
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</pre></div>
+</div>
+<p>验证装上的版本(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">accelerate</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'accelerate'</span><span class="p">,</span> <span class="n">accelerate</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 替换为 accelerate 当前的最新 release 版本。</p>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>accelerate<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号。</p>
+</div>
+</section>
+</section>
+<section id="cli">
+<h2>CLI 自检<a class="headerlink" href="#cli" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">accelerate</span> <span class="pre">env</span></code> 打印出当前环境对 PyTorch / 分布式后端 / 设备信息的探测结果。在昇腾 NPU 上跑应当能看到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 已被识别：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>env
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+Copy-and-paste<span class="w"> </span>the<span class="w"> </span>text<span class="w"> </span>below<span class="w"> </span><span class="k">in</span><span class="w"> </span>your<span class="w"> </span>GitHub<span class="w"> </span>issue
+
+-<span class="w"> </span><span class="sb">`</span>Accelerate<span class="sb">`</span><span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>Platform:<span class="w"> </span>xxx
+-<span class="w"> </span><span class="sb">`</span>accelerate<span class="sb">`</span><span class="w"> </span>bash<span class="w"> </span>location:<span class="w"> </span>xxx
+-<span class="w"> </span>Python<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>Numpy<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>PyTorch<span class="w"> </span>version:<span class="w"> </span>xxx
+-<span class="w"> </span>PyTorch<span class="w"> </span>accelerator:<span class="w"> </span>NPU
+-<span class="w"> </span>System<span class="w"> </span>RAM:<span class="w"> </span>xxx
+-<span class="w"> </span>CANN<span class="w"> </span>version:<span class="w"> </span>xxx
+...
+</pre></div>
+</div>
+<p>其中 <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">accelerator:</span> <span class="pre">NPU</span></code> 是 accelerate 探测到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 后给出的标识；<code class="docutils literal notranslate"><span class="pre">CANN</span> <span class="pre">version</span></code> 一行只有在 NPU 环境才会出现。如果 <code class="docutils literal notranslate"><span class="pre">PyTorch</span> <span class="pre">accelerator</span></code> 不是 <code class="docutils literal notranslate"><span class="pre">NPU</span></code>，多半是 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 没被 import 到——回到「基础软件」一节检查。</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示版本号。</p>
+</div>
+</section>
+<section id="id8">
+<h2>训练<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>下面把训练循环压到最小，目标是验证 <code class="docutils literal notranslate"><span class="pre">Accelerator.prepare</span></code> / <code class="docutils literal notranslate"><span class="pre">Accelerator.backward</span></code> 在 NPU 上跑通。模型只用一个小线性层，但走的是 Accelerate 的全套适配路径。</p>
+<section id="id9">
+<h3>写最小训练脚本<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>写最小训练脚本，保存为 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>&gt;<span class="w"> </span>train_npu.py<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
+<span class="s">import torch</span>
+<span class="s">from torch import nn</span>
+<span class="s">from torch.utils.data import DataLoader, TensorDataset</span>
+<span class="s">from accelerate import Accelerator</span>
+
+
+<span class="s">def build():</span>
+<span class="s">    # Toy regression: y = 2 * x + 1, learned by a single linear layer.</span>
+<span class="s">    x = torch.linspace(-1.0, 1.0, 64).unsqueeze(1)</span>
+<span class="s">    y = 2 * x + 1 + 0.05 * torch.randn_like(x)</span>
+<span class="s">    ds = TensorDataset(x, y)</span>
+<span class="s">    loader = DataLoader(ds, batch_size=8, shuffle=True)</span>
+<span class="s">    model = nn.Linear(1, 1)</span>
+<span class="s">    optim = torch.optim.SGD(model.parameters(), lr=0.1)</span>
+<span class="s">    return loader, model, optim</span>
+
+
+<span class="s">def main():</span>
+<span class="s">    accelerator = Accelerator()</span>
+<span class="s">    loader, model, optim = build()</span>
+<span class="s">    model, optim, loader = accelerator.prepare(model, optim, loader)</span>
+<span class="s">    loss_fn = nn.MSELoss()</span>
+<span class="s">    for step, (xb, yb) in enumerate(loader):</span>
+<span class="s">        preds = model(xb)</span>
+<span class="s">        loss = loss_fn(preds, yb)</span>
+<span class="s">        accelerator.backward(loss)</span>
+<span class="s">        optim.step()</span>
+<span class="s">        optim.zero_grad()</span>
+<span class="s">        # 3 steps are enough to drive loss below 0.5 on this toy task.</span>
+<span class="s">        if step == 2:</span>
+<span class="s">            break</span>
+<span class="s">    # accelerator.print only emits on the main process, so the print</span>
+<span class="s">    # below sees exactly one line regardless of --num_processes.</span>
+<span class="s">    accelerator.print(</span>
+<span class="s">        f"device={accelerator.device.type} "</span>
+<span class="s">        f"final_loss={loss.item():.4f}"</span>
+<span class="s">    )</span>
+
+
+<span class="s">if __name__ == "__main__":</span>
+<span class="s">    main()</span>
+<span class="s">PY</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/train_npu.py"</span>
 </pre></div>
 </div>
 </section>
-<section id="id3">
-<h2>模型训练<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="c1"># 替换HF域名，方便国内用户进行数据及模型的下载</span>
-<span class="linenos">2</span><span class="n">export</span> <span class="n">HF_ENDPOINT</span><span class="o">=</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">hf</span><span class="o">-</span><span class="n">mirror</span><span class="o">.</span><span class="n">com</span>
-<span class="linenos">3</span><span class="c1"># 进入项目目录</span>
-<span class="linenos">4</span><span class="n">cd</span> <span class="n">accelerate</span><span class="o">/</span><span class="n">examples</span>
-<span class="linenos">5</span><span class="c1"># 模型训练</span>
-<span class="linenos">6</span><span class="n">python</span> <span class="n">nlp_example</span><span class="o">.</span><span class="n">py</span>
+<section id="accelerate-launch">
+<h3>用 accelerate launch 启动多卡训练<a class="headerlink" href="#accelerate-launch" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>--mixed_precision<span class="w"> </span>no<span class="w"> </span>&lt;path&gt;
 </pre></div>
 </div>
-<p>出现如下日志代表训练成功：</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Downloading builder script: 5.75kB [00:00, 7.99kB/s]
-tokenizer_config.json: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 49.0/49.0 [00:00&lt;00:00, 345kB/s]
-config.json: 570B [00:00, 3.12MB/s]
-vocab.txt: 213kB [00:00, 477kB/s]
-tokenizer.json: 436kB [00:06, 69.4kB/s]
-README.md: 35.3kB [00:00, 67.4kB/s]
-train-00000-of-00001.parquet: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 649k/649k [00:00&lt;00:00, 6.23MB/s]
-validation-00000-of-00001.parquet: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 75.7k/75.7k [00:00&lt;00:00, 142MB/s]
-test-00000-of-00001.parquet: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 308k/308k [00:00&lt;00:00, 39.0MB/s]
-Generating train split: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3668/3668 [00:00&lt;00:00, 247461.91 examples/s]
-Generating validation split: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 408/408 [00:00&lt;00:00, 128262.33 examples/s]
-Generating test split: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1725/1725 [00:00&lt;00:00, 369499.74 examples/s]
-Map: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3668/3668 [00:00&lt;00:00, 13791.03 examples/s]
-Map: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 408/408 [00:00&lt;00:00, 11843.97 examples/s]
-Map: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1725/1725 [00:00&lt;00:00, 14229.78 examples/s]
-model.safetensors: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 436M/436M [00:06&lt;00:00, 66.7MB/s]
-Some weights of BertForSequenceClassification were not initialized from the model checkpoint at bert-base-cased and are newly initialized: ['classifier.bias', 'classifier.weight']
-You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
-You're using a BertTokenizerFast tokenizer. Please note that with a fast tokenizer, using the `__call__` method is faster than using a method to encode the text followed by a call to the `pad` method to get a padded encoding.
-=====  tensor([1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1,
-        1, 0, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
-        0, 1, 1, 1, 0, 0, 1, 0], device='npu:0')
-=====  tensor([1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0,
-        1, 1, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,
-        1, 0, 0, 1, 1, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1,
-        0, 1, 0, 1, 1, 0, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1,
-        0, 1, 0, 0, 0, 1, 1, 0], device='npu:0')
-=====  tensor([0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1,
-        0, 1, 0, 1, 0, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0,
-        0, 0, 1, 1, 0, 1, 0, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0,
-        1, 0, 0, 0, 1, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1,
-        0, 0, 1, 0, 0, 1, 0, 0], device='npu:0')
-=====  tensor([0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0,
-        1, 1, 1, 1, 0, 1, 0, 1], device='npu:0')
-=====  tensor([0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0,
-        1, 0, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1],
-      device='npu:0')
-epoch 0: {'accuracy': 0.7990196078431373, 'f1': 0.8392156862745098}
-=====  tensor([1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
-        1, 0, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
-        1, 0, 0, 1, 1, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1,
-        1, 1, 0, 1, 0, 1, 1, 0], device='npu:0')
-=====  tensor([0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1,
-        1, 1, 0, 1, 0, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0,
-        1, 1, 1, 0, 1, 1, 0, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-        1, 1, 0, 0, 0, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1,
-        1, 0, 1, 0, 0, 1, 0, 0], device='npu:0')
-=====  tensor([0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0,
-        1, 1, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1,
-        1, 0, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
-      device='npu:0')
-epoch 1: {'accuracy': 0.8602941176470589, 'f1': 0.8998242530755711}
-=====  tensor([1, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1,
-        1, 0, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-        0, 1, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0,
-        1, 1, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
-        1, 0, 0, 1, 1, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1,
-        1, 1, 0, 1, 0, 1, 1, 0], device='npu:0')
-=====  tensor([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1,
-        1, 1, 0, 1, 1, 1, 1, 0], device='npu:0')
-=====  tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-        1, 1, 1, 0, 1, 1, 0, 0], device='npu:0')
-=====  tensor([1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-        1, 1, 1, 0, 0, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1,
-        1, 0, 1, 0, 1, 1, 0, 0], device='npu:0')
-=====  tensor([0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0,
-        1, 1, 1, 1, 1, 1, 0, 1], device='npu:0')
-=====  tensor([1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1,
-        1, 0, 1, 1, 1, 1, 1, 1], device='npu:0')
-=====  tensor([1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1],
-      device='npu:0')
-epoch 2: {'accuracy': 0.8627450980392157, 'f1': 0.903114186851211}
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 在运行时指向当前目录下的 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code>(由上面「写最小训练脚本」一节生成)。</p>
+</div>
+<p>输出结果类似：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>...
 </pre></div>
 </div>
+</section>
+<section id="id10">
+<h3>单卡训练<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> + 完整训练循环（forward + <code class="docutils literal notranslate"><span class="pre">accelerator.backward</span></code> + <code class="docutils literal notranslate"><span class="pre">optim.step</span></code>），验证单卡 NPU 上完整训练链路(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch.utils.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">TensorDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">accelerate</span><span class="w"> </span><span class="kn">import</span> <span class="n">Accelerator</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">64</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn_like</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">TensorDataset</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">DataLoader</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">optim</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">accelerator</span> <span class="o">=</span> <span class="n">Accelerator</span><span class="p">()</span>
+<span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">loader</span> <span class="o">=</span> <span class="n">accelerator</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">optim</span><span class="p">,</span> <span class="n">loader</span><span class="p">)</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">MSELoss</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="n">xb</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">loader</span><span class="p">):</span>
+    <span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">xb</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">preds</span><span class="p">,</span> <span class="n">yb</span><span class="p">)</span>
+    <span class="n">accelerator</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span>
+    <span class="n">optim</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+    <span class="n">optim</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">break</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'device=</span><span class="si">{</span><span class="n">accelerator</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1"> final_loss=</span><span class="si">{</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>...
+</pre></div>
+</div>
+</section>
+<section id="accelerator-prepare">
+<h3>独立 Accelerator.prepare<a class="headerlink" href="#accelerator-prepare" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> + <code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 跑一次 forward，验证 Accelerate 在 NPU 上(下面的命令用 Python 执行)：</p>
+<ol class="arabic simple">
+<li><p><strong>设备探测</strong>：<code class="docutils literal notranslate"><span class="pre">Accelerator()</span></code> 自动识别 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>、拿到 <code class="docutils literal notranslate"><span class="pre">device='npu:0'</span></code>；</p></li>
+<li><p><strong>NPU 放置</strong>：<code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 在非 distributed 上下文只做 <code class="docutils literal notranslate"><span class="pre">model.to(self.device)</span></code>，权重真在 NPU 上分配；</p></li>
+<li><p><strong>真 kernel 跑</strong>：<code class="docutils literal notranslate"><span class="pre">prepared(x)</span></code> 在 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code> 上跑一次 1×1 matmul + bias add，NPU kernel 真跑了一次。</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">accelerate</span><span class="w"> </span><span class="kn">import</span> <span class="n">Accelerator</span>
+
+<span class="n">accelerator</span> <span class="o">=</span> <span class="n">Accelerator</span><span class="p">()</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">prepared</span> <span class="o">=</span> <span class="n">accelerator</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="n">accelerator</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">prepared</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'device=</span><span class="si">{</span><span class="n">y</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'shape=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu
+<span class="nv">shape</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">1</span><span class="o">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">accelerator.prepare(model)</span></code> 这一行是 Accelerate 的核心 abstraction，同一份脚本不写一行 <code class="docutils literal notranslate"><span class="pre">.cuda()</span></code> / <code class="docutils literal notranslate"><span class="pre">.npu()</span></code>，能自动适配 CPU / CUDA / NPU / XPU / MPS。</p>
+</section>
+<section id="ddp-bf16">
+<h3>多卡 DDP bf16混合精度路径<a class="headerlink" href="#ddp-bf16" title="Link to this heading"></a></h3>
+<p>把「写最小训练脚本」一节生成的脚本 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code> 再跑一遍，但把 <code class="docutils literal notranslate"><span class="pre">--mixed_precision</span></code> 从 <code class="docutils literal notranslate"><span class="pre">no</span></code> 切到 <code class="docutils literal notranslate"><span class="pre">bf16</span></code>，验证 Accelerate 的 autocast 包装在 NPU 运行：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>--mixed_precision<span class="w"> </span>bf16<span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 在运行时指向当前目录下的 <code class="docutils literal notranslate"><span class="pre">train_npu.py</span></code>(由上面「写最小训练脚本」一节生成)。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">final_loss</span><span class="o">=</span>...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>分布式评估<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>验证 DDP 起 2 个 rank 后，<code class="docutils literal notranslate"><span class="pre">Accelerator.gather_for_metrics</span></code> 在 NPU 上到底有没有真的做跨卡 <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>（hccl 后端），还是悄悄退化成单进程 identity。</p>
+<p>写一个跨卡测试脚本 <code class="docutils literal notranslate"><span class="pre">gather_npu.py</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>&gt;<span class="w"> </span>gather_npu.py<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
+<span class="s">import torch</span>
+<span class="s">from accelerate import Accelerator</span>
+
+<span class="s">accelerator = Accelerator()</span>
+<span class="s">x = torch.tensor([1, 2, 3], device=accelerator.device)</span>
+<span class="s">(gathered,) = accelerator.gather_for_metrics((x,))</span>
+<span class="s"># accelerator.print only emits on the main process — without this guard</span>
+<span class="s"># the print below would see two copies of each line.</span>
+<span class="s">accelerator.print(f'world={accelerator.num_processes}')</span>
+<span class="s">accelerator.print(f'device={gathered.device.type}')</span>
+<span class="s">accelerator.print(f'gathered={gathered.tolist()}')</span>
+<span class="s">PY</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/gather_npu.py"</span>
+</pre></div>
+</div>
+<p>用 <code class="docutils literal notranslate"><span class="pre">accelerate</span> <span class="pre">launch</span></code> 把脚本起成 2 个 rank，验证 <code class="docutils literal notranslate"><span class="pre">gather_for_metrics</span></code> 真的跨卡 <code class="docutils literal notranslate"><span class="pre">all_gather</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>,1<span class="w"> </span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="w"> </span><span class="m">2</span><span class="w"> </span>&lt;path&gt;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span></code> 在运行时指向当前目录下的 <code class="docutils literal notranslate"><span class="pre">gather_npu.py</span></code>(由上一段 Python 脚本生成)。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">world</span><span class="o">=</span><span class="m">2</span>
+<span class="nv">device</span><span class="o">=</span>npu
+<span class="nv">gathered</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h2>大模型推理<a class="headerlink" href="#id12" title="Link to this heading"></a></h2>
+<p>大模型（几十 GB 量级）一次性加载会撑爆显存。Accelerate 的解法分两步：先 <a class="reference external" href="https://huggingface.co/docs/accelerate/main/en/usage_guides/big_modeling#initializing-an-empty-model"><code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code></a> 在 <code class="docutils literal notranslate"><span class="pre">meta</span></code> device 上建一个 0 显存的空骨架，再 <a class="reference external" href="https://huggingface.co/docs/accelerate/main/en/usage_guides/big_modeling#sharding-checkpoints"><code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code></a> 按 <code class="docutils literal notranslate"><span class="pre">device_map</span></code> 把分片权重塞到各张 NPU 上。本节用两个 toy 例子把这两步各自跑一遍。</p>
+<section id="init-empty-weights">
+<h3>init_empty_weights<a class="headerlink" href="#init-empty-weights" title="Link to this heading"></a></h3>
+<p>用 <code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 在 <code class="docutils literal notranslate"><span class="pre">meta</span></code> device 上建一个 1 层 Llama 空骨架,然后打印参数总数和第一层参数的 device——预期 <code class="docutils literal notranslate"><span class="pre">device=meta</span></code>(meta 占位符,不占 NPU 显存)(下面的命令用 Python 执行):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlamaConfig</span><span class="p">,</span> <span class="n">LlamaForCausalLM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">accelerate</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_empty_weights</span>
+
+<span class="c1"># Inline config: 1 层 / 1 head / hidden=64 —— 没有 hub 网络依赖。</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">LlamaConfig</span><span class="p">(</span>
+    <span class="n">vocab_size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+    <span class="n">hidden_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">intermediate_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+    <span class="n">num_hidden_layers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_attention_heads</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_position_embeddings</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">with</span> <span class="n">init_empty_weights</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LlamaForCausalLM</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="n">n_params</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">state_dict</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="n">first_dev</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'empty_model_params=</span><span class="si">{</span><span class="n">n_params</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'device=</span><span class="si">{</span><span class="n">first_dev</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">empty_model_params</span><span class="o">=</span>...
+<span class="nv">device</span><span class="o">=</span>meta
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">device=meta</span></code> 是 <code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 的合同行为：参数不在真实设备上，而是 PyTorch 的 meta 占位符，所以这一步<strong>不占 NPU 显存</strong>。</p>
+</section>
+<section id="load-checkpoint-and-dispatch">
+<h3>load_checkpoint_and_dispatch<a class="headerlink" href="#load-checkpoint-and-dispatch" title="Link to this heading"></a></h3>
+<p>先在本地造一个 toy checkpoint 写到 <code class="docutils literal notranslate"><span class="pre">/tmp/fake-llama-dispatch</span></code>(20 层 Llama 骨架 + 随机权重)作为 fixture,接着下面 dispatch 测试用这个目录。<code class="docutils literal notranslate"><span class="pre">init_empty_weights</span></code> 出来的骨架参数是 meta 占位符,<code class="docutils literal notranslate"><span class="pre">save_pretrained</span></code> 不接受;先用 <code class="docutils literal notranslate"><span class="pre">to_empty</span></code> 把 meta 占位换成真实 CPU 张量,再 <code class="docutils literal notranslate"><span class="pre">torch.randn</span></code> 填随机权重,最后才落盘(下面的命令用 Python 执行):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">gc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlamaConfig</span><span class="p">,</span> <span class="n">LlamaForCausalLM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">accelerate</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_empty_weights</span>
+
+<span class="c1"># 20 层 / hidden=512 ≈ 80M 参数 bf16，~160 MB</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">LlamaConfig</span><span class="p">(</span>
+    <span class="n">vocab_size</span><span class="o">=</span><span class="mi">32000</span><span class="p">,</span> <span class="n">hidden_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+    <span class="n">num_hidden_layers</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">num_attention_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">max_position_embeddings</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">with</span> <span class="n">init_empty_weights</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LlamaForCausalLM</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="c1"># save_pretrained 需要真实 tensor，先 to_empty 到 CPU + 填随机权重</span>
+<span class="n">model</span><span class="o">.</span><span class="n">to_empty</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="s1">'cpu'</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">():</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'cpu'</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.02</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'/tmp/fake-llama-dispatch'</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="s1">'/tmp/fake-llama-dispatch'</span><span class="p">,</span> <span class="n">safe_serialization</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">del</span> <span class="n">model</span>
+<span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'/tmp/fake-llama-dispatch'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>在这个空骨架上跑 <code class="docutils literal notranslate"><span class="pre">load_checkpoint_and_dispatch</span></code>,按 <code class="docutils literal notranslate"><span class="pre">device_map</span></code> 把前 10 层放 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>、后 10 层放 <code class="docutils literal notranslate"><span class="pre">npu:1</span></code>,验证权重真的跨卡分片,最后再跑一次 forward 看 dispatch hook 能不能跨卡通信(下面的命令用 Python 执行):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LlamaConfig</span><span class="p">,</span> <span class="n">LlamaForCausalLM</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">accelerate</span><span class="w"> </span><span class="kn">import</span> <span class="n">init_empty_weights</span><span class="p">,</span> <span class="n">load_checkpoint_and_dispatch</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">LlamaConfig</span><span class="p">(</span>
+    <span class="n">vocab_size</span><span class="o">=</span><span class="mi">32000</span><span class="p">,</span> <span class="n">hidden_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span> <span class="n">intermediate_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+    <span class="n">num_hidden_layers</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">num_attention_heads</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">max_position_embeddings</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># 显式 device_map：前 10 层 + embed 在 npu:0，后 10 层 + norm + lm_head 在 npu:1</span>
+<span class="n">device_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'model.embed_tokens'</span><span class="p">:</span> <span class="s1">'npu:0'</span><span class="p">}</span>
+<span class="n">device_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s1">'model.layers.</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span><span class="p">:</span> <span class="s1">'npu:0'</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span>
+<span class="n">device_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="sa">f</span><span class="s1">'model.layers.</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">'</span><span class="p">:</span> <span class="s1">'npu:1'</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)})</span>
+<span class="n">device_map</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">'model.norm'</span><span class="p">:</span> <span class="s1">'npu:1'</span><span class="p">,</span> <span class="s1">'lm_head'</span><span class="p">:</span> <span class="s1">'npu:1'</span><span class="p">})</span>
+
+<span class="k">with</span> <span class="n">init_empty_weights</span><span class="p">():</span>
+    <span class="n">skeleton</span> <span class="o">=</span> <span class="n">LlamaForCausalLM</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="n">loaded</span> <span class="o">=</span> <span class="n">load_checkpoint_and_dispatch</span><span class="p">(</span>
+    <span class="n">skeleton</span><span class="p">,</span>
+    <span class="n">checkpoint</span><span class="o">=</span><span class="s1">'&lt;ckpt&gt;'</span><span class="p">,</span>
+    <span class="n">device_map</span><span class="o">=</span><span class="n">device_map</span><span class="p">,</span>
+    <span class="n">no_split_module_classes</span><span class="o">=</span><span class="p">[</span><span class="s1">'LlamaDecoderLayer'</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># 验证：前 / 后层落在不同卡</span>
+<span class="n">dev_first</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">self_attn</span><span class="o">.</span><span class="n">q_proj</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">device</span>
+<span class="n">dev_last</span> <span class="o">=</span> <span class="n">loaded</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">self_attn</span><span class="o">.</span><span class="n">q_proj</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">device</span>
+
+<span class="c1"># 跑一次 forward：dispatch hook 自动跨卡转 tensor</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]],</span> <span class="n">device</span><span class="o">=</span><span class="n">loaded</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">loaded</span><span class="p">(</span><span class="n">input_ids</span><span class="o">=</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">logits</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'first_layer_device=</span><span class="si">{</span><span class="n">dev_first</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'last_layer_device=</span><span class="si">{</span><span class="n">dev_last</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'out_device=</span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'out_shape=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ckpt&gt;</span></code> 在运行时指向 <code class="docutils literal notranslate"><span class="pre">/tmp/fake-llama-dispatch</span></code>(由上一段 Python 脚本生成的 toy checkpoint 目录)。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">first_layer_device</span><span class="o">=</span>npu:0
+<span class="nv">last_layer_device</span><span class="o">=</span>npu:1
+<span class="nv">out_device</span><span class="o">=</span>npu
+<span class="nv">out_shape</span><span class="o">=[</span><span class="m">1</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">32000</span><span class="o">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id13">
+<h2>外部链接<a class="headerlink" href="#id13" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/huggingface/accelerate">huggingface/accelerate</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://huggingface.co/docs/accelerate">Accelerate Docs</a></p></li>
+</ul>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
-        <a href="install.html" class="btn btn-neutral float-left" title="安装指南" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
-        <a href="../deepspeed/index.html" class="btn btn-neutral float-right" title="DeepSpeed" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 
