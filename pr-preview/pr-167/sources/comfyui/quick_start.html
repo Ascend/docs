@@ -134,9 +134,7 @@
   <section id="ascend-npu">
 <h1>快速开始 (Ascend NPU)<a class="headerlink" href="#ascend-npu" title="Link to this heading"></a></h1>
 <p>在单卡昇腾 NPU 上部署 ComfyUI，并用上游自带的 API 例程 <code class="docutils literal notranslate"><span class="pre">script_examples/basic_api_example.py</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">/prompt</span></code> 接口提交默认文生图工作流，端到端产出一张 PNG。</p>
-<blockquote>
-<div><p>ComfyUI 原生支持昇腾 NPU：检测到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 且 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span></code> 为真时，设备管理自动选用 <code class="docutils literal notranslate"><span class="pre">npu</span></code> 设备，无需额外启动参数。本文以无头服务（默认端口 8188）+ API 例程的方式运行，全程无需人工交互；交互式 Web UI 用户浏览器访问 <code class="docutils literal notranslate"><span class="pre">http://&lt;机器IP&gt;:8188</span></code> 即可。</p>
-</div></blockquote>
+<p>ComfyUI 原生支持昇腾 NPU：检测到 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 且 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span></code> 为真时，设备管理自动选用 <code class="docutils literal notranslate"><span class="pre">npu</span></code> 设备，无需额外启动参数。本文以无头服务（默认端口 8188）+ API 例程的方式运行，全程无需人工交互；交互式 Web UI 用户浏览器访问 <code class="docutils literal notranslate"><span class="pre">http://&lt;机器IP&gt;:8188</span></code> 即可。</p>
 <section id="id1">
 <h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="id2">
@@ -240,7 +238,10 @@ git<span class="w"> </span>checkout<span class="w"> </span>&lt;ref&gt;
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>HEAD<span class="w"> </span>xxx
 </pre></div>
 </div>
-<p>&lt;ref&gt; 为流水线注入的上游最新 release tag。</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>上文 <code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 为流水线注入的上游最新 release tag；<code class="docutils literal notranslate"><span class="pre">xxx</span></code> 为最新 commit 的短哈希。</p>
+</div>
 </section>
 <section id="id7">
 <h2>安装依赖<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
@@ -269,32 +270,37 @@ python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </sp
 </section>
 <section id="id8">
 <h2>下载模型<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
-<p>默认使用 <strong>Hugging Face Hub</strong> 进行模型下载。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<span class="s2">import time, sys</span>
-<span class="s2">from pathlib import Path</span>
-<span class="s2">from huggingface_hub import snapshot_download</span>
-<span class="s2">d = None</span>
-<span class="s2">for i in range(3):</span>
-<span class="s2">    try:</span>
-<span class="s2">        d = snapshot_download('stable-diffusion-v1-5/stable-diffusion-v1-5', allow_patterns=['v1-5-pruned-emaonly.safetensors'])</span>
-<span class="s2">        if (Path(d) / 'v1-5-pruned-emaonly.safetensors').is_file():</span>
-<span class="s2">            break</span>
-<span class="s2">        print('attempt %d/3: file not complete, retrying' % (i+1), file=sys.stderr)</span>
-<span class="s2">        d = None</span>
-<span class="s2">    except Exception as e:</span>
-<span class="s2">        print('attempt %d/3 failed: %s' % (i+1, e), file=sys.stderr)</span>
-<span class="s2">        time.sleep(15)</span>
-<span class="s2">assert d, 'snapshot_download failed after 3 attempts'</span>
-<span class="s2">print(d)</span>
-<span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+<p>默认使用 <strong>Hugging Face Hub</strong> 进行模型下载，可执行下面 Python 代码下载：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">time</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'stable-diffusion-v1-5/stable-diffusion-v1-5'</span><span class="p">,</span> <span class="n">allow_patterns</span><span class="o">=</span><span class="p">[</span><span class="s1">'v1-5-pruned-emaonly.safetensors'</span><span class="p">])</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="s1">'v1-5-pruned-emaonly.safetensors'</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+            <span class="k">break</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'attempt </span><span class="si">%d</span><span class="s1">/3: file not complete, retrying'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'attempt </span><span class="si">%d</span><span class="s1">/3 failed: </span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">e</span><span class="p">),</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">d</span><span class="p">,</span> <span class="s1">'snapshot_download failed after 3 attempts'</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>下载完成后检查模型文件是否就位：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-lh<span class="w"> </span>&lt;model&gt;/v1-5-pruned-emaonly.safetensors
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...v1-5-pruned-emaonly.safetensors
 </pre></div>
 </div>
 <div class="note admonition">
 <p class="admonition-title">Note</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">-n</span> <span class="pre">1</span></code> 过滤下载进度输出，仅保留模型目录路径。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">allow_patterns</span></code> 只下载 <code class="docutils literal notranslate"><span class="pre">v1-5-pruned-emaonly.safetensors</span></code>（约 4.3 GB，SD 1.5 单文件 checkpoint，即 <code class="docutils literal notranslate"><span class="pre">basic_api_example.py</span></code> 默认工作流引用的 <code class="docutils literal notranslate"><span class="pre">ckpt_name</span></code>），跳过仓库里的 diffusers 分片格式，首次运行请耐心等待。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_patterns</span></code> 只下载 <code class="docutils literal notranslate"><span class="pre">v1-5-pruned-emaonly.safetensors</span></code>（约 4.3 GB，SD 1.5 单文件 checkpoint，即 <code class="docutils literal notranslate"><span class="pre">basic_api_example.py</span></code> 默认工作流引用的 <code class="docutils literal notranslate"><span class="pre">ckpt_name</span></code>），跳过仓库里的 diffusers 分片格式。</p></li>
 </ul>
 </div>
 </section>
@@ -380,7 +386,6 @@ ls<span class="w"> </span>output/ComfyUI_*.png<span class="w"> </span><span clas
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">basic_api_example.py</span></code> 只负责把工作流 POST 到 <code class="docutils literal notranslate"><span class="pre">/prompt</span></code>（不等待执行完成），完成后轮询 <code class="docutils literal notranslate"><span class="pre">/queue</span></code> 直到 running / pending 均清空。</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">SaveImage</span></code> 节点把结果写到 <code class="docutils literal notranslate"><span class="pre">output/ComfyUI_00001_.png</span></code>（全新 checkout 首跑序号为 00001）。</p></li>
-<li><p>20 步 SD 1.5 在单卡 NPU 上数分钟内完成；若 15 分钟未排空按失败处理。</p></li>
 </ul>
 </div>
 </section>
