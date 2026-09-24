@@ -264,6 +264,13 @@
          <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
       </div>
 
+      <!-- LMCache -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">LMCache</h3></div>
+         <p class="card-desc">昇腾上的 KV 缓存插件，把 vLLM 的 KV 卸载到本机 CPU。</p>
+         <div class="card-footer"><a href="https://github.com/LMCache/LMCache-Ascend">官方链接</a><span class="split">|</span><a href="https://docs.lmcache.ai/">文档中心</a><span class="split">|</span><a href="sources/lmcache/index.html">快速上手</a></div>
+      </div>
+
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">lmdeploy</h3></div>
@@ -442,6 +449,7 @@
 
    sources/llama_cpp/index.rst
    sources/llm_compressor/index.rst
+   sources/lmcache/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
