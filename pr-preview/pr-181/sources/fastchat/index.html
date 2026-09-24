@@ -28,7 +28,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="索引" href="../../genindex.html" />
     <link rel="search" title="搜索" href="../../search.html" />
-    <link rel="next" title="FastChat" href="quick_start.html" />
+    <link rel="next" title="onnxruntime" href="../onnxruntime/index.html" />
     <link rel="prev" title="lmdeploy" href="../lm_deploy/index.html" /> 
 </head>
 
@@ -84,7 +84,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">FastChat</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">安装 FastChat</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openai-api">运行示例：OpenAI 兼容 API</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
@@ -138,11 +145,137 @@
              
   <section id="fastchat">
 <h1>FastChat<a class="headerlink" href="#fastchat" title="Link to this heading"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速开始</a></li>
+<p>在单张昇腾 NPU 上安装 FastChat，并通过 OpenAI 兼容接口调用 Qwen/Qwen2.5-0.5B-Instruct 完成一次对话。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在运行本文档示例之前，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>根据 CANN 版本安装匹配的 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>）</p></li>
 </ul>
+<p>本文档测试环境使用 Python 3.12、CANN 9.1.0 和 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 2.9.0.post2。</p>
+</section>
+</section>
+<section id="cann">
+<h2>加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<p>运行示例前加载 CANN 环境变量：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
 </div>
+</section>
+<section id="id4">
+<h2>安装 FastChat<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p>安装 FastChat：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>fschat
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import fastchat</span>
+<span class="s2">print('FastChat version:', fastchat.__version__)</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+FastChat<span class="w"> </span>version:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际安装的 FastChat 版本号。</p>
+</div>
+</section>
+<section id="openai-api">
+<h2>运行示例：OpenAI 兼容 API<a class="headerlink" href="#openai-api" title="Link to this heading"></a></h2>
+<p>FastChat 用 controller 管理 model worker，并通过 API server 提供 OpenAI 兼容接口。</p>
+<p>安装本示例所需的模型 worker、ModelScope 及 API 服务依赖：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"fschat[model_worker]"</span><span class="w"> </span><span class="s2">"transformers==4.57.6"</span><span class="w"> </span><span class="s2">"modelscope==1.37.0"</span><span class="w"> </span><span class="s2">"fastapi==0.141.1"</span><span class="w"> </span><span class="s2">"uvicorn==0.52.0"</span>
+</pre></div>
+</div>
+<p>controller、model worker 和 API server 都是前台服务，启动后需要保持运行。</p>
+<p><strong>启动 controller。</strong> controller 负责注册和调度 model worker：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>fastchat.serve.controller
+</pre></div>
+</div>
+<p><strong>启动 model worker。</strong> worker 在 NPU 上加载模型，并以 <code class="docutils literal notranslate"><span class="pre">Qwen2.5-0.5B-Instruct</span></code> 为服务名注册到 controller：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">FASTCHAT_USE_MODELSCOPE</span><span class="o">=</span>True<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>fastchat.serve.model_worker<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model-path<span class="w"> </span>Qwen/Qwen2.5-0.5B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model-names<span class="w"> </span>Qwen2.5-0.5B-Instruct<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--revision<span class="w"> </span>master<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--device<span class="w"> </span>npu
+</pre></div>
+</div>
+<p><strong>启动 API server。</strong> 服务在 <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/v1</span></code> 提供 OpenAI 兼容接口：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>fastchat.serve.openai_api_server<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">8000</span>
+</pre></div>
+</div>
+<p><strong>检查模型服务。</strong> model worker 加载完成后，通过 <code class="docutils literal notranslate"><span class="pre">/v1/models</span></code> 查看已经注册的模型：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/v1/models<span class="w"> </span>-o<span class="w"> </span>/tmp/fastchat-models.json
+python<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span>--no-ensure-ascii<span class="w"> </span>/tmp/fastchat-models.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="w">    </span><span class="s2">"object"</span>:<span class="w"> </span><span class="s2">"list"</span>,
+<span class="w">    </span><span class="s2">"data"</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">        </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">"id"</span>:<span class="w"> </span><span class="s2">"Qwen2.5-0.5B-Instruct"</span>,
+<span class="w">            </span><span class="s2">"object"</span>:<span class="w"> </span><span class="s2">"model"</span>,
+<span class="w">            </span><span class="s2">"created"</span>:<span class="w"> </span>xxx,
+<span class="w">            </span><span class="s2">"owned_by"</span>:<span class="w"> </span><span class="s2">"fastchat"</span>,
+<span class="w">            </span>...
+<span class="w">        </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示动态生成的标识与时间戳，<code class="docutils literal notranslate"><span class="pre">...</span></code> 表示省略的字段。</p>
+</div>
+<p>发送一次对话请求，调用 OpenAI 兼容的 Chat Completions 接口并打印模型回复：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-fsS<span class="w"> </span>http://127.0.0.1:8000/v1/chat/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"model":"Qwen2.5-0.5B-Instruct","messages":[{"role":"user","content":"你好"}],"max_tokens":64,"temperature":0}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-o<span class="w"> </span>/tmp/fastchat-chat.json
+python<span class="w"> </span>-m<span class="w"> </span>json.tool<span class="w"> </span>--no-ensure-ascii<span class="w"> </span>/tmp/fastchat-chat.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span>
+<span class="w">    </span><span class="s2">"id"</span>:<span class="w"> </span><span class="s2">"xxx"</span>,
+<span class="w">    </span><span class="s2">"object"</span>:<span class="w"> </span><span class="s2">"chat.completion"</span>,
+<span class="w">    </span><span class="s2">"created"</span>:<span class="w"> </span>xxx,
+<span class="w">    </span><span class="s2">"model"</span>:<span class="w"> </span><span class="s2">"Qwen2.5-0.5B-Instruct"</span>,
+<span class="w">    </span><span class="s2">"choices"</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">        </span><span class="o">{</span>
+<span class="w">            </span><span class="s2">"index"</span>:<span class="w"> </span><span class="m">0</span>,
+<span class="w">            </span><span class="s2">"message"</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">                </span><span class="s2">"role"</span>:<span class="w"> </span><span class="s2">"assistant"</span>,
+<span class="w">                </span><span class="s2">"content"</span>:<span class="w"> </span><span class="s2">"xxx"</span>
+<span class="w">            </span><span class="o">}</span>,
+<span class="w">            </span><span class="s2">"finish_reason"</span>:<span class="w"> </span>xxx
+<span class="w">        </span><span class="o">}</span>
+<span class="w">    </span><span class="o">]</span>,
+<span class="w">    </span><span class="s2">"usage"</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">        </span>...
+<span class="w">    </span><span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示每次请求动态生成的 ID、时间戳、模型回复和 token 统计等内容，<code class="docutils literal notranslate"><span class="pre">...</span></code> 表示省略的字段。</p>
+</div>
+<p>更多 Web UI、多 worker 和评测用法见 <a class="reference external" href="https://github.com/lm-sys/FastChat">FastChat 官方文档</a>。</p>
+</section>
 </section>
 
 
@@ -150,7 +283,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
         <a href="../lm_deploy/index.html" class="btn btn-neutral float-left" title="lmdeploy" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
-        <a href="quick_start.html" class="btn btn-neutral float-right" title="FastChat" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../onnxruntime/index.html" class="btn btn-neutral float-right" title="onnxruntime" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
