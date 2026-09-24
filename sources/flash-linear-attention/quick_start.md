@@ -1,8 +1,8 @@
 # flash-linear-attention
 
-在单张昇腾 NPU 上安装 flash-linear-attention，验证 Triton-Ascend backend，并完成一次真实的前向与反向计算。版本组合参考当前已验证的 `v0.5.2`
-[NPU 依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/pyproject.toml)
-和 `GatedDeltaNet` 公共 API。
+在单张昇腾 NPU 上安装 flash-linear-attention，并运行 `GatedDeltaNet` 的
+前向与反向计算。完成后，可以确认 Triton-Ascend 能识别 NPU，且模型输出
+和输入梯度均正常。
 
 ## 前置条件
 
@@ -25,9 +25,10 @@ CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sou
 
 ### 本文档示例使用的版本
 
-工作流看护上游最新正式 release；当前已验证的是 `v0.5.2`，使用的镜像为
+本文以最新正式 release 为安装目标。以下是基于 `v0.5.2`
+[NPU 依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/pyproject.toml)
+验证过的环境组合，使用的镜像为
 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11`。
-该 release 的 `[npu]` 依赖及实际测试环境如下：
 
 | 组件 | 版本 |
 | --- | --- |
@@ -43,7 +44,8 @@ CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sou
 
 ```{admonition} Note
 :class: note
-上游 `main` 的安装栈可能领先于最新 release。本文安装目标 release 的 `[npu]` 依赖，不混用 `main` 的版本要求。镜像中的 CANN 版本固定；新 release 如要求另一代 CANN，需要同时调整镜像并重新验证。本表记录的是最近一次验证结果，代码块中的版本回显采用动态匹配。
+不同 release 的 NPU 依赖可能不同。安装时以所选 release 的 `[npu]` 依赖为准，
+不要混用 `main` 分支的版本要求；如需升级 CANN，请先核对相应版本的兼容性。
 ```
 
 ### 检查前置是否满足
@@ -64,7 +66,9 @@ CANN ready
 
 ## 安装 flash-linear-attention
 
-先准备构建依赖，再从目标 release 源码的 `[npu]` extra 安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
+从 [Releases](https://github.com/fla-org/flash-linear-attention/releases) 选择
+最新正式版本，将 `<UPSTREAM_REF>` 替换为对应的标签。安装命令会读取该版本
+的 `[npu]` 依赖，安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -126,7 +130,8 @@ npu_available True
 
 ### GatedDeltaNet 前向与反向
 
-下面的配置来自上游 `GatedDeltaNet` 测试所使用的小型 shape。该链路会实际执行线性层、Causal Conv1D、Gated Delta Rule 和门控 RMSNorm，并验证输出与输入梯度均为有限值。
+创建一个较小的 `GatedDeltaNet` 模型，在 NPU 上完成前向计算和反向传播。
+示例会检查输出形状，并确认输出和输入梯度均为有限值。
 
 ```python #test id="gdn-forward-backward"
 import torch
@@ -182,6 +187,6 @@ backward_finite True
 
 ## 说明
 
-- 该 Quick Start 验证单卡真实前向与反向，不是多卡分布式训练；
-- `IS_NPU=True` 证明 FLA 识别到了 Triton-Ascend backend；
-- 输出和梯度位于 NPU 且均为有限值，任何 CPU 静默回退、kernel 编译失败或数值异常都会使测试失败。
+- `device npu` 表示输出位于昇腾 NPU；
+- `forward_finite True` 和 `backward_finite True` 表示本次前向与反向计算没有出现非有限值；
+- 本示例使用单卡，不涉及多卡分布式训练。
