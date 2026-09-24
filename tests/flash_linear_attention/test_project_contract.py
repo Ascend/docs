@@ -44,6 +44,24 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn("upstream_repo: fla-org/flash-linear-attention", text)
         self.assertIn("tests.flash_linear_attention.test_quick_start_ascend", text)
 
+    def test_document_names_the_workflow_image_and_verified_npu_stack(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        document = DOC.read_text(encoding="utf-8")
+        image_match = re.search(r"(?m)^\s+image: (\S+)$", workflow)
+        self.assertIsNotNone(image_match)
+        image = image_match.group(1)
+
+        self.assertIn(f"`{image}`", document)
+        cann_version = re.search(r"cann:(\d+\.\d+\.\d+)", image).group(1)
+        self.assertIn(f"| CANN | {cann_version} |", document)
+        self.assertIn("| flash-linear-attention | 最新 release |", document)
+        for package in ("torch", "torch_npu", "torchvision", "triton-ascend"):
+            self.assertRegex(document, rf"(?m)^\| {package} \| \d+\.\d+")
+        self.assertRegex(
+            document,
+            r"https://github.com/fla-org/flash-linear-attention/blob/v\d+\.\d+\.\d+/pyproject\.toml",
+        )
+
     def test_project_is_reachable_from_the_site_navigation(self) -> None:
         index = (ROOT / "index.rst").read_text(encoding="utf-8")
         project_index = ROOT / "sources" / "flash-linear-attention" / "index.rst"

@@ -1,8 +1,8 @@
 # flash-linear-attention
 
-在单张昇腾 NPU 上安装 flash-linear-attention，验证 Triton-Ascend backend，并完成一次真实的前向与反向计算。本文基于上游
-[Ascend NPU 安装说明](https://github.com/fla-org/flash-linear-attention/blob/main/INSTALL.md#ascend-npu)
-和 `GatedDeltaNet` 公共 API 编写。
+在单张昇腾 NPU 上安装 flash-linear-attention，验证 Triton-Ascend backend，并完成一次真实的前向与反向计算。版本组合参考当前已验证的 `v0.5.2`
+[NPU 依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/pyproject.toml)
+和 `GatedDeltaNet` 公共 API。
 
 ## 前置条件
 
@@ -25,20 +25,25 @@ CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sou
 
 ### 本文档示例使用的版本
 
-当前 Quick Start 模板看护上游最新正式 release。配套环境为：
+工作流看护上游最新正式 release；当前已验证的是 `v0.5.2`，使用的镜像为
+`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11`。
+该 release 的 `[npu]` 依赖及实际测试环境如下：
 
 | 组件 | 版本 |
 | --- | --- |
 | 操作系统 | Ubuntu 22.04，Linux aarch64 |
 | Python | 3.11 |
 | CANN | 9.0.0 |
-| flash-linear-attention | 工作流注入的最新 release 源码 |
-| Torch / Torch-NPU / Triton-Ascend | 由目标 release 的 `[npu]` extra 决定 |
+| flash-linear-attention | 最新 release |
+| torch | 2.7.1+cpu（`v0.5.2` 运行时回显） |
+| torch_npu | 2.7.1.post4 |
+| torchvision | 0.22.1 |
+| triton-ascend | 3.2.1（分发包版本） |
 | NPU | Ascend 910B × 1 |
 
 ```{admonition} Note
 :class: note
-上游 `main` 的安装栈可能领先于最新 release。本文始终 checkout 工作流注入的 release ref，避免把新版本依赖与旧版本源码混用。
+上游 `main` 的安装栈可能领先于最新 release。本文安装目标 release 的 `[npu]` 依赖，不混用 `main` 的版本要求。镜像中的 CANN 版本固定；新 release 如要求另一代 CANN，需要同时调整镜像并重新验证。本表记录的是最近一次验证结果，代码块中的版本回显采用动态匹配。
 ```
 
 ### 检查前置是否满足
@@ -59,7 +64,7 @@ CANN ready
 
 ## 安装 flash-linear-attention
 
-安装过程与上游 A2 CI 保持一致：先安装 Triton-Ascend 的构建和运行依赖，再从目标源码的 `[npu]` extra 安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
+先准备构建依赖，再从目标 release 源码的 `[npu]` extra 安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
 
 <!--
 ```shell #test-setup store="upstream_ref"
