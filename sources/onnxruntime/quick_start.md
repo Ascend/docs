@@ -281,7 +281,11 @@ graph = helper.make_graph(
     [x, y],
     [z],
 )
-model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 13)])
+model = helper.make_model(
+    graph,
+    ir_version=13,
+    opset_imports=[helper.make_opsetid("", 13)],
+)
 onnx.checker.check_model(model)
 path = "/root/onnxruntime-qs/add_model.onnx"
 onnx.save(model, path)
