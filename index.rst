@@ -185,7 +185,7 @@
       <!-- ColossalAI -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/colossalai.png')"></div><h3 class="card-title">ColossalAI</h3></div>
-         <p class="card-desc">大规模并行训练框架，支持在昇腾 NPU 上用 Booster 做分布式训练。</p>
+         <p class="card-desc">大规模并行训练框架。本页在单卡昇腾上用 Booster 做一步训练。</p>
          <div class="card-footer"><a href="https://github.com/hpcaitech/ColossalAI">官方链接</a><span class="split">|</span><a href="https://colossalai.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="sources/colossalai/index.html">快速上手</a></div>
       </div>
 

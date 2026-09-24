@@ -70,6 +70,11 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         if path_dirs not in current_path:
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
 
+        # The train block is executed as ``python -c``. Hash seed must be
+        # set before that interpreter starts; the visible doc tells the
+        # reader to export the same value first.
+        os.environ['PYTHONHASHSEED'] = '42'
+
         ensure_safetensors()
         diagnose_mount_environment(model_id=cls._MODEL_ID)
         report_huggingface_state(cls._MODEL_ID)
