@@ -87,7 +87,7 @@ echo "${UPSTREAM_REF}"
 ```
 -->
 
-把源码克隆到 `$HOME/opencompass-qs`。`<ref>` 换成目标 Release tag，再用 `--no-build-isolation` 做可编辑安装。结果里的 `xxx` 是实际版本号。
+把源码克隆到 `$HOME/opencompass-qs`。`<ref>` 换成目标 Release tag，再用 `--no-build-isolation` 做可编辑安装。`transformers` 使用 4.x，`sentence-transformers` 使用 5.2 之前的版本。结果里的 `xxx` 是实际版本号。
 
 ```shell #test id="install-opencompass" load="upstream_ref>>ref"
 mkdir -p "$HOME/opencompass-qs"
@@ -95,7 +95,9 @@ cd "$HOME/opencompass-qs"
 git clone --depth 1 --branch <ref> \
   https://github.com/open-compass/opencompass.git opencompass
 cd opencompass
-python -m pip install -q --no-build-isolation -e .
+python -m pip install -q --no-build-isolation -e . \
+  'transformers>=4.41,<5' \
+  'sentence-transformers>=4.41,<5.2'
 python -c "import torch, torch_npu, opencompass; print('npu_available', torch.npu.is_available()); print('opencompass', opencompass.__version__)"
 ```
 
