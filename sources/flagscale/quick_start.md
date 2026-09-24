@@ -1,6 +1,6 @@
 # FlagScale
 
-在两张昇腾卡上安装 vLLM-Ascend，用 FlagScale 对 [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) 做一次离线推理。
+FlagScale 是覆盖训练、推理与服务的统一命令行工具。本文在两张昇腾卡上安装 vLLM-Ascend，用它对 [Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) 做一次离线推理。
 
 ## 前置条件
 
@@ -12,19 +12,32 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 
 | 类别 | 要求 |
 | --- | --- |
-| CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
-| ATB | Ascend Transformer Boost。vLLM 子进程要加载 `libatb.so` |
-| Python | 3.12 |
-| vLLM | `0.23.0` |
-| vLLM-Ascend | `0.23.0`，注册名 `ascend` |
-| FlagScale | 上游 Release tag，撰写时为 `v2.0.0` |
+| CANN | toolkit 与驱动固件已安装，并可 `source set_env.sh` |
+| ATB | Ascend Transformer Boost，下文会加载它的环境脚本 |
+| Python | 满足 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| vLLM | `0.23.0`，与下文的 `vllm-ascend` 一起安装 |
+| vLLM-Ascend | `0.23.0`，见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| FlagScale | 上游最新 Release tag |
 | 模型 | [Qwen/Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) |
 
-阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。推荐配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+### 本文验证环境
+
+下表是这次验证用的环境。软件要求见上一节。
+
+| 项目 | 内容 |
+| --- | --- |
+| 镜像 | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 设备 | 两张 Ascend 910B |
+| Python | 3.12，来自上面的镜像 |
+| vLLM / vLLM-Ascend | 0.23.0 / 0.23.0 |
+| torch / torch_npu | 2.10.0 / 2.10.0.post4 |
+| FlagScale | Release tag `v2.0.0`，包装版本 `1.0.0` |
+
+阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
 ## 1. 加载 CANN 环境
 
-常见容器里 `npu-smi` 在 `/usr/local/sbin`，需要把该目录加入 `PATH`。后面的 vLLM 还依赖 ATB。
+加载 CANN 与 ATB，并把 `/usr/local/sbin` 加入 `PATH`。
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
@@ -40,29 +53,50 @@ export PATH=/usr/local/sbin:/usr/sbin:$PATH
 npu-smi info
 ```
 
-:::{note}
-表格里应能看到至少两张卡。若 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
-:::
+输出类似：
+
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 6     910B3               | OK            | 91.0        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          3442 / 65536         |
++===========================+===============+====================================================+
+| 7     910B3               | OK            | 88.7        39                0    / 0             |
+| 0                         | 0000:42:00.0  | 0           0    / 0          3439 / 65536         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 6                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 7                                                            |
++===========================+===============+====================================================+
+```
+
+若 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
 
 ### 2.2 确认工具可用
 
-下面确认 CANN 已加载，并且 `npu-smi` 与 `python` 都在 `PATH` 里。
+确认 CANN 已加载，并且 `python` 在 `PATH` 里。
 
 ```shell #test id="check-tools"
 test -n "$ASCEND_HOME_PATH"
-command -v npu-smi >/dev/null
 python --version
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="check-tools"
-Python 3.12...
+Python ...
 ```
 
 ## 3. 安装 vLLM-Ascend
 
-分三步安装，不要合成一次 `pip install`。先装社区 vLLM `0.23.0`，再装 `vllm-ascend==0.23.0` 换成昇腾 `torch` 栈。最后一步必须 `--force-reinstall --no-deps`，否则会留下社区 CUDA 版 Triton。社区 wheel 会带上 CUDA 通信库 `flashinfer`，昇腾上没有 `libcudart`，双卡初始化会失败，所以装完后卸掉。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装 `vllm` 0.23.0 和 `vllm-ascend` 0.23.0，接着以 `--force-reinstall --no-deps` 安装 `triton-ascend` 3.2.2，并卸掉 `flashinfer`。
 
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.23.0
@@ -79,7 +113,7 @@ for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-vllm"
 ...
@@ -91,13 +125,13 @@ vllm-ascend 0.23.0
 
 ## 4. 安装 FlagScale
 
-将 `<ref>` 换成目标 Release tag。克隆目录用 `FlagScale`，不要用当前目录下的 `flagscale/`，以免挡住已安装的包。`--no-deps` 避免元数据去拉一份不匹配的 torch。CLI 还需要 `hydra-core`、`omegaconf` 和 `typer`。`v2.0.0` 是 GitHub Release 的 tag 名；包装版本仍是 `1.0.0`，所以下面打印出来的是 `flagscale 1.0.0`。
-
 <!--
 ```shell #test-setup store="upstream_ref"
 echo "${UPSTREAM_REF}"
 ```
 -->
+
+克隆 [FlagScale](https://github.com/flagos-ai/FlagScale) 到目录 `FlagScale`，按 Release tag 做可编辑安装，并安装 `hydra-core`、`omegaconf`、`typer`、`pyyaml`、`packaging`。
 
 ```shell #test id="install-flagscale" load="upstream_ref>>ref"
 if [ ! -d FlagScale/.git ]; then
@@ -112,7 +146,9 @@ python -m pip install hydra-core omegaconf typer pyyaml packaging
 python -c "from importlib.metadata import version; print('flagscale', version('flagscale'))"
 ```
 
-输出结果如下：
+`<ref>` 是上游最新的 Release tag。打印出来的包装版本在本次验证里是 `flagscale 1.0.0`。
+
+完整输出较长，其中应包含：
 
 ```shell #test-result id="install-flagscale" load="upstream_ref>>ref"
 <ref>
@@ -122,22 +158,9 @@ flagscale 1.0.0...
 
 ## 5. 确认昇腾插件选中了 NPU
 
-推理前设 `VLLM_PLUGINS=ascend`，让 vLLM 选用昇腾平台插件。
+把下面的脚本存成 `probe_ascend_platform.py`，在 0 号卡和 1 号卡上导入昇腾插件，并打印 vLLM 版本、平台名称和设备类型。
 
-保存为 `probe_ascend_platform.py`：
-
-```python
-import vllm
-import vllm_ascend
-from vllm.platforms import current_platform as p
-
-print('vllm', vllm.__version__)
-print('platform_name', type(p).__name__)
-print('device_type', p.device_type)
-```
-
-<!--
-```shell #test-setup
+```shell #test id="probe"
 cat > probe_ascend_platform.py <<'PY'
 import vllm
 import vllm_ascend
@@ -147,32 +170,26 @@ print('vllm', vllm.__version__)
 print('platform_name', type(p).__name__)
 print('device_type', p.device_type)
 PY
-```
--->
-
-```shell #test id="probe"
 export VLLM_PLUGINS=ascend
 export VLLM_LOGGING_LEVEL=INFO
 export ASCEND_RT_VISIBLE_DEVICES=0,1
 python probe_ascend_platform.py 2>&1
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
-```shell #test-result id="probe"
-...Platform plugin ascend is activated...
+```text #test-result id="probe"
+...
+Platform plugin ascend is activated
+...
+vllm 0.23.0
 platform_name NPUPlatform
 device_type npu
-...
 ```
-
-`device_type` 必须是 `npu`，`platform_name` 必须是 `NPUPlatform`。若这里是 `cuda` / `cpu`，或没有出现 `Platform plugin ascend is activated`，先回到第 3–4 节，不要开始推理。
 
 ## 6. 用离线 inference 做一次双卡生成
 
-下面的 yaml 把规模收到几分钟内可结束，仅供首次验证，不是生产配置。模型 id 走 Hugging Face Hub。`--test` 让推理在前台跑完才返回；末尾的 `2>&1` 把打在 stderr 的设备日志并进标准输出。
-
-保存为 `FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml`：
+保存实验配置到 `FlagScale/qs_conf/qwen25_05b_tp2_ascend.yaml`。这份配置选择 vLLM 后端，并使用 0 号卡和 1 号卡。
 
 ```yaml
 defaults:
@@ -207,7 +224,7 @@ hydra:
     dir: ${experiment.exp_dir}/hydra
 ```
 
-保存为 `FlagScale/qs_conf/inference/qwen25_05b_tp2_ascend.yaml`：
+保存推理配置到 `FlagScale/qs_conf/inference/qwen25_05b_tp2_ascend.yaml`。模型是 Qwen2.5-0.5B，tensor parallel 为 2。
 
 ```yaml
 llm:
@@ -235,6 +252,11 @@ generate:
     seed: 1234
     max_tokens: 8
 ```
+
+| 项 | 含义 |
+| --- | --- |
+| `seed` | 写在推理配置里，值为 1234，用来固定生成文字 |
+| `temperature` | 写在推理配置里，值为 0 |
 
 <!--
 ```shell #test-setup
@@ -300,6 +322,8 @@ YAML
 ```
 -->
 
+进入 `FlagScale` 目录，按上面的配置跑一次离线推理。
+
 ```shell #test id="inference"
 export PYTHONHASHSEED=0
 export VLLM_PLUGINS=ascend
@@ -311,11 +335,21 @@ cd FlagScale
 flagscale inference qwen25_05b --config "$PWD/qs_conf/qwen25_05b_tp2_ascend.yaml" --test 2>&1
 ```
 
-输出结果如下：
+完整输出较长，其中应包含：
 
-```shell #test-result id="inference"
-...Platform plugin ascend is activated...backend=hccl...
-output.outputs[0].text=...
+```text #test-result id="inference"
+...
+Platform plugin ascend is activated
+...
+backend=hccl
+...
+output.outputs[0].text=', George Washington, was born in '
+...
 ```
 
-生成的文字每次可能不同，不必和样例一致。`Platform plugin ascend is activated`、`backend=hccl` 是这次走昇腾与两卡 HCCL 的证据；退出码 0 不算数，必须看到 `output.outputs[0].text=`。
+## 7. 更多用法
+
+训练、在线服务和其余模块与社区文档相同。
+
+- 社区文档：[FlagScale 文档](https://docs.flagos.io/projects/FlagScale/en/latest/)
+- 安装：[FlagScale 安装说明](https://docs.flagos.io/projects/FlagScale/en/latest/getting_started/install.html)
