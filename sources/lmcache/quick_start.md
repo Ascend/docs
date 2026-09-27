@@ -103,7 +103,7 @@ cmake version 3...
 
 ## 4. 安装 vLLM-Ascend
 
-先装带轮子的最新 `vllm-ascend`，再以 `--no-deps` 安装主版本号相同的 `vllm`，最后用 `--force-reinstall --no-deps` 重装同一版 `triton-ascend`。安装写法见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
+先装带轮子的最新 `vllm-ascend`，再以 `--no-deps` 安装主版本号相同的 `vllm`，然后按该包元数据安装运行依赖，最后用 `--force-reinstall --no-deps` 重装同一版 `triton-ascend`。安装写法见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
 
 ```shell #test id="install-vllm"
 python -m pip install --prefer-binary \
@@ -112,6 +112,26 @@ python -m pip install --prefer-binary \
   vllm-ascend
 va=$(python -c "import importlib.metadata as m; print(m.version('vllm-ascend').split('.post')[0])")
 python -m pip install --retries 3 --no-deps "vllm==$va"
+python -c 'import importlib.metadata as m
+skip = {
+    "torch", "torch-npu", "torchaudio", "torchvision", "numba",
+    "flashinfer-python", "flashinfer-cubin", "nvidia-cudnn-frontend",
+    "nvidia-cutlass-dsl", "quack-kernels", "tokenspeed-mla",
+    "humming-kernels", "tilelang", "apache-tvm-ffi",
+}
+reqs = []
+for raw in m.requires("vllm") or []:
+    if "extra ==" in raw:
+        continue
+    body = raw.split(";", 1)[0].strip()
+    name = body.split("[", 1)[0]
+    for sep in "<>=!":
+        name = name.split(sep, 1)[0]
+    name = name.strip().lower().replace("_", "-")
+    if name and name not in skip:
+        reqs.append(body)
+open("vllm-deps.txt", "w").write("\n".join(reqs) + "\n")'
+python -m pip install -r vllm-deps.txt
 ta=$(python -c "import importlib.metadata as m; print(m.version('triton-ascend'))")
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
