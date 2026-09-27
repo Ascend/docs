@@ -15,7 +15,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 | ----------- | -------------------------------------------------------------------------------------------------- |
 | CANN        | toolkit 与驱动固件已安装，并可 `source set_env.sh`                                                            |
 | Python      | 满足当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
-| Go          | 1.22 及以上。下文安装当前的 linux-arm64 发行版                                                                   |
+| Go          | 1.22.6，与上游 `go.mod` 的 toolchain 一致，见下文安装                                              |
 | Envoy       | 官方 linux-aarch64 发行版。下文安装当前版本                                                                      |
 | vLLM-Ascend | `vllm` 与 `vllm-ascend` 均为 0.23.0，见下文安装。版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
@@ -106,26 +106,23 @@ ss --version
 
 ### 3.2 安装 Go
 
-从 Go 下载页匹配当前的 linux-arm64 包，解压到 `.aibrix-quick-start/toolchain/go`。
+安装上游 `go.mod` 所写的 Go 1.22.6 linux-arm64 包，解压到 `.aibrix-quick-start/toolchain/go`。
 
 ```shell #test id="install-go"
 set -eu
 mkdir -p .aibrix-quick-start/toolchain
-page=$(curl -fsSL --retry 3 --retry-delay 5 --connect-timeout 30 https://go.dev/dl/)
-go_tarball=$(printf '%s\n' "$page" | grep -oE 'go[0-9]+\.[0-9]+\.[0-9]+\.linux-arm64\.tar\.gz' | head -n 1)
-test -n "$go_tarball"
 curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 \
   -o .aibrix-quick-start/go.tar.gz \
-  "https://dl.google.com/go/${go_tarball}"
+  https://dl.google.com/go/go1.22.6.linux-arm64.tar.gz
 rm -rf .aibrix-quick-start/toolchain/go
 tar -C .aibrix-quick-start/toolchain -xzf .aibrix-quick-start/go.tar.gz
 .aibrix-quick-start/toolchain/go/bin/go version
 ```
 
-输出中应包含：
+输出结果如下：
 
 ```shell #test-result id="install-go"
-go version go... linux/arm64
+go version go1.22.6 linux/arm64
 ```
 
 
