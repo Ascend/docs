@@ -17,7 +17,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 | Python      | 满足当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | Go          | 1.22 及以上。下文安装当前的 linux-arm64 发行版                                                                   |
 | Envoy       | 官方 linux-aarch64 发行版。下文安装当前版本                                                                      |
-| vLLM-Ascend | 见下文安装，版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)   |
+| vLLM-Ascend | `vllm` 与 `vllm-ascend` 均为 0.23.0，见下文安装。版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
 
 
@@ -157,18 +157,18 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-安装 `vllm`、`vllm-ascend` 和 `triton-ascend`，再用 `pip show` 打印这三个包的名称。安装说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装带预编译包的 `vllm` 与 `vllm-ascend` 0.23.0，再安装 `triton-ascend`，并用 `pip show` 打印这三个包的名称。
 
 ```shell #test id="install-vllm"
 set -eu
-python -m pip install --retries 3 \
+python -m pip install --retries 3 --only-binary=vllm \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
-  vllm
-python -m pip install --retries 3 \
+  'vllm==0.23.0'
+python -m pip install --retries 3 --only-binary=vllm-ascend \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  vllm-ascend
-python -m pip install --retries 3 --force-reinstall --no-deps \
+  'vllm-ascend==0.23.0'
+python -m pip install --retries 3 --force-reinstall --no-deps --only-binary=triton-ascend \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend
 python -m pip show vllm vllm-ascend triton-ascend
