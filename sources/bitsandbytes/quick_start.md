@@ -130,7 +130,7 @@ lib BNBNativeLibrary
 
 ## 5. 在 NPU 上做一次 NF4 Linear4bit 前向
 
-在 CPU 上构造 `Linear4bit(64, 32)`，搬到 `npu:0` 后做一次 float16 前向。
+在 CPU 上构造 `Linear4bit(64, 32)`，搬到 `npu:0` 后做一次 float16 前向。请用 python 执行：
 
 ```python #test id="nf4-forward"
 import torch
