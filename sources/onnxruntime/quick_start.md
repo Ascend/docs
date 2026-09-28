@@ -10,13 +10,15 @@ Atlas 800T、900 A2 训练系列，Ascend 910B。本文示例为单卡。
 
 ### 软件
 
-| 类别 | 要求 |
-| --- | --- |
-| CANN | toolkit 与驱动已安装，并能 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
-| Python | 落在上面这份配套清单给出的范围内 |
-| 编译 | gcc-12、g++-12、cmake 3.28 及以上且低于 4、ninja、git |
-| 包管理 | `python -m pip` |
-| NumPy | `numpy<2` |
+
+| 类别     | 要求                                                                                                                                                  |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CANN   | toolkit 与驱动已安装，并能 `source /usr/local/Ascend/ascend-toolkit/set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
+| Python | 落在上面这份配套清单给出的范围内                                                                                                                                    |
+| 编译     | gcc-12、g++-12、cmake 3.28 及以上且低于 4、ninja、git                                                                                                         |
+| 包管理    | `python -m pip`                                                                                                                                     |
+| NumPy  | `numpy<2`                                                                                                                                           |
+
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 装好 CANN 与驱动。
 
@@ -33,7 +35,11 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
+
+
 ## 2. 检查环境是否就绪
+
+
 
 ### 2.1 确认 NPU 在线
 
@@ -71,11 +77,11 @@ test -n "$ASCEND_HOME_PATH"
 python --version
 ```
 
-<!--
-```shell #test-result id="check-tools"
+输出结果如下：
+
+```text #test-result id="check-tools"
 Python ...
 ```
--->
 
 ## 3. 安装编译工具
 
@@ -101,12 +107,13 @@ gcc-12 --version | head -n 1
 cmake --version | head -n 1
 ```
 
-<!--
-```shell #test-result id="toolchain"
-...gcc-12...
-cmake version 3.3...
+完整输出较长，其中应包含：
+
+```text #test-result id="toolchain"
+...
+gcc-12 ...
+cmake version ...
 ```
--->
 
 ## 4. 获取源码
 
@@ -148,11 +155,11 @@ fi
 ls /root/onnxruntime-qs/onnxruntime/build.sh
 ```
 
-<!--
-```shell #test-result id="clone"
+完整输出较长，其中应包含：
+
+```text #test-result id="clone"
 .../root/onnxruntime-qs/onnxruntime/build.sh
 ```
--->
 
 ## 5. 编译 onnxruntime-cann
 
@@ -263,7 +270,7 @@ python -c "import onnxruntime; print(onnxruntime.get_available_providers())"
 
 ## 8. 造一个最小 ONNX 模型
 
-用已安装的 `onnx` 写一个两向量相加的图，并保存到 `/root/onnxruntime-qs/add_model.onnx`。
+用已安装的 `onnx` 写一个两向量相加的图，并保存到 `/root/onnxruntime-qs/add_model.onnx`。请用 python 执行：
 
 ```python #test id="make-model"
 import os
@@ -308,9 +315,11 @@ model add node Add inputs X Y output Z
 file /root/onnxruntime-qs/add_model.onnx
 ```
 
+
+
 ## 9. 用昇腾跑第一次推理
 
-用 `CANNExecutionProvider` 读取 `add_model.onnx`，计算 `[1.0, 2.0]` 与 `[3.0, 4.0]` 的和。
+用 `CANNExecutionProvider` 读取 `add_model.onnx`，计算 `[1.0, 2.0]` 与 `[3.0, 4.0]` 的和。请用 python 执行：
 
 ```python #test id="infer"
 import numpy as np
@@ -339,9 +348,12 @@ add [1.0, 2.0] + [3.0, 4.0] = [4.0, 6.0]
 ...
 ```
 
+
+
 ## 10. 更多文档
 
 模型格式、Execution Provider 选项和其余模块与上游社区相同。
 
 - CANN 后端说明：[CANN Execution Provider](https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html)
 - 上游文档：[ONNX Runtime 文档](https://onnxruntime.ai/docs/)
+
