@@ -114,7 +114,7 @@ device_name npu:0
 
 ## 5. 在 NPU 上生成一张图
 
-用 Python 执行以下代码。种子为 42，推理 5 步，高和宽都是 512。权重从 Hugging Face 下载。
+用 Python 执行以下代码。种子为 42，推理 5 步，高和宽都是 512。权重从 Hugging Face 下载。用 python 执行以下代码：
 
 ```python #test id="generate"
 import torch
