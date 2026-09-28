@@ -38,7 +38,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
     _TENSORBOARD_DIR = Path(
-        'ROLL/output/tensorboard/roll-quick-start-npu'
+        'output/tensorboard/roll-quick-start-npu'
     )
 
     def _verify_tensorboard_events(self) -> None:

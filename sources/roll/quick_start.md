@@ -17,7 +17,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
 ## 安装 ROLL
 
-**使用源码安装 ROLL** ：
+**使用源码安装 ROLL** ：以下命令均在打开终端时所在的工作目录执行，`ROLL` 将克隆到该目录下。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -27,13 +27,12 @@ echo "${UPSTREAM_REF}"
 
 ```shell #test id="install-roll" load="upstream_ref>>ref"
 git clone --branch <ref> https://github.com/alibaba/ROLL.git
-cd ROLL
-echo "ROLL $(git describe --tags --exact-match HEAD)"
-pip install -e .
+echo "ROLL $(git -C ROLL describe --tags --exact-match HEAD)"
+pip install -e ROLL
 ```
 
 :::{note}
-`<ref>` 为最新正式 release 的 tag，例如 `v0.3.0`。
+`<ref>` 为最新正式 release 的 tag
 :::
 
 输出结果如下：
@@ -43,7 +42,7 @@ ROLL xxx
 ```
 
 :::{note}
-输出中的 `xxx` 为实际安装到的 release 版本号，如 `v0.3.0`。
+输出中的 `xxx` 为实际安装到的 release 版本号
 :::
 
 ## 运行示例：FrozenLake agentic 强化学习
@@ -85,14 +84,13 @@ triton-ascend 3.2.2
 **安装示例依赖。** 按昇腾镜像的依赖清单安装 agentic 示例所需组件：
 
 ```shell #test-setup id="install-example-deps"
-cd ROLL
-grep -v '^gem-llm' requirements_common.txt > requirements_npu.txt
-sed -i 's/^decord /decord2 /' requirements_vision.txt
-pip install -r requirements_npu.txt
+grep -v '^gem-llm' ROLL/requirements_common.txt | sed 's#^\./mcore_adapter$#ROLL/mcore_adapter#' > ROLL/requirements_npu.txt
+sed -i 's/^decord /decord2 /' ROLL/requirements_vision.txt
+pip install -r ROLL/requirements_npu.txt
 pip install --ignore-requires-python gem-llm==0.0.4
 pip install "numpy==1.26.4"
 pip install "transformers==4.57.6" "tensorboard==2.20.0" "antlr4-python3-runtime==4.9.3"
-rm requirements_npu.txt
+rm ROLL/requirements_npu.txt
 ```
 
 核对示例依赖的版本，下面代码用python执行：
@@ -123,7 +121,7 @@ tensorboard 2.20.0
 antlr4-python3-runtime 4.9.3
 ```
 
-**写入示例配置。** 配置基于官方 agentic demo，修改参数完成 NPU 适配。在 `ROLL` 的上一级目录用 Python 执行下面的代码：
+**写入示例配置。** 配置基于官方 agentic demo，修改参数完成 NPU 适配， 将配置文件保存到 ROLL/examples/agentic_frozen_lake_npu/quick_start_npu.yaml。用 Python 执行下面的代码：
 
 ```python #test id="write-config"
 from pathlib import Path
@@ -266,19 +264,14 @@ print("config written", path)
 config written ROLL/examples/agentic_frozen_lake_npu/quick_start_npu.yaml
 ```
 
-**启动训练。** 从仓库根目录运行 agentic pipeline 入口脚本，ROLL 自动拉起 Ray 集群。
+**启动训练。** 在当前工作目录运行 agentic pipeline 入口脚本，ROLL 自动拉起 Ray 集群。
 
 ```shell #test-setup id="run-agentic"
-cd ROLL
-python examples/start_agentic_pipeline.py --config_path agentic_frozen_lake_npu --config_name quick_start_npu
+python ROLL/examples/start_agentic_pipeline.py --config_path agentic_frozen_lake_npu --config_name quick_start_npu
 ```
 
-**查看训练产物。** 训练完成后，TensorBoard 指标保存在以下目录：
+**查看训练产物。** 训练完成后，TensorBoard 指标保存在当前工作目录下的以下路径：
 
 ```text
-ROLL/output/tensorboard/roll-quick-start-npu
+output/tensorboard/roll-quick-start-npu
 ```
-
-## 更多用法
-
-多卡并行、vLLM 高吞吐 rollout、Megatron 后端与 SFT/DPO 等其他 pipeline 见官方文档：https://alibaba.github.io/ROLL/docs/QuickStart/single_node_quick_start
