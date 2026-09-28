@@ -154,11 +154,17 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。版本取下面这次安装能直接装到的预编译包。
 
 ```shell #test id="install-vllm"
 set -eu
-ascend_ver=$(python -c 'import json,urllib.request; print(json.load(urllib.request.urlopen("https://pypi.org/pypi/vllm-ascend/json", timeout=60))["info"]["version"])')
+mkdir -p .aibrix-quick-start
+python -m pip install --dry-run --no-deps --retries 3 --only-binary=vllm-ascend \
+  --extra-index-url https://download.pytorch.org/whl/cpu/ \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  --report .aibrix-quick-start/vllm-ascend-report.json \
+  vllm-ascend
+ascend_ver=$(python -c 'import json; print(next(item["metadata"]["version"] for item in json.load(open(".aibrix-quick-start/vllm-ascend-report.json"))["install"] if item["metadata"]["name"]=="vllm-ascend"))')
 vllm_ver=${ascend_ver%%.post*}
 test -n "$vllm_ver"
 python -m pip install --retries 3 --only-binary=vllm \
