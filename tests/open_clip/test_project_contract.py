@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 import unittest
 from pathlib import Path
 
@@ -14,6 +15,20 @@ WORKFLOW = ROOT / ".github" / "workflows" / "open-clip-quick-start.yml"
 
 
 class TestProjectContract(unittest.TestCase):
+    def test_uv_bootstrap_keeps_stdout_for_the_version_result(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        block = re.search(
+            r'```shell #test id="install-open-clip"[^\n]*\n(.*?)\n```',
+            text,
+            flags=re.S,
+        )
+        self.assertIsNotNone(block)
+        bootstrap = next(
+            line for line in block.group(1).splitlines()
+            if line.startswith("python -m pip install") and line.endswith(" uv")
+        )
+        self.assertIn("-q", shlex.split(bootstrap), "pip info logs would pollute the version-only output")
+
     def test_guarded_document_replaces_the_legacy_quick_start(self) -> None:
         self.assertFalse((SOURCE_DIR / "quick_start.rst").exists())
         text = DOC.read_text(encoding="utf-8")

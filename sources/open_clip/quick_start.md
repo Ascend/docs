@@ -92,7 +92,7 @@ printf '%s\n' "$UPSTREAM_REF"
 ```shell #test id="install-open-clip" load="upstream_ref>>ref"
 git clone --depth 1 --branch <ref> https://github.com/mlfoundations/open_clip.git open-clip-src
 cd open-clip-src
-python -m pip install -U uv
+python -m pip install -q -U uv
 uv pip install -r requirements-training.txt
 uv pip install -e . --no-deps
 python -c "import open_clip; print('open_clip', open_clip.__version__)"
