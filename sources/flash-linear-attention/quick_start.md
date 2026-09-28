@@ -66,13 +66,6 @@ CANN ready
 
 ## 安装 flash-linear-attention
 
-```{admonition} Note
-:class: note
-从 [Releases](https://github.com/fla-org/flash-linear-attention/releases) 选择
-最新正式版本，将 `<UPSTREAM_REF>` 替换为对应的标签。本文示例使用 0.5.2，
-对应标签为 `v0.5.2`。
-```
-
 安装命令会读取该版本
 的 `[npu]` 依赖，安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
 
@@ -105,6 +98,13 @@ fla 0.5.2
 fla xxx
 ```
 -->
+
+```{admonition} Note
+:class: note
+从 [Releases](https://github.com/fla-org/flash-linear-attention/releases) 选择
+最新正式版本，将 `<UPSTREAM_REF>` 替换为对应的标签。本文示例使用 0.5.2，
+对应标签为 `v0.5.2`。
+```
 
 ## 验证 Ascend NPU backend
 
