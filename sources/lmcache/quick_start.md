@@ -10,15 +10,17 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 
 ### 软件
 
-| 类别 | 要求 |
-| --- | --- |
-| CANN | toolkit + 驱动固件已安装，并可 `source set_env.sh` |
-| ATB | Ascend Transformer Boost。vLLM EngineCore 子进程要加载 `libatb.so` |
-| Python | 3.10 到 3.13，见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
-| 编译依赖 | `cmake`、`ninja`、`libnuma-dev`，见下文安装 |
-| vLLM-Ascend | 装带轮子的最新 `vllm-ascend`，`vllm` 装与之主版本号相同的版本，见下文安装 |
-| LMCache | PyPI `lmcache` 的版本号等于 Release tag 去掉开头的 `v`，再编译 LMCache-Ascend |
-| 模型 | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct) |
+
+| 类别          | 要求                                                                                                 |
+| ----------- | -------------------------------------------------------------------------------------------------- |
+| CANN        | toolkit + 驱动固件已安装，并可 `source set_env.sh`                                                           |
+| ATB         | Ascend Transformer Boost。vLLM EngineCore 子进程要加载 `libatb.so`                                        |
+| Python      | 3.10 到 3.13，见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| 编译依赖        | `cmake`、`ninja`、`libnuma-dev`，见下文安装                                                                |
+| vLLM-Ascend | 装带轮子的最新 `vllm-ascend`，`vllm` 装与之主版本号相同的版本，见下文安装                                                    |
+| LMCache     | PyPI `lmcache` 的版本号等于 Release tag 去掉开头的 `v`，再编译 LMCache-Ascend                                     |
+| 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
+
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
@@ -32,7 +34,11 @@ source /usr/local/Ascend/nnal/atb/latest/atb/set_env.sh
 export PATH=/usr/local/sbin:/usr/sbin:$PATH
 ```
 
+
+
 ## 2. 检查环境是否就绪
+
+
 
 ### 2.1 确认 NPU 在线
 
@@ -179,7 +185,9 @@ python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache')
 lmcache <ver>
 ```
 
-> `<ver>` 是最新 Release 去掉开头的 `v`。撰写时最新 Release 是 `v0.4.4`，对应 `lmcache==0.4.4`。
+> `<ver>` 是最新 Release 去掉开头的 `v`。
+
+
 
 ## 6. 克隆并编译 LMCache-Ascend
 
@@ -213,9 +221,9 @@ git -C LMCache-Ascend describe --tags --exact-match
 <ref>
 ```
 
-> `<ref>` 是最新 Release 的 tag。撰写时为 `v0.4.4`。
+> `<ref>` 是最新 Release 的 tag。
 
-运行下面的脚本，再编译。脚本给 HIXL 的编译补上 `pkg_inc` 头文件目录，并把 `LMCacheAscendConnectorV1Dynamic.__init__` 改成透传 `*args, **kwargs`。源码里已经是这两种形态时，脚本不改文件。
+运行下面的脚本，再编译。脚本给 HIXL 的编译补上 `pkg_inc` 头文件目录，并把 `LMCacheAscendConnectorV1Dynamic.__init__` 改成透传 `*args, **kwargs`。源码里已经是这两种形态时，脚本不改文件。用 python 执行以下代码：
 
 ```python #test id="patch-lmcache-ascend"
 import re
@@ -281,21 +289,25 @@ c_ops_ok True
 npu_available True
 ```
 
+> `<ver>` 是最新 Release 去掉开头的 `v`。
+
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新执行补丁和编译，再继续第 7 节。
 
 ## 7. 用离线 LLM 做一次 KV 卸载
 
 用 `vllm.LLM` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。连接器与上游 `examples/offload.py` 相同。
 
-| 参数 | 含义 |
-| --- | --- |
-| `temperature` | `0`，固定本次生成 |
-| `top_p` | `0.95` |
-| `max_tokens` | `8` |
-| `max_model_len` | `512` |
-| `gpu_memory_utilization` | `0.4` |
 
-运行下面的脚本。
+| 参数                       | 含义         |
+| ------------------------ | ---------- |
+| `temperature`            | `0`，固定本次生成 |
+| `top_p`                  | `0.95`     |
+| `max_tokens`             | `8`        |
+| `max_model_len`          | `512`      |
+| `gpu_memory_utilization` | `0.4`      |
+
+
+用 python 运行下面的脚本。
 
 ```python #test id="offload"
 import os
