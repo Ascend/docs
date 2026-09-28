@@ -81,24 +81,19 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
+
 ```shell #test-result id="install-torch"
 ...
 torch ...+cpu
 torch_npu ...
 npu_available True
 ```
--->
 
 ---
 
 ## 4. 安装 ColossalAI
 
 先安 <ref> 指定的版本，再安装 Booster 导入时需要的 `transformers==4.51.3`、`peft`、`galore_torch`、`bitsandbytes`、`einops`。将 `<ref>` 换成 PyPI 版本号。
-
-```{note}
-当前正式版的安装声明把 torch 限制在 2.5.1 及以下。直接安装会换掉上一节的 NPU 栈。
-```
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -112,7 +107,6 @@ python -m pip install transformers==4.51.3 peft galore_torch bitsandbytes einops
 python -c "import torch, torch_npu, colossalai; from colossalai.accelerator import get_accelerator; print('torch', torch.__version__); print('colossalai', colossalai.__version__); acc = get_accelerator(); print('accel_name', acc.name); print('accel_device', acc.get_current_device()); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
 ```shell #test-result id="install-colossalai" load="upstream_ref>>ref"
 ...
 torch ...+cpu
@@ -121,7 +115,10 @@ accel_name npu
 accel_device npu:0
 npu_available True
 ```
--->
+
+```{note}
+当前正式版的安装声明把 torch 限制在 2.5.1 及以下。直接安装会换掉上一节的 NPU 栈。
+```
 
 ---
 
