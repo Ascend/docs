@@ -80,7 +80,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/axolotl/quick_start.md',
                     'sources/timm/quick_start.md',
                     'sources/Diffusers/quick_start.md',
-                    'sources/torchtune/quick_start.md']
+                    'sources/torchtune/quick_start.md',
+                    'sources/ktransformers/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
