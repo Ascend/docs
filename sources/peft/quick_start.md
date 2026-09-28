@@ -47,8 +47,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 npu-smi info
 ```
 
-输出类似：
-
+输出结果类似如下：
 ```text
 +------------------------------------------------------------------------------------------------+
 | npu-smi 25.5.2                   Version: 25.5.2                                               |
@@ -79,6 +78,11 @@ python --version
 输出结果如下：
 ```shell #test-result id="check-py" fuzzy='xxx'
 Python 3.12.xxx
+```
+
+```{admonition} Note
+:class: note
+`xxx` 表示实际打印出的次版本号
 ```
 
 检查 NPU 设备运行时可用：
@@ -116,6 +120,11 @@ python -c "import transformers, huggingface_hub; print(f'transformers={transform
 
 ```shell #test-result id="install-deps" fuzzy='xxx'
 transformers=xxx huggingface_hub=xxx
+```
+
+```{admonition} Note
+:class: note
+`xxx` 表示实际安装的版本号
 ```
 
 ### 安装 PEFT
@@ -157,7 +166,11 @@ cd peft
 uv pip install -e .
 python -c "import peft; print('peft', peft.__version__)"
 ```
-\<ref> 为安装的最新的 release 分支
+
+```{admonition} Note
+:class: note
+`<ref>` 为最新 release tag
+```
 
 输出结果类似如下：
 
@@ -183,11 +196,11 @@ python -c "from huggingface_hub import snapshot_download; print(snapshot_downloa
 
 #### 应用 LoRA 适配器
 
-把基础模型加载到 NPU 上（`bfloat16` 省显存），构造 `LoraConfig` 描述要插入的 LoRA 矩阵（rank=16 / alpha=32 / 自回归 LM 任务），再用 `get_peft_model` 包成 PEFT 模型——底座权重默认冻结，只有新注入的 LoRA 矩阵参与训练。
+把基础模型加载到 NPU 上（`bfloat16` 省显存），构造 `LoraConfig` 描述要插入的 LoRA 矩阵（rank=16 / alpha=32 / 自回归 LM 任务），再用 `get_peft_model` 包成 PEFT 模型——底座权重默认冻结，只有新注入的 LoRA 矩阵参与训练（下面的命令用 Python 执行）：
 
-```shell #test id="apply-lora" load="model_path>>model_path"
-python << 'PY'
+```python #test id="apply-lora" load="model_path>>model_path"
 import torch
+from pathlib import Path
 from transformers import AutoModelForCausalLM
 from peft import LoraConfig, TaskType, get_peft_model
 
@@ -203,8 +216,10 @@ peft_config = LoraConfig(
 peft_model = get_peft_model(model, peft_config)
 peft_model.print_trainable_parameters()
 peft_model.save_pretrained("output/peft-adapter")
-PY
-ls output/peft-adapter/adapter_config.json output/peft-adapter/adapter_model.safetensors
+
+adapter_dir = Path("output/peft-adapter")
+print(adapter_dir / "adapter_config.json")
+print(adapter_dir / "adapter_model.safetensors")
 ```
 
 ```{admonition} Note
@@ -226,10 +241,9 @@ output/peft-adapter/adapter_model.safetensors
 
 #### 加载 PEFT 模型
 
-推理的第一步：加载 `tokenizer` + 底座（`AutoModelForCausalLM`），然后用 `PeftModel.from_pretrained(base, "output/peft-adapter")` 把适配器「贴」上去——这一步在底座上原地构造 PEFT 包装，权重来自上一步保存的目录。
+推理的第一步：加载 `tokenizer` + 底座（`AutoModelForCausalLM`），然后用 `PeftModel.from_pretrained(base, "output/peft-adapter")` 把适配器「贴」上去——这一步在底座上原地构造 PEFT 包装，权重来自上一步保存的目录（下面的命令用 Python 执行）。
 
-```shell #test id="load-adapter" load="model_path>>model_path"
-python << 'PY'
+```python #test id="load-adapter" load="model_path>>model_path"
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -240,7 +254,6 @@ base = AutoModelForCausalLM.from_pretrained(
 tokenizer = AutoTokenizer.from_pretrained("<model_path>")
 peft_model = PeftModel.from_pretrained(base, "output/peft-adapter")
 peft_model.print_trainable_parameters()
-PY
 ```
 
 输出结果如下：
@@ -256,10 +269,9 @@ trainable params: ... || all params: ... || trainable%: ...
 
 #### 跑一次生成验证
 
-端到端跑一次生成：tokenizer 把 prompt 编码成 ids，搬到 NPU 上，`model.generate(max_new_tokens=20, do_sample=False)` 续写 20 个 token，解码回文本。PEFT 模型继承 `PreTrainedModel` 接口，`generate` 调用方式与底座完全一致。
+端到端跑一次生成：tokenizer 把 prompt 编码成 ids，搬到 NPU 上，`model.generate(max_new_tokens=20, do_sample=False)` 续写 20 个 token，解码回文本。PEFT 模型继承 `PreTrainedModel` 接口，`generate` 调用方式与底座完全一致（下面的命令用 Python 执行）。
 
-```shell #test id="infer" load="model_path>>model_path"
-python << 'PY'
+```python #test id="infer" load="model_path>>model_path"
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -273,7 +285,6 @@ peft_model = PeftModel.from_pretrained(base, "output/peft-adapter")
 inputs = tokenizer("Preheat the oven to 350 degrees and place the cookie dough", return_tensors="pt").to("npu:0")
 outputs = peft_model.generate(**inputs, max_new_tokens=20, do_sample=False)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-PY
 ```
 
 输出结果如下：
