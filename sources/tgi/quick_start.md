@@ -63,8 +63,8 @@ npu-smi info
 +---------------------------+---------------+----------------------------------------------------+
 ```
 
-> 如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动。
-> 本文档的双卡验证需要**至少两张卡**可见。
+如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动。
+本文档的双卡验证需要**至少两张卡**可见。
 
 ### 2. 准备环境
 
@@ -87,8 +87,10 @@ protoc --version
 输出结果如下：
 
 ```shell #test-result id="check-system-deps"
-libprotoc ...
+libprotoc 3.12.4
 ```
+
+版本随发行版而异（示例为 Ubuntu 20.04；Ubuntu 22.04/24.04 为 3.21.12），3.x 均可。
 
 #### 获取源码
 
@@ -121,8 +123,8 @@ start-tgi.sh ok
 server/requirements_ascend.txt ok
 ```
 
-> `<ref>` 为要安装的 release tag。直接把 `<ref>` 换成
-> [Releases 页面](https://github.com/cosdt/text-generation-inference/releases)上最新的 tag。
+`<ref>` 为要安装的 release tag。直接把 `<ref>` 换成
+[Releases 页面](https://github.com/cosdt/text-generation-inference/releases)上最新的 tag。
 
 #### Python 依赖
 
@@ -144,13 +146,16 @@ python -c "import torch, torch_npu; print(f'torch={torch.__version__}'); print(f
 输出结果如下：
 
 ```shell #test-result id="check-npu-runtime"
-torch=...
-torch_npu=...
+torch=2.10.0+cpu
+torch_npu=2.10.0.post6
 is_available: True
 count: 2
 ```
 
-> 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
+版本为昇腾源当前推荐版本（`torch` 随 `torch_npu` 一并安装），随源上
+版本更新而变化，与示例不一致时以实际输出为准。
+
+如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
 
 #### 安装 Rust 工具链
 
@@ -169,10 +174,10 @@ rustc --version
 输出结果如下：
 
 ```shell #test-result id="check-toolchain"
-rustc 1.85.1 ...
+rustc 1.85.1 (4eb161250 2025-03-15)
 ```
 
-> TGI 仓库根目录的 `rust-toolchain.toml` 固定 1.85.1，因此这里直接安装该版本。
+TGI 仓库根目录的 `rust-toolchain.toml` 固定 1.85.1，因此这里直接安装该版本。
 
 ### 3. 下载基础模型
 
@@ -229,16 +234,16 @@ uv pip install --no-build-isolation "grpcio-tools==1.84.0" "mypy-protobuf==3.6.0
 make -C server gen-server-raw
 ```
 
-> `-e server` 加 `--no-deps`：依赖一律以锁定文件为准，避免按 pyproject 的
-> 宽松版本范围重新解析引入漂移。proto 代码生成用 `gen-server-raw`（只做
-> 编译）：`gen-server` 目标会额外按过期的 `requirements_gen.txt` 安装依赖，
-> 覆盖锁定文件的版本（例如把 `typing_extensions` 降级到 4.13，与
-> `pydantic-core` 不兼容，server 启动即崩溃）。`grpcio-tools` 固定
-> `1.84.0`，与锁定文件的 `grpcio` 版本一致。
+`-e server` 加 `--no-deps`：依赖一律以锁定文件为准，避免按 pyproject 的
+宽松版本范围重新解析引入漂移。proto 代码生成用 `gen-server-raw`（只做
+编译）：`gen-server` 目标会额外按过期的 `requirements_gen.txt` 安装依赖，
+覆盖锁定文件的版本（例如把 `typing_extensions` 降级到 4.13，与
+`pydantic-core` 不兼容，server 启动即崩溃）。`grpcio-tools` 固定
+`1.84.0`，与锁定文件的 `grpcio` 版本一致。
 
-> 锁定文件里 kernels 固定 0.5.0：它是 server 的构建插件，0.5.0 自带
-> `kernels.lockfile`，构建时不会去下载 CUDA 专属内核；更新的版本缺该文件，
-> 在无 CUDA 的 aarch64 昇腾机器上会构建失败。
+锁定文件里 kernels 固定 0.5.0：它是 server 的构建插件，0.5.0 自带
+`kernels.lockfile`，构建时不会去下载 CUDA 专属内核；更新的版本缺该文件，
+在无 CUDA 的 aarch64 昇腾机器上会构建失败。
 
 #### 检查构建产物
 
@@ -261,8 +266,8 @@ python -c "import text_generation_server; print('server import ok')"
 输出结果如下：
 
 ```shell #test-result id="check-build"
-text-generation-launcher ...
-text-generation-router-v3 ...
+text-generation-launcher 3.3.6-dev0
+text-generation-router-v3 3.3.6-dev0
 server import ok
 ```
 
@@ -284,9 +289,9 @@ cd tgi
 ./start-tgi.sh --num-shard 1 --devices 0
 ```
 
-> 不传 `--model-id` 时默认使用 Qwen/Qwen3-0.6B，首次启动自动经 ModelScope
-> 下载（缓存于 `~/.cache/modelscope`，之后直接命中）；也可用
-> `--model-id /path/to/model` 指定本地路径。
+不传 `--model-id` 时默认使用 Qwen/Qwen3-0.6B，首次启动自动经 ModelScope
+下载（缓存于 `~/.cache/modelscope`，之后直接命中）；也可用
+`--model-id /path/to/model` 指定本地路径。
 
 启动成功的输出：
 
@@ -330,12 +335,12 @@ curl -4s http://127.0.0.1:8080/info | python -c 'import json,sys; d=json.load(sy
 
 ```shell #test-result id="check-info"
 router: text-generation-router
-version: ...
+version: 3.3.6-dev0
 max_input_tokens: 100
 max_total_tokens: 128
 ```
 
-> 为空则说明服务尚未就绪或已退出，用 `tail -50 /tmp/tgi.log` 查看原因。
+为空则说明服务尚未就绪或已退出，用 `tail -50 /tmp/tgi.log` 查看原因。
 
 ##### 发起推理
 
@@ -391,15 +396,15 @@ npu-smi info 2>/dev/null | grep -c text-generation || true
 0
 ```
 
-> 若输出非 `0`（残留进程会占用 NPU 与端口，导致新实例报
-> `EJ0003 Failed to bind the IP port`），用 `./stop-tgi.sh --force` 清理。
+若输出非 `0`（残留进程会占用 NPU 与端口，导致新实例报
+`EJ0003 Failed to bind the IP port`），用 `./stop-tgi.sh --force` 清理。
 
 #### 5.2 双卡 HCCL 张量并行
 
 ##### 启动服务
 
-双卡 HCCL 张量并行（冷启动比单卡略久，多一步 HCCL 组网初始化；
-启动前先等单卡服务完全释放端口）：
+双卡 HCCL 张量并行（多一步 HCCL 组网初始化；启动前先等单卡服务
+完全释放端口）：
 
 ```shell #test-setup
 cd tgi
@@ -411,13 +416,13 @@ done
 ```
 
 启动成功的输出（`num_shard=2  devices=0,1`；`[READY]` 行与单卡一致，
-`after ~XXXs` 通常比单卡的 ~130s 略久）：
+`after ~150s` 为示例值，不同机器略有差异）：
 
 ```text
 [START] model_id=/path/to/model
 [START] num_shard=2  devices=0,1  port=8080
 [START] launcher pid 12345
-[READY] TGI is serving on http://127.0.0.1:8080 after ~XXXs
+[READY] TGI is serving on http://127.0.0.1:8080 after ~150s
 [READY] stop with: ./stop-tgi.sh
 ```
 
@@ -441,7 +446,7 @@ echo "TGI-TP2-OK: $REPLY"
 输出结果如下（`...` 为模型回复内容，与单卡基线一致）：
 
 ```shell #test-result id="smoke-tp2"
-info: text-generation-router ... 100 128
+info: text-generation-router 3.3.6-dev0 100 128
 TGI-TP2-OK: 2  The question is: ...
 ```
 
@@ -465,4 +470,4 @@ npu-smi info 2>/dev/null | grep -c text-generation || true
 0
 ```
 
-> 若输出非 `0`，用 `./stop-tgi.sh --force` 清理。
+若输出非 `0`，用 `./stop-tgi.sh --force` 清理。
