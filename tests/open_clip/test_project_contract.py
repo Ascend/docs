@@ -32,8 +32,28 @@ class TestProjectContract(unittest.TestCase):
         self.assertNotIn("python - <<'PY'", text)
         self.assertIn('```python #test id="check-torch"', text)
         self.assertIn('```python #test id="npu-inference"', text)
-        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertEqual(text.count("输出结果如下："), len(test_ids))
         self.assertIn("torch: 2.9.0+cpu", text)
+
+    def test_python_examples_explain_how_to_run_them(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for block in re.finditer(r"(?m)^```python\b", text):
+            introduction = text[:block.start()].rstrip().splitlines()[-1]
+            self.assertIn("以下代码用 Python 执行", introduction)
+
+    def test_visible_version_output_names_the_example_release(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("| open_clip | 3.3.0（`v3.3.0`） |", visible)
+        self.assertIn("Python 3.12.13", visible)
+        self.assertIn("open_clip 3.3.0", visible)
+        self.assertNotIn("open_clip xxx", visible)
+
+    def test_training_log_uses_standard_ellipsis_matching(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        self.assertIn('```text #test-result id="npu-training" fuzzy="..."', text)
+        self.assertIn("...Running with a single process. Device npu:0...", text)
+        self.assertIn("...Train Epoch: 0...", text)
 
     def test_install_page_no_longer_conflicts_with_the_guarded_stack(self) -> None:
         text = (SOURCE_DIR / "install.rst").read_text(encoding="utf-8")

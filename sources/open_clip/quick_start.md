@@ -25,12 +25,12 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少有�
 
 | 组件 | 版本 |
 | --- | --- |
-| Python | 3.12 |
+| Python | 3.12.13 |
 | CANN | 9.1.0 |
 | torch | 2.9.0+cpu |
 | torchvision | 0.24.0 |
 | torch_npu | 2.9.0.post2 |
-| open_clip | 最新 release |
+| open_clip | 3.3.0（`v3.3.0`） |
 | 模型 | `ViT-B-32` / `laion2b_s34b_b79k` |
 | NPU | Ascend 910B4 × 1 |
 
@@ -44,11 +44,19 @@ python --version
 
 输出结果如下：
 
+```text
+Python 3.12.13
+```
+
+<!--
 ```text #test-result id="check-python" fuzzy="xxx"
 Python 3.12.xxx
 ```
+-->
 
 检查 PyTorch-NPU 和可见设备：
+
+以下代码用 Python 执行：
 
 ```python #test id="check-torch"
 import torch
@@ -71,8 +79,9 @@ npu_count: 1
 
 ## 安装 open_clip
 
-从 [open_clip Releases](https://github.com/mlfoundations/open_clip/releases) 选择
-最新正式版本，将命令中的 `<ref>` 替换为对应的标签，再安装 open_clip。
+本文使用 open_clip 3.3.0，将命令中的 `<ref>` 替换为 `v3.3.0`。
+如需使用其他正式版本，可从 [open_clip Releases](https://github.com/mlfoundations/open_clip/releases)
+选择对应的标签。以下版本输出以 3.3.0 为例。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -91,14 +100,22 @@ python -c "import open_clip; print('open_clip', open_clip.__version__)"
 
 输出结果如下：
 
+```text
+open_clip 3.3.0
+```
+
+<!--
 ```text #test-result id="install-open-clip" fuzzy="xxx"
 open_clip xxx
 ```
+-->
 
 ## 单卡预训练图文推理
 
 使用预训练 `ViT-B-32` 模型，分别提取图片和三个候选文本的特征，
 选择与图片最匹配的描述。模型与输入都放在同一张 NPU 上。
+
+以下代码用 Python 执行：
 
 ```python #test id="npu-inference"
 import torch
@@ -175,11 +192,13 @@ echo "NPU training PASSED"
 
 输出结果如下：
 
-```text #test-result id="npu-training" fuzzy="xxx"
-xxxRunning with a single process. Device npu:0.xxx
-xxxTrain Epoch: 0xxx
+```text #test-result id="npu-training" fuzzy="..."
+...Running with a single process. Device npu:0...
+...Train Epoch: 0...
 NPU training PASSED
 ```
+
+其中 `...` 表示省略的日志。
 
 看到 `NPU training PASSED` 表示单卡训练命令已运行完成。多卡训练和其他模型
 不在本文范围内。
