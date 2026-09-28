@@ -118,10 +118,6 @@ python -c "from huggingface_hub import snapshot_download; print(snapshot_downloa
 
 从 Hugging Face 下载权重，并确认 `config.json` 存在。结果里的 `xxx` 是本地目录。
 
-```{note}
-`<model_path>` 是第 6 节 `eval_qwen2_gsm8k.py` 里的变量，换成第 5 节这条下载命令打印的本地目录。
-```
-
 ```shell #test id="download-model"
 model_path=$(python -c "from huggingface_hub import snapshot_download; print(snapshot_download('Qwen/Qwen2-0.5B-Instruct'))")
 printf '%s\n' "$model_path"
@@ -153,6 +149,10 @@ test -s test.jsonl && test -s train.jsonl && echo gsm8k_ready True
 
 ```text #test-result id="download-gsm8k"
 gsm8k_ready True
+```
+
+```{note}
+`<model_path>` 是第 6 节 `eval_qwen2_gsm8k.py` 里的变量，换成第 5 节这条下载命令打印的本地目录。
 ```
 
 ## 6. 在 NPU 上评测
