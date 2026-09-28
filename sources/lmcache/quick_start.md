@@ -109,39 +109,17 @@ cmake version 3...
 
 ## 4. 安装 vLLM-Ascend
 
-先装带轮子的最新 `vllm-ascend`，再以 `--no-deps` 安装主版本号相同的 `vllm`，然后按该包元数据安装运行依赖，最后用 `--force-reinstall --no-deps` 重装同一版 `triton-ascend`。安装写法见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html)。
+按 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装配套的 `vllm`、`vllm-ascend` 和 `triton-ascend`。
 
 ```shell #test id="install-vllm"
-python -m pip install --prefer-binary \
+python -m pip install --retries 3 vllm==0.22.1
+python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  vllm-ascend
-va=$(python -c "import importlib.metadata as m; print(m.version('vllm-ascend').split('.post')[0])")
-python -m pip install --retries 3 --no-deps "vllm==$va"
-python -c 'import importlib.metadata as m
-skip = {
-    "torch", "torch-npu", "torchaudio", "torchvision", "numba",
-    "flashinfer-python", "flashinfer-cubin", "nvidia-cudnn-frontend",
-    "nvidia-cutlass-dsl", "quack-kernels", "tokenspeed-mla",
-    "humming-kernels", "tilelang", "apache-tvm-ffi",
-}
-reqs = []
-for raw in m.requires("vllm") or []:
-    if "extra ==" in raw:
-        continue
-    body = raw.split(";", 1)[0].strip()
-    name = body.split("[", 1)[0]
-    for sep in "<>=!":
-        name = name.split(sep, 1)[0]
-    name = name.strip().lower().replace("_", "-")
-    if name and name not in skip:
-        reqs.append(body)
-open("vllm-deps.txt", "w").write("\n".join(reqs) + "\n")'
-python -m pip install -r vllm-deps.txt
-ta=$(python -c "import importlib.metadata as m; print(m.version('triton-ascend'))")
+  vllm-ascend==0.22.1rc1
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  "triton-ascend==$ta"
+  triton-ascend==3.2.1
 python -c "import importlib.metadata as m
 for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
@@ -223,54 +201,6 @@ git -C LMCache-Ascend describe --tags --exact-match
 
 > `<ref>` 是最新 Release 的 tag。
 
-运行下面的脚本，再编译。脚本给 HIXL 的编译补上 `pkg_inc` 头文件目录，并把 `LMCacheAscendConnectorV1Dynamic.__init__` 改成透传 `*args, **kwargs`。源码里已经是这两种形态时，脚本不改文件。用 python 执行以下代码：
-
-```python #test id="patch-lmcache-ascend"
-import re
-from pathlib import Path
-
-cmake = Path("LMCache-Ascend/csrc/hixl/CMakeLists.txt")
-text = cmake.read_text()
-runtime = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc/runtime"
-pkg = "${ASCEND_CANN_PACKAGE_PATH}/${ARCH_SUBDIR}/pkg_inc"
-if not re.search(r"/pkg_inc\s*$", text, re.M):
-    if runtime not in text:
-        raise SystemExit("hixl cmake include line not found")
-    cmake.write_text(text.replace(runtime, runtime + "\n    " + pkg, 1))
-
-conn = Path(
-    "LMCache-Ascend/lmcache_ascend/integration/vllm/"
-    "lmcache_ascend_connector_v1.py"
-)
-text = conn.read_text()
-marker = "class LMCacheAscendConnectorV1Dynamic(LMCacheConnectorV1Dynamic):"
-if marker not in text:
-    raise SystemExit("connector class not found")
-has_forwarder = "def __init__(self, *args, **kwargs)" in text
-has_override = "def __init__" in text
-if has_override and not has_forwarder:
-    init_pat = re.compile(
-        r"    def __init__\(self,.*?\) -> None:\n"
-        r"        super\(\)\.__init__\(.*?\)\n",
-        re.S,
-    )
-    forwarder = (
-        "    def __init__(self, *args, **kwargs) -> None:\n"
-        "        super().__init__(*args, **kwargs)\n"
-    )
-    new_text, n = init_pat.subn(forwarder, text, count=1)
-    if n == 0:
-        raise SystemExit("connector __init__ not found")
-    conn.write_text(new_text)
-print("patched_ok", True)
-```
-
-输出结果如下：
-
-```shell #test-result id="patch-lmcache-ascend"
-patched_ok True
-```
-
 删除已有的 `LMCache-Ascend/build`，再在当前目录安装 `./LMCache-Ascend`。
 
 ```shell #test id="install-lmcache-ascend"
@@ -291,11 +221,11 @@ npu_available True
 
 > `<ver>` 是最新 Release 去掉开头的 `v`。
 
-`soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新执行补丁和编译，再继续第 7 节。
+`soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
 
 ## 7. 用离线 LLM 做一次 KV 卸载
 
-用 `vllm.LLM` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。连接器与上游 `examples/offload.py` 相同。
+用 `vllm.LLM` 和 vLLM-Ascend 内置的 `LMCacheAscendConnector` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。
 
 
 | 参数                       | 含义         |
@@ -335,11 +265,8 @@ def main():
 
     model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
     ktc = KVTransferConfig(
-        kv_connector="LMCacheAscendConnectorV1Dynamic",
+        kv_connector="LMCacheAscendConnector",
         kv_role="kv_both",
-        kv_connector_module_path=(
-            "lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1"
-        ),
     )
     llm = LLM(
         model=model,
