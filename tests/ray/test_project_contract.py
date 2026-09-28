@@ -33,8 +33,22 @@ class TestProjectContract(unittest.TestCase):
         self.assertNotIn("python - <<'PY'", text)
         for test_id in ("check-torch", "ray-detects-npus", "ray-isolates-npus"):
             self.assertIn(f'```python #test id="{test_id}"', text)
-        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertEqual(text.count("输出结果如下："), len(test_ids))
         self.assertIn("torch= 2.9.0+cpu", text)
+
+    def test_python_examples_explain_how_to_run_them(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for block in re.finditer(r"(?m)^```python\b", text):
+            introduction = text[:block.start()].rstrip().splitlines()[-1]
+            self.assertIn("以下代码用 Python 执行", introduction)
+
+    def test_visible_version_output_names_the_example_release(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("| Ray | 2.58.0，Linux aarch64 wheel |", visible)
+        self.assertIn("Python 3.12.13", visible)
+        self.assertIn("ray 2.58.0", visible)
+        self.assertNotIn("ray xxx", visible)
 
     def test_legacy_general_usage_is_preserved_separately(self) -> None:
         text = USAGE.read_text(encoding="utf-8")

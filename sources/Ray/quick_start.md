@@ -41,11 +41,11 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 
 | 组件 | 版本 |
 | --- | --- |
-| Python | 3.12 |
+| Python | 3.12.13 |
 | CANN | 9.1.0 |
 | torch | 2.9.0+cpu |
 | torch_npu | 2.9.0.post2 |
-| Ray | 当前最新 release，Linux aarch64 wheel |
+| Ray | 2.58.0，Linux aarch64 wheel |
 | NPU | Ascend 910B4 × 2 |
 
 ### 检查前置是否满足
@@ -58,11 +58,19 @@ python --version
 
 输出结果如下：
 
+```text
+Python 3.12.13
+```
+
+<!--
 ```text #test-result id="check-py" fuzzy="xxx"
 Python 3.12.xxx
 ```
+-->
 
 检查 Torch、Torch-NPU 和 NPU 设备：
+
+以下代码用 Python 执行：
 
 ```python #test id="check-torch"
 import torch
@@ -94,7 +102,8 @@ Torch 与 Torch-NPU 的版本匹配问题。
 
 ## 安装 Ray
 
-安装当前最新 Ray release，并验证安装结果：
+安装当前最新 Ray release，并检查安装结果。本文示例使用 Ray 2.58.0，
+以下版本输出以 2.58.0 为例；执行时将显示实际安装的版本。
 
 ```shell #test id="ray-install"
 python -m pip install -q -U "ray[default]"
@@ -103,13 +112,21 @@ python -c "import ray; print('ray', ray.__version__)"
 
 输出结果如下：
 
+```text
+ray 2.58.0
+```
+
+<!--
 ```text #test-result id="ray-install" fuzzy="xxx"
 ray xxx
 ```
+-->
 
 ## 查看 Ray 检测到的 NPU
 
 启动 Ray 后，查看集群中注册的 `NPU` 资源数量。下面的环境应显示两张 NPU。
+
+以下代码用 Python 执行：
 
 ```python #test id="ray-detects-npus"
 import ray
@@ -132,6 +149,8 @@ Ray NPU resources: 2
 
 下面分别启动一个 Actor 和一个 Task，各请求一张 NPU。Ray 会将分配的设备
 ID 写入 `ASCEND_RT_VISIBLE_DEVICES`；两个进程各自在可见的 NPU 上计算。
+
+以下代码用 Python 执行：
 
 ```python #test id="ray-isolates-npus"
 import os
