@@ -400,8 +400,8 @@ print('rank', cfg['r'], 'lora_alpha', cfg['lora_alpha'], 'targets', cfg['target_
 
 输出结果如下：
 
-```shell #test-result id="torchtune-trainable" fuzzy='xxx'
-rank xxx lora_alpha xxx targets xxx
+```shell #test-result id="torchtune-trainable"
+rank ... lora_alpha ... targets ...
 ```
 
 ## 外部链接
