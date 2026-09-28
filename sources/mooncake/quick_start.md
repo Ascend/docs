@@ -19,7 +19,7 @@ Atlas 800T 或 900 A2 训练系列，芯片为 Ascend 910B。本文使用两张 
 | Python   | 落在社区 Quick Start 给出的范围内；NPU 包要求 `>=3.9`，社区文档写 3.10 或更新                                                                                              |
 | PyTorch  | 安装与当前 CANN 配套的 `torch_npu`。版本按上面的配套清单选择，命令里不写死版本号                                                                                                   |
 | 运行时库     | Ubuntu 上需要 `libcurl4`、`libibverbs1`、`rdma-core`、`librdmacm1`、`libnuma1`、`liburing2`                                                                 |
-| Mooncake | 安装社区当前发布的 `mooncake-transfer-engine-npu`，见 [Quick Start](https://kvcache-ai.github.io/Mooncake/getting_started/quick-start.html)                    |
+| Mooncake | 安装社区当前发布的 `mooncake-transfer-engine-npu`                  |
 | 设备网卡配置   | `/etc/hccn.conf` 存在。驱动安装时写入；容器里把宿主机这份文件挂进来                                                                                                          |
 
 
@@ -38,7 +38,11 @@ Ascend 传输会读 `/etc/hccn.conf` 里每张卡的设备网卡 IP。没有这�
 ls /etc/hccn.conf
 ```
 
+输出结果如下：
 
+```shell #test-result id="hccn"
+/etc/hccn.conf
+```
 
 ## 2. 确认 NPU 在线
 
@@ -46,10 +50,33 @@ ls /etc/hccn.conf
 npu-smi info
 ```
 
+输出类似：
+
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.1                   Version: 25.5.1                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.4        39                0    / 0             |
+| 0                         | 0000:C1:00.0  | 0           0    / 0          2874 / 32768         |
++===========================+===============+====================================================+
+| 1     910B4               | OK            | 85.8        39                0    / 0             |
+| 0                         | 0000:01:00.0  | 0           0    / 0          2871 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+| No running processes found in NPU 1                                                            |
++===========================+===============+====================================================+
+```
+
 至少两张卡。找不到 `npu-smi` 时，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
 
 ## 3. 安装运行时库
-
 
 ```shell #test id="deps"
 apt-get update
@@ -58,7 +85,13 @@ apt-get install -y --no-install-recommends \
 dpkg -s libibverbs1 libcurl4 librdmacm1 libnuma1 liburing2
 ```
 
+完整输出较长，其中应包含：
 
+```shell #test-result id="deps"
+...
+Status: install ok installed
+...
+```
 
 ## 4. 安装 PyTorch NPU 栈
 
@@ -70,7 +103,12 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; n = torch.npu.device_count(); assert torch.npu.is_available() and n >= 2, (torch.npu.is_available(), n); print('npu_available', torch.npu.is_available())"
 ```
 
+完整输出较长，其中应包含：
 
+```shell #test-result id="install-torch"
+...
+npu_available True
+```
 
 ## 5. 安装 Mooncake NPU 包
 
@@ -79,13 +117,20 @@ python -m pip install mooncake-transfer-engine-npu
 python -c "from mooncake.store import MooncakeDistributedStore; from mooncake.engine import TransferEngine; print('mooncake_npu_import', 'ok')"
 ```
 
+完整输出较长，其中应包含：
+
+```shell #test-result id="install"
+...
+mooncake_npu_import ok
+```
+
 
 
 ## 6. 使用 Ascend Direct 在两张 NPU 之间传输
 
 本例通过公开的 Python API 模拟推理服务迁移一块 KV Cache 数据。接收端占用 0 号 NPU，发送端占用 1 号 NPU，传输协议使用 `ascend`。
 
-接收端在 0 号卡上登记 65536 字节，并把实际监听地址写到 `mooncake_te_handshake.txt`。
+接收端在 0 号卡上登记 65536 字节，并把实际监听地址写到 `mooncake_te_handshake.txt`。请用 python 执行：
 
 ```python
 import time
@@ -112,7 +157,7 @@ while True:
 
 
 
-发送端先把整块数据复制下来，作为传输前的内容。写入接收端后清空本卡缓冲，再把同一块数据读回来。
+发送端先把整块数据复制下来，作为传输前的内容。写入接收端后清空本卡缓冲，再把同一块数据读回来。请用 python 执行：
 
 ```python #test id="transfer"
 import torch
