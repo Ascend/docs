@@ -96,12 +96,14 @@ Python ...
 
 ## 3. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前发布的 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的稳定版 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`。
 
 ```shell #test id="install-vllm"
+set -euo pipefail
 python -m pip install --retries 3 \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  --only-binary=vllm-ascend \
   vllm-ascend
 vllm_release=$(python -c "import importlib.metadata as m, re; print(re.match(r'[0-9]+\.[0-9]+\.[0-9]+', m.version('vllm-ascend')).group(0))")
 python -m pip install --retries 3 --no-deps "vllm==${vllm_release}"
