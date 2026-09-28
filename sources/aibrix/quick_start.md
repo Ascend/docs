@@ -154,7 +154,7 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。`vllm-ascend` 版本号末尾的 `.post` 后缀不计入配套的 `vllm` 版本。随后安装 `triton-ascend`，并用 `pip show` 打印这三个包的名称。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。
 
 ```shell #test id="install-vllm"
 set -eu
