@@ -196,7 +196,7 @@ Name: triton_ascend
 
 ## 4. 获取 AIBrix 源码并编译网关
 
-克隆 release tag。`<ref>` 在看护里替换成上游版本，本地可写成例如 `v0.7.0`。
+克隆 release tag。`<ref>` 在看护里替换成上游版本。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -234,6 +234,10 @@ CGO_ENABLED=0 "$PWD/../toolchain/go/bin/go" build -tags=nozmq -o bin/gateway-plu
 ```shell #test-result id="build-gateway"
 bin/gateway-plugins: go...
 ...
+```
+
+```{note}
+请将 <ref> 替换为社区最新的 release 版本。
 ```
 
 
