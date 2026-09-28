@@ -23,18 +23,18 @@ Atlas 900 A2 / A3 训练系列产品或者其他兼容的 Ascend NPU，至少有
 
 | 组件 | 版本 |
 | --- | --- |
-| Python | 3.12 |
+| Python | 3.12.13 |
 | CANN | 9.1.0 |
 | torch | 2.9.0+cpu |
 | torch_npu | 2.9.0.post2 |
 | transformers | 4.48.0 |
 | modelscope | 1.37.0 |
-| InternLM | `main` |
+| InternLM 源码 | `main`（提交 `68fdc71`） |
 | 模型 | `Shanghai_AI_Laboratory/internlm3-8b-instruct` |
 | 精度 | FP16 |
 | NPU | Ascend 910B4 × 1 |
 
-本文使用 InternLM `main` 分支及上表所示的依赖组合。安装其他版本时，
+本文示例基于 InternLM `main` 分支的 `68fdc71` 提交及上表所示的依赖组合。安装其他版本时，
 请先核对模型与 Transformers、PyTorch-NPU 的兼容性。
 
 ### 检查前置条件
@@ -47,11 +47,19 @@ python --version
 
 输出结果如下：
 
+```text
+Python 3.12.13
+```
+
+<!--
 ```text #test-result id="check-python" fuzzy="xxx"
 Python 3.12.xxx
 ```
+-->
 
 检查 PyTorch-NPU 和当前可见设备：
+
+以下代码用 Python 执行：
 
 ```python #test id="check-torch"
 import torch
@@ -95,10 +103,17 @@ echo "upstream NPU guide: OK"
 
 输出结果如下：
 
+```text
+InternLM checkout: 68fdc71
+upstream NPU guide: OK
+```
+
+<!--
 ```text #test-result id="checkout-upstream" fuzzy="xxx"
 InternLM checkout: xxx
 upstream NPU guide: OK
 ```
+-->
 
 ## 安装推理依赖
 
@@ -112,6 +127,8 @@ uv pip install \
   sentencepiece \
   safetensors
 ```
+
+检查安装结果（以下代码用 Python 执行）：
 
 ```python #test id="install-deps"
 import modelscope
@@ -132,6 +149,8 @@ modelscope: 1.37.0
 
 从 ModelScope 下载 InternLM3-8B-Instruct。首次运行需要下载模型；后续运行
 可复用本机缓存。下面在当前目录创建 `internlm-model` 链接，供推理步骤使用。
+
+以下代码用 Python 执行：
 
 ```python #test id="download-model"
 from contextlib import redirect_stdout
@@ -163,6 +182,8 @@ model: xxx/internlm-model/config.json
 
 加载 tokenizer 和模型，将模型与输入移到 NPU，然后根据提问生成回答。
 `max_new_tokens=64` 限制回答长度，`do_sample=False` 关闭随机采样。
+
+以下代码用 Python 执行：
 
 ```python #test id="npu-inference"
 import torch

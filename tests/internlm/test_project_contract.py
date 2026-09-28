@@ -31,8 +31,22 @@ class TestProjectContract(unittest.TestCase):
         self.assertNotIn("python - <<'PY'", text)
         for test_id in ("check-torch", "install-deps", "download-model", "npu-inference"):
             self.assertIn(f'```python #test id="{test_id}"', text)
-        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertEqual(text.count("输出结果如下："), len(test_ids))
         self.assertIn("torch: 2.9.0+cpu", text)
+
+    def test_python_examples_explain_how_to_run_them(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for block in re.finditer(r"(?m)^```python\b", text):
+            introduction = text[:block.start()].rstrip().splitlines()[-1]
+            self.assertIn("以下代码用 Python 执行", introduction)
+        self.assertIn("检查安装结果（以下代码用 Python 执行）：", text)
+
+    def test_visible_version_output_uses_a_concrete_version(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("| Python | 3.12.13 |", visible)
+        self.assertIn("Python 3.12.13", visible)
+        self.assertNotIn("Python 3.12.xxx", visible)
 
     def test_workflow_tracks_main_and_serializes_the_model_cache(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
