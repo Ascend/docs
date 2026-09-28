@@ -127,7 +127,7 @@ echo "${UPSTREAM_REF}"
 ```
 -->
 
-克隆 [FlagScale](https://github.com/flagos-ai/FlagScale) 到目录 `FlagScale`，按 Release tag 做可编辑安装，并安装 `hydra-core`、`omegaconf`、`typer`、`pyyaml`、`packaging`。
+克隆 [FlagScale](https://github.com/flagos-ai/FlagScale) 到目录 `FlagScale`，按 Release tag 做可编辑安装，并安装 `hydra-core`、`omegaconf`、`typer`、`pyyaml`、`packaging`、`aiohttp`。
 
 ```shell #test id="install-flagscale" load="upstream_ref>>ref"
 if [ ! -d FlagScale/.git ]; then
@@ -138,7 +138,7 @@ if [ ! -d FlagScale/.git ]; then
 fi
 git -C FlagScale describe --tags --exact-match
 python -m pip install --no-build-isolation --no-deps -e ./FlagScale
-python -m pip install hydra-core omegaconf typer pyyaml packaging
+python -m pip install hydra-core omegaconf typer pyyaml packaging aiohttp
 python -c "from importlib.metadata import version; print('flagscale', version('flagscale'))"
 ```
 
