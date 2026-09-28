@@ -252,6 +252,13 @@
          <div class="card-footer"><a href="https://github.com/pyg-team/pytorch_geometric">官方链接</a><span class="split">|</span><a href="sources/pyg/install.html">安装指南</a><span class="split">|</span><a href="sources/pyg/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- XTuner -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xtuner.png')"></div><h3 class="card-title">XTuner</h3></div>
+         <p class="card-desc">InternLM 系列大模型微调工具箱，支持昇腾 NPU 单卡/多卡 LoRA 微调。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/xtuner">官方链接</a><span class="split">|</span><a href="sources/xtuner/index.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
@@ -490,6 +497,7 @@
    sources/VeOmni/index.rst
    sources/verl/index.rst
    sources/pyg/index.rst
+   sources/xtuner/index.rst
 
 .. toctree::
    :maxdepth: 1
