@@ -83,6 +83,18 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     _MODEL_ID = 'Qwen/Qwen2.5-1.5B-Instruct'
 
+    # The published doc keeps its official example models; CI swaps
+    # heavyweight/gated ones for smaller equivalents on the in-memory doc
+    # text before parsing (see pre_process). Doc model -> CI substitute:
+    # - HuggingFaceH4/zephyr-7b-beta (15 GB) -> HuggingFaceTB/SmolLM2-135M-Instruct
+    # - facebook/bart-large-mnli (1.6 GB) -> typeform/distilbert-base-uncased-mnli
+    # - meta-llama/Meta-Llama-3-8B-Instruct (gated, 16 GB) -> Qwen/Qwen2.5-0.5B
+    _CI_MODEL_SUBSTITUTIONS = {
+        'HuggingFaceH4/zephyr-7b-beta': 'HuggingFaceTB/SmolLM2-135M-Instruct',
+        'facebook/bart-large-mnli': 'typeform/distilbert-base-uncased-mnli',
+        'meta-llama/Meta-Llama-3-8B-Instruct': 'Qwen/Qwen2.5-0.5B',
+    }
+
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     @classmethod
@@ -149,11 +161,32 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             ['python', '-m', 'pip', 'install', 'huggingface_hub', 'tqdm'],
             check=True,
         )
+        # doc sections merged from inference.rst / fine-tune.rst need:
+        # - soundfile: audio feature decoding for the ASR pipeline example
+        # - datasets/evaluate/scikit-learn: Trainer fine-tuning full-flow
+        #   example (evaluate's accuracy metric imports sklearn)
+        subprocess.run(
+            [
+                'python', '-m', 'pip', 'install',
+                'soundfile', 'datasets', 'evaluate', 'scikit-learn',
+            ],
+            check=True,
+        )
 
         diagnose_mount_environment(model_id=cls._MODEL_ID)
 
         report_huggingface_state(cls._MODEL_ID)
         purge_huggingface_corrupt(resolve_huggingface_cache())
+
+    def pre_process(self) -> str:
+        """Fetch the published doc, then swap heavyweight/gated example
+        models for CI-friendly equivalents on the in-memory text before
+        parsing. The published doc itself stays untouched.
+        """
+        text = super().pre_process()
+        for doc_model, ci_model in self._CI_MODEL_SUBSTITUTIONS.items():
+            text = text.replace(doc_model, ci_model)
+        return text
 
     @classmethod
     def setUpClass(cls) -> None:
