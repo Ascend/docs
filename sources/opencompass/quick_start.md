@@ -116,7 +116,11 @@ python -c "from huggingface_hub import snapshot_download; print(snapshot_downloa
 ```
 -->
 
-从 Hugging Face 下载权重，并确认 `config.json` 存在。结果里的 `xxx` 是本地目录，评测配置里的 `<model_path>` 换成这个目录。
+从 Hugging Face 下载权重，并确认 `config.json` 存在。结果里的 `xxx` 是本地目录。
+
+```{note}
+`<model_path>` 是第 6 节 `eval_qwen2_gsm8k.py` 里的变量，换成第 5 节这条下载命令打印的本地目录。
+```
 
 ```shell #test id="download-model"
 model_path=$(python -c "from huggingface_hub import snapshot_download; print(snapshot_download('Qwen/Qwen2-0.5B-Instruct'))")
@@ -177,7 +181,7 @@ class HuggingFaceNPUChat(HuggingFacewithChatTemplate):
         return super().generate(inputs, max_out_len, **kwargs)
 ```
 
-将 `<model_path>` 换成上一节打印的本地目录。保存为 `eval_qwen2_gsm8k.py`。
+将 `<model_path>` 换成第 5 节下载命令打印的本地目录。保存为 `eval_qwen2_gsm8k.py`。
 
 ```python
 from mmengine.config import read_base
