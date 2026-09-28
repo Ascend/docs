@@ -30,8 +30,29 @@ class TestProjectContract(unittest.TestCase):
         self.assertNotIn("python - <<'PY'", text)
         self.assertIn('```python #test id="check-npu"', text)
         self.assertIn('```python #test id="gdn-forward-backward"', text)
-        self.assertEqual(text.count("输出结果如下：\n\n```text #test-result"), len(test_ids))
+        self.assertEqual(text.count("输出结果如下："), len(test_ids))
         self.assertIn("torch xxx+cpu", text)
+
+    def test_python_examples_explain_how_to_run_them(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for block in re.finditer(r"(?m)^```python\b", text):
+            introduction = text[:block.start()].rstrip().splitlines()[-1]
+            self.assertIn("以下代码用 Python 执行", introduction)
+
+    def test_release_selection_is_a_note_with_an_explicit_example(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        self.assertIn('```{admonition} Note\n:class: note\n从 [Releases]', text)
+        self.assertIn("| flash-linear-attention | 0.5.2（`v0.5.2`） |", text)
+
+    def test_visible_versions_are_concrete(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("fla 0.5.2", visible)
+        self.assertIn("torch 2.7.1+cpu", visible)
+        self.assertIn("torch_npu 2.7.1.post4", visible)
+        self.assertIn("triton-ascend 3.2.1", visible)
+        self.assertIn('version("triton-ascend")', text)
+        self.assertNotIn("torch xxx+cpu", visible)
 
     def test_workflow_preserves_the_validated_environment(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
@@ -54,7 +75,7 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn(f"`{image}`", document)
         cann_version = re.search(r"cann:(\d+\.\d+\.\d+)", image).group(1)
         self.assertIn(f"| CANN | {cann_version} |", document)
-        self.assertIn("| flash-linear-attention | 最新 release |", document)
+        self.assertIn("| flash-linear-attention | 0.5.2（`v0.5.2`） |", document)
         for package in ("torch", "torch_npu", "torchvision", "triton-ascend"):
             self.assertRegex(document, rf"(?m)^\| {package} \| \d+\.\d+")
         self.assertRegex(
