@@ -132,7 +132,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">accelerate</h3></div>
          <p class="card-desc">适用于 Pytorch 的多 GPUs/NPUs 训练工具链。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/install.html">安装指南</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- DeepSpeed：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
@@ -250,6 +250,13 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- cache-dit：官方文档已含昇腾说明，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
+         <p class="card-desc">A PyTorch-native Inference Engine with Cache, Parallelism, Quantization and CPU Offload for DiTs.</p>
+         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
+      </div>
+
       <!-- llama.cpp -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llama_cpp.png')"></div><h3 class="card-title">llama.cpp</h3></div>
@@ -304,6 +311,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">vLLM-Ascend</h3></div>
          <p class="card-desc">面向昇腾 NPU 的 vLLM 社区插件，支持主流大模型高性能推理加速。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/vllm-ascend">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/">文档中心</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/ascend/en/latest/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- xllm：官方文档站已含完整 NPU 说明，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">xllm</h3></div>
+         <p class="card-desc">高效易用的开源智能推理框架，为模型在国产芯片上的推理提供企业级服务保障与高性能引擎计算能力。</p>
+         <div class="card-footer"><a href="https://github.com/xLLM-AI/xllm">官方链接</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/">文档中心</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/getting_started/launch_xllm/">快速上手</a></div>
       </div>
 
    </div>
@@ -383,7 +397,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">pytorch-image-models</h3></div>
          <p class="card-desc">PyTorch 图像模型库适配版本。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/install.html">安装指南</a><span class="split">|</span><a href="sources/timm/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/pytorch-image-models">官方链接</a><span class="split">|</span><a href="sources/timm/index.html">快速上手</a></div>
       </div>
 
       <!-- WeNet -->
@@ -400,6 +414,12 @@
          <div class="card-footer"><a href="https://github.com/ggml-org/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/index.html">快速上手</a></div>
       </div>
 
+      <!-- ComfyUI -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ComfyUI</h3></div>
+         <p class="card-desc">模块化的 Stable Diffusion 节点式图形界面与后端，原生适配昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/comfyanonymous/ComfyUI">官方链接</a><span class="split">|</span><a href="sources/comfyui/quick_start.html">快速上手</a></div>
+      </div>
    </div>
 
 .. -----------------------------------------
@@ -447,6 +467,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
    sources/llm_compressor/index.rst
    sources/lm_deploy/index.rst
@@ -455,6 +476,7 @@
    sources/sglang/index.rst
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
+   sources/xllm/index.rst
 
 .. toctree::
    :maxdepth: 1
@@ -479,3 +501,4 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/comfyui/index.md
