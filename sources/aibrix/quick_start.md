@@ -154,17 +154,20 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装带预编译包的 `vllm` 与 `vllm-ascend` 0.23.0，再安装 `triton-ascend`，并用 `pip show` 打印这三个包的名称。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。`vllm-ascend` 版本号末尾的 `.post` 后缀不计入配套的 `vllm` 版本。随后安装 `triton-ascend`，并用 `pip show` 打印这三个包的名称。
 
 ```shell #test id="install-vllm"
 set -eu
+ascend_ver=$(python -c 'import json,urllib.request; print(json.load(urllib.request.urlopen("https://pypi.org/pypi/vllm-ascend/json", timeout=60))["info"]["version"])')
+vllm_ver=${ascend_ver%%.post*}
+test -n "$vllm_ver"
 python -m pip install --retries 3 --only-binary=vllm \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
-  'vllm==0.23.0'
+  "vllm==${vllm_ver}"
 python -m pip install --retries 3 --only-binary=vllm-ascend \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  'vllm-ascend==0.23.0'
+  "vllm-ascend==${ascend_ver}"
 python -m pip install --retries 3 --force-reinstall --no-deps --only-binary=triton-ascend \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend
