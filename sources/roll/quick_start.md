@@ -270,8 +270,41 @@ config written ROLL/examples/agentic_frozen_lake_npu/quick_start_npu.yaml
 python ROLL/examples/start_agentic_pipeline.py --config_path agentic_frozen_lake_npu --config_name quick_start_npu
 ```
 
-**查看训练产物。** 训练完成后，TensorBoard 指标保存在当前工作目录下的以下路径：
+**查看训练产物。** 训练完成后，TensorBoard 指标保存在当前工作目录的 `output/tensorboard/roll-quick-start-npu` 下。用 Python 执行下面的代码，查看训练结果指标：
 
-```text
-output/tensorboard/roll-quick-start-npu
+```python #test id="verify-output"
+from pathlib import Path
+
+from tensorboard.backend.event_processing.event_accumulator import EventAccumulator
+
+tensorboard_dir = Path("output/tensorboard/roll-quick-start-npu")
+event_files = sorted(tensorboard_dir.glob("*/events.out.tfevents.*"))
+assert event_files, f"no tensorboard event file under {tensorboard_dir}"
+metrics = EventAccumulator(str(event_files[-1]))
+metrics.Reload()
+
+print("训练产物已生成")
+print(f"训练指标路径：{tensorboard_dir}")
+print(f"训练步数：{len(metrics.Scalars('time/step_total'))}")
+print(f"训练样本数：{int(metrics.Scalars('system/samples')[-1].value)}")
+print(f"FrozenLake 平均得分：{metrics.Scalars('critic/score/mean')[-1].value:.3f}")
 ```
+
+输出结果如下：
+
+```shell #test-result id="verify-output" fuzzy='xxx'
+训练产物已生成
+训练指标路径：output/tensorboard/roll-quick-start-npu
+训练步数：1
+训练样本数：8
+FrozenLake 平均得分：xxx
+```
+
+:::{note}
+输出中的 `xxx` 为本次训练实际得到的平均得分，随训练随机性变化
+:::
+
+## 外部链接
+
+- GitHub：[alibaba/ROLL](https://github.com/alibaba/ROLL)
+- 文档中心：[ROLL Docs](https://alibaba.github.io/ROLL/zh-Hans/)
