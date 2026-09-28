@@ -210,6 +210,13 @@
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- TorchTune -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtune</h3></div>
+         <p class="card-desc">原生 PyTorch 大模型微调库，支持在昇腾 NPU 上跑 LoRA 单卡微调。</p>
+         <div class="card-footer"><a href="https://github.com/meta-pytorch/torchtune">官方链接</a><span class="split">|</span><a href="sources/torchtune/index.html">快速上手</a></div>
+      </div>
+
       <!-- trl -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformer Reinforcement Learning</h3></div>
@@ -456,6 +463,7 @@
    sources/peft/index.md
    sources/roll/index.rst
    sources/torchtitan/index.rst
+   sources/torchtune/index.rst
    sources/trl/index.rst
    sources/twinkle/index.rst
    sources/VeOmni/index.rst
