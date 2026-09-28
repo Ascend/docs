@@ -15,8 +15,8 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 | CANN | toolkit 与驱动固件已安装，并可 `source set_env.sh` |
 | ATB | Ascend Transformer Boost，下文会加载它的环境脚本 |
 | Python | 满足 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
-| vLLM | `0.23.0`，与下文的 `vllm-ascend` 一起安装 |
-| vLLM-Ascend | `0.23.0`，见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| vLLM | 与当前 `vllm-ascend` 发布的 `X.Y.Z` 相同 |
+| vLLM-Ascend | 当前发布，见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | FlagScale | 上游最新 Release tag |
 | 模型 | [Qwen/Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) |
 
@@ -96,31 +96,25 @@ Python ...
 
 ## 3. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装 `vllm` 0.23.0 和 `vllm-ascend` 0.23.0，接着以 `--force-reinstall --no-deps` 安装 `triton-ascend` 3.2.2，并卸掉 `flashinfer`。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前发布的 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`。
 
 ```shell #test id="install-vllm"
-python -m pip install --retries 3 vllm==0.23.0
-python -m pip install \
+python -m pip install --retries 3 \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  vllm-ascend==0.23.0
-python -m pip install --force-reinstall --no-deps \
-  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  triton-ascend==3.2.2
-python -m pip uninstall -y flashinfer flashinfer-python flashinfer-cubin
-python -c "import importlib.metadata as m
-for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
-    print(n, m.version(n))"
+  vllm-ascend
+vllm_release=$(python -c "import importlib.metadata as m, re; print(re.match(r'[0-9]+\.[0-9]+\.[0-9]+', m.version('vllm-ascend')).group(0))")
+python -m pip install --retries 3 --no-deps "vllm==${vllm_release}"
+python -c "import importlib.metadata as m, re; base=lambda v: re.match(r'[0-9]+\.[0-9]+\.[0-9]+', v).group(0); a=m.version('vllm-ascend'); b=m.version('vllm'); print('vllm-ascend', a); print('vllm', b); print('pair_match', base(a)==base(b))"
 ```
 
 完整输出较长，其中应包含：
 
-```shell #test-result id="install-vllm"
+```text #test-result id="install-vllm"
 ...
-torch 2.10.0...
-torch-npu 2.10.0.post4
-vllm 0.23.0...
-vllm-ascend 0.23.0
+vllm-ascend ...
+vllm ...
+pair_match True
 ```
 
 ## 4. 安装 FlagScale
@@ -146,8 +140,6 @@ python -m pip install hydra-core omegaconf typer pyyaml packaging
 python -c "from importlib.metadata import version; print('flagscale', version('flagscale'))"
 ```
 
-`<ref>` 是上游最新的 Release tag。打印出来的包装版本在本次验证里是 `flagscale 1.0.0`。
-
 完整输出较长，其中应包含：
 
 ```shell #test-result id="install-flagscale" load="upstream_ref>>ref"
@@ -155,6 +147,11 @@ python -c "from importlib.metadata import version; print('flagscale', version('f
 ...
 flagscale 1.0.0...
 ```
+
+```{note}
+`<ref>` 是上游最新的 Release tag。
+```
+
 
 ## 5. 确认昇腾插件选中了 NPU
 
@@ -182,7 +179,7 @@ python probe_ascend_platform.py 2>&1
 ...
 Platform plugin ascend is activated
 ...
-vllm 0.23.0
+vllm ...
 platform_name NPUPlatform
 device_type npu
 ```
