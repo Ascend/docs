@@ -243,7 +243,7 @@ print(snapshot_download(
         'scheduler/*', 'tokenizer/*', 'feature_extractor/*',
         'text_encoder/*', 'unet/*', 'vae/*',
     ],
-    ignore_file_pattern=['*.bin', '*.fp16.*', 'safety_checker/*', 'v1-5-pruned*'],
+    ignore_file_pattern=['*.bin', '*.fp16*', 'safety_checker/*', 'v1-5-pruned*'],
 ))" | grep '^/' | tail -n 1
 ```
 
@@ -351,14 +351,14 @@ print(snapshot_download(
         'text_encoder/*', 'text_encoder_2/*', 'text_encoder_3/*',
         'tokenizer/*', 'tokenizer_2/*', 'tokenizer_3/*',
     ],
-    ignore_file_pattern=['*.fp16.*', '*.png', '*.jpg', '*.webp'],
+    ignore_file_pattern=['*.fp16*', '*.png', '*.jpg', '*.webp'],
 ))" | grep '^/' | tail -n 1
 ```
 
 说明：
 
 - **仓库冗余**：ModelScope 仓库 71.6 GB 里只有 ~39 GB 是 diffusers 布局需要的——`sd3.5_large_turbo.safetensors`（16.5 GB，ComfyUI 用的单文件全量权重）和 `text_encoders/`（16.3 GB，ComfyUI 版 T5/CLIP）对 `StableDiffusion3Pipeline` 完全无用，靠 `allow_file_pattern` 只下组件目录。
-- **fp16 重复**：`text_encoder_3/` 等目录同时存有 fp32（`model-*.safetensors`，from_pretrained 默认）和 fp16（`model.fp16-*.safetensors`）两套权重，`ignore_file_pattern=['*.fp16.*']` 再省 ~11 GB——加载时 `dtype=torch.bfloat16` 会从 fp32 转换，不需要 fp16 文件。净下载量 ~28 GB。
+- **fp16 重复**：`text_encoder_3/` 等目录同时存有 fp32（`model-*.safetensors`，from_pretrained 默认）和 fp16（`model.fp16-0000X-of-0000Y.safetensors`）两套权重。注意 fp16 分片名是 `.fp16-`（连字符），排除通配符必须写成 `*.fp16*`——写成 `*.fp16.*`（要求 fp16 后面跟点）永远匹配不上，会多下 ~9 GB 冗余权重。加载时 `dtype=torch.bfloat16` 从 fp32 转换即可，不需要 fp16 文件。净下载量 ~25 GB。
 
 输出类似：
 

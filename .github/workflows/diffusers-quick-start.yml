@@ -11,29 +11,40 @@
 # always address device `npu:0`.
 #
 # Modelscope cache: the doc's slowest block downloads SD 3.5 Large
-# Turbo (~28 GB net), so unlike run-scoped container-local caches,
-# this project persists downloads across runs. The bind-mount is
-# project-isolated (/data/ci-cache/modelscope/diffusers - per-project
-# subdir under the shared modelscope cache root, NOT the shared root
-# itself) so this project's downloads never collide with other
-# projects' cache entries. Stale/corrupt leftovers are handled by the
-# test's prepare_environment (doc_test.model_cache.
-# purge_modelscope_corrupt: safetensors header validation per shard,
-# model dir wiped on failure), so a dirty cache self-heals instead of
-# failing the run.
+# Turbo (~25 GB net), so unlike run-scoped container-local caches,
+# this project persists downloads across runs. There is NO
+# project-isolated mount here (container_options stays empty):
+# container `--volume` isolation was verified NOT to work on these
+# K8s-based runners (roll-quick-start bind-mounts its own subdir, yet
+# its purge still sees the shared root), so every project shares the
+# runner's NFS-backed /root/.cache/modelscope. Cross-run safety comes
+# from doc_test.model_cache.purge_modelscope_corrupt instead: it never
+# touches modelscope's ._____temp in-flight area and only purges
+# shards whose safetensors header is CONFIRMED broken (transient NFS
+# read errors are not treated as corruption), so one project's purge
+# cycle can no longer delete another run's in-flight downloads.
 
 name: diffusers-quick-start
 
 concurrency:
-  # format() is load-bearing: a '||' between 'manual-' and
-  # github.run_id would short-circuit on the truthy literal and
-  # every dispatch would share one 'manual-' group.
-  group: ${{ github.event_name == 'schedule' && 'diffusers-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # PR runs share one group PER PR: two pushes to the same PR would
+  # otherwise run in parallel against the same shared NFS cache,
+  # writing the same ._____temp file paths concurrently (modelscope's
+  # weak file lock does not mutually exclude across containers on
+  # NFS). Shared group + cancel-in-progress: false = the newer push
+  # queues behind the older run instead of racing it; each queued run
+  # still tests its own head SHA. Schedule keeps its fixed group so
+  # cron cycles never cancel each other's outcome writeback.
+  # format() is load-bearing in the dispatch arm: a '||' between
+  # 'manual-' and github.run_id would short-circuit on the truthy
+  # literal and every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'diffusers-quick-start-schedule' || (github.event_name == 'pull_request' && format('diffusers-quick-start-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
   # cancel-in-progress: false because (1) a schedule run cancelled
   # mid-way loses its outcome writeback - the outcome is what makes
   # the retry mechanism work, and the 'if: always()' guard isn't
-  # enough when the container is being torn down; (2) dispatch / PR
-  # runs already live in unique groups so there's nothing to cancel.
+  # enough when the container is being torn down; (2) queued PR runs
+  # reuse whatever cache entries the in-flight run has already
+  # completed, so letting it finish is cheaper than cancelling it.
   cancel-in-progress: false
 
 on:
@@ -71,7 +82,8 @@ jobs:
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
       container_options: ''
       # 4h: the test's per-command timeout is 2h (first cold-cache run
-      # downloads ~28 GB at ~3.4 MB/s cluster egress ≈ 2.3h worst case);
+      # downloads ~25 GB; modelscope parallelizes across files, and the
+      # observed aggregate on the cluster egress is ~15 MB/s ≈ 30 min);
       # the job budget must exceed the single slowest command plus the
       # rest of the doc's blocks.
       timeout_minutes: 240
