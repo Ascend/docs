@@ -112,7 +112,6 @@ python -m pip install --force-reinstall --no-deps \
 python -c "from importlib.metadata import version; print('vllm', version('vllm')); print('vllm-ascend', version('vllm-ascend')); print('triton-ascend', version('triton-ascend'))"
 ```
 
-<!--
 完整输出较长，其中应包含：
 
 ```shell #test-result id="install"
@@ -120,7 +119,6 @@ python -c "from importlib.metadata import version; print('vllm', version('vllm')
 vllm-ascend 0.23.0
 triton-ascend 3.2.2
 ```
--->
 
 ## 4. 构建 EPP
 
