@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import unittest
+import re
+import subprocess
 from pathlib import Path
 
 
@@ -11,6 +13,21 @@ TEMPLATE = ROOT / ".github" / "workflows" / "quick-start-template.yml"
 
 
 class TestQuickStartTemplateContract(unittest.TestCase):
+    def test_fixed_ref_bypasses_latest_release_resolution(self) -> None:
+        text = TEMPLATE.read_text(encoding="utf-8")
+        match = re.search(r"(?ms)^          resolve_ref\(\) \{\n.*?^          \}", text)
+        self.assertIsNotNone(match)
+        function = match.group().replace("${{ env.UPSTREAM_REPO }}", "owner/repo")
+        result = subprocess.run(
+            ["/bin/bash", "-c", function + "\nresolve_ref"],
+            env={"FIXED_REF": "main", "GH_API": "https://api.github.com", "PATH": ""},
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.stdout, "main")
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(result.stderr, "")
+
     def test_fixed_ref_is_optional_and_propagated_to_the_test_job(self) -> None:
         text = TEMPLATE.read_text(encoding="utf-8")
 
