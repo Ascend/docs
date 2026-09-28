@@ -264,6 +264,13 @@
          <div class="card-footer"><a href="https://github.com/vllm-project/aibrix">官方链接</a><span class="split">|</span><a href="https://aibrix.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="sources/aibrix/index.html">快速上手</a></div>
       </div>
 
+      <!-- KTransformers -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ktransformers.png')"></div><h3 class="card-title">KTransformers</h3></div>
+         <p class="card-desc">面向大模型的异构推理与微调框架，官方教程覆盖昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/kvcache-ai/ktransformers">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/ktransformers/">文档中心</a><span class="split">|</span><a href="sources/ktransformers/index.html">快速上手</a></div>
+      </div>
+
       <!-- cache-dit：官方文档已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
@@ -290,6 +297,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">lmdeploy</h3></div>
          <p class="card-desc">用于压缩、部署和服务 LLM 的工具包。</p>
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/get_started/ascend/get_started.html">昇腾教程</a></div>
+      </div>
+
+      <!-- InternLM -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">InternLM</h3></div>
+         <p class="card-desc">开源大语言模型系列，支持在昇腾 NPU 上进行 Transformers 推理。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/InternLM">官方链接</a><span class="split">|</span><a href="https://github.com/InternLM/InternLM/blob/main/ecosystem/README_npu.md">NPU 指南</a><span class="split">|</span><a href="sources/internlm/index.html">快速上手</a></div>
       </div>
 
       <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
@@ -490,8 +504,10 @@
    :caption: 🚀 推理与服务
 
    sources/aibrix/index.rst
+   sources/ktransformers/index.rst
    sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
+   sources/internlm/index.rst
    sources/llm_compressor/index.rst
    sources/lm_deploy/index.rst
    sources/onnxruntime/index.rst
@@ -526,4 +542,3 @@
    sources/whisper_cpp/index.rst
    sources/modelscope/index.md
    sources/comfyui/index.md
-
