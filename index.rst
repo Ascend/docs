@@ -257,6 +257,13 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- KTransformers -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ktransformers.png')"></div><h3 class="card-title">KTransformers</h3></div>
+         <p class="card-desc">面向大模型的异构推理与微调框架，官方教程覆盖昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/kvcache-ai/ktransformers">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/ktransformers/">文档中心</a><span class="split">|</span><a href="sources/ktransformers/index.html">快速上手</a></div>
+      </div>
+
       <!-- cache-dit：官方文档已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
@@ -489,6 +496,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/ktransformers/index.rst
    sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
    sources/internlm/index.rst
