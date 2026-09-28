@@ -147,7 +147,7 @@ chmod +x .aibrix-quick-start/bin/envoy
 输出中应包含：
 
 ```shell #test-result id="install-envoy"
-...version...
+...envoy...version...
 ```
 
 
@@ -332,7 +332,7 @@ AIBrix gateway is running!
 
 ## 7. 发一次推理
 
-通过网关向已经启动的 vLLM 发一条对话，请模型用一句话打招呼。请求发到 `127.0.0.1:10080`，`seed` 是 42。输出与下面的结果相同。
+通过网关向已经启动的 vLLM 发一条对话，请模型用一句话打招呼。请求发到 `127.0.0.1:10080`，`seed` 是 42。输出与下面的结果相同。请用 python 执行：
 
 ```python #test id="infer"
 import json
