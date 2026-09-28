@@ -130,7 +130,9 @@ mooncake_npu_import ok
 
 本例通过公开的 Python API 模拟推理服务迁移一块 KV Cache 数据。接收端占用 0 号 NPU，发送端占用 1 号 NPU，传输协议使用 `ascend`。
 
-接收端在 0 号卡上登记 65536 字节，并把实际监听地址写到 `mooncake_te_handshake.txt`。请用 python 执行：
+打开两个终端，两个终端的当前目录相同。
+
+先在第一个终端启动接收端。接收端在 0 号卡上登记 65536 字节，并把实际监听地址写到 `mooncake_te_handshake.txt`，然后一直等待。把下面的代码保存为 `recv.py`。
 
 ```python
 import time
@@ -155,9 +157,52 @@ while True:
     time.sleep(60)
 ```
 
+在第一个终端执行：
 
+```shell
+python recv.py
+```
 
-发送端先把整块数据复制下来，作为传输前的内容。写入接收端后清空本卡缓冲，再把同一块数据读回来。请用 python 执行：
+看到 `target_ready` 后，保持这个终端运行。
+
+<!--
+```shell #test-setup
+python -u - > mooncake-target.log 2>&1 <<'PY' &
+import time
+
+import torch
+import torch_npu
+from mooncake.engine import TransferEngine
+
+torch.npu.set_device(0)
+nbytes = 65536
+buf = torch.zeros(nbytes, dtype=torch.uint8, device="npu:0")
+
+engine = TransferEngine()
+engine.initialize("127.0.0.1:16001", "P2PHANDSHAKE", "ascend", "")
+engine.register_memory(buf.data_ptr(), buf.nbytes, "*")
+
+endpoint = f"127.0.0.1:{engine.get_rpc_port()}"
+with open("mooncake_te_handshake.txt", "w", encoding="utf-8") as handle:
+    handle.write(f"{endpoint}\n{buf.data_ptr()}\n{nbytes}\n{buf.device}\n")
+print(f"target_ready {buf.device} {endpoint}", flush=True)
+while True:
+    time.sleep(60)
+PY
+echo $! > mooncake-target.pid
+ready=0
+for _ in $(seq 1 120); do
+  if grep -q target_ready mooncake-target.log; then
+    ready=1
+    break
+  fi
+  sleep 1
+done
+test "$ready" -eq 1
+```
+-->
+
+再在第二个终端启动发送端。发送端从 `mooncake_te_handshake.txt` 读出接收端地址，在 1 号卡上写入数据，清空本地缓冲后再读回来。把下面的代码保存为 `send.py`。
 
 ```python #test id="transfer"
 import torch
@@ -194,6 +239,12 @@ print(f"matched_bytes {matched}")
 print(f"total_bytes {before.numel()}")
 ```
 
+在第二个终端执行：
+
+```shell
+python send.py
+```
+
 输出结果如下：
 
 ```text #test-result id="transfer"
@@ -205,7 +256,7 @@ matched_bytes 65536
 total_bytes 65536
 ```
 
-
+发送端打印出 `matched_bytes 65536` 后，回到第一个终端，按 Ctrl-C 结束接收端。
 
 ## 7. 更多文档
 
