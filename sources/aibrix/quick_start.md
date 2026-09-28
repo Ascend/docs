@@ -164,7 +164,7 @@ python -m pip install --dry-run --no-deps --retries 3 --only-binary=vllm-ascend 
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   --report .aibrix-quick-start/vllm-ascend-report.json \
   vllm-ascend
-ascend_ver=$(python -c 'import json; print(next(item["metadata"]["version"] for item in json.load(open(".aibrix-quick-start/vllm-ascend-report.json"))["install"] if item["metadata"]["name"]=="vllm-ascend"))')
+ascend_ver=$(python -c 'import json; print(next(item["metadata"]["version"] for item in json.load(open(".aibrix-quick-start/vllm-ascend-report.json"))["install"] if item["metadata"]["name"].replace("_", "-")=="vllm-ascend"))')
 vllm_ver=${ascend_ver%%.post*}
 test -n "$vllm_ver"
 python -m pip install --retries 3 --only-binary=vllm \
