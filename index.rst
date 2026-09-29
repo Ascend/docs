@@ -271,6 +271,13 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- bitsandbytes -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">bitsandbytes</h3></div>
+         <p class="card-desc">8-bit / 4-bit 量化库。本文在单卡昇腾上跑通默认后端的 NF4 Linear4bit 前向。</p>
+         <div class="card-footer"><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">官方链接</a><span class="split">|</span><a href="https://huggingface.co/docs/bitsandbytes">文档中心</a><span class="split">|</span><a href="sources/bitsandbytes/index.html">快速上手</a></div>
+      </div>
+
       <!-- KTransformers -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ktransformers.png')"></div><h3 class="card-title">KTransformers</h3></div>
@@ -531,6 +538,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/bitsandbytes/index.rst
    sources/ktransformers/index.rst
    sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
