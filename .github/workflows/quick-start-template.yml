@@ -31,6 +31,10 @@ on:
         description: Upstream repo (owner/name) polled for releases; recorded as target_repo in result.json
         type: string
         required: true
+      fixed_ref:
+        description: Optional upstream tag, branch, or SHA to test instead of resolving the latest release; its commit SHA is monitored for changes
+        type: string
+        default: ''
       doc_url:
         description: URL of the monitored quick-start doc; the monitor hashes it and the test fetches the same URL. Use {0} as placeholder for the upstream ref / PR head SHA (filled by the engine).
         type: string
@@ -128,6 +132,7 @@ jobs:
       # Engine-fixed env: upstream repo + monitored doc come from the
       # caller's inputs (caller env does not cross the `uses:` boundary).
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+      FIXED_REF: ${{ inputs.fixed_ref }}
       # {0} in doc_url is filled by the engine: PR head SHA on PR runs,
       # 'main' otherwise. Same-repo PRs (head SHA exists on Ascend/docs)
       # test the PR-version of the doc; fork PRs 404 on doc fetch —
@@ -217,19 +222,30 @@ jobs:
           echo "monitor cache: release(id=$last_release_id) doc(hash=$doc_hash) test(result=$test_result error=$test_error)"
 
           # ----- release signal -----
-          # Automatic fallback chain — no caller input needed:
-          #   1. /releases/latest          
-          #   2. /releases?per_page=20     
-          #   3. /tags?per_page=1          
-          #   4. /commits/HEAD             
-          #   5. main                     
+          # A caller-provided FIXED_REF is resolved to its current commit SHA so
+          # mutable branches still fire the change signal. Without FIXED_REF,
+          # retain main's automatic fallback chain:
+          # /releases/latest -> /releases -> /tags -> /commits/HEAD -> main.
           # Each step normalizes to {id, tag_name} so the downstream .id /
           # .tag_name reads are uniform across sources. `set -e` is masked
           # via `|| true` + jq presence checks so a 404 (or an empty body)
           # at one step falls through cleanly to the next instead of
           # aborting the whole monitor cycle.
           : > /tmp/release.json  # start empty; each step either writes or leaves empty
-          if curl -fsSL --retry 3 --max-time 30 \
+          if [ -n "$FIXED_REF" ]; then
+            if curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/$FIXED_REF" \
+                -o /tmp/fixed-ref.json 2>/dev/null; then
+              jq --arg ref "$FIXED_REF" \
+                '{id: (.sha // ""), tag_name: $ref}' \
+                /tmp/fixed-ref.json > /tmp/release.json
+              echo "monitor: release source=/commits/$FIXED_REF (caller-fixed ref)"
+            else
+              jq -n --arg ref "$FIXED_REF" \
+                '{id: "", tag_name: $ref}' > /tmp/release.json
+              echo "monitor: failed to resolve fixed ref $FIXED_REF; release signal unavailable"
+            fi
+          elif curl -fsSL --retry 3 --max-time 30 \
               "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null \
               && jq -e '.tag_name // empty' /tmp/r1.json > /dev/null 2>&1; then
             mv /tmp/r1.json /tmp/release.json
@@ -325,10 +341,15 @@ jobs:
           } > "$DECISION_FILE"
           echo "monitor decision: release_tag=$REF need_to_test=$NEED_TO_TEST reason=$REASON"
 
-      # Schedule: source /tmp/.decision. workflow_dispatch forces
-      # need_to_test=true and resolves the latest release tag itself -
-      # NOT a hardcoded 'main' - so dispatch always tests the most
-      # recent upstream release.
+      # Schedule: source /tmp/.decision. workflow_dispatch and
+      # pull_request both force need_to_test=true and call resolve_ref()
+      # to get a ref to test - dispatch always picks the latest upstream
+      # release (or 5th-tier 'main' fallback if every API tier failed),
+      # pull_request uses the same chain and exits 1 if all four API
+      # tiers fail (no 'main' fallback because a PR without a resolvable
+      # ref is genuinely broken, not a transient API outage). Both events
+      # are active-trigger events that always test; only schedule is the
+      # cadence event the monitor watches.
       - name: Decide which ref to test
         id: decide
         env:
@@ -337,38 +358,78 @@ jobs:
           set -euo pipefail
           DECISION_FILE="/tmp/.decision"
 
-          # Defaults so set -u stays safe; dispatch overwrites,
+          # Defaults so set -u stays safe; dispatch / PR overwrite,
           # schedule sources /tmp/.decision when present.
           need_to_test="false"
           reason=""
           ref=""
 
+          # Auto-fallback chain (shared by dispatch + PR):
+          #   /releases/latest -> /releases?per_page=20 -> /tags?per_page=1 -> /commits/HEAD.
+          # Each tier falls through on 404/empty. Dispatch's 5th tier
+          # ('main' fallback when all four API tiers fail) lives in the
+          # caller below; PR refuses to fall back to a literal 'main'
+          # because the caller already encoded 'main' as the ref-failure
+          # signal there. Defined before the if/elif so both branches can
+          # call it (a function inside an if block only exists on the
+          # branch that runs).
+          resolve_ref() {
+            local _ref=""
+            if [ -n "$FIXED_REF" ]; then
+              _ref="$FIXED_REF"
+              printf '%s' "$_ref"
+              return
+            fi
+            if curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
+              _ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
+            fi
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
+              _ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
+            fi
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
+              _ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
+            fi
+            # 4th tier: upstreams with no releases AND no tags. /commits/HEAD
+            # returns the default-branch HEAD sha; valid as a `git clone
+            # --branch` ref, no hardcoded branch name needed.
+            # Diagnostic goes to stderr: resolve_ref's stdout is captured via
+            # `ref=$(resolve_ref)` — an stdout echo here pollutes $ref with a
+            # second line and the downstream `commits/$ref` curl dies with
+            # "URL using bad/illegal format" (first seen on tagless-upstream
+            # SpecForge, PR run 36515002689).
+            if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
+                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
+              _ref=$(jq -r '.sha // empty' /tmp/r4.json)
+              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)" >&2
+            fi
+            printf '%s' "$_ref"
+          }
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             need_to_test="true"
             reason="manual"
-            ref=""
-            if curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases/latest" -o /tmp/r1.json 2>/dev/null; then
-              ref=$(jq -r '.tag_name // empty' /tmp/r1.json)
-            fi
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/releases?per_page=20" -o /tmp/r2.json 2>/dev/null; then
-              ref=$(jq -r '[.[] | select(.draft == false)] | sort_by(.published_at) | last | .tag_name // empty' /tmp/r2.json)
-            fi
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/tags?per_page=1" -o /tmp/r3.json 2>/dev/null; then
-              ref=$(jq -r '.[0].name // empty' /tmp/r3.json)
-            fi
-            if [ -z "$ref" ] && curl -fsSL --retry 3 --max-time 30 \
-                "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
-              ref=$(jq -r '.sha // empty' /tmp/r4.json)
-              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
-            fi
+            ref=$(resolve_ref)
+            # 5th tier: if all four API tiers failed, fall back to a
+            # literal 'main' so dispatch never fails just because GitHub
+            # is having a bad day. The downstream `commits/$ref` lookup
+            # turns this into the default-branch HEAD SHA either way.
             if [ -z "$ref" ]; then
               ref="main"
               echo "monitor: ref source=fallback/main (all four API tiers failed)"
             fi
             echo "monitor decision (manual override): ref=$ref need_to_test=true reason=manual"
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            need_to_test="true"
+            reason="pr"
+            ref=$(resolve_ref)
+            # No 'main' fallback here on purpose: a PR with an
+            # unresolvable ref is a genuine config / network problem,
+            # not a transient API hiccup worth silently retrying.
+            [ -n "$ref" ] || { echo "ERROR: failed to resolve latest upstream ref for PR run (auto-fallback chain exhausted)"; exit 1; }
+            echo "monitor decision (pr run): ref=$ref need_to_test=true reason=pr"
           elif [ -f $DECISION_FILE ]; then
             . $DECISION_FILE
           fi
@@ -604,12 +665,18 @@ jobs:
       - name: Validate result.json against schema
         if: always()
         run: |
+          set -euo pipefail
           if [ ! -s output/result.json ]; then
             echo "result.json is empty; skipping schema validation"
             exit 0
           fi
-          python3 -m pip install -q check-jsonschema
-          check-jsonschema \
+          # Isolate the CLI from runner-level ~/.local packages. A stale Click
+          # installation can otherwise make check-jsonschema fail on import.
+          schema_venv="$RUNNER_TEMP/quick-start-schema-venv"
+          python3 -m venv "$schema_venv"
+          # Retain main's known-compatible check-jsonschema release.
+          "$schema_venv/bin/python" -m pip install -q "check-jsonschema==0.38.0"
+          "$schema_venv/bin/check-jsonschema" \
             --schemafile workflows/.github/workflows/schemas/result.schema.json output/result.json
 
       - name: Upload result.json

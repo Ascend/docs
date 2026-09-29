@@ -1,0 +1,105 @@
+"""Static contract for the migrated flash-linear-attention Quick Start."""
+
+from __future__ import annotations
+
+import re
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[2]
+DOC = ROOT / "sources" / "flash-linear-attention" / "quick_start.md"
+WORKFLOW = ROOT / ".github" / "workflows" / "flash-linear-attention-quick-start.yml"
+
+
+class TestProjectContract(unittest.TestCase):
+    def test_document_keeps_the_validated_npu_path(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        test_ids = set(re.findall(r'#test id="([^"]+)"', text))
+        result_ids = set(re.findall(r'#test-result id="([^"]+)"', text))
+
+        self.assertEqual(
+            test_ids,
+            {"check-cann", "install-fla", "check-npu", "gdn-forward-backward"},
+        )
+        self.assertEqual(result_ids, test_ids)
+        self.assertIn('python -m pip install -q ".[npu]"', text)
+        self.assertIn("loss.backward()", text)
+        self.assertIn("torch.npu.synchronize()", text)
+        self.assertTrue(text.startswith("# flash-linear-attention\n"))
+        self.assertNotIn("python - <<'PY'", text)
+        self.assertIn('```python #test id="check-npu"', text)
+        self.assertIn('```python #test id="gdn-forward-backward"', text)
+        self.assertEqual(text.count("输出结果如下："), len(test_ids))
+        self.assertIn("torch xxx+cpu", text)
+
+    def test_python_examples_explain_how_to_run_them(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for block in re.finditer(r"(?m)^```python\b", text):
+            introduction = text[:block.start()].rstrip().splitlines()[-1]
+            self.assertIn("以下代码用 Python 执行", introduction)
+
+    def test_release_selection_note_follows_the_install_output(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        note = '`<UPSTREAM_REF>` 替换为 flash-linear-attention 当前最新 release 的标签'
+        self.assertIn(note, visible)
+        self.assertLess(visible.index("fla xxx"), visible.index(note))
+        self.assertLess(visible.index(note), visible.index("## 验证 Ascend NPU backend"))
+
+    def test_core_version_is_dynamic_and_dependencies_remain_explicit(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("| flash-linear-attention | xxx |", visible)
+        self.assertIn("fla xxx", visible)
+        self.assertIn("torch 2.7.1+cpu", visible)
+        self.assertIn("torch_npu 2.7.1.post4", visible)
+        self.assertIn("triton-ascend 3.2.1", visible)
+        self.assertIn('version("triton-ascend")', text)
+        self.assertNotIn("torch xxx+cpu", visible)
+        self.assertIn('```{admonition} Note\n:class: note\nxxx 表示最新的版本号。', visible)
+        self.assertNotRegex(
+            visible,
+            r"(?:flash-linear-attention(?:/blob/|\s+)|\bfla\s+)v?\d+\.\d+\.\d+",
+        )
+
+    def test_workflow_preserves_the_validated_environment(self) -> None:
+        text = WORKFLOW.read_text(encoding="utf-8")
+
+        self.assertIn("uses: ./.github/workflows/quick-start-template.yml", text)
+        self.assertIn("project: flash-linear-attention", text)
+        self.assertIn("linux-aarch64-a2-1", text)
+        self.assertIn("cann:9.0.0-910b-ubuntu22.04-py3.11", text)
+        self.assertIn("container_options: '--shm-size=16g'", text)
+        self.assertIn("upstream_repo: fla-org/flash-linear-attention", text)
+        self.assertIn("tests.flash_linear_attention.test_quick_start_ascend", text)
+
+    def test_document_names_the_workflow_image_and_verified_npu_stack(self) -> None:
+        workflow = WORKFLOW.read_text(encoding="utf-8")
+        document = DOC.read_text(encoding="utf-8")
+        image_match = re.search(r"(?m)^\s+image: (\S+)$", workflow)
+        self.assertIsNotNone(image_match)
+        image = image_match.group(1)
+
+        self.assertIn(f"`{image}`", document)
+        cann_version = re.search(r"cann:(\d+\.\d+\.\d+)", image).group(1)
+        self.assertIn(f"| CANN | {cann_version} |", document)
+        self.assertIn("| flash-linear-attention | xxx |", document)
+        for package in ("torch", "torch_npu", "torchvision", "triton-ascend"):
+            self.assertRegex(document, rf"(?m)^\| {package} \| \d+\.\d+")
+        self.assertIn("https://github.com/fla-org/flash-linear-attention/releases", document)
+
+    def test_project_is_reachable_from_the_site_navigation(self) -> None:
+        index = (ROOT / "index.rst").read_text(encoding="utf-8")
+        project_index = ROOT / "sources" / "flash-linear-attention" / "index.rst"
+
+        self.assertIn("sources/flash-linear-attention/index.rst", index)
+        self.assertIn('href="sources/flash-linear-attention/"', index)
+        self.assertEqual(
+            project_index.read_text(encoding="utf-8"),
+            ".. include:: quick_start.md\n   :parser: myst_parser.sphinx_\n",
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
