@@ -42,13 +42,15 @@ class TestProjectContract(unittest.TestCase):
             introduction = text[:block.start()].rstrip().splitlines()[-1]
             self.assertIn("以下代码用 Python 执行", introduction)
 
-    def test_visible_version_output_names_the_example_release(self) -> None:
+    def test_core_version_is_dynamic_and_dependencies_remain_explicit(self) -> None:
         text = DOC.read_text(encoding="utf-8")
         visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-        self.assertIn("| Ray | 2.58.0，Linux aarch64 wheel |", visible)
+        self.assertIn("| Ray | xxx |", visible)
         self.assertIn("Python 3.12.13", visible)
-        self.assertIn("ray 2.58.0", visible)
-        self.assertNotIn("ray xxx", visible)
+        self.assertIn("torch= 2.9.0+cpu", visible)
+        self.assertIn("ray xxx", visible)
+        self.assertIn('```{admonition} Note\n:class: note\nxxx 表示最新的版本号。', visible)
+        self.assertNotRegex(visible, r"\b(?:Ray|ray)\s+\d+\.\d+\.\d+")
 
     def test_legacy_general_usage_is_preserved_separately(self) -> None:
         text = USAGE.read_text(encoding="utf-8")

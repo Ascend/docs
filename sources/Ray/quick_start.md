@@ -45,7 +45,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | CANN | 9.1.0 |
 | torch | 2.9.0+cpu |
 | torch_npu | 2.9.0.post2 |
-| Ray | 2.58.0，Linux aarch64 wheel |
+| Ray | xxx |
 | NPU | Ascend 910B4 × 2 |
 
 ### 检查前置是否满足
@@ -102,8 +102,7 @@ Torch 与 Torch-NPU 的版本匹配问题。
 
 ## 安装 Ray
 
-安装当前最新 Ray release，并检查安装结果。本文示例使用 Ray 2.58.0，
-以下版本输出以 2.58.0 为例；执行时将显示实际安装的版本。
+安装当前最新 Ray release，并检查安装结果：
 
 ```shell #test id="ray-install"
 python -m pip install -q -U "ray[default]"
@@ -112,15 +111,14 @@ python -c "import ray; print('ray', ray.__version__)"
 
 输出结果如下：
 
-```text
-ray 2.58.0
-```
-
-<!--
 ```text #test-result id="ray-install" fuzzy="xxx"
 ray xxx
 ```
--->
+
+```{admonition} Note
+:class: note
+xxx 表示最新的版本号。
+```
 
 ## 查看 Ray 检测到的 NPU
 
