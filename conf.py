@@ -76,7 +76,18 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     # is the tutorial, not a nested「快速开始」child page.
                     'sources/llama_cpp/quick_start.md',
                     'sources/whisper_cpp/quick_start.md',
-                    'sources/sd_webui/quick_start.md']
+                    'sources/sd_webui/quick_start.md',
+                    'sources/llm_compressor/quick_start.md',
+                    'sources/axolotl/quick_start.md',
+                    'sources/timm/quick_start.md',
+                    'sources/roll/quick_start.md',
+                    'sources/Diffusers/quick_start.md',
+                    'sources/torchtune/quick_start.md',
+                    'sources/xtuner/quick_start.md',
+                    'sources/ktransformers/quick_start.md',
+                    'sources/lm_evaluation/quick_start.md',
+                    'sources/mooncake/quick_start.md',
+                    'sources/llm_d/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
