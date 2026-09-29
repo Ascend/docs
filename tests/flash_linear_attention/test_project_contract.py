@@ -39,20 +39,29 @@ class TestProjectContract(unittest.TestCase):
             introduction = text[:block.start()].rstrip().splitlines()[-1]
             self.assertIn("以下代码用 Python 执行", introduction)
 
-    def test_release_selection_is_a_note_with_an_explicit_example(self) -> None:
-        text = DOC.read_text(encoding="utf-8")
-        self.assertIn('```{admonition} Note\n:class: note\n从 [Releases]', text)
-        self.assertIn("| flash-linear-attention | 0.5.2（`v0.5.2`） |", text)
-
-    def test_visible_versions_are_concrete(self) -> None:
+    def test_release_selection_note_follows_the_install_output(self) -> None:
         text = DOC.read_text(encoding="utf-8")
         visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-        self.assertIn("fla 0.5.2", visible)
+        note = '`<UPSTREAM_REF>` 替换为 flash-linear-attention 当前最新 release 的标签'
+        self.assertIn(note, visible)
+        self.assertLess(visible.index("fla xxx"), visible.index(note))
+        self.assertLess(visible.index(note), visible.index("## 验证 Ascend NPU backend"))
+
+    def test_core_version_is_dynamic_and_dependencies_remain_explicit(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
+        self.assertIn("| flash-linear-attention | xxx |", visible)
+        self.assertIn("fla xxx", visible)
         self.assertIn("torch 2.7.1+cpu", visible)
         self.assertIn("torch_npu 2.7.1.post4", visible)
         self.assertIn("triton-ascend 3.2.1", visible)
         self.assertIn('version("triton-ascend")', text)
         self.assertNotIn("torch xxx+cpu", visible)
+        self.assertIn('```{admonition} Note\n:class: note\nxxx 表示最新的版本号。', visible)
+        self.assertNotRegex(
+            visible,
+            r"(?:flash-linear-attention(?:/blob/|\s+)|\bfla\s+)v?\d+\.\d+\.\d+",
+        )
 
     def test_workflow_preserves_the_validated_environment(self) -> None:
         text = WORKFLOW.read_text(encoding="utf-8")
@@ -75,13 +84,10 @@ class TestProjectContract(unittest.TestCase):
         self.assertIn(f"`{image}`", document)
         cann_version = re.search(r"cann:(\d+\.\d+\.\d+)", image).group(1)
         self.assertIn(f"| CANN | {cann_version} |", document)
-        self.assertIn("| flash-linear-attention | 0.5.2（`v0.5.2`） |", document)
+        self.assertIn("| flash-linear-attention | xxx |", document)
         for package in ("torch", "torch_npu", "torchvision", "triton-ascend"):
             self.assertRegex(document, rf"(?m)^\| {package} \| \d+\.\d+")
-        self.assertRegex(
-            document,
-            r"https://github.com/fla-org/flash-linear-attention/blob/v\d+\.\d+\.\d+/pyproject\.toml",
-        )
+        self.assertIn("https://github.com/fla-org/flash-linear-attention/releases", document)
 
     def test_project_is_reachable_from_the_site_navigation(self) -> None:
         index = (ROOT / "index.rst").read_text(encoding="utf-8")

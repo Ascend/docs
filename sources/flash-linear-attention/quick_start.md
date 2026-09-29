@@ -25,9 +25,7 @@ CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sou
 
 ### 本文档示例使用的版本
 
-本文示例使用 flash-linear-attention 0.5.2。以下是基于 `v0.5.2`
-[NPU 依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/pyproject.toml)
-验证过的环境组合，使用的镜像为
+以下是本示例使用的依赖环境，镜像为
 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11`。
 
 | 组件 | 版本 |
@@ -35,8 +33,8 @@ CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sou
 | 操作系统 | Ubuntu 22.04，Linux aarch64 |
 | Python | 3.11 |
 | CANN | 9.0.0 |
-| flash-linear-attention | 0.5.2（`v0.5.2`） |
-| torch | 2.7.1+cpu（`v0.5.2` 运行时回显） |
+| flash-linear-attention | xxx |
+| torch | 2.7.1+cpu |
 | torch_npu | 2.7.1.post4 |
 | torchvision | 0.22.1 |
 | triton-ascend | 3.2.1（分发包版本） |
@@ -66,8 +64,8 @@ CANN ready
 
 ## 安装 flash-linear-attention
 
-安装命令会读取该版本
-的 `[npu]` 依赖，安装匹配的 Torch、Torch-NPU、torchvision 与 Triton-Ascend。
+安装命令会读取所选 release 的 `[npu]` 依赖，安装匹配的 Torch、Torch-NPU、
+torchvision 与 Triton-Ascend。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -89,21 +87,15 @@ python -c "import fla; print('fla', fla.__version__)"
 
 输出结果如下：
 
-```text
-fla 0.5.2
-```
-
-<!--
 ```text #test-result id="install-fla" fuzzy="xxx"
 fla xxx
 ```
--->
 
 ```{admonition} Note
 :class: note
-从 [Releases](https://github.com/fla-org/flash-linear-attention/releases) 选择
-最新正式版本，将 `<UPSTREAM_REF>` 替换为对应的标签。本文示例使用 0.5.2，
-对应标签为 `v0.5.2`。
+xxx 表示最新的版本号。
+`<UPSTREAM_REF>` 替换为 flash-linear-attention 当前最新 release 的标签，可从
+[Releases](https://github.com/fla-org/flash-linear-attention/releases) 获取。
 ```
 
 ## 验证 Ascend NPU backend
