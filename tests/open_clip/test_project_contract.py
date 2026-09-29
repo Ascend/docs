@@ -56,13 +56,17 @@ class TestProjectContract(unittest.TestCase):
             introduction = text[:block.start()].rstrip().splitlines()[-1]
             self.assertIn("以下代码用 Python 执行", introduction)
 
-    def test_visible_version_output_names_the_example_release(self) -> None:
+    def test_core_version_is_dynamic_and_dependencies_remain_explicit(self) -> None:
         text = DOC.read_text(encoding="utf-8")
         visible = re.sub(r"<!--.*?-->", "", text, flags=re.S)
-        self.assertIn("| open_clip | 3.3.0（`v3.3.0`） |", visible)
+        self.assertIn("| open_clip | xxx |", visible)
         self.assertIn("Python 3.12.13", visible)
-        self.assertIn("open_clip 3.3.0", visible)
-        self.assertNotIn("open_clip xxx", visible)
+        self.assertIn("torch: 2.9.0+cpu", visible)
+        self.assertIn("| torchvision | 0.24.0 |", visible)
+        self.assertIn("open_clip xxx", visible)
+        self.assertIn('```{admonition} Note\n:class: note\nxxx 表示最新的版本号。', visible)
+        self.assertIn("`<ref>` 替换为 open_clip 当前最新 release 的标签", visible)
+        self.assertNotRegex(visible, r"\bopen_clip\s+\d+\.\d+\.\d+")
 
     def test_training_log_uses_standard_ellipsis_matching(self) -> None:
         text = DOC.read_text(encoding="utf-8")

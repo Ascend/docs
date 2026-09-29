@@ -30,7 +30,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少有�
 | torch | 2.9.0+cpu |
 | torchvision | 0.24.0 |
 | torch_npu | 2.9.0.post2 |
-| open_clip | 3.3.0（`v3.3.0`） |
+| open_clip | xxx |
 | 模型 | `ViT-B-32` / `laion2b_s34b_b79k` |
 | NPU | Ascend 910B4 × 1 |
 
@@ -79,9 +79,7 @@ npu_count: 1
 
 ## 安装 open_clip
 
-本文使用 open_clip 3.3.0，将命令中的 `<ref>` 替换为 `v3.3.0`。
-如需使用其他正式版本，可从 [open_clip Releases](https://github.com/mlfoundations/open_clip/releases)
-选择对应的标签。以下版本输出以 3.3.0 为例。
+从当前最新 release 源码安装 open_clip，并检查安装结果：
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -100,15 +98,16 @@ python -c "import open_clip; print('open_clip', open_clip.__version__)"
 
 输出结果如下：
 
-```text
-open_clip 3.3.0
-```
-
-<!--
 ```text #test-result id="install-open-clip" fuzzy="xxx"
 open_clip xxx
 ```
--->
+
+```{admonition} Note
+:class: note
+xxx 表示最新的版本号。
+`<ref>` 替换为 open_clip 当前最新 release 的标签，可从
+[Releases](https://github.com/mlfoundations/open_clip/releases) 获取。
+```
 
 ## 单卡预训练图文推理
 
