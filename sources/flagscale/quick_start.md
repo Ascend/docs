@@ -15,8 +15,8 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 | CANN | toolkit 与驱动固件已安装，并可 `source set_env.sh` |
 | ATB | Ascend Transformer Boost，下文会加载它的环境脚本 |
 | Python | 满足 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
-| vLLM | 与当前 `vllm-ascend` 发布的 `X.Y.Z` 相同 |
-| vLLM-Ascend | 当前发布，见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| vLLM | `0.23.0`，与 `vllm-ascend` 0.23.0 配套 |
+| vLLM-Ascend | `0.23.0`，见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | FlagScale | 上游最新 Release tag |
 | 模型 | [Qwen/Qwen2.5-0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B) |
 
@@ -96,52 +96,31 @@ Python ...
 
 ## 3. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的稳定版 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`，并补上 `vllm` 声明里还没有的依赖。`torch` 与 `flashinfer` 沿用已经装好的昇腾组合。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装 `vllm` 0.23.0、`vllm-ascend` 0.23.0，再重装 `triton-ascend` 3.2.2。
 
 ```shell #test id="install-vllm"
-set -euo pipefail
-python -m pip install --retries 3 \
+python -m pip install --retries 3 vllm==0.23.0
+python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  --only-binary=vllm-ascend \
-  vllm-ascend
-vllm_release=$(python -c "import importlib.metadata as m, re; print(re.match(r'[0-9]+\.[0-9]+\.[0-9]+', m.version('vllm-ascend')).group(0))")
-python -m pip install --retries 3 --no-deps "vllm==${vllm_release}"
-missing=$(python -c '
-import importlib.metadata as m
-from importlib.metadata import PackageNotFoundError
-from packaging.requirements import Requirement
-skip = {
-    "torch", "torchvision", "torchaudio", "zentorch",
-    "flashinfer", "flashinfer-python", "flashinfer-cubin",
-}
-names = []
-for raw in m.requires("vllm") or []:
-    req = Requirement(raw)
-    if req.marker is not None and not req.marker.evaluate():
-        continue
-    name = req.name.lower().replace("_", "-")
-    if name in skip or name.startswith("nvidia-"):
-        continue
-    try:
-        m.version(req.name)
-    except PackageNotFoundError:
-        names.append(req.name)
-print(" ".join(names))
-')
-if [ -n "$missing" ]; then
-  python -m pip install --retries 3 $missing
-fi
-python -c "import importlib.metadata as m, re; base=lambda v: re.match(r'[0-9]+\.[0-9]+\.[0-9]+', v).group(0); a=m.version('vllm-ascend'); b=m.version('vllm'); print('vllm-ascend', a); print('vllm', b); print('pair_match', base(a)==base(b))"
+  vllm-ascend==0.23.0
+python -m pip install --force-reinstall --no-deps \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  triton-ascend==3.2.2
+python -m pip uninstall -y flashinfer flashinfer-python flashinfer-cubin
+python -c "import importlib.metadata as m
+for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
+    print(n, m.version(n))"
 ```
 
 完整输出较长，其中应包含：
 
-```text #test-result id="install-vllm"
+```shell #test-result id="install-vllm"
 ...
-vllm-ascend ...
-vllm ...
-pair_match True
+torch 2.10.0...
+torch-npu 2.10.0.post4
+vllm 0.23.0...
+vllm-ascend 0.23.0
 ```
 
 ## 4. 安装 FlagScale
