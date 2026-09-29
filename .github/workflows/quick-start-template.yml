@@ -395,10 +395,15 @@ jobs:
             # 4th tier: upstreams with no releases AND no tags. /commits/HEAD
             # returns the default-branch HEAD sha; valid as a `git clone
             # --branch` ref, no hardcoded branch name needed.
+            # Diagnostic goes to stderr: resolve_ref's stdout is captured via
+            # `ref=$(resolve_ref)` — an stdout echo here pollutes $ref with a
+            # second line and the downstream `commits/$ref` curl dies with
+            # "URL using bad/illegal format" (first seen on tagless-upstream
+            # SpecForge, PR run 36515002689).
             if [ -z "$_ref" ] && curl -fsSL --retry 3 --max-time 30 \
                 "$GH_API/repos/${{ env.UPSTREAM_REPO }}/commits/HEAD" -o /tmp/r4.json 2>/dev/null; then
               _ref=$(jq -r '.sha // empty' /tmp/r4.json)
-              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)"
+              echo "monitor: ref source=/commits/HEAD (tagless upstream, default-branch HEAD sha)" >&2
             fi
             printf '%s' "$_ref"
           }
