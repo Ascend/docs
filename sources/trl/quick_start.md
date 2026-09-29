@@ -14,14 +14,32 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需�
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 根据 CANN 版本安装匹配的 `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-本文档示例在 Python 3.12、CANN 9.1.0、`torch_npu` 2.9.0.post2 环境下验证通过。
+本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
+
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`
 
 ## 加载 CANN 环境
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+```
+
+## 安装 PyTorch NPU 栈
+
+`torch` 与 `torch_npu` 版本严格配套，按 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) 选择与 CANN 匹配的组合：
+
+```shell #test id="install-torch"
+python -m pip install torch==2.9.0 torch_npu==2.9.0.post2
+python -c "import torch, torch_npu; print('torch version:', torch.__version__); print('torch_npu version:', torch_npu.__version__)"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch version: 2.9.0+cpu
+torch_npu version: 2.9.0.post2
 ```
 
 ## 安装 TRL
@@ -49,7 +67,7 @@ trl xxx
 ```shell #test-setup
 python -m pip install peft "transformers>=4.56.2,<5.0" datasets "modelscope==1.37.0"
 ```
-运行 SFT 训练脚本：
+使用 python 运行 SFT 训练脚本：
 ```python #test id="sft-lora"
 import os
 import shutil
@@ -113,7 +131,7 @@ TRL_SFT_DONE
 
 ## 示例二：偏好优化 DPO LoRA
 
-再用相同模型和数据集运行 3 步 DPO LoRA，适配器保存到 `output/trl-dpo-lora`。
+再用相同模型和数据集运行 3 步 DPO LoRA，适配器保存到 `output/trl-dpo-lora`。用 python 运行下面的训练脚本：
 
 ```python #test id="dpo-lora"
 import os
@@ -188,4 +206,7 @@ LoRA adapter saved to: output/trl-dpo-lora
 TRL_DPO_DONE
 ```
 
-更多方法（GRPO / PPO / Reward / KTO 等）见 [TRL examples](https://github.com/huggingface/trl/tree/main/examples)。
+## 外部链接
+
+- GitHub：[huggingface/trl](https://github.com/huggingface/trl)
+- 文档中心：[TRL Docs](https://huggingface.co/docs/trl)
