@@ -203,6 +203,13 @@
          <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
       </div>
 
+      <!-- speculators -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">speculators</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 vllm-ascend 在昇腾 NPU 上完成训练与部署。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/speculators">官方链接</a><span class="split">|</span><a href="sources/speculators/index.html">快速上手</a></div>
+      </div>
+
       <!-- SpecForge -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
@@ -215,6 +222,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- torchvision -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchvision</h3></div>
+         <p class="card-desc">计算机视觉库，基于 torch_npu 在昇腾 NPU 上跑通 transforms v2 与 transforms 链路。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/vision">官方链接</a><span class="split">|</span><a href="sources/torch_vision/index.html">快速上手</a></div>
       </div>
 
       <!-- TorchTune -->
@@ -530,6 +544,7 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/speculators/index.rst
    sources/specforge/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
