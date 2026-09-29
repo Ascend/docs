@@ -151,4 +151,7 @@ python -m json.tool --no-ensure-ascii /tmp/fastchat-chat.json
 `xxx` 表示每次请求动态生成的 ID、时间戳、模型回复和 token 统计等内容，`...` 表示省略的字段。
 :::
 
-更多 Web UI、多 worker 和评测用法见 [FastChat 官方文档](https://github.com/lm-sys/FastChat)。
+## 外部链接
+
+- 官方仓库：[lm-sys/FastChat](https://github.com/lm-sys/FastChat)
+- 官方快速开始：[README](https://github.com/lm-sys/FastChat/blob/main/README.md)
