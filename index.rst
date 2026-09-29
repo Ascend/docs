@@ -210,6 +210,13 @@
          <div class="card-footer"><a href="https://github.com/sgl-project/SpecForge">官方链接</a><span class="split">|</span><a href="sources/specforge/index.html">快速上手</a></div>
       </div>
 
+      <!-- tensordict -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">TensorDict</h3></div>
+         <p class="card-desc">PyTorch 官方字典风格张量容器库，基于 torch / torch_npu 在昇腾 NPU 上提供 TensorDict 核心特性验证。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/tensordict">官方链接</a><span class="split">|</span><a href="sources/tensordict/index.html">快速上手</a></div>
+      </div>
+
       <!-- TorchTitan -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
@@ -304,6 +311,8 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
          <p class="card-desc">面向 vLLM 部署的模型压缩库，在昇腾上完成 GPTQ 量化与 NPU 前向。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
+      </div>
+
       <!-- llm-d -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
@@ -524,6 +533,7 @@
    sources/peft/index.md
    sources/roll/index.rst
    sources/specforge/index.rst
+   sources/tensordict/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
    sources/trl/index.rst
