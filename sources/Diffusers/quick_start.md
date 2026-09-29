@@ -1,4 +1,4 @@
-# diffusers
+# Diffusers
 
 在单卡昇腾 NPU 上跑通 [Diffusers](https://github.com/huggingface/diffusers) 文生图全链路：
 
@@ -247,11 +247,6 @@ print(snapshot_download(
 ))" | grep '^/' | tail -n 1
 ```
 
-说明：
-
-- **单文件与 .bin 冗余**：ModelScope 仓库 ~35 GB 里 `v1-5-pruned*.ckpt/.safetensors`（~23.9 GB，ComfyUI 等用的单文件全量权重）与组件 `.bin` 旧格式副本（~5.5 GB）对 `DiffusionPipeline` 完全无用，靠 `allow_file_pattern` 只下组件目录、`ignore_file_pattern` 排除 `.bin`。
-- **safety_checker**：加载时传 `safety_checker=None`（见下文示例），`safety_checker/`（~2.4 GB）无需下载。净下载量 ~4.3 GB。
-
 输出类似：
 
 ```
@@ -333,11 +328,13 @@ xxx output/astronaut_unipc.png
 
 ## 大模型显存优化（SD 3.5 Large Turbo）
 
-上面 SD1.5 的所有组件加起来 ~2 GB，单卡显存放得下，不需要任何优化。但现代扩散模型（SD 3.5 Large Turbo：8B MMDiT + 三个 text encoder，含 T5-XXL，bf16 权重合计 ~29 GB）在 32 GB 显存的卡上全量加载已经放不下或贴着上限，`enable_model_cpu_offload()` 让组件**逐个上下场**——text encoder 编码完搬回 CPU 内存，再请 MMDiT 上 NPU 去噪，最后 VAE 解码——显存峰值从「所有组件之和」降到「最大单个组件」（transformer bf16 ~16 GB）。
+上面 SD1.5 的所有组件加起来 ~2 GB，单卡显存放得下，不需要任何优化。但现代扩散模型在 32 GB 显存的卡上全量加载已经放不下，`enable_model_cpu_offload()` 让组件**逐个上下场**——text encoder 编码完搬回 CPU 内存，再请 MMDiT 上 NPU 去噪，最后 VAE 解码——显存峰值从「所有组件之和」降到「最大单个组件」。
 
 本节用 SD 3.5 Large Turbo 实测两种加载方式的 NPU 显存峰值对比。
 
 ### 下载 SD 3.5 Large Turbo
+
+只下载 diffusers 布局需要的文件。
 
 ```shell #test-setup store="sd35_path"
 set -o pipefail
@@ -355,11 +352,6 @@ print(snapshot_download(
 ))" | grep '^/' | tail -n 1
 ```
 
-说明：
-
-- **仓库冗余**：ModelScope 仓库 71.6 GB 里只有 ~39 GB 是 diffusers 布局需要的——`sd3.5_large_turbo.safetensors`（16.5 GB，ComfyUI 用的单文件全量权重）和 `text_encoders/`（16.3 GB，ComfyUI 版 T5/CLIP）对 `StableDiffusion3Pipeline` 完全无用，靠 `allow_file_pattern` 只下组件目录。
-- **fp16 重复**：`text_encoder_3/` 等目录同时存有 fp32（`model-*.safetensors`，from_pretrained 默认）和 fp16（`model.fp16-0000X-of-0000Y.safetensors`）两套权重。注意 fp16 分片名是 `.fp16-`（连字符），排除通配符必须写成 `*.fp16*`——写成 `*.fp16.*`（要求 fp16 后面跟点）永远匹配不上，会多下 ~9 GB 冗余权重。加载时 `dtype=torch.bfloat16` 从 fp32 转换即可，不需要 fp16 文件。净下载量 ~25 GB。
-
 输出类似：
 
 ```
@@ -368,7 +360,7 @@ print(snapshot_download(
 
 ### 加载 LoRA
 
-LoRA 适配器只往基础模型插入少量可训练参数（本例 ~270 MB 对 8B 的 MMDiT），推理时把 LoRA 权重加载/合并进 transformer 即可切换生成风格。对应 Quicktour 的 LoRA 一节：使用 `load_lora_weights` 加载适配器，prompt 里带上触发词激活风格。
+LoRA 适配器只往基础模型插入少量可训练参数，推理时把 LoRA 权重加载/合并进 transformer 即可切换生成风格。对应 Quicktour 的 LoRA 一节：使用 `load_lora_weights` 加载适配器，prompt 里带上触发词激活风格。
 
 先下载 LoRA 权重（同样走 ModelScope，落入持久缓存）：
 
