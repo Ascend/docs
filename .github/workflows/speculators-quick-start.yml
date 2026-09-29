@@ -1,0 +1,106 @@
+# speculators quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# No device mounts: the self-hosted NPU runner (`linux-aarch64-a2-1`)
+# auto-passes `/dev/davinci*` into the container via the cluster
+# device-plugin, so container_options stays empty. Same convention as
+# accelerate / peft / timm / torchtune / xtuner / specforge.
+#
+# No modelscope cache bind-mount (same finding as diffusers): these
+# runners' `/root/.cache/modelscope` is already NFS-backed and persists
+# across runs, and container `--volume` isolation was verified NOT to
+# work on this runner pool. Cross-run safety comes from
+# doc_test.model_cache.purge_modelscope_corrupt (never touches
+# modelscope's ._____temp in-flight area) in the test's
+# prepare_environment.
+
+name: speculators-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'speculators-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 3 hours at minute 25 (00:25, 03:25, ..., 21:25) -
+    # offset from the other every-3h guards (axolotl/tgi/whisper_cpp
+    # :15, diffusers :20, peft :30, accelerate/llama_cpp :45, the two
+    # :50s) so the guards don't contend for NPU runners.
+    - cron: '25 */3 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/speculators/**'
+      - 'tests/speculators/**'
+
+permissions:
+  contents: read
+
+jobs:
+  speculators-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-speculators-*), artifacts
+      # (speculators-quick-start-<run_id>) and the test working dir
+      # (tests/speculators in the repo root; engine sets cwd to repo root).
+      project: speculators
+      # Self-hosted single-card NPU runner for the test job only; the
+      # engine pins the cache I/O jobs (restore-cache /
+      # publish-and-persist) to GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      # Pre-built vllm-ascend v0.23.0 image (Huaweicloud mirror of the
+      # upstream ``quay.io/ascend/vllm-ascend:v0.23.0`` image). Ships
+      # vllm==0.23.0 + vllm-ascend==0.23.0 + triton-ascend==3.2.2 +
+      # triton 3.5.0 + torch 2.10.0+cpu + torch_npu 2.10.0.post4 + CANN
+      # 9.1.0 pre-installed, so the doc's ``## 前置安装`` section only
+      # verifies versions + installs modelscope — no source build, no
+      # pip install of the vllm / vllm-ascend / triton-ascend wheels.
+      # Huaweicloud mirror chosen for cluster egress (cluster can't
+      # reach quay.io directly). New convention for projects whose test
+      # body uses vllm-ascend (same as specforge's SGLang image); bare
+      # CANN remains for projects that don't (peft / diffusers / etc.).
+      image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+      container_options: ''
+      # 4-step pipeline budget (convert → extract_hidden_states →
+      # torchrun train → vllm-ascend serve + curl smoke):
+      #   Step 2 vllm.LLM() offline: 5-7 min (Qwen3-8B weight load + 10 prompts)
+      #   Step 3 torchrun 1 epoch × 10 samples: 8-12 min (single-card A2)
+      #   Step 4 vllm-ascend serve + curl: 3-4 min cold + 30s smoke
+      # Plus the cold-cache ModelScope first-pull: DFlash draft ~1 GB
+      # (~84 s at ~12 MB/s) + Qwen3-8B verifier ~16.4 GB (~90 min at
+      # ~3.1 MB/s per shard) — one-time, the runner's NFS-backed
+      # modelscope cache serves hot runs. DEFAULT_COMMAND_TIMEOUT=7200
+      # (2h) covers the verifier download as a single #test-setup block.
+      # 240 min covers worst-case cold download + pipeline + slack.
+      timeout_minutes: 240
+      upstream_repo: vllm-project/speculators
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/speculators/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/speculators/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.speculators.test_quick_start_ascend -v 2>&1
