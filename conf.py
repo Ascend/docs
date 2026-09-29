@@ -78,6 +78,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/whisper_cpp/quick_start.md',
                     'sources/llm_compressor/quick_start.md',
                     'sources/axolotl/quick_start.md',
+                    'sources/bitsandbytes/quick_start.md',
                     'sources/timm/quick_start.md',
                     'sources/roll/quick_start.md',
                     'sources/Diffusers/quick_start.md',
@@ -89,6 +90,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/mooncake/quick_start.md',
                     'sources/llm_d/quick_start.md',
                     'sources/opencompass/quick_start.md',
+                    'sources/xdit/quick_start.md',
                     'sources/speculators/quick_start.md']
 
 
