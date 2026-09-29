@@ -4,9 +4,13 @@ import os
 import subprocess
 import unittest
 
-os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0,1')
-
 from doc_test.base import MarkdownDocTestBase
+from doc_test.model_cache import (
+    diagnose_mount_environment,
+    ensure_safetensors,
+    purge_modelscope_corrupt,
+    resolve_modelscope_cache,
+)
 
 
 def _is_truthy(value: str | None) -> bool:
@@ -20,14 +24,14 @@ def _e2e_enabled() -> bool:
 
 
 class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
-    DEFAULT_COMMAND_TIMEOUT = 900
+    DEFAULT_COMMAND_TIMEOUT = 7200
 
-    USER_AGENT = 'cosdt-ci-test/quick-start'
+    USER_AGENT = 'cosdt-ci-test/quick-start'  # monitored source is the fork under cosdt-ci-test org
 
     ERROR_MARKERS = (
-        *MarkdownDocTestBase.ERROR_MARKERS,
-        'applicaiton exception',
-        'ERR99999',
+        *MarkdownDocTestBase.ERROR_MARKERS,  # generic [ERROR] + Traceback
+        'applicaiton exception',  # CANN toolkit emits this typo (sic) in its Python driver
+        'ERR99999',  # CANN sentinel for unrecoverable runtime failure
     )
 
     _CUDA_CONSTRAINTS = (
@@ -70,10 +74,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'nvidia-nvjitlink-cu12<0',
         'nvidia-nvtx-cu12<0',
     )
-    _CONSTRAINTS_FILE = '/tmp/accelerate_npu_constraints.txt'
+    _CONSTRAINTS_FILE = '/tmp/diffusers_npu_constraints.txt'
 
+    # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source.
     _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
     _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
+
+    # CANN toolkit: source once to get ASCEND_HOME / LD_LIBRARY_PATH etc.
+    # Path is hard-coded, tied to the container image pinned by the
+    # ``image:`` input of ``diffusers-quick-start.yml``.
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     @classmethod
@@ -114,7 +123,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         probe = subprocess.run(
             ['python', '-c', _PROBE_SCRIPT],
             capture_output=True,
-            check=False,  # probe's exit code is the branch signal
+            check=False,  # probe's success/failure is the branch signal — don't raise
         )
         if probe.returncode == 0:
             _VERSIONS_SCRIPT = (
@@ -138,17 +147,34 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 check=True,
             )
 
-        subprocess.run(
-            ['python', '-m', 'pip', 'install', 'transformers<5.0'],
-            check=True,
-        )
+        ensure_safetensors()
+
+        # Network + cache visibility: modelscope.cn throughput probe
+        # (curl-timed MiB/s + verdict) and mount diagnostics, so every
+        # guard run logs the download speed the doc's snapshot_download
+        # blocks will actually see.
+        diagnose_mount_environment()
+
+        purge_modelscope_corrupt(resolve_modelscope_cache())
+
+    # ----------------------------------------------------------
+    # test entry
+    # ----------------------------------------------------------
 
     @classmethod
     def setUpClass(cls) -> None:
-        """Run env setup once per class. ``@unittest.skipIf`` only skips
-        the test *method* — ``setUpClass`` itself always runs, so the
-        ``if _e2e_enabled()`` guard keeps heavy setup from firing on
-        non-NPU runners.
+        """Run env setup once per test class: CANN env + CUDA constraints
+        + uv + torch stack.
+
+        ``transformers`` / ``accelerate`` / ``peft`` / ``modelscope`` /
+        ``diffusers`` are NOT installed here: the doc's own labeled
+        blocks install them in document order, so a broken install block
+        fails loudly instead of being masked by a pre-installed copy.
+
+        ``@unittest.skipIf`` only skips the test *method* — ``setUpClass``
+        itself always runs. The ``if _e2e_enabled()`` body guard below is
+        what actually keeps heavy setup from firing when ``NPU_READY`` is
+        unset.
         """
         if _e2e_enabled():
             cls.prepare_environment()
@@ -158,7 +184,10 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'end-to-end requires NPU runner; set NPU_READY=true',
     )
     def test_runs_doc(self) -> None:
-        """Run the full pre_process -> parse -> execute -> post_process flow."""
+        """Template-method entry point. The base class
+        ``run_template()`` runs the full ``pre_process`` -> ``parse`` ->
+        ``execute`` -> ``post_process`` flow. ``prepare_environment`` is
+        triggered by ``setUpClass`` once, not from ``run_template``."""
 
         self.run_template()
 
