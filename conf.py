@@ -87,7 +87,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/specforge/quick_start.md',
                     'sources/lm_evaluation/quick_start.md',
                     'sources/mooncake/quick_start.md',
-                    'sources/llm_d/quick_start.md']
+                    'sources/llm_d/quick_start.md',
+                    'sources/opencompass/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
