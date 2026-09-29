@@ -203,6 +203,13 @@
          <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
       </div>
 
+      <!-- speculators -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">speculators</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 vllm-ascend 在昇腾 NPU 上完成训练与部署。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/speculators">官方链接</a><span class="split">|</span><a href="sources/speculators/index.html">快速上手</a></div>
+      </div>
+
       <!-- SpecForge -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
@@ -509,6 +516,7 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/speculators/index.rst
    sources/specforge/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
