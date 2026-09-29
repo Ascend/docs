@@ -81,6 +81,7 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
+输出结果如下：
 
 ```shell #test-result id="install-torch"
 ...
@@ -106,6 +107,8 @@ python -m pip install "colossalai==<ref>" --no-deps
 python -m pip install transformers==4.51.3 peft galore_torch bitsandbytes einops
 python -c "import torch, torch_npu, colossalai; from colossalai.accelerator import get_accelerator; print('torch', torch.__version__); print('colossalai', colossalai.__version__); acc = get_accelerator(); print('accel_name', acc.name); print('accel_device', acc.get_current_device()); print('npu_available', torch.npu.is_available())"
 ```
+
+输出结果如下：
 
 ```shell #test-result id="install-colossalai" load="upstream_ref>>ref"
 ...
