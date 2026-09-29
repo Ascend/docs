@@ -27,13 +27,27 @@ def ensure_safetensors() -> None:
         )
 
 
-def safetensors_header_ok(path: Path) -> bool:
+def safetensors_header_ok(path: Path) -> bool | None:
+    """Three-state safetensors header check.
+
+    True  - header parses, shard intact;
+    False - file readable but format broken: CONFIRMED corruption;
+    None  - file unreadable (transient NFS ESTALE/EIO, concurrent
+            rename, permission hiccup ...). Unreadable is NOT evidence
+            of corruption: on the shared NFS cache a momentary read
+            failure must not send the whole model dir to the gallows
+            (modelscope re-validates by sha256 and re-downloads a
+            mismatching shard on next access, so keeping a suspicious
+            shard is self-healing while deleting it is not).
+    """
     from safetensors import safe_open, SafetensorError  # noqa: I001
     try:
         with safe_open(str(path), framework='numpy') as f:
             list(f.keys())  # force header read
-    except (SafetensorError, OSError):
+    except SafetensorError:
         return False
+    except Exception:  # noqa: BLE001 - OSError et al.: can't judge
+        return None
     return True
 
 
@@ -353,11 +367,12 @@ def report_modelscope_state(
         else set()
     )
 
-    shard_status: list[tuple[Path, bool]] = [
+    shard_status: list[tuple[Path, bool | None]] = [
         (p, safetensors_header_ok(p)) for p in safetensors_shards
     ]
-    valid_count = sum(1 for _, ok in shard_status if ok)
-    corrupt_count = len(shard_status) - valid_count
+    valid_count = sum(1 for _, ok in shard_status if ok is True)
+    unreadable_count = sum(1 for _, ok in shard_status if ok is None)
+    corrupt_count = len(shard_status) - valid_count - unreadable_count
 
     shard_bytes = sum(p.stat().st_size for p in safetensors_shards)
     other_bytes = sum(p.stat().st_size for p in other_files)
@@ -368,6 +383,7 @@ def report_modelscope_state(
         + ' shard(s) present, '
         + f'{shard_bytes / (1 << 30):.2f} GB total, '
         + f'{valid_count} valid / {corrupt_count} corrupt'
+        + (f' / {unreadable_count} unreadable' if unreadable_count else '')
         + (
             f', {len(missing_shard_names)} missing'
             if missing_shard_names else ''
@@ -376,7 +392,7 @@ def report_modelscope_state(
     print(summary)
     for shard, ok in shard_status[:_MAX_LISTED_FILES]:
         size_gb = shard.stat().st_size / (1 << 30)
-        marker = 'OK' if ok else 'CORRUPT'
+        marker = 'OK' if ok is True else ('CORRUPT' if ok is False else 'UNREADABLE')
         rel = shard.relative_to(masked_dir)
         print(f'    [{marker}] {rel}  {size_gb:.2f} GB')
     if len(shard_status) > _MAX_LISTED_FILES:
@@ -451,6 +467,36 @@ def report_modelscope_state(
     return all_valid
 
 
+def _report_temp_area(hub_models: Path) -> None:
+    """Log (never purge) modelscope's ``._____temp`` in-flight area.
+
+    Partial files there are the NORM (downloads in progress) and crash
+    leftovers hold zero reuse value (modelscope never resumes temp
+    files - the next attempt truncates and rewrites them), so deletion
+    buys nothing - while a wrong-time delete kills a live concurrent
+    run's downloads. Observation only.
+    """
+    temp_root = hub_models / '._____temp'
+    if not temp_root.is_dir():
+        return
+    files = 0
+    bytes_ = 0
+    try:
+        for p in temp_root.rglob('*'):
+            if p.is_file():
+                files += 1
+                bytes_ += p.stat().st_size
+    except OSError:
+        pass
+    if files:
+        print(
+            f'cache: temp area {temp_root.name}: {files} file(s), '
+            f'{bytes_ / (1 << 30):.1f} GB '
+            '(in-flight + crash leftovers; never purged, '
+            'overwritten by next download)'
+        )
+
+
 def purge_modelscope_corrupt(cache_root: Path) -> None:
     hub_models = cache_root / 'hub' / 'models'
     if not hub_models.exists():
@@ -462,9 +508,18 @@ def purge_modelscope_corrupt(cache_root: Path) -> None:
     ]
     purged = 0
     for model_dir in model_dirs:
+        # modelscope's in-flight download area
+        # (<cache>/hub/models/._____temp/<org>/<model>/...). Partial
+        # files are the norm there, and purge cannot distinguish a
+        # live run's temp dir from a crashed one: rmtree here has
+        # repeatedly killed concurrent runs mid-download (all in-flight
+        # files fail with FileNotFoundError). Skip unconditionally.
+        if '._____temp' in model_dir.parts:
+            print(f'cache: skip {model_dir} (modelscope in-flight temp area)')
+            continue
         corrupt = [
             p for p in model_dir.rglob('*.safetensors')
-            if not safetensors_header_ok(p)
+            if safetensors_header_ok(p) is False
         ]
         if not corrupt:
             continue
@@ -474,6 +529,7 @@ def purge_modelscope_corrupt(cache_root: Path) -> None:
         )
         shutil.rmtree(model_dir)
         purged += 1
+    _report_temp_area(hub_models)
     if purged:
         print(
             f'cache: partial — validated {len(model_dirs)} model dir(s), '
@@ -563,11 +619,12 @@ def report_huggingface_state(
         else set()
     )
 
-    shard_status: list[tuple[Path, bool]] = [
+    shard_status: list[tuple[Path, bool | None]] = [
         (p, safetensors_header_ok(p)) for p in safetensors_shards
     ]
-    valid_count = sum(1 for _, ok in shard_status if ok)
-    corrupt_count = len(shard_status) - valid_count
+    valid_count = sum(1 for _, ok in shard_status if ok is True)
+    unreadable_count = sum(1 for _, ok in shard_status if ok is None)
+    corrupt_count = len(shard_status) - valid_count - unreadable_count
 
     shard_bytes = sum(p.stat().st_size for p in safetensors_shards)
     other_bytes = sum(p.stat().st_size for p in other_files)
@@ -578,6 +635,7 @@ def report_huggingface_state(
         + ' shard(s) present, '
         + f'{shard_bytes / (1 << 30):.2f} GB total, '
         + f'{valid_count} valid / {corrupt_count} corrupt'
+        + (f' / {unreadable_count} unreadable' if unreadable_count else '')
         + (
             f', {len(missing_shard_names)} missing'
             if missing_shard_names else ''
@@ -586,7 +644,7 @@ def report_huggingface_state(
     print(summary)
     for shard, ok in shard_status[:_MAX_LISTED_FILES]:
         size_gb = shard.stat().st_size / (1 << 30)
-        marker = 'OK' if ok else 'CORRUPT'
+        marker = 'OK' if ok is True else ('CORRUPT' if ok is False else 'UNREADABLE')
         target = shard.resolve()
         print(f'    [{marker}] {shard.name}  {size_gb:.2f} GB'
               + (f'  -> {target}' if target != shard else ''))
@@ -708,7 +766,7 @@ def purge_huggingface_corrupt(cache_root: Path) -> None:
             if not snap.is_dir():
                 continue
             for p in snap.glob('*.safetensors'):
-                if not safetensors_header_ok(p):
+                if safetensors_header_ok(p) is False:
                     corrupt.append(p)
         if not corrupt:
             continue
