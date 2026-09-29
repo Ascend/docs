@@ -96,7 +96,7 @@ Python ...
 
 ## 3. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的稳定版 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的稳定版 `vllm-ascend`，再安装同一组 `X.Y.Z` 的 `vllm`，并补上 `vllm` 声明里还没有的依赖。`torch` 与 `flashinfer` 沿用已经装好的昇腾组合。
 
 ```shell #test id="install-vllm"
 set -euo pipefail
@@ -107,6 +107,31 @@ python -m pip install --retries 3 \
   vllm-ascend
 vllm_release=$(python -c "import importlib.metadata as m, re; print(re.match(r'[0-9]+\.[0-9]+\.[0-9]+', m.version('vllm-ascend')).group(0))")
 python -m pip install --retries 3 --no-deps "vllm==${vllm_release}"
+missing=$(python -c '
+import importlib.metadata as m
+from importlib.metadata import PackageNotFoundError
+from packaging.requirements import Requirement
+skip = {
+    "torch", "torchvision", "torchaudio", "zentorch",
+    "flashinfer", "flashinfer-python", "flashinfer-cubin",
+}
+names = []
+for raw in m.requires("vllm") or []:
+    req = Requirement(raw)
+    if req.marker is not None and not req.marker.evaluate():
+        continue
+    name = req.name.lower().replace("_", "-")
+    if name in skip or name.startswith("nvidia-"):
+        continue
+    try:
+        m.version(req.name)
+    except PackageNotFoundError:
+        names.append(req.name)
+print(" ".join(names))
+')
+if [ -n "$missing" ]; then
+  python -m pip install --retries 3 $missing
+fi
 python -c "import importlib.metadata as m, re; base=lambda v: re.match(r'[0-9]+\.[0-9]+\.[0-9]+', v).group(0); a=m.version('vllm-ascend'); b=m.version('vllm'); print('vllm-ascend', a); print('vllm', b); print('pair_match', base(a)==base(b))"
 ```
 
