@@ -79,6 +79,15 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/llm_compressor/quick_start.md',
                     'sources/axolotl/quick_start.md',
                     'sources/timm/quick_start.md',
+                    'sources/roll/quick_start.md',
+                    'sources/Diffusers/quick_start.md',
+                    'sources/torchtune/quick_start.md',
+                    'sources/xtuner/quick_start.md',
+                    'sources/ktransformers/quick_start.md',
+                    'sources/specforge/quick_start.md',
+                    'sources/lm_evaluation/quick_start.md',
+                    'sources/mooncake/quick_start.md',
+                    'sources/llm_d/quick_start.md',
                     'sources/diffsynth_studio/quick_start.md']
 
 
