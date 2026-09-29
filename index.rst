@@ -203,6 +203,13 @@
          <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
       </div>
 
+      <!-- SpecForge -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 SGLang 在昇腾 NPU 上完成在线捕获与训练。</p>
+         <div class="card-footer"><a href="https://github.com/sgl-project/SpecForge">官方链接</a><span class="split">|</span><a href="sources/specforge/index.html">快速上手</a></div>
+      </div>
+
       <!-- TorchTitan -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
@@ -502,6 +509,7 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/specforge/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
    sources/trl/index.rst
