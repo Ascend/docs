@@ -167,7 +167,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">transformers</h3></div>
          <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
-         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -511,7 +511,7 @@
    sources/kernels/index.rst
    sources/pytorch/index.rst
    sources/Ray/index.rst
-   sources/transformers/index.rst
+   sources/transformers/index.md
 
 .. toctree::
    :maxdepth: 1
