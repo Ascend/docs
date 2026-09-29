@@ -196,11 +196,18 @@
          <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/BestPractices/NPU-support.html">NPU 支持</a></div>
       </div>
 
-      <!-- ROLL：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
+      <!-- roll -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/roll.png')"></div><h3 class="card-title">ROLL</h3></div>
          <p class="card-desc">大规模强化学习优化，针对昇腾算力平衡进行了调优。</p>
-         <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="https://alibaba.github.io/ROLL/">文档中心</a><span class="split">|</span><a href="https://alibaba.github.io/ROLL/docs/User%20Guides/Hardware%20Support/ascend_usage/">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
+      </div>
+
+      <!-- SpecForge -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 SGLang 在昇腾 NPU 上完成在线捕获与训练。</p>
+         <div class="card-footer"><a href="https://github.com/sgl-project/SpecForge">官方链接</a><span class="split">|</span><a href="sources/specforge/index.html">快速上手</a></div>
       </div>
 
       <!-- TorchTitan -->
@@ -208,6 +215,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- TorchTune -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtune</h3></div>
+         <p class="card-desc">原生 PyTorch 大模型微调库，支持在昇腾 NPU 上跑 LoRA 单卡微调。</p>
+         <div class="card-footer"><a href="https://github.com/meta-pytorch/torchtune">官方链接</a><span class="split">|</span><a href="sources/torchtune/index.html">快速上手</a></div>
       </div>
 
       <!-- trl -->
@@ -245,10 +259,24 @@
          <div class="card-footer"><a href="https://github.com/pyg-team/pytorch_geometric">官方链接</a><span class="split">|</span><a href="sources/pyg/install.html">安装指南</a><span class="split">|</span><a href="sources/pyg/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- XTuner -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xtuner.png')"></div><h3 class="card-title">XTuner</h3></div>
+         <p class="card-desc">InternLM 系列大模型微调工具箱，支持昇腾 NPU 单卡/多卡 LoRA 微调。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/xtuner">官方链接</a><span class="split">|</span><a href="sources/xtuner/index.html">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
+
+      <!-- KTransformers -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ktransformers.png')"></div><h3 class="card-title">KTransformers</h3></div>
+         <p class="card-desc">面向大模型的异构推理与微调框架，官方教程覆盖昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/kvcache-ai/ktransformers">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/ktransformers/">文档中心</a><span class="split">|</span><a href="sources/ktransformers/index.html">快速上手</a></div>
+      </div>
 
       <!-- cache-dit：官方文档已含昇腾说明，外链跳转，不再本地编译 -->
       <div class="project-card">
@@ -269,6 +297,11 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
          <p class="card-desc">面向 vLLM 部署的模型压缩库，在昇腾上完成 GPTQ 量化与 NPU 前向。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
+      <!-- llm-d -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
+         <p class="card-desc">架在推理引擎上的路由层。本文在单卡昇腾上用三个进程走通一次补全。</p>
+         <div class="card-footer"><a href="https://github.com/llm-d/llm-d">官方链接</a><span class="split">|</span><a href="https://llm-d.ai">文档中心</a><span class="split">|</span><a href="sources/llm_d/index.html">快速上手</a></div>
       </div>
 
       <!-- LMDeploy：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
@@ -276,6 +309,20 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-deploy.png')"></div><h3 class="card-title">lmdeploy</h3></div>
          <p class="card-desc">用于压缩、部署和服务 LLM 的工具包。</p>
          <div class="card-footer"><a href="https://github.com/InternLM/lmdeploy">官方链接</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://lmdeploy.readthedocs.io/en/latest/get_started/ascend/get_started.html">昇腾教程</a></div>
+      </div>
+
+      <!-- InternLM -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">InternLM</h3></div>
+         <p class="card-desc">开源大语言模型系列，支持在昇腾 NPU 上进行 Transformers 推理。</p>
+         <div class="card-footer"><a href="https://github.com/InternLM/InternLM">官方链接</a><span class="split">|</span><a href="https://github.com/InternLM/InternLM/blob/main/ecosystem/README_npu.md">NPU 指南</a><span class="split">|</span><a href="sources/internlm/index.html">快速上手</a></div>
+      </div>
+
+      <!-- Mooncake -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/mooncake.png')"></div><h3 class="card-title">Mooncake</h3></div>
+         <p class="card-desc">面向大模型服务的 KV Cache 传输与存储引擎，昇腾上走 Ascend Direct。</p>
+         <div class="card-footer"><a href="https://github.com/kvcache-ai/Mooncake">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/Mooncake/">文档中心</a><span class="split">|</span><a href="sources/mooncake/index.html">快速上手</a></div>
       </div>
 
       <!-- onnxruntime -->
@@ -355,14 +402,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffusers.png')"></div><h3 class="card-title">diffusers</h3></div>
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/install.html">安装指南</a><span class="split">|</span><a href="sources/Diffusers/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/index.html">快速上手</a></div>
       </div>
 
       <!-- LM-Eval -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">lm-evaluation-harness</h3></div>
          <p class="card-desc">语言模型评测工具，支持昇腾基准。</p>
-         <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/install.html">安装指南</a><span class="split">|</span><a href="sources/lm_evaluation/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/index.html">快速上手</a></div>
       </div>
 
       <!-- Open CLIP -->
@@ -414,6 +461,13 @@
          <div class="card-footer"><a href="https://github.com/ggml-org/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/index.html">快速上手</a></div>
       </div>
 
+      <!-- ModelScope -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ModelScope</h3></div>
+         <p class="card-desc">「模型即服务」(MaaS) 开放平台，汇集 AI 社区最先进的机器学习模型。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/modelscope">官方链接</a><span class="split">|</span><a href="sources/modelscope/quick_start.html">快速上手</a></div>
+      </div>
+
       <!-- ComfyUI -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ComfyUI</h3></div>
@@ -455,22 +509,29 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/specforge/index.rst
    sources/torchtitan/index.rst
+   sources/torchtune/index.rst
    sources/trl/index.rst
    sources/twinkle/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
    sources/pyg/index.rst
+   sources/xtuner/index.rst
 
 .. toctree::
    :maxdepth: 1
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/ktransformers/index.rst
    sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
+   sources/internlm/index.rst
    sources/llm_compressor/index.rst
+   sources/llm_d/index.rst
    sources/lm_deploy/index.rst
+   sources/mooncake/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
    sources/sglang/index.rst
@@ -501,5 +562,5 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/modelscope/index.md
    sources/comfyui/index.md
-
