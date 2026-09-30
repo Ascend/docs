@@ -97,7 +97,13 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/opencompass/quick_start.md',
                     'sources/xdit/quick_start.md',
                     'sources/speculators/quick_start.md',
-                    'sources/tensordict/quick_start.md']
+                    'sources/tensordict/quick_start.md',
+                    'sources/aibrix/quick_start.md',
+                    'sources/colossalai/quick_start.md',
+                    'sources/diffsynth_studio/quick_start.md',
+                    'sources/flagscale/quick_start.md',
+                    'sources/lmcache/quick_start.md',
+                    'sources/onnxruntime/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------
