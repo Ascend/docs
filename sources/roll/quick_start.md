@@ -9,6 +9,8 @@
 
 本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
 
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+
 ## 加载 CANN 环境
 
 ```shell
@@ -49,7 +51,7 @@ ROLL xxx
 
 FrozenLake 是 ROLL 官方快速入门的示例：Qwen2.5-0.5B-Instruct 作为策略模型，在 4×4 冰面网格中逐轮输出移动方向，绕开冰洞到达终点，环境按结果返回奖励。
 
-**安装 vLLM 与 triton。**
+**安装 vLLM 与 triton。** 安装 `vllm-ascend` 时，配套的 `torch`、`torch_npu`、`torchvision` 和 `torchaudio` 会作为依赖自动安装，无需单独安装 PyTorch 软件栈。
 
 ```shell #test-setup id="install-npu-runtime"
 pip install --index-url https://repo.huaweicloud.com/repository/pypi/simple vllm==0.23.0

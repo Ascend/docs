@@ -14,14 +14,32 @@ Atlas 900 A2 单卡（Ascend 910B），并按需完成物理机或容器内的�
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配的 `torch` + `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-本文档示例在 Python 3.12、CANN 9.1.0、torch 2.9.0、torch_npu 2.9.0.post2 环境下验证通过。
+本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
+
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
 
 ## 加载 CANN 环境
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+```
+
+## 安装 PyTorch 软件栈
+
+安装与 CANN 配套的 PyTorch 和 Torch-NPU，并查看安装版本：
+
+```shell #test id="install-torch"
+pip install torch==2.9.0 torch_npu==2.9.0.post2
+python -c "import torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__)"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch 2.9.0+cpu
+torch_npu 2.9.0.post2
 ```
 
 ## 安装 lm-eval

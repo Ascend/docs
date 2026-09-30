@@ -14,14 +14,34 @@ Atlas 900 A2 / A3 或 Ascend 950 系列服务器（Ascend 910B），并按需完
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配的 `torch` + `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-本文档示例在 Python 3.12、CANN 9.1.0、torch 2.9.0、torch_npu 2.9.0.post2 环境下验证通过。
+本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
+
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
 
 ## 加载 CANN 环境
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+```
+
+## 安装 PyTorch 软件栈
+
+安装与 CANN 配套的 PyTorch、Torch-NPU 和 TorchVision，并查看安装版本：
+
+```shell #test id="install-torch"
+pip install torch==2.9.0 torch_npu==2.9.0.post2
+pip install --no-deps torchvision==0.24.0
+python -c "import torch, torch_npu, torchvision; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('torchvision', torchvision.__version__.split('+', 1)[0])"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch 2.9.0+cpu
+torch_npu 2.9.0.post2
+torchvision 0.24.0
 ```
 
 ## 安装 timm
@@ -130,6 +150,7 @@ channels [64, 64, 128, 256, 512]
 4 (1, 512, 7, 7)
 ```
 
-## 更多用法
+## 外部链接
 
-训练脚本、多卡分布式、模型导出等更多用法见 [timm 官方文档](https://huggingface.co/docs/timm/) 和 [GitHub 仓库](https://github.com/huggingface/pytorch-image-models)。
+- [官方仓库](https://github.com/huggingface/pytorch-image-models)
+- [官方文档](https://huggingface.co/docs/timm/)
