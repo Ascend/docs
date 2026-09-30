@@ -103,14 +103,12 @@ python -m pip install --retries 3 diffsynth
 python -c "import torch, torch_npu; from importlib.metadata import version; from diffsynth.core.device.npu_compatible_device import get_device_name, get_device_type; print('diffsynth', version('diffsynth')); print('device_type', get_device_type()); print('device_name', get_device_name())"
 ```
 
-<!--
 ```shell #test-result id="install-diffsynth"
 ...
 diffsynth ...
 device_type npu
 device_name npu:0
 ```
--->
 
 ## 5. 在 NPU 上生成一张图
 
