@@ -16,7 +16,7 @@ Atlas 800T / 900 A2 训练系列，Ascend 910B。本文示例为单卡。
 | CANN | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
 | Python | 落在官方配套表范围内，并满足 DiffSynth-Studio 下限。当前正式版要求 3.10.1 及以上 |
 | PyTorch | 安装官方当前推荐的 `torch` 与 `torch_npu`，CPU 轮子的版本号带 `+cpu`。见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) 和 [PyTorch 安装包](https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download) |
-| DiffSynth-Studio | 安装上游最新 release。下文命令中的 `<ref>` 即该标签 |
+| DiffSynth-Studio | 当前正式版。将 `<ref>` 换成 PyPI 版本号，安装步骤见第 4 节 |
 | 模型 | [stable-diffusion-v1-5/stable-diffusion-v1-5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) |
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
@@ -117,6 +117,10 @@ python -c "import torch, torch_npu; from importlib.metadata import version; from
 diffsynth ...
 device_type npu
 device_name npu:0
+```
+
+```{note}
+将 `<ref>` 换成 PyPI 版本号
 ```
 
 ## 5. 在 NPU 上生成一张图
