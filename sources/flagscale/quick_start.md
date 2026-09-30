@@ -22,8 +22,6 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 
 ### 本文验证环境
 
-下表是这次验证用的环境。软件要求见上一节。
-
 | 项目 | 内容 |
 | --- | --- |
 | 镜像 | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
@@ -31,7 +29,6 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 | Python | 3.12，来自上面的镜像 |
 | vLLM / vLLM-Ascend | 0.23.0 / 0.23.0 |
 | torch / torch_npu | 2.10.0 / 2.10.0.post4 |
-| FlagScale | Release tag `v2.0.0`，包装版本 `1.0.0` |
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
