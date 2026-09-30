@@ -204,23 +204,12 @@ echo "${UPSTREAM_REF}"
 ```
 -->
 
-```shell #test id="clone-aibrix" load="upstream_ref>>ref"
+编译 `gateway-plugins`。`GOPATH` 与 `GOCACHE` 放在工作目录。
+
+```shell #test id="build-gateway" load="upstream_ref>>ref"
 set -eu
 rm -rf .aibrix-quick-start/aibrix
 git clone --depth 1 --branch <ref> https://github.com/vllm-project/aibrix.git .aibrix-quick-start/aibrix
-git -C .aibrix-quick-start/aibrix describe --tags --exact-match
-```
-
-输出结果如下：
-
-```shell #test-result id="clone-aibrix" load="upstream_ref>>ref"
-<ref>
-```
-
-编译 `gateway-plugins`。`GOPATH` 与 `GOCACHE` 放在工作目录。
-
-```shell #test id="build-gateway"
-set -eu
 export GOPATH="$PWD/.aibrix-quick-start/gopath"
 export GOCACHE="$PWD/.aibrix-quick-start/gocache"
 mkdir -p "$GOPATH" "$GOCACHE"
@@ -232,12 +221,13 @@ CGO_ENABLED=0 "$PWD/../toolchain/go/bin/go" build -tags=nozmq -o bin/gateway-plu
 完整输出较长，其中应包含：
 
 ```shell #test-result id="build-gateway"
+...
 bin/gateway-plugins: go...
 ...
 ```
 
 ```{note}
-请将 <ref> 替换为社区最新的 release 版本。
+请将 `<ref>` 替换为社区最新的 release 版本。
 ```
 
 
