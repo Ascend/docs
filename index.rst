@@ -135,11 +135,11 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
-      <!-- DeepSpeed：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
+      <!-- DeepSpeed -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
          <p class="card-desc">DeepSpeed is a deep learning optimization library that makes distributed training and inference easy, efficient, and effective. </p>
-         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/">文档中心</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/#huawei-ascend-npu">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="sources/deepspeed/index.html">快速上手</a></div>
       </div>
 
       <!-- kernels -->
