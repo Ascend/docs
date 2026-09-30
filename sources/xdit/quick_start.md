@@ -17,6 +17,8 @@ Atlas 900 A2 训练服务器（Ascend 910B），并按需完成物理机或容�
 
 本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
 
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+
 ## 加载 CANN 环境
 
 ```shell

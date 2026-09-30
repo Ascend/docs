@@ -127,10 +127,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
     _CONSTRAINTS_FILE = '/tmp/lm_eval_npu_constraints.txt'
 
-    # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source.
-    _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
-    _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
-
     # CANN toolkit: source once to get ASCEND_HOME / LD_LIBRARY_PATH etc.
     # Path is hard-coded, tied to the container image pinned by the
     # ``image:`` input of ``lm-evaluation-harness-quick-start.yml``.
@@ -227,20 +223,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     # ----------------------------------------------------------
     # prepare_environment: CANN env + CUDA constraints + NPU card pin +
-    # torch stack probe + safetensors + modelscope cache validation
+    # safetensors and modelscope cache validation
     # ----------------------------------------------------------
 
     @classmethod
     def prepare_environment(cls) -> None:
-        """Source CANN env + write CUDA exclusion list + pin NPU card 0 +
-        torch stack probe + safetensors + modelscope cache
-        validation.
+        """Source CANN, constrain CUDA packages, pin NPU 0, and check cache.
 
-        The doc's ``## 安装 lm-eval`` block is the single source of truth
-        for which lm_eval version gets installed; this class only handles
-        ``torch`` / ``torch_npu`` here (via the cluster cache + Huawei
-        ascend dual-source). ``lm_eval`` installs itself in document order
-        via the ``#test`` machinery (``install-lmeval``).
+        The document installs the PyTorch stack and lm-eval in order via
+        its ``#test`` blocks.
 
         Class-level setup: run once per test class, triggered by
         ``setUpClass``. Not the same as ``unittest.TestCase.setUp`` —
@@ -279,54 +270,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         #    the constraints above.
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
-        # 3) torch stack probe: when version matches the image's
-        # pre-installed wheels, reuse them to avoid the cluster cache
-        # triggering ``+cpu`` resolution.
-        _PROBE_SCRIPT = (
-            'import torch, torch_npu\n'
-            "raise SystemExit(0 if "
-            "torch.__version__.startswith('2.9.0') "
-            "and torch_npu.__version__.startswith('2.9.0') "
-            "else 1)"
-        )
-        probe = subprocess.run(
-            ['python', '-c', _PROBE_SCRIPT],
-            capture_output=True,
-            check=False,  # probe's success/failure is the branch signal — don't raise
-        )
-        if probe.returncode == 0:
-            _VERSIONS_SCRIPT = (
-                'import torch, torch_npu; '
-                'print(torch.__version__, torch_npu.__version__)'
-            )
-            versions = subprocess.run(
-                ['python', '-c', _VERSIONS_SCRIPT],
-                capture_output=True, text=True, check=True,
-            )
-            print(f'setup: reusing image torch stack ({versions.stdout.strip()})')
-        else:
-            print('setup: installing torch==2.9.0 torch_npu==2.9.0.post2')
-            subprocess.run(
-                [
-                    'python', '-m', 'pip', 'install',
-                    '--index-url', cls._CLUSTER_INDEX,
-                    '--extra-index-url', cls._ASCEND_EXTRA,
-                    'torch==2.9.0', 'torch_npu==2.9.0.post2',
-                ],
-                check=True,
-            )
-
-        # 5) safetensors: native loader used by the cache validation
-        # step below. Pulled in transitively by torch on most images;
-        # install defensively in case the CANN base ships without it.
+        # 3) safetensors is used to validate cached model weights.
         ensure_safetensors()
 
-        # 6) Cache validation: the doc downloads Qwen/Qwen2.5-0.5B-Instruct
+        # 4) Cache validation: the doc downloads Qwen/Qwen2.5-0.5B-Instruct
         # via ModelScope on the first run. A persistent host-side bind mount
         # can hold truncated safetensors from interrupted runs; walk every
         # shard under each model dir and purge it on failure. modelscope
         # will re-download cleanly on next access. Implementation lives in
-        # workflows.model_cache; see that module's docstring for the
+        # doc_test.model_cache; see that module's docstring for the
         # full rationale.
         purge_modelscope_corrupt(resolve_modelscope_cache())
 
@@ -337,7 +289,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         """Run env setup once per test class: CANN env + CUDA constraints +
-        HF endpoint + torch stack + safetensors + modelscope cache
+        HF endpoint + safetensors + modelscope cache
         validation.
 
         ``@unittest.skipIf`` only skips the test *method* — ``setUpClass``
