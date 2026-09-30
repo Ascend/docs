@@ -1,0 +1,35 @@
+# stable-diffusion-webui quick start guard - thin trigger over quick-start-template.yml.
+name: stable-diffusion-webui-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'stable-diffusion-webui-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '20 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/sd_webui/**'
+      - 'tests/sd_webui/**'
+
+permissions:
+  contents: read
+
+jobs:
+  stable-diffusion-webui-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: stable-diffusion-webui
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/stable-diffusion-webui:/root/.cache/modelscope
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+      timeout_minutes: 180
+      upstream_repo: AUTOMATIC1111/stable-diffusion-webui
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/sd_webui/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/sd_webui/quick_start.md
+      test_command: python -m unittest tests.sd_webui.test_quick_start_ascend -v 2>&1
