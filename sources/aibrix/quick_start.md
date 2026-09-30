@@ -196,7 +196,7 @@ Name: triton_ascend
 
 ## 4. 获取 AIBrix 源码并编译网关
 
-克隆 release tag。`<ref>` 在看护里替换成上游版本。
+克隆 release tag。
 
 <!--
 ```shell #test-setup store="upstream_ref"
