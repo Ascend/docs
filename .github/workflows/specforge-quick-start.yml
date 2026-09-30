@@ -1,0 +1,92 @@
+# specforge quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# No device mounts: the self-hosted NPU runner (`linux-aarch64-a2-4`)
+# auto-passes `/dev/davinci*` into the container via the cluster
+# device-plugin, so container_options stays empty.
+#
+# No HF cache bind-mount: the doc's model download goes to the default
+# HF hub cache inside the container; no shared host cache is mounted.
+
+name: specforge-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'specforge-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 6 hours at minute 40 (00:40, 06:40, 12:40, 18:40) -
+    # offset from timm's :00, torchtune's :10, xtuner's :50 and the
+    # every-3h guards (axolotl/tgi/whisper_cpp :15, diffusers :20,
+    # peft :30, accelerate/llama_cpp :45) so the guards don't contend
+    # for NPU runners. Cadence is loose enough for an upstream that
+    # releases a few times a year, but tight enough that doc fixes
+    # propagate within a day.
+    - cron: '40 */6 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/specforge/**'
+      - 'tests/specforge/**'
+
+permissions:
+  contents: read
+
+jobs:
+  specforge-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-specforge-*), artifacts
+      # (specforge-quick-start-<run_id>) and the test working dir
+      # (tests/specforge in the repo root; engine sets cwd to repo root).
+      project: specforge
+      # 4-card NPU runner: smoke parks the SGLang capture server on
+      # card 0, the specforge trainer on card 1, and leaves cards 2-3
+      # idle for HCCL buffers. A 1-card runner is too small (capture +
+      # trainer on one device would OOM on Qwen3.5-4B + activations).
+      test_runner: '["linux-aarch64-a2-4"]'
+      # SGLang-specific image: pre-installed torch 2.10.0 + torch_npu
+      # 2.10.0 + sglang 0.5.18 (validated by the doc's check-torch);
+      # the doc applies SpecForge's spec-capture patches onto this
+      # sglang install.
+      image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+      container_options: ''
+      # 4h budget. Doc body: install deps (modelscope wheel + apt libs
+      # + specforge from source) + cold-cache Qwen3.5-4B (~8 GB)
+      # snapshot_download from HuggingFace Hub (~110 min worst case at
+      # observed ~1.2 MB/s cluster egress) + SGLang first-time graph
+      # compile on NPU (5-10 min) + the 1-step specforge train + the
+      # per-stage monitors. The HF download is the long pole.
+      timeout_minutes: 240
+      upstream_repo: sgl-project/SpecForge
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/specforge/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/specforge/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.specforge.test_quick_start_ascend -v 2>&1
