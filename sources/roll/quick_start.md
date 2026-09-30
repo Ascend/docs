@@ -155,13 +155,9 @@ tracker_kwargs:
 
 num_gpus_per_node: 1
 
-# 单卡示例减少 TransferQueue 的 CPU 占用。
+# 禁用 TransferQueue 远程传输，数据直接走 Ray 传递。
 transfer_backend:
-  backend_name: TransferQueue
-  backend_config:
-    backend:
-      SimpleStorage:
-        num_data_storage_units: 4
+  backend_name: null
 
 # 单卡快速跑通：只训练 1 步，批量收缩。
 max_steps: 1
