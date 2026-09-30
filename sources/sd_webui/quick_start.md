@@ -17,10 +17,34 @@ Atlas 900 A2 训练服务器，并按需完成物理机或容器内的设备挂�
 
 本文档示例在 Python 3.10、CANN 9.1.0 环境下验证通过。
 
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10`。
+
 ## 加载 CANN 环境
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+```
+
+## 安装 PyTorch 软件栈
+
+安装与 CANN 9.1.0 匹配的 PyTorch、TorchVision 和 Torch-NPU，并查看安装版本：
+
+```shell #test id="install-torch"
+pip install torch==2.9.0 torchvision==0.24.0 torch_npu==2.9.0.post6
+python -c 'import torch; print(f"torch=={torch.__version__}")'
+for package in torchvision torch-npu; do
+    version=$(pip show "$package" | sed -n 's/^Version: //p')
+    echo "$package==${version%%+*}"
+done
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch==2.9.0+cpu
+torchvision==0.24.0
+torch-npu==2.9.0.post6
 ```
 
 ## 安装 stable-diffusion-webui
@@ -34,7 +58,6 @@ echo "${UPSTREAM_REF}"
 克隆上游仓库并切换到最新 release：
 
 ```shell #test id="clone-repo" load="upstream_ref>>ref"
-set -e
 git clone --branch "<ref>" --depth 1 https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
 release=$(git -C stable-diffusion-webui describe --tags --exact-match HEAD)
 echo "stable-diffusion-webui $release"
@@ -58,19 +81,17 @@ stable-diffusion-webui xxx
 
 ### 安装依赖
 
-安装 opencv 运行所需的系统库、上游依赖，以及与 CANN 匹配的 PyTorch 软件栈，并打印关键依赖版本。CLIP 从 GitHub 源码安装，ModelScope 用于下载模型：
+安装 opencv 运行所需的系统库和上游依赖，并打印关键依赖版本。CLIP 从 GitHub 源码安装，ModelScope 用于下载模型：
 
 ```shell #test id="install-deps"
-set -e
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends libgl1 libglib2.0-0
-pip install torch==2.9.0 torchvision==0.24.0 torch_npu==2.9.0.post6
 pip install -r stable-diffusion-webui/requirements_versions.txt
 pip install -r stable-diffusion-webui/requirements.txt
 pip install -r stable-diffusion-webui/requirements_npu.txt
 pip install modelscope wheel
 pip install --no-build-isolation "https://github.com/openai/CLIP/archive/d50d76daa670286dd6cacf3bcd80b5e4823fc8e1.zip"
-for package in torch torchvision torch-npu transformers gradio modelscope; do
+for package in transformers gradio modelscope; do
     version=$(pip show "$package" | sed -n 's/^Version: //p')
     echo "$package==${version%%+*}"
 done
@@ -80,9 +101,6 @@ done
 
 ```shell #test-result id="install-deps" fuzzy='...' fuzzy='xxx'
 ...
-torch==2.9.0
-torchvision==0.24.0
-torch-npu==2.9.0.post6
 transformers==xxx
 gradio==xxx
 modelscope==xxx

@@ -30,6 +30,10 @@ def _e2e_enabled() -> bool:
 
 class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     DEFAULT_COMMAND_TIMEOUT = 1800
+    _LANG_RUNNER = {
+        **MarkdownDocTestBase._LANG_RUNNER,
+        'shell': ('bash', '-e', '-c'),
+    }
     USER_AGENT = 'cosdt-ci-test/quick-start'
     ERROR_MARKERS = (
         *MarkdownDocTestBase.ERROR_MARKERS,
