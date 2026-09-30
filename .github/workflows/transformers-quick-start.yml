@@ -1,0 +1,68 @@
+# transformers quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml.
+
+name: transformers-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'transformers-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 3 hours, offset from peft (minute 30) to spread load:
+    # '40 */3 * * *' fires at minute 40 of every 3rd hour.
+    - cron: '40 */3 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/transformers/**'
+      - 'tests/transformers/**'
+
+permissions:
+  contents: read
+
+jobs:
+  transformers-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-transformers-*), artifacts
+      # (transformers-quick-start-<run_id>) and the test working dir
+      # (workflows/tests/transformers).
+      project: transformers
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # 2 h budget. Cold-cache download of Qwen2.5-1.5B (~3 GB) is
+      # well under peft's 3B model; hot-cache runs finish in <5 min.
+      timeout_minutes: 120
+      # Monitor watches upstream releases; a new transformers release
+      # re-fires the guard against the newest release.
+      upstream_repo: huggingface/transformers
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/transformers/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/transformers/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.transformers.test_quick_start_ascend -v 2>&1

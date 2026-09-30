@@ -1,0 +1,35 @@
+# open_clip Ascend Quick Start guard.
+name: open-clip-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'open-clip-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '20 */6 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/open_clip/**'
+      - 'tests/open_clip/**'
+      - '.github/workflows/open-clip-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  open-clip-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: open_clip
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/huggingface/open-clip:/root/.cache/huggingface
+      timeout_minutes: 90
+      upstream_repo: mlfoundations/open_clip
+      doc_url: 'https://api.github.com/repos/Ascend/docs/contents/sources/open_clip/quick_start.md?ref={0}'
+      doc_path: https://github.com/Ascend/docs/blob/${{ github.sha }}/sources/open_clip/quick_start.md
+      test_command: python -m unittest tests.open_clip.test_quick_start_ascend -v 2>&1
