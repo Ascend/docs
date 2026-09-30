@@ -1,0 +1,104 @@
+# xtuner quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# No device mounts: the self-hosted NPU runner (`linux-aarch64-a2-2`,
+# 2-card) auto-passes `/dev/davinci*` into the container via the
+# cluster device-plugin, so container_options stays empty. Multi-rank
+# HCCL (xtuner's multi-card smoke uses `NPROC_PER_NODE=2`) talks
+# across cards via davinci_manager + devmm_svm + hisi_hdc control
+# devices, which are device-plugin passthroughs too. check-torch on
+# this 2-card runner expects `count: 2`; the multi-card smoke step is
+# what actually exercises both cards, single-card steps leave one
+# card idle.
+#
+# No HF cache bind-mount: the doc's model download uses
+# ``snapshot_download(..., cache_dir='./qwen')`` — a repo-relative,
+# run-scoped directory inside the checkout (cleaned by
+# actions/checkout on the next run), not the shared default cache, so
+# a bind-mount would be dead config.
+
+name: xtuner-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'xtuner-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Run every 6 hours at minute 50 (00:50, 06:50, 12:50, 18:50) -
+    # offset from timm's :00, torchtune's :10 and the every-3h guards
+    # (axolotl/tgi/whisper_cpp :15, diffusers :20, peft :30,
+    # accelerate/llama_cpp :45) so the guards don't contend for NPU
+    # runners. Cadence is loose enough for an upstream that releases
+    # every few months, but tight enough that doc fixes propagate
+    # within a day.
+    - cron: '50 */6 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/xtuner/**'
+      - 'tests/xtuner/**'
+
+permissions:
+  contents: read
+
+jobs:
+  xtuner-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-xtuner-*), artifacts
+      # (xtuner-quick-start-<run_id>) and the test working dir
+      # (tests/xtuner in the repo root; engine sets cwd to repo root).
+      project: xtuner
+      # Self-hosted 2-card NPU runner for the test job only; the
+      # engine pins the cache I/O jobs (restore-cache /
+      # publish-and-persist) to GitHub-hosted ubuntu-latest. 2-card
+      # label is required because xtuner's multi-card smoke step
+      # issues `NPROC_PER_NODE=2 xtuner train ...`; a 1-card label
+      # would HCCL-init-fail on rank-1's
+      # `torch.distributed.init_process_group`.
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: ''
+      # 150 min budget. The doc body does: git clone + `uv pip install
+      # --no-deps -e .` + manual install of runtime deps + version
+      # print + import smoke + MODES assertion + cold-cache
+      # Qwen1.5-1.8B-Chat (~3.5 GB) snapshot_download from
+      # HuggingFace Hub + single-card / 2-card DDP LoRA SFT (5 iters
+      # each, dist_backend="npu:hccl") + pth_to_hf + LoRA merge +
+      # two chat runs. The HF download is the long pole (~3.5 GB at
+      # observed ~1.2 MB/s cluster egress ≈ 50 min worst case);
+      # everything else adds ~20 min. `--no-deps` skips xtuner's hard
+      # pin `bitsandbytes==0.45.0` which has no aarch64 wheel.
+      timeout_minutes: 150
+      upstream_repo: InternLM/xtuner
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/xtuner/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/xtuner/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.xtuner.test_quick_start_ascend -v 2>&1
