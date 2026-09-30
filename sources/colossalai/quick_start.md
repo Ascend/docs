@@ -120,7 +120,7 @@ npu_available True
 ```
 
 ```{note}
-当前正式版的安装声明把 torch 限制在 2.5.1 及以下。直接安装会换掉上一节的 NPU 栈。
+<ref> 为最新的 release 版本
 ```
 
 ---
