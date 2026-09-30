@@ -33,9 +33,10 @@ echo "ROLL $(git -C ROLL describe --tags --exact-match HEAD)"
 pip install -e ROLL
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `<ref>` 为最新正式 release 的 tag
-:::
+```
 
 输出结果如下：
 
@@ -43,9 +44,10 @@ pip install -e ROLL
 ROLL xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 为实际安装到的 release 版本号
-:::
+```
 
 ## 运行示例：FrozenLake agentic 强化学习
 
@@ -306,9 +308,10 @@ print(f"FrozenLake 平均得分：{metrics.Scalars('critic/score/mean')[-1].valu
 FrozenLake 平均得分：xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 为本次训练实际得到的平均得分，随训练随机性变化
-:::
+```
 
 ## 外部链接
 

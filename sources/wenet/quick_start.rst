@@ -1,7 +1,8 @@
 快速开始
 ==================
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 WeNet ！
     
@@ -36,7 +37,8 @@ stage -1 阶段将 aishell-1 数据下载到本地路径 ``$data``：
 
 stage 0 阶段为训练数据准备阶段，将使用 ``local/aishell_data_prep.sh`` 脚本将训练数据重新组织为 ``wav.scp`` 和 ``text`` 两部分。
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     ``wav.scp`` 每行记录两个制表符分隔的列： ``wav_id`` 和 ``wav_path``,
     ``text`` 每行记录两个制表符分隔的列： ``wav_id`` 和 ``text_label``。
@@ -99,7 +101,8 @@ stage 4 为模型训练阶段， ``run_npu.sh`` 脚本中实现了 NPU 卡号的
 
 如需自行指定 NPU 卡号，请更改 ``run_npu.sh`` 脚本中的变量 ``ASCEND_RT_VISIBLE_DEVICES`` 值为指定卡号。
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     有关断点重训，参数配置等，请参考 `WeNet 官方文档 <https://wenet.org.cn/wenet/tutorial_aishell.html#stage-4-neural-network-training>`_ 。
 
@@ -116,7 +119,8 @@ stage 5 为模型测试推理阶段，将测试集中语音文件识别为文本
 此外，stage 5 还提供平均模型的功能，平均模型指当 ``${average_checkpoint}``为 ``true`` 时，
 将交叉验证集上的最佳的 ``${average_num}`` 个模型平均，生成增强模型。
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     此阶段还提供解码和 WER 模型评估等功能，详细信息请参考 WeNet `官方文档 <https://wenet.org.cn/wenet/tutorial_aishell.html#stage-5-recognize-wav-using-the-trained-model>`_ 。
 

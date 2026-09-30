@@ -115,7 +115,8 @@ python -m pip install --no-build-isolation "bitsandbytes==<UPSTREAM_REF>"
 python -c "import bitsandbytes as bnb; import bitsandbytes.cextension as ce; print('bitsandbytes', bnb.__version__); print('BNB_BACKEND', ce.BNB_BACKEND); print('lib', type(ce.lib).__name__)"
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `<UPSTREAM_REF>` 替换成最新的 release 版本。
 ```
 

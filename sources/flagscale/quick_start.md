@@ -151,7 +151,8 @@ python -c "from importlib.metadata import version; print('flagscale', version('f
 flagscale 1.0.0...
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `<ref>` 是上游最新的 Release tag。
 ```
 

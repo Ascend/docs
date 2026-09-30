@@ -1,7 +1,9 @@
 快速开始
 ==================
 
-.. note::
+.. admonition:: Note
+    :class: note
+
     阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 PyG 
 
 本文档帮助昇腾开发者快速使用 PyG × 昇腾 进行 GNN 训练。你可以访问 `这篇官方论文 <https://arxiv.org/abs/2507.16991>`_ 获取更多信息。

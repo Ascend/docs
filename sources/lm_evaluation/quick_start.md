@@ -58,9 +58,10 @@ python -c "import lm_eval; print('lm_eval', lm_eval.__version__)"
 lm_eval xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 表示实际安装的 lm-eval 版本号。
-:::
+```
 
 ## 运行评测
 
@@ -159,9 +160,10 @@ arc_easy acc=xxx
 winogrande acc=xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 表示各任务的实际准确率。
-:::
+```
 
 ## 外部链接
 
