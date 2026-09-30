@@ -31,8 +31,8 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
 ```shell #test id="install-torch"
 pip install torch==2.9.0 torch_npu==2.9.0.post2
-pip install --no-deps torchvision==0.24.0
-python -c "import torch, torch_npu, torchvision; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('torchvision', torchvision.__version__.split('+', 1)[0])"
+pip install torchvision==0.24.0
+python -c "import torch, torch_npu, torchvision; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('torchvision', torchvision.__version__)"
 ```
 
 输出结果如下：
