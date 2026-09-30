@@ -292,12 +292,20 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- aibrix -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">aibrix</h3></div>
+         <p class="card-desc">vLLM 的推理网关。本文用 local mode，在一张昇腾卡上把一次 OpenAI 兼容请求转到一个 vLLM 引擎。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/aibrix">官方链接</a><span class="split">|</span><a href="https://aibrix.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="sources/aibrix/index.html">快速上手</a></div>
+      </div>
+
       <!-- bitsandbytes -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">bitsandbytes</h3></div>
          <p class="card-desc">8-bit / 4-bit 量化库。本文在单卡昇腾上跑通默认后端的 NF4 Linear4bit 前向。</p>
          <div class="card-footer"><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">官方链接</a><span class="split">|</span><a href="https://huggingface.co/docs/bitsandbytes">文档中心</a><span class="split">|</span><a href="sources/bitsandbytes/index.html">快速上手</a></div>
       </div>
+
 
       <!-- KTransformers -->
       <div class="project-card">
@@ -310,7 +318,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
          <p class="card-desc">A PyTorch-native Inference Engine with Cache, Parallelism, Quantization and CPU Offload for DiTs.</p>
-         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
       </div>
 
       <!-- FlagScale -->
@@ -590,6 +598,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/aibrix/index.rst
    sources/bitsandbytes/index.rst
    sources/ktransformers/index.rst
    sources/cache-dit/index.rst
