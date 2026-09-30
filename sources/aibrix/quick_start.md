@@ -225,7 +225,8 @@ bin/gateway-plugins: go...
 ...
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 请将 `<ref>` 替换为社区最新的 release 版本。
 ```
 

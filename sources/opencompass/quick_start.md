@@ -151,7 +151,8 @@ test -s test.jsonl && test -s train.jsonl && echo gsm8k_ready True
 gsm8k_ready True
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `<model_path>` 是第 6 节 `eval_qwen2_gsm8k.py` 里的变量，换成第 5 节这条下载命令打印的本地目录。
 ```
 

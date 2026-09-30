@@ -63,7 +63,8 @@ release=$(git -C stable-diffusion-webui describe --tags --exact-match HEAD)
 echo "stable-diffusion-webui $release"
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `<ref>` 表示上游最新的 release 标签
 ```
 
@@ -73,7 +74,8 @@ echo "stable-diffusion-webui $release"
 stable-diffusion-webui xxx
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `xxx` 表示安装的版本。
 ```
 
@@ -106,7 +108,8 @@ gradio==xxx
 modelscope==xxx
 ```
 
-```{note}
+```{admonition} Note
+:class: note
 `...` 表示省略的安装日志，`xxx` 表示依赖的版本。
 ```
 

@@ -66,9 +66,10 @@ python -c "from importlib.metadata import version; print('xDiT version:', versio
 xDiT version: xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 其中 `xxx` 是安装的 xDiT（`xfuser`）版本号。
-:::
+```
 
 ## 运行示例：文生图
 
@@ -168,9 +169,10 @@ inference time: xxx sec
 image saved to results/sd3_npu2_ulysses2.png
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 其中 `xxx` 为实际推理耗时，单位为秒。
-:::
+```
 
 ## 外部链接
 
