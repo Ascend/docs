@@ -153,7 +153,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ray.png')"></div><h3 class="card-title">Ray</h3></div>
          <p class="card-desc">Ray is a unified framework for scaling AI and Python applications. </p>
-         <div class="card-footer"><a href="https://github.com/ray-project/ray">官方链接</a><span class="split">|</span><a href="sources/Ray/quick_start.html">安装指南</a><span class="split">|</span><a href="sources/Ray/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/ray-project/ray">官方链接</a><span class="split">|</span><a href="sources/Ray/usage.html">使用说明</a><span class="split">|</span><a href="sources/Ray/index.html">快速上手</a></div>
       </div>
 
       <!-- Ray -->
@@ -167,7 +167,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">transformers</h3></div>
          <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
-         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -210,6 +210,13 @@
          <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
       </div>
 
+      <!-- speculators -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">speculators</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 vllm-ascend 在昇腾 NPU 上完成训练与部署。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/speculators">官方链接</a><span class="split">|</span><a href="sources/speculators/index.html">快速上手</a></div>
+      </div>
+
       <!-- SpecForge -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
@@ -222,6 +229,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- torchvision -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchvision</h3></div>
+         <p class="card-desc">计算机视觉库，基于 torch_npu 在昇腾 NPU 上跑通 transforms v2 与 transforms 链路。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/vision">官方链接</a><span class="split">|</span><a href="sources/torch_vision/index.html">快速上手</a></div>
       </div>
 
       <!-- TorchTune -->
@@ -277,6 +291,13 @@
 
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
+
+      <!-- bitsandbytes -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">bitsandbytes</h3></div>
+         <p class="card-desc">8-bit / 4-bit 量化库。本文在单卡昇腾上跑通默认后端的 NF4 Linear4bit 前向。</p>
+         <div class="card-footer"><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">官方链接</a><span class="split">|</span><a href="https://huggingface.co/docs/bitsandbytes">文档中心</a><span class="split">|</span><a href="sources/bitsandbytes/index.html">快速上手</a></div>
+      </div>
 
       <!-- KTransformers -->
       <div class="project-card">
@@ -400,6 +421,13 @@
          <div class="card-footer"><a href="https://github.com/linkedin/Liger-Kernel">官方链接</a><span class="split">|</span><a href="sources/liger-kernel/install.html">安装指南</a><span class="split">|</span><a href="sources/liger-kernel/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- flash-linear-attention -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">flash-linear-attention</h3></div>
+         <p class="card-desc">高效线性注意力算子库，支持通过 Triton-Ascend 在昇腾 NPU 上训练。</p>
+         <div class="card-footer"><a href="https://github.com/fla-org/flash-linear-attention">官方链接</a><span class="split">|</span><a href="https://github.com/fla-org/flash-linear-attention/blob/main/INSTALL.md#ascend-npu">安装指南</a><span class="split">|</span><a href="sources/flash-linear-attention/">快速上手</a></div>
+      </div>
+
    </div>
 
    <h2 class="scene-header">🎨 多模态应用、评测与工具</h2>
@@ -411,6 +439,13 @@
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/index.html">快速上手</a></div>
       </div>
+      <!-- xDiT -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xdit.png')"></div><h3 class="card-title">xDiT</h3></div>
+         <p class="card-desc">扩散模型推理加速框架，支持昇腾 NPU 单卡/多卡加速图像生成。</p>
+         <div class="card-footer"><a href="https://github.com/xdit-project/xDiT">官方链接</a><span class="split">|</span><a href="sources/xdit/index.html">快速上手</a></div>
+      </div>
+
 
       <!-- LM-Eval -->
       <div class="project-card">
@@ -423,14 +458,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">open_clip</h3></div>
          <p class="card-desc">开源 CLIP 模型实现，支持多模态语义对齐。</p>
-         <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/mlfoundations/open_clip">官方链接</a><span class="split">|</span><a href="sources/open_clip/install.html">安装指南</a><span class="split">|</span><a href="sources/open_clip/index.html">快速上手</a></div>
       </div>
 
       <!-- OpenCompass -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencompass.png')"></div><h3 class="card-title">opencompass</h3></div>
-         <p class="card-desc">大模型标准测试工具。</p>
-         <div class="card-footer"><a href="https://github.com/open-compass/opencompass">官方链接</a><span class="split">|</span><a href="sources/opencompass/install.html">安装指南</a><span class="split">|</span><a href="sources/opencompass/quick_start.html">快速上手</a></div>
+         <p class="card-desc">开源大模型评测框架。本文在单卡上对 Qwen2-0.5B-Instruct 做 GSM8K 生成评测。</p>
+         <div class="card-footer"><a href="https://github.com/open-compass/opencompass">官方链接</a><span class="split">|</span><a href="sources/opencompass/install.html">安装指南</a><span class="split">|</span><a href="sources/opencompass/index.html">快速上手</a></div>
       </div>
 
       <!-- OpenCV -->
@@ -504,7 +539,7 @@
    sources/kernels/index.rst
    sources/pytorch/index.rst
    sources/Ray/index.rst
-   sources/transformers/index.rst
+   sources/transformers/index.md
 
 .. toctree::
    :maxdepth: 1
@@ -517,6 +552,7 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/speculators/index.rst
    sources/specforge/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
@@ -532,6 +568,7 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/bitsandbytes/index.rst
    sources/ktransformers/index.rst
    sources/cache-dit/index.rst
    sources/llama_cpp/index.rst
@@ -555,6 +592,7 @@
 
    sources/triton-ascend/index.rst
    sources/liger-kernel/index.rst
+   sources/flash-linear-attention/index.rst
 
 .. toctree::
    :maxdepth: 1
@@ -562,6 +600,7 @@
    :caption: 🎨 多模态、应用与评测
 
    sources/Diffusers/index.rst
+   sources/xdit/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
