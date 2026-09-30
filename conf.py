@@ -74,6 +74,11 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     # Guard / CI source of truth; Sphinx includes each into
                     # the project index.rst so the sidebar landing page
                     # is the tutorial, not a nested「快速开始」child page.
+                    'sources/trl/quick_start.md',
+                    'sources/deepspeed/quick_start.md',
+                    'sources/lightx2v/quick_start.md',
+                    'sources/fastchat/quick_start.md',
+                    'sources/sd_webui/quick_start.md',
                     'sources/llama_cpp/quick_start.md',
                     'sources/whisper_cpp/quick_start.md',
                     'sources/llm_compressor/quick_start.md',
