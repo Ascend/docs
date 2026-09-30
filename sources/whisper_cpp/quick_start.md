@@ -71,13 +71,13 @@ cmake --build build --config Release -j$(nproc)
 ls build/bin/whisper-cli
 ```
 
-<!--
-```shell #test-result id="compile"
+完整编译输出较长，其中应包含：
+
+```text #test-result id="compile"
 ...
 build/bin/whisper-cli
 ...
 ```
--->
 
 ## 4. 准备模型
 
@@ -124,10 +124,13 @@ if [ ! -f "$ci/ggml-tiny.en.bin" ]; then
   mv "$ci/ggml-tiny.en.bin.part" "$ci/ggml-tiny.en.bin"
 fi
 ```
-```shell #test-result id="download-model"
+-->
+
+执行之后的结果如下：
+
+```text #test-result id="download-model"
 lmgg
 ```
--->
 
 ## 5. 转写
 
@@ -172,6 +175,16 @@ cd whisper.cpp && ASCEND_RT_VISIBLE_DEVICES=0 ./build/bin/whisper-server \
     -m models/ggml-tiny.en.bin \
     -t 4 --device 0 \
     --host 127.0.0.1 --port 8080
+```
+
+完整输出较长，其中应包含：
+
+```text
+...
+whisper_backend_init_gpu: using CANN0 backend
+...
+whisper server listening at http://127.0.0.1:8080
+...
 ```
 
 ## 6. 更多文档
