@@ -348,6 +348,13 @@
          <div class="card-footer"><a href="https://github.com/InternLM/InternLM">官方链接</a><span class="split">|</span><a href="https://github.com/InternLM/InternLM/blob/main/ecosystem/README_npu.md">NPU 指南</a><span class="split">|</span><a href="sources/internlm/index.html">快速上手</a></div>
       </div>
 
+      <!-- FastChat -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/fastchat.png')"></div><h3 class="card-title">FastChat</h3></div>
+         <p class="card-desc">训练、服务和评测大语言模型的开源平台，支持昇腾 NPU 上的对话与 OpenAI 兼容 API。</p>
+         <div class="card-footer"><a href="https://github.com/lm-sys/FastChat">官方链接</a><span class="split">|</span><a href="sources/fastchat/index.html">快速上手</a></div>
+      </div>
+
       <!-- Mooncake -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/mooncake.png')"></div><h3 class="card-title">Mooncake</h3></div>
@@ -578,6 +585,7 @@
    sources/llm_compressor/index.rst
    sources/llm_d/index.rst
    sources/lm_deploy/index.rst
+   sources/fastchat/index.rst
    sources/mooncake/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
