@@ -135,11 +135,11 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
-      <!-- DeepSpeed：官方文档站已含昇腾说明，外链跳转，不再本地编译 -->
+      <!-- DeepSpeed -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
          <p class="card-desc">DeepSpeed is a deep learning optimization library that makes distributed training and inference easy, efficient, and effective. </p>
-         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/">文档中心</a><span class="split">|</span><a href="https://www.deepspeed.ai/tutorials/accelerator-setup-guide/#huawei-ascend-npu">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/deepspeedai/DeepSpeed">官方链接</a><span class="split">|</span><a href="sources/deepspeed/index.html">快速上手</a></div>
       </div>
 
       <!-- kernels -->
@@ -224,6 +224,13 @@
          <div class="card-footer"><a href="https://github.com/sgl-project/SpecForge">官方链接</a><span class="split">|</span><a href="sources/specforge/index.html">快速上手</a></div>
       </div>
 
+      <!-- tensordict -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">TensorDict</h3></div>
+         <p class="card-desc">PyTorch 官方字典风格张量容器库，基于 torch / torch_npu 在昇腾 NPU 上提供 TensorDict 核心特性验证。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/tensordict">官方链接</a><span class="split">|</span><a href="sources/tensordict/index.html">快速上手</a></div>
+      </div>
+
       <!-- TorchTitan -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
@@ -249,7 +256,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">Transformer Reinforcement Learning</h3></div>
          <p class="card-desc">适用于 SFT、PPO、DPO 等方法的模型后训练库。</p>
-         <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/install.html">安装指南</a><span class="split">|</span><a href="sources/trl/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/index.html">快速上手</a></div>
       </div>
 
       <!-- Twinkle：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
@@ -325,6 +332,8 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
          <p class="card-desc">面向 vLLM 部署的模型压缩库，在昇腾上完成 GPTQ 量化与 NPU 前向。</p>
          <div class="card-footer"><a href="https://github.com/vllm-project/llm-compressor">官方链接</a><span class="split">|</span><a href="https://docs.vllm.ai/projects/llm-compressor/en/latest/">文档中心</a><span class="split">|</span><a href="sources/llm_compressor/index.html">快速上手</a></div>
+      </div>
+
       <!-- llm-d -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/llm-d.png')"></div><h3 class="card-title">llm-d</h3></div>
@@ -344,6 +353,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">InternLM</h3></div>
          <p class="card-desc">开源大语言模型系列，支持在昇腾 NPU 上进行 Transformers 推理。</p>
          <div class="card-footer"><a href="https://github.com/InternLM/InternLM">官方链接</a><span class="split">|</span><a href="https://github.com/InternLM/InternLM/blob/main/ecosystem/README_npu.md">NPU 指南</a><span class="split">|</span><a href="sources/internlm/index.html">快速上手</a></div>
+      </div>
+
+      <!-- FastChat -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/fastchat.png')"></div><h3 class="card-title">FastChat</h3></div>
+         <p class="card-desc">训练、服务和评测大语言模型的开源平台，支持昇腾 NPU 上的对话与 OpenAI 兼容 API。</p>
+         <div class="card-footer"><a href="https://github.com/lm-sys/FastChat">官方链接</a><span class="split">|</span><a href="sources/fastchat/index.html">快速上手</a></div>
       </div>
 
       <!-- Mooncake -->
@@ -402,6 +418,12 @@
          <div class="card-footer"><a href="https://github.com/xLLM-AI/xllm">官方链接</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/">文档中心</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/getting_started/launch_xllm/">快速上手</a></div>
       </div>
 
+      <!-- LightX2V -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lightx2v.png')"></div><h3 class="card-title">LightX2V</h3></div>
+         <p class="card-desc">轻量级图像/视频生成推理框架，适配昇腾 NPU。</p>
+         <div class="card-footer"><a href="https://github.com/ModelTC/LightX2V">官方链接</a><span class="split">|</span><a href="sources/lightx2v/index.html">快速上手</a></div>
+      </div>
    </div>
 
    <h2 class="scene-header">⚙️ 算子开发与编程</h2>
@@ -475,11 +497,11 @@
          <div class="card-footer"><a href="https://github.com/opencv/opencv">官方链接</a><span class="split">|</span><a href="sources/opencv/install.html">安装指南</a><span class="split">|</span><a href="sources/opencv/quick_start.html">快速上手</a></div>
       </div>
 
-      <!-- SD WebUI -->
+      <!-- stable-diffusion-webui -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sd-webui.png')"></div><h3 class="card-title">stable-diffusion-webui</h3></div>
          <p class="card-desc">Stable Diffusion 可视化工具链。</p>
-         <div class="card-footer"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a><span class="split">|</span><a href="sources/sd_webui/install.html">安装指南</a><span class="split">|</span><a href="sources/sd_webui/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui">官方链接</a><span class="split">|</span><a href="sources/sd_webui/index.html">快速上手</a></div>
       </div>
 
       <!-- timm -->
@@ -554,6 +576,7 @@
    sources/roll/index.rst
    sources/speculators/index.rst
    sources/specforge/index.rst
+   sources/tensordict/index.rst
    sources/torchtitan/index.rst
    sources/torchtune/index.rst
    sources/trl/index.rst
@@ -576,6 +599,7 @@
    sources/llm_compressor/index.rst
    sources/llm_d/index.rst
    sources/lm_deploy/index.rst
+   sources/fastchat/index.rst
    sources/mooncake/index.rst
    sources/onnxruntime/index.rst
    sources/sentence_transformers/index.rst
@@ -584,6 +608,7 @@
    sources/torchchat/index.rst
    sources/vllm-ascend/index.rst
    sources/xllm/index.rst
+   sources/lightx2v/index.rst
 
 .. toctree::
    :maxdepth: 1
