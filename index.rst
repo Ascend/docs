@@ -477,6 +477,13 @@
       </div>
 
 
+      <!-- DiffSynth-Studio -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffsynth_studio.png')"></div><h3 class="card-title">DiffSynth-Studio</h3></div>
+         <p class="card-desc">ModelScope 的扩散模型引擎，支持在昇腾 NPU 上文生图。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/DiffSynth-Studio">官方链接</a><span class="split">|</span><a href="https://diffsynth-studio-doc.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="sources/diffsynth_studio/index.html">快速上手</a></div>
+      </div>
+
       <!-- LM-Eval -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">lm-evaluation-harness</h3></div>
@@ -635,6 +642,7 @@
 
    sources/Diffusers/index.rst
    sources/xdit/index.rst
+   sources/diffsynth_studio/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
