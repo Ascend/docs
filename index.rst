@@ -167,7 +167,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">transformers</h3></div>
          <p class="card-desc">适用于 Pytorch、TensorFlow 和 JAX 先进的机器学习库。</p>
-         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/install.html">安装指南</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://huggingface.co/docs/transformers/index">官方链接</a><span class="split">|</span><a href="sources/transformers/quick_start.html">快速上手</a></div>
       </div>
 
    </div>
@@ -203,6 +203,13 @@
          <div class="card-footer"><a href="https://github.com/alibaba/ROLL">官方链接</a><span class="split">|</span><a href="sources/roll/index.html">快速上手</a></div>
       </div>
 
+      <!-- speculators -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">speculators</h3></div>
+         <p class="card-desc">投机解码草稿模型训练框架，配合 vllm-ascend 在昇腾 NPU 上完成训练与部署。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/speculators">官方链接</a><span class="split">|</span><a href="sources/speculators/index.html">快速上手</a></div>
+      </div>
+
       <!-- SpecForge -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sglang.png')"></div><h3 class="card-title">SpecForge</h3></div>
@@ -222,6 +229,13 @@
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
          <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+      </div>
+
+      <!-- torchvision -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchvision</h3></div>
+         <p class="card-desc">计算机视觉库，基于 torch_npu 在昇腾 NPU 上跑通 transforms v2 与 transforms 链路。</p>
+         <div class="card-footer"><a href="https://github.com/pytorch/vision">官方链接</a><span class="split">|</span><a href="sources/torch_vision/index.html">快速上手</a></div>
       </div>
 
       <!-- TorchTune -->
@@ -427,6 +441,13 @@
          <p class="card-desc">扩散模型工具链，支持昇腾 NPU 加速图像生成。</p>
          <div class="card-footer"><a href="https://github.com/huggingface/diffusers">官方链接</a><span class="split">|</span><a href="sources/Diffusers/index.html">快速上手</a></div>
       </div>
+      <!-- xDiT -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xdit.png')"></div><h3 class="card-title">xDiT</h3></div>
+         <p class="card-desc">扩散模型推理加速框架，支持昇腾 NPU 单卡/多卡加速图像生成。</p>
+         <div class="card-footer"><a href="https://github.com/xdit-project/xDiT">官方链接</a><span class="split">|</span><a href="sources/xdit/index.html">快速上手</a></div>
+      </div>
+
 
       <!-- LM-Eval -->
       <div class="project-card">
@@ -520,7 +541,7 @@
    sources/kernels/index.rst
    sources/pytorch/index.rst
    sources/Ray/index.rst
-   sources/transformers/index.rst
+   sources/transformers/index.md
 
 .. toctree::
    :maxdepth: 1
@@ -532,6 +553,7 @@
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
+   sources/speculators/index.rst
    sources/specforge/index.rst
    sources/tensordict/index.rst
    sources/torchtitan/index.rst
@@ -580,6 +602,7 @@
    :caption: 🎨 多模态、应用与评测
 
    sources/Diffusers/index.rst
+   sources/xdit/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
