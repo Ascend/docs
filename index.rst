@@ -370,11 +370,11 @@
          <div class="card-footer"><a href="https://github.com/kvcache-ai/Mooncake">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/Mooncake/">文档中心</a><span class="split">|</span><a href="sources/mooncake/index.html">快速上手</a></div>
       </div>
 
-      <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
+      <!-- onnxruntime -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
-         <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html">昇腾教程</a></div>
+         <p class="card-desc">跨平台高性能推理引擎。在昇腾上从当前正式 Release 编译 CANN 后端，并完成一次加法推理。</p>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="sources/onnxruntime/index.html">快速上手</a></div>
       </div>
 
       <!-- Sentence Transformers -->
