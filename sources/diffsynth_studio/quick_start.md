@@ -96,17 +96,16 @@ npu_available True
 
 ## 4. 安装 DiffSynth-Studio
 
-检出上游最新 release 并安装，然后打印设备类型和设备名。`<ref>` 为这个 release 标签。
+安装 `<ref>` 对应的 PyPI 正式版，然后打印设备类型和设备名。
 
 <!--
 ```shell #test-setup store="upstream_ref"
-echo "${UPSTREAM_REF}"
+python -m pip index versions diffsynth 2>/dev/null | awk 'NR==1 { gsub(/[()]/, "", $2); print $2 }'
 ```
 -->
 
 ```shell #test id="install-diffsynth" load="upstream_ref>>ref"
-git clone --depth 1 --branch <ref> https://github.com/modelscope/DiffSynth-Studio.git
-python -m pip install --retries 3 --no-build-isolation ./DiffSynth-Studio
+python -m pip install --retries 3 --no-build-isolation "diffsynth==<ref>"
 python -c "import torch, torch_npu; from importlib.metadata import version; from diffsynth.core.device.npu_compatible_device import get_device_name, get_device_type; print('diffsynth', version('diffsynth')); print('device_type', get_device_type()); print('device_name', get_device_name())"
 ```
 
@@ -120,7 +119,7 @@ device_name npu:0
 ```
 
 ```{note}
-将 `<ref>` 换成 PyPI 版本号
+将 <ref> 换成 最新的 release 版本号
 ```
 
 ## 5. 在 NPU 上生成一张图
