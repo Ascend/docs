@@ -14,9 +14,14 @@ Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 根据 CANN 版本安装匹配的 `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-本文档测试环境使用 Python 3.12、CANN 9.1.0、`torch` 2.9.0 和 `torch_npu` 2.9.0.post2。
+本文档测试环境使用 Python 3.12、CANN 9.1.0。
+
+本文档配套镜像：
+
+```text
+swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+```
 
 ## 加载 CANN 环境
 
@@ -24,6 +29,29 @@ Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设
 
 ```shell
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+```
+
+## 安装 PyTorch 软件栈
+
+安装与 CANN 匹配的 `torch` 和 `torch_npu`（其他环境请参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 选择兼容版本）：
+
+```shell #test id="install-torch"
+python -m pip install "torch==2.9.0" "torch_npu==2.9.0.post2" --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi
+python -c "
+import torch
+import torch_npu
+
+print('torch:', torch.__version__)
+print('torch_npu:', torch_npu.__version__)
+"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch: 2.9.0+cpu
+torch_npu: 2.9.0.post2
 ```
 
 ## 安装 FastChat
