@@ -1,0 +1,664 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>transformers &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="axolotl" href="../axolotl/index.html" />
+    <link rel="prev" title="Ray" href="../Ray/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">transformers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">快速开始</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">本文档示例使用的版本</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">环境准备</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">检查前置是否满足</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">安装 Transformers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">创建虚拟环境</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">下载模型</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">模型推理</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#automodelforcausallm">使用 AutoModelForCausalLM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pipeline">使用 pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">全流程对话</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">pipeline 抽象类</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id14">pipeline 场景示例</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id15">音频</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id16">自然语言处理</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id17">微调预训练模型</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id18">前置准备</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">预训练全流程</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../speculators/index.html">Speculators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specforge/index.html">SpecForge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtune/index.html">torchtune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">TRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xtuner/index.html">xtuner</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bitsandbytes/index.html">bitsandbytes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lmcache/index.html">LMCache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fastchat/index.html">FastChat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mooncake/index.html">Mooncake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightx2v/index.html">LightX2V</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xdit/index.html">xDiT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">transformers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/transformers/index.md.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="transformers">
+<h1>transformers<a class="headerlink" href="#transformers" title="Link to this heading"></a></h1>
+<p>transformers 通用文档由 huggingface 官方维护。本页收录 Ascend NPU 适配的快速上手。</p>
+<section id="id1">
+<h2>快速开始<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p>本文介绍通过 Transformers 在昇腾 NPU 上进行模型推理的两种方式：
+<code class="docutils literal notranslate"><span class="pre">AutoModelForCausalLM</span></code> 与 <code class="docutils literal notranslate"><span class="pre">pipeline</span></code>，并给出完整的对话流程示例；同时提供
+pipeline 在音频与自然语言处理任务上的使用示例，以及微调预训练模型的完整流程。
+快速开始主链路的示例使用公开模型 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-1.5B-Instruct</span></code>，不需要 Hugging Face token。</p>
+</section>
+<section id="id2">
+<h2>前置条件<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<section id="id3">
+<h3>硬件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或其他兼容的 Ascend NPU，至少有一张可用设备，
+并已完成物理机或容器中的设备与驱动配置。</p>
+</section>
+<section id="id4">
+<h3>基础软件<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>运行本文档前，需要准备：</p>
+<ul class="simple">
+<li><p>Linux aarch64 和 Python 3.12；</p></li>
+<li><p>CANN 9.1.0 toolkit、驱动和 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code>；</p></li>
+<li><p>与 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch==2.9.0</span></code> 和 <code class="docutils literal notranslate"><span class="pre">torch_npu==2.9.0.post2</span></code>；</p></li>
+<li><p>可安装 Python 包的网络或本地缓存。</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.9.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.9.0.post2</p></td>
+</tr>
+<tr class="row-even"><td><p>transformers</p></td>
+<td><p>最新 release</p></td>
+</tr>
+<tr class="row-odd"><td><p>accelerate</p></td>
+<td><p>当前稳定版本</p></td>
+</tr>
+<tr class="row-even"><td><p>模型</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-1.5B-Instruct</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>NPU</p></td>
+<td><p>Ascend 910B4 × 1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id6">
+<h2>环境准备<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>本文示例在下面的 Ascend 镜像中验证通过：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+</pre></div>
+</div>
+<p>模型 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-1.5B-Instruct</span></code> 权重约 3 GB，下载步骤见下文「下载模型」一节。</p>
+</section>
+<section id="id7">
+<h2>检查前置是否满足<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<p>检查 CANN、Torch、Torch-NPU 和 NPU 设备：
+（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch='</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu='</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'is_available:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'count:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下（torch 为 CPU 构建版本，<code class="docutils literal notranslate"><span class="pre">+cpu</span></code> 表示 NPU 支持由 torch_npu 提供）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.9.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.9.0.post2
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 5     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动。
+如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，请先修复驱动、CANN、Torch 与 Torch-NPU 的版本匹配问题。</p>
+</div>
+</section>
+<section id="id8">
+<h2>安装 Transformers<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<section id="id9">
+<h3>创建虚拟环境<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>首先需要安装并激活 Python 环境：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>your_env_name<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.12
+conda<span class="w"> </span>activate<span class="w"> </span>your_env_name
+</pre></div>
+</div>
+<p>下面安装与验证命令用 Python 执行。安装 transformers、accelerate 并验证：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span>-U<span class="w"> </span>transformers<span class="w"> </span>accelerate
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import accelerate, transformers; print('transformers', transformers.__version__); print('accelerate', accelerate.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>transformers<span class="w"> </span>xxx
+accelerate<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际安装的版本号。</p>
+</div>
+</section>
+</section>
+<section id="id10">
+<h2>下载模型<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<p>模型权重约 3 GB，首次下载需要一些时间，建议单独执行，便于排查网络问题。
+如果访问 Hugging Face 较慢，可先切换到国内镜像（该设置只影响当前终端）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_ENDPOINT</span><span class="o">=</span>https://hf-mirror.com
+</pre></div>
+</div>
+<p>下载到本地 Hugging Face 缓存目录：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'downloaded to:'</span><span class="p">,</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen2.5-1.5B-Instruct'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下（缓存路径因环境而异）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>downloaded<span class="w"> </span>to:<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h2>模型推理<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<p>针对模型推理，Transformers 提供了 <code class="docutils literal notranslate"><span class="pre">AutoModelForCausalLM</span></code> 与 <code class="docutils literal notranslate"><span class="pre">pipeline</span></code>
+两种方式。每个示例都附有可直接复制运行的脚本版本。</p>
+<section id="automodelforcausallm">
+<h3>使用 AutoModelForCausalLM<a class="headerlink" href="#automodelforcausallm" title="Link to this heading"></a></h3>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s2">"Qwen/Qwen2.5-1.5B-Instruct"</span>
+<span class="n">device</span> <span class="o">=</span> <span class="s2">"npu:0"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">,</span>
+    <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span>
+    <span class="n">device_map</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下，加载完成后，确认模型已位于 NPU 上：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torch.bfloat16
+npu:0
+</pre></div>
+</div>
+</section>
+<section id="pipeline">
+<h3>使用 pipeline<a class="headerlink" href="#pipeline" title="Link to this heading"></a></h3>
+<p>创建 pipeline 并生成一段文本：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">transformers</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s2">"Qwen/Qwen2.5-1.5B-Instruct"</span>
+<span class="n">device</span> <span class="o">=</span> <span class="s2">"npu:0"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">transformers</span><span class="o">.</span><span class="n">pipeline</span><span class="p">(</span>
+    <span class="s2">"text-generation"</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+    <span class="n">model_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"torch_dtype"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">},</span>
+    <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="s2">"1+1等于几？只回答一个数字。"</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"generated_text"</span><span class="p">]</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="s2">"1+1等于几？只回答一个数字。"</span>
+<span class="n">answer</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">prompt</span><span class="p">):]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"generated:"</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"answer:"</span><span class="p">,</span> <span class="n">answer</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>generated:<span class="w"> </span>...
+answer:<span class="w"> </span>...2...
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>全流程对话<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>把加载、对话模板与生成串成完整流程：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s2">"Qwen/Qwen2.5-1.5B-Instruct"</span>
+<span class="n">device</span> <span class="o">=</span> <span class="s2">"npu:0"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span>
+
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">,</span>
+    <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span>
+    <span class="n">device_map</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"You are a housekeeper chatbot who always responds in polite expression!"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Who are you? what should you do?"</span><span class="p">},</span>
+<span class="p">]</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">apply_chat_template</span><span class="p">(</span>
+    <span class="n">messages</span><span class="p">,</span>
+    <span class="n">add_generation_prompt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tokenize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">model_inputs</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">([</span><span class="n">text</span><span class="p">],</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s2">"pt"</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+<span class="n">outputs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">model_inputs</span><span class="p">,</span>
+    <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+    <span class="n">do_sample</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">outputs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">model_inputs</span><span class="o">.</span><span class="n">input_ids</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"response:"</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">skip_special_tokens</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>response:<span class="w"> </span>...
+</pre></div>
+</div>
+<p>输出示例（采样生成，每次内容会有所不同，以下为一次真实运行的参考对比）：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>response: Hello! I'm an AI designed to assist with various household tasks. Here's how we can work together
+</pre></div>
+</div>
+</section>
+<section id="id13">
+<h3>pipeline 抽象类<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>pipeline 抽象类是所有其他 pipeline 的封装，可以像其他任何 pipeline 一样实例化。</p>
+<p>pipeline 参数由 task、tokenizer、model、optional 组成：</p>
+<ul class="simple">
+<li><p>task 将确定返回哪一个 pipeline，比如 text-classification 将会返回 TextClassificationPipeline，automatic-speech-recognition 将会返回 AutomaticSpeechRecognitionPipeline。</p></li>
+<li><p>tokenizer 分词器是用来将输入进行编码，str 或者 PreTrainedTokenizer，如果未提供将使用 model 参数，如果 model 也未提供或者非 str，将使用 config 参数，如果 config 参数也未提供或者非 str，将提供 task 的默认 tokenizer。</p></li>
+<li><p>model 是模型，str 或者 PreTrainedModel，一般为有 .bin 模型文件的目录。</p></li>
+<li><p>optional 其他参数包括，config、feature_extractor、device、device_map 等。</p></li>
+</ul>
+</section>
+<section id="id14">
+<h3>pipeline 场景示例<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<p>pipeline 适用于音频、自然语言处理等任务，下面介绍它在各场景的使用方式。</p>
+<p>音频类示例需要环境中已安装 <code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code>（pipeline 通过 <code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code> 解码音频输入）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>apt-get<span class="w"> </span>update
+apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>ffmpeg
+</pre></div>
+</div>
+<section id="id15">
+<h4>音频<a class="headerlink" href="#id15" title="Link to this heading"></a></h4>
+<p><strong>音频识别</strong>：用于提取某些音频中包含的文本，如下创建 pipeline，并输入音频文件：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="n">transcriber</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">"automatic-speech-recognition"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">transcriber</span><span class="p">(</span><span class="s2">"https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac"</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s1">'text'</span>:<span class="w"> </span><span class="s1">'I HAVE A DREAM BUT ONE DAY THIS NATION WILL RISE UP LIVE UP THE TRUE MEANING OF ITS TREES'</span><span class="o">}</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h4>自然语言处理<a class="headerlink" href="#id16" title="Link to this heading"></a></h4>
+<p><strong>文本分类</strong>：根据标签对文本进行分类：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"facebook/bart-large-mnli"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">classifier</span><span class="p">(</span>
+    <span class="s2">"I have a problem with my iphone that needs to be resolved asap!!"</span><span class="p">,</span>
+    <span class="n">candidate_labels</span><span class="o">=</span><span class="p">[</span><span class="s2">"urgent"</span><span class="p">,</span> <span class="s2">"not urgent"</span><span class="p">,</span> <span class="s2">"phone"</span><span class="p">,</span> <span class="s2">"tablet"</span><span class="p">,</span> <span class="s2">"computer"</span><span class="p">],</span>
+<span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s1">'sequence'</span>:<span class="w"> </span><span class="s1">'I have a problem with my iphone that needs to be resolved asap!!'</span>,<span class="w"> </span><span class="s1">'labels'</span>:<span class="w"> </span>...
+</pre></div>
+</div>
+<p><strong>文本生成</strong>：根据文本生成对话响应：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span>
+
+<span class="n">generator</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">"HuggingFaceH4/zephyr-7b-beta"</span><span class="p">)</span>
+<span class="c1"># Zephyr-beta is a conversational model, so let's pass it a chat instead of a single string</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">generator</span><span class="p">([{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"What is the capital of France? Answer in one word."</span><span class="p">}],</span> <span class="n">do_sample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_new_tokens</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"chat:"</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>chat:<span class="w"> </span><span class="o">[{</span><span class="s1">'generated_text'</span>:<span class="w"> </span><span class="o">[{</span><span class="s1">'role'</span>:<span class="w"> </span><span class="s1">'user'</span>,<span class="w"> </span><span class="s1">'content'</span>:<span class="w"> </span><span class="s1">'What is the capital of France? Answer in one word.'</span><span class="o">}</span>,<span class="w"> </span><span class="o">{</span><span class="s1">'role'</span>:<span class="w"> </span><span class="s1">'assistant'</span>,<span class="w"> </span><span class="s1">'content'</span>:<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="id17">
+<h2>微调预训练模型<a class="headerlink" href="#id17" title="Link to this heading"></a></h2>
+<p>大模型微调本质是利用特定领域的数据集对已预训练的大模型进行进一步训练的过程。它旨在优化模型在特定任务上的性能，使模型能够更好地适应和完成特定领域的任务。
+本文在使用 transformers 库选定相关数据集和预训练模型的基础上，通过超参数调优完成对模型的微调。</p>
+<section id="id18">
+<h3>前置准备<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<p><strong>安装必要库</strong>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>transformers<span class="w"> </span>datasets<span class="w"> </span>evaluate<span class="w"> </span>accelerate<span class="w"> </span>scikit-learn
+</pre></div>
+</div>
+<p><strong>加载数据集</strong>：模型训练需要使用数据集，这里使用 <a class="reference external" href="https://huggingface.co/datasets/Yelp/yelp_review_full">Yelp Reviews dataset</a>：</p>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="c1"># load_dataset 会自动下载数据集并将其保存到本地路径中</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"Yelp/yelp_review_full"</span><span class="p">)</span>
+<span class="c1"># 输出数据集的第 100 条数据</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">][</span><span class="mi">100</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">{</span><span class="s1">'label'</span>:<span class="w"> </span><span class="m">0</span>,<span class="w"> </span><span class="s1">'text'</span>:<span class="w"> </span><span class="err">'</span>My<span class="w"> </span>expectations<span class="w"> </span><span class="k">for</span><span class="w"> </span>McDonalds<span class="w"> </span>are<span class="w"> </span>t<span class="w"> </span>rarely<span class="w"> </span>high.<span class="w"> </span>But<span class="w"> </span><span class="k">for</span><span class="w"> </span>one<span class="w"> </span>to<span class="w"> </span>still<span class="w"> </span>fail<span class="w"> </span>so<span class="w"> </span>spectacularly...
+</pre></div>
+</div>
+</section>
+<section id="id19">
+<h3>预训练全流程<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<p>（以下代码使用Python执行）</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sklearn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">evaluate</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">Trainer</span><span class="p">,</span> <span class="n">TrainingArguments</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+
+<span class="n">model_id</span> <span class="o">=</span> <span class="s2">"meta-llama/Meta-Llama-3-8B-Instruct"</span>
+<span class="n">device</span> <span class="o">=</span> <span class="s2">"npu:0"</span> <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="k">else</span> <span class="s2">"cpu"</span>
+
+<span class="c1"># 加载模型：使用 AutoModelForCausalLM 将自动加载模型：</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">,</span>
+    <span class="n">torch_dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span>
+    <span class="n">device_map</span><span class="o">=</span><span class="s2">"auto"</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+<span class="c1"># load_dataset 会自动下载数据集并将其保存到本地路径中</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"Yelp/yelp_review_full"</span><span class="p">)</span>
+
+<span class="c1"># 预处理数据集：预处理数据集需要使用 AutoTokenizer，它用来自动获取与模型匹配的分词器，分词器根据规则将文本拆分为标记，并转换为张量作为模型输入</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+
+<span class="c1"># 分词函数：语言建模需要 labels=input_ids</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">tokenize_function</span><span class="p">(</span><span class="n">examples</span><span class="p">):</span>
+    <span class="n">tokenized</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">examples</span><span class="p">[</span><span class="s2">"text"</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="s2">"max_length"</span><span class="p">,</span> <span class="n">truncation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+    <span class="n">tokenized</span><span class="p">[</span><span class="s2">"labels"</span><span class="p">]</span> <span class="o">=</span> <span class="n">tokenized</span><span class="p">[</span><span class="s2">"input_ids"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">tokenized</span>
+
+<span class="c1"># 训练全部的数据集会耗费更长的时间，通常将其划分为较小的训练集和验证集，以提高训练速度</span>
+<span class="n">small_train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"train"</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">))</span>
+<span class="n">small_eval_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">"test"</span><span class="p">]</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span>
+
+<span class="c1"># 使用 dataset.map 方法对数据集进行预处理，只对选中的样本做分词，避免全量数据集的无效预处理；</span>
+<span class="n">small_train_dataset</span> <span class="o">=</span> <span class="n">small_train_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">])</span>
+<span class="n">small_eval_dataset</span> <span class="o">=</span> <span class="n">small_eval_dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">tokenize_function</span><span class="p">,</span> <span class="n">batched</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">remove_columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">])</span>
+
+<span class="c1"># 加载评估指标</span>
+<span class="n">metric</span> <span class="o">=</span> <span class="n">evaluate</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">"accuracy"</span><span class="p">)</span>
+
+<span class="c1"># 模型评估：模型评估用于衡量模型在给定数据集上的表现，包括准确率，完全匹配速率，平均并交集点等</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span><span class="n">eval_pred</span><span class="p">):</span>
+    <span class="n">logits</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">eval_pred</span>
+    <span class="n">predictions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># 评估库仅接受一维格式，压平 token 级的 [样本, 序列长度] 数组</span>
+    <span class="k">return</span> <span class="n">metric</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">references</span><span class="o">=</span><span class="n">labels</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+<span class="c1"># 超参数调优：超参数调优用于激活不同训练选项的标志，它定义了关于模型的更高层次的概念，例如模型复杂程度或学习能力，下面使用 TrainingArguments 类来加载</span>
+<span class="n">training_args</span> <span class="o">=</span> <span class="n">TrainingArguments</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">"test_trainer"</span><span class="p">,</span> <span class="n">eval_strategy</span><span class="o">=</span><span class="s2">"epoch"</span><span class="p">)</span>
+
+<span class="c1"># Trainer：使用已加载的模型、训练参数、训练和测试数据集以及评估函数创建一个 Trainer 对象，并调用 trainer.train() 来微调模型</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">Trainer</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">args</span><span class="o">=</span><span class="n">training_args</span><span class="p">,</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">small_train_dataset</span><span class="p">,</span>
+    <span class="n">eval_dataset</span><span class="o">=</span><span class="n">small_eval_dataset</span><span class="p">,</span>
+    <span class="n">compute_metrics</span><span class="o">=</span><span class="n">compute_metrics</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">trainer</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"global_step:"</span><span class="p">,</span> <span class="n">trainer</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">global_step</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下（训练集 1000 条、验证集 100 条、batch size 8、默认 3 个 epoch，共 375 步；耗时与指标随环境不同）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...global_step:<span class="w"> </span><span class="m">375</span>...
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../Ray/index.html" class="btn btn-neutral float-left" title="Ray" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../axolotl/index.html" class="btn btn-neutral float-right" title="axolotl" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

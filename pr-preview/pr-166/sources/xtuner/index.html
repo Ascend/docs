@@ -1,0 +1,960 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xtuner &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="bitsandbytes" href="../bitsandbytes/index.html" />
+    <link rel="prev" title="快速开始" href="../pyg/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../speculators/index.html">Speculators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specforge/index.html">SpecForge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtune/index.html">torchtune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">TRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">xtuner</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">前置安装</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">安装 xtuner</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pypi">方式一：PyPI 二进制安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">方式二：源码安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">安装验证</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#llm">LLM 大模型微调</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id9">准备模型权重</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">准备微调数据集</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#colorist-qwen-chat-openai">把 Colorist 数据集转成 Qwen chat 模板要的 OpenAI 格式</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id11">准备配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">修改配置文件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">启动微调</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id14">单卡</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ddp">多卡（双卡 DDP）</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#lora">模型转换 + LoRA 合并</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">与模型对话</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id16">外部链接</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bitsandbytes/index.html">bitsandbytes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lmcache/index.html">LMCache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fastchat/index.html">FastChat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mooncake/index.html">Mooncake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightx2v/index.html">LightX2V</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xdit/index.html">xDiT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">xtuner</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/xtuner/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="xtuner">
+<h1>xtuner<a class="headerlink" href="#xtuner" title="Link to this heading"></a></h1>
+<p>在昇腾 NPU 上跑通 <a class="reference external" href="https://github.com/InternLM/xtuner">xtuner</a> 的最小微调链路。</p>
+<p>本文档以 <strong>Qwen1.5-1.8B-Chat</strong> + Colorist 指令微调数据为例，端到端走通「权重下载 → 配置修改 → 单/多卡训练 → LoRA 合并 → chat 推理」全链路：</p>
+<ul class="simple">
+<li><p><strong>安装</strong>：PyPI 二进制与源码两条安装路径 + import / CLI 模式自检。</p></li>
+<li><p><strong>LLM 微调</strong>：单卡与双卡 DDP（hccl 后端）LoRA 微调 Qwen1.5-1.8B-Chat（各 5 轮迭代跑通链路）。</p></li>
+<li><p><strong>合并与对话</strong>：<code class="docutils literal notranslate"><span class="pre">pth_to_hf</span></code> 转换 + LoRA 合并 + merged / adapter 两种 <code class="docutils literal notranslate"><span class="pre">xtuner</span> <span class="pre">chat</span></code> 对话。</p></li>
+</ul>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4）</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.11.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.11.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torchvision</p></td>
+<td><p>0.26.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>huggingface_hub</p></td>
+<td><p>最新稳定版</p></td>
+</tr>
+<tr class="row-even"><td><p>xtuner</p></td>
+<td><p>最新 release tag</p></td>
+</tr>
+<tr class="row-odd"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen1.5-1.8B-Chat">Qwen/Qwen1.5-1.8B-Chat</a></p></td>
+</tr>
+<tr class="row-even"><td><p>数据集</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/datasets/burkelibbey/colors">burkelibbey/colors</a>（Colorist）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id5">
+<h3>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> 完整输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+| 1     910B4               | OK            | 89.9        39                0    / 0             |
+| 1                         | 0000:42:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
+| No running processes found in NPU 1                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动。</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示 Python 的补丁版本号。</p>
+</div>
+<p>装 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>https://mirrors.aliyun.com/pytorch-wheels/cpu<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.11.0
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.11.0
+</pre></div>
+</div>
+<p>检查 torch / torch_npu 是否装好且 NPU 设备可用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch='</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu='</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'is_available:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'count:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.11.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.11.0
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵。</p>
+</div>
+<p>装 <code class="docutils literal notranslate"><span class="pre">huggingface_hub</span></code>（用于从 HuggingFace Hub 下载模型权重与数据集）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>huggingface_hub
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h2>安装 xtuner<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="pypi">
+<h3>方式一：PyPI 二进制安装<a class="headerlink" href="#pypi" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple<span class="w"> </span>--no-deps<span class="w"> </span>xtuner
+apt-get<span class="w"> </span>update<span class="w"> </span>-qq<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-qq<span class="w"> </span>libgl1<span class="w"> </span>libglib2.0-0<span class="w"> </span>&gt;/dev/null
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>https://mirrors.aliyun.com/pytorch-wheels/cpu<span class="w"> </span><span class="s1">'mmengine==0.10.6'</span><span class="w"> </span><span class="s1">'transformers==4.48.0'</span><span class="w"> </span><span class="s1">'peft&gt;=0.14.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'datasets&gt;=3.2.0,&lt;4.0.0'</span><span class="w"> </span>einops<span class="w"> </span>loguru<span class="w"> </span>openpyxl<span class="w"> </span><span class="s1">'scikit-image'</span><span class="w"> </span>scipy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>SentencePiece<span class="w"> </span>tiktoken<span class="w"> </span>transformers_stream_generator<span class="w"> </span>cyclopts<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'opencv-python-headless&lt;=4.12.0.88'</span><span class="w"> </span><span class="s1">'torchvision==0.26.0+cpu'</span><span class="w"> </span>timm<span class="w"> </span>pyarrow<span class="w"> </span>pydantic<span class="w"> </span>tensorboard<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>xxhash<span class="w"> </span>imageio<span class="w"> </span><span class="s1">'py-libnuma'</span><span class="w"> </span>GitPython
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import xtuner; from xtuner.version import __version__; print('xtuner', __version__)"</span>
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>xtuner<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号</p>
+</div>
+</section>
+<section id="id7">
+<h3>方式二：源码安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>换成源码版（覆盖方式一的二进制安装）：</p>
+<!--
+```shell #test-setup
+uv pip uninstall xtuner -y
+```
+-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆上游仓库并 checkout 到最新 release tag，装 xtuner 本体 + 运行依赖，最后打印版本号验证：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span>xtuner<span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/InternLM/xtuner.git
+<span class="nb">cd</span><span class="w"> </span>xtuner
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>-e<span class="w"> </span>.
+apt-get<span class="w"> </span>update<span class="w"> </span>-qq<span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>-qq<span class="w"> </span>libgl1<span class="w"> </span>libglib2.0-0<span class="w"> </span>&gt;/dev/null
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>https://mirrors.aliyun.com/pytorch-wheels/cpu<span class="w"> </span><span class="s1">'mmengine==0.10.6'</span><span class="w"> </span><span class="s1">'transformers==4.48.0'</span><span class="w"> </span><span class="s1">'peft&gt;=0.14.0'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'datasets&gt;=3.2.0,&lt;4.0.0'</span><span class="w"> </span>einops<span class="w"> </span>loguru<span class="w"> </span>openpyxl<span class="w"> </span><span class="s1">'scikit-image'</span><span class="w"> </span>scipy<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>SentencePiece<span class="w"> </span>tiktoken<span class="w"> </span>transformers_stream_generator<span class="w"> </span>cyclopts<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s1">'opencv-python-headless&lt;=4.12.0.88'</span><span class="w"> </span><span class="s1">'torchvision==0.26.0+cpu'</span><span class="w"> </span>timm<span class="w"> </span>pyarrow<span class="w"> </span>pydantic<span class="w"> </span>tensorboard<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>xxhash<span class="w"> </span>imageio<span class="w"> </span><span class="s1">'py-libnuma'</span><span class="w"> </span>GitPython
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import xtuner; from xtuner.version import __version__; print('xtuner', __version__)"</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 替换为 xtuner 当前的最新 release tag。</p>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>xtuner<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号</p>
+</div>
+</section>
+<section id="id8">
+<h3>安装验证<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>装好后一次性验证：顶层包 + CLI 入口能被解析，<code class="docutils literal notranslate"><span class="pre">xtuner.entry_point.MODES</span></code> 覆盖本文档用到的 <code class="docutils literal notranslate"><span class="pre">train</span></code> / <code class="docutils literal notranslate"><span class="pre">list-cfg</span></code> / <code class="docutils literal notranslate"><span class="pre">chat</span></code> 三个子命令，且 <code class="docutils literal notranslate"><span class="pre">torchvision</span></code> 是与 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 配对的 <code class="docutils literal notranslate"><span class="pre">+cpu</span></code> 构建——PyPI 上的 linux wheel 默认是 CUDA 构建（链 <code class="docutils literal notranslate"><span class="pre">libcudart</span></code>），配 <code class="docutils literal notranslate"><span class="pre">+cpu</span></code> torch 时 C++ 算子注册不上、<code class="docutils literal notranslate"><span class="pre">import</span></code> / 调用直接崩，所以必须 pin 到 <code class="docutils literal notranslate"><span class="pre">torchvision==0.26.0+cpu</span></code> 并在这里实测算子可用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="n">specs</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="p">:</span> <span class="n">u</span><span class="o">.</span><span class="n">find_spec</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'xtuner'</span><span class="p">,</span> <span class="s1">'xtuner.entry_point'</span><span class="p">]}</span>
+<span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="s1">'ok'</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">'MISSING'</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xtuner.entry_point</span><span class="w"> </span><span class="kn">import</span> <span class="n">MODES</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'modes_count:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">MODES</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'has_train:'</span><span class="p">,</span> <span class="s1">'train'</span> <span class="ow">in</span> <span class="n">MODES</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'has_list_cfg:'</span><span class="p">,</span> <span class="s1">'list-cfg'</span> <span class="ow">in</span> <span class="n">MODES</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'has_chat:'</span><span class="p">,</span> <span class="s1">'chat'</span> <span class="ow">in</span> <span class="n">MODES</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">torchvision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.ops</span><span class="w"> </span><span class="kn">import</span> <span class="n">nms</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torchvision'</span><span class="p">,</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">11</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'nms kept:'</span><span class="p">,</span> <span class="n">nms</span><span class="p">(</span><span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>xtuner<span class="w"> </span>ok
+xtuner.entry_point<span class="w"> </span>ok
+modes_count:<span class="w"> </span>xxx
+has_train:<span class="w"> </span>True
+has_list_cfg:<span class="w"> </span>True
+has_chat:<span class="w"> </span>True
+torch<span class="w"> </span><span class="m">2</span>.11.0+cpu
+torchvision<span class="w"> </span><span class="m">0</span>.26.0+cpu
+nms<span class="w"> </span>kept:<span class="w"> </span><span class="o">[</span><span class="m">0</span><span class="o">]</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示 <code class="docutils literal notranslate"><span class="pre">MODES</span></code> 中子命令的个数。</p>
+</div>
+</section>
+</section>
+<section id="llm">
+<h2>LLM 大模型微调<a class="headerlink" href="#llm" title="Link to this heading"></a></h2>
+<p>本文档的训练按 <a class="reference external" href="https://xtuner.readthedocs.io/zh-cn/latest/legacy/get_started/quickstart.html">xtuner legacy 快速上手模板</a> 的顺序展开。</p>
+<section id="id9">
+<h3>准备模型权重<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>本文档示例使用 <strong>Qwen1.5-1.8B-Chat</strong>——1.8B 参数 + TikToken BPE 分词，fp16 权重 ≈ 3.5 GB。</p>
+<p>从 HuggingFace Hub 下载 Qwen1.5-1.8B-Chat 权重，并打印路径，作为后续章节中 <code class="docutils literal notranslate"><span class="pre">&lt;weights_dir&gt;</span></code> 的引用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen1.5-1.8B-Chat'</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">'./qwen'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>权重落盘校验：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ws</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>./qwen<span class="w"> </span>-name<span class="w"> </span>config.json<span class="w"> </span>-print<span class="w"> </span>-quit<span class="k">)</span>
+<span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ws</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$ws</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"weights_ok"</span>
+ls<span class="w"> </span>-la<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>dirname<span class="w"> </span><span class="s2">"</span><span class="nv">$ws</span><span class="s2">"</span><span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+</pre></div>
+</div>
+<p>输出结果类似：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>weights_ok
+total<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 为 <code class="docutils literal notranslate"><span class="pre">ls</span> <span class="pre">-la</span></code> 输出首行的 total 值（磁盘块数，随文件数变化）。</p>
+</div>
+<p>权重落到 <code class="docutils literal notranslate"><span class="pre">./qwen</span></code> 下的 HuggingFace Hub cache 目录（<code class="docutils literal notranslate"><span class="pre">models--Qwen--Qwen1.5-1.8B-Chat/snapshots/&lt;sha&gt;</span></code>，<code class="docutils literal notranslate"><span class="pre">find</span></code> 找到的 <code class="docutils literal notranslate"><span class="pre">config.json</span></code> 所在目录即底座模型根目录）。</p>
+</section>
+<section id="id10">
+<h3>准备微调数据集<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>Colorist 数据集（<a class="reference external" href="https://huggingface.co/datasets/burkelibbey/colors">HuggingFace 链接</a>）：根据颜色描述给 16 进制颜色编码的指令微调集，几 MB。本文走 HuggingFace Hub 下载(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'burkelibbey/colors'</span><span class="p">,</span> <span class="n">repo_type</span><span class="o">=</span><span class="s1">'dataset'</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">'/tmp/xtuner_hf_cache'</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="s1">'./colors'</span>
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">target</span><span class="p">):</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="n">dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">dirs_exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'dataset at'</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>验证数据集完整落盘——必需文件逐个检查，再列出目录实际内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># 两个必需文件逐个断言存在，缺了任何一个直接退出报错</span>
+<span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span>colors.jsonl<span class="w"> </span>README.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"colors/</span><span class="nv">$f</span><span class="s2">"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"MISSING: colors/</span><span class="nv">$f</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="k">done</span>
+<span class="c1"># 列出目录的实际内容</span>
+ls<span class="w"> </span>colors/
+</pre></div>
+</div>
+<p>输出结果是 <code class="docutils literal notranslate"><span class="pre">./colors/</span></code> 的实际目录内容：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>README.md
+colors.jsonl
+prepare.py
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">colors.jsonl</span></code> 每行形如 <code class="docutils literal notranslate"><span class="pre">{&quot;color&quot;:</span> <span class="pre">&quot;#000000&quot;,</span> <span class="pre">&quot;description&quot;:</span> <span class="pre">&quot;...&quot;}</span></code>。</p>
+<section id="colorist-qwen-chat-openai">
+<h4>把 Colorist 数据集转成 Qwen chat 模板要的 OpenAI 格式<a class="headerlink" href="#colorist-qwen-chat-openai" title="Link to this heading"></a></h4>
+<p>xtuner 的 Qwen 自定义 cfg 用 <code class="docutils literal notranslate"><span class="pre">openai_map_fn</span></code>，要求每行 JSON 形如：</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">"messages"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Tell me about the color #000000"</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="nt">"role"</span><span class="p">:</span><span class="w"> </span><span class="s2">"assistant"</span><span class="p">,</span><span class="w"> </span><span class="nt">"content"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pure Black: ..."</span><span class="p">}</span>
+<span class="p">]}</span>
+</pre></div>
+</div>
+<p>但 Colorist 数据集原始格式是 <code class="docutils literal notranslate"><span class="pre">{color,</span> <span class="pre">description}</span></code>，需要先转换一下(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s1">'./colors_openai'</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">src</span> <span class="o">=</span> <span class="s1">'./colors/colors.jsonl'</span>
+<span class="n">dst</span> <span class="o">=</span> <span class="s1">'./colors_openai/train.jsonl'</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">src</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">,</span> <span class="nb">open</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">'messages'</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s1">'role'</span><span class="p">:</span> <span class="s1">'user'</span><span class="p">,</span> <span class="s1">'content'</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"Tell me about the color </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">'color'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">},</span>
+                <span class="p">{</span><span class="s1">'role'</span><span class="p">:</span> <span class="s1">'assistant'</span><span class="p">,</span> <span class="s1">'content'</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s1">'description'</span><span class="p">]},</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'converted </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> rows -&gt; </span><span class="si">{</span><span class="n">dst</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>验证转换结果——输出文件存在、行数与原始数据集一致、抽第一条验消息格式正确：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>./colors_openai/train.jsonl<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"MISSING: ./colors_openai/train.jsonl"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="c1"># 行数一致（与 pull-dataset 后的 ./colors/colors.jsonl 对比）</span>
+<span class="nv">src_n</span><span class="o">=</span><span class="k">$(</span>wc<span class="w"> </span>-l<span class="w"> </span>&lt;<span class="w"> </span>./colors/colors.jsonl<span class="k">)</span>
+<span class="nv">dst_n</span><span class="o">=</span><span class="k">$(</span>wc<span class="w"> </span>-l<span class="w"> </span>&lt;<span class="w"> </span>./colors_openai/train.jsonl<span class="k">)</span>
+<span class="nb">test</span><span class="w"> </span><span class="s2">"</span><span class="nv">$src_n</span><span class="s2">"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$dst_n</span><span class="s2">"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"row count mismatch: src=</span><span class="nv">$src_n</span><span class="s2"> dst=</span><span class="nv">$dst_n</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"converted </span><span class="si">${</span><span class="nv">dst_n</span><span class="si">}</span><span class="s2"> rows -&gt; ./colors_openai/train.jsonl"</span>
+<span class="c1"># 抽第一条做字面比对，验格式正确</span>
+head<span class="w"> </span>-1<span class="w"> </span>./colors_openai/train.jsonl<span class="w"> </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import sys, json</span>
+<span class="s2">row = json.loads(sys.stdin.read())</span>
+<span class="s2">assert 'messages' in row, 'missing messages key'</span>
+<span class="s2">assert isinstance(row['messages'], list) and len(row['messages']) == 2, 'expected 2 messages'</span>
+<span class="s2">assert row['messages'][0]['role'] == 'user', 'first message role must be user'</span>
+<span class="s2">assert row['messages'][1]['role'] == 'assistant', 'second message role must be assistant'</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>输出结果：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>converted<span class="w"> </span>xxx<span class="w"> </span>rows<span class="w"> </span>-&gt;<span class="w"> </span>./colors_openai/train.jsonl
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 为转换的样本行数（与 <code class="docutils literal notranslate"><span class="pre">./colors/colors.jsonl</span></code> 的行数一致）。</p>
+</div>
+</section>
+</section>
+<section id="id11">
+<h3>准备配置文件<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<p>检查 XTuner 自带大量开箱即用的 config(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">xtuner.configs</span><span class="w"> </span><span class="kn">import</span> <span class="n">cfgs_name_path</span>
+<span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cfgs_name_path</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'lines:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'head_first:'</span><span class="p">,</span> <span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">names</span> <span class="k">else</span> <span class="s1">''</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'qwen_1_8b_chat_count:'</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="s1">'qwen1_5_1_8b_chat_qlora_custom_sft_e1'</span> <span class="ow">in</span> <span class="n">n</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>lines:<span class="w"> </span>xxx
+head_first:<span class="w"> </span>xxx
+qwen_1_8b_chat_count:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 依次表示 cfg 总数、字典序首个 cfg 名、匹配到的目标 cfg 个数。</p>
+</div>
+<p>从 list-cfg 拷一份 Qwen1.5-1.8B-Chat qlora + custom sft 配置到本地（xtuner v0.2.0 的这个 cfg 名字固定为 <code class="docutils literal notranslate"><span class="pre">qwen1_5_1_8b_chat_qlora_custom_sft_e1</span></code>）(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os.path</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">osp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xtuner.configs</span><span class="w"> </span><span class="kn">import</span> <span class="n">cfgs_name_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xtuner.tools.copy_cfg</span><span class="w"> </span><span class="kn">import</span> <span class="n">add_copy_suffix</span>
+<span class="n">config_name</span> <span class="o">=</span> <span class="s1">'qwen1_5_1_8b_chat_qlora_custom_sft_e1'</span>
+<span class="n">config_path</span> <span class="o">=</span> <span class="n">cfgs_name_path</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span>
+<span class="n">save_dir</span> <span class="o">=</span> <span class="s1">'/tmp/xtuner_npu_llm_cfg'</span>
+<span class="n">save_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">add_copy_suffix</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">config_path</span><span class="p">)))</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">save_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出路径到下一节「修改配置文件」</p>
+</section>
+<section id="id12">
+<h3>修改配置文件<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<p>修改上一节「准备配置文件」产生的配置文件(下面的命令用 Python 执行)：</p>
+<!--
+**替换 2 处路径**（在 cfg 里改对应行）：
+
+1. `pretrained_model_name_or_path` → `<weights_dir>`（让训练读本地权重，不再联网）
+2. `data_files` → `./colors_openai/train.jsonl` 的绝对路径（指向「数据转换」节生成的 jsonl）
+
+**删除 2 处**（NPU 上跑不通）：
+
+3. 删掉 `quantization_config` 块 + 顶部 `BitsAndBytesConfig` 导入：4-bit 量化依赖 bitsandbytes，aarch64 NPU 装不上
+4. 删掉 `train_cfg` 里的 `max_epochs`：cfg 强制它与 `max_iters` 二选一，本节用 `max_iters=5` 限迭代数
+-->
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">re</span><span class="o">,</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s1">'&lt;cfg&gt;'</span>
+<span class="n">weights_dir</span> <span class="o">=</span> <span class="s1">'&lt;weights_dir&gt;'</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="c1"># 换权重路径：模板的 HF repo id → 本地权重目录</span>
+<span class="n">text</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">subn</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">'pretrained_model_name_or_path = "Qwen/Qwen1\.5-1\.8B-Chat"'</span><span class="p">,</span>
+    <span class="sa">f</span><span class="s2">"pretrained_model_name_or_path = </span><span class="si">{</span><span class="n">weights_dir</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'weights path replaced </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> times (expected 1)'</span>
+
+<span class="c1"># 换数据路径：占位符 → 转换后的 OpenAI jsonl 绝对路径</span>
+<span class="n">data_abs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">'./colors_openai/train.jsonl'</span><span class="p">)</span>
+<span class="n">old</span> <span class="o">=</span> <span class="s1">'data_files = ["/path/to/json/file.json"]'</span>
+<span class="n">new</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'data_files = [</span><span class="si">{</span><span class="n">data_abs</span><span class="si">!r}</span><span class="s1">]'</span>
+<span class="k">assert</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">text</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'data placeholder not found: </span><span class="si">{</span><span class="n">old</span><span class="si">!r}</span><span class="s1">'</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+
+<span class="c1"># 删量化配置：quantization_config 块 + BitsAndBytesConfig 导入（QLoRA → plain LoRA）</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">',\s*\n\s*quantization_config=dict\(\n(?:\s+[^\n]*,\n)+?\s*\),\n'</span><span class="p">,</span>
+    <span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">'(from transformers import [^\n]*?), BitsAndBytesConfig'</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s1">'\1'</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+    <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 删 train_cfg 里的 max_epochs（TrainLoop 强制二选一；用 max_iters=5 限迭代数）</span>
+<span class="n">text</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">subn</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">'train_cfg = dict\(type=TrainLoop, max_epochs=max_epochs\)'</span><span class="p">,</span>
+    <span class="s1">'train_cfg = dict(type=TrainLoop)'</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">assert</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'max_epochs removed </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1"> times (expected 1)'</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code>：上一节「准备配置文件」拷 cfg 生成在 <code class="docutils literal notranslate"><span class="pre">/tmp/xtuner_npu_llm_cfg/</span></code> 下、带 <code class="docutils literal notranslate"><span class="pre">_copy.py</span></code> 后缀的那个文件路径</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;weights_dir&gt;</span></code>：「准备模型权重」下载的 Qwen 权重根目录，用 <code class="docutils literal notranslate"><span class="pre">find</span> <span class="pre">./qwen</span> <span class="pre">-name</span> <span class="pre">config.json</span> <span class="pre">-print</span> <span class="pre">-quit</span> <span class="pre">|</span> <span class="pre">xargs</span> <span class="pre">dirname</span></code> 拿到</p></li>
+</ul>
+</div>
+<!-- # py_compile 验 cfg 是合法 Python + 4 处修改都生效（grep 关键串）。
+## 不用 mmengine.config.Config.fromfile：装了 torchvision 0.26.0+cpu 后它其实能跑，
+## 但 py_compile 更轻量、输出确定，不引入 cfg 顶层 import 的执行副作用。 -->
+<p>验证修改结果(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">py_compile</span>
+<span class="n">py_compile</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">'&lt;cfg&gt;'</span><span class="p">,</span> <span class="n">doraise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'cfg_compiles_ok'</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'&lt;cfg&gt;'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">weights_dir</span> <span class="o">=</span> <span class="s1">'&lt;weights_dir&gt;'</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="n">data_abs</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">'./colors_openai/train.jsonl'</span><span class="p">)</span>
+<span class="n">checks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s1">'weights'</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"pretrained_model_name_or_path = '</span><span class="si">{</span><span class="n">weights_dir</span><span class="si">}</span><span class="s2">'"</span><span class="p">),</span>
+    <span class="p">(</span><span class="s1">'data'</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"data_files = ['</span><span class="si">{</span><span class="n">data_abs</span><span class="si">}</span><span class="s2">']"</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">checks</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">text</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'missing edit (</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">): </span><span class="si">{</span><span class="n">expected</span><span class="si">!r}</span><span class="s1">'</span>
+<span class="k">assert</span> <span class="s1">'quantization_config'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span>
+<span class="k">assert</span> <span class="s1">'BitsAndBytesConfig'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span>
+<span class="k">assert</span> <span class="s1">'train_cfg = dict(type=TrainLoop, max_epochs=max_epochs)'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'cfg_patch_ok'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'weights= </span><span class="si">{</span><span class="n">weights_dir</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'data= </span><span class="si">{</span><span class="n">data_abs</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code> 来自「修改配置文件」节保存的 cfg 路径；<code class="docutils literal notranslate"><span class="pre">&lt;weights_dir&gt;</span></code> 来自「准备模型权重」节保存的权重路径。</p>
+</div>
+<p>输出结果类似：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cfg_compiles_ok
+cfg_patch_ok
+<span class="nv">weights</span><span class="o">=</span><span class="w"> </span>xxx
+<span class="nv">data</span><span class="o">=</span><span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 分别为权重目录与转换后数据文件的绝对路径；这里不验 <code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code> 训出来的实际效果，那要等下面「启动微调」章节真跑。</p>
+</div>
+</section>
+<section id="id13">
+<h3>启动微调<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p>训练日志（loss、学习率）每次跑都不一样，没法写死预期值。本文档只跑 5 轮迭代验证整条训练链路，不指望训出有意义结果。<code class="docutils literal notranslate"><span class="pre">EvaluateChatHook</span></code> 每轮打印 <code class="docutils literal notranslate"><span class="pre">Sample</span> <span class="pre">output:</span></code> 采样段，下面的验证命令检查 <code class="docutils literal notranslate"><span class="pre">.pth</span></code> 落盘 + 采样段格式。</p>
+<section id="id14">
+<h4>单卡<a class="headerlink" href="#id14" title="Link to this heading"></a></h4>
+<p>plain LoRA 而非 QLoRA：aarch64 NPU 上没有可用的 bitsandbytes 装法（PyPI 无 aarch64 wheel，source-build 各处报错）；Qwen1.5-1.8B fp16 ~3.5 GB，plain LoRA 在 32 GB NPU 上峰 RSS ≈ 10.3 GB。</p>
+<p>跑最小训练：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>&lt;cfg&gt;<span class="w"> </span>/tmp/xtuner_npu_smoke_single_cfg.py
+
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">TORCH_NPU_USE_HCCL</span><span class="o">=</span><span class="m">1</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp/xtuner_sft_llm_out_single
+<span class="nb">set</span><span class="w"> </span>-o<span class="w"> </span>pipefail
+
+<span class="c1"># 5 处 --cfg-options override：</span>
+<span class="c1">#   train_cfg.max_iters=5                    限 5 iter 跑通就够，不训 full epoch</span>
+<span class="c1">#   default_hooks.checkpoint.interval=1      每 iter 落盘，方便验 .pth</span>
+<span class="c1">#   custom_hooks.1.every_n_iters=1           EvaluateChatHook 每 iter 打 Sample output</span>
+<span class="c1">#   custom_hooks.1.evaluation_inputs=...     覆盖 cfg 默认 prompt 改成 color</span>
+<span class="c1">#   train_dataset.max_length=256             colors 样本短，2048 太浪费</span>
+<span class="c1">#   optim_wrapper.accumulative_counts=1      5 iter 不需要梯度累积</span>
+<span class="nb">cd</span><span class="w"> </span>xtuner
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import sys</span>
+<span class="s2">sys.argv = ['xtuner.tools.train',</span>
+<span class="s2">            '/tmp/xtuner_npu_smoke_single_cfg.py',</span>
+<span class="s2">            '--work-dir', '/tmp/xtuner_sft_llm_out_single',</span>
+<span class="s2">            '--cfg-options',</span>
+<span class="s2">            'train_cfg.max_iters=5',</span>
+<span class="s2">            'default_hooks.checkpoint.interval=1',</span>
+<span class="s2">            'custom_hooks.1.every_n_iters=1',</span>
+<span class="s2">            'custom_hooks.1.evaluation_inputs=[Tell me about the color #000000, Tell me about the color #FF5733]',</span>
+<span class="s2">            'train_dataset.max_length=256',</span>
+<span class="s2">            'optim_wrapper.accumulative_counts=1']</span>
+<span class="s2">import xtuner.tools  # noqa: F401  触发 xtuner.__init__.py 完整加载，避免 namespace package 误判</span>
+<span class="s2">from xtuner.tools import train</span>
+<span class="s2">train.main()</span>
+<span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/train.log
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code> 来自「修改配置文件」节保存的 cfg 路径。</p>
+</div>
+<p>查 .pth 有没有落盘 + 训练日志里的 Sample output 段：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-t<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/*.pth<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"---SAMPLE_OUTPUT---"</span>
+<span class="c1"># EvaluateChatHook 每个 prompt 打一个 "Sample output:" 段（两个 evaluation_inputs 相邻成对）。</span>
+<span class="c1"># awk 从第一个 "Sample output:" 行开始打印（跳过 mmengine 环境信息 dump 等 ~480 行前导日志），</span>
+<span class="c1"># 到第 3 个段头（即下一轮 eval）截断——正好覆盖第一轮 eval 的两个 prompt 段。</span>
+awk<span class="w"> </span><span class="s1">'/Sample output:/{c++; if(c&gt;2) exit} c&gt;=1 {print}'</span><span class="w"> </span>/tmp/xtuner_sft_llm_out_single/train.log<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-E<span class="w"> </span><span class="s1">'s/^[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} - mmengine - (INFO|WARNING|ERROR|DEBUG) - //'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-25
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/tmp/xtuner_sft_llm_out_single/iter_5.pth
+---SAMPLE_OUTPUT---
+Sample<span class="w"> </span>output:
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;user
+Tellmeaboutthecolor#000000&lt;<span class="p">|</span>im_end<span class="p">|</span>&gt;
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;assistant
+...
+Sample<span class="w"> </span>output:
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;user
+Tellmeaboutthecolor#FF5733&lt;<span class="p">|</span>im_end<span class="p">|</span>&gt;
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;assistant
+...
+</pre></div>
+</div>
+</section>
+<section id="ddp">
+<h4>多卡（双卡 DDP）<a class="headerlink" href="#ddp" title="Link to this heading"></a></h4>
+<p>跑最小训练：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>&lt;cfg&gt;<span class="w"> </span>/tmp/xtuner_npu_smoke_multi_cfg.py
+
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">TORCH_NPU_USE_HCCL</span><span class="o">=</span><span class="m">1</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp/xtuner_sft_llm_out_multi
+<span class="nb">set</span><span class="w"> </span>-o<span class="w"> </span>pipefail
+
+<span class="nb">cd</span><span class="w"> </span>xtuner
+<span class="nv">NPROC_PER_NODE</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import sys</span>
+<span class="s2">sys.argv = ['xtuner.tools.train',</span>
+<span class="s2">            '/tmp/xtuner_npu_smoke_multi_cfg.py',</span>
+<span class="s2">            '--work-dir', '/tmp/xtuner_sft_llm_out_multi',</span>
+<span class="s2">            '--cfg-options',</span>
+<span class="s2">            'train_cfg.max_iters=5',</span>
+<span class="s2">            'default_hooks.checkpoint.interval=1',</span>
+<span class="s2">            'custom_hooks.1.every_n_iters=1',</span>
+<span class="s2">            'custom_hooks.1.evaluation_inputs=[Tell me about the color #000000, Tell me about the color #FF5733]',</span>
+<span class="s2">            'train_dataset.max_length=256',</span>
+<span class="s2">            'optim_wrapper.accumulative_counts=1']</span>
+<span class="s2">import xtuner.tools  # noqa: F401</span>
+<span class="s2">from xtuner.tools import train</span>
+<span class="s2">train.main()</span>
+<span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>/tmp/xtuner_sft_llm_out_multi/train.log
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code> 来自「修改配置文件」节保存的 cfg 路径。</p>
+</div>
+<p>查 .pth + Sample output：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-t<span class="w"> </span>/tmp/xtuner_sft_llm_out_multi/*.pth<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"---SAMPLE_OUTPUT---"</span>
+<span class="c1"># 跟单卡同样的 awk + sed：从第一个 "Sample output:" 段头开始打印，</span>
+<span class="c1"># 第 3 个段头截断，覆盖第一轮 eval 的两个 prompt 段。</span>
+awk<span class="w"> </span><span class="s1">'/Sample output:/{c++; if(c&gt;2) exit} c&gt;=1 {print}'</span><span class="w"> </span>/tmp/xtuner_sft_llm_out_multi/train.log<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>sed<span class="w"> </span>-E<span class="w"> </span><span class="s1">'s/^[0-9]{2}\/[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2} - mmengine - (INFO|WARNING|ERROR|DEBUG) - //'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-25
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/tmp/xtuner_sft_llm_out_multi/iter_xxx.pth
+---SAMPLE_OUTPUT---
+Sample<span class="w"> </span>output:
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;user
+Tellmeaboutthecolor#000000&lt;<span class="p">|</span>im_end<span class="p">|</span>&gt;
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;assistant
+...
+Sample<span class="w"> </span>output:
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;user
+Tellmeaboutthecolor#FF5733&lt;<span class="p">|</span>im_end<span class="p">|</span>&gt;
+&lt;<span class="p">|</span>im_start<span class="p">|</span>&gt;assistant
+...
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 为实际落盘的迭代号。</p>
+</div>
+</section>
+</section>
+<section id="lora">
+<h3>模型转换 + LoRA 合并<a class="headerlink" href="#lora" title="Link to this heading"></a></h3>
+<p>训练产物是 LoRA adapter 的 <code class="docutils literal notranslate"><span class="pre">.pth</span></code>（只含 adapter 参数），要跟纯 base 模型对话需要两步：<code class="docutils literal notranslate"><span class="pre">pth_to_hf</span></code> 把 <code class="docutils literal notranslate"><span class="pre">.pth</span></code> 转成 HuggingFace 格式（PEFT adapter），<code class="docutils literal notranslate"><span class="pre">merge</span></code> 把 adapter 合并回 base：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nv">src_pth</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-t<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/*.pth<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+<span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$src_pth</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"no .pth: 先跑上面的单卡训练"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="nv">hf_dir</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">src_pth</span><span class="p">%.pth</span><span class="si">}</span><span class="s2">_hf"</span>
+<span class="nv">merged_dir</span><span class="o">=</span>/tmp/xtuner_sft_llm_out_single/merged
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$merged_dir</span><span class="s2">"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span><span class="w"> </span><span class="s2">"</span><span class="nv">$merged_dir</span><span class="s2">"</span>
+
+<span class="c1"># pth → hf（PEFT 格式：adapter_config.json + adapter_model.bin）</span>
+python<span class="w"> </span>-m<span class="w"> </span>xtuner.tools.model_converters.pth_to_hf<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>&lt;cfg&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$src_pth</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span>
+
+<span class="c1"># merge（PEFT adapter 合并回 base → sharded pytorch_model-*.bin，~3.5 GB）</span>
+python<span class="w"> </span>-m<span class="w"> </span>xtuner.tools.model_converters.merge<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>&lt;weights_dir&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">"</span><span class="nv">$merged_dir</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-shard-size<span class="w"> </span>2GB
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;cfg&gt;</span></code> 来自「启动微调」节保存的 cfg 路径；<code class="docutils literal notranslate"><span class="pre">&lt;weights_dir&gt;</span></code> 来自「准备模型权重」节保存的权重路径。</p>
+</div>
+<p>验证合并产物落盘：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-t<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/merged/*.bin<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/tmp/xtuner_sft_llm_out_single/merged/pytorch_modelxxx.bin
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 通配 shard 文件名（通常为 <code class="docutils literal notranslate"><span class="pre">-00001-of-00002</span></code> 形式）。</p>
+</div>
+</section>
+<section id="id15">
+<h3>与模型对话<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<p>合并完权重后，用 <code class="docutils literal notranslate"><span class="pre">xtuner</span> <span class="pre">chat</span></code> 跟模型对话（本文档用等价的 <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">xtuner.tools.chat</span></code> 入口）：<code class="docutils literal notranslate"><span class="pre">--prompt-template</span> <span class="pre">qwen_chat</span></code> 套 Qwen 对话模板，<code class="docutils literal notranslate"><span class="pre">--system-template</span> <span class="pre">colorist</span></code> 加上颜色助手 system prompt。</p>
+<p>先跟合并后的模型对话（用上一步合并出的 1.8B merged/ 目录）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">"Tell me about the color #66ccff\n\nEXIT\n"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+python<span class="w"> </span>-m<span class="w"> </span>xtuner.tools.chat<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/merged<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--prompt-template<span class="w"> </span>qwen_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--system-template<span class="w"> </span>colorist<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-streamer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-new-tokens<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"^Load LLM from|Log: Exit!"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Load<span class="w"> </span>LLM<span class="w"> </span>from<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/merged
+...Log:<span class="w"> </span>Exit!
+</pre></div>
+</div>
+<p>不合并、只跟 LLM + LoRA adapter 直接对话（adapter 版）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">hf_dir</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-td<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/iter_*_hf<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1<span class="k">)</span>
+<span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"no iter_*_hf: 先跑上面的模型转换"</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="o">}</span>
+<span class="nb">echo</span><span class="w"> </span>-e<span class="w"> </span><span class="s2">"Tell me about the color #66ccff\n\nEXIT\n"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
+python<span class="w"> </span>-m<span class="w"> </span>xtuner.tools.chat<span class="w"> </span>&lt;weights_dir&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--adapter<span class="w"> </span><span class="s2">"</span><span class="nv">$hf_dir</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--prompt-template<span class="w"> </span>qwen_chat<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--system-template<span class="w"> </span>colorist<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--no-streamer<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-new-tokens<span class="w"> </span><span class="m">64</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s2">"^Load LLM from|^Load adapter from|Log: Exit!"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Load<span class="w"> </span>LLM<span class="w"> </span>from<span class="w"> </span>&lt;weights_dir&gt;
+Load<span class="w"> </span>adapter<span class="w"> </span>from<span class="w"> </span>/tmp/xtuner_sft_llm_out_single/iter_xxx_hf
+...Log:<span class="w"> </span>Exit!
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;weights_dir&gt;</span></code> 来自「准备模型权重」节保存的权重路径。</p>
+</div>
+</section>
+</section>
+<section id="id16">
+<h2>外部链接<a class="headerlink" href="#id16" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/InternLM/xtuner">InternLM/xtuner</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://xtuner.readthedocs.io/zh-cn/latest/">XTuner Docs</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../pyg/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../bitsandbytes/index.html" class="btn btn-neutral float-right" title="bitsandbytes" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
