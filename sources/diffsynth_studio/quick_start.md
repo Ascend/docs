@@ -103,6 +103,8 @@ python -m pip install --retries 3 diffsynth
 python -c "import torch, torch_npu; from importlib.metadata import version; from diffsynth.core.device.npu_compatible_device import get_device_name, get_device_type; print('diffsynth', version('diffsynth')); print('device_type', get_device_type()); print('device_name', get_device_name())"
 ```
 
+输出结果如下：
+
 ```shell #test-result id="install-diffsynth"
 ...
 diffsynth ...
