@@ -14,9 +14,31 @@ Atlas 800T / 900 A2 训练服务器（Ascend 910B），并按需完成物理机�
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配的 `torch` + `torch_npu`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)）
 
-本文档示例在 Python 3.12、CANN 9.1.0、torch 2.9.0、torch_npu 2.9.0.post2 环境下验证通过。
+本文档测试环境使用 Python 3.12、CANN 9.1.0。
+
+本文档配套镜像：
+
+```text
+swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+```
+
+## 安装 PyTorch 软件栈
+
+安装与 CANN 匹配的 `torch` 和 `torch_npu`（其他环境请参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 选择兼容版本）：
+
+```shell #test id="install-torch"
+python -m pip install "torch==2.9.0" "torch_npu==2.9.0.post2" --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi
+python -c "import torch, torch_npu; print('torch:', torch.__version__); print('torch_npu:', torch_npu.__version__)"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch" fuzzy='...'
+...
+torch: 2.9.0+cpu
+torch_npu: 2.9.0.post2
+```
 
 ## 安装 DeepSpeed
 
@@ -54,23 +76,19 @@ accelerator: npu
 
 ### 安装 torchvision
 
-CIFAR10 数据集的加载依赖 torchvision。torchvision 与 torch 版本严格配套，固定版本以避免 pip 连带升级 torch：
+CIFAR10 数据集的加载依赖 torchvision。这里安装与 `torch` 2.9.0 配套的版本：
 
 ```shell #test id="install-torchvision"
-pip install "torchvision==0.24.*"
+pip install "torchvision==0.24.0"
 python -c "import torchvision; print('torchvision', torchvision.__version__)"
 ```
 
 输出结果如下：
 
-```shell #test-result id="install-torchvision" fuzzy='...' fuzzy='xxx'
+```shell #test-result id="install-torchvision" fuzzy='...'
 ...
-torchvision xxx
+torchvision 0.24.0
 ```
-
-:::{note}
-其中 `xxx` 表示实际版本号。
-:::
 
 ### 编写训练脚本
 
