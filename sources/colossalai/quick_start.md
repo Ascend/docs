@@ -94,7 +94,7 @@ npu_available True
 
 ## 4. 安装 ColossalAI
 
-先安 <ref> 指定的版本，再安装 Booster 导入时需要的 `transformers==4.51.3`、`peft`、`galore_torch`、`bitsandbytes`、`einops`。将 `<ref>` 换成 PyPI 版本号。
+先安装 <ref> 指定的版本，再安装 Booster 导入时需要的 `transformers==4.51.3`、`peft`、`galore_torch`、`bitsandbytes`、`einops`。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -120,7 +120,7 @@ npu_available True
 ```
 
 ```{note}
-<ref> 为最新的 release 版本
+将 `<ref>` 换成 PyPI 版本号
 ```
 
 ---
