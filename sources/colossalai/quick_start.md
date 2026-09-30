@@ -120,7 +120,7 @@ npu_available True
 ```
 
 ```{note}
-将 `<ref>` 换成 PyPI 版本号
+将 <ref> 换成 最新的 release 版本号
 ```
 
 ---
