@@ -1,0 +1,49 @@
+# accelerate examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release-only monitor / manifest-check /
+# run-example matrix / validate-results / save-monitor-state) lives in the
+# engine. See docs/examples-guard-engine.md for the design.
+
+name: accelerate-examples
+
+concurrency:
+  # schedule runs serialize; each manual run gets its own group so a
+  # dispatch is never blocked behind a scheduled run.
+  group: ${{ github.event_name == 'schedule' && 'accelerate-examples-schedule' || format('manual-{0}', github.run_id) }}
+  # false: a run cancelled mid-way loses its outcome writeback, and the
+  # outcome is what drives the next cycle's retry.
+  cancel-in-progress: false
+
+on:
+  # Bring-up phase: keep the schedule disabled until a few manual
+  # rounds are green (same policy as peft-examples.yml / trl-examples.yml).
+  # Re-enable:
+  # schedule:
+  #   - cron: '30 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  accelerate-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-accelerate_*),
+      # artifact names and the scheduling paths under examples-guards/accelerate.
+      project: accelerate
+      upstream_repo: huggingface/accelerate
+      target_ref: ${{ inputs.target_ref }}
+      max_parallel: 4
