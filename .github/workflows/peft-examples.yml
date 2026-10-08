@@ -1,0 +1,71 @@
+# peft examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release + workflow-files monitor /
+# manifest-check / run-example matrix / validate-results /
+# save-monitor-state) lives in the engine. See examples-guards/README.md
+# for the design.
+
+name: peft-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'peft-examples-schedule' || (github.event_name == 'pull_request' && format('peft-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Bring-up phase: keep the schedule disabled until a few manual
+  # rounds are green (the cosdt-ci-test/workflows schedule stays the
+  # production guard meanwhile). Re-enable:
+  # schedule:
+  #   - cron: '30 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release, or default-branch HEAD if none is published; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files, as the
+  # quick-start triggers do: a PR that touches only the shared engine,
+  # scripts or schema starts no project's matrix.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/peft/**'
+      - '.github/workflows/peft-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  peft-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-peft_*), artifact
+      # names and the scheduling paths under examples-guards/peft.
+      project: peft
+      upstream_repo: huggingface/peft
+      target_ref: ${{ inputs.target_ref }}
+      # 48 supported entries, 43 of them single-card: max 8 keeps the
+      # long single-card legs flowing while the 2- and 8-card legs
+      # queue.
+      max_parallel: 8
