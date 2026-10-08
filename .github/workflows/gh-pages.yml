@@ -4,9 +4,26 @@ on:
   push:
     branches:
       - main
+  # On PRs this build exists to feed the docs preview (pr-preview-deploy.yml),
+  # so it runs only for quick-start docs and guard changes. pr-preview-cleanup.yml
+  # stays unfiltered: a PR that drops its doc changes later must still have
+  # its earlier preview removed on close.
   pull_request:
     branches:
       - main
+    paths:
+      - 'sources/**'
+      - 'index.rst'
+      - 'conf.py'
+      - '_static/**'
+      - '_templates/**'
+      - 'requirements.txt'
+      - 'Makefile'
+      - 'tests/**'
+      - '!tests/examples_guard/**'
+      - '.github/workflows/*-quick-start.yml'
+      - '.github/workflows/quick-start-template.yml'
+      - '.github/workflows/gh-pages.yml'
   workflow_dispatch:
 
 permissions:
