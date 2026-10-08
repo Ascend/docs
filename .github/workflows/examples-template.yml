@@ -1,5 +1,11 @@
 # Examples guard engine - the common, reusable part of the examples
 # guarding pipeline.
+#
+# Events: schedule runs the monitor loop (release + workflow-files
+# signals, monitor-state cache); workflow_dispatch and pull_request
+# are active-trigger runs that always test the full supported matrix
+# and never read or write the monitor state, so a guard PR shows its
+# matrix to the reviewer before merge.
 
 name: examples-template
 
@@ -50,6 +56,10 @@ jobs:
       workflow_files_hash: ${{ steps.monitor.outputs.workflow_files_hash }}
     env:
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+      # Unauthenticated api.github.com calls share the hosted runner's
+      # per-IP quota of 60/h and intermittently get 403; the job token
+      # (read-only on fork PRs) raises it to the per-repo quota.
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Restore monitor state
         id: cache-restore
@@ -100,6 +110,7 @@ jobs:
           # and reason=release (workflow-files only fires when release does not).
           RESP_FILE=$(mktemp)
           HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
           TAG=""
           if [ "$HTTP_CODE" = "200" ]; then
@@ -117,6 +128,7 @@ jobs:
             # release_outcome retry bookkeeping is shared.
             HEAD_RESP=$(mktemp)
             HEAD_CODE=$(curl -sSL --retry 3 -o "$HEAD_RESP" -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" \
               "https://api.github.com/repos/$UPSTREAM_REPO/commits/$DEFAULT_BRANCH" || true)
             HEAD_SHA=""
             if [ "$HEAD_CODE" = "200" ]; then
@@ -165,6 +177,7 @@ jobs:
           # GitHub blob/tree SHAs from /git/trees/main?recursive=1; sorted
           # path+SHA pairs then sha256sum. Fires only when release did not.
           TREE_RESP=$(curl -fsSL --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$WORKFLOW_REPO/git/trees/main?recursive=1" \
             2>/dev/null || echo "")
           TREE_JSON=""
@@ -202,14 +215,14 @@ jobs:
             echo "workflow_files_hash=${WORKFLOW_FILES_HASH}"
           } >> "$GITHUB_OUTPUT"
 
-      # Schedule picks the ref from the release signal; manual runs
-      # resolve an empty target_ref to the latest upstream release
-      # (fallback chain: explicit input -> latest release -> default_branch).
-      # Without this, manual dispatch always tests upstream `main`,
-      # which can pick up in-progress pyproject changes that the
-      # supported manifest was not verified against (see torchtitan
-      # CI run 35062962988: main added attn-gym -> nvidia-cutlass-dsl,
-      # conflicts with constraints-npu.txt).
+      # Schedule picks the ref from the release signal. Manual and PR
+      # runs with no explicit ref test the latest upstream release, or
+      # the default-branch HEAD sha when the upstream has published
+      # none. Testing upstream `main` instead can pick up in-progress
+      # pyproject changes that the supported manifest was not verified
+      # against (see torchtitan CI run 35062962988: main added
+      # attn-gym -> nvidia-cutlass-dsl, conflicts with
+      # constraints-npu.txt).
       - name: Decide target
         id: decide
         env:
@@ -220,33 +233,40 @@ jobs:
           UPSTREAM_REPO: ${{ inputs.upstream_repo }}
         run: |
           set -euo pipefail
+
+          # Prints the latest release tag, or on 404 (no release
+          # published) the default-branch HEAD sha. Prints nothing and
+          # returns 1 on any other API failure.
+          upstream_ref() {
+            local resp http tag="" sha=""
+            resp=$(mktemp)
+            http=$(curl -sSL --retry 3 -o "$resp" -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
+            if [ "$http" = "200" ]; then
+              tag=$(jq -r '.tag_name // empty' "$resp")
+            elif [ "$http" = "404" ]; then
+              http=$(curl -sSL --retry 3 -o "$resp" -w '%{http_code}' \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$UPSTREAM_REPO/commits/$DEFAULT_BRANCH" || true)
+              if [ "$http" = "200" ]; then
+                sha=$(jq -r '.sha // empty' "$resp")
+              fi
+            fi
+            rm -f "$resp"
+            if [ -z "$tag$sha" ]; then
+              echo "upstream ref lookup for $UPSTREAM_REPO failed (HTTP $http)" >&2
+              return 1
+            fi
+            printf '%s' "${tag:-$sha}"
+          }
+
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            REF=""
-            REASON=""
             if [ -n "$INPUT_REF" ]; then
               REF="$INPUT_REF"
-              REASON="explicit"
-            else
-              # Manual with empty input: query the latest upstream
-              # release tag so the run targets a verified, stable
-              # ref rather than bleeding-edge main. Falls back to
-              # main if the API is unreachable or no release exists.
-              RESP_FILE=$(mktemp)
-              HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
-                "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
-              TAG=""
-              if [ "$HTTP_CODE" = "200" ]; then
-                TAG=$(jq -r '.tag_name // empty' "$RESP_FILE")
-              fi
-              rm -f "$RESP_FILE"
-              if [ -n "$TAG" ]; then
-                REF="$TAG"
-                REASON="latest-release"
-              else
-                REF="$DEFAULT_BRANCH"
-                REASON="branch-fallback"
-                echo "::warning::failed to fetch latest release for $UPSTREAM_REPO (HTTP $HTTP_CODE) - falling back to $DEFAULT_BRANCH"
-              fi
+            elif ! REF=$(upstream_ref); then
+              REF="$DEFAULT_BRANCH"
+              echo "::warning::cannot resolve the latest $UPSTREAM_REPO release - testing $DEFAULT_BRANCH instead"
             fi
             REPO="${INPUT_REPO:-$UPSTREAM_REPO}"
             {
@@ -255,7 +275,25 @@ jobs:
               echo "target_repo=$REPO"
               echo "target_ref=$REF"
             } >> "$GITHUB_OUTPUT"
-            echo "resolved repo=$REPO ref=$REF reason=$REASON (manual)"
+            echo "resolved repo=$REPO ref=$REF (manual)"
+            exit 0
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            # The monitor steps above are schedule-gated: without this
+            # branch every downstream job would skip and the PR would
+            # go green untested. No branch fallback here: reviewers
+            # read only red/green, and a silent switch to a moving
+            # branch would read as the PR's own failure.
+            if ! REF=$(upstream_ref); then
+              echo "::error::cannot resolve the upstream ref to test for $UPSTREAM_REPO - guard noise, not an example failure; re-run the workflow"
+              exit 1
+            fi
+            {
+              echo "need_to_run=true"
+              echo "trigger=pull_request"
+              echo "target_repo=$UPSTREAM_REPO"
+              echo "target_ref=$REF"
+            } >> "$GITHUB_OUTPUT"
+            echo "resolved repo=$UPSTREAM_REPO ref=$REF (pull_request)"
             exit 0
           fi
           NEED="${{ steps.monitor.outputs.need_to_run }}"
@@ -265,7 +303,6 @@ jobs:
             echo "trigger=schedule"
             echo "target_repo=$UPSTREAM_REPO"
             echo "target_ref=$REF"
-            echo "reason=${{ steps.monitor.outputs.reason }}"
           } >> "$GITHUB_OUTPUT"
           if [ "$NEED" = "true" ]; then
             echo "resolved repo=$UPSTREAM_REPO ref=$REF reason=${{ steps.monitor.outputs.reason }}"
