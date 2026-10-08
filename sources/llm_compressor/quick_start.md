@@ -123,7 +123,9 @@ model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
-model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id, dtype=torch.float16
+).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 recipe = QuantizationModifier(
     ignore=["lm_head"],
@@ -142,7 +144,9 @@ oneshot(
     output_dir=str(compressed_dir),
 )
 
-reloaded = AutoModelForCausalLM.from_pretrained(compressed_dir).to(device)
+reloaded = AutoModelForCausalLM.from_pretrained(
+    compressed_dir, dtype=torch.float16
+).to(device)
 inputs = tokenizer("hello", return_tensors="pt").to(device)
 logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
@@ -151,6 +155,7 @@ group0 = inner.config_groups["group_0"]
 print("weight_num_bits", group0.weights.num_bits)
 print("q_proj_quantized", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
+print("logits.dtype", logits.dtype)
 print("logits.device", logits.device)
 ```
 
@@ -171,7 +176,9 @@ model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
-model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id, dtype=torch.float16
+).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 recipe = QuantizationModifier(
     ignore=["lm_head"],
@@ -190,7 +197,9 @@ oneshot(
     output_dir=str(compressed_dir),
 )
 
-reloaded = AutoModelForCausalLM.from_pretrained(compressed_dir).to(device)
+reloaded = AutoModelForCausalLM.from_pretrained(
+    compressed_dir, dtype=torch.float16
+).to(device)
 inputs = tokenizer("hello", return_tensors="pt").to(device)
 logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
@@ -199,6 +208,7 @@ group0 = inner.config_groups["group_0"]
 print("weight_num_bits", group0.weights.num_bits)
 print("q_proj_quantized", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
+print("logits.dtype", logits.dtype)
 print("logits.device", logits.device)
 PY
 ```
@@ -217,6 +227,7 @@ python oneshot_forward.py
 weight_num_bits 4
 q_proj_quantized True
 lm_head_quantized False
+logits.dtype torch.float16
 logits.device npu:0
 ```
 
