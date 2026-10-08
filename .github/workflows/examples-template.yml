@@ -1,0 +1,506 @@
+# Examples guard engine - the common, reusable part of the examples
+# guarding pipeline.
+
+name: examples-template
+
+on:
+  workflow_call:
+    inputs:
+      project:
+        description: Project directory under examples-guards/; namespaces cache keys, artifact names and scheduling paths
+        type: string
+        required: true
+      upstream_repo:
+        description: Upstream repo (owner/name) polled for releases; fallback target when dispatch inputs are empty
+        type: string
+        required: true
+      target_repo:
+        description: Optional dispatch-only target repo override (owner/name)
+        type: string
+        default: ''
+      target_ref:
+        description: Dispatch-only ref; empty selects the latest release
+        type: string
+        default: ''
+      default_branch:
+        description: Branch to use when manual latest-release lookup is unavailable
+        type: string
+        default: main
+      examples_repo:
+        description: Repo containing the example scripts (defaults to upstream_repo)
+        type: string
+        default: ''
+      max_parallel:
+        description: Max parallel run-example matrix legs
+        type: number
+        default: 4
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    outputs:
+      need_to_run: ${{ steps.decide.outputs.need_to_run }}
+      trigger: ${{ steps.decide.outputs.trigger }}
+      target_repo: ${{ steps.decide.outputs.target_repo }}
+      target_ref: ${{ steps.decide.outputs.target_ref }}
+      workflow_files_hash: ${{ steps.monitor.outputs.workflow_files_hash }}
+    env:
+      UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+    steps:
+      - name: Restore monitor state
+        id: cache-restore
+        if: github.event_name == 'schedule'
+        uses: actions/cache/restore@v6
+        with:
+          path: .monitor-state
+          # Per-run key always misses; restore-keys picks the latest
+          # save (ownership verified by the next step).
+          key: examples-monitor-state-${{ inputs.project }}_${{ github.run_id }}
+          restore-keys: |
+            examples-monitor-state-${{ inputs.project }}_
+
+      - name: Verify matched cache key
+        if: github.event_name == 'schedule'
+        env:
+          PROJECT: ${{ inputs.project }}
+          MATCHED_KEY: ${{ steps.cache-restore.outputs.cache-matched-key }}
+        run: |
+          set -euo pipefail
+          if [ -n "$MATCHED_KEY" ] \
+            && ! printf '%s' "$MATCHED_KEY" | grep -Eq "^examples-monitor-state-${PROJECT}_[0-9]+$"; then
+            echo "::warning::monitor-state cache cross-talk: matched key '$MATCHED_KEY' is not owned by project '$PROJECT' - discarding cache (cold start)"
+            rm -rf .monitor-state
+          else
+            echo "matched cache key ok: ${MATCHED_KEY:-cold start}"
+          fi
+
+      - name: Monitor upstream
+        id: monitor
+        if: github.event_name == 'schedule'
+        env:
+          UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+          PROJECT: ${{ inputs.project }}
+          WORKFLOW_REPO: ${{ github.repository }}
+          DEFAULT_BRANCH: ${{ inputs.default_branch }}
+        run: |
+          set -euo pipefail
+          # Single source of .monitor state for both signals below.
+          if [ -f .monitor-state/.monitor ]; then
+            . .monitor-state/.monitor
+          fi
+          NEED="false"
+          REASON=""
+
+          # Signal 1: upstream latest release. Priority over workflow-files
+          # so a concurrent release fire resolves to the release tag as ref
+          # and reason=release (workflow-files only fires when release does not).
+          RESP_FILE=$(mktemp)
+          HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+            "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
+          TAG=""
+          if [ "$HTTP_CODE" = "200" ]; then
+            TAG=$(jq -r '.tag_name // empty' "$RESP_FILE")
+          fi
+          rm -f "$RESP_FILE"
+          if [ "$HTTP_CODE" = "404" ]; then
+            # Release-less upstream (e.g. microsoft/onnxruntime-inference-
+            # examples): fall back to the default-branch HEAD sha so the
+            # schedule signal has something to diff, and target_ref is never
+            # empty downstream (result.schema.json target_ref minLength:1;
+            # save-monitor-state's TARGET_REF :? guard). Same tier as
+            # quick-start-template's /commits/HEAD fallback. Refs of both
+            # kinds land in the same last_release_tag state slot; the
+            # release_outcome retry bookkeeping is shared.
+            HEAD_RESP=$(mktemp)
+            HEAD_CODE=$(curl -sSL --retry 3 -o "$HEAD_RESP" -w '%{http_code}' \
+              "https://api.github.com/repos/$UPSTREAM_REPO/commits/$DEFAULT_BRANCH" || true)
+            HEAD_SHA=""
+            if [ "$HEAD_CODE" = "200" ]; then
+              HEAD_SHA=$(jq -r '.sha // empty' "$HEAD_RESP")
+            fi
+            rm -f "$HEAD_RESP"
+            if [ -n "$HEAD_SHA" ]; then
+              TAG="$HEAD_SHA"
+              if [ "${last_release_tag:-}" != "$TAG" ]; then
+                NEED="true"
+                REASON="head"
+                echo "release signal 404 (no releases); HEAD fallback FIRED: ${last_release_tag:-<none>} -> $HEAD_SHA"
+              elif [ "${release_outcome:-}" = "failure" ]; then
+                NEED="true"
+                REASON="head-retry"
+                echo "HEAD fallback RETRY (previous outcome failure, sha $HEAD_SHA unchanged)"
+              else
+                echo "HEAD fallback unchanged ($HEAD_SHA), previous outcome: ${release_outcome:-none}"
+              fi
+            else
+              echo "no release published and HEAD lookup failed (HTTP $HEAD_CODE) - nothing to guard"
+              {
+                echo "## examples guard: $UPSTREAM_REPO"
+                echo "No release published - nothing to guard, no result."
+              } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          elif [ -z "$TAG" ]; then
+            echo "release signal unknown (HTTP $HTTP_CODE) - not triggering, state untouched"
+          else
+            if [ "${last_release_tag:-}" != "$TAG" ]; then
+              NEED="true"
+              REASON="release"
+              echo "release signal FIRED: ${last_release_tag:-<none>} -> $TAG"
+            elif [ "${release_outcome:-}" = "failure" ]; then
+              NEED="true"
+              REASON="release-retry"
+              echo "release signal RETRY (previous outcome failure, tag $TAG unchanged)"
+            else
+              echo "release tag unchanged ($TAG), previous outcome: ${release_outcome:-none}"
+            fi
+          fi
+          echo "release_ref=$TAG" >> "$GITHUB_OUTPUT"
+
+          # Signal 2: this project's workflow files (examples-guards/<project>/**
+          # + .github/workflows/<project>-examples.yml). Composite of their
+          # GitHub blob/tree SHAs from /git/trees/main?recursive=1; sorted
+          # path+SHA pairs then sha256sum. Fires only when release did not.
+          TREE_RESP=$(curl -fsSL --retry 3 \
+            "https://api.github.com/repos/$WORKFLOW_REPO/git/trees/main?recursive=1" \
+            2>/dev/null || echo "")
+          TREE_JSON=""
+          if [ -n "$TREE_RESP" ]; then
+            TREE_JSON=$(echo "$TREE_RESP" | jq -r '.tree // empty' 2>/dev/null || echo "")
+          fi
+          WORKFLOW_FILES_HASH=""
+          if [ -n "$TREE_JSON" ] && [ "$TREE_JSON" != "null" ]; then
+            WORKFLOW_FILES_HASH=$(
+              echo "$TREE_JSON" | jq -r \
+                --arg dir "examples-guards/${PROJECT}" \
+                --arg file ".github/workflows/${PROJECT}-examples.yml" \
+                '[.[] | select(
+                  (.path == $file) or
+                  (.path | startswith($dir + "/"))
+                ) | "\(.path)\t\(.sha)"] | sort | join("\n")' \
+                | sha256sum | awk '{print $1}'
+            )
+            if [ -n "$WORKFLOW_FILES_HASH" ] \
+              && [ "${last_workflow_files_hash:-}" != "$WORKFLOW_FILES_HASH" ] \
+              && [ "$NEED" != "true" ]; then
+              NEED="true"
+              REASON="workflow-files"
+              echo "workflow-files signal FIRED: ${last_workflow_files_hash:-<none>} -> $WORKFLOW_FILES_HASH"
+            else
+              echo "workflow-files hash unchanged (${WORKFLOW_FILES_HASH:-<empty>})"
+            fi
+          else
+            echo "::warning::workflow-files signal unknown (tree API empty) - state untouched"
+          fi
+
+          {
+            echo "need_to_run=$NEED"
+            echo "reason=$REASON"
+            echo "workflow_files_hash=${WORKFLOW_FILES_HASH}"
+          } >> "$GITHUB_OUTPUT"
+
+      # Schedule picks the ref from the release signal; manual runs
+      # resolve an empty target_ref to the latest upstream release
+      # (fallback chain: explicit input -> latest release -> default_branch).
+      # Without this, manual dispatch always tests upstream `main`,
+      # which can pick up in-progress pyproject changes that the
+      # supported manifest was not verified against (see torchtitan
+      # CI run 35062962988: main added attn-gym -> nvidia-cutlass-dsl,
+      # conflicts with constraints-npu.txt).
+      - name: Decide target
+        id: decide
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_REF: ${{ inputs.target_ref }}
+          INPUT_REPO: ${{ inputs.target_repo }}
+          DEFAULT_BRANCH: ${{ inputs.default_branch }}
+          UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            REF=""
+            REASON=""
+            if [ -n "$INPUT_REF" ]; then
+              REF="$INPUT_REF"
+              REASON="explicit"
+            else
+              # Manual with empty input: query the latest upstream
+              # release tag so the run targets a verified, stable
+              # ref rather than bleeding-edge main. Falls back to
+              # main if the API is unreachable or no release exists.
+              RESP_FILE=$(mktemp)
+              HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+                "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
+              TAG=""
+              if [ "$HTTP_CODE" = "200" ]; then
+                TAG=$(jq -r '.tag_name // empty' "$RESP_FILE")
+              fi
+              rm -f "$RESP_FILE"
+              if [ -n "$TAG" ]; then
+                REF="$TAG"
+                REASON="latest-release"
+              else
+                REF="$DEFAULT_BRANCH"
+                REASON="branch-fallback"
+                echo "::warning::failed to fetch latest release for $UPSTREAM_REPO (HTTP $HTTP_CODE) - falling back to $DEFAULT_BRANCH"
+              fi
+            fi
+            REPO="${INPUT_REPO:-$UPSTREAM_REPO}"
+            {
+              echo "need_to_run=true"
+              echo "trigger=workflow_dispatch"
+              echo "target_repo=$REPO"
+              echo "target_ref=$REF"
+            } >> "$GITHUB_OUTPUT"
+            echo "resolved repo=$REPO ref=$REF reason=$REASON (manual)"
+            exit 0
+          fi
+          NEED="${{ steps.monitor.outputs.need_to_run }}"
+          REF="${{ steps.monitor.outputs.release_ref }}"
+          {
+            echo "need_to_run=$NEED"
+            echo "trigger=schedule"
+            echo "target_repo=$UPSTREAM_REPO"
+            echo "target_ref=$REF"
+            echo "reason=${{ steps.monitor.outputs.reason }}"
+          } >> "$GITHUB_OUTPUT"
+          if [ "$NEED" = "true" ]; then
+            echo "resolved repo=$UPSTREAM_REPO ref=$REF reason=${{ steps.monitor.outputs.reason }}"
+          else
+            echo "No upstream change - skipping manifest check and examples"
+          fi
+
+  manifest-check:
+    needs: monitor
+    if: needs.monitor.outputs.need_to_run == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      supported_matrix: ${{ steps.check.outputs.supported_matrix }}
+      has_supported: ${{ steps.check.outputs.has_supported }}
+    steps:
+      - name: Checkout workflows
+        uses: actions/checkout@v6
+        with:
+          path: workflows
+
+      - name: Checkout target
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ needs.monitor.outputs.target_repo }}
+          ref: ${{ needs.monitor.outputs.target_ref }}
+          path: target
+
+      # Split mode (examples_repo set): the example scripts live in a
+      # separate repo from the monitored upstream. Release tags do not
+      # exist in the examples repo, so it always follows its default
+      # branch (DeepSpeedExamples uses master, not main).
+      - name: Checkout examples repo
+        if: inputs.examples_repo != ''
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.examples_repo }}
+          path: examples
+
+      - name: Check supported entries and derive matrix
+        id: check
+        env:
+          # Non-split: the example tree is the upstream checkout itself.
+          EXAMPLES_ROOT: ${{ inputs.examples_repo != '' && 'examples' || 'target' }}
+        run: |
+          set -euo pipefail
+          python3 -m pip install -q pyyaml
+          python3 workflows/scripts/check_supported_entries.py \
+            --target-root "$EXAMPLES_ROOT" \
+            --manifest "workflows/examples-guards/${{ inputs.project }}/examples_manifest.yaml"
+
+  run-example:
+    name: ${{ matrix.example.name }}
+    needs: [monitor, manifest-check]
+    if: needs.manifest-check.outputs.has_supported == 'true'
+    runs-on: ${{ matrix.example.runner }}
+    timeout-minutes: ${{ matrix.example.timeout_minutes }}
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ inputs.max_parallel }}
+      matrix:
+        example: ${{ fromJSON(needs.manifest-check.outputs.supported_matrix) }}
+    env:
+      PROJECT_ROOT: ${{ github.workspace }}/workflows/examples-guards/${{ inputs.project }}
+      TARGET_ROOT: ${{ github.workspace }}/target
+      # Split mode: examples live in their own checkout; non-split: the
+      # example tree is the upstream checkout itself (TARGET_ROOT).
+      EXAMPLES_ROOT: ${{ inputs.examples_repo != '' && format('{0}/examples', github.workspace) || format('{0}/target', github.workspace) }}
+      FIXTURE_DIR: ${{ github.workspace }}/workflows/examples-guards/${{ inputs.project }}/fixtures
+      HF_ENDPOINT: https://hf-mirror.com
+      # When the mirror passes xet metadata through, hf_xet downloads
+      # chunks straight from xethub.hf.co hosts, bypassing HF_ENDPOINT
+      # (unreachable from the CN runners) — same fix as llm-compressor.
+      # NOTE: does not rescue xet-backed *files*: their resolve URL
+      # 302s to cas-bridge.xethub.hf.co regardless; those must be
+      # pre-downloaded (see peft supertuning's fixture).
+      HF_HUB_DISABLE_XET: "1"
+      # evaluate's metric caches (predictions/references arrow files) are
+      # per-job scratch with zero cross-job value — keep them OFF the
+      # shared persistent volume (default ~/.cache/huggingface/metrics).
+      # That volume is also where cross_validation hit Errno 5 EIO on a
+      # metrics-file close (run 35188975420) and where every glue-metric
+      # leg would otherwise contend on the same fixed path.
+      HF_METRICS_CACHE: ${{ github.workspace }}/.hf-metrics
+      PIP_EXTRA_INDEX_URL: https://repo.huaweicloud.com/ascend/repos/pypi
+      PIP_TIMEOUT: "120"
+    container:
+      image: ${{ matrix.example.image }}
+    steps:
+      - name: Checkout workflows
+        uses: actions/checkout@v6
+        with:
+          path: workflows
+
+      - name: Checkout target
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ needs.monitor.outputs.target_repo }}
+          ref: ${{ needs.monitor.outputs.target_ref }}
+          path: target
+
+      - name: Checkout examples repo
+        if: inputs.examples_repo != ''
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ inputs.examples_repo }}
+          path: examples
+
+      - name: Set declared NPU visibility
+        if: matrix.example.npu_devices
+        env:
+          NPU_DEVICES: ${{ matrix.example.npu_devices }}
+        run: echo "ASCEND_RT_VISIBLE_DEVICES=$NPU_DEVICES" >> "$GITHUB_ENV"
+
+      - name: Setup example environment
+        env:
+          PROFILE: ${{ matrix.example.profile }}
+          EXAMPLE_PATH: ${{ matrix.example.path }}
+          # EXEC forwarded so setups that build per-target (whisper.cpp
+          # builds the cmake target named by exec) can see it; empty for
+          # entries without an exec field (existing setups ignore it).
+          EXEC: ${{ matrix.example.exec }}
+        run: bash "$PROJECT_ROOT/scripts/setup_example.sh" "$PROFILE"
+
+      - name: Run example
+        env:
+          EXAMPLE_PATH: ${{ matrix.example.path }}
+          EXAMPLE_SOURCE: ${{ matrix.example.source || 'upstream' }}
+          EXEC: ${{ matrix.example.exec }}
+          LAUNCHER: ${{ matrix.example.launcher || '' }}
+          # PROFILE forwarded so run scripts that dispatch substantial
+          # per-profile flow on it (mooncake's transfer-engine guard)
+          # see it; path-derived scripts ignore it.
+          PROFILE: ${{ matrix.example.profile }}
+          OVERLAY_ARGS: ${{ toJSON(matrix.example.overlay_args) }}
+        run: |
+          df -h /dev/shm
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          CI_OUTPUT_DIR="$GITHUB_WORKSPACE/output" \
+            bash "$PROJECT_ROOT/scripts/run_example.sh" "$EXAMPLE_PATH" \
+            2>&1 | tee "$GITHUB_WORKSPACE/output/train.log"
+
+  validate-results:
+    name: publish-result (${{ matrix.example.name }})
+    needs: [monitor, manifest-check, run-example]
+    if: always() && needs.manifest-check.outputs.has_supported == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example: ${{ fromJSON(needs.manifest-check.outputs.supported_matrix) }}
+    steps:
+      - name: Checkout workflows
+        uses: actions/checkout@v6
+        with:
+          path: workflows
+
+      - name: Write result JSON
+        env:
+          TARGET_REPO: ${{ needs.monitor.outputs.target_repo }}
+          TARGET_REF: ${{ needs.monitor.outputs.target_ref }}
+          TRIGGER: ${{ needs.monitor.outputs.trigger }}
+          EXAMPLE_PATH: ${{ matrix.example.path }}
+          EXAMPLE_SOURCE: ${{ matrix.example.source || '' }}
+          IMAGE: ${{ matrix.example.image }}
+          EXPECTED_JOB_NAME: ${{ matrix.example.name }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 workflows/scripts/write_example_result.py \
+            --output "$GITHUB_WORKSPACE/output/result.json"
+
+      - name: Validate result.json
+        run: |
+          set -euo pipefail
+          # check-jsonschema must live in an isolated venv: a bare pip
+          # installation can otherwise make check-jsonschema fail on import.
+          schema_venv="$RUNNER_TEMP/examples-schema-venv"
+          python3 -m venv "$schema_venv"
+          # Retain main's known-compatible check-jsonschema release.
+          "$schema_venv/bin/python" -m pip install -q "check-jsonschema==0.38.0"
+          "$schema_venv/bin/check-jsonschema" \
+            --schemafile workflows/.github/workflows/schemas/result.schema.json \
+            output/result.json
+
+      # Artifact upload runs on GitHub-hosted infrastructure. The self-hosted
+      # NPU runner only executes the example and reports its normal job status.
+      - name: Upload result JSON
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.project }}-examples-${{ github.run_id }}-${{ strategy.job-index }}
+          if-no-files-found: error
+          path: output/result.json
+
+  save-monitor-state:
+    needs: [monitor, manifest-check, run-example]
+    if: |
+      always() &&
+      github.event_name == 'schedule' &&
+      needs.monitor.outputs.need_to_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save monitor state
+        env:
+          TARGET_REF: ${{ needs.monitor.outputs.target_ref }}
+          RUN_RESULT: ${{ needs.run-example.result }}
+          MANIFEST_RESULT: ${{ needs.manifest-check.result }}
+          HAS_SUPPORTED: ${{ needs.manifest-check.outputs.has_supported }}
+          WORKFLOW_FILES_HASH: ${{ needs.monitor.outputs.workflow_files_hash }}
+        run: |
+          set -euo pipefail
+          mkdir -p .monitor-state
+          TAG="${TARGET_REF:?TARGET_REF is required}"
+          # A skipped run-example is fine when the manifest has no
+          # supported entry; any other non-success must retry.
+          if [ "$RUN_RESULT" = "success" ]; then
+            OUT="success"
+          elif [ "$RUN_RESULT" = "skipped" ] && [ "$MANIFEST_RESULT" = "success" ] \
+            && [ "$HAS_SUPPORTED" = "false" ]; then
+            OUT="success"
+          else
+            OUT="failure"
+          fi
+          {
+            echo "last_release_tag='$TAG'"
+            echo "release_outcome='$OUT'"
+            echo "last_workflow_files_hash='$WORKFLOW_FILES_HASH'"
+          } > .monitor-state/.monitor
+          echo "recorded outcome: $OUT, tag $TAG, wf_hash=${WORKFLOW_FILES_HASH:-<none>}"
+
+      - name: Persist monitor state to cache
+        uses: actions/cache/save@v6
+        with:
+          path: .monitor-state
+          key: examples-monitor-state-${{ inputs.project }}_${{ github.run_id }}
