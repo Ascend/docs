@@ -20,7 +20,9 @@ schedule 定时轮询两个信号：上游最新 release，以及本项目看护
 每个 GitHub 组织的 self-hosted runner 池各挂一块持久缓存盘，同池 runner 共用，跨次运行保留；别的组织投递过的资产在本仓看不见。本仓 runner 池能直连 huggingface.co，项目的 setup 与 run 脚本把 `HF_ENDPOINT` 设为 huggingface.co，不用引擎默认的 hf-mirror：后者把 `t5-base` 这类无命名空间的 id 308 跳转到 huggingface.co，huggingface_hub 不跟随这种跳转。peft 是按这套写法接入的范例。
 
 - 例程硬编码的模型与数据集由 `from_pretrained`、`load_dataset` 自行下载进缓存，下次运行直接命中。
-- 以本地路径传给 overlay_args 的模型由项目的 `scripts/hub_cache.py` 解析：缓存里有完整快照就直接用，不联网；没有就先从 HuggingFace 下载，失败再从 ModelScope 下载，都写进缓存。
+- 以本地路径传给 overlay_args 的模型由项目的 `scripts/hub_cache.py` 解析：缓存里的快照必需文件齐全、且每个 safetensors 文件头完好，就直接用，不联网；否则先从 HuggingFace 下载，失败再从 ModelScope 下载。
+- 缓存盘跨 pod 共享，huggingface_hub 自带的 `.locks` 没拦住并发：run 37764199490 里两条 dreambooth 腿同时下 SD v1.5，追加写到同一个文件上，落得比完整文件还大。所以 `hub_cache.py` 不直接下载进缓存，先下到本 job 在同一块盘上的私有暂存目录，校验通过后再逐个文件改名进快照，完好的旧文件保持不动。同一模型另有一个 `mkdir` 锁目录让其余 job 等待，锁只省带宽，不承担正确性。
+- 损坏的分片连同它指向的 blob 必须先删掉再重下：`snapshot_download` 会把缓存里已有的 blob 直接复制给下载目标且不重新校验，不删就会把坏字节一路带下去。
 - 没有单独的预投递流水线，也不把模型或数据集提交进仓库。
 
 ## 结果契约
@@ -47,7 +49,7 @@ PR 运行语义：
 
 1. 把源仓 `projects/<project>/` 下的 example 线文件拷到本仓 `examples-guards/<project>/`：清单、脚本、fixtures、constraints。Quick Start 线的 docs 与 tests 不拷贝，它们已在本仓单独迁移。源仓 setup 里依赖 cache-seed 预投递的资产，改成上文「模型与数据集缓存」一节的写法。
 2. 新建薄触发器 `.github/workflows/<project>-examples.yml`，参照 `peft-examples.yml`：schedule 保持注释；声明 pull_request 触发，`paths` 只列 `examples-guards/<project>/**` 和触发器自身；PR 并发组名用 `<project>-examples-pr-<PR 号>`；填入 `project` 与 `upstream_repo`。
-3. 本地跑 `uv run --no-project --python 3.12 --with pyyaml --with "huggingface_hub<1.0" --with "modelscope==1.37.0" python -m unittest discover tests/examples_guard` 校验共享脚本、触发器契约与 peft 的缓存解析，用 actionlint 检查 workflow。判定被测版本的执行测试需要 bash 4 以上和 jq，macOS 自带的 bash 3.2 下会跳过。
+3. 本地跑 `uv run --no-project --python 3.12 --with pyyaml --with "huggingface_hub<1.0" --with "modelscope==1.37.0" --with safetensors --with numpy python -m unittest discover tests/examples_guard` 校验共享脚本、触发器契约与 peft 的缓存解析，用 actionlint 检查 workflow。判定被测版本的执行测试需要 bash 4 以上和 jq，macOS 自带的 bash 3.2 下会跳过。
 4. 提 PR 后确认矩阵在 PR 上真实运行且结论符合预期。诚实红条目原样保留，跑红的不能改成 unsupported 换绿灯。
 5. PR 合入后手动 dispatch 跑绿几轮。是否打开 cron 由维护者另行决定；打开时槽位错开已有排布，并同时关闭旧仓同项目的 schedule，避免双看护占用 NPU。
 
