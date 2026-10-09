@@ -520,6 +520,8 @@ supported:
 
   # SFT + torchrun DDP（Mistral-7B 换 0.5B）：首行 --nproc_per_node 8
   # 原样跑 a2-8；npu-5 2 rank hccl exit 0（56s）
+  # timeout 60：a2-8 pod 排队实测可达 24 分钟（run 37877060110 本条 30.4
+  # 分钟被杀，其中干活仅约 6 分钟），30 分钟会把排队误判成被测失败。
   - path: examples/sft/run_peft_multigpu.sh
     profile: peft
     runner: linux-aarch64-a2-8
@@ -542,7 +544,7 @@ supported:
       - --logging_steps 1
       - --report_to none
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
+    timeout_minutes: 60
 
   # SFT + QLoRA-FSDP（Llama-2-70b 换 0.5B，bnb 关掉退化成 LoRA+FSDP1）：
   # fsdp_config_qlora.yaml 本就 num_processes: 2，只需 a2-2（不必占 a2-8）；
@@ -670,6 +672,8 @@ supported:
   # （不必占 a2-8）；npu-5 2 rank 实跑 1m38s exit 0
   # torch 栈锁 2.9.0 对：同 run_peft_deepspeed.sh（存点 gather_object
   # 路径 + ZeRO broadcast，run 35502546409）
+  # timeout 45：a2-2 pod 排队比 a2-8 短得多（run 37877060110 同轮仅 5.7
+  # 分钟），但仍留出排队余量。
   - path: examples/sft/run_peft_qlora_deepspeed_stage3.sh
     profile: peft_ds
     runner: linux-aarch64-a2-2
@@ -692,7 +696,7 @@ supported:
       - --logging_steps 1
       - --report_to none
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
+    timeout_minutes: 45
 
   # GraLoRA：0.5B + ci_text_8_hf，npu-5 实跑 1 epoch exit 0（loss 2.37）
 
@@ -746,7 +750,9 @@ supported:
       - --logging_steps 1
       - --report_to none
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
+    # timeout 60：同 run_peft_multigpu.sh 的 a2-8 排队风险，本条在
+    # run 37877060110 跑了 26.9 分钟，距 30 分钟上限只剩 3 分钟。
+    timeout_minutes: 60
 
   # SFT + QLoRA-DeepSpeed-Z3（Llama-2-70b 换 0.5B，bnb 关掉退化 ZeRO-3+
   # LoRA）：deepspeed_config_z3_qlora.yaml 本就 num_processes: 2 且无
@@ -986,7 +992,8 @@ supported:
       - --logging_steps 1
       - --report_to none
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
+    # timeout 60：同 run_peft_multigpu.sh 的 a2-8 排队风险。
+    timeout_minutes: 60
 
   # SFT + torchrun DDP（Mistral-7B 换 0.5B）：首行 --nproc_per_node 8
   # 原样跑 a2-8；npu-5 2 rank hccl exit 0（56s）
@@ -1042,6 +1049,7 @@ supported:
   # fsdp_config_qlora.yaml 本就 num_processes: 2，只需 a2-2（不必占 a2-8）；
   # npu-5 2×910B4 2 rank 实跑 1m18s exit 0
   # profile peft_29：同 run_peft_fsdp.sh，torch 2.12 存点路径崩，锁 2.9.0
+  # timeout 45：同 run_peft_qlora_deepspeed_stage3.sh 的 a2-2 排队余量。
   - path: examples/sft/run_peft_qlora_fsdp.sh
     profile: peft_29
     runner: linux-aarch64-a2-2
@@ -1064,7 +1072,7 @@ supported:
       - --logging_steps 1
       - --report_to none
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
+    timeout_minutes: 45
 
   # SFT + DeepSpeed ZeRO-3（Llama-2-70b 换 0.5B）：deepspeed_config.yaml
   # num_processes: 8 + gradient_accumulation_steps: 4 原样跑 a2-8，overlay
