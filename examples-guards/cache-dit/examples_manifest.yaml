@@ -1,0 +1,81 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py']
+  unit: files
+supported:
+  # overlay_args 约定：
+  #   - 只写与脚本默认值不同的项；每个参数的注释解释其作用或取值原因。
+  #   - ${FLUX_MODEL_PATH} 引用 setup_example.sh 写入 GITHUB_ENV 的模型
+  #     快照路径变量（FLUX.1-dev 本地快照）。
+  # examples/generate.py: thin wrapper over cache_dit.generate.entrypoint()
+  # (unified CLI, README "python3 -m cache_dit.generate"). Positional name
+  # "flux" selects the FLUX.1-dev example; --model-path resolves from the
+  # shared runner cache (FLUX_MODEL_PATH GITHUB_ENV injection by
+  # setup_example.sh; FLUX.1-dev 在 HF 为 gated repo 且本仓无 HF_TOKEN，
+  # 冷池时 HF fill 必然失败，落 ModelScope 镜像临时目录，每 run 重下);
+  # --attn _native_npu is the NPU attention backend; --cache exercises
+  # cache-dit's DBCache path.
+  - path: examples/generate.py
+    profile: flux
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 位置参数：选择 FLUX.1-dev 示例（unified CLI 的示例名，非 --flag）
+      - flux
+      # 模型来源：setup_example.sh 导出的 FLUX.1-dev 本地快照路径
+      - --model-path ${FLUX_MODEL_PATH}
+      # attention 后端选 NPU 原生实现（默认 CUDA 路径在 NPU 上不可用）
+      - --attn _native_npu
+      # 启用 cache-dit 的 DBCache 缓存路径（本项目被测核心能力）
+      - --cache
+      # pipeline 组件 CPU offload：FLUX.1-dev bf16 全量权重超 910B4 单卡
+      # 可用显存，offload 后方可单卡运行
+      - --cpu-offload
+      # 预热步数取最小，smoke 只验证链路
+      - --warmup 1
+      # 正式推理重复次数取最小，smoke 只验证链路
+      - --repeat 1
+      # 去噪采样步数；smoke 取可覆盖 DBCache 命中路径的最小配置
+      - --steps 8
+    timeout_minutes: 120
+unsupported:
+  # --- examples/api/*：上游坏脚本，manifest 层无法规避 ---
+  # PR #752（feat: add cache-dit-generate cli tool）删除了 examples/utils.py，
+  # 但未同步更新 examples/api/ 下的脚本；4 个脚本开头的
+  # `from utils import get_args, strify, MemoryTracker` 在干净 checkout 下
+  # 直接 ImportError（utils.py 仅存于 tests/api/utils.py，不在 examples 的
+  # sys.path 上）。上游修复后移回。
+  - examples/api/run_cache_refresh_flux.py
+  - examples/api/run_cache_refresh_wan_2.2.py
+  - examples/api/run_steps_mask.py
+  - examples/api/run_transformer_only.py
+  # --- examples/generate.py 分布式变体（torchrun 4 卡，ulysses/ring/usp，
+  # README "Distributed Inference"）：两条模型路线在 NPU 上均不可行，
+  # 上游适配后移回：
+  # 1) FLUX.1-dev：序列并行不分片权重，每个 rank 须装载完整 pipeline，
+  #    ~28.9GB bf16 超出 32GB 910B4 单卡可用显存（29.49GB；run
+  #    36657738934：4 rank 全部在 pipe.to(device) OOM）。加卡无效
+  #    （8 卡同样 OOM，权重不随卡数分摊）；--cpu-offload 在 torchrun
+  #    多进程下上游未验证。
+  # 2) Z-Image-Turbo（~19GB，显存适配，run 36660209993 已完成加载并
+  #    进入 warmup）：diffusers Z-Image 的 RoPE 频率表为 complex64
+  #    （torch.polar 预计算，按位置 id 索引），torch_npu 的 aclnnIndex
+  #    无 DT_COMPLEX64 kernel，warmup 第一步即崩（EZ1001, error
+  #    161002）；attention processor 的复数乘法同样存在缺口。上游官方
+  #    NPU 适配：https://github.com/huggingface/diffusers/pull/12979
+  #    （draft 未合入；cache-dit docs/supported_matrix/ASCEND_NPU.md
+  #    亦注明需合入该 PR 后方可支持 Z-Image-Turbo）。PR 合入后恢复
+  #    条目并补 setup 的模型下载即可（torchrun -m cache_dit.generate +
+  #    zimage_turbo），无需本地补丁。
+  - examples/generate.py
+  # --- examples/ptq/flux2_svdq_ptq.py：依赖 svdq CUDA kernel 扩展
+  #（cache_dit.kernels.svdq_extension_is_available），NPU 环境不可用。
+  - examples/ptq/flux2_svdq_ptq.py
+  # --- examples/ray/ray_wrapper_example.py：脚本 CUDA 硬编码，NPU 不可用
+  #（与 runner 卡数无关）：--use-init-fn 的 worker init_fn、主进程 pipeline、
+  # transformer 转移共 3 处 .to("cuda")；Ray GPU actor 生态面向 CUDA；
+  # --quantize(float8/torchao)、--use-compile 亦为 CUDA-only。上游适配
+  # NPU 后再评估。
+  - examples/ray/ray_wrapper_example.py
