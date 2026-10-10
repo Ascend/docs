@@ -35,9 +35,8 @@ result.json 必填六个字段：trigger、target_repo、target_ref、path、ima
 
 PR 运行语义：
 
-- 只看本项目自己的文件：PR 改动 `examples-guards/<project>/**` 或本项目触发器时才运行。只改共用引擎、共享脚本或 schema 的 PR 不启动任何项目的矩阵，与 Quick Start 触发器一致；这类改动合入前靠 `tests/examples_guard` 单测把关，合入后由维护者手动运行受影响的项目。
-- 必然执行全量 supported 矩阵。被测 ref 解析为上游最新 release tag；上游从未发布 release 时，用默认分支最新提交的 sha。
-- 查询上游版本失败时，monitor 直接报错退出，不回落到默认分支。这属于看护噪音，重跑即可；回落到一个还在变动的分支，会让 reviewer 把上游的变化误读成 PR 自身的失败。
+- 只看本项目自己的文件：PR 改动 `examples-guards/<project>/**` 或本项目触发器时才运行。只改共用引擎、共享脚本或 schema 的 PR 不启动任何项目的矩阵，与 Quick Start 触发器一致；这类改动合入后由维护者手动运行受影响的项目。
+- 必然执行全量 supported 矩阵。被测 ref 与不填 target_ref 的手动运行相同：取上游最新 release tag，查不到时回落到默认分支。
 - 不读不写监控缓存，不影响定时看护的基线状态。
 - 同一 PR 新的提交自动取消未完成的旧运行，避免占用 NPU。并发组名必须带项目前缀，即 `<project>-examples-pr-<PR 号>`：组名在整个仓库内共享，不带前缀时，多个项目在同一 PR 上的运行会互相取消。
 - result.json 的 trigger 字段记为 pull_request，artifact 命名与定时运行一致。汇总定时看护结论的外部系统按 trigger 字段过滤掉 PR 运行。
@@ -49,7 +48,7 @@ PR 运行语义：
 
 1. 把源仓 `projects/<project>/` 下的 example 线文件拷到本仓 `examples-guards/<project>/`：清单、脚本、fixtures、constraints。Quick Start 线的 docs 与 tests 不拷贝，它们已在本仓单独迁移。源仓 setup 里依赖 cache-seed 预投递的资产，改成上文「模型与数据集缓存」一节的写法。
 2. 新建薄触发器 `.github/workflows/<project>-examples.yml`，参照 `peft-examples.yml`：schedule 保持注释；声明 pull_request 触发，`paths` 只列 `examples-guards/<project>/**` 和触发器自身；PR 并发组名用 `<project>-examples-pr-<PR 号>`；填入 `project` 与 `upstream_repo`。
-3. 本地跑 `uv run --no-project --python 3.12 --with pyyaml --with "huggingface_hub<1.0" --with "modelscope==1.37.0" --with safetensors --with numpy python -m unittest discover tests/examples_guard` 校验共享脚本、触发器契约与 peft 的缓存解析，用 actionlint 检查 workflow。判定被测版本的执行测试需要 bash 4 以上和 jq，macOS 自带的 bash 3.2 下会跳过。
+3. 用 actionlint 检查 workflow。
 4. 提 PR 后确认矩阵在 PR 上真实运行且结论符合预期。诚实红条目原样保留，跑红的不能改成 unsupported 换绿灯。
 5. PR 合入后手动 dispatch 跑绿几轮。是否打开 cron 由维护者另行决定；打开时槽位错开已有排布，并同时关闭旧仓同项目的 schedule，避免双看护占用 NPU。
 

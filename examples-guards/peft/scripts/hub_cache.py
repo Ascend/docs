@@ -39,9 +39,7 @@ from pathlib import Path
 
 from huggingface_hub import HfApi, snapshot_download
 from modelscope import snapshot_download as ms_snapshot_download
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'tests'))
-from doc_test.model_cache import safetensors_header_ok  # noqa: E402
+from safetensors import SafetensorError, safe_open
 
 HUB_ROOT = Path(os.environ.get(
     'HF_HOME', os.path.expanduser('~/.cache/huggingface'))) / 'hub'
@@ -98,6 +96,23 @@ ASSETS = {
 
 def repo_dir(asset: Asset) -> Path:
     return HUB_ROOT / f"models--{asset.hf_id.replace('/', '--')}"
+
+
+def safetensors_header_ok(path: Path) -> bool | None:
+    """True if the header parses, False if the file is readable but
+    malformed, None if it cannot be read at all.
+
+    A read failure on the shared NFS volume is not evidence of
+    corruption, so None must not get a shard deleted.
+    """
+    try:
+        with safe_open(str(path), framework='numpy') as f:
+            list(f.keys())
+    except SafetensorError:
+        return False
+    except Exception:  # noqa: BLE001 - OSError and the like: cannot judge
+        return None
+    return True
 
 
 def corrupt_shards(root: Path) -> list[Path]:

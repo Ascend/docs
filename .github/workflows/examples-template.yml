@@ -215,14 +215,14 @@ jobs:
             echo "workflow_files_hash=${WORKFLOW_FILES_HASH}"
           } >> "$GITHUB_OUTPUT"
 
-      # Schedule picks the ref from the release signal. Manual and PR
-      # runs with no explicit ref test the latest upstream release, or
-      # the default-branch HEAD sha when the upstream has published
-      # none. Testing upstream `main` instead can pick up in-progress
-      # pyproject changes that the supported manifest was not verified
-      # against (see torchtitan CI run 35062962988: main added
-      # attn-gym -> nvidia-cutlass-dsl, conflicts with
-      # constraints-npu.txt).
+      # Schedule picks the ref from the release signal; manual and PR
+      # runs resolve an empty target_ref to the latest upstream release
+      # (fallback chain: explicit input -> latest release -> default_branch).
+      # Without this, manual dispatch always tests upstream `main`,
+      # which can pick up in-progress pyproject changes that the
+      # supported manifest was not verified against (see torchtitan
+      # CI run 35062962988: main added attn-gym -> nvidia-cutlass-dsl,
+      # conflicts with constraints-npu.txt).
       - name: Decide target
         id: decide
         env:
@@ -233,67 +233,47 @@ jobs:
           UPSTREAM_REPO: ${{ inputs.upstream_repo }}
         run: |
           set -euo pipefail
-
-          # Prints the latest release tag, or on 404 (no release
-          # published) the default-branch HEAD sha. Prints nothing and
-          # returns 1 on any other API failure.
-          upstream_ref() {
-            local resp http tag="" sha=""
-            resp=$(mktemp)
-            http=$(curl -sSL --retry 3 -o "$resp" -w '%{http_code}' \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
-            if [ "$http" = "200" ]; then
-              tag=$(jq -r '.tag_name // empty' "$resp")
-            elif [ "$http" = "404" ]; then
-              http=$(curl -sSL --retry 3 -o "$resp" -w '%{http_code}' \
-                -H "Authorization: Bearer $GH_TOKEN" \
-                "https://api.github.com/repos/$UPSTREAM_REPO/commits/$DEFAULT_BRANCH" || true)
-              if [ "$http" = "200" ]; then
-                sha=$(jq -r '.sha // empty' "$resp")
-              fi
-            fi
-            rm -f "$resp"
-            if [ -z "$tag$sha" ]; then
-              echo "upstream ref lookup for $UPSTREAM_REPO failed (HTTP $http)" >&2
-              return 1
-            fi
-            printf '%s' "${tag:-$sha}"
-          }
-
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          # The monitor steps above are schedule-gated: a PR run must
+          # resolve its target here, or every downstream job skips and
+          # the PR goes green untested. PR runs have no inputs, so
+          # they always take the release lookup below.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
+            REF=""
+            REASON=""
             if [ -n "$INPUT_REF" ]; then
               REF="$INPUT_REF"
-            elif ! REF=$(upstream_ref); then
-              REF="$DEFAULT_BRANCH"
-              echo "::warning::cannot resolve the latest $UPSTREAM_REPO release - testing $DEFAULT_BRANCH instead"
+              REASON="explicit"
+            else
+              # Manual with empty input: query the latest upstream
+              # release tag so the run targets a verified, stable
+              # ref rather than bleeding-edge main. Falls back to
+              # main if the API is unreachable or no release exists.
+              RESP_FILE=$(mktemp)
+              HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
+              TAG=""
+              if [ "$HTTP_CODE" = "200" ]; then
+                TAG=$(jq -r '.tag_name // empty' "$RESP_FILE")
+              fi
+              rm -f "$RESP_FILE"
+              if [ -n "$TAG" ]; then
+                REF="$TAG"
+                REASON="latest-release"
+              else
+                REF="$DEFAULT_BRANCH"
+                REASON="branch-fallback"
+                echo "::warning::failed to fetch latest release for $UPSTREAM_REPO (HTTP $HTTP_CODE) - falling back to $DEFAULT_BRANCH"
+              fi
             fi
             REPO="${INPUT_REPO:-$UPSTREAM_REPO}"
             {
               echo "need_to_run=true"
-              echo "trigger=workflow_dispatch"
+              echo "trigger=$EVENT_NAME"
               echo "target_repo=$REPO"
               echo "target_ref=$REF"
             } >> "$GITHUB_OUTPUT"
-            echo "resolved repo=$REPO ref=$REF (manual)"
-            exit 0
-          elif [ "$EVENT_NAME" = "pull_request" ]; then
-            # The monitor steps above are schedule-gated: without this
-            # branch every downstream job would skip and the PR would
-            # go green untested. No branch fallback here: reviewers
-            # read only red/green, and a silent switch to a moving
-            # branch would read as the PR's own failure.
-            if ! REF=$(upstream_ref); then
-              echo "::error::cannot resolve the upstream ref to test for $UPSTREAM_REPO - guard noise, not an example failure; re-run the workflow"
-              exit 1
-            fi
-            {
-              echo "need_to_run=true"
-              echo "trigger=pull_request"
-              echo "target_repo=$UPSTREAM_REPO"
-              echo "target_ref=$REF"
-            } >> "$GITHUB_OUTPUT"
-            echo "resolved repo=$UPSTREAM_REPO ref=$REF (pull_request)"
+            echo "resolved repo=$REPO ref=$REF reason=$REASON ($EVENT_NAME)"
             exit 0
           fi
           NEED="${{ steps.monitor.outputs.need_to_run }}"
@@ -303,6 +283,7 @@ jobs:
             echo "trigger=schedule"
             echo "target_repo=$UPSTREAM_REPO"
             echo "target_ref=$REF"
+            echo "reason=${{ steps.monitor.outputs.reason }}"
           } >> "$GITHUB_OUTPUT"
           if [ "$NEED" = "true" ]; then
             echo "resolved repo=$UPSTREAM_REPO ref=$REF reason=${{ steps.monitor.outputs.reason }}"
