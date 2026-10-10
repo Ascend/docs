@@ -1,0 +1,53 @@
+# flash-linear-attention examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release-only monitor / manifest-check /
+# run-example matrix / validate-results / save-monitor-state) lives in the
+# engine. The guarded example is project-owned
+# (examples-guards/flash-linear-attention/example/train_text.py), run
+# against the upstream release installed from the target checkout.
+
+name: flash-linear-attention-examples
+
+concurrency:
+  # schedule runs serialize; each manual run gets its own group so a
+  # dispatch is never blocked behind a scheduled run.
+  group: ${{ github.event_name == 'schedule' && 'flash-linear-attention-examples-schedule' || format('manual-{0}', github.run_id) }}
+  # false: a run cancelled mid-way loses its outcome writeback, and the
+  # outcome is what drives the next cycle's retry.
+  cancel-in-progress: false
+
+on:
+  # Daily at 02:00 Beijing time (UTC 18:00). The engine's monitor gates
+  # actual runs on upstream release / guard-file changes, so the cadence
+  # only bounds detection latency.
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  flash-linear-attention-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-flash-linear-attention_*),
+      # artifact names and the scheduling paths under
+      # examples-guards/flash-linear-attention.
+      project: flash-linear-attention
+      upstream_repo: fla-org/flash-linear-attention
+      target_ref: ${{ inputs.target_ref }}
+      # Single supported example today; one NPU runner leg at a time.
+      max_parallel: 1
