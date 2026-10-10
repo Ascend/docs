@@ -1,0 +1,73 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py']
+# 模型路径走 ${XLLM_MODEL_PATH}：setup_example.sh 优先命中共享 runner
+# HF hub 缓存（refs/main -> snapshot），冷池时经 HF_ENDPOINT（缺省
+# hf-mirror.com）snapshot_download 自填共享缓存后经 GITHUB_ENV 注入，
+# run_example.sh 的 overlay 展开时替换。旧值
+# /root/.cache/modelscope/Qwen2-7B-Instruct 依赖已删除的容器 bind-mount。
+supported:
+  # overlay_args 约定：
+  #   - 只写与脚本默认值不同的项；每个参数的注释解释其作用或取值原因。
+  #   - ${XLLM_MODEL_PATH} 引用 setup_example.sh 写入 GITHUB_ENV 的模型
+  #     快照路径变量（Qwen/Qwen2-7B-Instruct 本地快照）。
+  # xllm 预装在官方 release 镜像内（0.10.0，无源码构建）；四个示例共用
+  # default profile，setup 只做模型解析，无额外依赖安装。
+  - path: examples/generate.py
+    profile: default
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/xllm-ai/xllm-ai:xllm-0.10.0-release-hb-rc2-arm
+    overlay_args:
+      # 推理加载的模型目录：setup_example.sh 解析出的 Qwen2-7B-Instruct 本地快照
+      - --model ${XLLM_MODEL_PATH}
+      # 每批次生成的最大 token 数；smoke 只验证推理链路，取最小开销
+      - --max_tokens_per_batch 10
+    timeout_minutes: 90
+  - path: examples/generate_beam_search.py
+    profile: default
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/xllm-ai/xllm-ai:xllm-0.10.0-release-hb-rc2-arm
+    overlay_args:
+      # 推理加载的模型目录：setup_example.sh 解析出的 Qwen2-7B-Instruct 本地快照
+      - --model ${XLLM_MODEL_PATH}
+      # 每批次生成的最大 token 数；smoke 只验证推理链路，取最小开销
+      - --max_tokens_per_batch 10
+    timeout_minutes: 90
+  - path: examples/generate_embedding.py
+    profile: default
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/xllm-ai/xllm-ai:xllm-0.10.0-release-hb-rc2-arm
+    overlay_args:
+      # 推理加载的模型目录：setup_example.sh 解析出的 Qwen2-7B-Instruct 本地快照
+      - --model ${XLLM_MODEL_PATH}
+      # embedding 示例切换到 pooling 运行模式（输出句向量而非续写文本）
+      - --runner pooling
+      # 每批次生成的最大 token 数；smoke 只验证推理链路，取最小开销
+      - --max_tokens_per_batch 10
+    timeout_minutes: 90
+  - path: examples/sample.py
+    profile: default
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/xllm-ai/xllm-ai:xllm-0.10.0-release-hb-rc2-arm
+    overlay_args:
+      # 推理加载的模型目录：setup_example.sh 解析出的 Qwen2-7B-Instruct 本地快照
+      - --model ${XLLM_MODEL_PATH}
+      # 每批次生成的最大 token 数；smoke 只验证推理链路，取最小开销
+      - --max_tokens_per_batch 10
+    timeout_minutes: 90
+unsupported:
+  # --- generate_vlm.py：xllm 0.10.0 release 二进制内部崩溃，manifest 层无法
+  # 规避（run 36540086792）---
+  # Qwen2VLPromptProcessor::process() 对 [2,3] 张量 select(dim=0, index=2)
+  # 越界 → c10::IndexError → SIGABRT (exit 134)。Qwen2.5-VL mrope section
+  # 为 [16,24,24]（t/h/w 三段），处理上游示例第二个请求（单 prompt 传 2 张
+  # 图，image_grid_thw 拼成 [2,3]）时按段数 3 取行越界。官方模型
+  # Qwen2.5-VL-7B-Instruct + 上游注释头参数（--max_seqs_per_batch 4
+  # --enable_shm）即复现，与 CI 的模型/图片/参数无关；崩溃在 C++ 二进制
+  # （xllm_export.so）内部，脚本为上游代码不可修改。上游修复后移回。
+  - examples/generate_vlm.py
