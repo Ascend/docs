@@ -1,0 +1,804 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Speculators &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="SpecForge" href="../specforge/index.html" />
+    <link rel="prev" title="ROLL" href="../roll/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Speculators</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">前置安装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">安装 Speculators</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">从源码安装</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#convert">端到端：convert → 训练数据生成 → 训练 → 部署</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#draft-verifier">前置：下载 draft 与 verifier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#convert-dflash">convert（DFlash 算法）</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">训练数据预处理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">训练</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vllm-serve-draft"><code class="docutils literal notranslate"><span class="pre">vllm</span> <span class="pre">serve</span></code> 挂 draft 做推理</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#speculatorsconfig-tokenproposalconfig">编程式入口：SpeculatorsConfig / TokenProposalConfig</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../specforge/index.html">SpecForge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtune/index.html">torchtune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">TRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xtuner/index.html">xtuner</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bitsandbytes/index.html">bitsandbytes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lmcache/index.html">LMCache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fastchat/index.html">FastChat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mooncake/index.html">Mooncake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightx2v/index.html">LightX2V</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xdit/index.html">xDiT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Speculators</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/speculators/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="speculators">
+<h1>Speculators<a class="headerlink" href="#speculators" title="Link to this heading"></a></h1>
+<p>在单卡昇腾 NPU 上跑通 <a class="reference external" href="https://github.com/vllm-project/speculators">Speculators</a> 投机解码草稿模型的端到端链路：</p>
+<ul class="simple">
+<li><p><strong>安装</strong>：源码安装 speculators（镜像预装 vllm-ascend 全栈，无需编译）。</p></li>
+<li><p><strong>convert</strong>：把 DFlash draft + verifier 按 DFlash 算法重映射权重。</p></li>
+<li><p><strong>训练</strong>：verifier 抽 hidden states → <code class="docutils literal notranslate"><span class="pre">torchrun</span></code> 单卡训 1 epoch。</p></li>
+<li><p><strong>部署</strong>：<code class="docutils literal notranslate"><span class="pre">vllm</span> <span class="pre">serve</span></code> 挂载训好的 draft 做 chat completion smoke。</p></li>
+</ul>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少 1 卡。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1），Ubuntu 22.04</p>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0</p>
+<p>镜像预装 vllm 0.23.0 + vllm-ascend 0.23.0 + triton-ascend 3.2.2 + torch 2.10.0+cpu + torch_npu 2.10.0.post4 + torchvision 0.25.0+cpu + torchaudio 2.10.0+cpu + transformers 5.5.4 + modelscope 1.39.1 + CANN 9.1.0 + Python 3.12。</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.10.0+cpu（镜像预装）</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.10.0.post4（镜像预装）</p></td>
+</tr>
+<tr class="row-even"><td><p>torchvision</p></td>
+<td><p>0.25.0+cpu（镜像预装）</p></td>
+</tr>
+<tr class="row-odd"><td><p>torchaudio</p></td>
+<td><p>2.10.0+cpu（镜像预装）</p></td>
+</tr>
+<tr class="row-even"><td><p>vllm</p></td>
+<td><p>0.23.0（镜像预装）</p></td>
+</tr>
+<tr class="row-odd"><td><p>vllm-ascend</p></td>
+<td><p>0.23.0（镜像预装）</p></td>
+</tr>
+<tr class="row-even"><td><p>triton-ascend</p></td>
+<td><p>3.2.2（镜像预装）</p></td>
+</tr>
+<tr class="row-odd"><td><p>triton</p></td>
+<td><p>3.5.0（镜像预装）</p></td>
+</tr>
+<tr class="row-even"><td><p>transformers</p></td>
+<td><p>5.5.4（镜像预装；speculators 透传范围 &gt;=4.56.1,&lt;5.15.0）</p></td>
+</tr>
+<tr class="row-odd"><td><p>modelscope</p></td>
+<td><p>1.39.1（镜像预装；下面步骤会钉到 1.37.0）</p></td>
+</tr>
+<tr class="row-even"><td><p>speculators</p></td>
+<td><p>最新 release</p></td>
+</tr>
+<tr class="row-odd"><td><p>draft 模型</p></td>
+<td><p>z-lab/Qwen3-8B-DFlash-b16</p></td>
+</tr>
+<tr class="row-even"><td><p>verifier</p></td>
+<td><p>Qwen/Qwen3-8B</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id5">
+<h2>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>确认 NPU 设备可见：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动。</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示 Python 的补丁版本号。</p>
+</div>
+<p>检查 CANN env 并验证镜像预装的 vllm-ascend 栈（含 torch / torch_npu / torchvision / torchaudio / transformers / vllm / vllm-ascend / triton*）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import torch, torch_npu, torchvision, torchaudio, transformers</span>
+<span class="s2">print(f'torch={torch.__version__}')</span>
+<span class="s2">print(f'torch_npu={torch_npu.__version__}')</span>
+<span class="s2">print(f'torchvision={torchvision.__version__}')</span>
+<span class="s2">print(f'torchaudio={torchaudio.__version__}')</span>
+<span class="s2">print(f'transformers={transformers.__version__}')</span>
+<span class="s2">print('is_available:', torch.npu.is_available())</span>
+<span class="s2">print('npu_count:', torch.npu.device_count())</span>
+<span class="s2">"</span>
+
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata; print(f'vllm={importlib.metadata.version(\"vllm\")}')"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata; print(f'vllm_ascend={importlib.metadata.version(\"vllm-ascend\")}')"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata; print(f'triton_ascend={importlib.metadata.version(\"triton-ascend\")}')"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import importlib.metadata; print(f'triton={importlib.metadata.version(\"triton\")}')"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="m">2</span>.10.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="m">2</span>.10.0.post4
+<span class="nv">torchvision</span><span class="o">=</span><span class="m">0</span>.25.0+cpu
+<span class="nv">torchaudio</span><span class="o">=</span><span class="m">2</span>.10.0+cpu
+<span class="nv">transformers</span><span class="o">=</span><span class="m">5</span>.5.4
+is_available:<span class="w"> </span>True
+npu_count:<span class="w"> </span><span class="m">1</span>
+<span class="nv">vllm</span><span class="o">=</span><span class="m">0</span>.23.0+empty
+<span class="nv">vllm_ascend</span><span class="o">=</span><span class="m">0</span>.23.0
+<span class="nv">triton_ascend</span><span class="o">=</span><span class="m">3</span>.2.2
+<span class="nv">triton</span><span class="o">=</span><span class="m">3</span>.5.0
+</pre></div>
+</div>
+<p>装 modelscope（用于从 ModelScope 下载模型）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'modelscope==1.37.0'</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import modelscope; print(f'modelscope={modelscope.__version__}')"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">modelscope</span><span class="o">=</span><span class="m">1</span>.37.0
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h2>安装 Speculators<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="id7">
+<h3>从源码安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆 speculators 上游 release tag 源码到 <code class="docutils literal notranslate"><span class="pre">/root/speculators/</span></code> 并 editable 安装：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/vllm-project/speculators.git<span class="w"> </span>/root/speculators
+<span class="nb">cd</span><span class="w"> </span>/root/speculators
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+speculators<span class="w"> </span>--version
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from importlib.metadata import version; print('speculators', version('speculators'))"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>speculators<span class="w"> </span>version:<span class="w"> </span>xxx
+speculators<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 替换为 Speculators 当前的最新 release 版本；xxx 表示实际安装的 speculators 版本号。</p>
+</div>
+</section>
+</section>
+<section id="convert">
+<h2>端到端：convert → 训练数据生成 → 训练 → 部署<a class="headerlink" href="#convert" title="Link to this heading"></a></h2>
+<section id="draft-verifier">
+<h3>前置：下载 draft 与 verifier<a class="headerlink" href="#draft-verifier" title="Link to this heading"></a></h3>
+<p>从 ModelScope 拉 draft 模型 z-lab/Qwen3-8B-DFlash-b16 与 verifier 模型 Qwen/Qwen3-8B(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">modelscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+
+<span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'z-lab/Qwen3-8B-DFlash-b16'</span><span class="p">)</span>
+<span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen3-8B'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>确认两个模型快照已就位（<code class="docutils literal notranslate"><span class="pre">config.json</span></code> + 权重文件）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-1<span class="w"> </span>/root/.cache/modelscope/hub/models/z-lab/Qwen3-8B-DFlash-b16/config.json<span class="w"> </span>/root/.cache/modelscope/hub/models/z-lab/Qwen3-8B-DFlash-b16/model.safetensors
+ls<span class="w"> </span>-1<span class="w"> </span>/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B/config.json<span class="w"> </span>/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B/model.safetensors.index.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/.cache/modelscope/hub/models/z-lab/Qwen3-8B-DFlash-b16/config.json
+/root/.cache/modelscope/hub/models/z-lab/Qwen3-8B-DFlash-b16/model.safetensors
+/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B/config.json
+/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B/model.safetensors.index.json
+</pre></div>
+</div>
+</section>
+<section id="convert-dflash">
+<h3>convert（DFlash 算法）<a class="headerlink" href="#convert-dflash" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">speculators</span> <span class="pre">convert</span></code> 把本地 draft + verifier 读进来按 DFlash 算法重映射权重、写到 <code class="docutils literal notranslate"><span class="pre">/root/dflash-qwen3-8b-converted/</span></code>。CLI 的 <code class="docutils literal notranslate"><span class="pre">--algorithm</span></code> 不支持 <code class="docutils literal notranslate"><span class="pre">dflash</span></code>，走 Python API(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">speculators.convert</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_model</span>
+
+<span class="n">OUTPUT</span> <span class="o">=</span> <span class="s1">'/root/dflash-qwen3-8b-converted'</span>
+<span class="n">convert_model</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s1">'/root/.cache/modelscope/hub/models/z-lab/Qwen3-8B-DFlash-b16'</span><span class="p">,</span>
+    <span class="n">verifier</span><span class="o">=</span><span class="s1">'/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B'</span><span class="p">,</span>
+    <span class="n">algorithm</span><span class="o">=</span><span class="s2">"dflash"</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="o">=</span><span class="n">OUTPUT</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">OUTPUT</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>确认 convert 产物存在（<code class="docutils literal notranslate"><span class="pre">config.json</span></code> + <code class="docutils literal notranslate"><span class="pre">model.safetensors</span></code>）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-1<span class="w"> </span>&lt;dflash_path&gt;/config.json<span class="w"> </span>&lt;dflash_path&gt;/model.safetensors
+<span class="nb">echo</span><span class="w"> </span>&lt;dflash_path&gt;
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/dflash-qwen3-8b-converted/config.json
+/root/dflash-qwen3-8b-converted/model.safetensors
+/root/dflash-qwen3-8b-converted
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;dflash_path&gt;</span></code> 在运行时替换为「convert（DFlash 算法）」一节 <code class="docutils literal notranslate"><span class="pre">print(OUTPUT)</span></code> 命令输出的产物目录路径。</p>
+</div>
+</section>
+<section id="id8">
+<h3>训练数据预处理<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>把 10 条 chat 用 verifier tokenizer 跑 chat template 得到 <code class="docutils literal notranslate"><span class="pre">input_ids</span></code>/<code class="docutils literal notranslate"><span class="pre">loss_mask</span></code>，写到 <code class="docutils literal notranslate"><span class="pre">/tmp/prompts.jsonl</span></code>（speculator-format），再交给上游 <code class="docutils literal notranslate"><span class="pre">prepare-data</span></code>。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+<span class="nv">DATA_DIR</span><span class="o">=</span>/root/dflash-train-data
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">"</span><span class="nv">$DATA_DIR</span><span class="s2">"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$DATA_DIR</span><span class="s2">"</span>
+
+python<span class="w"> </span><span class="s">&lt;&lt; 'PY'</span>
+<span class="s">import json</span>
+<span class="s">from transformers import AutoTokenizer</span>
+
+<span class="s">tokenizer = AutoTokenizer.from_pretrained("/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B")</span>
+
+<span class="s">def _ids(encoded):</span>
+<span class="s">    # transformers 4.x: list[int] ; 5.x: BatchEncoding with .input_ids</span>
+<span class="s">    return encoded["input_ids"] if hasattr(encoded, "keys") else encoded</span>
+
+<span class="s"># 用 verifier 的 chat template 算 assistant 段分界：</span>
+<span class="s"># prefix_ids（add_generation_prompt=True）渲染到 &lt;|im_start|&gt;assistant\n 为止；</span>
+<span class="s"># full_ids 在它后面追加 &lt;think&gt;\n\n&lt;/think&gt;\n\n + assistant 内容 + &lt;|im_end|&gt;\n</span>
+<span class="s"># （Qwen3 thinking 模式 serving 输出形态），所以 [len(prefix_ids):] 就是要算 loss 的 token。</span>
+<span class="s">with open("/tmp/prompts.jsonl", "w") as f:</span>
+<span class="s">    for i in range(10):</span>
+<span class="s">        conv = [</span>
+<span class="s">            {"role": "user", "content": f"Briefly describe AI topic #{i}."},</span>
+<span class="s">            {"role": "assistant", "content": "AI is a field of computer science."},</span>
+<span class="s">        ]</span>
+<span class="s">        prefix_ids = _ids(tokenizer.apply_chat_template(</span>
+<span class="s">            conv[:-1], tokenize=True, add_generation_prompt=True</span>
+<span class="s">        ))</span>
+<span class="s">        full_ids = _ids(tokenizer.apply_chat_template(conv, tokenize=True))</span>
+<span class="s">        loss_mask = [0] * len(prefix_ids) + [1] * (len(full_ids) - len(prefix_ids))</span>
+<span class="s">        f.write(json.dumps({"input_ids": full_ids, "loss_mask": loss_mask}) + "\n")</span>
+<span class="s">PY</span>
+
+speculators<span class="w"> </span>prepare-data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span>/tmp/prompts.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span><span class="s2">"</span><span class="nv">$DATA_DIR</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-samples<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--seq-length<span class="w"> </span><span class="m">8192</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--num-preprocessing-workers<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--overwrite
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$DATA_DIR</span><span class="s2">"</span>
+</pre></div>
+</div>
+<p>确认数据集已落盘（行数 + <code class="docutils literal notranslate"><span class="pre">token_freq.pt</span></code> 存在）(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_from_disk</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="s1">'&lt;data_path&gt;'</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">load_from_disk</span><span class="p">(</span><span class="n">data_path</span><span class="p">)))</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span> <span class="o">/</span> <span class="s1">'token_freq.pt'</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'exists:'</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="s1">'size:'</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">freq</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'token_freq keys:'</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">freq</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">freq</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">type</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'len:'</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">freq</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>/root/dflash-train-data
+<span class="m">10</span>
+exists:<span class="w"> </span>True<span class="w"> </span>size:<span class="w"> </span>xxx
+token_freq<span class="w"> </span>keys:<span class="w"> </span>xxx
+len:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 分别为 <code class="docutils literal notranslate"><span class="pre">token_freq.pt</span></code> 的文件大小（字节）、token 表的键列表与条目数；<code class="docutils literal notranslate"><span class="pre">&lt;data_path&gt;</span></code> 在运行时替换为「训练数据预处理」一节 <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;$DATA_DIR&quot;</span></code> 命令输出的数据目录路径。</p>
+</div>
+</section>
+<section id="id9">
+<h3>训练<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>先生成 hidden_states 缓存，再离线训。起 vllm 一次性 generate 10 条 hidden_states 写到 <code class="docutils literal notranslate"><span class="pre">/tmp/hs-train/</span></code>。v0.8.0 的 <code class="docutils literal notranslate"><span class="pre">launch_vllm.py</span></code> 有两处行为变化需要留意：按宿主机 CPU 数自动推导 <code class="docutils literal notranslate"><span class="pre">--api-server-count</span></code>，以及不再自动追加 <code class="docutils literal notranslate"><span class="pre">--no-enable-chunked-prefill</span></code>——镜像 vllm 0.23.0 默认开 chunked prefill 而 <code class="docutils literal notranslate"><span class="pre">ExampleHiddenStatesConnector</span></code> 不支持，必须显式关掉。这里 10 条 smoke 数据量很小，固定用 1 个 API server 前端（<code class="docutils literal notranslate"><span class="pre">--api-server-count</span> <span class="pre">1</span></code>）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+
+<span class="nb">cd</span><span class="w"> </span>/root/speculators
+
+<span class="nv">HS_DIR</span><span class="o">=</span>/tmp/hs-train
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">TORCHDYNAMO_DISABLE</span><span class="o">=</span><span class="m">1</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>/root/.cache/vllm/torch_compile_cache<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="nb">set</span><span class="w"> </span>+u
+<span class="nb">export</span><span class="w"> </span><span class="nv">ZSH_VERSION</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">ZSH_VERSION</span><span class="k">:-</span><span class="si">}</span><span class="s2">"</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+<span class="nb">set</span><span class="w"> </span>-u
+
+setsid<span class="w"> </span>nohup<span class="w"> </span>python<span class="w"> </span>scripts/launch_vllm.py<span class="w"> </span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--target-layer-ids<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">18</span><span class="w"> </span><span class="m">34</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hidden-states-path<span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.9<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-model-len<span class="w"> </span><span class="m">4096</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--api-server-count<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--no-enable-chunked-prefill<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>/tmp/vllm-gen.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span>&lt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">VLLM_GEN_PID</span><span class="o">=</span><span class="nv">$!</span>
+<span class="nv">VLLM_GEN_PGID</span><span class="o">=</span><span class="k">$(</span>ps<span class="w"> </span>-o<span class="w"> </span><span class="nv">pgid</span><span class="o">=</span><span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$VLLM_GEN_PID</span><span class="s2">"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">' '</span><span class="k">)</span>
+cleanup_vllm_gen<span class="o">()</span><span class="w"> </span><span class="o">{</span>
+<span class="w">  </span><span class="nb">kill</span><span class="w"> </span>--<span class="w"> </span>-<span class="s2">"</span><span class="nv">$VLLM_GEN_PGID</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>_pid<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>pgrep<span class="w"> </span>-P<span class="w"> </span><span class="s2">"</span><span class="nv">$VLLM_GEN_PID</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="k">)</span><span class="w"> </span><span class="s2">"</span><span class="nv">$VLLM_GEN_PID</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">kill</span><span class="w"> </span>-9<span class="w"> </span><span class="s2">"</span><span class="nv">$_pid</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="w">  </span>pkill<span class="w"> </span>-9<span class="w"> </span>-x<span class="w"> </span><span class="s2">"vllm"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+<span class="o">}</span>
+<span class="nb">trap</span><span class="w"> </span>cleanup_vllm_gen<span class="w"> </span>EXIT
+
+<span class="c1"># 等 /health 200（最长 6 min）</span>
+<span class="nv">VLLM_READY</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..180<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>curl<span class="w"> </span>-sf<span class="w"> </span>http://127.0.0.1:8000/health<span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">VLLM_READY</span><span class="o">=</span><span class="m">1</span>
+<span class="w">    </span><span class="k">break</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">2</span>
+<span class="k">done</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$VLLM_READY</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"1"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"vllm server failed to come up within 6 min; tail of vllm-gen.log:"</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>tail<span class="w"> </span>-80<span class="w"> </span>/tmp/vllm-gen.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>cleanup_vllm_gen
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+speculators<span class="w"> </span>generate-offline-data<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--model<span class="w"> </span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--preprocessed-data<span class="w"> </span><span class="s2">"&lt;data_path&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-samples<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--concurrency<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--validate-outputs<span class="w"> </span>&gt;/tmp/hs-gen.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">HS_RC</span><span class="o">=</span><span class="nv">$?</span>
+<span class="nv">HS_RC</span><span class="o">=</span><span class="si">${</span><span class="nv">HS_RC</span><span class="k">:-</span><span class="nv">0</span><span class="si">}</span>
+<span class="c1"># 日志走 stderr，stdout 只留末行路径（供后续 &lt;hs_dir&gt; 引用）</span>
+tail<span class="w"> </span>-30<span class="w"> </span>/tmp/hs-gen.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+
+<span class="nv">HS_COUNT</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-1<span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span>/hs_*.safetensors<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HS_RC</span><span class="s2">"</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HS_COUNT</span><span class="s2">"</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== generate-offline-data failed (rc=</span><span class="nv">$HS_RC</span><span class="s2">, hs_count=</span><span class="nv">$HS_COUNT</span><span class="s2">/10); full log ==="</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>cat<span class="w"> </span>/tmp/hs-gen.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>cleanup_vllm_gen
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+cleanup_vllm_gen
+sleep<span class="w"> </span><span class="m">5</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$HS_DIR</span><span class="s2">"</span>
+</pre></div>
+</div>
+<p>确认 hidden states 已落盘（10 个 <code class="docutils literal notranslate"><span class="pre">hs_*.safetensors</span></code>）(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s1">'&lt;hs_dir&gt;'</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">'hs_*.safetensors'</span><span class="p">))))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">10</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;hs_dir&gt;</span></code> 在运行时替换为「训练」一节 <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;$HS_DIR&quot;</span></code> 命令输出的 hidden states 目录路径。</p>
+</div>
+<p>用 <code class="docutils literal notranslate"><span class="pre">torchrun</span> <span class="pre">-m</span> <span class="pre">speculators.train</span></code> 单卡训 1 epoch × 10 sample（smoke 验证管线通，不指望 loss 真下降）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
+<span class="nv">CHECKPOINT_DIR</span><span class="o">=</span>/root/dflash-trained
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>
+
+<span class="nb">cd</span><span class="w"> </span>/root/speculators
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">TORCHDYNAMO_DISABLE</span><span class="o">=</span><span class="m">1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_LAUNCH_BLOCKING</span><span class="o">=</span><span class="m">1</span>
+
+<span class="nb">set</span><span class="w"> </span>+u
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+<span class="nb">set</span><span class="w"> </span>-u
+
+torchrun<span class="w"> </span>--standalone<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">1</span><span class="w"> </span>-m<span class="w"> </span>speculators.train<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--verifier-name-or-path<span class="w"> </span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data-path<span class="w"> </span><span class="s2">"&lt;data_path&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hidden-states-path<span class="w"> </span><span class="s2">"&lt;hs_dir&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--hidden-states-dtype<span class="w"> </span>float32<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--save-path<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--draft-vocab-size<span class="w"> </span><span class="m">32000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--lr<span class="w"> </span>3e-4<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--speculator-type<span class="w"> </span>dflash<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--block-size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--max-anchors<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--draft-attn-impl<span class="w"> </span>sdpa<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--num-layers<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--target-layer-ids<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">18</span><span class="w"> </span><span class="m">34</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--on-missing<span class="w"> </span>raise<span class="w"> </span>&gt;/tmp/train.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">TRAIN_RC</span><span class="o">=</span><span class="nv">$?</span>
+<span class="nv">TRAIN_RC</span><span class="o">=</span><span class="si">${</span><span class="nv">TRAIN_RC</span><span class="k">:-</span><span class="nv">0</span><span class="si">}</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$TRAIN_RC</span><span class="s2">"</span><span class="w"> </span>-ne<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== train failed (rc=</span><span class="nv">$TRAIN_RC</span><span class="s2">); full train.log follows ==="</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>cat<span class="w"> </span>/tmp/train.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+
+<span class="nv">LATEST_CKPT</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span>-1d<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/<span class="o">[</span><span class="m">0</span>-9<span class="o">]</span>*/<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-V<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$LATEST_CKPT</span><span class="s2">"</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">"</span><span class="nv">$LATEST_CKPT</span><span class="s2">"</span><span class="w"> </span>!<span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">/"</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>cp<span class="w"> </span>-af<span class="w"> </span><span class="s2">"</span><span class="nv">$LATEST_CKPT</span><span class="s2">"</span>/.<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/
+<span class="k">fi</span>
+<span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">/config.json"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>!<span class="w"> </span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">/model.safetensors"</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"=== train rc=0 但 checkpoint 缺失 (looked under </span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">/) ==="</span><span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span>cat<span class="w"> </span>/tmp/train.log<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="m">2</span>
+<span class="w">  </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+<span class="k">fi</span>
+<span class="c1"># 清 trainer 元数据：symlinks / 子目录 / optimizer &amp; scheduler state /</span>
+<span class="c1"># run.yaml / training_state.json / val_metrics.json / config.py</span>
+rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/checkpoint_best<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/epoch0_end
+rm<span class="w"> </span>-rf<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/<span class="o">[</span><span class="m">0</span>-9<span class="o">]</span>*/
+rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/optimizer_state_dict.pt<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/scheduler_state_dict.pt<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/run.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/training_state.json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/val_metrics.json<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/train_command.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>/config.py
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="nv">$CHECKPOINT_DIR</span><span class="s2">"</span>
+</pre></div>
+</div>
+<p>确认训练产物与训练真跑完（checkpoint 文件 + 从 train.log 提取 val loss）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-1<span class="w"> </span>&lt;checkpoint_path&gt;
+grep<span class="w"> </span>-oE<span class="w"> </span><span class="s1">'val/loss_epoch=[0-9.]+'</span><span class="w"> </span>/tmp/train.log<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>config.json
+model.safetensors
+val/loss_epoch<span class="o">=</span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 为训练日志里的验证 loss 数值；<code class="docutils literal notranslate"><span class="pre">&lt;checkpoint_path&gt;</span></code> 在运行时替换为「训练」一节 <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;$CHECKPOINT_DIR&quot;</span></code> 命令输出的 checkpoint 目录路径。</p>
+</div>
+</section>
+<section id="vllm-serve-draft">
+<h3><code class="docutils literal notranslate"><span class="pre">vllm</span> <span class="pre">serve</span></code> 挂 draft 做推理<a class="headerlink" href="#vllm-serve-draft" title="Link to this heading"></a></h3>
+<p>起 vllm-ascend serve 把训好的 draft 挂上做 chat completion smoke（8 token completion）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">TORCHDYNAMO_DISABLE</span><span class="o">=</span><span class="m">1</span>
+rm<span class="w"> </span>-rf<span class="w"> </span>/root/.cache/vllm/torch_compile_cache<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="nb">set</span><span class="w"> </span>+u
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/nnal/atb/set_env.sh
+<span class="nb">set</span><span class="w"> </span>-u
+
+<span class="c1"># num_speculative_tokens=5：vllm-ascend 限制 (num_speculative_tokens + 1) ≤ 15</span>
+nohup<span class="w"> </span>vllm<span class="w"> </span>serve<span class="w"> </span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--host<span class="w"> </span><span class="m">127</span>.0.0.1<span class="w"> </span>--port<span class="w"> </span><span class="m">8000</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--served-model-name<span class="w"> </span>Qwen/Qwen3-8B<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--gpu-memory-utilization<span class="w"> </span><span class="m">0</span>.85<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--enforce-eager<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--speculative-config<span class="w"> </span><span class="s1">'{"method":"dflash","model":"&lt;draft_model&gt;","num_speculative_tokens":5}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>/tmp/vllm-serve.log<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">VLLM_PID</span><span class="o">=</span><span class="nv">$!</span>
+<span class="nb">trap</span><span class="w"> </span><span class="s2">"kill </span><span class="nv">$VLLM_PID</span><span class="s2"> 2&gt;/dev/null"</span><span class="w"> </span>EXIT
+
+<span class="c1"># 等 /health 200（最长 6 min）</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..180<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>curl<span class="w"> </span>-sf<span class="w"> </span>http://127.0.0.1:8000/health<span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="k">break</span>
+<span class="w">  </span>sleep<span class="w"> </span><span class="m">2</span>
+<span class="k">done</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"input: Hello"</span>
+curl<span class="w"> </span>-sS<span class="w"> </span>http://127.0.0.1:8000/v1/chat/completions<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s1">'Content-Type: application/json'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">'{"model":"Qwen/Qwen3-8B","messages":[{"role":"user","content":"Hello"}],"max_tokens":8}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import sys, json</span>
+<span class="s2">r = json.load(sys.stdin)</span>
+<span class="s2">print('content:', r['choices'][0]['message']['content'])</span>
+<span class="s2">print('completion_tokens:', r['usage']['completion_tokens'])</span>
+<span class="s2">print('finish_reason:', r['choices'][0]['finish_reason'])</span>
+<span class="s2">"</span>
+
+<span class="nb">kill</span><span class="w"> </span><span class="s2">"</span><span class="nv">$VLLM_PID</span><span class="s2">"</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>input:<span class="w"> </span>Hello
+content:<span class="w"> </span>xxx
+...
+completion_tokens:<span class="w"> </span>xxx
+finish_reason:<span class="w"> </span>length
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 分别为模型生成的内容与生成的 token 数（<code class="docutils literal notranslate"><span class="pre">max_tokens=8</span></code> 截断，<code class="docutils literal notranslate"><span class="pre">finish_reason</span></code> 为 length）；<code class="docutils literal notranslate"><span class="pre">&lt;draft_model&gt;</span></code> 在运行时替换为「训练」一节 <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;$CHECKPOINT_DIR&quot;</span></code> 命令输出的 checkpoint 目录路径。</p>
+</div>
+</section>
+<section id="speculatorsconfig-tokenproposalconfig">
+<h3>编程式入口：SpeculatorsConfig / TokenProposalConfig<a class="headerlink" href="#speculatorsconfig-tokenproposalconfig" title="Link to this heading"></a></h3>
+<p>验证 <code class="docutils literal notranslate"><span class="pre">SpeculatorsConfig</span></code> / <code class="docutils literal notranslate"><span class="pre">TokenProposalConfig</span></code> 可以在 NPU 环境 import + 实例化（不依赖 GPU 计算）(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">speculators</span><span class="w"> </span><span class="kn">import</span> <span class="n">VerifierConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">speculators.proposals.greedy</span><span class="w"> </span><span class="kn">import</span> <span class="n">GreedyTokenProposalConfig</span>
+
+<span class="n">verifier</span> <span class="o">=</span> <span class="n">VerifierConfig</span><span class="p">(</span>
+    <span class="n">name_or_path</span><span class="o">=</span><span class="s2">"/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B"</span><span class="p">,</span>
+    <span class="n">architectures</span><span class="o">=</span><span class="p">[</span><span class="s2">"Qwen3ForCausalLM"</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">proposal</span> <span class="o">=</span> <span class="n">GreedyTokenProposalConfig</span><span class="p">(</span>
+    <span class="n">proposal_type</span><span class="o">=</span><span class="s2">"greedy"</span><span class="p">,</span>
+    <span class="n">speculative_tokens</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">verifier_accept_k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">accept_tolerance</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"verifier:"</span><span class="p">,</span> <span class="n">verifier</span><span class="o">.</span><span class="n">name_or_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"verifier architectures:"</span><span class="p">,</span> <span class="n">verifier</span><span class="o">.</span><span class="n">architectures</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"proposal type:"</span><span class="p">,</span> <span class="n">proposal</span><span class="o">.</span><span class="n">proposal_type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"proposal speculative_tokens:"</span><span class="p">,</span> <span class="n">proposal</span><span class="o">.</span><span class="n">speculative_tokens</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>verifier:<span class="w"> </span>/root/.cache/modelscope/hub/models/Qwen/Qwen3-8B
+verifier<span class="w"> </span>architectures:<span class="w"> </span><span class="o">[</span><span class="s1">'Qwen3ForCausalLM'</span><span class="o">]</span>
+proposal<span class="w"> </span>type:<span class="w"> </span>greedy
+proposal<span class="w"> </span>speculative_tokens:<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id10">
+<h2>外部链接<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/vllm-project/speculators">vllm-project/speculators</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://vllm-project.github.io/speculators/">Speculators Docs</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../roll/index.html" class="btn btn-neutral float-left" title="ROLL" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../specforge/index.html" class="btn btn-neutral float-right" title="SpecForge" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
