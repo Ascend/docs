@@ -1,0 +1,522 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py']
+supported:
+  # 压缩推理。device_map=auto，装了 torch_npu 后权重和输入应在 npu:0。FP8 解压失败是诚实红。
+  - path: examples/compressed_inference/fp8_compressed_inference.py
+    profile: npu_inference
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 单卡 oneshot。脚本在 CUDA 机器上会用 GPU，这里装 torch_npu，计算落到 npu。退出码 0 但参数不在 npu 上判红。不改 example 文件。
+  - path: examples/autoround/quantization_attention/qwen3_quantize_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_kv_cache/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_w4a4_fp4/llama3.1_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_w4a4_fp4/qwen3_vl_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_w4a4_mxfp4/autoround_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_w8a8_fp8/llama3.1_block_quant_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_w8a8_mxfp8/autoround_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_wNa16/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_wNa16/qwen3_example_custom_dataset.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/autoround/quantization_wNa16/qwen3_example_mixed_w2a16_w4a16.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/fp8_block_llama_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/fp8_dynamic_llama_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/llama_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/llama_example_with_masking.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/w4a8_fp8_llama_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/custom_dataset_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/disk_offloading/qwen3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/imatrix/llama3_imatrix_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/imatrix/llama3_nvfp4_imatrix_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/gemma3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/idefics3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/internvl3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/llava_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/phi3_vision_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/qwen2_vl_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/qwen3_vl_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/multimodal_vision/qwen_2_5_vl_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_attention/llama3_attention.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_embedding/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_kv_cache/gemma2_fp8_kv_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_kv_cache/llama3_fp8_head_kv_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_kv_cache/llama3_fp8_kv_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_kv_cache/phi3.5_fp8_kv_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_non_uniform/quantization_fp8_multiple_strategies.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_non_uniform/quantization_int4_int8.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_non_uniform/quantization_multiple_modifiers.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_non_uniform/quantization_nvfp4_fp8.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a16/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a16_fp4/mxfp4/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a16_fp4/nvfp4/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a16_fp4/nvfp4/llama3_nvfp4_expanded_mse_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a4_fp4/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a4_fp4/llama3_example_prefetch.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a4_fp4/llama3_gptq_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a4_mxfp4/llama3_mxfp4.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a8_fp8/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_fp8/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_fp8/llava1.5_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_fp8/qwen2vl_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_fp8/qwen3_reranker_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_int8/benchmark_smoothquant_ddp.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_int8/gemma2_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_int8/llama3_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_mxfp8/qwen3_example_w8a16_mxfp8.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_mxfp8/qwen3_example_w8a8_mxfp8.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantizing_moe/granite_moe_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/transform/nvfp4_quip_gptq_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/transform/quip_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/transform/spinquant_example.py
+    profile: npu_oneshot
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  # 双卡。脚本无条件调用 init_dist，看护用 torchrun 按清单卡数启动，不改 example 文件。
+  - path: examples/autoround/ddp/ddp_qwen3_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/awq/llama_example_ddp.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/big_models_with_sequential_onloading/llama3_8b_w8a8_distributed.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w4a16/llama3_ddp_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantization_w8a8_int8/smoothquant_ddp_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantizing_moe/deepseek_v4_pro_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantizing_moe/glm53_flash_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantizing_moe/kimi_k3_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/quantizing_moe/qwen_3_8_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+  - path: examples/reap_expert_pruning/qwen38_example.py
+    profile: npu_ddp
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+unsupported:
+  # 技能模板，正文是占位符，不是可运行 example。上游目录已从 .claude 改名为 .agents。
+  - examples/.agents/skills/fp8/templates/model_free_ptq.py
+  - examples/.agents/skills/fp8/templates/oneshot.py
+  - examples/.agents/skills/templates/oneshot_with_data.py
+  # 脚本写死 cuda。不改 example 文件就无法把设备换成 npu。
+  - examples/awq/qwen3-vl-30b-a3b-Instruct-example.py
+  - examples/imatrix/llama3_nvfp4_imatrix_example_ddp.py
+  - examples/model_free_ptq/deepseek_r1_nvfp4_fp8_block.py
+  - examples/model_free_ptq/gemma4_fp8_block.py
+  - examples/model_free_ptq/glm_4.6_fp8_block.py
+  - examples/model_free_ptq/glm_5_3_mxfp4.py
+  - examples/model_free_ptq/kimi_k26_fp8_block.py
+  - examples/model_free_ptq/kimi_k2_thinking_fp8_block.py
+  - examples/model_free_ptq/kimi_k2_thinking_nvfp4a16.py
+  - examples/model_free_ptq/kimi_k3_fp8_block.py
+  - examples/model_free_ptq/muse_glimmer_fp8_block.py
+  - examples/model_free_ptq/nemotron_3_ultra.py
+  - examples/model_free_ptq/qwen3.5_int8.py
+  - examples/model_free_ptq/qwen3_fp8_block.py
+  - examples/multimodal_vision/medgemma_example.py
+  - examples/quantization_w8a8_fp8/granite4_example.py
+  - examples/quantization_w8a8_fp8/qwen_2_5_vl_example.py
+  # 校准或抽检要解码音频。datasets 4 只认 torchcodec。PyPI 上 aarch64 的 torchcodec 0.11 到 0.16 都链接 libtorch_cuda.so、libcudart.so.13、libnvrtc.so.13，在 CPU torch 加 torch_npu 的栈上加载失败。
+  - examples/multimodal_audio/qwen2_audio.py
+  - examples/multimodal_audio/whisper_example.py
+  - examples/quantization_w8a8_fp8/whisper_example.py
+  # 权重大于单机 32GiB 限额，或从模型名无法确认能放进该限额。
+  - examples/autoround/ddp/ddp_qwen3_moe_example.py
+  - examples/autoround/quantization_attention/llama3_3_quantize_example.py
+  - examples/autoround/quantization_attention/qwen3_moe_quantize_example.py
+  - examples/autoround/quantization_w8a8_fp8/llama4_dynamic_quant_example.py
+  - examples/autoround/quantization_w8a8_fp8/llama4_static_quant_example.py
+  - examples/autoround/quantization_wNa16/qwen3_example.py
+  - examples/autoround/quantization_wNa16/qwen3_moe_example_mixed_w2a16_w4a16.py
+  - examples/awq/qwen3_coder_moe_example.py
+  - examples/awq/qwen3_moe_example.py
+  - examples/awq/qwen3_moe_example_ddp.py
+  - examples/awq/qwen3_next_example.py
+  - examples/awq/qwen3_next_thinking_example.py
+  - examples/awq/step3p5_example.py
+  - examples/big_models_with_sequential_onloading/llama3.3_70b.py
+  - examples/disk_offloading/deepseek_v32_example.py
+  - examples/disk_offloading/kimi_k26_example.py
+  - examples/disk_offloading/kimi_k2_example.py
+  - examples/model_free_ptq/decompress_glm53_flash.py
+  - examples/model_free_ptq/minimax_m27_w4a16.py
+  - examples/multimodal_vision/gemma4_example.py
+  - examples/multimodal_vision/llama4_example.py
+  - examples/multimodal_vision/mistral3_example.py
+  - examples/multimodal_vision/mllama_example.py
+  - examples/multimodal_vision/pixtral_example.py
+  - examples/multimodal_vision/qwen3_omni_example.py
+  - examples/quantization_w4a16/qwen3_8_gptq_awq_example.py
+  - examples/quantization_w4a16_fp4/mxfp4/qwen3.5_example.py
+  - examples/quantization_w4a16_fp4/mxfp4/qwen3_example.py
+  - examples/quantization_w4a16_fp4/nvfp4/gemma4_example.py
+  - examples/quantization_w4a16_fp4/nvfp4/qwen3.5_example.py
+  - examples/quantization_w4a16_fp4/nvfp4/qwen3_example.py
+  - examples/quantization_w4a4_fp4/gemma4_example.py
+  - examples/quantization_w4a4_fp4/hy3_example.py
+  - examples/quantization_w4a4_fp4/llama4_example.py
+  - examples/quantization_w4a4_fp4/mellum2_example.py
+  - examples/quantization_w4a4_fp4/qwen3_5_example.py
+  - examples/quantization_w4a4_fp4/qwen3_6_example.py
+  - examples/quantization_w4a4_fp4/qwen3_8_gptq_awq_example.py
+  - examples/quantization_w4a4_fp4/qwen3_next_example.py
+  - examples/quantization_w4a4_fp4/qwen3_vl_moe_w4a4_fp4.py
+  - examples/quantization_w4a4_fp4/qwen_30b_a3b.py
+  - examples/quantization_w4a4_fp4/trinity_large_nvfp4.py
+  - examples/quantization_w4a4_mxfp4/qwen3_8_gptq_awq_example.py
+  - examples/quantization_w8a8_fp8/fp8_block_example.py
+  - examples/quantization_w8a8_fp8/gemma2_example.py
+  - examples/quantization_w8a8_fp8/gemma4_12b_fp8_rtn.py
+  - examples/quantization_w8a8_fp8/gemma4_example.py
+  - examples/quantization_w8a8_fp8/llama3.2_vision_example.py
+  - examples/quantization_w8a8_fp8/llama4_fp8_block_example.py
+  - examples/quantization_w8a8_fp8/mellum2_example.py
+  - examples/quantization_w8a8_fp8/nemotron_3_5_lightning_example.py
+  - examples/quantization_w8a8_fp8/qwen3_next_example.py
+  - examples/quantization_w8a8_fp8/qwen3_vl_moe_fp8_example.py
+  - examples/quantizing_moe/deepseek_r1_example.py
+  - examples/quantizing_moe/deepseek_v4_example.py
+  - examples/quantizing_moe/deepseek_v4_mixed_mxfp4_mxfp8.py
+  - examples/quantizing_moe/glm4_7_example.py
+  - examples/quantizing_moe/glm5_example.py
+  - examples/quantizing_moe/glm5_gptq_example.py
+  - examples/quantizing_moe/mixtral_example.py
+  - examples/quantizing_moe/qwen3_vl_moe_example.py
+  - examples/quantizing_moe/qwen_example.py
+  - examples/reap_expert_pruning/hy3_25_example.py
+  - examples/reap_expert_pruning/reap_moonlight_16b.py
+  - examples/reap_expert_pruning/reap_qwen3_30b.py
+  - examples/transform/spinquant_cohere2_moe_example.py
