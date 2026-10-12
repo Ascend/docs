@@ -94,26 +94,6 @@ supported:
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     exec: build/bin/llama-gen-docs
     timeout_minutes: 90
-  # This leg downloads Dream safetensors and converts them. The shared
-  # engine has no predecessor job, so the cold-cache budget lives here.
-  - path: examples/diffusion
-    profile: cann-diffusion
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-diffusion-cli
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -p hello
-      - -ngl 99
-      - -c 64
-      - -b 64
-      - -ub 32
-      - --diffusion-steps 4
-      - --diffusion-eps 0.001
-      - --diffusion-algorithm 4
-      - -v
-    timeout_minutes: 360
   - path: examples/simple-cmake-pkg
     profile: cmake-pkg
     runner: linux-aarch64-a2-1
@@ -147,3 +127,6 @@ unsupported:
   # Same run: FusedInferAttentionScore rejects a non-contiguous key in
   # the non-paged-attention path.
   - examples/parallel
+  # PR run 38249312071: Dream weights downloaded and converted to Q8_0.
+  # The example then aborted with the same non-contiguous key error.
+  - examples/diffusion

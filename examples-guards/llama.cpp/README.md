@@ -17,6 +17,7 @@
 - `examples/retrieval`：上游读循环在输入结束后不返回，喂一行会一直挂到超时。让它返回就得改 `retrieval.cpp`
 - `examples/batched`、`examples/embedding`、`examples/lookahead`、`examples/lookup`、`examples/speculative`、`examples/speculative-simple`：同一轮里 ggml-cann 在 `aclnnWeightQuantBatchMatmulV2` 报 y 不连续并中止
 - `examples/parallel`：同一轮里 `FusedInferAttentionScore` 要求非 PA 路径上的 key 连续，实际不连续并中止
+- `examples/diffusion`：运行 38249312071 里 Dream 权重已从 Hugging Face 下完并转成 Q8_0 GGUF，随后在同一个 key 不连续错误上中止
 
 `v0.6.0` 里另外有 `examples/deprecation-warning`、`examples/llama-eval`、`examples/test-cmake`。源仓清单没有它们，这次不调度。
 
