@@ -1,0 +1,64 @@
+# llama.cpp examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop lives in the engine. See
+# examples-guards/README.md.
+
+name: llama.cpp-examples
+
+concurrency:
+  # Three groups: schedule runs serialize; each PR serializes per number
+  # so a new push cancels the stale run; each manual run stands alone.
+  # Group names are repository-wide, so the PR group carries the project
+  # name. A bare pr-<number> would let two projects on one PR cancel
+  # each other.
+  group: ${{ github.event_name == 'schedule' && 'llama.cpp-examples-schedule' || (github.event_name == 'pull_request' && format('llama.cpp-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Bring-up: keep the schedule disabled. The cosdt-ci-test/workflows
+  # cron stays the production guard. Re-enable only after manual rounds
+  # are green, on a slot that does not collide with an enabled workflow,
+  # and turn off the source repo's llama.cpp-examples schedule at the
+  # same time. The source slot was 30 */6, which is also the commented
+  # peft examples slot, so do not enable both on that minute.
+  # schedule:
+  #   - cron: '30 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to master on API failure)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref. paths lists only this project's files, so a PR that
+  # touches only the shared engine starts no matrix here.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/llama.cpp/**'
+      - '.github/workflows/llama.cpp-examples.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  # Job ids cannot contain '.'. The project name stays llama.cpp; that
+  # string is what artifacts and examples-guards paths use.
+  llama-cpp-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      project: llama.cpp
+      upstream_repo: ggml-org/llama.cpp
+      # Upstream's default branch is master. The engine's own default is
+      # main, which 404s when a release lookup falls back.
+      default_branch: master
+      target_ref: ${{ inputs.target_ref }}
+      # 19 supported entries, all single-card. 4 leaves room on the
+      # shared pool while the Qwen GGUF lock serializes the first download.
+      max_parallel: 4
