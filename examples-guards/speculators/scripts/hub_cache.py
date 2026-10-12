@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import os
 import shutil
+import sys
 import tempfile
 import threading
 import time
@@ -113,8 +114,7 @@ def purge_corrupt(hf_id: str, repo_type: str) -> None:
     for snap in sorted(snapshots.iterdir()):
         for shard in corrupt_shards(snap):
             blob = Path(os.path.realpath(shard)) if shard.is_symlink() else None
-            print(f'[purge] {hf_id}: {shard.relative_to(snap).as_posix()}',
-                  flush=True)
+            note(f'[purge] {hf_id}: {shard.relative_to(snap).as_posix()}')
             shard.unlink(missing_ok=True)
             if blob is not None:
                 blob.unlink(missing_ok=True)
@@ -130,31 +130,75 @@ def revision(hf_id: str, repo_type: str) -> str:
         return refs.read_text().strip() if refs.is_file() else 'modelscope'
 
 
+def note(message: str) -> None:
+    # resolve_model.py keeps stdout for the snapshot path alone.
+    print(message, file=sys.stderr, flush=True)
+
+
+def listing(root: Path) -> str:
+    if not root.exists():
+        return f'{root} does not exist'
+    rows = []
+    for path in sorted(root.rglob('*')):
+        if len(rows) == 40:
+            rows.append('...')
+            break
+        kind = 'file' if path.is_file() else 'dir' if path.is_dir() else 'other'
+        rows.append(f'{kind} {path.relative_to(root).as_posix()}')
+    return f'{root}: {rows or ["empty"]}'
+
+
+def find_snapshot(cache: Path, repo_type: str) -> Path:
+    """Directory of repo files written under a private cache_dir."""
+    weighted: list[Path] = []
+    configs: list[Path] = []
+    for path in cache.rglob('*'):
+        if not path.is_file() or '.cache' in path.parts:
+            continue
+        if path.name == 'config.json':
+            configs.append(path.parent)
+        if path.suffix == '.safetensors':
+            weighted.append(path.parent)
+    if repo_type == 'model' and weighted:
+        return weighted[0]
+    if configs:
+        return configs[0]
+    if repo_type == 'dataset':
+        for path in cache.rglob('*'):
+            if (path.is_file() and '.cache' not in path.parts
+                    and path.suffix in {'.json', '.jsonl', '.parquet', '.arrow', '.txt', '.csv'}):
+                return path.parent
+    raise RuntimeError(f'no snapshot files under {listing(cache)}')
+
+
 def from_huggingface(hf_id: str, repo_type: str, dest: Path) -> Path:
+    # cache_dir, not local_dir: huggingface_hub 1.27 writes the snapshot
+    # under cache_dir/models--<id>/snapshots. local_dir on this image left
+    # the staging directory empty after a completed fetch.
     dest.mkdir(parents=True, exist_ok=True)
     snapshot_download(
-        repo_id=hf_id, repo_type=repo_type, local_dir=str(dest))
-    return dest
+        repo_id=hf_id, repo_type=repo_type, cache_dir=str(dest))
+    return find_snapshot(dest, repo_type)
 
 
 def from_modelscope(hf_id: str, repo_type: str, dest: Path) -> Path:
-    # The public ModelScope copy is addressed by the same repo id. The
-    # snapshot is still published under the Hugging Face id below.
+    # Same repo id on ModelScope. cache_dir keeps the bytes in this job's
+    # staging directory instead of the shared ModelScope cache.
     dest.mkdir(parents=True, exist_ok=True)
     if repo_type == 'dataset':
-        downloaded = Path(dataset_snapshot_download(hf_id, local_dir=str(dest)))
+        dataset_snapshot_download(hf_id, cache_dir=str(dest))
     else:
-        downloaded = Path(ms_snapshot_download(hf_id, local_dir=str(dest)))
-    if downloaded.is_relative_to(dest):
-        return downloaded
-    staged = dest / 'tree'
-    shutil.copytree(downloaded, staged, dirs_exist_ok=True)
-    return staged
+        ms_snapshot_download(hf_id, cache_dir=str(dest))
+    return find_snapshot(dest, repo_type)
 
 
-def checked(src: Path) -> Path:
+def checked(src: Path, repo_type: str) -> Path:
+    if repo_type == 'model' and not snapshot_ready(src, repo_type):
+        raise RuntimeError(
+            f'huggingface/modelscope snapshot at {src} has no usable weights '
+            f'({listing(src)})')
     if not _real_files(src):
-        raise RuntimeError(f'empty download: {src}')
+        raise RuntimeError(f'empty download: {listing(src)}')
     corrupt = corrupt_shards(src)
     if corrupt:
         raise RuntimeError(
@@ -184,7 +228,16 @@ def publish(hf_id: str, repo_type: str, src: Path, sha: str) -> Path:
         if intact(dest, item):
             continue
         dest.parent.mkdir(parents=True, exist_ok=True)
-        os.replace(item, dest)
+        # A hub snapshot is often a symlink into blobs/. Copy the bytes so
+        # deleting staging does not dangle the published file. A real file
+        # on the same volume is renamed.
+        if item.is_symlink():
+            shutil.copyfile(item, dest)
+            continue
+        try:
+            os.replace(item, dest)
+        except OSError:
+            shutil.copyfile(item, dest)
     refs = repo_dir(hf_id, repo_type) / 'refs'
     refs.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(
@@ -203,20 +256,21 @@ def fetch(hf_id: str, repo_type: str) -> Path:
     staging = Path(tempfile.mkdtemp(
         prefix=f'{repo_dir(hf_id, repo_type).name}-', dir=staging_root))
     try:
-        print(f'[download] {hf_id} <- HuggingFace', flush=True)
+        note(f'[download] {hf_id} <- HuggingFace')
         try:
-            src = checked(from_huggingface(hf_id, repo_type, staging / 'hf'))
+            src = checked(
+                from_huggingface(hf_id, repo_type, staging / 'hf'), repo_type)
         except Exception as exc:  # noqa: BLE001 - ModelScope is the fallback
-            print(f'[fallback] {hf_id}: HuggingFace failed '
-                  f'({type(exc).__name__}: {exc}); trying ModelScope',
-                  flush=True)
-            src = checked(from_modelscope(hf_id, repo_type, staging / 'ms'))
+            note(f'[fallback] {hf_id}: HuggingFace failed '
+                 f'({type(exc).__name__}: {exc}); trying ModelScope')
+            src = checked(
+                from_modelscope(hf_id, repo_type, staging / 'ms'), repo_type)
         snap = publish(hf_id, repo_type, src, sha)
     finally:
         shutil.rmtree(staging, ignore_errors=True)
     if not snapshot_ready(snap, repo_type):
         raise RuntimeError(f'{hf_id}: published snapshot {snap} is incomplete')
-    print(f'[cached] {hf_id} -> {snap}', flush=True)
+    note(f'[cached] {hf_id} -> {snap}')
     return snap
 
 
@@ -235,8 +289,7 @@ def break_if_stale(lock: Path) -> None:
         return
     if idle < LOCK_STALE_SECONDS:
         return
-    print(f'[lock] {lock.name}: no heartbeat for {idle:.0f}s, breaking it',
-          flush=True)
+    note(f'[lock] {lock.name}: no heartbeat for {idle:.0f}s, breaking it')
     stale = lock.with_name(f'{lock.name}.stale-{uuid.uuid4().hex}')
     try:
         os.rename(lock, stale)
@@ -260,13 +313,12 @@ def download_lock(hf_id: str, repo_type: str) -> Iterator[None]:
         except FileExistsError:
             pass
         if time.monotonic() >= deadline:
-            print(f'[lock] {hf_id}: still held after {LOCK_WAIT_SECONDS}s, '
-                  'downloading without it', flush=True)
+            note(f'[lock] {hf_id}: still held after {LOCK_WAIT_SECONDS}s, '
+                 'downloading without it')
             yield
             return
         if not waiting:
-            print(f'[lock] {hf_id}: another job is downloading it, waiting',
-                  flush=True)
+            note(f'[lock] {hf_id}: another job is downloading it, waiting')
             waiting = True
         break_if_stale(lock)
         time.sleep(LOCK_POLL_SECONDS)
@@ -314,5 +366,5 @@ def materialize(hf_id: str, repo_type: str) -> Path:
                         f'({exc}). This is a download failure, not an '
                         'example failure.'
                     ) from exc
-    print(f'[cache] {hf_id} -> {snap}', flush=True)
+    note(f'[cache] {hf_id} -> {snap}')
     return snap
