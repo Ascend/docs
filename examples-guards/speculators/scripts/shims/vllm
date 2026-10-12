@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+"""PATH shim for `vllm serve`. Train examples never hit this file.
+
+They exec `python -m vllm.entrypoints.cli.main` via launch_vllm.py.
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from vllm_npu_flags import VLLM_NPU_FLAGS
+
+args = sys.argv[1:]
+if args and args[0] == 'serve':
+    args = ['serve', *args[1:], *VLLM_NPU_FLAGS]
+os.execvp(
+    sys.executable,
+    [sys.executable, '-m', 'vllm.entrypoints.cli.main', *args],
+)

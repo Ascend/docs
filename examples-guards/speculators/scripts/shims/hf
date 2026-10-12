@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# PATH shim: only `hf download` is implemented. Other subcommands fail loud.
+set -euo pipefail
+if [[ "${1:-}" != download ]]; then
+  echo "CI shim 只实现 download" >&2
+  exit 1
+fi
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec python "$HERE/../hf_download.py" "$@"
