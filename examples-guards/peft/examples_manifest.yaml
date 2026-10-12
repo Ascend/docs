@@ -8,7 +8,7 @@ scan:
 supported:
   # ===== 排序约定：按 run 35575049729 实际耗时降序 =====
   # 同耗时下保留原顺序（stable sort）。adalora_seq2seq 65 min 领跑、
-  # lora_ga/mica/adamss_image/psoft/semantic_search/kasa/shadow/dora
+  # lora_ga/mica/adamss_image/psoft/kasa/shadow/dora
   # 几条长腿填前 8 slot（max_parallel=8），让首批并发跑长腿、短腿填后
   # 续空闲 slot，整轮 wall-clock 被最长腿（adalora）单一决定；调换
   # 之前 lora_ga/mica/adamss_image 在第 2-5 批串行排队 ≈ 5–25 min。
@@ -126,25 +126,6 @@ supported:
   # torch.device("cuda" if ...) 在 shim 下直通 NPU。内置 3 条 toy texts
   # 无数据依赖，默认 5 步。npu-1 exit 0（loss 10.3→7.3，adapter 落盘，
   # 末段 reloaded_base 复现加载）
-
-  # 语义检索 LoRA：原判两坑（pin_memory+accelerator.prepare 挂 do_sys_poll、
-  # evaluate.load("roc_auc") 离线挂）均为 npu-3 裸跑环境假象——npu-1 标准
-  # shim 下原样通过：pin_memory 不挂、roc_auc 走 hf-mirror 真值 0.767。
-  # sanity_test 走 smangrul/amazon_esci 前 1024 行（运行时 mirror 下载）。
-  # 注意 --sanity_test/--use_peft 是 store_true 裸开关（hra 教训：不能带值）
-  - path: examples/feature_extraction/peft_lora_embedding_semantic_search.py
-    profile: peft
-    runner: linux-aarch64-a2-1
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10
-    overlay_args:
-      - --model_name_or_path sentence-transformers/all-MiniLM-L6-v2   # seed 已种（bare id 走 hub cache 解析）
-      - --sanity_test
-      - --use_peft
-      - --num_train_epochs 1
-      - --per_device_train_batch_size 16
-      - --per_device_eval_batch_size 16
-      - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 30
 
   # KaSA（SVD 正则 LoRA）：原"backward ERR00100 归因待复跑"是 npu-3 裸跑
   # 环境假象。与 miss/mica 同构（SFTConfig 子类 + device_map="auto" +
@@ -486,12 +467,6 @@ supported:
       - --batch_size 16
       - --output_dir ${CI_OUTPUT_DIR}
     timeout_minutes: 30
-
-  # 语义检索 LoRA：原判两坑（pin_memory+accelerator.prepare 挂 do_sys_poll、
-  # evaluate.load("roc_auc") 离线挂）均为 npu-3 裸跑环境假象——npu-1 标准
-  # shim 下原样通过：pin_memory 不挂、roc_auc 走 hf-mirror 真值 0.767。
-  # sanity_test 走 smangrul/amazon_esci 前 1024 行（运行时 mirror 下载）。
-  # 注意 --sanity_test/--use_peft 是 store_true 裸开关（hra 教训：不能带值）
 
   # BEFT：mt0-small + financial_phrasebank，原样跑通（两套环境均 exit 0）
   - path: examples/beft_finetuning/beft_finetuning.py
@@ -1151,6 +1126,13 @@ unsupported:
   - examples/causal_language_modeling/peft_lora_clm_accelerate_ds_zero3_offload.py
   - examples/conditional_generation/peft_lora_seq2seq_accelerate_ds_zero3_offload.py
   - examples/orthogonal_subspace_learning/osf_continual_learning.py
+
+  # 语义检索 LoRA：sanity_test 调用 load_dataset("smangrul/amazon_esci", split="train[:1024]")。
+  # Hub 数据集卡片记录的 train / validation 行数是 parquet 实际行数的两倍
+  # （train 839306 vs 419653，validation 363402 vs 181701），datasets 5.0.1
+  # 在校验阶段抛 NonMatchingSplitsSizesError。空缓存可复现，发生在训练开始之前，
+  # 与 NPU 无关。run 38015073648 在模型与 NPU 就绪后失败。
+  - examples/feature_extraction/peft_lora_embedding_semantic_search.py
 
   # ===== bnb（bitsandbytes）量化
   # bnb 0.50.2 的 4-bit NF4 与 8-bit int8 在 NPU 上**功能可用**：走默认
