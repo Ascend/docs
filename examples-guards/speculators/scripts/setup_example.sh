@@ -19,10 +19,6 @@ fi
 TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 PROJECT_ROOT="${PROJECT_ROOT:?PROJECT_ROOT is required}"
 
-# Same endpoint as run_example.sh. The engine leaves HF_ENDPOINT unset;
-# set it here so any hub client used during install goes to the source.
-export HF_ENDPOINT=https://huggingface.co
-
 export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 if [[ -f /usr/local/Ascend/ascend-toolkit/set_env.sh ]]; then
   set +u

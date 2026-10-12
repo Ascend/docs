@@ -23,13 +23,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Bring-up phase: keep the schedule disabled until a few manual
-  # rounds are green (the cosdt-ci-test/workflows schedule stays the
-  # production guard meanwhile). Minute 33 is free: the other guards
-  # already use every 5-minute mark. Turn off the source repo's
-  # speculators schedule in the same change:
-  # schedule:
-  #   - cron: '33 */6 * * *'
+  # Once a day at 05:00 Beijing time (UTC 21:00). accelerate-examples
+  # already uses UTC 18:00, and UTC 19:00 is the daily slot used for
+  # tgi. The source repo's speculators schedule is already commented
+  # out, so this cron does not double-book that workflow.
+  schedule:
+    - cron: '0 21 * * *'
   workflow_dispatch:
     inputs:
       target_ref:
@@ -68,7 +67,7 @@ jobs:
       project: speculators
       upstream_repo: vllm-project/speculators
       target_ref: ${{ inputs.target_ref }}
-      # 8 supported entries across a2-1, a2-2 and a2-8. max 4 matches
-      # the source guard: enough to overlap a short leg with a long one,
-      # while hub_cache.py serializes legs that download the same repo.
-      max_parallel: 4
+      # No supported entry in this migration: every upstream script
+      # needs a working-copy edit before it can take CI-scale args.
+      # Keep the matrix serial for when an entry can run as shipped.
+      max_parallel: 1

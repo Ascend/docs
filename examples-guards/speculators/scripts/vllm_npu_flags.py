@@ -1,6 +1,7 @@
-"""vLLM serve flags shared by the evaluate PATH shim and the train launcher patch.
+"""vLLM serve flags for the evaluate PATH shim.
 
-Keep this list in one place. shims/vllm and patch_launch_vllm.py both read it.
+Train examples call python -m vllm via scripts/launch_vllm.py and never
+hit this list. That launcher is not edited.
 """
 
 VLLM_NPU_FLAGS = (
