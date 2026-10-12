@@ -1,0 +1,40 @@
+version: 1
+scan:
+  root: mooncake-transfer-engine/example
+  include_extensions: ['.cpp', '.py', '.cu']
+supported:
+  - path: mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf.cpp
+    profile: ascend-direct
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
+    overlay_args:
+      - --block_iteration=1
+      - --batch_size=2
+      - --block_size=16384
+    timeout_minutes: 120
+unsupported:
+  # Deprecated HCCL Ascend transport (USE_ASCEND). Docs point to Ascend Direct.
+  - mooncake-transfer-engine/example/transfer_engine_ascend_one_sided.cpp
+  - mooncake-transfer-engine/example/transfer_engine_ascend_perf.cpp
+  # Heterogeneous path: 910B initiator plus a GPU target.
+  - mooncake-transfer-engine/example/transfer_engine_heterogeneous_ascend_perf_initiator.cpp
+  # Generic Transfer Engine benches. Default protocol is RDMA/TCP, not Ascend Direct.
+  - mooncake-transfer-engine/example/transfer_engine_bench.cpp
+  - mooncake-transfer-engine/example/transfer_engine_bench_with_notify.cpp
+  - mooncake-transfer-engine/example/transfer_engine_bench_with_retry.cpp
+  - mooncake-transfer-engine/example/transfer_engine_validator.cpp
+  - mooncake-transfer-engine/example/memory_pool.cpp
+  - mooncake-transfer-engine/example/show_link.cpp
+  # CUDA / NCCL.
+  - mooncake-transfer-engine/example/device_transport_example.cu
+  - mooncake-transfer-engine/example/nccl_device_transport_example.cu
+  - mooncake-transfer-engine/example/nccl_host_transport_example.cpp
+  # AWS EFA.
+  - mooncake-transfer-engine/example/efa_first_submit_probe.cpp
+  - mooncake-transfer-engine/example/efa_per_transfer_latency_bench.py
+  - mooncake-transfer-engine/example/batch_register_bench.py
+  - mooncake-transfer-engine/example/kvcache_prefix_bench.py
+  # Host metadata helper. No NPU.
+  - mooncake-transfer-engine/example/http-metadata-server-python/bootstrap_server.py
