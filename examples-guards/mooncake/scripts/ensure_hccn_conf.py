@@ -7,6 +7,13 @@ volumes, and the Hong Kong ARC runners ignore Docker --volume, so the
 mount is not here. Recover the IPs already visible in the job: flatten a
 directory-shaped mount, copy a driver copy, or query hccn_tool. Do not
 invent addresses from host NICs.
+
+The engine then sets ASCEND_RT_VISIBLE_DEVICES from the manifest, which
+is 0,1. That list is not the physical id on every 2-card pod. Run
+38249171972 queried -i 0, got "invalid device id", wrote the one id that
+answered, and the initiator aborted because ADXL asked for phy id 3.
+Probe with that mask unset, keep every IP the tool returns, and point
+the run step at two physical ids that actually resolved.
 """
 
 from __future__ import annotations
@@ -18,6 +25,8 @@ import subprocess
 
 HCCN_CONF = '/etc/hccn.conf'
 DRIVER_HCCN_CONF = '/usr/local/Ascend/driver/tools/hccn.conf'
+CARDS_NEEDED = 2
+PROBE_LIMIT = 16
 
 
 def _phy_ids_from_env() -> list[int]:
@@ -84,58 +93,116 @@ def _copy_driver_conf() -> bool:
     return True
 
 
-def _write_from_tool(tool: str, phy_ids: list[int]) -> bool:
-    if not phy_ids:
-        print('setup: no NPU phy ids; cannot query hccn_tool', flush=True)
-        return False
-    lines: list[str] = []
-    for phy in phy_ids:
-        query = subprocess.run(
-            [tool, '-i', str(phy), '-ip', '-g'],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        ip = _parse_hccn_ip(query.stdout) or _parse_hccn_ip(query.stderr)
-        if not ip:
-            print(
-                f'setup: hccn_tool -i {phy} -ip -g failed '
-                f'rc={query.returncode} stdout={query.stdout!r} '
-                f'stderr={query.stderr!r}',
-                flush=True,
-            )
-            continue
-        lines.append(f'address_{phy}={ip}\n')
-    if not lines:
-        return False
-    with open(HCCN_CONF, 'w', encoding='utf-8') as handle:
-        handle.writelines(lines)
+def _probe_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env.pop('ASCEND_RT_VISIBLE_DEVICES', None)
+    env.pop('ASCEND_VISIBLE_DEVICES', None)
+    return env
+
+
+def _query_ip(tool: str, phy: int, env: dict[str, str]) -> str | None:
+    query = subprocess.run(
+        [tool, '-i', str(phy), '-ip', '-g'],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+    return _parse_hccn_ip(query.stdout) or _parse_hccn_ip(query.stderr)
+
+
+def _choose_visible(resolved: dict[int, str], smi_ids: list[int]) -> list[int]:
+    """Two physical ids for logic id 0 and 1. Prefer the manifest pair."""
+    env_ids = [phy for phy in _phy_ids_from_env() if phy in resolved]
+    if len(env_ids) >= CARDS_NEEDED:
+        return env_ids[:CARDS_NEEDED]
+    smi_hit = [phy for phy in smi_ids if phy in resolved]
+    if len(smi_hit) >= CARDS_NEEDED:
+        return smi_hit[:CARDS_NEEDED]
+    return sorted(resolved)[:CARDS_NEEDED]
+
+
+def _publish_visible_devices(phy_ids: list[int]) -> None:
+    path = os.environ.get('GITHUB_ENV')
+    if not path:
+        return
+    value = ','.join(str(phy) for phy in phy_ids)
+    with open(path, 'a', encoding='utf-8') as handle:
+        handle.write(f'ASCEND_RT_VISIBLE_DEVICES={value}\n')
     print(
-        f'setup: wrote {HCCN_CONF} from hccn_tool ({len(lines)} address lines)',
+        f'setup: run step ASCEND_RT_VISIBLE_DEVICES={value}',
         flush=True,
     )
-    return True
+
+
+def _write_probed(tool: str) -> None:
+    env = _probe_env()
+    smi_ids = _phy_ids_from_npu_smi()
+    probe_ids: list[int] = []
+    for phy in [*smi_ids, *range(PROBE_LIMIT)]:
+        if phy not in probe_ids:
+            probe_ids.append(phy)
+    resolved: dict[int, str] = {}
+    for phy in probe_ids:
+        ip = _query_ip(tool, phy, env)
+        if ip:
+            resolved[phy] = ip
+    if len(resolved) < CARDS_NEEDED:
+        found = ','.join(str(phy) for phy in sorted(resolved)) or 'none'
+        raise SystemExit(
+            f'setup: hccn_tool resolved {len(resolved)} device IP(s) '
+            f'[{found}], need {CARDS_NEEDED}')
+    with open(HCCN_CONF, 'w', encoding='utf-8') as handle:
+        for phy in sorted(resolved):
+            handle.write(f'address_{phy}={resolved[phy]}\n')
+    chosen = _choose_visible(resolved, smi_ids)
+    print(
+        f'setup: wrote {HCCN_CONF} from hccn_tool '
+        f'({len(resolved)} address lines, visible {chosen})',
+        flush=True,
+    )
+
+
+def _addresses_in_conf() -> dict[int, str]:
+    resolved: dict[int, str] = {}
+    with open(HCCN_CONF, encoding='utf-8') as handle:
+        for line in handle:
+            text = line.strip()
+            if not text.startswith('address_') or '=' not in text:
+                continue
+            key, _, ip = text.partition('=')
+            phy_text = key[len('address_'):]
+            if phy_text.isdigit() and ip.strip():
+                resolved[int(phy_text)] = ip.strip()
+    return resolved
+
+
+def _align_visible_devices() -> None:
+    """Point the run step at two physical ids this file actually contains."""
+    if not os.path.isfile(HCCN_CONF):
+        return
+    resolved = _addresses_in_conf()
+    if len(resolved) < CARDS_NEEDED:
+        return
+    chosen = _choose_visible(resolved, _phy_ids_from_npu_smi())
+    _publish_visible_devices(chosen)
 
 
 def ensure() -> None:
     if os.path.isfile(HCCN_CONF):
         print(f'setup: {HCCN_CONF} already present', flush=True)
-        return
-    if _flatten_dir_shaped_hccn():
-        return
-    if _copy_driver_conf():
-        return
-    # setup_example.sh puts driver/tools on PATH before calling this.
-    tool = shutil.which('hccn_tool')
-    if tool is None:
-        raise SystemExit('setup: no hccn_tool; cannot materialize /etc/hccn.conf')
-    phy_ids = _phy_ids_from_env()
-    if _write_from_tool(tool, phy_ids):
-        return
-    smi_ids = _phy_ids_from_npu_smi()
-    if smi_ids != phy_ids and _write_from_tool(tool, smi_ids):
-        return
-    raise SystemExit('setup: hccn_tool produced no device IPs')
+    elif _flatten_dir_shaped_hccn():
+        pass
+    elif _copy_driver_conf():
+        pass
+    else:
+        # setup_example.sh puts driver/tools on PATH before calling this.
+        tool = shutil.which('hccn_tool')
+        if tool is None:
+            raise SystemExit(
+                'setup: no hccn_tool; cannot materialize /etc/hccn.conf')
+        _write_probed(tool)
+    _align_visible_devices()
 
 
 if __name__ == '__main__':
