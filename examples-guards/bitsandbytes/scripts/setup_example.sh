@@ -82,13 +82,11 @@ emit_offline() {
   export HF_HUB_OFFLINE=1
   export TRANSFORMERS_OFFLINE=1
   export HF_DATASETS_OFFLINE=1
-  export HF_ENDPOINT=https://huggingface.co
   if [[ -n "${GITHUB_ENV:-}" ]]; then
     printf '%s\n' \
       'HF_HUB_OFFLINE=1' \
       'TRANSFORMERS_OFFLINE=1' \
       'HF_DATASETS_OFFLINE=1' \
-      'HF_ENDPOINT=https://huggingface.co' \
       >> "$GITHUB_ENV"
   fi
 }
@@ -145,7 +143,6 @@ fi
 TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 HERE=$(cd "$(dirname "$0")" && pwd)
 export PIP_CONSTRAINT="$(cd "$HERE/.." && pwd)/constraints-npu.txt"
-export HF_ENDPOINT=https://huggingface.co
 export PATH="/usr/local/sbin:$PATH"
 # shellcheck disable=SC1091
 source /usr/local/Ascend/ascend-toolkit/set_env.sh

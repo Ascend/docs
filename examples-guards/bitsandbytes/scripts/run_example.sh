@@ -4,7 +4,6 @@
 set -euo pipefail
 
 export PYTHONNOUSERSITE=1
-export HF_ENDPOINT="${HF_ENDPOINT:-https://huggingface.co}"
 
 if [[ $# -lt 1 ]]; then
   echo "usage: $0 <example-relpath>" >&2
