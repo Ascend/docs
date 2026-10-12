@@ -1,0 +1,114 @@
+version: 1
+# Checkout is microsoft/onnxruntime-inference-examples. That repo has
+# no GitHub releases; the engine falls back to the default branch.
+# scan.root is the repo root because supported units live under both
+# python/ and quantization/.
+#
+# Both supported entries are host-CPU scripts that happen to run on an
+# NPU runner. A green result is the script's own output, not CANN
+# inference. Do not install onnxruntime-cann or torch_npu for them:
+# quantize_static opens its own session and would move calibration
+# onto the NPU if the CANN wheel is present.
+scan:
+  root: .
+  include_extensions: ['.py']
+supported:
+  - path: python/api/getting_started.py
+    profile: cpu-python
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 30
+  - path: quantization/image_classification/cpu/run.py
+    profile: quant-cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --input_model
+      - ${TARGET_ROOT}/quantization/image_classification/cpu/mobilenetv2-7.onnx
+      - --output_model
+      - ${CI_OUTPUT_DIR}/mobilenetv2-7.quant.onnx
+      - --calibrate_dataset
+      - ${TARGET_ROOT}/quantization/image_classification/cpu/test_images
+    timeout_minutes: 30
+unsupported:
+  # Other Python inference samples. CUDA / OpenVINO / Azure / TensorRT.
+  - python/AzureEP/create_hybrid_model.py
+  - python/OpenVINO_EP/tiny_yolo_v2_object_detection/tiny_yolov2_obj_detection_sample.py
+  - python/OpenVINO_EP/yolov4_object_detection/yolov4.py
+  - python/api/compile_api.py
+  - python/api/device_bindings.py
+  - python/azureml/export.py
+  - python/azureml/score.py
+  - python/models/mistral/aml_submit_mistral_inference.py
+  - python/models/stable_difusion/replace_fp64.py
+  - python/models/stable_difusion/run_sd.py
+  # Quantization helpers and CUDA / TensorRT / MIGraphX quantizers.
+  - quantization/image_classification/cpu/resnet50_data_reader.py
+  - quantization/image_classification/cpu/run_qdq_debug.py
+  - quantization/image_classification/migraphx/resnet50/e2e_migraphx_resnet_example.py
+  - quantization/image_classification/trt/resnet50/e2e_tensorrt_resnet_example.py
+  - quantization/language_model/evaluation/main.py
+  - quantization/language_model/evaluation/ort_lm.py
+  - quantization/language_model/gpt2/data_utils.py
+  - quantization/language_model/gpt2/generate_inputs.py
+  - quantization/language_model/gpt2/gpt2_input_reader.py
+  - quantization/language_model/gpt2/run_qdq.py
+  - quantization/language_model/gpt2/run_qdq_debug.py
+  - quantization/language_model/llama/smooth_quant/main.py
+  - quantization/language_model/llama/weight_only_quant/main.py
+  - quantization/nlp/bert/migraphx/data_processing.py
+  - quantization/nlp/bert/migraphx/e2e_migraphx_bert_example.py
+  - quantization/nlp/bert/migraphx/squad/evaluate-v1.1.py
+  - quantization/nlp/bert/migraphx/squad/evaluate-v2.0.py
+  - quantization/nlp/bert/migraphx/tokenization.py
+  - quantization/nlp/bert/trt/data_processing.py
+  - quantization/nlp/bert/trt/e2e_tensorrt_bert_example.py
+  - quantization/nlp/bert/trt/squad/evaluate-v1.1.py
+  - quantization/nlp/bert/trt/squad/evaluate-v2.0.py
+  - quantization/nlp/bert/trt/tokenization.py
+  - quantization/object_detection/trt/yolov3/coco_filter.py
+  - quantization/object_detection/trt/yolov3/data_reader.py
+  - quantization/object_detection/trt/yolov3/e2e_user_yolov3_example.py
+  - quantization/object_detection/trt/yolov3/evaluate.py
+  - quantization/object_detection/trt/yolov3/postprocessing.py
+  - quantization/object_detection/trt/yolov3/preprocessing.py
+  - quantization/qat/transformer_qat/bert_imdb_finetune_qat.py
+  - quantization/qat/transformer_qat/qat_bert.py
+  - quantization/qat/transformer_qat/qat_utils.py
+  # C++ / C# helpers that happen to be .py
+  - c_cxx/QNN_EP/mobilenetv2_classification/mobilenetv2_helper.py
+  - c_cxx/QNN_EP/mobilenetv2_classification/to_fp16.py
+  - c_cxx/customop/kernelone.py
+  - c_cxx/ort_tutorial/20_devicetensors-datatransfer/convert_to_fp16.py
+  - c_cxx/ort_tutorial/30_syncstreams-cuda/convert_to_fp16.py
+  - c_sharp/image_classification/model/augment_model.py
+  - c_sharp/image_classification/model/test_base_model.py
+  - c_sharp/image_classification/model/test_model.py
+  # Mobile / plugin / CI utilities
+  - mobile/examples/basic_usage/model/single_add_gen.py
+  - mobile/examples/image_classification/android/prepare_models.py
+  - mobile/examples/question_answering/android/prepare_model.py
+  - mobile/examples/speech_recognition/model/wav2vec2_gen.py
+  - mobile/examples/super_resolution/MAUI/real_esrgan_ort_e2e.py
+  - plugin_execution_providers/basic/gen_mul_model.py
+  - plugin_execution_providers/basic/python/example_usage/example_usage.py
+  - plugin_execution_providers/basic/python/onnxruntime_ep_basic/__init__.py
+  - plugin_execution_providers/basic/python/setup.py
+  - ci_build/python/__init__.py
+  - ci_build/python/run_android_emulator.py
+  - ci_build/python/util/__init__.py
+  - ci_build/python/util/android/__init__.py
+  - ci_build/python/util/android/android.py
+  - ci_build/python/util/logger.py
+  - ci_build/python/util/platform_helpers.py
+  - ci_build/python/util/run.py
+  - tools/python/__init__.py
+  - tools/python/run_android_emulator.py
+  - tools/python/util/__init__.py
+  - tools/python/util/android/__init__.py
+  - tools/python/util/android/android.py
+  - tools/python/util/logger.py
+  - tools/python/util/platform_helpers.py
+  - tools/python/util/run.py
