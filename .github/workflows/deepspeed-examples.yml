@@ -1,0 +1,60 @@
+# deepspeed examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml; this
+# file only declares what varies per project: schedule, concurrency,
+# upstream/examples repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release-only monitor / manifest-check /
+# run-example matrix / validate-results / save-monitor-state) lives in
+# the engine. See .github/workflows/examples-template.yml for the engine contract.
+#
+# Split mode (examples_repo set): the monitored upstream is the main
+# DeepSpeed repo (which publishes releases); the example scripts live in
+# the separate DeepSpeedExamples repo (no releases; follows its default
+# branch master). DeepSpeed source is installed from the main-repo
+# checkout; examples run from the DeepSpeedExamples checkout.
+
+name: deepspeed-examples
+
+concurrency:
+  # Serialize schedule runs; cancel stale runs only within the same project PR.
+  # Each manual run gets its own group.
+  group: ${{ github.event_name == 'schedule' && 'deepspeed-examples-schedule' || (github.event_name == 'pull_request' && format('deepspeed-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 02:00 Beijing time (UTC 18:00).
+  schedule:
+    - cron: '0 18 * * *'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/deepspeed/**'
+      - '.github/workflows/deepspeed-examples.yml'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA of deepspeedai/DeepSpeed (empty selects latest release, falls back to master)
+        required: false
+        default: ''
+        type: string
+
+# Engine jobs query the GitHub Job API (validate-results); called workflows
+# run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deepspeed-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces monitor-state cache keys, artifact names, and the
+      # scheduling paths under examples-guards/deepspeed.
+      project: deepspeed
+      upstream_repo: deepspeedai/DeepSpeed
+      # Latest-release lookup may fail (e.g. API HTTP 403); DeepSpeed has no main branch.
+      default_branch: master
+      examples_repo: deepspeedai/DeepSpeedExamples
+      target_ref: ${{ inputs.target_ref }}
+      max_parallel: 4

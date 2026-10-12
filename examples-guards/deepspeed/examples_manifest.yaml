@@ -1,0 +1,759 @@
+version: 1
+# 主仓 deepspeedai/DeepSpeed 提供被测源码；example 路径相对 deepspeedai/DeepSpeedExamples。
+# supported 为 NPU CI 看护入口（新增项待实跑）；unsupported 仅登记尚未接入的设备用例。
+# 库、安装脚本、单元测试、数据准备及结果处理工具不作为 example 登记。
+# 扫描无 exclude；同一 example 的启动包装合并到主入口。
+scan:
+  root: ''
+  include_extensions: ['.sh', '.py']
+supported:
+  # RoBERTa MLM 训练；支持单卡 NPU，2 层模型/10 步验证 ZeRO-1 与 CPU offload。
+  - path: training/HelloDeepSpeed/run_ds.sh
+    profile: deepspeed
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--num_layers 2'
+      - '--num_heads 2'
+      - '--h_dim 64'
+      - '--ff_dim 128'
+      - '--batch_size 2'
+      - '--num_iterations 10'
+      - '--log_every 5'
+      - '--dtype bf16'
+    timeout_minutes: 60
+  # SFT 训练；支持单卡 NPU，使用本地 OPT-125M 和 8 行数据。
+  - path: applications/DeepSpeed-Chat/training/step1_supervised_finetuning
+    exec: applications/DeepSpeed-Chat/training/step1_supervised_finetuning/main.py
+    profile: ds_chat_sft
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path local/jsonfile'
+      - '--num_train_epochs 1'
+      - '--per_device_train_batch_size 4'
+      - '--per_device_eval_batch_size 4'
+      - '--max_seq_len 128'
+      - '--zero_stage 2'
+      - '--dtype bf16'
+      - '--print_loss'
+      - '--deepspeed'
+      - '--output_dir ${CI_OUTPUT_DIR}'
+    timeout_minutes: 120
+  # 奖励模型训练；支持单卡 NPU，使用本地 OPT-125M 和小型偏好数据。
+  - path: applications/DeepSpeed-Chat/training/step2_reward_model_finetuning
+    exec: applications/DeepSpeed-Chat/training/step2_reward_model_finetuning/main.py
+    profile: ds_chat_rw
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path local/jsonfile'
+      - '--num_train_epochs 1'
+      - '--per_device_train_batch_size 4'
+      - '--per_device_eval_batch_size 4'
+      - '--max_seq_len 128'
+      - '--zero_stage 2'
+      - '--dtype bf16'
+      - '--deepspeed'
+      - '--output_dir ${CI_OUTPUT_DIR}'
+    timeout_minutes: 120
+  # DPO 偏好训练；支持单卡 NPU，使用本地 OPT-125M 和小批量数据。
+  - path: applications/DeepSpeed-Chat/training/step2_dpo_finetuning
+    exec: applications/DeepSpeed-Chat/training/step2_dpo_finetuning/main.py
+    profile: ds_chat_dpo
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path local/jsonfile'
+      - '--num_train_epochs 1'
+      - '--per_device_train_batch_size 2'
+      - '--per_device_eval_batch_size 2'
+      - '--max_seq_len 128'
+      - '--zero_stage 2'
+      - '--dtype bf16'
+      - '--beta 0.1'
+      - '--deepspeed'
+      - '--output_dir ${CI_OUTPUT_DIR}'
+    timeout_minutes: 150
+  # RLHF 训练；支持单卡 NPU，OPT-125M actor/critic 使用官方 5 步测试模式。
+  - path: applications/DeepSpeed-Chat/training/step3_rlhf_finetuning
+    exec: applications/DeepSpeed-Chat/training/step3_rlhf_finetuning/main.py
+    profile: ds_chat_rlhf
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--actor_model_name_or_path ${OPT_125M_PATH}'
+      - '--critic_model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path local/jsonfile'
+      - '--enable_test_mode'
+      - '--test_stop_step 5'
+      - '--actor_zero_stage 2'
+      - '--critic_zero_stage 2'
+      - '--dtype bf16'
+      - '--deepspeed'
+    timeout_minutes: 180
+  # 文本生成；支持 NPU 上的 HF baseline，本地 OPT-125M 绕过 DS kernel 注入。
+  - path: inference/huggingface/text-generation/inference-test.py
+    profile: ds_infer
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model ${OPT_125M_PATH}'
+      - '--hf_baseline'
+      - '--dtype float32'
+      - '--max_new_tokens 8'
+    timeout_minutes: 60
+  # CIFAR-10 分类；支持单卡 NPU，上游 launcher 配合 ModelScope 预置数据。
+  - path: training/cifar
+    exec: training/cifar/run_ds.sh
+    profile: ds_cifar
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--epochs 1'
+      - '--log-interval 50'
+      - '--dtype bf16'
+      - '--stage 0'
+    timeout_minutes: 90
+  # ZeRO 状态 offload；支持单卡 NPU，使用小模型和合成数据。
+  - path: training/offload_states/offload_states.py
+    profile: deepspeed
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--hidden_dim 1024'
+      - '--nlayers 2'
+    timeout_minutes: 60
+  # CIFAR MoE 训练；支持两卡 HCCL/EP=2，局部禁用 torch.compile 避开 Triton 依赖。
+  - path: training/cifar/run_ds_moe.sh
+    profile: ds_cifar
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--epochs 1'
+      - '--log-interval 50'
+      - '--dtype bf16'
+      - '--stage 0'
+    timeout_minutes: 120
+  # AutoTP loss 等价性；支持四卡 NPU，Qwen3-0.6B 验证 TP=1/3/4 各 5 步。
+  - path: training/autotp_equivalence
+    exec: training/autotp_equivalence/train.py
+    profile: ds_autotp_equivalence
+    runner: linux-aarch64-a2-4
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${QWEN3_06B_PATH}'
+      - '--steps 5'
+      - '--seq_len 32'
+      - '--micro_batch_size 1'
+      - '--log_every 1'
+    timeout_minutes: 180
+
+  # HF Trainer AutoTP；八卡 TP=8、本地模型和 fixture，3 步含 2 步预热，已通过 #28。
+  - path: training/tensor_parallel/hf_integration/train.py
+    profile: ds_hf_autotp
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path ${ALPACA_CI_PATH}'
+      - '--output_dir ${CI_OUTPUT_DIR}/hf-autotp'
+      - '--max_steps 3'
+      - '--model_max_length 128'
+      - '--per_device_train_batch_size 1'
+      - '--gradient_accumulation_steps 1'
+      - '--learning_rate 2e-5'
+      - '--warmup_steps 2'
+      - '--logging_steps 1'
+      - '--eval_strategy no'
+      - '--save_strategy no'
+      - '--report_to none'
+      - '--bf16 True'
+      - '--tf32 False'
+      - '--gradient_checkpointing False'
+      - '--dataloader_pin_memory False'
+      - '--dataloader_num_workers 0'
+    timeout_minutes: 120
+  # CIFAR PR-MoE；两卡 EP=2、残差专家 2/4，eager MoE 已通过 #27。
+  - path: training/cifar/run_ds_prmoe.sh
+    profile: ds_cifar
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--epochs 1'
+      - '--log-interval 50'
+      - '--dtype bf16'
+      - '--stage 0'
+    timeout_minutes: 120
+  # 动态 batch/LR；单卡合成序列打包及 2 epoch，已通过 #27。
+  - path: training/data_efficiency/variable_batch_size_and_lr/variable_batch_size_and_lr_example.py
+    profile: ds_variable_batch
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--pipeline-num-stages 0'
+    timeout_minutes: 60
+  # ZenFlow offload；两卡 256 维/2 层合成数据，6 次迭代已通过 #27。
+  - path: training/DeepSpeed-ZenFlow/benchmark/zf_benchmark.py
+    profile: ds_zenflow
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--hidden_dim 256'
+      - '--nlayers 2'
+      - '--iteration 3'
+      - '--dtype torch.bfloat16'
+      - '--pin_memory_opts 0'
+      - '--topk_ratios 0.1'
+      - '--update_intervals 2'
+      - '--overlap_steps 0'
+    timeout_minutes: 90
+  # Wanda 校准剪枝；NPU 本地 OPT-125M/JSONL，4×32 token 校准已通过 #27。
+  - path: compression/reasoning_aware_compression/prune.py
+    profile: ds_rac_prune
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model ${OPT_125M_PATH}'
+      - '--device npu'
+      - '--dtype float32'
+      - '--pruning-method wanda'
+      - '--calibration prompt'
+      - '--dataset ${RAC_CI_PATH}'
+      - '--prompt-column prompt'
+      - '--no-chat-template'
+      - '--nsamples 4'
+      - '--seqlen 32'
+      - '--batch-size 1'
+      - '--scope all'
+      - '--layer-thirds 1'
+      - '--sparsity 0.5'
+      - '--output ${CI_OUTPUT_DIR}/rac-pruned'
+      - '--save-report'
+    timeout_minutes: 90
+
+  # SFT 生成评测；单卡先训练小检查点，再对比基础/微调模型，8 token，待实跑。
+  - path: applications/DeepSpeed-Chat/training/step1_supervised_finetuning/prompt_eval.py
+    profile: ds_chat_prompt_eval
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path_baseline ${OPT_125M_PATH}'
+      - '--model_name_or_path_finetune ${CI_OUTPUT_DIR}/prompt-eval-sft'
+      - '--max_new_tokens 8'
+      - '--language English'
+    timeout_minutes: 120
+  # 奖励评分 smoke；单卡本地 OPT-125M/初始化评分头，两组偏好 forward，待实跑。
+  - path: applications/DeepSpeed-Chat/training/step2_reward_model_finetuning/rw_eval.py
+    profile: ds_chat_reward_eval
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--num_padding_at_beginning 1'
+    timeout_minutes: 60
+  # 固定长度 HF AutoTP；八卡 TP=8/序列 128/3 步，校验 padding 与 label masking，待实跑。
+  - path: training/tensor_parallel/hf_integration/train_bench_length.py
+    profile: ds_hf_bench_length
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name_or_path ${OPT_125M_PATH}'
+      - '--data_path ${ALPACA_CI_PATH}'
+      - '--output_dir ${CI_OUTPUT_DIR}/hf-bench-length'
+      - '--max_steps 3'
+      - '--model_max_length 128'
+      - '--per_device_train_batch_size 1'
+      - '--gradient_accumulation_steps 1'
+      - '--learning_rate 2e-5'
+      - '--warmup_steps 2'
+      - '--logging_steps 1'
+      - '--eval_strategy no'
+      - '--save_strategy no'
+      - '--report_to none'
+      - '--bf16 True'
+      - '--tf32 False'
+      - '--gradient_checkpointing False'
+      - '--dataloader_pin_memory False'
+      - '--dataloader_num_workers 0'
+    timeout_minutes: 120
+  # SuperOffload 入口；两卡 ZeRO-Offload 模式/CPU 参数和优化器卸载，3 步，待实跑。
+  - path: training/DeepSpeed-SuperOffload/finetune_zero3.py
+    profile: ds_superoffload
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name ${OPT_125M_PATH}'
+      - '--dataset_name ${ALPACA_DATASET_DIR}'
+      - '--lr 0.001'
+      - '--batch_size 1'
+      - '--num_train_epochs 1'
+      - '--max_length 128'
+      - '--bench_steps 3'
+      - '--warmup_steps 1'
+      - '--attn_implementation eager'
+      - '--output_dir ${CI_OUTPUT_DIR}/superoffload'
+    timeout_minutes: 120
+
+  # 模型张量卸载对比；单卡 ZeRO-3/native mlock，合成小模型/两臂各 3 步，待实跑.
+  - path: benchmarks/pin_memory/model_tensor_offload/bench.py
+    profile: ds_pin_memory
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--hidden 4'
+      - '--layers 2'
+      - '--batch 1'
+      - '--seq 16'
+      - '--steps 3'
+      - '--warmup 1'
+      - '--zero-stage 3'
+    timeout_minutes: 120
+  # 激活卸载对比；单卡 NPU checkpoint/native pin，两臂各 3 步，待实跑。
+  - path: benchmarks/pin_memory/activation_offload/bench.py
+    profile: ds_pin_memory
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--hidden 64'
+      - '--layers 2'
+      - '--batch 1'
+      - '--seq 32'
+      - '--steps 3'
+      - '--warmup 1'
+    timeout_minutes: 120
+  # 主机/NPU 双向拷贝；三种 1MiB 缓冲区各 3 次，不冒充 CUDA host registration，待实跑。
+  - path: benchmarks/pin_memory/h2d_d2h/bench.py
+    profile: ds_pin_memory
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--sizes-mib 1'
+      - '--warmup 1'
+      - '--iters 3'
+      - '--skip-native-register'
+    timeout_minutes: 120
+  # ZenFlow LLM 微调；OPT-125M/16 行本地 Alpaca，单卡 CPU optimizer offload 与保存，待实跑。
+  - path: training/DeepSpeed-ZenFlow/finetuning/finetune_llama.py
+    profile: ds_zenflow_finetune
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name "${OPT_125M_PATH}"'
+      - '--lr 0.00002'
+      - '--batch_size 1'
+      - '--num_train_epochs 1'
+      - '--output_dir "${CI_OUTPUT_DIR}/zenflow-finetune-checkpoint"'
+    timeout_minutes: 120
+  # OPSD 在线蒸馏；小模型/3 步 rollout、教师 CPU 缓存与 streamed KL，待实跑。
+  - path: training/opsd/main.py
+    profile: ds_opsd
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # Student TP/ZeRO-3 smoke；两卡小模型 forward/backward/step，关闭可选 CPU optimizer offload，待实跑。
+  - path: training/opsd/test_student_autotp_zero3.py
+    profile: ds_opsd
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # Teacher TP/ZeRO-3 smoke；两卡小模型参数 CPU offload 与 logit cache，待实跑。
+  - path: training/opsd/test_teacher_autotp_zero3.py
+    profile: ds_opsd
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # BERT 推理计时；本地模型/4 次 DS engine forward 与 NPU 同步，待实跑。
+  - path: benchmarks/inference/bert-bench.py
+    profile: ds_legacy_inference_bench
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model "${BERT_BASE_CASED_PATH}"'
+      - '--deepspeed'
+      - '--dtype fp32'
+      - '--trials 4'
+    timeout_minutes: 120
+  # GPT 推理计时；OPT-125M/4 次×8 token，DS engine 与 NPU 同步，待实跑。
+  - path: benchmarks/inference/gpt-bench.py
+    profile: ds_legacy_inference_bench
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model "${OPT_125M_PATH}"'
+      - '--deepspeed'
+      - '--dtype fp32'
+      - '--max-tokens 8'
+      - '--trials 4'
+    timeout_minutes: 120
+  # HF/DS 生成一致性；OPT-125M/2 个 prompt，强制断言零 mismatch，待实跑。
+  - path: inference/huggingface/text-generation/ds-hf-compare.py
+    profile: ds_hf_ds_compare
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model "${OPT_125M_PATH}"'
+      - '--dtype float32'
+      - '--num_inputs 2'
+      - '--min_length 12'
+      - '--max_length 16'
+      - '--print_outputs'
+    timeout_minutes: 120
+  # BERT-large 填词；本地同名 ModelScope 权重，单卡短序列 DS 推理，待实跑。
+  - path: inference/huggingface/fill-mask/test-bert.py
+    profile: ds_fill_mask_bert
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # ELECTRA 填词；本地 generator 权重，两卡 TP=2 的显式切分策略，待实跑。
+  - path: inference/huggingface/fill-mask/test-electra.py
+    profile: ds_fill_mask_electra
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # RoBERTa-large 填词；本地权重与两卡 TP=2，验证 NPU 结果，待实跑。
+  - path: inference/huggingface/fill-mask/test-roberta.py
+    profile: ds_fill_mask_roberta
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # T5 翻译；本地权重与两卡 TP=2，模型生成配置限制 8 token，待实跑。
+  - path: inference/huggingface/translation/test-t5-base.py
+    profile: ds_t5_translation
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+  # Wav2Vec2 CTC 推理；两条合成音频/本地同名模型，验证 NPU logits 而非识别准确率，待实跑。
+  - path: inference/huggingface/automatic-speech-recognition/test-wav2vec2.py
+    profile: ds_asr_ctc
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 120
+
+  # LLM 微调；SmolLM2-135M/匹配 rotary 的依赖，两卡 ZeRO-2/3 步，待实跑。
+  - path: training/deepspeed_finetune_demo/finetune_llama.py
+    profile: ds_finetune_demo
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model_name "${SMOLLM2_135M_PATH}"'
+      - '--dataset_name "${ALPACA_FINETUNE_DIR}"'
+      - '--batch_size 2'
+      - '--num_train_epochs 1'
+      - '--max_length 128'
+      - '--max_steps 3'
+      - '--eval_steps 0'
+      - '--checkpoint_steps 0'
+      - '--output_dir "${CI_OUTPUT_DIR}/finetune-demo"'
+    timeout_minutes: 120
+  # SD 教师 CFG 蒸馏；本地 SD1.5/8 幅图，两卡 ZeRO-2 FP32/3 步全 UNet 训练，待实跑。
+  - path: training/stable_diffusion/train_sd_distil_lora.py
+    profile: ds_sd_distil
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--pretrained_model_name_or_path "${SD15_PATH}"'
+      - '--default_prompt "a colorful geometric shape"'
+      - '--resolution 64'
+      - '--center_crop'
+      - '--train_batch_size 1'
+      - '--gradient_accumulation_steps 1'
+      - '--max_train_steps 3'
+      - '--learning_rate 0.000005'
+      - '--lr_scheduler constant'
+      - '--lr_warmup_steps 0'
+      - '--mixed_precision no'
+      - '--report_to tensorboard'
+      - '--checkpointing_steps 1000'
+      - '--dataloader_num_workers 0'
+      - '--seed 42'
+      - '--output_dir "${CI_OUTPUT_DIR}/sd-distil"'
+    timeout_minutes: 180
+  # OPSD decode 对比；小模型/16 prompt token，原生 raw 与 HybridEngine 各 2 次，待实跑。
+  - path: training/opsd/benchmarks/bench_decode_1p1r.py
+    profile: ds_opsd_decode
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--model "${QWEN3_06B_PATH}"'
+      - '--prompt-len 16'
+      - '--max-new-tokens 4'
+      - '--num-warmup 1'
+      - '--num-iters 2'
+    timeout_minutes: 120
+
+  # GSM8K 答案生成；尝试 vLLM-Ascend 单卡，本地 0.5B 模型/8 题/16 token，待 NPU CI。
+  - path: training/deepspeed_finetune_demo/evaluate/gsm8k/gen_gsm8k.py
+    profile: ds_vllm_eval
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--model "${VLLM_CI_MODEL_PATH}"'
+      - '--output "${CI_OUTPUT_DIR}/gsm8k"'
+      - '--tp 1'
+      - '--max_new_tokens 16'
+    timeout_minutes: 120
+  # MMLU 答案生成；尝试 vLLM-Ascend 单卡，本地 0.5B 模型/8 题，待 NPU CI。
+  - path: training/deepspeed_finetune_demo/evaluate/mmlu/gen_mmlu.py
+    profile: ds_vllm_eval
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--model "${VLLM_CI_MODEL_PATH}"'
+      - '--output "${CI_OUTPUT_DIR}/mmlu"'
+      - '--tp 1'
+    timeout_minutes: 120
+  # RAC 推理轨迹采集；原生 vLLM 后端，本地 0.5B 模型/8 prompt/16 token，待 NPU CI。
+  - path: compression/reasoning_aware_compression/collect_traces.py
+    profile: ds_vllm_traces
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--backend vllm'
+      - '--model "${VLLM_CI_MODEL_PATH}"'
+      - '--dataset "${RAC_CI_PATH}"'
+      - '--prompt-column prompt'
+      - '--max-prompts 8'
+      - '--trace-tokens 1024'
+      - '--max-new-tokens 16'
+      - '--batch-size 2'
+      - '--output "${CI_OUTPUT_DIR}/rac-traces.jsonl"'
+    timeout_minutes: 180
+
+  # OpenAI 服务压测；原生客户端连接本地 vLLM-Ascend，单卡/4 请求，待 NPU CI。
+  - path: benchmarks/inference/mii/run_benchmark.py
+    profile: ds_vllm_bench
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--backend openai'
+      - '--model ci-model'
+      - '--num_clients 1'
+      - '--num_requests 4'
+      - '--max_prompt_length 64'
+      - '--mean_prompt_length 32'
+      - '--mean_max_new_tokens 16'
+      - '--prompt_length_var 0'
+      - '--max_new_tokens_var 0'
+      - '--warmup 0'
+      - '--out_json_dir "${CI_OUTPUT_DIR}/benchmark"'
+    timeout_minutes: 120
+  # 推理服务并发压测；原生 OpenAI 客户端连接 NPU 服务，单客户端/4 请求，待 NPU CI。
+  - path: benchmarks/inference/deepspeedometer/src/deepspeedometer/benchmark_runner.py
+    profile: ds_vllm_bench
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--api openai'
+      - '--model ci-model'
+      - '--num_clients 1'
+      - '--min_requests 4'
+      - '--num_requests_per_client 4'
+      - '--warmup_requests 0'
+      - '--max_prompt_length 64'
+      - '--prompt_length 32'
+      - '--max_new_tokens 16'
+      - '--prompt_length_var 0'
+      - '--max_new_tokens_var 0'
+      - '--result_dir "${CI_OUTPUT_DIR}/benchmark"'
+    timeout_minutes: 120
+  # async_io 设备读写；复用原配方 ds_io 的 accelerator 路径，1MiB/2 次读写，待 NPU CI。
+  - path: deepnvme/ds_io/ds_io_sweep.sh
+    profile: ds_aio
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--io_size 1M'
+      - '--gpu'
+      - '--use_accelerator_pin_memory'
+      - '--io_parallel 1'
+      - '--block_size 1M'
+      - '--queue_depth 4'
+      - '--loops 2'
+      - '--warmup_loops 0'
+    timeout_minutes: 90
+
+  # MATH-500 评测配方；本地 8 题/16 token，原生数学评分，不设准确率门槛，待 NPU CI。
+  - path: compression/reasoning_aware_compression/bash_script/eval_math500.sh
+    profile: ds_math500
+    runner: linux-aarch64-a2-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    overlay_args:
+      - '--max-samples 8'
+      - '--dataset-loading-processes 1'
+      - '--output-dir "${CI_OUTPUT_DIR}/math500"'
+      - '--save-details'
+    timeout_minutes: 120
+
+  # BERT 自动调参；合并 base/large 启动配方，本地 BERT-base/8 行分类数据/小 batch 搜索，待 NPU CI。
+  - path: training/autotuning/hf/bert-base/test_tune.sh
+    profile: ds_autotune_bert
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--max_seq_length 32'
+    timeout_minutes: 180
+  # DeBERTa 自动调参；本地 DeBERTa-v3-small/8 行分类数据/小 batch 搜索，待 NPU CI。
+  - path: training/autotuning/hf/deberta/test_tune.sh
+    profile: ds_autotune_deberta
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--max_seq_length 32'
+    timeout_minutes: 180
+  # DistilBERT 自动调参；本地模型/8 行分类数据/小 batch 搜索，待 NPU CI。
+  - path: training/autotuning/hf/distilbert/test_tune.sh
+    profile: ds_autotune_distilbert
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--max_seq_length 32'
+    timeout_minutes: 180
+  # GPT-2 自动调参；合并 medium/large/xl 启动配方，本地 GPT-2/8 行文本/小 batch 搜索，待 NPU CI。
+  - path: training/autotuning/hf/gpt2/test_tune.sh
+    profile: ds_autotune_gpt2
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - '--block_size 32'
+    timeout_minutes: 180
+
+unsupported:
+  # DeepCompile 的原生算子为 CUDA 专用：is_deepcompile_supported() 要求 device_name 为 cuda，
+  # csrc/compile 直接使用 at::cuda 流、c10::kCUDA 与 ATen/native/cuda/Resize.h；无补丁的昇腾环境无法加载。
+  - benchmarks/deepcompile/run_bench_lm.py
+  # HybridEngine rollout 性能测试；#30 的 OPT 注入路径触发 NPU softmax_context_bf16 参数 16/19 不匹配，需上游修复。
+  - benchmarks/opsd/benchmark_hybrid_engine_rollout.py
+  # BF16 主权重训练对比；torch.cuda 和 CUDA autocast 硬绑定。
+  - training/bf16_master_weight/train.py
+  # CIFAR/AlexNet 流水线训练；硬绑定 CUDA 设备和 NCCL。
+  - training/pipeline_parallelism/train.py
+  # 交互式文本聊天；pipeline 硬编码 cuda:0，需已训练模型。
+  - applications/DeepSpeed-Chat/inference/chatbot.py
+  # 交互式视觉聊天；硬绑定 .cuda()，需 Llama-2/视觉模型检查点。
+  - applications/DeepSpeed-VisualChat/chat/chat.py
+  # 视觉聊天批量评测；硬绑定 .cuda()，需预训练检查点。
+  - applications/DeepSpeed-VisualChat/eval/batch_generation.py
+  # 视觉聊天训练；硬绑定 CUDA，需 Llama-2、CLIP 和大规模图文数据。
+  - applications/DeepSpeed-VisualChat/training/main.py
+  # AutoSP 正确性编排；子训练必经 ring_attention/flash_attn CUDA 扩展。
+  - benchmarks/autosp/correctness/correctness.sh
+  # AutoSP loss 对比；调用依赖 CUDA flash_attn 的 run.py，换小模型仍受阻。
+  - benchmarks/autosp/correctness/correctness_run.py
+  # 序列并行训练；必经 import ring_attention/flash_attn，eager 参数也不能绕过 CUDA 扩展。
+  - benchmarks/autosp/run.py
+  # all_gather 吞吐基准；torch.cuda.Event 计时硬绑定 CUDA。
+  - benchmarks/communication/all_gather.py
+  # all_reduce 吞吐基准；torch.cuda.Event 计时硬绑定 CUDA。
+  - benchmarks/communication/all_reduce.py
+  # all_to_all 吞吐基准；torch.cuda.Event 计时硬绑定 CUDA。
+  - benchmarks/communication/all_to_all.py
+  # broadcast 吞吐基准；torch.cuda.Event 计时硬绑定 CUDA。
+  - benchmarks/communication/broadcast.py
+  # 双 rank 点对点吞吐基准；torch.cuda.Event 计时硬绑定 CUDA。
+  - benchmarks/communication/pt2pt.py
+  # 多算子通信基准汇总；硬绑定 CUDA 计时，非训练验证。
+  - benchmarks/communication/run_all.py
+  # BERT Triton 延迟基准；硬绑定 torch.cuda/NCCL 与 CUDA kernel。
+  - benchmarks/inference/triton-bert-benchmark.py
+  # async_io 读取设备张量；可准备小文件，但结果硬调用 .cuda()。
+  - deepnvme/file_access/aio_load_gpu_tensor.py
+  # async_io 写入设备张量；可准备小文件，但源张量硬编码 device='cuda'。
+  - deepnvme/file_access/aio_store_gpu_tensor.py
+  # GDS 读取设备张量；缓冲区硬编码 CUDA，且依赖 CUDA GPUDirect Storage。
+  - deepnvme/file_access/gds_load_gpu_tensor.py
+  # GDS 写入设备张量；缓冲区硬编码 CUDA，且依赖 CUDA GPUDirect Storage。
+  - deepnvme/file_access/gds_store_gpu_tensor.py
+  # Python 读取设备张量；可准备小文件，但结果硬调用 .cuda()。
+  - deepnvme/file_access/py_load_gpu_tensor.py
+  # Python 写入设备张量；可准备小文件，但源张量硬编码 device='cuda'。
+  - deepnvme/file_access/py_store_gpu_tensor.py
+  # DeepSpeed 检查点 IO；必经 NCCL、pdb 断点与 CUDA GDS，换小文件不能绕过。
+  - deepnvme/model_checkpoint/deepspeed_save_model.py
+  # 模型保存恢复校验；输入、模型及恢复张量硬编码 CUDA。
+  - deepnvme/model_checkpoint/torch_save_load_model.py
+  # 模型检查点 IO；设备模式强制 CUDA GDS，关闭 gpu 后仅测 CPU。
+  - deepnvme/model_checkpoint/torch_save_model.py
+  # 张量检查点 IO；设备模式强制 CUDA GDS，关闭 gpu 后仅测 CPU。
+  - deepnvme/model_checkpoint/torch_save_tensor.py
+  # HumanEval 代码生成评测；硬绑定 CUDA，需 MII、7B 模型及评测数据。
+  - evaluation/inference/human_eval/run_human_eval.py
+  # Stable Diffusion 图像生成；硬绑定 CUDA/CUDA graph，模型权重较大。
+  - inference/huggingface/stable-diffusion/test-stable-diffusion.py
+  # GPT 文本生成；model.cuda() 和 torch.cuda.synchronize() 硬绑定 CUDA。
+  - inference/huggingface/text-generation/run-generation-script/test-run-generation.py
+  # T5 文本生成；硬编码四卡 TP/CUDA 设备，无 CLI 缩规模接口。
+  - inference/huggingface/text2text-generation/test-t5.py
+  # 大模型 ZeRO offload 推理；硬绑定 NCCL 和 torch.cuda.current_device。
+  - inference/huggingface/zero_inference/run_model.py
+  # Falcon 推理；MII 必经 Inference V2 的 CUDA activation/kernel，缩模型不能绕过。
+  - inference/mii/non-persistent/falcon.py
+  # Llama 推理；MII 必经 Inference V2 的 CUDA activation/kernel，另有受限权重。
+  - inference/mii/non-persistent/llama2.py
+  # Mixtral 推理；MII 必经 Inference V2 的 CUDA activation/kernel，缩模型不能绕过。
+  - inference/mii/non-persistent/mixtral.py
+  # MII 非持久推理；build_hf_engine 必经 CUDA activation/kernel，无 NPU 实现。
+  - inference/mii/non-persistent/pipeline.py
+  # MII 持久服务；build_hf_engine 必经 CUDA activation/kernel，无 NPU 实现。
+  - inference/mii/persistent/serve.py
+  # SGLang ZeRO 推理基准；需 tjruwase/sglang zero-inference 分支，配方含 CUDA GDS 卸载。
+  - inference/sglang/run_llama3_1B.sh
+  # SGLang ZeRO 推理基准；需专用 zero-inference 分支与 CUDA GDS，换小模型不能解决后端约束。
+  - inference/sglang/run_llama3_70B.sh
+  # SGLang ZeRO 推理基准；需专用 zero-inference 分支，CPU/NVMe/GDS 对比尚无 NPU 配方。
+  - inference/sglang/run_llama3_8B.sh
+  # BERT-base GLUE 微调；硬绑定 CUDA，数据路径固定为 /data/GlueData。
+  - training/BingBertGlue/run_glue_classifier_bert_base.py
+  # BERT-large GLUE 微调；硬绑定 CUDA，并含私人源码/数据路径。
+  - training/BingBertGlue/run_glue_classifier_bert_large.py
+  # BERT-large SQuAD 基线训练；硬绑定 CUDA，需外部权重和数据。
+  - training/BingBertSquad/nvidia_run_squad_baseline.py
+  # BERT-large SQuAD DeepSpeed 训练；上游配方需多机 MPI/NCCL 及 CUDA kernel。
+  - training/BingBertSquad/nvidia_run_squad_deepspeed.py
+  # SQuAD HF 启动包装；目标 nvidia_run_squad_mpi.py 不在仓库内。
+  - training/BingBertSquad/run_hf.sh
+  # Domino GPT-3 预训练；缺少 Megatron 子模块，需大模型和外部语料。
+  - training/DeepSpeed-Domino/pretrain_gpt.py
+  # BingBERT 预训练；硬绑定 CUDA/NCCL，需多机及内部语料。
+  - training/bing_bert/deepspeed_train.py
+  # BERT-base GLUE 微调；硬绑定 CUDA，数据路径固定为 /data/GlueData。
+  - training/bing_bert/run_glue_classifier_bert_base.py
+  # BERT-large GLUE 微调；硬绑定 CUDA，数据路径固定为 /data/GlueData。
+  - training/bing_bert/run_glue_classifier_bert_large.py
+  # GPT random-LTD 微调；本地数据可行，但必经 torch.device('cuda')/cuda.set_device。
+  - training/data_efficiency/gpt_finetuning/run_clm_no_trainer.py
+  # CIFAR ViT 微调；损失与数据传输硬绑定 .cuda()，待适配。
+  - training/data_efficiency/vit_finetuning/main_cifar.py
+  # ImageNet ViT 微调；本地小数据可行，但 criterion.cuda 和设备设置必经绑定。
+  - training/data_efficiency/vit_finetuning/main_imagenet.py
+  # 训练评测编排；固定八卡训练/转换且不透传生成规模，子训练和 GSM8K/MMLU 已独立看护。
+  - training/deepspeed_finetune_demo/run_and_evaluate.sh
+  # AutoEP MoE 训练；可缩层数和步数，但 metrics.reduce_max 必经 torch.cuda.current_device。
+  - training/expert_parallel/train.py
+  # DCGAN 基线；可用 fake 数据，但设备仅 CUDA/CPU 且无条件 cuda.synchronize，无法原生 NPU。
+  - training/gan/gan_baseline_train.py
+  # DCGAN DeepSpeed 训练；硬绑定 torch.cuda.set_device，需 CelebA 数据。
+  - training/gan/gan_deepspeed_train.py
+  # ResNet 分类；本地 ImageFolder 可行，但 cuda.set_device/losses.cuda 无切换参数。
+  - training/imagenet/main.py
+  # Stable Diffusion 多卡推理；设备与随机生成器硬绑定 CUDA。
+  - training/stable_diffusion/inf_txt2img_loop.py
+  # 基础 AutoTP 训练；设备硬编码 cuda，默认 Llama-3.1-8B。
+  - training/tensor_parallel/basic_example/autotp_example.py
+  # AutoTP 显存对比；硬绑定 torch.cuda，默认 Llama-3.1-8B。
+  - training/tensor_parallel/basic_example/autotp_memory_compare.py
+  # 自定义 AutoTP 切分训练；设备硬绑定 CUDA，默认 Pythia-6.9B。
+  - training/tensor_parallel/custom_patterns/autotp_custom_patterns.py
+  # DeepCompile 激活卸载；compile.enabled 与主仓配置不符且未调用 engine.compile，需上游修复。
+  - benchmarks/pin_memory/deepcompile_activation/bench.py
