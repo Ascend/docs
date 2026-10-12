@@ -1,5 +1,11 @@
 # Examples guard engine - the common, reusable part of the examples
 # guarding pipeline.
+#
+# Events: schedule runs the monitor loop (release + workflow-files
+# signals, monitor-state cache); workflow_dispatch and pull_request
+# are active-trigger runs that always test the full supported matrix
+# and never read or write the monitor state, so a guard PR shows its
+# matrix to the reviewer before merge.
 
 name: examples-template
 
@@ -50,6 +56,10 @@ jobs:
       workflow_files_hash: ${{ steps.monitor.outputs.workflow_files_hash }}
     env:
       UPSTREAM_REPO: ${{ inputs.upstream_repo }}
+      # Unauthenticated api.github.com calls share the hosted runner's
+      # per-IP quota of 60/h and intermittently get 403; the job token
+      # (read-only on fork PRs) raises it to the per-repo quota.
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Restore monitor state
         id: cache-restore
@@ -100,6 +110,7 @@ jobs:
           # and reason=release (workflow-files only fires when release does not).
           RESP_FILE=$(mktemp)
           HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+            -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
           TAG=""
           if [ "$HTTP_CODE" = "200" ]; then
@@ -117,6 +128,7 @@ jobs:
             # release_outcome retry bookkeeping is shared.
             HEAD_RESP=$(mktemp)
             HEAD_CODE=$(curl -sSL --retry 3 -o "$HEAD_RESP" -w '%{http_code}' \
+              -H "Authorization: Bearer $GH_TOKEN" \
               "https://api.github.com/repos/$UPSTREAM_REPO/commits/$DEFAULT_BRANCH" || true)
             HEAD_SHA=""
             if [ "$HEAD_CODE" = "200" ]; then
@@ -165,6 +177,7 @@ jobs:
           # GitHub blob/tree SHAs from /git/trees/main?recursive=1; sorted
           # path+SHA pairs then sha256sum. Fires only when release did not.
           TREE_RESP=$(curl -fsSL --retry 3 \
+            -H "Authorization: Bearer $GH_TOKEN" \
             "https://api.github.com/repos/$WORKFLOW_REPO/git/trees/main?recursive=1" \
             2>/dev/null || echo "")
           TREE_JSON=""
@@ -202,8 +215,8 @@ jobs:
             echo "workflow_files_hash=${WORKFLOW_FILES_HASH}"
           } >> "$GITHUB_OUTPUT"
 
-      # Schedule picks the ref from the release signal; manual runs
-      # resolve an empty target_ref to the latest upstream release
+      # Schedule picks the ref from the release signal; manual and PR
+      # runs resolve an empty target_ref to the latest upstream release
       # (fallback chain: explicit input -> latest release -> default_branch).
       # Without this, manual dispatch always tests upstream `main`,
       # which can pick up in-progress pyproject changes that the
@@ -220,7 +233,11 @@ jobs:
           UPSTREAM_REPO: ${{ inputs.upstream_repo }}
         run: |
           set -euo pipefail
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+          # The monitor steps above are schedule-gated: a PR run must
+          # resolve its target here, or every downstream job skips and
+          # the PR goes green untested. PR runs have no inputs, so
+          # they always take the release lookup below.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "pull_request" ]; then
             REF=""
             REASON=""
             if [ -n "$INPUT_REF" ]; then
@@ -233,6 +250,7 @@ jobs:
               # main if the API is unreachable or no release exists.
               RESP_FILE=$(mktemp)
               HTTP_CODE=$(curl -sSL --retry 3 -o "$RESP_FILE" -w '%{http_code}' \
+                -H "Authorization: Bearer $GH_TOKEN" \
                 "https://api.github.com/repos/$UPSTREAM_REPO/releases/latest" || true)
               TAG=""
               if [ "$HTTP_CODE" = "200" ]; then
@@ -251,11 +269,11 @@ jobs:
             REPO="${INPUT_REPO:-$UPSTREAM_REPO}"
             {
               echo "need_to_run=true"
-              echo "trigger=workflow_dispatch"
+              echo "trigger=$EVENT_NAME"
               echo "target_repo=$REPO"
               echo "target_ref=$REF"
             } >> "$GITHUB_OUTPUT"
-            echo "resolved repo=$REPO ref=$REF reason=$REASON (manual)"
+            echo "resolved repo=$REPO ref=$REF reason=$REASON ($EVENT_NAME)"
             exit 0
           fi
           NEED="${{ steps.monitor.outputs.need_to_run }}"
