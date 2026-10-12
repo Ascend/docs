@@ -1,0 +1,35 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py']
+  max_depth: 3
+supported:
+  # CPU AdamW finetune. The script keeps tensors on CPU; a green run
+  # means bitsandbytes' CPU optimizer still trains, not that NPU
+  # inference worked. Success is the script's own loss line.
+  - path: examples/cpu/cpu_training.py
+    profile: cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --steps 5
+      - --log_interval 1
+      - --max_length 64
+      - --batch_size 1
+    timeout_minutes: 90
+  # 8-bit gemma-2-2b-it, torch.compile, 32 new tokens. The run script
+  # requires NPUCachingAllocator in the log after exit 0.
+  - path: examples/compile_inference.py
+    profile: npu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 120
+unsupported:
+  # Downloads gated meta-llama/Llama-2-7b-hf and hard-codes
+  # torch.cuda.mem_get_info() / torch.cuda.device_count().
+  - examples/int8_inference_huggingface.py
+  # Asserts torch.xpu.is_available() or CUDA. Intel GPU only.
+  - examples/xpu/paged_xpu_training.py
+  - examples/xpu/benchmark_paged_memory.py
