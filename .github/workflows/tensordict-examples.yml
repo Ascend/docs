@@ -1,0 +1,37 @@
+# TensorDict examples guard: the project-specific trigger for examples-template.
+name: tensordict-examples
+
+on:
+  # Daily at 02:00 Beijing time (UTC 18:00).
+  schedule:
+    - cron: '0 18 * * *'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/tensordict/**'
+      - '.github/workflows/tensordict-examples.yml'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty selects the latest release)
+        required: false
+        default: ''
+        type: string
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'tensordict-examples-schedule' || (github.event_name == 'pull_request' && format('tensordict-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  tensordict-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      project: tensordict
+      upstream_repo: pytorch/tensordict
+      target_ref: ${{ inputs.target_ref }}
+      max_parallel: 2
