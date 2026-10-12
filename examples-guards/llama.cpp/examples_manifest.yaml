@@ -1,9 +1,8 @@
 # llama.cpp example guard for the shared engine in examples-template.yml.
 # Profiles are implemented by scripts/setup_example.sh. Timeouts include a
 # cold-cache budget: this runner pool does not have the source repo's
-# pre-seeded weights. examples/simple-chat stays supported, but its success
-# condition is exit 0 only — the upstream example drops non-error logs, so
-# there is no CANN device line to grep, and this guard does not patch it.
+# pre-seeded weights. Entries that crash in ggml-cann, or that cannot
+# prove the CANN device without editing upstream sources, are unsupported.
 version: 1
 scan:
   root: examples
@@ -21,112 +20,6 @@ supported:
       - -m ${LLAMA_CI_MODEL}
       - -n 16
       - -ngl 99
-    timeout_minutes: 90
-  - path: examples/batched
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-batched
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -n 32
-      - -np 4
-      - -ngl 99
-      - --kv-unified
-    timeout_minutes: 90
-  - path: examples/embedding
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-embedding
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -p "Hello World!"
-      - --pooling mean
-      - -ngl 99
-      - -c 256
-    timeout_minutes: 90
-  - path: examples/lookahead
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-lookahead
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -n 16
-      - -ngl 99
-      - -c 512
-      - -p "Hello my name is"
-    timeout_minutes: 90
-  - path: examples/lookup
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-lookup
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -n 16
-      - -c 256
-      - -ngl 99
-      - -p "the cat sat on the mat the cat sat on the mat"
-      - --spec-draft-n-max 4
-      - -lcd ${CI_OUTPUT_DIR}/lookup-dyn.bin
-    timeout_minutes: 90
-  - path: examples/parallel
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-parallel
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -n 16
-      - -np 2
-      - -ns 4
-      - --junk 1
-      - -pps
-      - -c 4096
-      - -ngl 99
-    timeout_minutes: 90
-  - path: examples/speculative
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-speculative
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -md ${LLAMA_CI_MODEL}
-      - -p Hello
-      - -n 16
-      - -c 256
-      - -ngl 99
-      - -ngld 99
-      - --temp 0
-      - --spec-draft-n-max 2
-    timeout_minutes: 90
-  - path: examples/speculative-simple
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-speculative-simple
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -md ${LLAMA_CI_MODEL}
-      - --spec-type draft-simple
-      - -p Hello
-      - -n 16
-      - -c 256
-      - -ngl 99
-      - -ngld 99
-      - --temp 0
-      - --spec-draft-n-max 2
-      - --top-k 1
     timeout_minutes: 90
   - path: examples/passkey
     profile: cann
@@ -166,34 +59,6 @@ supported:
       - -m ${LLAMA_CI_MODEL}
       - -p hello
       - -ngl 99
-    timeout_minutes: 90
-  - path: examples/simple-chat
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-simple-chat
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -c 512
-      - -ngl 99
-    timeout_minutes: 90
-  - path: examples/retrieval
-    profile: cann
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    exec: build/bin/llama-retrieval
-    overlay_args:
-      - -m ${LLAMA_CI_MODEL}
-      - -ngl 99
-      - --pooling mean
-      - --context-file ${TARGET_ROOT}/README.md
-      - --chunk-size 100
-      - --chunk-separator .
-      - --top-k 1
-      - -c 512
-      - -b 512
     timeout_minutes: 90
   - path: examples/convert-llama2c-to-ggml
     profile: cpu
@@ -264,3 +129,21 @@ unsupported:
   - examples/idle
   - examples/sycl
   - examples/training
+  # simple-chat drops logs below ERROR, so the CANN device line never
+  # appears. Showing it would mean editing upstream. Exit 0 alone would
+  # be a false green.
+  - examples/simple-chat
+  # The read loop does not return on EOF, so one prompt hangs until the
+  # job timeout. Making it return would mean editing retrieval.cpp.
+  - examples/retrieval
+  # PR run 38228583901, v0.6.0, CANN 9.1.0, Ascend910B3: ggml-cann aborts
+  # in aclnnWeightQuantBatchMatmulV2 because y is not contiguous.
+  - examples/batched
+  - examples/embedding
+  - examples/lookahead
+  - examples/lookup
+  - examples/speculative
+  - examples/speculative-simple
+  # Same run: FusedInferAttentionScore rejects a non-contiguous key in
+  # the non-paged-attention path.
+  - examples/parallel

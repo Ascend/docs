@@ -18,14 +18,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Bring-up: keep the schedule disabled. The cosdt-ci-test/workflows
-  # cron stays the production guard. Re-enable only after manual rounds
-  # are green, on a slot that does not collide with an enabled workflow,
-  # and turn off the source repo's llama.cpp-examples schedule at the
-  # same time. The source slot was 30 */6, which is also the commented
-  # peft examples slot, so do not enable both on that minute.
-  # schedule:
-  #   - cron: '30 */6 * * *'
+  # Daily at 03:00 Beijing time (UTC 19:00), one hour after
+  # accelerate-examples. The source repo's llama.cpp-examples cron should
+  # be turned off once this is on main, so the two guards do not both
+  # take NPUs.
+  schedule:
+    - cron: '0 19 * * *'
   workflow_dispatch:
     inputs:
       target_ref:
@@ -59,6 +57,6 @@ jobs:
       # main, which 404s when a release lookup falls back.
       default_branch: master
       target_ref: ${{ inputs.target_ref }}
-      # 19 supported entries, all single-card. 4 leaves room on the
+      # 10 supported entries, all single-card. 4 leaves room on the
       # shared pool while the Qwen GGUF lock serializes the first download.
       max_parallel: 4

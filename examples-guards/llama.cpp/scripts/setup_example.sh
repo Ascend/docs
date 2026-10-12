@@ -67,16 +67,6 @@ fetch_qwen() {
     --ms-url "$QWEN_MS_URL"
 }
 
-patch_working_copy() {
-  # retrieval's read loop does not exit on EOF. simple-chat is left
-  # untouched: its log filter hides the CANN line, and the run script
-  # does not require that line for this one example.
-  if [[ "$EXAMPLE_REL" == "examples/retrieval" ]]; then
-    python3 "$HERE/patch_retrieval.py" \
-      "$TARGET_ROOT/examples/retrieval/retrieval.cpp"
-  fi
-}
-
 ensure_convert_deps() {
   # llama.cpp v0.6.0 pins Linux convert deps to torch==2.11.0+cpu.
   # The GGUF conversion runs on CPU. The example binary uses the image
@@ -113,7 +103,6 @@ raise SystemExit(0 if torch.__version__.startswith('2.11.0') else 1)
 
 setup_cann() {
   source_cann
-  patch_working_copy
   fetch_qwen
   cmake_llama -DGGML_CANN=on
   build_target

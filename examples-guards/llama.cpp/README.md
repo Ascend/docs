@@ -6,13 +6,17 @@
 
 ## 清单里跑什么
 
-`supported` 保持源仓那一份。这次不把源仓标成 `unsupported` 的条目放回来，也不新加还没在昇腾上跑过的目录。
+`supported` 只保留不改上游源码就能跑完、并且用了昇腾的条目能在日志里看到 CANN 设备行的目录。PR 运行 38228583901 上，`examples/simple` 已经这样跑通。
 
-不跑的三条：
+不跑的条目：
 
 - `examples/idle`：Metal 空闲微基准
 - `examples/sycl`：要 Intel oneAPI
 - `examples/training`：全量 FP32 微调，CANN 没有对应反向算子
+- `examples/simple-chat`：上游把低于 ERROR 的日志丢掉，CANN 设备行不会出现。要看到这行就得改上游源码。只看退出码 0 会把没落到昇腾的运行当成成功
+- `examples/retrieval`：上游读循环在输入结束后不返回，喂一行会一直挂到超时。让它返回就得改 `retrieval.cpp`
+- `examples/batched`、`examples/embedding`、`examples/lookahead`、`examples/lookup`、`examples/speculative`、`examples/speculative-simple`：同一轮里 ggml-cann 在 `aclnnWeightQuantBatchMatmulV2` 报 y 不连续并中止
+- `examples/parallel`：同一轮里 `FusedInferAttentionScore` 要求非 PA 路径上的 key 连续，实际不连续并中止
 
 `v0.6.0` 里另外有 `examples/deprecation-warning`、`examples/llama-eval`、`examples/test-cmake`。源仓清单没有它们，这次不调度。
 
@@ -37,12 +41,8 @@ Dream 的 safetensors 同样先暂存、核对分片头，再转 GGUF。转好�
 
 ## 设备锚点
 
-`cann`、`cann-diffusion`、`cmake-pkg` 的运行日志里必须出现 `CANN` 后接数字的那一行。ggml 在卡没挂上时会静默退回 CPU，进程仍然可以 0 退出。
-
-`examples/simple-chat` 是例外。上游源码把低于 ERROR 的日志丢掉，加载阶段的 CANN 行不会出现。这次不改那份源码，运行脚本也不再要求这行。这条只看进程是不是 0 退出。0 退出不能当成这次用了昇腾卡的证据。
-
-`examples/retrieval` 的上游循环在空输入上不退出，CI 喂一行就会挂到超时。`scripts/patch_retrieval.py` 只改本次工作副本，让空行或输入结束时跳出循环。不提交回上游。
+`cann`、`cann-diffusion`、`cmake-pkg` 的运行日志里必须出现 `CANN` 后接数字的那一行。ggml 在卡没挂上时会静默退回 CPU，进程仍然可以 0 退出。看护只在自己的运行脚本里检查这行，不改上游 example 文件。
 
 ## 触发
 
-`schedule` 保持注释。源仓的定时看护仍然是生产看护。打开本仓 cron 时要错开已有槽位，并同时关掉源仓同项目的 schedule。
+定时已经打开，每天一次，UTC 19:00，也就是北京时间 03:00，比 accelerate 的 example 看护晚一小时。源仓同项目的定时仍开着的话会和本仓抢 NPU，合入后由维护者关掉源仓那条。

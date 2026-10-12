@@ -61,11 +61,8 @@ export CI_OUTPUT_DIR ASCEND_RT_VISIBLE_DEVICES="${ASCEND_RT_VISIBLE_DEVICES:-0}"
 
 assert_cann_used() {
   local run_log="$1"
-  # cpu builds are not an NPU result. simple-chat keeps its upstream log
-  # filter, which drops the CANN device line, so exit status is the only
-  # signal for that one example. A green simple-chat does not show that
-  # the NPU was used.
-  if [[ "$PROFILE" == "cpu" || "$EXAMPLE_REL" == "examples/simple-chat" ]]; then
+  # cpu builds are not an NPU result.
+  if [[ "$PROFILE" == "cpu" ]]; then
     return 0
   fi
   if ! grep -q 'CANN[0-9]' "$run_log"; then
@@ -80,12 +77,6 @@ if [[ -n "$EXEC_REL" ]]; then
     examples/gguf)
       "$EXEC_PATH" "$CI_OUTPUT_DIR/ci-demo.gguf" w 2>&1 | tee "$RUN_LOG"
       "$EXEC_PATH" "$CI_OUTPUT_DIR/ci-demo.gguf" r 2>&1 | tee -a "$RUN_LOG"
-      ;;
-    examples/simple-chat)
-      printf 'Hello\n' | "$EXEC_PATH" "${EXTRA_ARGS[@]}" 2>&1 | tee "$RUN_LOG"
-      ;;
-    examples/retrieval)
-      printf 'hello\n' | "$EXEC_PATH" "${EXTRA_ARGS[@]}" 2>&1 | tee "$RUN_LOG"
       ;;
     *)
       "$EXEC_PATH" "${EXTRA_ARGS[@]}" 2>&1 | tee "$RUN_LOG"
