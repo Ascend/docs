@@ -355,14 +355,10 @@ jobs:
       # example tree is the upstream checkout itself (TARGET_ROOT).
       EXAMPLES_ROOT: ${{ inputs.examples_repo != '' && format('{0}/examples', github.workspace) || format('{0}/target', github.workspace) }}
       FIXTURE_DIR: ${{ github.workspace }}/workflows/examples-guards/${{ inputs.project }}/fixtures
-      HF_ENDPOINT: https://hf-mirror.com
-      # When the mirror passes xet metadata through, hf_xet downloads
-      # chunks straight from xethub.hf.co hosts, bypassing HF_ENDPOINT
-      # (unreachable from the CN runners) — same fix as llm-compressor.
-      # NOTE: does not rescue xet-backed *files*: their resolve URL
-      # 302s to cas-bridge.xethub.hf.co regardless; those must be
-      # pre-downloaded (see peft supertuning's fixture).
-      HF_HUB_DISABLE_XET: "1"
+      # Runners can now reach huggingface.co directly: leave HF_ENDPOINT
+      # and Xet at their defaults so model/dataset downloads go straight
+      # to the source instead of through hf-mirror (which could not proxy
+      # xet-backed repos and flaked on large transfers).
       # evaluate's metric caches (predictions/references arrow files) are
       # per-job scratch with zero cross-job value — keep them OFF the
       # shared persistent volume (default ~/.cache/huggingface/metrics).

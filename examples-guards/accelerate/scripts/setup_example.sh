@@ -95,15 +95,15 @@ PY
 # Smoke-validate the planted inference models: resolve the snapshot via
 # refs/main and check the weight files exist. A full from_pretrained
 # here would just duplicate what the example does.
-# NOTE: deliberately NOT snapshot_download(local_files_only=True) —
-# huggingface_hub 1.x caches the full HF repo listing (trees/<sha>.json,
-# written by any earlier networked call, e.g. from_pretrained during a
-# previous leg's run step) and then *requires* every listed file to
-# exist, including .gitattributes — which ModelScope snapshots never
-# contain (verified), so the check would detonate on any warm runner
-# (llava, run 35188975420). The plant's contract is "from_pretrained
-# finds its files", not "complete vs the HF listing"; from_pretrained
-# does per-file lookups and never needs .gitattributes.
+# NOTE: deliberately NOT snapshot_download(local_files_only=True) on the
+# planted-cache path — huggingface_hub 1.x caches the full HF repo listing
+# (trees/<sha>.json, written by any earlier networked call) and then
+# *requires* every listed file to exist, including .gitattributes — which
+# ModelScope snapshots never contain (verified). The plant's contract is
+# "from_pretrained finds its files", so when the plant is present we only
+# per-file check. When the plant is absent (cold runner), fall back to a
+# straight huggingface.co snapshot_download — runners can reach HF
+# directly now, and a real HF snapshot contains the full listing.
 validate_infer_assets() {
   # $1 = infer group name
   python - "$1" <<'PY'
@@ -129,7 +129,16 @@ CHECKS = {
 repo, must_have = CHECKS[sys.argv[1]]
 hub_root = Path(os.environ.get("HF_HOME", os.path.expanduser("~/.cache/huggingface"))) / "hub"
 repo_dir = f"models--{repo.replace('/', '--')}"
-sha = (hub_root / repo_dir / "refs" / "main").read_text().strip()
+refs = hub_root / repo_dir / "refs" / "main"
+
+if not refs.is_file():
+    print(f"{repo}: planted snapshot absent, downloading from huggingface.co", flush=True)
+    from huggingface_hub import snapshot_download
+    snapshot_download(repo)
+    if not refs.is_file():
+        raise SystemExit(f"{repo}: download did not materialize refs/main")
+
+sha = refs.read_text().strip()
 snap = hub_root / repo_dir / "snapshots" / sha
 missing = [f for f in must_have if not (snap / f).is_file()]
 if missing:
@@ -336,12 +345,9 @@ TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is required}"
 GITHUB_ENV="${GITHUB_ENV:?GITHUB_ENV is required}"
 
-# Xet-backed HF repos 302 to cas-bridge.xethub.hf.co which hf-mirror
-# cannot proxy. Planted caches make weight downloads unnecessary, but
-# keep the legacy transfer path forced for any residual metadata/file
-# fetch (README misses on dataset resolution etc.).
-echo "HF_HUB_DISABLE_XET=1" >> "$GITHUB_ENV"
-export HF_HUB_DISABLE_XET=1
+# Runners can now reach huggingface.co directly: leave HF_ENDPOINT and
+# Xet at their defaults (no HF_HUB_DISABLE_XET override) so any residual
+# download goes straight to HF, xet-backed repos included.
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 export PIP_CONSTRAINT="$(cd "$HERE/.." && pwd)/constraints-npu.txt"
