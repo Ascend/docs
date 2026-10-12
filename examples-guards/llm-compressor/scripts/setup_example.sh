@@ -22,8 +22,6 @@ ALIYUN_PIP_INDEX=https://mirrors.aliyun.com/pypi/simple/
 CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
 export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 export PIP_CONSTRAINT="$ROOT_DIR/constraints-npu.txt"
-# Official Hub. Do not point this at a mirror and do not disable Xet.
-export HF_ENDPOINT=https://huggingface.co
 
 pip_locked() {
   python -m pip install \
@@ -88,7 +86,11 @@ install_llmcompressor() {
   # datasets stays at llm-compressor's own floor (>=4.8.4). Do not
   # downgrade it; audio examples that need torchcodec are unsupported.
   pip_locked "modelscope==1.37.0" huggingface_hub safetensors
-  pip_locked -e "$TARGET_ROOT"
+  # setup.py defaults BUILD_TYPE to dev and then drops the release
+  # upper bounds. The engine checks out a release tag, so install
+  # that tag's capped set. Dev resolution on the first PR run pulled
+  # transformers 5.19, datasets 5.1 and auto-round 0.16.
+  BUILD_TYPE=release pip_locked -e "$TARGET_ROOT"
 }
 
 # from_pretrained on a planted id still asks the Hub for the real commit
@@ -98,7 +100,6 @@ emit_offline_hub() {
   export TRANSFORMERS_OFFLINE=1
   if [[ -n "${GITHUB_ENV:-}" ]]; then
     {
-      echo 'HF_ENDPOINT=https://huggingface.co'
       echo 'HF_HUB_OFFLINE=1'
       echo 'TRANSFORMERS_OFFLINE=1'
     } >> "$GITHUB_ENV"

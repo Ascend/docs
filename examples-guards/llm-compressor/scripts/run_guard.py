@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Run one upstream llm-compressor example and require NPU tensors.
 
-The example file is executed unchanged via runpy. This process only
-registers torch_npu, narrows string-dataset loads so a 32GiB cgroup is
-not filled with a full calibration corpus, and checks the resulting
-parameters landed on npu.
+The example file is executed unchanged via runpy. This process registers
+torch_npu, remembers the model passed to oneshot so the device check can
+see it, and checks the resulting parameters landed on npu. It does not
+resize the example's dataset or rewrite the example file.
 """
 
 from __future__ import annotations
@@ -52,8 +52,8 @@ def patch_accelerator_memory() -> None:
 SEEN_MODEL: dict[str, torch.nn.Module] = {}
 
 
-def patch_oneshot_splits() -> None:
-    """String dataset aliases without splits tokenize the whole corpus."""
+def remember_oneshot_model() -> None:
+    """Keep the model argument so the device check can see it later."""
     original = llmcompressor.oneshot
 
     def oneshot(*args, **kwargs):
@@ -62,12 +62,6 @@ def patch_oneshot_splits() -> None:
             model = args[0]
         if isinstance(model, torch.nn.Module):
             SEEN_MODEL["model"] = model
-        dataset = kwargs.get("dataset")
-        if isinstance(dataset, str) and not kwargs.get("splits"):
-            count = kwargs.get("num_calibration_samples") or 512
-            kwargs = dict(kwargs)
-            kwargs["splits"] = f"train[:{count}]"
-            print(f'LLM_COMPRESSOR_ONESHOT_SPLITS={kwargs["splits"]}')
         return original(*args, **kwargs)
 
     llmcompressor.oneshot = oneshot
@@ -115,7 +109,7 @@ def main() -> None:
     if not torch.npu.is_available():
         raise SystemExit("torch.npu.is_available() is false before the example")
     patch_accelerator_memory()
-    patch_oneshot_splits()
+    remember_oneshot_model()
     path = os.environ["EXAMPLE_PATH"]
     kind = os.environ["GUARD_KIND"]
     sys.argv = [path, *overlay_args()]

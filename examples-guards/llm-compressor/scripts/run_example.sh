@@ -28,9 +28,6 @@ export PATH="/usr/local/sbin:$PATH"
 # shellcheck disable=SC1091
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export ASCEND_RT_VISIBLE_DEVICES="${ASCEND_RT_VISIBLE_DEVICES:-0}"
-# This runner pool reaches huggingface.co. Leave Xet enabled; a mirror
-# endpoint 308-redirects namespace-less ids and cannot proxy Xet.
-export HF_ENDPOINT=https://huggingface.co
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-1}"
 export TORCHDYNAMO_DISABLE=1

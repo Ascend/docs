@@ -23,11 +23,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Bring-up phase: keep the schedule disabled until a few manual
-  # rounds are green (the cosdt-ci-test/workflows schedule stays the
-  # production guard meanwhile). Re-enable:
-  # schedule:
-  #   - cron: '45 */6 * * *'
+  # Daily at 04:00 Beijing time. accelerate-examples already owns
+  # 02:00 (0 18 * * *). 04:00 leaves 03:00 free. Not the source
+  # repo's every-6-hours cron: that would share the NPU pool with
+  # the old guard all day.
+  schedule:
+    - cron: '0 20 * * *'
   workflow_dispatch:
     inputs:
       target_ref:

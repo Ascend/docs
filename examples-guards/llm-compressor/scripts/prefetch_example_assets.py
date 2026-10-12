@@ -56,8 +56,6 @@ SKIP_NAMES = {".mdl", ".msc", ".mv"}
 
 
 def configure_hub() -> None:
-    os.environ["HF_ENDPOINT"] = "https://huggingface.co"
-    os.environ.pop("HF_HUB_DISABLE_XET", None)
     os.environ.setdefault("MODELSCOPE_CACHE", str(HUB_ROOT.parent / "modelscope"))
 
 
@@ -107,16 +105,54 @@ def weight_map_names(snap: Path) -> set[str] | None:
     return set(payload.get("weight_map", {}).values())
 
 
+def has_weights(snap: Path) -> bool:
+    """True when the snapshot holds a full weight set, not only config.json.
+
+    A gated Hub response can leave config.json and refs/main behind with
+    no shards. Treating that as a hit skips the ModelScope copy, and the
+    later offline from_pretrained then fails looking for the weights.
+    """
+    names = weight_map_names(snap)
+    if names:
+        return all(
+            (snap / name).is_file() and safetensors_header_ok(snap / name) is not False
+            for name in names
+        )
+    single = snap / "model.safetensors"
+    if single.is_file():
+        return safetensors_header_ok(single) is not False
+    if (snap / "pytorch_model.bin").is_file():
+        return True
+    shards = [path for path in snap.glob("*.safetensors") if path.is_file()]
+    if not shards:
+        return False
+    return all(safetensors_header_ok(path) is not False for path in shards)
+
+
 def model_ready(model_id: str) -> bool:
     snap = snapshot_path(model_id)
     if snap is None or not (snap / "config.json").is_file():
         return False
     if corrupt_shards(snap):
         return False
-    names = weight_map_names(snap)
-    if names is None:
-        return True
-    return all((snap / name).is_file() for name in names)
+    return has_weights(snap)
+
+
+def drop_weightless(model_id: str) -> None:
+    """Remove snapshots that have no weights, and a refs/main that points at one."""
+    root = repo_dir(model_id)
+    snapshots = root / "snapshots"
+    if snapshots.is_dir():
+        for snap in list(snapshots.iterdir()):
+            if snap.is_dir() and not has_weights(snap):
+                print(f"drop weightless snapshot {model_id}: {snap.name}", flush=True)
+                shutil.rmtree(snap, ignore_errors=True)
+    refs = root / "refs" / "main"
+    if not refs.is_file():
+        return
+    target = snapshots / refs.read_text()
+    if not target.is_dir():
+        refs.unlink(missing_ok=True)
 
 
 def purge_corrupt(model_id: str) -> None:
@@ -216,6 +252,8 @@ def require_model_tree(src: Path) -> None:
             "corrupt safetensors downloaded: "
             + ", ".join(path.relative_to(src).as_posix() for path in bad)
         )
+    if not has_weights(src):
+        raise RuntimeError(f"download has no weight files: {src}")
 
 
 def flatten_config(src: Path) -> Path:
@@ -265,6 +303,10 @@ def prefetch_model(model_id: str) -> None:
         print(f"cache hit {model_id}", flush=True)
         return
     purge_corrupt(model_id)
+    if model_ready(model_id):
+        print(f"cache hit {model_id} after purge", flush=True)
+        return
+    drop_weightless(model_id)
     gated = GATED_MODELSCOPE.get(model_id)
     if gated is not None:
         fetch_gated(model_id, gated)
