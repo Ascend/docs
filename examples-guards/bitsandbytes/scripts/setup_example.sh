@@ -124,7 +124,7 @@ setup_npu() {
   pip_ascend --no-deps torch_npu==2.10.0.post4
   install_bitsandbytes
   python -m pip install \
-    transformers accelerate huggingface_hub modelscope \
+    transformers accelerate huggingface_hub modelscope datasets \
     sentencepiece protobuf safetensors
   install_triton_ascend
   python "$HERE/assert_npu_stack.py"
