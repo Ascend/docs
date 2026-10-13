@@ -1,0 +1,76 @@
+# FunASR quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image, upstream repo, monitored doc
+# and the test entry command. The guard loop, cache I/O, state relay
+# and publishing all live in the engine. See the engine's
+# `workflow_call.inputs` block for the full input contract.
+#
+# Model downloads land in /root/.cache/modelscope: no explicit bind
+# mount is needed because NFS already mounts /root/.cache (same setup
+# as the modelscope / peft / comfyui triggers).
+
+name: funasr-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'funasr-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Daily: '30 4 * * *' fires at 04:30 UTC (12:30 北京时间). FunASR
+    # releases on its own schedule, so a once-a-day audit is enough for
+    # doc fixes to propagate within a day.
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/funasr/**'
+      - 'tests/funasr/**'
+
+permissions:
+  contents: read
+
+jobs:
+  funasr-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-funasr-*), artifacts
+      # (funasr-quick-start-<run_id>) and the test working dir
+      # (tests/funasr).
+      project: funasr
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # 2 h budget: cold run reuses the image torch stack + source
+      # installs funasr at the latest release tag (git clone + uv pip
+      # install -e .) + pulls ~3.3 GB of FunASR models from ModelScope
+      # (paraformer-zh / SenseVoiceSmall / fsmn-vad / ct-punc / cam++ /
+      # paraformer-zh-streaming / emotion2vec_plus_large, warm after the
+      # first run via the NFS-mounted /root/.cache) + 5 NPU smokes.
+      timeout_minutes: 120
+      upstream_repo: modelscope/FunASR
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/funasr/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/funasr/quick_start.md
+      # cwd is the repo root inside the checkout; env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.funasr.test_quick_start_ascend -v 2>&1
