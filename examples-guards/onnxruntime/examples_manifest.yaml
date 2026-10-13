@@ -33,82 +33,153 @@ supported:
       - ${TARGET_ROOT}/quantization/image_classification/cpu/test_images
     timeout_minutes: 30
 unsupported:
-  # Other Python inference samples. CUDA / OpenVINO / Azure / TensorRT.
+  # create_hybrid_model.py builds an AzureTritonInvoker node and writes yolo_azure_proxy.onnx. The file says AzureExecutionProvider ops need onnxruntime-extensions.
   - python/AzureEP/create_hybrid_model.py
+  # tiny_yolov2_obj_detection_sample.py calls add_openvino_libs_to_path() and InferenceSession(..., providers=['OpenVINOExecutionProvider']).
   - python/OpenVINO_EP/tiny_yolo_v2_object_detection/tiny_yolov2_obj_detection_sample.py
+  # yolov4.py calls add_openvino_libs_to_path() and InferenceSession(..., providers=['OpenVINOExecutionProvider']).
   - python/OpenVINO_EP/yolov4_object_detection/yolov4.py
+  # compile_api.py defaults --provider to NvTensorRTRTXExecutionProvider and compiles with session_options.add_provider.
   - python/api/compile_api.py
+  # device_bindings.py calls OrtValue.ortvalue_from_numpy(..., 'gpu', ...) and bind_input(..., device_type="gpu").
   - python/api/device_bindings.py
+  # export.py only runs BertForQuestionAnswering.from_pretrained("bert-large-uncased-whole-word-masking-finetuned-squad") and torch.onnx.export. It never creates an InferenceSession.
   - python/azureml/export.py
+  # score.py sets model_dir = os.getenv('AZUREML_MODEL_DIR') and loads the session from that Azure ML deploy path.
   - python/azureml/score.py
+  # aml_submit_mistral_inference.py constructs azure.ai.ml.MLClient with AzureCliCredential and submits an Azure ML command job.
   - python/models/mistral/aml_submit_mistral_inference.py
+  # replace_fp64.py only rewrites FP64 initializers to FP32 via convert_fp64_to_fp32. It takes input_dir and output_dir and opens no session.
   - python/models/stable_difusion/replace_fp64.py
+  # run_sd.py defaults --execution_provider to NvTensorRTRTXExecutionProvider and times the run with torch.cuda.Event.
   - python/models/stable_difusion/run_sd.py
-  # Quantization helpers and CUDA / TensorRT / MIGraphX quantizers.
+  # resnet50_data_reader.py defines class ResNet50DataReader and has no __main__. run.py imports it.
   - quantization/image_classification/cpu/resnet50_data_reader.py
+  # run_qdq_debug.py requires --float_model and --qdq_model, then calls qdq_loss_debug.collect_activations to compare the two models.
   - quantization/image_classification/cpu/run_qdq_debug.py
+  # e2e_migraphx_resnet_example.py sets execution_provider to ["MIGraphXExecutionProvider"] and calibrator.set_execution_providers(["ROCMExecutionProvider"]).
   - quantization/image_classification/migraphx/resnet50/e2e_migraphx_resnet_example.py
+  # e2e_tensorrt_resnet_example.py sets ORT_TENSORRT_INT8_ENABLE=1, execution_provider ["TensorrtExecutionProvider"], and calibrator.set_execution_providers(["CUDAExecutionProvider"]).
   - quantization/image_classification/trt/resnet50/e2e_tensorrt_resnet_example.py
+  # evaluation/main.py builds ORTCausalLM from --model_args, whose help text is a folder of a pre-trained ONNX model. That folder is not in the repo.
   - quantization/language_model/evaluation/main.py
+  # ort_lm.py defines class ORTCausalLM and has no __main__. Its device_list is ["cuda", "cpu"] plus cuda:{i}, and the fallback is torch.device("cuda") when CUDA is available.
   - quantization/language_model/evaluation/ort_lm.py
+  # data_utils.py defines get_example_inputs(device) and get_dummy_inputs(device). It has no __main__ and is imported by generate_inputs.py.
   - quantization/language_model/gpt2/data_utils.py
+  # generate_inputs.py calls data_utils.get_example_inputs(..., device="cpu") to write calibration tensors. It opens no InferenceSession.
   - quantization/language_model/gpt2/generate_inputs.py
+  # gpt2_input_reader.py defines class Gpt2InputReader(CalibrationDataReader) and has no __main__. run_qdq.py imports it.
   - quantization/language_model/gpt2/gpt2_input_reader.py
+  # run_qdq.py calls quantize_static with QuantFormat.QDQ. Its default --input_model is gpt2_medium_fp32_preprocessed.onnx, which is not in this directory.
   - quantization/language_model/gpt2/run_qdq.py
+  # run_qdq_debug.py requires --qdq_model and calls qdq_loss_debug.collect_activations. The default calibration dir ./test_input is not in this directory.
   - quantization/language_model/gpt2/run_qdq_debug.py
+  # smooth_quant/main.py imports intel_extension_for_transformers and, when --quantize is set, calls quantize_static with extra_options {"SmoothQuant": True}. --model_input is an external ONNX folder.
   - quantization/language_model/llama/smooth_quant/main.py
+  # weight_only_quant/main.py imports intel_extension_for_transformers. --algorithm chooses RTNWeightOnlyQuantConfig or GPTQWeightOnlyQuantConfig, then MatMul4BitsQuantizer. --model_input is an external ONNX folder.
   - quantization/language_model/llama/weight_only_quant/main.py
+  # migraphx/data_processing.py is the SQuAD feature converter imported as data_processing by e2e_migraphx_bert_example.py. It has no __main__.
   - quantization/nlp/bert/migraphx/data_processing.py
+  # e2e_migraphx_bert_example.py defaults --ep to MIGraphX, which becomes MIGraphXExecutionProvider. The other choice is ROCMExecutionProvider.
   - quantization/nlp/bert/migraphx/e2e_migraphx_bert_example.py
+  # evaluate-v1.1.py prints "&&&& FAILED MIGraphX BERT Squad Accuracy matches reference." e2e_migraphx_bert_example.py subprocess-calls it on prediction.json.
   - quantization/nlp/bert/migraphx/squad/evaluate-v1.1.py
+  # evaluate-v2.0.py is argparse described as "Official evaluation script for SQuAD version 2.0." e2e_migraphx_bert_example.py subprocess-calls it. It opens no session.
   - quantization/nlp/bert/migraphx/squad/evaluate-v2.0.py
+  # migraphx/tokenization.py defines BertTokenizer and BasicTokenizer. data_processing.py imports it. It has no __main__.
   - quantization/nlp/bert/migraphx/tokenization.py
+  # trt/data_processing.py is the SQuAD feature converter imported as data_processing by e2e_tensorrt_bert_example.py. It has no __main__.
   - quantization/nlp/bert/trt/data_processing.py
+  # e2e_tensorrt_bert_example.py sets ORT_TENSORRT_INT8_ENABLE=1 and InferenceSession(..., providers=["TensorrtExecutionProvider", "CUDAExecutionProvider"]).
   - quantization/nlp/bert/trt/e2e_tensorrt_bert_example.py
+  # evaluate-v1.1.py prints "&&&& FAILED TensorRT BERT Squad Accuracy matches reference." e2e_tensorrt_bert_example.py subprocess-calls it on prediction.json.
   - quantization/nlp/bert/trt/squad/evaluate-v1.1.py
+  # evaluate-v2.0.py is argparse described as "Official evaluation script for SQuAD version 2.0." The TensorRT example's subprocess call of this script is commented out. It opens no session.
   - quantization/nlp/bert/trt/squad/evaluate-v2.0.py
+  # trt/tokenization.py defines BertTokenizer. e2e_tensorrt_bert_example.py imports it. It has no __main__.
   - quantization/nlp/bert/trt/tokenization.py
+  # coco_filter.py defines class CocoFilter. Its argparse description is "Filter COCO JSON". It opens no session.
   - quantization/object_detection/trt/yolov3/coco_filter.py
+  # data_reader.py defines class YoloV3DataReader(CalibrationDataReader) and has no __main__. e2e_user_yolov3_example.py imports it.
   - quantization/object_detection/trt/yolov3/data_reader.py
+  # e2e_user_yolov3_example.py sets ORT_TENSORRT_INT8_ENABLE=1, execution_provider ["TensorrtExecutionProvider"], and calibrator.set_execution_providers(["CUDAExecutionProvider"]).
   - quantization/object_detection/trt/yolov3/e2e_user_yolov3_example.py
+  # evaluate.py defaults YoloV3Evaluator, YoloV3VariantEvaluator, YoloV3Variant2Evaluator, and YoloV3Variant3Evaluator to providers=["CUDAExecutionProvider"].
   - quantization/object_detection/trt/yolov3/evaluate.py
+  # postprocessing.py defines class PostprocessYOLO. Its docstring says it takes outputs from a TensorRT forward pass. It has no __main__.
   - quantization/object_detection/trt/yolov3/postprocessing.py
+  # preprocessing.py defines yolov3_preprocess_func and copies the image resize from tensorrt_demos. It has no __main__.
   - quantization/object_detection/trt/yolov3/preprocessing.py
+  # bert_imdb_finetune_qat.py calls quantize_bert_model. eval_onnx_model defaults providers=["CUDAExecutionProvider"].
   - quantization/qat/transformer_qat/bert_imdb_finetune_qat.py
+  # qat_bert.py defines QAwareBertSelfAttention and quantize_bert_model. bert_imdb_finetune_qat.py imports it. It has no __main__.
   - quantization/qat/transformer_qat/qat_bert.py
+  # qat_utils.py defines QAwareLinear and QatActivationLayout. qat_bert.py imports it. It has no __main__.
   - quantization/qat/transformer_qat/qat_utils.py
-  # C++ / C# helpers that happen to be .py
+  # mobilenetv2_helper.py calls get_qnn_qdq_config and quantize(..., qnn_config). The input it loads, mobilenetv2-12.onnx, is not in this directory.
   - c_cxx/QNN_EP/mobilenetv2_classification/mobilenetv2_helper.py
+  # to_fp16.py converts one ONNX file with onnxconverter_common.float16. It is the FP16 prep step for the QNN sample, and it opens no session.
   - c_cxx/QNN_EP/mobilenetv2_classification/to_fp16.py
+  # kernelone.py writes custom_kernel_one_model.onnx with a CustomOpOne node in domain "v1". example.cc is what loads that file.
   - c_cxx/customop/kernelone.py
+  # convert_to_fp16.py calls onnx.load("candy.onnx"). candy.onnx is not in this directory.
   - c_cxx/ort_tutorial/20_devicetensors-datatransfer/convert_to_fp16.py
+  # convert_to_fp16.py calls onnx.load("candy.onnx"). candy.onnx is not in this directory. The sibling main.cpp includes cuda_runtime.h and registers the Cuda provider.
   - c_cxx/ort_tutorial/30_syncstreams-cuda/convert_to_fp16.py
+  # augment_model.py loads mobilenetv2-12.onnx, which is not in this directory, and wraps it with onnxruntime_extensions PreMobileNet.
   - c_sharp/image_classification/model/augment_model.py
+  # test_base_model.py runs InferenceSession('mobilenetv2-12.onnx'). That file is not in this directory.
   - c_sharp/image_classification/model/test_base_model.py
+  # test_model.py runs InferenceSession('mobilenetv2-12-aug.onnx') on kimono.jpg. The augmented model is not in this directory.
   - c_sharp/image_classification/model/test_model.py
-  # Mobile / plugin / CI utilities
+  # single_add_gen.py only builds an Add graph and onnx.save's it to single_add.onnx. It opens no session.
   - mobile/examples/basic_usage/model/single_add_gen.py
+  # prepare_models.py downloads "MobileNet v2-1.0-int8" via onnx.hub for the Android sample. Its README runs it with --output_dir ./app/src/main/res/raw.
   - mobile/examples/image_classification/android/prepare_models.py
+  # prepare_model.py downloads csarron/mobilebert-uncased-squad-v2 and writes app/src/main/res/raw/csarron_mobilebert_uncased_squad_v2.onnx for the Android sample.
   - mobile/examples/question_answering/android/prepare_model.py
+  # wav2vec2_gen.py loads Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-base-960h") and import_huggingface_model. It is the iOS demo exporter and opens no session.
   - mobile/examples/speech_recognition/model/wav2vec2_gen.py
+  # real_esrgan_ort_e2e.py loads weights/RealESRGAN_x4.pth via RealESRGAN. That weights file is not in this directory.
   - mobile/examples/super_resolution/MAUI/real_esrgan_ort_e2e.py
+  # gen_mul_model.py writes a Mul ONNX with onnxscript. example_usage.py is what runs the session.
   - plugin_execution_providers/basic/gen_mul_model.py
+  # example_usage.py calls ort.register_execution_provider_library on basic_ep.get_library_path(), then add_provider_for_devices.
   - plugin_execution_providers/basic/python/example_usage/example_usage.py
+  # __init__.py looks for basic_plugin_ep.dll or libbasic_plugin_ep.so and returns "BasicPluginExecutionProvider". Neither library is in this directory.
   - plugin_execution_providers/basic/python/onnxruntime_ep_basic/__init__.py
+  # setup.py asserts os.environ["BASIC_PLUGIN_EP_LIBRARY_PATH"] points at the plugin EP library, then packages that file.
   - plugin_execution_providers/basic/python/setup.py
+  # ci_build/python/__init__.py is an empty file.
   - ci_build/python/__init__.py
+  # run_android_emulator.py requires --android-sdk-root and starts an AVD. The default system image is system-images;android-31;default;x86_64.
   - ci_build/python/run_android_emulator.py
+  # ci_build/python/util/__init__.py is an empty file.
   - ci_build/python/util/__init__.py
+  # android/__init__.py only re-exports create_virtual_device, start_emulator, and stop_emulator from android.py.
   - ci_build/python/util/android/__init__.py
+  # android.py resolves sdk_root/emulator/emulator and start_emulator launches that binary.
   - ci_build/python/util/android/android.py
+  # logger.py only defines get_logger. It has no __main__.
   - ci_build/python/util/logger.py
+  # platform_helpers.py only defines is_windows, is_macOS, and is_linux. It has no __main__.
   - ci_build/python/util/platform_helpers.py
+  # run.py only defines run(), a subprocess wrapper. It has no __main__.
   - ci_build/python/util/run.py
+  # tools/python/__init__.py is an empty file.
   - tools/python/__init__.py
+  # tools/python/run_android_emulator.py requires --android-sdk-root and starts an AVD. The default system image is system-images;android-31;default;x86_64.
   - tools/python/run_android_emulator.py
+  # tools/python/util/__init__.py only re-exports get_logger, is_linux, is_macOS, is_windows, and run.
   - tools/python/util/__init__.py
+  # android/__init__.py only re-exports create_virtual_device, start_emulator, and stop_emulator from android.py.
   - tools/python/util/android/__init__.py
+  # android.py resolves sdk_root/emulator/emulator and start_emulator launches that binary.
   - tools/python/util/android/android.py
+  # logger.py only defines get_logger. It has no __main__.
   - tools/python/util/logger.py
+  # platform_helpers.py only defines is_windows, is_macOS, and is_linux. It has no __main__.
   - tools/python/util/platform_helpers.py
+  # run.py only defines run(), a subprocess wrapper. It has no __main__.
   - tools/python/util/run.py
