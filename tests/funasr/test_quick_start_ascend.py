@@ -79,10 +79,11 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     # Cold run: git clone + ~3.3 GB of model downloads (7 checkpoints)
     # + 5 inferences. Each #test block is individually bounded by
-    # DEFAULT_COMMAND_TIMEOUT; 20 min per block leaves room for the
-    # heaviest single block (paraformer pipeline, 4 models) on a slow
-    # egress link.
-    DEFAULT_COMMAND_TIMEOUT = 1200
+    # DEFAULT_COMMAND_TIMEOUT; the first-run cold download of a single
+    # large checkpoint (e.g. SenseVoiceSmall's 936 MB model.pt) can
+    # crawl at <1 MB/s on a throttled ModelScope CDN, so 60 min per
+    # block matches the modelscope project's cold-download budget.
+    DEFAULT_COMMAND_TIMEOUT = 3600
 
     # Monitored source is the Ascend/docs repo: the doc lives at
     # sources/funasr/quick_start.md and the engine sets MONITORED_DOC_URL

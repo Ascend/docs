@@ -57,13 +57,15 @@ jobs:
       # GitHub-hosted ubuntu-latest.
       test_runner: '["linux-aarch64-a2-1"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-      # 2 h budget: cold run reuses the image torch stack + source
+      # 4 h budget: cold run reuses the image torch stack + source
       # installs funasr at the latest release tag (git clone + uv pip
       # install -e .) + pulls ~3.3 GB of FunASR models from ModelScope
       # (paraformer-zh / SenseVoiceSmall / fsmn-vad / ct-punc / cam++ /
       # paraformer-zh-streaming / emotion2vec_plus_large, warm after the
-      # first run via the NFS-mounted /root/.cache) + 5 NPU smokes.
-      timeout_minutes: 120
+      # first run via the NFS-mounted /root/.cache) + 5 NPU smokes. The
+      # cold download is throttled to <1 MB/s on some ModelScope CDN
+      # nodes, so the total budget must cover several 1 GB checkpoints.
+      timeout_minutes: 240
       upstream_repo: modelscope/FunASR
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
       # engine: PR head SHA on PR runs, 'main' otherwise.
