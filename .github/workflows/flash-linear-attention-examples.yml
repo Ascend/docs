@@ -3,21 +3,26 @@
 # Calls the common engine .github/workflows/examples-template.yml;
 # this file only declares what varies per project: schedule,
 # concurrency, upstream repo, dispatch input forwarding, and matrix
-# parallelism. The guard loop (release-only monitor / manifest-check /
-# run-example matrix / validate-results / save-monitor-state) lives in the
-# engine. The guarded example is project-owned
+# parallelism. The guard loop (release + workflow-files monitor /
+# manifest-check / run-example matrix / validate-results /
+# save-monitor-state) lives in the engine. See examples-guards/README.md
+# for the design. The guarded example is project-owned
 # (examples-guards/flash-linear-attention/example/train_text.py), run
 # against the upstream release installed from the target checkout.
 
 name: flash-linear-attention-examples
 
 concurrency:
-  # schedule runs serialize; each manual run gets its own group so a
-  # dispatch is never blocked behind a scheduled run.
-  group: ${{ github.event_name == 'schedule' && 'flash-linear-attention-examples-schedule' || format('manual-{0}', github.run_id) }}
-  # false: a run cancelled mid-way loses its outcome writeback, and the
-  # outcome is what drives the next cycle's retry.
-  cancel-in-progress: false
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'flash-linear-attention-examples-schedule' || (github.event_name == 'pull_request' && format('flash-linear-attention-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
   # Daily at 02:00 Beijing time (UTC 18:00). The engine's monitor gates
@@ -32,6 +37,20 @@ on:
         required: false
         default: ''
         type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files, as the
+  # quick-start triggers do: a PR that touches only the shared engine,
+  # scripts or schema starts no project's matrix.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/flash-linear-attention/**'
+      - '.github/workflows/flash-linear-attention-examples.yml'
 
 # Engine jobs query the GitHub Job API (validate-results); called
 # workflows run with the caller's GITHUB_TOKEN permissions.
