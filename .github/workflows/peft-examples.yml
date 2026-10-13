@@ -23,11 +23,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Bring-up phase: keep the schedule disabled until a few manual
-  # rounds are green (the cosdt-ci-test/workflows schedule stays the
-  # production guard meanwhile). Re-enable:
-  # schedule:
-  #   - cron: '30 */6 * * *'
+  # Daily at 07:00 Beijing time (UTC 23:00). A scheduled run only runs
+  # the matrix when the monitor sees a reason: a new upstream release,
+  # a changed file of this project's guard, or a failed previous run to
+  # retry. Otherwise it ends after the monitor job.
+  schedule:
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       target_ref:
