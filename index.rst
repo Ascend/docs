@@ -498,6 +498,13 @@
          <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/index.html">快速上手</a></div>
       </div>
 
+      <!-- EvalScope -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">EvalScope</h3></div>
+         <p class="card-desc">ModelScope 开源大模型评测框架。本文在单卡 910B 上对 Qwen2.5-0.5B-Instruct 跑 GSM8K 与 ARC。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/evalscope">官方链接</a><span class="split">|</span><a href="sources/evalscope/index.html">快速上手</a></div>
+      </div>
+
       <!-- Open CLIP -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">open_clip</h3></div>
@@ -651,6 +658,7 @@
    sources/Diffusers/index.rst
    sources/xdit/index.rst
    sources/diffsynth_studio/index.rst
+   sources/evalscope/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
