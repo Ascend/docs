@@ -46,12 +46,6 @@ supported:
     npu_devices: '0'
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 180
-  - path: examples/multimodal_vision/gemma3_example.py
-    profile: npu_oneshot
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    timeout_minutes: 180
   - path: examples/multimodal_vision/idefics3_example.py
     profile: npu_oneshot
     runner: linux-aarch64-a2-1
@@ -209,143 +203,514 @@ supported:
     npu_devices: '0,1'
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 180
+
+# unsupported 每个条目上方都写明了不支持的原因。
+# 显存与内存上限取 910B4 单卡 32GB 显存与容器 32GiB 内存，数值来自源仓实测，香港池本轮迁移尚未复核。
 unsupported:
-  # 技能模板，正文是占位符，不是可运行 example。上游目录已从 .claude 改名为 .agents。
+
+  # 技能模板，不是可运行示例：第 3 行 MODEL_ID 与量化方案都是尖括号占位符，没有真实模型。
+  # 上游目录已从 .claude 改名为 .agents。
   - examples/.agents/skills/fp8/templates/model_free_ptq.py
+
+  # 技能模板，不是可运行示例：第 7 行 MODEL_ID 与量化方案都是尖括号占位符，没有真实模型。
+  # 上游目录已从 .claude 改名为 .agents。
   - examples/.agents/skills/fp8/templates/oneshot.py
+
+  # 技能模板，不是可运行示例：第 8 行 MODEL_ID 与量化方案都是尖括号占位符，没有真实模型。
+  # 上游目录已从 .claude 改名为 .agents。
   - examples/.agents/skills/templates/oneshot_with_data.py
-  # 脚本写死 cuda。不改 example 文件就无法把设备换成 npu。
+
+  # 第 115 行把输入张量直接搬到 cuda 设备。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/awq/qwen3-vl-30b-a3b-Instruct-example.py
+
+  # 第 57 行用 torch.device 直接指定 cuda 设备 0。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/imatrix/llama3_nvfp4_imatrix_example_ddp.py
+
+  # 第 37 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/deepseek_r1_nvfp4_fp8_block.py
+
+  # 第 14 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/gemma4_fp8_block.py
+
+  # 第 19 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/glm_4.6_fp8_block.py
+
+  # 第 27 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/glm_5_3_mxfp4.py
+
+  # 第 34 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/kimi_k26_fp8_block.py
+
+  # 第 21 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/kimi_k2_thinking_fp8_block.py
+
+  # 第 19 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/kimi_k2_thinking_nvfp4a16.py
+
+  # 第 32 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/kimi_k3_fp8_block.py
+
+  # 第 12 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/muse_glimmer_fp8_block.py
+
+  # 第 22 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/nemotron_3_ultra.py
+
+  # 第 23 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/qwen3.5_int8.py
+
+  # 第 18 行给 model_free_ptq 显式传入 cuda 设备。库在 model_free/__init__.py 第 132 行的 _resolve_devices 里，设备为空时也按 cuda 编号构造设备，写死 cuda。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/model_free_ptq/qwen3_fp8_block.py
+
+  # 第 60 行把输入张量直接搬到 cuda 设备。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/multimodal_vision/medgemma_example.py
+
+  # 第 30 行把输入张量直接搬到 cuda 设备。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/quantization_w8a8_fp8/granite4_example.py
+
+  # 第 29 行把输入张量直接搬到 cuda 设备。
+  # 写死 cuda，不改示例文件就无法换成 npu。
   - examples/quantization_w8a8_fp8/qwen_2_5_vl_example.py
-  # 校准或抽检要解码音频。datasets 4 只认 torchcodec。PyPI 上 aarch64 的 torchcodec 0.11 到 0.16 都链接 libtorch_cuda.so、libcudart.so.13、libnvrtc.so.13，在 CPU torch 加 torch_npu 的栈上加载失败。
+
+  # 模型 Qwen/Qwen2-Audio-7B-Instruct，第 14 行起要读取并解码音频样本。datasets 4 解码音频只认 torchcodec。
+  # PyPI 上 aarch64 的 torchcodec 0.11 到 0.16 都链接 libtorch_cuda.so、libcudart.so.13、libnvrtc.so.13，在 CPU torch 加 torch_npu 的栈上加载失败。该结论取自源仓实测。
   - examples/multimodal_audio/qwen2_audio.py
+
+  # 模型 openai/whisper-large-v3，第 24 行起要读取并解码音频样本。datasets 4 解码音频只认 torchcodec。
+  # PyPI 上 aarch64 的 torchcodec 0.11 到 0.16 都链接 libtorch_cuda.so、libcudart.so.13、libnvrtc.so.13，在 CPU torch 加 torch_npu 的栈上加载失败。该结论取自源仓实测。
   - examples/multimodal_audio/whisper_example.py
+
+  # 模型 openai/whisper-large-v2，第 33 行起要读取并解码音频样本。datasets 4 解码音频只认 torchcodec。
+  # PyPI 上 aarch64 的 torchcodec 0.11 到 0.16 都链接 libtorch_cuda.so、libcudart.so.13、libnvrtc.so.13，在 CPU torch 加 torch_npu 的栈上加载失败。该结论取自源仓实测。
   - examples/quantization_w8a8_fp8/whisper_example.py
-  # 权重大于单机 32GiB 限额，或从模型名无法确认能放进该限额。
+
+  # 模型 Qwen/Qwen3-235B-A22B-Instruct-2507，权重 437.9 GiB，约 235.1 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/ddp/ddp_qwen3_moe_example.py
+
+  # 模型 meta-llama/Llama-3.3-70B-Instruct，权重 131.4 GiB，约 70.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_attention/llama3_3_quantize_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B-Instruct-2507，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_attention/qwen3_moe_quantize_example.py
+
+  # 模型 meta-llama/Llama-4-Scout-17B-16E-Instruct，权重 202.4 GiB，约 108.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_w8a8_fp8/llama4_dynamic_quant_example.py
+
+  # 模型 meta-llama/Llama-4-Scout-17B-16E-Instruct，权重 202.4 GiB，约 108.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_w8a8_fp8/llama4_static_quant_example.py
+
+  # 模型 Qwen/Qwen3-235B-A22B，权重 437.9 GiB，约 235.1 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_wNa16/qwen3_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B-Instruct-2507，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/autoround/quantization_wNa16/qwen3_moe_example_mixed_w2a16_w4a16.py
+
+  # 模型 Qwen/Qwen3-Coder-30B-A3B-Instruct，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/qwen3_coder_moe_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/qwen3_moe_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/qwen3_moe_example_ddp.py
+
+  # 模型 Qwen/Qwen3-Next-80B-A3B-Thinking，权重 151.5 GiB，约 81.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/qwen3_next_example.py
+
+  # 模型 Qwen/Qwen3-Next-80B-A3B-Thinking，权重 151.5 GiB，约 81.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/qwen3_next_thinking_example.py
+
+  # 模型 stepfun-ai/Step-3.5-Flash，权重 371.4 GiB，约 199.4 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/awq/step3p5_example.py
+
+  # 模型 meta-llama/Llama-3.3-70B-Instruct，权重 131.4 GiB，约 70.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/big_models_with_sequential_onloading/llama3.3_70b.py
+
+  # 模型 deepseek-ai/DeepSeek-V3.2，权重 642.1 GiB，约 685.4 十亿参数。
+  # 示例按 500GB 内存设计，max_memory 里 cpu 取 500e9，本机容器只有 32GiB，权重也远超 910B4 单卡 32GB 显存。
   - examples/disk_offloading/deepseek_v32_example.py
+
+  # 模型 moonshotai/Kimi-K2.6，权重 554.3 GiB，约 1026.9 十亿参数。
+  # 示例按 500GB 内存设计，max_memory 里 cpu 取 500e9，本机容器只有 32GiB，权重也远超 910B4 单卡 32GB 显存。
   - examples/disk_offloading/kimi_k26_example.py
+
+  # 模型 unsloth/Kimi-K2-Instruct-0905-BF16，权重 1911.8 GiB，约 1026.4 十亿参数。
+  # 示例靠 auto_offload 把放不下的部分写到磁盘，仍要处理这份 BF16 权重，远超 910B4 单卡 32GB 显存与容器 32GiB 内存。
   - examples/disk_offloading/kimi_k2_example.py
+
+  # 模型 zai-org/GLM-5.3-Flash，权重 305.8 GiB，约 321.3 十亿参数。
+  # 示例走 model_free_ptq 且没有指定设备，库在 model_free/__init__.py 第 132 行的 _resolve_devices 里按 cuda 编号构造设备，写死 cuda。权重也远超 910B4 单卡 32GB 显存。
   - examples/model_free_ptq/decompress_glm53_flash.py
+
+  # 模型 MiniMaxAI/MiniMax-M2.7，权重 214.3 GiB，约 228.7 十亿参数。
+  # 示例走 model_free_ptq 且没有指定设备，库在 model_free/__init__.py 第 132 行的 _resolve_devices 里按 cuda 编号构造设备，写死 cuda。权重也远超 910B4 单卡 32GB 显存。
   - examples/model_free_ptq/minimax_m27_w4a16.py
+
+  # 模型 google/gemma-4-31B-it，权重 58.3 GiB，约 31.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/multimodal_vision/gemma4_example.py
+
+  # 模型 meta-llama/Llama-4-Scout-17B-16E-Instruct，权重 202.4 GiB，约 108.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/multimodal_vision/llama4_example.py
+
+  # 模型 mistralai/Mistral-Small-3.1-24B-Instruct-2503，权重 89.4 GiB，约 24.0 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/multimodal_vision/mistral3_example.py
+
+  # 模型 meta-llama/Llama-3.2-11B-Vision-Instruct，权重 19.9 GiB，约 10.7 十亿参数，单看权重放得下 32GiB 容器内存。
+  # 示例是 GPTQ 方案 W4A16，校准阶段还要额外内存，放不放得下没有实测过。源仓清单按体积不确定归入此类，从未在真机验证。
+  # 本轮迁移不放回，放回前需要在香港真机逐条实跑。
   - examples/multimodal_vision/mllama_example.py
+
+  # 模型 mgoin/pixtral-12b，权重 23.6 GiB，约 12.7 十亿参数，单看权重放得下 32GiB 容器内存。
+  # 示例是 GPTQ 方案 W4A16，校准阶段还要额外内存，放不放得下没有实测过。源仓清单按体积不确定归入此类，从未在真机验证。
+  # 本轮迁移不放回，放回前需要在香港真机逐条实跑。
   - examples/multimodal_vision/pixtral_example.py
+
+  # 模型 Qwen/Qwen3-Omni-30B-A3B-Instruct，权重 65.7 GiB，约 35.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/multimodal_vision/qwen3_omni_example.py
+
+  # 模型 Qwen/Qwen3.8-27B，权重 51.7 GiB，约 27.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a16/qwen3_8_gptq_awq_example.py
+
+  # 模型 Qwen/Qwen3.5-27B，权重 51.7 GiB，约 27.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a16_fp4/mxfp4/qwen3.5_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a16_fp4/mxfp4/qwen3_example.py
+
+  # 模型 google/gemma-4-E4B-it，权重 14.9 GiB，约 8.0 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 22 行方案 NVFP4A16，缩放因子存成 float8_e4m3fn。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a16_fp4/nvfp4/gemma4_example.py
+
+  # 模型 Qwen/Qwen3.5-27B，权重 51.7 GiB，约 27.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a16_fp4/nvfp4/qwen3.5_example.py
+
+  # 模型 Qwen/Qwen3-32B，权重 61.0 GiB，约 32.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a16_fp4/nvfp4/qwen3_example.py
+
+  # 模型 google/gemma-4-26B-A4B-it，权重 48.1 GiB，约 25.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/gemma4_example.py
+
+  # 模型 tencent/Hy3，权重 556.5 GiB，约 298.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/hy3_example.py
+
+  # 模型 meta-llama/Llama-4-Scout-17B-16E-Instruct，权重 202.4 GiB，约 108.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/llama4_example.py
+
+  # 模型 JetBrains/Mellum2-12B-A2.5B-Thinking，权重 22.6 GiB，约 12.1 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 19 行方案 NVFP4，缩放因子存成 float8_e4m3fn。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a4_fp4/mellum2_example.py
+
+  # 模型 Qwen/Qwen3.5-122B-A10B，权重 233.0 GiB，约 125.1 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen3_5_example.py
+
+  # 模型 Qwen/Qwen3.6-35B-A3B，权重 67.0 GiB，约 36.0 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen3_6_example.py
+
+  # 模型 Qwen/Qwen3.8-27B，权重 51.7 GiB，约 27.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen3_8_gptq_awq_example.py
+
+  # 模型 Qwen/Qwen3-Next-80B-A3B-Instruct，权重 151.5 GiB，约 81.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen3_next_example.py
+
+  # 模型 Qwen/Qwen3-VL-235B-A22B-Instruct，权重 439.0 GiB，约 235.7 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen3_vl_moe_w4a4_fp4.py
+
+  # 模型 Qwen/Qwen3-30B-A3B，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/qwen_30b_a3b.py
+
+  # 模型 arcee-ai/Trinity-Large-Thinking，权重 742.5 GiB，约 398.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_fp4/trinity_large_nvfp4.py
+
+  # 模型 Qwen/Qwen3.8-27B，权重 51.7 GiB，约 27.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w4a4_mxfp4/qwen3_8_gptq_awq_example.py
+
+  # 模型 Qwen/Qwen3-30B-A3B，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/fp8_block_example.py
+
+  # 模型 google/gemma-2-27b-it，权重 50.7 GiB，约 27.2 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/gemma2_example.py
+
+  # 模型 google/gemma-4-12B-it，权重 22.3 GiB，约 12.0 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 23 行方案 FP8_DYNAMIC。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/gemma4_12b_fp8_rtn.py
+
+  # 模型 google/gemma-4-26B-A4B-it，权重 48.1 GiB，约 25.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/gemma4_example.py
+
+  # 模型 meta-llama/Llama-3.2-11B-Vision-Instruct，权重 19.9 GiB，约 10.7 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 19 行方案 FP8_DYNAMIC。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/llama3.2_vision_example.py
+
+  # 模型 meta-llama/Llama-4-Scout-17B-16E-Instruct，权重 202.4 GiB，约 108.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/llama4_fp8_block_example.py
+
+  # 模型 JetBrains/Mellum2-12B-A2.5B-Thinking，权重 22.6 GiB，约 12.1 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 18 行方案 FP8_DYNAMIC。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/mellum2_example.py
+
+  # 模型 nvidia/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16，权重 61.3 GiB，约 31.6 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/nemotron_3_5_lightning_example.py
+
+  # 模型 Qwen/Qwen3-Next-80B-A3B-Instruct，权重 151.5 GiB，约 81.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/qwen3_next_example.py
+
+  # 模型 Qwen/Qwen3-VL-235B-A22B-Instruct，权重 439.0 GiB，约 235.7 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantization_w8a8_fp8/qwen3_vl_moe_fp8_example.py
+
+  # 模型 unsloth/DeepSeek-R1-0528-BF16，权重 1275.0 GiB，约 684.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/deepseek_r1_example.py
+
+  # 模型 RedHatAI/DeepSeek-V4-Flash-BF16，权重 529.7 GiB，约 284.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/deepseek_v4_example.py
+
+  # 模型 RedHatAI/DeepSeek-V4-Flash-BF16，权重 529.7 GiB，约 284.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/deepseek_v4_mixed_mxfp4_mxfp8.py
+
+  # 模型 zai-org/GLM-4.7，权重 667.5 GiB，约 358.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/glm4_7_example.py
+
+  # 模型 zai-org/GLM-5.2，权重 1403.2 GiB，约 753.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/glm5_example.py
+
+  # 模型 zai-org/GLM-5.2，权重 1403.2 GiB，约 753.3 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/glm5_gptq_example.py
+
+  # 模型 mistralai/Mixtral-8x7B-Instruct-v0.1，权重 87.0 GiB，约 46.7 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/mixtral_example.py
+
+  # 模型 Qwen/Qwen3-VL-30B-A3B-Instruct，权重 57.9 GiB，约 31.1 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/quantizing_moe/qwen3_vl_moe_example.py
+
+  # 模型 Qwen/Qwen1.5-MoE-A2.7B-Chat，权重 26.7 GiB，约 14.3 十亿参数，没有超出显存与内存上限，不是体积问题。
+  # 第 21 行GPTQ 的方案是 FP8。量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantizing_moe/qwen_example.py
+
+  # 模型 tencent/Hy3，权重 556.5 GiB，约 298.8 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/reap_expert_pruning/hy3_25_example.py
+
+  # 模型 moonshotai/Moonlight-16B-A3B-Instruct，权重 29.7 GiB，约 16.0 十亿参数，单看权重放得下 32GiB 容器内存。
+  # 示例是 REAP 专家剪枝，校准阶段还要额外内存，放不放得下没有实测过。源仓清单按体积不确定归入此类，从未在真机验证。
+  # 本轮迁移不放回，放回前需要在香港真机逐条实跑。
   - examples/reap_expert_pruning/reap_moonlight_16b.py
+
+  # 模型 Qwen/Qwen3-30B-A3B-Instruct-2507，权重 56.9 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/reap_expert_pruning/reap_qwen3_30b.py
+
+  # 模型 CohereLabs/North-Mini-Code-1.0，权重 56.8 GiB，约 30.5 十亿参数。
+  # 超过 910B4 单卡 32GB 显存与容器 32GiB 内存，示例加载整份权重，放不下。
   - examples/transform/spinquant_cohere2_moe_example.py
-  # 昇腾 910B4 没有 FP8 单元，torch_npu 连 float8 存储都不给：张量转 float8_e4m3fn
-  # 死于 aclnnInplaceCopy，错误码 561103。本仓 accelerate 清单已记录同一结论，转正条件是
-  # 910C 级 FP8 硬件加配套 torch_npu。以下 11 条在 PR 真实运行里逐条复现，调用栈最后一帧都在
-  # 创建 FP8 张量，方案涵盖 FP8 动态与块量化、NVFP4、MXFP8、FP8 KV 缓存与注意力。
+
+  # 第 22 行起，示例加载 FP8 压缩模型 nm-testing/tinyllama-fp8-dynamic-compressed 并解压。PR 运行里死于 compressed_tensors 反量化处把 FP8 权重转成缩放因子的类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360881
   - examples/compressed_inference/fp8_compressed_inference.py
+
+  # 第 40 行起，把注意力量化为 8 位浮点，方案 MXFP8。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360894
   - examples/autoround/quantization_attention/qwen3_quantize_example.py
+
+  # 第 30 行起，配置 FP8 KV 缓存，类型为 float。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360786
   - examples/autoround/quantization_kv_cache/llama3_example.py
+
+  # 第 28 行起，方案 NVFP4，缩放因子存成 float8_e4m3fn。PR 运行里死于 auto_round 的 data_type/utils.py 第 362 行把张量转成 float8_e4m3fn，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360892
   - examples/autoround/quantization_w4a4_fp4/llama3.1_example.py
+
+  # 第 65 行起，方案 MXFP8，权重存成 float8_e4m3fn。PR 运行里死于 compressed_tensors 的 quant_args.py 第 452 行把张量转成 FP8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360896
   - examples/autoround/quantization_w8a8_mxfp8/autoround_example.py
+
+  # 第 18 行起，方案 FP8_BLOCK。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812362431
   - examples/awq/fp8_block_llama_example.py
+
+  # 第 18 行起，方案 FP8_DYNAMIC。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812362849
   - examples/awq/fp8_dynamic_llama_example.py
+
+  # 第 22 行起，方案 W4AFP8，激活动态量化为 FP8。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812362675
   - examples/awq/w4a8_fp8_llama_example.py
+
+  # 第 63 行起，方案 FP8_DYNAMIC。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812363002
   - examples/custom_dataset_example.py
+
+  # 第 36 行起，方案 NVFP4，缩放因子存成 float8_e4m3fn。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812363004
   - examples/disk_offloading/qwen3_example.py
+
+  # 第 19 行起，方案 NVFP4A16，缩放因子存成 float8_e4m3fn。PR 运行里死于 compressed_tensors 的 quant_args.py 第 418 行把张量 clamp 之后转成 float8 类型，aclnnInplaceCopy 错误码 561103。
+  # 910B4 没有 FP8 单元，转 float8 张量必然失败，本仓 accelerate 清单已记录同一结论。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812363211
   - examples/imatrix/llama3_nvfp4_imatrix_example.py
-  # 上游示例与上游库在 0.14.0 对不上：示例用 AutoRoundModifier 加 FP8_BLOCK，库在
-  # modifiers/autoround/base.py 里只放行 channel 与 tensor 策略，块量化直接抛 ValueError。
-  # 发生在任何设备操作之前，换 CUDA 也一样，不改示例就跑不起来。
+
+  # 上游示例与库在 0.14.0 对不上：第 28 行用 AutoRoundModifier 加 FP8_BLOCK，库在 modifiers/autoround/base.py 第 634 行只放行 channel 与 tensor 策略，块量化直接抛 ValueError。
+  # 错误发生在任何设备操作之前，与设备无关，不改示例就跑不起来。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360872
   - examples/autoround/quantization_w8a8_fp8/llama3.1_block_quant_example.py
-  # 量化方案本身要创建 FP8 张量，与上面 11 条同一根因。按方案归类，没有逐条运行日志：
-  # FP8_DYNAMIC、W4AFP8、NVFP4、NVFP4A16、MXFP8、FP8 KV 缓存与 FP8 注意力。
-  # qwen3_vl 示例的 NVFP4 方案同属此类，它在 PR 运行里先因缺 torchvision 失败，没走到 FP8。
-  - examples/autoround/quantization_w4a4_fp4/qwen3_vl_example.py
-  - examples/multimodal_vision/internvl3_example.py
+
+  # 上游示例与库在 0.14.0 对不上：第 15 行 BATCH_SIZE 取 4 且没有自带数据整理器，llm-compressor 的默认整理器在 datasets/utils.py 里要把长度不同的样本堆成一个张量，报 ValueError，期望长度 420，实际 409。
+  # 错误发生在 CPU 数据加载阶段，还没碰到昇腾卡，与设备无关，不改示例就跑不起来。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812363914
+  - examples/multimodal_vision/gemma3_example.py
+
+  # 第 20 行把注意力量化为 8 位浮点。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_attention/llama3_attention.py
+
+  # 第 37 行配置 FP8 KV 缓存，类型为 float。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_kv_cache/gemma2_fp8_kv_example.py
+
+  # 第 19 行配置 FP8 KV 缓存，按注意力头量化，类型为 float。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_kv_cache/llama3_fp8_head_kv_example.py
+
+  # 第 37 行配置 FP8 KV 缓存，类型为 float。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_kv_cache/llama3_fp8_kv_example.py
+
+  # 第 39 行配置 FP8 KV 缓存，类型为 float。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_kv_cache/phi3.5_fp8_kv_example.py
+
+  # 第 27 行多组配置的权重与激活都是 8 位浮点。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_non_uniform/quantization_fp8_multiple_strategies.py
+
+  # 第 24 行同时使用 FP8_DYNAMIC 与 NVFP4。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_non_uniform/quantization_nvfp4_fp8.py
+
+  # 第 16 行方案 NVFP4A16，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a16_fp4/nvfp4/llama3_example.py
+
+  # 第 25 行方案 NVFP4，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a16_fp4/nvfp4/llama3_nvfp4_expanded_mse_example.py
+
+  # 第 19 行方案 NVFP4，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a4_fp4/llama3_example.py
+
+  # 第 31 行把缩放因子类型显式设成 FP8_E4M3。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a4_fp4/llama3_gptq_example.py
+
+  # 第 15 行方案 W4AFP8，激活动态量化为 FP8。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w4a8_fp8/llama3_example.py
+
+  # 第 18 行方案 FP8_DYNAMIC。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/llama3_example.py
+
+  # 第 19 行方案 FP8_DYNAMIC。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/llava1.5_example.py
+
+  # 第 19 行方案 FP8_DYNAMIC。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/qwen2vl_example.py
+
+  # 第 21 行方案 FP8_DYNAMIC。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_fp8/qwen3_reranker_example.py
+
+  # 第 16 行方案 MXFP8A16，权重存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_mxfp8/qwen3_example_w8a16_mxfp8.py
+
+  # 第 16 行方案 MXFP8，权重存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantization_w8a8_mxfp8/qwen3_example_w8a8_mxfp8.py
+
+  # 第 21 行方案 NVFP4，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantizing_moe/granite_moe_example.py
+
+  # 第 65 行方案 NVFP4A16，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/transform/nvfp4_quip_gptq_example.py
+
+  # 第 26 行方案 NVFP4，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantizing_moe/glm53_flash_example.py
+
+  # 第 30 行方案 NVFP4，缩放因子存成 float8_e4m3fn。PR 运行里先因缺 torchvision，transformers 加载 Qwen3VLVideoProcessor 时报 ImportError，没走到 FP8。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812360837
+  # 补装 torchvision 之后，这个方案同样要创建 FP8 张量，与已复现错误码 561103 的同类条目同一根因，按方案归类。
+  - examples/autoround/quantization_w4a4_fp4/qwen3_vl_example.py
+
+  # 第 53 行方案 NVFP4，缩放因子存成 float8_e4m3fn。PR 运行里先因缺 torchvision，transformers 加载视频处理器时报 ValueError，没走到 FP8。运行日志 https://github.com/Ascend/docs/actions/runs/38249416824/job/114812364157
+  # 补装 torchvision 之后，这个方案同样要创建 FP8 张量，与已复现错误码 561103 的同类条目同一根因，按方案归类。
+  - examples/multimodal_vision/internvl3_example.py
+
+  # 第 40 行方案 NVFP4，缩放因子存成 float8_e4m3fn。
+  # 量化方案本身要创建 FP8 张量，与 PR 运行里已复现错误码 561103 的同类条目同一根因，按方案归类，没有单独的运行日志。
   - examples/quantizing_moe/kimi_k3_example.py
