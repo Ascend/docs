@@ -25,9 +25,11 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Enable after the expanded matrix is green on the NPU runners.
-  # schedule:
-  #   - cron: '0 18 * * *'
+  # Daily at 02:00 Beijing time (UTC 18:00). The engine's monitor gates
+  # actual runs on upstream release / guard-file changes, so the cadence
+  # only bounds detection latency.
+  schedule:
+    - cron: '0 18 * * *'
   workflow_dispatch:
     inputs:
       target_ref:
