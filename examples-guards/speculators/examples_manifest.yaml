@@ -2,49 +2,110 @@ version: 1
 scan:
   root: examples
   include_extensions: ['.sh', '.py', '.yaml']
-# Nothing is supported. Each upstream script either fails on this stack
-# as shipped, or only reaches a CI-scale run after a working-copy edit
-# (forwarding "$@", shrinking samples, swapping flex attention for sdpa,
-# remapping hardcoded GPU ids). Those edits are not made. Re-promote an
-# entry only when the upstream script can run unchanged.
 supported: []
 unsupported:
-  # vllm-ascend 0.23 DFlash drafter dummy_run hits the RoPE assertion
-  # positions.shape[0] == num_tokens. The script also hardcodes
-  # --max-requests 80 and does not forward extra arguments.
+  # v0.8.0 examples/evaluate/example_qwen3_8b_dflash_humaneval.sh:27 assigns
+  # MODEL="nm-testing/dflash-qwen3-8b-speculators", which replaces an exported
+  # MODEL. Line 46 is `vllm serve "$MODEL" --port "$VLLM_PORT"`. Lines 65-71
+  # call evaluate.py with a hardcoded `--max-requests 80`. Lines 56-59 loop on
+  # curl with no retry bound. The file contains no "$@".
   - examples/evaluate/example_qwen3_8b_dflash_humaneval.sh
-  # Assigns MAX_SAMPLES=5000 and does not forward "$@", so CI cannot
-  # pass --draft-attn-impl sdpa or shrink the step count without
-  # editing the script. Upstream training defaults to flex attention,
-  # which this NPU stack does not provide.
+  # v0.8.0 examples/train/dspark_qwen3_0_6b_sharegpt_online.sh:31 assigns
+  # MODEL="Qwen/Qwen3-0.6B". Lines 35-37 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=4096, EPOCHS=5. Line 41 sets SPECULATOR_TYPE="dspark". The
+  # speculators.train invocation at lines 100-114 passes --speculator-type and
+  # does not pass --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/dspark_qwen3_0_6b_sharegpt_online.sh
+  # v0.8.0 examples/train/dflash_qwen3_8b_ultrachat_online_5k.sh:35 assigns
+  # MODEL="Qwen/Qwen3-8B". Lines 39-41 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=5. Line 45 sets SPECULATOR_TYPE="dflash". The
+  # speculators.train invocation at lines 95-110 passes --speculator-type and
+  # does not pass --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/dflash_qwen3_8b_ultrachat_online_5k.sh
+  # v0.8.0 examples/train/dflash_qwen3_8b_ultrachat_online_5k_bestpractices.sh:40
+  # assigns MODEL="Qwen/Qwen3-8B". Lines 44-46 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=5. Line 50 sets SPECULATOR_TYPE="dflash". The
+  # speculators.train invocation at lines 102-119 passes --speculator-type,
+  # --per-position-loss-weight, and --loss-fn, and does not pass
+  # --draft-attn-impl. v0.8.0 src/speculators/train/config/schema.py:190
+  # defaults draft_attn_impl to "simple_flex_attention". The file contains no
+  # "$@".
   - examples/train/dflash_qwen3_8b_ultrachat_online_5k_bestpractices.sh
+  # v0.8.0 examples/train/eagle3_qwen3_8b_ultrachat_online_5k.sh:31 assigns
+  # MODEL="Qwen/Qwen3-8B". Lines 36-38 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=5. The speculators.train invocation at lines
+  # 83-92 does not pass --speculator-type or --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:648 defaults speculator_type to
+  # "eagle3", and line 190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/eagle3_qwen3_8b_ultrachat_online_5k.sh
-  # Same missing argument forwarding. At CI scale on 910B4 32GB the
-  # training card also OOMs.
+  # v0.8.0 examples/train/dflash2_qwen3_8b_ultrachat_online_5k.sh:23 assigns
+  # MODEL="Qwen/Qwen3-8B". Lines 27-29 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=5. Line 33 sets SPECULATOR_TYPE="dflash2". The
+  # speculators.train invocation at lines 82-94 passes --speculator-type and
+  # does not pass --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/dflash2_qwen3_8b_ultrachat_online_5k.sh
-  # Hardcodes VLLM_GPUS=2,3 and TRAIN_GPUS=4,5, so a 4-card slice does
-  # not match the script. Also OOMs at CI scale on 910B4 32GB, and does
-  # not forward extra arguments.
+  # v0.8.0 examples/train/peagle_qwen3_8b_ultrachat_online_5k.sh:32 assigns
+  # MODEL="Qwen/Qwen3-8B". Lines 36-38 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=4096, EPOCHS=5. Lines 48-49 assign VLLM_GPUS="2,3" and
+  # TRAIN_GPUS="4,5". Line 42 sets SPECULATOR_TYPE="peagle". The
+  # speculators.train invocation at lines 90-107 passes --speculator-type and
+  # does not pass --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/peagle_qwen3_8b_ultrachat_online_5k.sh
-  # MTP does not take --draft-attn-impl, but the script still assigns
-  # MAX_SAMPLES=5000 and does not forward extra arguments, so the step
-  # count cannot be shrunk without editing it.
+  # v0.8.0 examples/train/mtp_qwen3_5_9b_gsm8k_online.sh:40 assigns
+  # MODEL="Qwen/Qwen3.5-9B". Lines 50-52 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=3. Line 88 runs `hf download` of
+  # inference-optimization/Qwen3.5-9B-responses. Lines 100-106 run `python -m
+  # speculators.train` with `--speculator-type mtp` and no
+  # --draft-attn-impl. v0.8.0 src/speculators/train/cli.py:581 rejects any
+  # draft_attn_impl other than "simple_flex_attention" for MTP, and
+  # schema.py:190 defaults that field to "simple_flex_attention". The file
+  # contains no "$@".
   - examples/train/mtp_qwen3_5_9b_gsm8k_online.sh
-  # One-line convert. The draft yuhuili/EAGLE3-LLaMA3.1-Instruct-8B is
-  # not on ModelScope. Quick Start covers DFlash convert instead.
+  # v0.8.0 examples/convert/eagle3/apply_eagle3_eagle.sh is one command.
+  # Line 1 passes yuhuili/EAGLE3-LLaMA3.1-Instruct-8B. Line 3 passes verifier
+  # meta-llama/Meta-Llama-3.1-8B-Instruct. Hugging Face API
+  # /api/models/meta-llama/Meta-Llama-3.1-8B-Instruct reports gated=manual and
+  # safetensors.total=8030261248. Line 5 passes --validate-device cuda:0.
   - examples/convert/eagle3/apply_eagle3_eagle.sh
-  # Llama-4 Maverick 17B-128E MoE plus a w4a16 verifier. No matching
-  # 910B4 HBM. --validate-device is written as cuda:0. The NVIDIA Eagle3
-  # draft is not on ModelScope.
+  # v0.8.0 examples/convert/eagle3/apply_eagle3_llama4_maverick.sh line 1
+  # passes nvidia/Llama-4-Maverick-17B-128E-Eagle3. Hugging Face API
+  # /api/models/nvidia/Llama-4-Maverick-17B-128E-Eagle3 reports
+  # safetensors.total=1716080640. Line 3 passes verifier
+  # RedHatAI/Llama-4-Maverick-17B-128E-Instruct-quantized.w4a16. Hugging Face
+  # API for that repo reports safetensors.total=404674477856. Line 5 passes
+  # --validate-device cuda:0.
   - examples/convert/eagle3/apply_eagle3_llama4_maverick.sh
-  # Offline Eagle3 on Llama-3.1-8B. ModelScope has an ungated remirror
-  # (AI-ModelScope/Llama-3.1-8B-Instruct). Still needs a model-id remap
-  # verified on the Hong Kong runners; not part of this migration.
+  # v0.8.0 examples/train/eagle3_llama3_8b_ultrachat_offline_5k.sh:39 assigns
+  # MODEL="meta-llama/Llama-3.1-8B-Instruct". Hugging Face API
+  # /api/models/meta-llama/Llama-3.1-8B-Instruct reports gated=manual and
+  # safetensors.total=8030261248. Lines 44-47 assign MAX_SAMPLES=5000,
+  # SEQ_LENGTH=8192, EPOCHS=5. The speculators.train invocation at lines
+  # 104-112 does not pass --draft-attn-impl. v0.8.0
+  # src/speculators/train/config/schema.py:190 defaults draft_attn_impl to
+  # "simple_flex_attention". The file contains no "$@".
   - examples/train/eagle3_llama3_8b_ultrachat_offline_5k.sh
-  # Kimi-K3 DSpark: 2-node TP8 extractor + 1-node trainer + Mooncake,
-  # hardcoded for an NVIDIA NVL72 rack (NVLink, flashinfer, TRTLLM
-  # attention). Weights are ~1.56 TB. No matching Ascend hardware.
+  # v0.8.0 examples/train/kimi_k3_dspark/launch_extractor_node.sh:13 defaults
+  # MODEL_PATH to moonshotai/Kimi-K3. Hugging Face API
+  # /api/models/moonshotai/Kimi-K3 reports safetensors.total=2779931837184.
+  # Line 30 sets NCCL_MNNVL_ENABLE=1. Line 32 sets
+  # VLLM_ALLREDUCE_USE_FLASHINFER=1. Line 42 passes
+  # --all2all-backend flashinfer_nvlink_one_sided. Lines 46-47 pass
+  # --tensor-parallel-size 8 and --nnodes 2. Line 55 passes
+  # --attention-config with mla_prefill_backend TRTLLM_RAGGED. Lines 16-22
+  # require NODE_RANK, EXTRACT_ADDR, MOONCAKE_MASTER, and FABRIC_SUBNET.
   - examples/train/kimi_k3_dspark/launch_extractor_node.sh
+  # v0.8.0 examples/train/kimi_k3_dspark/launch_train_node.sh:12 defaults
+  # MODEL_PATH to /mnt/shared/weights/kimi-k3. Lines 17-20 require
+  # MOONCAKE_MASTER, VLLM_ENDPOINT, and FABRIC_SUBNET, then select a NIC with
+  # `ip -o -4 addr show`. Line 29 sets NCCL_MNNVL_ENABLE=1. Line 41 runs
+  # `torchrun --standalone --nproc-per-node 4`.
   - examples/train/kimi_k3_dspark/launch_train_node.sh
