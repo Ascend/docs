@@ -8,6 +8,38 @@ import math
 import random
 from pathlib import Path
 
+# Built-in training corpus used when --text-file is omitted. It repeats a
+# handful of short sentences so a tiny character model has enough windows
+# to train on; pass --text-file to use your own UTF-8 text instead.
+DEFAULT_TEXT = "\n".join([
+    "The small language model learns to continue a sentence.",
+    "A language model reads the previous characters and predicts the next character.",
+    "We collect a little text and turn each character into a number.",
+    "The numbers are the input to a model built with flash linear attention.",
+    "Linear attention carries information through a sequence of tokens.",
+    "The model uses this information to predict what comes next.",
+    "During training, the model compares its predictions with the training text.",
+    "The optimizer updates the model weights after each training step.",
+    "We watch the training loss to understand whether the model is learning.",
+    "This small example runs on one Ascend NPU.",
+    "There are no downloaded model weights and no external dataset.",
+    "The same program can read a text file that you provide.",
+    "After training, we save the model configuration and its learned weights.",
+    "We also save the character vocabulary so that the text keeps the same meaning.",
+    "Then we load the saved model and ask it to continue a short prompt.",
+    "Generation reuses the model state while predicting one character at a time.",
+    "A tiny model trained for a few steps is a learning example, not a finished assistant.",
+    "Its output may contain repeated characters or incomplete words.",
+    "More training text and more training steps can improve its predictions.",
+    "The goal here is to understand the complete path from text to a saved model.",
+    "The small language model learns to continue a sentence.",
+    "A language model reads the previous characters and predicts the next character.",
+    "We collect a little text and turn each character into a number.",
+    "The optimizer updates the model weights after each training step.",
+    "After training, we save the model configuration and its learned weights.",
+    "Then we load the saved model and ask it to continue a short prompt.",
+])
+
 
 def build_vocabulary(text: str) -> list[str]:
     if not text:
@@ -38,7 +70,7 @@ def make_windows(token_ids: list[int], sequence_length: int) -> list[list[int]]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--text-file", type=Path, default=Path(__file__).with_name("corpus.txt"))
+    parser.add_argument("--text-file", type=Path, default=None, help="UTF-8 text file to train on (default: built-in corpus)")
     parser.add_argument("--output-dir", type=Path, required=True, help="New directory for the model and generated text")
     parser.add_argument("--steps", type=int, default=20)
     parser.add_argument("--batch-size", type=int, default=2)
@@ -55,7 +87,7 @@ def main() -> None:
     if args.output_dir.exists():
         parser.error("output directory already exists; choose a new directory to preserve previous runs")
 
-    text = args.text_file.read_text(encoding="utf-8")
+    text = args.text_file.read_text(encoding="utf-8") if args.text_file is not None else DEFAULT_TEXT
     vocabulary = build_vocabulary(text)
     windows = make_windows(encode(text, vocabulary), args.sequence_length)
     prompt = args.prompt if args.prompt is not None else text[:32]
