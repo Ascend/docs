@@ -312,10 +312,6 @@ GITHUB_ENV="${GITHUB_ENV:?GITHUB_ENV is required}"
 
 HERE=$(cd "$(dirname "$0")" && pwd)
 export PIP_CONSTRAINT="$(cd "$HERE/.." && pwd)/constraints-npu.txt"
-# This runner pool reaches huggingface.co directly. The engine's
-# hf-mirror default 308-redirects namespace-less ids such as roberta-base
-# to huggingface.co, a redirect huggingface_hub does not follow.
-export HF_ENDPOINT=https://huggingface.co
 
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 

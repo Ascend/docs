@@ -16,6 +16,8 @@ EXAMPLE_REL="$1"
 TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 CI_OUTPUT_DIR="${CI_OUTPUT_DIR:?CI_OUTPUT_DIR is required}"
 
+HERE=$(cd "$(dirname "$0")" && pwd)
+
 EXAMPLE_PATH="$TARGET_ROOT/$EXAMPLE_REL"
 [[ -e "$EXAMPLE_PATH" ]] || { echo "example not found: $EXAMPLE_PATH" >&2; exit 1; }
 
@@ -44,10 +46,6 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # （73s/step → 3s/step）；其余条目不依赖 dynamo 编译路径，全局关闭
 # 无副作用。
 export TORCHDYNAMO_DISABLE=1
-# Hub ids the examples hardcode download on a cache miss; same endpoint
-# as setup_example.sh (the engine's hf-mirror default cannot serve
-# namespace-less ids such as t5-base).
-export HF_ENDPOINT=https://huggingface.co
 python -c "import torch, torch_npu; print('NPU available:', torch.npu.is_available(), 'devices:', torch.npu.device_count())"
 
 expand_overlay() {
@@ -55,30 +53,7 @@ expand_overlay() {
   # item with shell quoting intact, then allow CI paths such as
   # ${CI_OUTPUT_DIR} / ${SFT_MODEL_PATH} to resolve only in this job's
   # environment.
-  "$PYTHON" - <<'PY'
-import json
-import os
-import shlex
-
-raw = os.environ.get('OVERLAY_ARGS', '').strip()
-if not raw or raw in ('null', '""'):
-    raise SystemExit(0)
-try:
-    items = json.loads(raw)
-except json.JSONDecodeError as exc:
-    raise SystemExit(f'OVERLAY_ARGS is not valid JSON: {exc}') from exc
-if items in (None, ''):
-    raise SystemExit(0)
-if not isinstance(items, list):
-    raise SystemExit(
-        f'OVERLAY_ARGS must be a JSON array, got {type(items).__name__}')
-tokens = []
-for item in items:
-    if not isinstance(item, str) or not item.strip():
-        raise SystemExit('OVERLAY_ARGS items must be non-empty strings')
-    tokens.extend(shlex.split(os.path.expandvars(item), posix=True))
-print(' '.join(shlex.quote(token) for token in tokens))
-PY
+  "$PYTHON" "$HERE/expand_overlay.py"
 }
 
 eval "EXTRA_ARGS=( $(expand_overlay) )"
@@ -99,130 +74,21 @@ ensure_passthrough() {
     echo "example already has \"\$@\"; skipping patch"
     return
   fi
-  "$PYTHON" - "$script" <<'PY'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
-for i in range(len(lines) - 1, -1, -1):
-    stripped = lines[i].strip()
-    if stripped and not stripped.startswith('#'):
-        raw = lines[i]
-        newline = ''
-        if raw.endswith('\r\n'):
-            newline = '\r\n'
-            raw = raw[:-2]
-        elif raw.endswith('\n'):
-            newline = '\n'
-            raw = raw[:-1]
-        lines[i] = raw.rstrip() + ' "$@"' + newline
-        path.write_text(''.join(lines), encoding='utf-8')
-        print(f'patched {path} to pass "$@" on last command line')
-        raise SystemExit(0)
-raise SystemExit(f'{path}: cannot find a command line to attach "$@"')
-PY
+  "$PYTHON" "$HERE/ensure_passthrough.py" "$script"
 }
 
 ensure_passthrough "$LAUNCH_PATH"
 
 
-# One sitecustomize.py, four patches, injected at interpreter startup:
-# 1. CUDA->NPU (transfer_to_npu): most peft examples hardcode
-#    device="cuda"; torch_npu's transfer_to_npu maps torch.cuda onto npu
-#    (also covers `torch.device("cuda" if torch.cuda.is_available() else
-#    "cpu")` device-branch examples such as lora_ga). NOT applied to the
-#    bitsandbytes examples (see SKIP_TRANSFER_TO_NPU below).
-# 2. Dataset: the sft example calls load_dataset(path) with a local
-#    .jsonl fixture and reads BOTH "train" and "test" splits
-#    (splits="train,test"); datasets 3.x cannot infer a builder from a
-#    single file path - rewrite local data files to
-#    load_dataset("<builder>", data_files={"train": path, "test": path}).
-# 3. fp16 neutralizer: several finetuning scripts hardcode
-#    TrainingArguments(fp16=True, ...). accelerate 1.15's fp16 chain
-#    (optimizer.step(grad_scaler=scaler)) is incompatible with torch_npu
-#    amp.GradScaler -> TypeError "Adam.step got unexpected keyword
-#    argument grad_scaler". No supported entry relies on fp16=True, so
-#    forcing fp16=False globally is a no-op for every other entry.
-# 4. wandb neutralizer: boft_dreambooth hardcodes wandb_init
-#    mode="online"; force wandb.init mode="disabled" so it becomes
-#    wandb's own no-op run without an API key.
+# Install ci_sitecustomize.py as sitecustomize.py so every Python
+# process the example starts picks up the four CI patches (CUDA->NPU,
+# local-file load_dataset, fp16 neutralizer, wandb neutralizer; see the
+# docstring of ci_sitecustomize.py). SKIP_TRANSFER_TO_NPU, set below for
+# the bitsandbytes examples, turns off the first one.
 prepare_shims() {
   local shim_dir="$GITHUB_WORKSPACE/ci_patch"
   mkdir -p "$shim_dir"
-  local transfer_line="from torch_npu.contrib import transfer_to_npu  # noqa: F401"
-  if [[ -n "${SKIP_TRANSFER_TO_NPU:-}" ]]; then
-    transfer_line="# transfer_to_npu skipped for bitsandbytes example"
-  fi
-  cat > "$shim_dir/sitecustomize.py" <<PY
-$transfer_line
-
-import os
-
-import datasets as _datasets
-
-_original_load_dataset = _datasets.load_dataset
-
-_BUILDERS = {
-    ".json": "json",
-    ".jsonl": "json",
-    ".json.gz": "json",
-    ".csv": "csv",
-    ".tsv": "csv",
-    ".parquet": "parquet",
-    ".txt": "text",
-}
-
-
-def _patched_load_dataset(path, *args, **kwargs):
-    if isinstance(path, str) and os.path.isfile(path):
-        ext = os.path.splitext(path)[1].lower()
-        if ext in _BUILDERS and "data_files" not in kwargs:
-            name = kwargs.pop("name", None)
-            if args and name is None:
-                name = args[0]
-                args = args[1:]
-            if name is not None:
-                kwargs["name"] = name
-            # Map the single file onto both splits: the sft example
-            # loads split="train" and split="test" from the same
-            # dataset_name.
-            kwargs["data_files"] = {"train": path, "test": path}
-            return _original_load_dataset(_BUILDERS[ext], *args, **kwargs)
-    return _original_load_dataset(path, *args, **kwargs)
-
-
-_datasets.load_dataset = _patched_load_dataset
-
-import transformers as _tf
-
-_orig_training_args_init = _tf.TrainingArguments.__init__
-
-
-def _fp16_neutral_init(self, *args, **kwargs):
-    if kwargs.get("fp16"):
-        kwargs["fp16"] = False
-    _orig_training_args_init(self, *args, **kwargs)
-
-
-_tf.TrainingArguments.__init__ = _fp16_neutral_init
-
-# wandb neutralizer: boft_dreambooth hardcodes wandb_init
-# mode="online" and --report_to wandb; force mode="disabled" so
-# wandb.init becomes wandb's own no-op run without an API key.
-try:
-    import wandb as _wandb
-
-    _real_wandb_init = _wandb.init
-
-    def _init_disabled(*args, **kwargs):
-        kwargs["mode"] = "disabled"
-        return _real_wandb_init(*args, **kwargs)
-
-    _wandb.init = _init_disabled
-except Exception:
-    pass
-PY
+  cp "$HERE/ci_sitecustomize.py" "$shim_dir/sitecustomize.py"
   export PYTHONPATH="$shim_dir:${PYTHONPATH:-}"
 }
 
