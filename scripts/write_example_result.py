@@ -26,6 +26,7 @@ import argparse
 import json
 import os
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -52,9 +53,14 @@ def job_matches(name: str, expected: str) -> bool:
     return name == expected or name.endswith(f' / {expected}')
 
 
-def fetch_conclusion(repo: str, run_id: str, job_name: str,
-                     token: str) -> str | None:
-    """Find the job by display name; return its conclusion or None."""
+def _find_job(repo: str, run_id: str, job_name: str,
+              token: str) -> tuple[bool, str | None]:
+    """Page through the Jobs API for a name match.
+
+    Returns (found, conclusion): found is True once a matching job is
+    seen; conclusion is that job's conclusion, which may be None while
+    the API is still propagating a freshly-finished job.
+    """
     page = 1
     while True:
         url = (f'https://api.github.com/repos/{repo}/actions/runs/{run_id}'
@@ -68,10 +74,39 @@ def fetch_conclusion(repo: str, run_id: str, job_name: str,
         jobs = data.get('jobs') or []
         for job in jobs:
             if job_matches(job.get('name') or '', job_name):
-                return job.get('conclusion')
+                return True, job.get('conclusion')
         if len(jobs) < 100:
-            return None
+            return False, None
         page += 1
+
+
+def fetch_conclusion(repo: str, run_id: str, job_name: str,
+                     token: str, deadline: float = 180.0,
+                     interval: float = 5.0) -> str | None:
+    """Return the matching job's conclusion, waiting out API lag.
+
+    The Jobs API is eventually consistent: for a few seconds after a
+    job finishes, its conclusion can still read as null even though
+    `needs` already fired the downstream job. Two cases are handled
+    differently:
+
+    * no name match across all pages -> permanent (retrying cannot
+      help), return None immediately;
+    * matched but conclusion still null -> poll until it resolves or
+      deadline (seconds) expires.
+    """
+    started = time.monotonic()
+    while True:
+        found, conclusion = _find_job(repo, run_id, job_name, token)
+        if not found:
+            return None
+        if conclusion:
+            return conclusion
+        if time.monotonic() - started >= deadline:
+            print(f'timed out after {deadline:.0f}s waiting for '
+                  f'conclusion of {job_name}', file=sys.stderr)
+            return None
+        time.sleep(interval)
 
 
 def main() -> None:
