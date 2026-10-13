@@ -549,20 +549,8 @@ def prefetch_example(path: Path, dry_run: bool) -> None:
 
 def main(argv: list[str]) -> int:
     if not argv or argv[0] in {"-h", "--help"}:
-        print(
-            "usage: prefetch_example_assets.py <example.py> [--dry-run]\n"
-            "       prefetch_example_assets.py --model HF_ID",
-            file=sys.stderr,
-        )
+        print("usage: prefetch_example_assets.py <example.py> [--dry-run]", file=sys.stderr)
         return 2
-    if argv[0] == "--model":
-        if len(argv) != 2:
-            print("usage: prefetch_example_assets.py --model HF_ID", file=sys.stderr)
-            return 2
-        configure_hub()
-        sweep_staging()
-        prefetch_model(argv[1])
-        return 0
     path = Path(argv[0])
     if not path.is_file():
         print(f"example not found: {path}", file=sys.stderr)

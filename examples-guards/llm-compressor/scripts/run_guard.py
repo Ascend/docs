@@ -82,22 +82,6 @@ def assert_on_npu(model: torch.nn.Module) -> None:
     print("oneshot_param_devices", sorted(devices))
 
 
-def assert_inference(namespace: dict) -> None:
-    model = namespace["compressed_model"]
-    inputs = namespace["inputs"]
-    param_devices = parameter_devices(model)
-    input_devices: set[str] = set()
-    values = inputs.values() if hasattr(inputs, "values") else [inputs]
-    for value in values:
-        if hasattr(value, "device"):
-            input_devices.add(str(value.device))
-    if param_devices != {"npu:0"} or input_devices != {"npu:0"}:
-        raise SystemExit(
-            "workload not on npu:0: "
-            f"model={sorted(param_devices)} inputs={sorted(input_devices)}"
-        )
-
-
 def find_model(namespace: dict) -> torch.nn.Module | None:
     model = namespace.get("model")
     if isinstance(model, torch.nn.Module):
@@ -111,18 +95,14 @@ def main() -> None:
     patch_accelerator_memory()
     remember_oneshot_model()
     path = os.environ["EXAMPLE_PATH"]
-    kind = os.environ["GUARD_KIND"]
     sys.argv = [path, *overlay_args()]
     namespace = runpy.run_path(path)
     if not is_rank0():
         return
-    if kind == "npu_inference":
-        assert_inference(namespace)
-    else:
-        model = find_model(namespace)
-        if model is None:
-            raise SystemExit("oneshot example did not expose model")
-        assert_on_npu(model)
+    model = find_model(namespace)
+    if model is None:
+        raise SystemExit("oneshot example did not expose model")
+    assert_on_npu(model)
     print("LLM_COMPRESSOR_WORKLOAD_DEVICE=npu:0")
 
 

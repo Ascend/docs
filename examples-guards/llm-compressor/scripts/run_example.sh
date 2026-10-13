@@ -28,6 +28,9 @@ export PATH="/usr/local/sbin:$PATH"
 # shellcheck disable=SC1091
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export ASCEND_RT_VISIBLE_DEVICES="${ASCEND_RT_VISIBLE_DEVICES:-0}"
+# Output goes through a pipe to tee. Buffered prints hid where a hung
+# example stopped, so flush every line.
+export PYTHONUNBUFFERED=1
 export HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-1}"
 export TRANSFORMERS_OFFLINE="${TRANSFORMERS_OFFLINE:-1}"
 export TORCHDYNAMO_DISABLE=1
@@ -37,16 +40,13 @@ export EXAMPLE_PATH
 # benchmark_smoothquant_ddp.py defaults to one process and only calls
 # init_dist when --num_gpus is greater than 1. Other init_dist scripts
 # refuse to start unless torchrun provided the elastic env.
-if [[ "$EXAMPLE_REL" == "examples/compressed_inference/fp8_compressed_inference.py" ]]; then
-  GUARD_KIND=npu_inference
-elif [[ "$EXAMPLE_REL" == "examples/quantization_w8a8_int8/benchmark_smoothquant_ddp.py" ]]; then
+if [[ "$EXAMPLE_REL" == "examples/quantization_w8a8_int8/benchmark_smoothquant_ddp.py" ]]; then
   GUARD_KIND=npu_oneshot
 elif grep -q 'init_dist()' "$EXAMPLE_PATH"; then
   GUARD_KIND=npu_ddp
 else
   GUARD_KIND=npu_oneshot
 fi
-export GUARD_KIND
 
 if [[ "$GUARD_KIND" == "npu_ddp" ]]; then
   IFS=',' read -ra DEVICES <<< "$ASCEND_RT_VISIBLE_DEVICES"

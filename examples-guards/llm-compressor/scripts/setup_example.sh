@@ -130,8 +130,28 @@ print('llmcompressor', llmcompressor.__version__)
 "
 }
 
+install_cpu_torchvision() {
+  # transformers 5 builds its vision and video processors on torchvision.
+  # Like torch, the PyPI linux wheel links CUDA, and the +cpu wheel that
+  # pairs with torch 2.12.0 is only on download.pytorch.org.
+  local cp_abi
+  cp_abi=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
+  python -m pip install --no-deps \
+    "https://download.pytorch.org/whl/cpu/torchvision-0.27.0%2Bcpu-${cp_abi}-${cp_abi}-manylinux_2_28_aarch64.whl"
+  python -c "
+import torch
+assert torch.__version__.startswith('2.12.0'), torch.__version__
+import torchvision
+print('torchvision ok', torchvision.__version__, torch.__version__)
+"
+}
+
 install_example_extras() {
   local example="$TARGET_ROOT/$EXAMPLE_REL"
+  if grep -qE 'AutoProcessor|AutoImageProcessor|AutoVideoProcessor' "$example"; then
+    echo "installing torchvision for ${EXAMPLE_REL}"
+    install_cpu_torchvision
+  fi
   if grep -q 'qwen_vl_utils' "$example"; then
     echo "installing qwen_vl_utils for ${EXAMPLE_REL}"
     pip_locked qwen_vl_utils
@@ -144,18 +164,8 @@ print('qwen_vl_utils ok', torch.__version__)
   fi
 }
 
-prefetch_model() {
-  python "$SCRIPT_DIR/prefetch_example_assets.py" --model "$1"
-}
-
 prefetch_for_example() {
   python "$SCRIPT_DIR/prefetch_example_assets.py" "$TARGET_ROOT/$EXAMPLE_REL"
-  emit_offline_hub
-}
-
-setup_npu_inference() {
-  install_npu_stack
-  prefetch_model nm-testing/tinyllama-fp8-dynamic-compressed
   emit_offline_hub
 }
 
