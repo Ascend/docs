@@ -1,0 +1,80 @@
+# tgi examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml; this
+# file only declares what varies per project: schedule, concurrency,
+# upstream repo, dispatch input forwarding, and matrix parallelism.
+# The guard loop (release + workflow-files monitor / manifest-check /
+# run-example matrix / validate-results / save-monitor-state) lives in
+# the engine. See examples-guards/README.md for the design.
+#
+# Unlike most projects, TGI's examples are serving scenarios (there is
+# no upstream examples/ of demo scripts in a serving stack): each
+# scenario boots a real TGI service on the NPU, sends /generate (or
+# streaming / concurrent) requests and asserts the replies. The
+# scenarios live in the cosdt fork's examples/npu/ - the fork is the
+# Ascend-adaptation upstream, and a serving example must run against
+# the exact ref it was built from, so example and code stay in one
+# repo (non-split mode, zero engine changes).
+
+name: tgi-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'tgi-examples-schedule' || (github.event_name == 'pull_request' && format('tgi-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 03:00 Beijing time (UTC 19:00), off accelerate's 02:00
+  # Beijing (UTC 18:00) slot.
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure). During bring-up, pass the fork branch that carries examples/npu/.
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files, as the
+  # quick-start triggers do: a PR that touches only the shared engine,
+  # scripts or schema starts no project's matrix.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/tgi/**'
+      - '.github/workflows/tgi-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  tgi-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-tgi_*), artifact
+      # names and the scheduling paths under examples-guards/tgi.
+      project: tgi
+      upstream_repo: cosdt/text-generation-inference
+      target_ref: ${{ inputs.target_ref }}
+      # 1: a serving scenario owns the whole runner (2-card TP spans
+      # both NPUs, and stop-tgi.sh tears down every launcher on the
+      # host), and parallel legs would contend on the shared cargo
+      # target dir. Serial legs + the persistent cargo target dir keep
+      # the release-opt build incremental instead of rebuilding per leg.
+      max_parallel: 1
