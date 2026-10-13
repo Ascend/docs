@@ -12,8 +12,11 @@ The engine then sets ASCEND_RT_VISIBLE_DEVICES from the manifest, which
 is 0,1. That list is not the physical id on every 2-card pod. Run
 38249171972 queried -i 0, got "invalid device id", wrote the one id that
 answered, and the initiator aborted because ADXL asked for phy id 3.
-Probe with that mask unset, keep every IP the tool returns, and point
-the run step at two physical ids that actually resolved.
+Probe with that mask unset and write every IP the tool returns.
+Leave ASCEND_RT_VISIBLE_DEVICES alone: the example calls
+aclrtSetDevice with logic ids 0 and 1. Rewriting the mask to physical
+ids 1,2 made that call fail with "Failed to set device ACL" in run
+38375629967.
 """
 
 from __future__ import annotations
@@ -27,18 +30,6 @@ HCCN_CONF = '/etc/hccn.conf'
 DRIVER_HCCN_CONF = '/usr/local/Ascend/driver/tools/hccn.conf'
 CARDS_NEEDED = 2
 PROBE_LIMIT = 16
-
-
-def _phy_ids_from_env() -> list[int]:
-    for key in ('ASCEND_RT_VISIBLE_DEVICES', 'ASCEND_VISIBLE_DEVICES'):
-        ids = [
-            int(part)
-            for part in os.environ.get(key, '').split(',')
-            if part.strip().isdigit()
-        ]
-        if ids:
-            return ids
-    return []
 
 
 def _phy_ids_from_npu_smi() -> list[int]:
@@ -111,30 +102,6 @@ def _query_ip(tool: str, phy: int, env: dict[str, str]) -> str | None:
     return _parse_hccn_ip(query.stdout) or _parse_hccn_ip(query.stderr)
 
 
-def _choose_visible(resolved: dict[int, str], smi_ids: list[int]) -> list[int]:
-    """Two physical ids for logic id 0 and 1. Prefer the manifest pair."""
-    env_ids = [phy for phy in _phy_ids_from_env() if phy in resolved]
-    if len(env_ids) >= CARDS_NEEDED:
-        return env_ids[:CARDS_NEEDED]
-    smi_hit = [phy for phy in smi_ids if phy in resolved]
-    if len(smi_hit) >= CARDS_NEEDED:
-        return smi_hit[:CARDS_NEEDED]
-    return sorted(resolved)[:CARDS_NEEDED]
-
-
-def _publish_visible_devices(phy_ids: list[int]) -> None:
-    path = os.environ.get('GITHUB_ENV')
-    if not path:
-        return
-    value = ','.join(str(phy) for phy in phy_ids)
-    with open(path, 'a', encoding='utf-8') as handle:
-        handle.write(f'ASCEND_RT_VISIBLE_DEVICES={value}\n')
-    print(
-        f'setup: run step ASCEND_RT_VISIBLE_DEVICES={value}',
-        flush=True,
-    )
-
-
 def _write_probed(tool: str) -> None:
     env = _probe_env()
     smi_ids = _phy_ids_from_npu_smi()
@@ -155,37 +122,12 @@ def _write_probed(tool: str) -> None:
     with open(HCCN_CONF, 'w', encoding='utf-8') as handle:
         for phy in sorted(resolved):
             handle.write(f'address_{phy}={resolved[phy]}\n')
-    chosen = _choose_visible(resolved, smi_ids)
+    ids = ','.join(str(phy) for phy in sorted(resolved))
     print(
         f'setup: wrote {HCCN_CONF} from hccn_tool '
-        f'({len(resolved)} address lines, visible {chosen})',
+        f'({len(resolved)} address lines: {ids})',
         flush=True,
     )
-
-
-def _addresses_in_conf() -> dict[int, str]:
-    resolved: dict[int, str] = {}
-    with open(HCCN_CONF, encoding='utf-8') as handle:
-        for line in handle:
-            text = line.strip()
-            if not text.startswith('address_') or '=' not in text:
-                continue
-            key, _, ip = text.partition('=')
-            phy_text = key[len('address_'):]
-            if phy_text.isdigit() and ip.strip():
-                resolved[int(phy_text)] = ip.strip()
-    return resolved
-
-
-def _align_visible_devices() -> None:
-    """Point the run step at two physical ids this file actually contains."""
-    if not os.path.isfile(HCCN_CONF):
-        return
-    resolved = _addresses_in_conf()
-    if len(resolved) < CARDS_NEEDED:
-        return
-    chosen = _choose_visible(resolved, _phy_ids_from_npu_smi())
-    _publish_visible_devices(chosen)
 
 
 def ensure() -> None:
@@ -202,7 +144,6 @@ def ensure() -> None:
             raise SystemExit(
                 'setup: no hccn_tool; cannot materialize /etc/hccn.conf')
         _write_probed(tool)
-    _align_visible_devices()
 
 
 if __name__ == '__main__':
