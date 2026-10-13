@@ -44,10 +44,6 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # （73s/step → 3s/step）；其余条目不依赖 dynamo 编译路径，全局关闭
 # 无副作用。
 export TORCHDYNAMO_DISABLE=1
-# Hub ids the examples hardcode download on a cache miss; same endpoint
-# as setup_example.sh (the engine's hf-mirror default cannot serve
-# namespace-less ids such as t5-base).
-export HF_ENDPOINT=https://huggingface.co
 python -c "import torch, torch_npu; print('NPU available:', torch.npu.is_available(), 'devices:', torch.npu.device_count())"
 
 expand_overlay() {
