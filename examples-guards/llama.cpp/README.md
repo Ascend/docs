@@ -19,6 +19,8 @@
 - `examples/parallel`：同一轮里 `FusedInferAttentionScore` 要求非 PA 路径上的 key 连续，实际不连续并中止
 - `examples/diffusion`：运行 38249312071 里 Dream 权重已从 Hugging Face 下完并转成 Q8_0 GGUF，随后在同一个 key 不连续错误上中止
 
+每条不支持的依据写在 `examples_manifest.yaml` 里该路径的上方，带源码位置或这次 CI 作业链接，不把几条合成一段注释。
+
 `v0.6.0` 里另外有 `examples/deprecation-warning`、`examples/llama-eval`、`examples/test-cmake`。源仓清单没有它们，这次不调度。
 
 ## profile
