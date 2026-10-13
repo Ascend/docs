@@ -27,9 +27,21 @@ supported:
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 120
 unsupported:
-  # Downloads gated meta-llama/Llama-2-7b-hf and hard-codes
-  # torch.cuda.mem_get_info() / torch.cuda.device_count().
+  # tag 0.50.2 examples/int8_inference_huggingface.py:
+  # model_name = "meta-llama/Llama-2-7b-hf"; Hub API reports gated=manual.
+  # max_memory is built from torch.cuda.mem_get_info()[0], and
+  # n_gpus = torch.cuda.device_count().
+  # LlamaForCausalLM.from_pretrained(..., device_map="auto", load_in_8bit=True).
   - examples/int8_inference_huggingface.py
-  # Asserts torch.xpu.is_available() or CUDA. Intel GPU only.
+  # tag 0.50.2 examples/xpu/paged_xpu_training.py:
+  # --device defaults to "xpu". main() then asserts
+  # hasattr(torch, "xpu") and torch.xpu.is_available(), or
+  # torch.cuda.is_available() when --device cuda. There is no npu branch.
+  # from_pretrained(..., device_map=device) and the batch is .to(device).
   - examples/xpu/paged_xpu_training.py
+  # tag 0.50.2 examples/xpu/benchmark_paged_memory.py:
+  # --device defaults to "xpu". get_accelerator() returns torch.xpu or,
+  # for any other name, torch.cuda. The model is
+  # LlamaForCausalLM(config).to(dtype=dtype, device=args.device), and
+  # peak memory is read from that accelerator. There is no npu branch.
   - examples/xpu/benchmark_paged_memory.py
