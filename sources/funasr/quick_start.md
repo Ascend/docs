@@ -8,8 +8,6 @@
 - **情感识别**（`emotion`）：`emotion2vec_plus_large` 独立情感分类；
 - **命令行工具**（`cli`）：`funasr` 一键转写、输出 JSON / 字幕。
 
-FunASR 通过 `torch_npu` 间接支持昇腾 NPU——`AutoModel` 原生接受 `device="npu:0"`，内部用 `torch.npu` 探测并放置权重，无需在 FunASR 端做任何 SDK 改动。
-
 ### 前置条件
 
 #### 硬件
@@ -23,8 +21,6 @@ Atlas 900 A2 / A3 训练系列产品（Ascend 910B4 / 910B 等），并按需完
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
 - 与上面 CANN 匹配的 `torch` + `torch_npu` + `torchaudio`，且 `torch` 能正常 `import` 并 `torch.npu.is_available() == True`（参考 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）
-
-FunASR 的核心包**不声明** `torch` / `torchaudio` 依赖（安装文档要求「先装 PyTorch 再装 FunASR」），但推理时加载音频与跑 forward 都用到它们，所以必须提前就绪。
 
 #### 本文档示例使用的版本
 
@@ -164,7 +160,7 @@ funasr ...
 
 ```{admonition} Note
 :class: note
-`...` 表示最新的版本号。
+`funasr ...` 表示最新的版本号。
 ```
 
 #### CLI 自检：`funasr --version`
@@ -224,7 +220,7 @@ sentence_info_keys: ['end', 'spk', 'start', 'text', 'timestamp']
 
 ```{admonition} Note
 :class: note
-- `device: npu:0` 说明 ASR 模型权重确实落在昇腾设备上，不是 CPU 兜底；
+- `device: npu:0` 说明 ASR 模型权重确实落在昇腾设备。
 - `sentence_info` 由 VAD 分段 + 标点恢复 + 说话人聚类共同产出，每个分段含 `text` / `start` / `end`（时间戳）与 `spk`（录音内匿名说话人编号）。
 ```
 
@@ -262,13 +258,13 @@ clean_text: 欢迎大家来体验达摩院推出的语音识别模型
 
 ```{admonition} Note
 :class: note
-- `raw_text` 一栏能看到 `|zh|`（语种）、`|NEUTRAL|`（情感）、`|Speech|`（事件）三类标签拼接在转写文本两侧——这是 SenseVoice 的多任务输出合同；
-- `clean_text` 是剥离标签后的纯文本（`rich_transcription_postprocess` 也把空格拼回中文）。
+- `raw_text` 一栏能看到 `|zh|`（语种）、`|NEUTRAL|`（情感）、`|Speech|`（事件）三类标签拼接在转写文本两侧——这是 SenseVoice 的多任务输出合同。
+- `clean_text` 是剥离标签后的纯文本。
 ```
 
 ### 流式识别（paraformer-zh-streaming）
 
-流式场景按固定时长（`chunk_size`）逐块喂音频，`cache` 在会话内维护上下文状态，每块增量返回文本。先下载官方示例音频到本地（`torchaudio` 后端用 `soundfile` 读取）：
+流式场景按固定时长（`chunk_size`）逐块喂音频，`cache` 在会话内维护上下文状态，每块增量返回文本。先下载官方示例音频到本地：
 
 ```shell #test-setup
 curl -sL -o /tmp/funasr_sample.wav https://isv-data.oss-cn-hangzhou.aliyuncs.com/ics/MaaS/ASR/test_audio/asr_example_zh.wav
