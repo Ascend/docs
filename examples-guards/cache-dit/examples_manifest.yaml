@@ -10,10 +10,15 @@ supported:
   #     快照路径变量（FLUX.1-dev 本地快照）。
   # examples/generate.py: thin wrapper over cache_dit.generate.entrypoint()
   # (unified CLI, README "python3 -m cache_dit.generate"). Positional name
-  # "flux" selects the FLUX.1-dev example; --model-path resolves from the
-  # shared runner cache (FLUX_MODEL_PATH GITHUB_ENV injection by
-  # setup_example.sh; FLUX.1-dev 在 HF 为 gated repo 且本仓无 HF_TOKEN，
-  # 冷池时 HF fill 必然失败，落 ModelScope 镜像临时目录，每 run 重下);
+  # "flux" selects the FLUX.1-dev example; --model-path 由 setup_example.sh
+  # 调用 scripts/hub_cache.py 解析：共享缓存盘（HF_HOME/hub）里有必需文件
+  # 齐全的快照就直接用，零网络；未命中则先下到本 job 在同一块盘上的暂存
+  # 目录，校验后逐个文件改名发布进快照，后续 run（同池任意 pod）直接命中。
+  # 下载按 allow_patterns 裁剪到 FluxPipeline.from_pretrained 真正读取的
+  # diffusers 组件树（57.89 GB → 33.74 GB，排除库根下重复的单文件
+  # flux1-dev.safetensors 与 ae.safetensors）。FLUX.1-dev 在 HF 为 gated
+  # repo 且本仓无 HF_TOKEN，HF 一腿必然 401，实际由 ModelScope 同布局镜像
+  # 投递；
   # --attn _native_npu is the NPU attention backend; --cache exercises
   # cache-dit's DBCache path.
   - path: examples/generate.py
@@ -39,7 +44,11 @@ supported:
       - --repeat 1
       # 去噪采样步数；smoke 取可覆盖 DBCache 命中路径的最小配置
       - --steps 8
-    timeout_minutes: 120
+    # 冷缓存首次要把 33.74 GB 拉进共享盘（HF gated → ModelScope 镜像，
+    # 集群出口实测 1.5–3.1 MB/s），这一步必须装进预算；暖缓存命中后
+    # setup 只剩环境安装。120 分钟曾被下载撞满（run 38520772429：
+    # setup 占满 119.7 分钟，run example 一步没跑）。
+    timeout_minutes: 180
 unsupported:
   # --- examples/api/*：上游坏脚本，manifest 层无法规避 ---
   # PR #752（feat: add cache-dit-generate cli tool）删除了 examples/utils.py，

@@ -29,6 +29,8 @@ TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is required}"
 GITHUB_ENV="${GITHUB_ENV:?GITHUB_ENV is required}"
 
+HERE=$(cd "$(dirname "$0")" && pwd)
+
 # Install cache-dit and dependencies
 echo "Installing cache-dit and dependencies..."
 
@@ -63,6 +65,15 @@ pip3 install einops sentencepiece accelerate
 # Install diffusers for parallel support
 pip3 install -U diffusers  # 要求 >= 0.36.0（PyPI latest，避免走 github 代理）
 
+# hub_cache.py's fallback source, installed here because hub_cache.py
+# imports it at module load (after diffusers so the latter's
+# huggingface_hub pin stands). FLUX.1-dev is an HF gated repo
+# (gated: auto) and this repo carries no HF_TOKEN, so the HuggingFace
+# leg answers 401 and the ModelScope mirror delivers the snapshot.
+# Pinned to the version verified in this image (1.40.x fails to import
+# next to huggingface_hub<1.0).
+pip3 install "modelscope==1.37.0"
+
 # Keep the engine-declared NPU visibility (matrix npu_devices exported
 # via GITHUB_ENV); default to 0 only when running outside the engine.
 export ASCEND_RT_VISIBLE_DEVICES="${ASCEND_RT_VISIBLE_DEVICES:-0}"
@@ -73,92 +84,27 @@ if [ -f /usr/local/Ascend/ascend-toolkit/set_env.sh ]; then
     source /usr/local/Ascend/ascend-toolkit/set_env.sh
 fi
 
-# Resolve one example model into $2 (shell var + GITHUB_ENV) from the
-# shared runner cache. Warm path is zero-network: the HF hub-cache
-# layout (refs/main = real HF sha, real files) is resolved in place.
-# Cold-cache self-heal: huggingface_hub first via HF_ENDPOINT (mirror
-# default). Unlike the other projects, the ModelScope fallback is kept
-# on purpose: FLUX.1-dev is an HF gated repo and this repo carries no
-# HF_TOKEN, so the HF fill cannot succeed for it - the fallback pulls
-# the AI-ModelScope mirror into a per-run workspace dir (re-downloaded
-# every run; the durable fix is a cache-seed plant or an HF_TOKEN
-# secret). Same helper as the xllm project.
-resolve_model() {
-  local hf_id="$1" var="$2"
-  export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
-  local resolved
-  resolved=$(python3 - "$hf_id" <<'PY' | tee /dev/stderr | sed -n "s/^RESOLVED=//p" | tail -n 1
-import os
-import subprocess
-import sys
-
-model_id = sys.argv[1]
-hf_home = os.environ.get("HF_HOME", os.path.expanduser("~/.cache/huggingface"))
-repo_dir = os.path.join(hf_home, "hub", "models--" + model_id.replace("/", "--"))
-workspace_dir = os.path.join(
-    os.environ["GITHUB_WORKSPACE"], "cache_dit_models", model_id.split("/")[-1]
-)
-
-
-def cached_snapshot():
-    refs = os.path.join(repo_dir, "refs", "main")
-    if not os.path.isfile(refs):
-        return None
-    with open(refs) as fh:
-        sha = fh.read().strip()
-    snap = os.path.join(repo_dir, "snapshots", sha)
-    if os.path.isdir(snap) and os.listdir(snap):
-        return snap
-    return None
-
-
-snapshot = cached_snapshot()
-if snapshot is not None:
-    print(f"{model_id}: shared-cache hit -> {snapshot}", flush=True)
-else:
-    print(f"{model_id}: not in the shared cache ({repo_dir}); filling it via HF",
-          flush=True)
-    try:
-        from huggingface_hub import snapshot_download
-
-        snapshot = snapshot_download(model_id)
-        print(f"filled shared cache: {snapshot}", flush=True)
-    except Exception as e:
-        print(f"HF fill failed ({type(e).__name__}: {e}); trying ModelScope",
-              flush=True)
-        snapshot = None
-
-    if snapshot is None:
-        try:
-            from modelscope import snapshot_download as ms_snapshot
-        except ImportError:
-            subprocess.run(
-                [sys.executable, "-m", "pip", "install", "-q",
-                 "modelscope==1.37.0"],
-                check=True,
-            )
-            from modelscope import snapshot_download as ms_snapshot
-        os.makedirs(workspace_dir, exist_ok=True)
-        ms_snapshot(model_id, local_dir=workspace_dir)
-        snapshot = workspace_dir
-        print(f"downloaded to ephemeral {snapshot}", flush=True)
-
-print(f"RESOLVED={snapshot}", flush=True)
-PY
-)
-  [[ -n "$resolved" ]] || { echo "resolve_model($hf_id) printed no path" >&2; exit 2; }
-  # Shell var for same-script consumers; GITHUB_ENV for the run-example
-  # step's overlay_args expansion (${FLUX_MODEL_PATH} in the manifest).
-  export "$var"="$resolved"
-  echo "$var=$resolved" >> "$GITHUB_ENV"
+# Resolve the example's model into GITHUB_ENV for the manifest's
+# overlay_args expansion (${FLUX_MODEL_PATH} in the run-example step).
+# scripts/hub_cache.py owns the whole path: a snapshot in the shared
+# runner cache that holds every required file is used as is, with zero
+# network; a miss is downloaded (HuggingFace first, ModelScope
+# fallback) into this job's private staging dir on the same persistent
+# volume and published into the cache, so every later run - on any pod
+# of the pool - hits it. The fetch is trimmed by allow_patterns to the
+# diffusers component tree (57.89 GB -> 33.74 GB). Same helper shape as
+# the peft project.
+resolve_hub_paths() {
+  python3 "$HERE/hub_cache.py" "$@"
 }
 
 setup_flux() {
   echo "profile=flux: resolving FLUX.1-dev model"
-  # HF id is the gated black-forest-labs repo; cold-cache fill falls
-  # back to the AI-ModelScope mirror by resolve_model (diffusers
-  # layout, same as the legacy in-setup modelscope download).
-  resolve_model black-forest-labs/FLUX.1-dev FLUX_MODEL_PATH
+  # HF id is the gated black-forest-labs repo; hub_cache.py trims the
+  # download to the diffusers component tree FluxPipeline.from_pretrained
+  # reads and falls back to the ModelScope mirror (same layout) when the
+  # HuggingFace leg 401s for lack of an HF_TOKEN.
+  resolve_hub_paths FLUX_MODEL_PATH
 }
 
 setup_flux
