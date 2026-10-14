@@ -1,0 +1,31 @@
+# PIP_CONSTRAINT for specforge example installs.
+#
+# specforge's pyproject.toml pins `torch==2.13.0` and `transformers==5.12.1`,
+# but the CI image ships torch 2.10.0 + torch_npu 2.10.0 (Quick-start-Ascend
+# pins that line because the vendored sglang 0.5.18 wheels only link against
+# torch 2.10.x). Setup installs specforge with --no-deps and adds the typed
+# CLI's runtime deps explicitly, so the constraint file only needs to:
+#   - keep the user-provided specforge dep set from clobbering the image
+#     torch (no torch/torch_npu in this file — setup installs them with
+#     pip_ascend and pins the version there);
+#   - block the CUDA metapackages (bitsandbytes / xformers / flash-attn
+#     have no NPU backend and would pull in libcuda / libtorch_cuda.so
+#     during wheel metadata resolution).
+# Nothing else needs to be pinned: every other dep installs loosely on
+# the existing image (transformers, accelerate, click, pyyaml, ...).
+bitsandbytes
+xformers
+flash-attn
+flash_attn
+nvidia-cublas-cu12
+nvidia-cuda-cupti-cu12
+nvidia-cuda-nvrtc-cu12
+nvidia-cuda-runtime-cu12
+nvidia-cudnn-cu12
+nvidia-cufft-cu12
+nvidia-curand-cu12
+nvidia-cusolver-cu12
+nvidia-cusparse-cu12
+nvidia-nccl-cu12
+nvidia-nvjitlink-cu12
+nvidia-nvtx-cu12
