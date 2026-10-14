@@ -1,0 +1,71 @@
+# onnxruntime examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop lives in the engine. See
+# examples-guards/README.md.
+
+name: onnxruntime-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'onnxruntime-examples-schedule' || (github.event_name == 'pull_request' && format('onnxruntime-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 04:00 Beijing time (UTC 20:00). accelerate-examples already
+  # uses UTC 18:00, and the tgi migration uses UTC 19:00.
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main when the repo has no release)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files: a PR that
+  # touches only the shared engine, scripts or schema starts no
+  # project's matrix.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/onnxruntime/**'
+      - '.github/workflows/onnxruntime-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  onnxruntime-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-onnxruntime_*),
+      # artifact names and the scheduling paths under
+      # examples-guards/onnxruntime.
+      project: onnxruntime
+      # Inference samples live here, not in microsoft/onnxruntime.
+      # The repo publishes no GitHub releases; the engine then tests
+      # the default branch HEAD.
+      upstream_repo: microsoft/onnxruntime-inference-examples
+      target_ref: ${{ inputs.target_ref }}
+      # Two single-card CPU entries. They do not download into the
+      # shared hub cache, so they can run together.
+      max_parallel: 2
