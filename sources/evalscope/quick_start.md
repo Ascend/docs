@@ -179,7 +179,7 @@ assert dev.startswith('npu'), dev
 
 ### 5.2 运行 EvalScope 评测
 
-`evalscope eval` 在指定数据集上用默认配置评测模型。`--model` 指向本地权重，`--model-args` 传入 `device_map="npu"`（正是 EvalScope 在 NPU 上的默认取值，显式写出更直观）把模型放到 NPU，`--work-dir` 指定输出目录，`--no-timestamp` 让报告直接落在该目录（默认会在 `--work-dir` 下再追加时间戳子目录），`--limit 5` 只跑 5 条样本用于快速验证流程（不代表真实榜单值）。如需限定设备，可用环境变量 `ASCEND_RT_VISIBLE_DEVICES`（例如 `0` 表示仅用第 0 张卡）。
+`evalscope eval` 在指定数据集上用默认配置评测模型。`--model` 指向本地权重，`--model-args` 传入 `device_map="npu"`（正是 EvalScope 在 NPU 上的默认取值，显式写出更直观）把模型放到 NPU，`--work-dir` 指定输出目录，`--no-timestamp` 让报告直接落在该目录（默认会在 `--work-dir` 下再追加时间戳子目录），`--limit 5` 只跑 5 条样本用于快速验证流程（不代表真实榜单值），`--dataset-hub huggingface` 让数据集从 HuggingFace 拉取（EvalScope 默认走 ModelScope，其数据集仓库自带的 `dataset_infos.json` 与 HF `datasets` 库不兼容，加载时会报缺少 `dtype` 的已知错误，改走 HF 可规避）。如需限定设备，可用环境变量 `ASCEND_RT_VISIBLE_DEVICES`（例如 `0` 表示仅用第 0 张卡）。
 
 ```shell #test id="run-eval" load="model_path>>model_path"
 evalscope eval \
@@ -187,6 +187,7 @@ evalscope eval \
   --datasets gsm8k arc \
   --limit 5 \
   --no-timestamp \
+  --dataset-hub huggingface \
   --model-args '{"device_map": "npu"}' \
   --work-dir outputs/evalscope_npu_qs 2>&1
 ```
