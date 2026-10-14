@@ -1,0 +1,49 @@
+# Custom lm_eval task for the CI smoke test of recipes/eleuther_eval.py.
+#
+# The recipe's evaluate() calls lm_eval's get_task_dict(tasks, TaskManager)
+# where TaskManager is given cfg.include_path as an additional task search
+# root. Tasks defined here override the built-in truthfulqa_mc2 (which would
+# pull from HF datasets) so we can run end-to-end without HF access.
+#
+# data_files is resolved by datasets.load_dataset() against the cwd of
+# the python process (datasets/data_files.py:295 resolve_pattern takes
+# an explicit base_path, but load_dataset defaults it to ""). The
+# engine runs recipes with cwd=$TARGET_ROOT, and prepare_fixtures() in
+# setup_example.sh mirrors $FIXTURE_DIR/ into $TARGET_ROOT/fixtures/,
+# so the JSON lives at $TARGET_ROOT/fixtures/ci_truthfulqa_2.json. We
+# therefore write a path RELATIVE TO cwd, not relative to this YAML
+# (../ would resolve against cwd and point one level above $TARGET_ROOT,
+# which is the workflows checkout — wrong side of the fixtures mirror).
+#
+# output_type=multiple_choice makes lm_eval rank each choice by loglikelihood
+# (no generation), so the eval needs only forward passes — fits the 1-step
+# smoke pattern used by the rest of the manifest.
+#
+# doc_to_choice is required by the multiple_choice task: lm_eval's
+# construct_requests() (api/task.py:1311) calls self.doc_to_choice(doc) to
+# extract the list of candidates; without it, doc_to_choice raises TypeError
+# (api/task.py:1258, "doc_to_choice was called but not set in config"). For
+# TruthfulQA mc2 the choices live at doc.mc2_targets.choices, and labels at
+# doc.mc2_targets.labels — lm_eval picks the highest-loglikelihood choice
+# whose label==1 as the gold answer (see ConfigurableTask.process_results).
+#
+# Metric is `acc` (built-in) instead of `mc2` (custom TruthfulQA-specific
+# aggregation in lm_eval's truthfulqa/utils.py) because we want a metric
+# that's guaranteed importable from a stock lm-eval install, with no
+# vendoring of upstream eval harness utils.
+task: ci_truthfulqa_mc2
+dataset_path: json
+dataset_kwargs:
+  data_files: fixtures/ci_truthfulqa_2.json
+output_type: multiple_choice
+training_split: null
+validation_split: train
+doc_to_text: "{{question}}\nA:"
+doc_to_choice: "{{mc2_targets.choices}}"
+doc_to_target: "{{mc2_targets.labels}}"
+target_delimiter: " "
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: true
+num_fewshot: 0
