@@ -1,0 +1,90 @@
+version: 1
+scan:
+  root: mooncake-transfer-engine/example
+  include_extensions: ['.cpp', '.py', '.cu']
+supported:
+  - path: mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf.cpp
+    profile: ascend-direct
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/mooncake-transfer-engine/example/transfer_engine_ascend_direct_perf
+    overlay_args:
+      - --block_iteration=1
+      - --batch_size=2
+      - --block_size=16384
+    timeout_minutes: 120
+unsupported:
+  # v0.3.13.post1 example/CMakeLists.txt:41 builds this only inside
+  # if(USE_ASCEND). transfer_engine_ascend_one_sided.cpp:31 includes
+  # "hccl.h" and :40 defaults protocol to "hccl". This guard passes
+  # -DUSE_ASCEND_DIRECT=ON, which does not define USE_ASCEND.
+  - mooncake-transfer-engine/example/transfer_engine_ascend_one_sided.cpp
+  # Same gate at example/CMakeLists.txt:46. transfer_engine_ascend_perf.cpp:31
+  # includes "hccl.h" and :40 defaults protocol to "hccl".
+  # -DUSE_ASCEND_DIRECT=ON does not build this target.
+  - mooncake-transfer-engine/example/transfer_engine_ascend_perf.cpp
+  # example/CMakeLists.txt:58 builds this only inside
+  # if(USE_ASCEND_HETEROGENEOUS). The initiator at :194 calls
+  # installTransport("ascend"), and :166 puts "cuda:0" in the NIC matrix
+  # beside "npu:0". This runner has no CUDA peer.
+  - mooncake-transfer-engine/example/transfer_engine_heterogeneous_ascend_perf_initiator.cpp
+  # transfer_engine_bench.cpp:91 defaults protocol to "rdma". The help
+  # string is rdma|barex|tcp|efa|nvlink|musa|nvlink_intra|hip|sunrise_link
+  # and does not name ascend or hccl. :95 defaults device_name to
+  # "mlx5_2". The NPU allocator at :136 is under USE_UBSHMEM.
+  - mooncake-transfer-engine/example/transfer_engine_bench.cpp
+  # transfer_engine_bench_with_notify.cpp:77 defaults protocol to "rdma"
+  # (rdma|tcp|nvlink|musa|hip). Under USE_CUDA, :110 calls cudaSetDevice
+  # and :114 calls cudaMalloc.
+  - mooncake-transfer-engine/example/transfer_engine_bench_with_notify.cpp
+  # transfer_engine_bench_with_retry.cpp:62 defaults protocol to "rdma"
+  # (rdma|tcp). Under USE_CUDA, :95 calls cudaSetDevice and :96 calls
+  # cudaMalloc.
+  - mooncake-transfer-engine/example/transfer_engine_bench_with_retry.cpp
+  # transfer_engine_validator.cpp:73 defaults protocol to "rdma"
+  # (rdma|tcp|nvlink|musa|maca|hip). Under USE_CUDA, :112 calls
+  # cudaSetDevice and :116 calls cudaMalloc.
+  - mooncake-transfer-engine/example/transfer_engine_validator.cpp
+  # memory_pool.cpp:81 calls installTransport("rdma"). :89 registers the
+  # buffer with location "cpu:" plus the socket id. No Ascend call.
+  - mooncake-transfer-engine/example/memory_pool.cpp
+  # show_link.cpp:63 calls installTransport("rdma") and prints
+  # engine->showLinks. No device buffer and no Ascend call.
+  - mooncake-transfer-engine/example/show_link.cpp
+  # device_transport_example.cu:27 says "Requires 2 GPUs with P2P access".
+  # :31 includes cuda_runtime.h and :198 calls cudaSetDevice.
+  # example/CMakeLists.txt:82 builds it only inside
+  # if(USE_CUDA AND BUILD_DEVICE_TRANSPORT_EXAMPLE).
+  - mooncake-transfer-engine/example/device_transport_example.cu
+  # nccl_device_transport_example.cu:21 includes cuda_runtime.h, :36
+  # includes nccl_device.cuh, and :227 calls cudaSetDevice.
+  # example/CMakeLists.txt:129 builds it only inside if(USE_NCCL_DEVICE
+  # AND BUILD_NCCL_DEVICE_TRANSPORT_EXAMPLE).
+  - mooncake-transfer-engine/example/nccl_device_transport_example.cu
+  # nccl_host_transport_example.cpp:17 includes nccl.h. :160 logs
+  # "The NCCL host example requires two GPUs". :180 calls
+  # installTransport("nccl") and :182 registers memory as "cuda:" plus
+  # the rank. example/CMakeLists.txt:166 builds it only inside
+  # if(USE_NCCL_HOST AND BUILD_NCCL_HOST_TRANSPORT_EXAMPLE).
+  - mooncake-transfer-engine/example/nccl_host_transport_example.cpp
+  # efa_first_submit_probe.cpp:47 includes efa_transport.h and :86 calls
+  # installTransport("efa"). example/CMakeLists.txt:32 builds it only
+  # inside if(USE_EFA).
+  - mooncake-transfer-engine/example/efa_first_submit_probe.cpp
+  # efa_per_transfer_latency_bench.py:83 starts the bench with
+  # --protocol=efa. :58 builds an ssh argv, ssh_args = ["ssh", ...], and
+  # :173 uses it to start the target on --target_host. Not an on-node
+  # NPU workload.
+  - mooncake-transfer-engine/example/efa_per_transfer_latency_bench.py
+  # batch_register_bench.py:3 titles itself "Batch Memory Registration
+  # Benchmark for Mooncake EFA Transport". :59 defaults --protocol to
+  # "efa".
+  - mooncake-transfer-engine/example/batch_register_bench.py
+  # kvcache_prefix_bench.py:3 titles itself "KV Cache Prefix Transfer
+  # Benchmark for Mooncake EFA Transport". :62 defaults --protocol to
+  # "efa". :166 allocates with torch.zeros(..., device=f"cuda:{gpu_id}").
+  - mooncake-transfer-engine/example/kvcache_prefix_bench.py
+  # bootstrap_server.py:29 routes every method on /metadata into an
+  # in-memory dict via aiohttp. No NPU or transfer call.
+  - mooncake-transfer-engine/example/http-metadata-server-python/bootstrap_server.py
