@@ -20,7 +20,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为*
 | EvalScope | 从 PyPI 安装（撰写时 `1.11.0`），见下文 |
 | 模型 / 数据 | ModelScope 上的 Qwen2.5-0.5B-Instruct 与评测数据集 |
 
-本文验证环境：Atlas 900 A2（Ascend 910B4，64 GB × 1）、Python 3.12、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+本文验证镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 
@@ -63,8 +63,8 @@ print('count:', torch.npu.device_count())
 输出结果如下：
 
 ```shell #test-result id="check-torch" fuzzy='xxx'
-torch=xxx
-torch_npu=xxx
+torch=2.9.0+cpu
+torch_npu=2.9.0.post2
 is_available: True
 count: 1
 ```
@@ -76,15 +76,26 @@ count: 1
 
 ## 3. 安装 EvalScope
 
-EvalScope 的 Native 后端基于 transformers，因此评测机需已具备上一节的 `torch` / `torch_npu` 栈。直接用 `pip` 安装 EvalScope 本体（安装时会顺带拉取 transformers / modelscope 等导入期依赖）：
+EvalScope 的 Native 后端基于 transformers，因此评测机需已具备第 2 节的 `torch` / `torch_npu` 栈。下面以**最新版本**为例给出两种安装方式，二选一即可。
 
-安装时注意两点：
+### 从源码安装
 
-- **显式安装 `accelerate`**：EvalScope 的本地模型封装在加载时一定会把 `device_map=get_device()`（NPU 上即 `'npu'`）传给 `from_pretrained`，而 transformers ≥5 只要收到 `device_map` 就要求 `accelerate`，但 `evalscope` 的依赖清单里并没有声明它——漏装会在加载模型时报 `requires accelerate`。
-- **不要给 `numpy` 加上限（尤其别钉 `<2`）**：EvalScope 经 `modelscope[datasets]` 拉入的新版 `datasets` / `pyarrow` 在导入时**要求 NumPy ≥ 2**。若把 `numpy` 钉在 1.x，`import datasets` 会直接抛 `ImportError: pyarrow requires NumPy 2.0 or newer`（该检查发生在运行期、不在包元数据里，pip 解析时不会报冲突）。这里显式钉 `numpy>=2,<3`，与上游一致地留在 NumPy 2。
+```shell
+git clone https://github.com/modelscope/evalscope.git
+cd evalscope
+python -m pip install -e .
+```
+
+### 从 PyPI 二进制安装
 
 ```shell #test-setup
-python -m pip install "evalscope==1.11.0" "numpy>=2.0,<3" accelerate
+python -m pip install evalscope
+```
+
+EvalScope 经 `modelscope[datasets]` 引入的新版 `datasets` / `pyarrow` 在导入时**要求 NumPy ≥ 2**，且加载本地模型时会向 `from_pretrained` 传入 `device_map`（transformers ≥5 在收到 `device_map` 时要求 `accelerate`）。因此安装时一并带上这两个依赖的版本约束：
+
+```shell #test-setup
+python -m pip install "numpy>=2.0,<3" accelerate
 ```
 
 装完打印版本并确认 NPU 栈可用（下面的命令用 Python 执行）：
@@ -103,11 +114,11 @@ print('npu_available', torch.npu.is_available())
 输出结果如下：
 
 ```shell #test-result id="check-evalscope" fuzzy='xxx'
-evalscope 1.11.0
+evalscope xxx
 transformers xxx
 accelerate xxx
 numpy 2.xxx
-torch 2.9.0xxx
+torch 2.9.0+cpu
 torch_npu 2.9.0.post2
 npu_available True
 ```
@@ -116,7 +127,7 @@ npu_available True
 
 ## 4. 准备模型与数据
 
-下面用 Python 从 ModelScope 拉取权重（第一次约 1 GB，之后走本地缓存，默认位于 `~/.cache/modelscope`）：
+下面用 Python 从 ModelScope 拉取权重（下面的代码用 Python 执行）：
 
 ```python #test-setup store="model_path"
 from modelscope import snapshot_download
@@ -127,6 +138,11 @@ print(snapshot_download('Qwen/Qwen2.5-0.5B-Instruct'))
 
 ```shell #test id="check-model" load="model_path>>model_path"
 test -f "<model_path>/config.json" && echo has_config True
+```
+
+```{admonition} Note
+:class: note
+`<model_path>` 是上一步 `snapshot_download` 返回的本地权重目录（形如 `~/.cache/modelscope/Qwen/Qwen2.5-0.5B-Instruct`）。
 ```
 
 输出结果如下：
@@ -141,7 +157,7 @@ has_config True
 
 ### 5.1 先确认模型能够加载到 NPU
 
-先用 transformers 以 `device_map="npu"` 加载模型并打印第一个参数的设备，确认模型确实落在 NPU 上（下面的命令用 Python 执行）。EvalScope 的 Native 后端同样把 `device_map` 直接传给 transformers 的 `from_pretrained`（NPU 上取值为 `'npu'`），因此这一步与 EvalScope 的加载路径一致。
+先用 transformers 以 `device_map="npu"` 加载模型并打印第一个参数的设备，确认模型确实落在 NPU 上。EvalScope 的 Native 后端同样把 `device_map` 直接传给 transformers 的 `from_pretrained`（NPU 上取值为 `'npu'`），因此这一步与 EvalScope 的加载路径一致（下面的命令用 Python 执行）。
 
 ```python #test id="npu-device-check" load="model_path>>model_path"
 import torch, torch_npu
