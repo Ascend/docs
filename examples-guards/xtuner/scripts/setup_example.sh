@@ -92,6 +92,13 @@ raise SystemExit(
   pip_ascend torch_npu==2.11.0
 }
 
+resolve_hub_paths() {
+  # $@ = env var names from scripts/hub_cache.py ASSETS. Each resolves to
+  # a snapshot in the shared HF hub cache, downloaded on a miss, and is
+  # appended to GITHUB_ENV for the manifest overlay_args.
+  python "$HERE/hub_cache.py" "$@"
+}
+
 setup_xtuner-llm() {
   # scikit-image pulls GUI opencv-python 5.x as a transitive dep, whose
   # cv2.abi3.so links libxcb.so.1 / libGL.so.1 — missing from the lean
@@ -137,7 +144,7 @@ assert torch_npu.__version__.startswith('2.11.0'), f'torch_npu drifted to {torch
 # xtuner does NOT expose __version__ on the top-level module (unlike
 # peft/accelerate); it lives in xtuner/version.py. Confirmed by CI run
 # 35043584383 (xtuner.__version__ raised AttributeError; using
-# `from xtuner.version import __version__` is the correct probe).
+# 'from xtuner.version import __version__' is the correct probe).
 from xtuner.version import __version__ as xtuner_ver
 import xtuner, transformers, datasets, accelerate, peft
 print('xtuner', xtuner_ver, '/ transformers', transformers.__version__,
@@ -145,27 +152,16 @@ print('xtuner', xtuner_ver, '/ transformers', transformers.__version__,
 print('peft', peft.__version__)
 "
 
-  # Pre-download the small LLM used by the supported HF trainer
-  # example from ModelScope (China-reachable; HF download is gated).
-  # The snapshot path is exported as LLM_MODEL_PATH for overlay_args
-  # to consume.
-  # Pinned: modelscope>=1.38 splits the hub code into modelscope-hub,
-  # and the fresh 1.40.1 wheel's loose ">=0.4.2" floor breaks import
-  # when the mirror lags on hub 0.4.3. 1.37.0 is the last pre-split
-  # line, verified by the sibling quick-start docs.
+  # Resolve the small LLM used by the supported entries (Qwen2.5-0.5B)
+  # through the shared HF hub cache. hub_cache.py verifies safetensors
+  # integrity before publishing, so a truncated download is refetched
+  # instead of used — the bare ModelScope snapshot_download path handed
+  # back a half-written safetensors on the shared volume (run
+  # 38527168978, "incomplete metadata, file not fully covered").
+  # modelscope==1.37.0 is hub_cache.py's fallback; pinned (not 1.40.1)
+  # because >=1.38 splits the hub code into modelscope-hub.
   python -m pip install "modelscope==1.37.0"
-  python - <<'PY'
-import os
-# Non-TTY CI logs: throttle tqdm refreshes instead of disabling.
-os.environ.setdefault("TQDM_MININTERVAL", "15")
-from modelscope import snapshot_download
-
-MODEL_CACHE = os.environ.get("MODELSCOPE_CACHE", os.path.expanduser("~/.cache/modelscope"))
-local = snapshot_download("Qwen/Qwen2.5-0.5B", cache_dir=MODEL_CACHE)
-with open(os.environ["GITHUB_ENV"], "a") as fh:
-    fh.write(f"LLM_MODEL_PATH={local}\n")
-print("LLM_MODEL_PATH=", local)
-PY
+  resolve_hub_paths LLM_MODEL_PATH
 
   # Launcher for `examples/demo_data/*/config.py` (mmengine cfg recipes
   # with `with read_base(): from .map_fn import ...`). run_example.sh
