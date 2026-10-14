@@ -4,13 +4,6 @@ scan:
   include_extensions: ['.py']
 supported:
   # 单卡 oneshot。脚本在 CUDA 机器上会用 GPU，这里装 torch_npu，计算落到 npu。退出码 0 但参数不在 npu 上判红。不改 example 文件。
-  # Qwen3-8B 共 36 层，AutoRound 校准实测 104 分钟，后续 MXFP4 伪量化逐词生成 100 个 token 参照同类 llama3_mxfp4 的 144 分钟推算约 162 分钟，总耗时约 275 分钟，超时设为 360 分钟。运行日志 https://github.com/Ascend/docs/actions/runs/38372545244/job/115213535243
-  - path: examples/autoround/quantization_w4a4_mxfp4/autoround_example.py
-    profile: npu_oneshot
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    timeout_minutes: 360
   - path: examples/autoround/quantization_wNa16/llama3_example.py
     profile: npu_oneshot
     runner: linux-aarch64-a2-1
@@ -670,3 +663,7 @@ unsupported:
   # 上游示例与库在 0.14.0 对不上：第 14 行与第 19 行加载 microsoft/Phi-3-vision-128k-instruct 时传了 trust_remote_code=True，但第 81 行调用 oneshot 时既没传 processor 也没传 trust_remote_code_model=True，llm-compressor 在 entrypoints/utils.py 第 183 行重新加载处理器时被 transformers 抛 ValueError 拒绝。
   # 错误发生在 CPU 预处理阶段，且第 74 行 GPTQModifier 也会命中 ERR01002，不改示例就跑不起来。运行日志 https://github.com/Ascend/docs/actions/runs/38372545244/job/115213535299
   - examples/multimodal_vision/phi3_vision_example.py
+
+  # 第 15 行默认模型 Qwen/Qwen3-8B，第 27 行默认 iters 取 200，第 51 行用 AutoRoundModifier 量化 MXFP4，第 75 行调用 model.generate 生成 100 个 token。
+  # compressed_tensors 的 utils/triton.py 第 101 行 triton_req 只放行 cuda 与 xpu，npu 回退到 quantization/utils/fp4_utils.py 第 77 行 cast_to_fp4，每生成一个 token 都要对全模型 252 个线性层的权重与激活重复做 8 次布尔掩码索引赋值。PR 运行里 36 层校准耗时 104 分钟，随后生成阶段跑满 180 分钟超时仍未完成，上调超时后跑满 210 分钟仍未结束。运行日志 https://github.com/Ascend/docs/actions/runs/38372545244/job/115213535243 与 https://github.com/Ascend/docs/actions/runs/38505392378/job/115661708461
+  - examples/autoround/quantization_w4a4_mxfp4/autoround_example.py
