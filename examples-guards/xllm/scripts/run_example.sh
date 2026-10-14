@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Run one xllm example from a CI working copy of the target tree.
 # Overlay CLI args come from OVERLAY_ARGS (JSON array).
-# The example scripts don't have "$@" passthrough, so we patch them.
+# They are appended to the example's argv below (xllm examples consume
+# them via argparse / sys.argv).
 set -euo pipefail
 
 if [[ $# -lt 1 ]]; then
@@ -28,49 +29,6 @@ if command -v python3 >/dev/null 2>&1; then
 else
   PYTHON=python
 fi
-
-ensure_passthrough() {
-  local script="$1"
-  if grep -qE '"\$@"' "$script"; then
-    echo "example already has \"\$@\"; skipping patch"
-    return
-  fi
-  # xllm example scripts call ArgumentParser().parse_args() themselves, so they
-  # already consume sys.argv (incl. the overlay args). Patching "$@" onto the
-  # last Python statement would produce invalid syntax — skip them.
-  if grep -qE 'parse_args\(' "$script"; then
-    echo "example uses argparse (reads sys.argv); skipping patch"
-    return
-  fi
-  "$PYTHON" - "$script" <<'PY'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-text = path.read_text(encoding='utf-8')
-
-# Find the last non-comment, non-empty line (the actual command)
-lines = text.splitlines(keepends=True)
-for i in range(len(lines) - 1, -1, -1):
-    stripped = lines[i].strip()
-    if stripped and not stripped.startswith('#'):
-        raw = lines[i]
-        newline = ''
-        if raw.endswith('\r\n'):
-            newline = '\r\n'
-            raw = raw[:-2]
-        elif raw.endswith('\n'):
-            newline = '\n'
-            raw = raw[:-1]
-        # Append "$@" before the newline
-        lines[i] = raw.rstrip() + ' "$@"' + newline
-        path.write_text(''.join(lines), encoding='utf-8')
-        print(f'patched {path} to pass "$@" on last command line')
-        raise SystemExit(0)
-
-raise SystemExit(f'{path}: cannot find a command line to attach "$@"')
-PY
-}
 
 expand_overlay() {
   "$PYTHON" - <<'PY'
@@ -105,7 +63,6 @@ eval "EXTRA_ARGS=( $(expand_overlay) )"
 echo "running $EXAMPLE_PATH with ${#EXTRA_ARGS[@]} overlay args"
 if ((${#EXTRA_ARGS[@]})); then
   printf 'overlay arg: %q\n' "${EXTRA_ARGS[@]}"
-  ensure_passthrough "$EXAMPLE_PATH"
 fi
 
 cd /tmp

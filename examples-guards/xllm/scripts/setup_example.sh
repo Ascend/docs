@@ -11,21 +11,12 @@ fi
 PROFILE="$1"
 
 ASCEND_PIP_INDEX=https://repo.huaweicloud.com/ascend/repos/pypi
-ASCEND_MIRROR_PIP_INDEX=https://mirrors.huaweicloud.com/ascend/repos/pypi
-ASCEND_VARIANT_PIP_INDEX=https://mirrors.huaweicloud.com/ascend/repos/pypi/variant
 CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
 export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 FALLBACK_PIP_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
 
 pip_ascend() {
   python -m pip install --extra-index-url "$ASCEND_PIP_INDEX" "$@"
-}
-
-pip_ascend_variant() {
-  python -m pip install \
-    --extra-index-url "$ASCEND_VARIANT_PIP_INDEX" \
-    --extra-index-url "$ASCEND_MIRROR_PIP_INDEX" \
-    "$@"
 }
 
 select_pip_index() {
@@ -123,38 +114,11 @@ PY
   echo "$var=$resolved" >> "$GITHUB_ENV"
 }
 
-ensure_vlm_images() {
-  # generate_vlm.py reads ./images/3.jpg and ./images/4.jpg relative to the
-  # run cwd (/tmp); upstream ships no images, so synthesize tiny JPEGs.
-  python -m pip install -q pillow 2>/dev/null || true
-  python - <<'PY'
-import os
-from PIL import Image
-os.makedirs('/tmp/images', exist_ok=True)
-for name, color in (('3.jpg', (196, 74, 60)), ('4.jpg', (58, 96, 180))):
-    path = os.path.join('/tmp/images', name)
-    if os.path.exists(path):
-        continue
-    Image.new('RGB', (256, 256), color).save(path, 'JPEG')
-print('vlm fixture images ready at /tmp/images')
-PY
-}
-
 # Default profile: resolve the LLM example model (xllm is pre-installed in
 # the official release image, no source build needed).
 setup_default() {
   echo "profile=default: resolving example model"
   resolve_model Qwen/Qwen2-7B-Instruct XLLM_MODEL_PATH
-}
-
-# VLM profile: vision model + image fixtures for generate_vlm.py.
-# Currently dormant (generate_vlm.py sits in unsupported until the
-# upstream Qwen2VLPromptProcessor crash is fixed); kept so the move-back
-# is a manifest-only change.
-setup_vlm() {
-  echo "profile=vlm: resolving VLM model and image fixtures"
-  resolve_model Qwen/Qwen2.5-VL-7B-Instruct XLLM_VLM_MODEL_PATH
-  ensure_vlm_images
 }
 
 if ! declare -F "setup_${PROFILE}" >/dev/null 2>&1; then
