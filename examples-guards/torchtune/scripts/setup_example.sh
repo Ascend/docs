@@ -158,8 +158,13 @@ resolve_hub_paths() {
 install_torchtune_pkg() {
   echo "installing torchtune from $TARGET_ROOT (non-editable, see Quick-start-Ascend.md:164-167)"
   python -m pip install "$TARGET_ROOT"
-  python -m pip install "transformers==4.57.1" "omegaconf>=2.3,<3" \
-    tokenizers safetensors tqdm pyyaml
+  # transformers==4.57.1 pins huggingface_hub<1.0 (0.36.2), which the
+  # runner image's preinstalled datasets 5.x can no longer import (its
+  # arrow_dataset imports huggingface_hub.errors.BucketNotFoundError, a
+  # 2.x symbol). Pin datasets back to 3.x so `import torchtune` (which
+  # imports datasets) resolves against the tightened hub.
+  python -m pip install "transformers==4.57.1" "datasets>=3.2.0,<4.0.0" \
+    "omegaconf>=2.3,<3" tokenizers safetensors tqdm pyyaml
 
   # Probe which NF4Tensor import path the torchtune checkout uses, then
   # install the matching torchao exact pin.
