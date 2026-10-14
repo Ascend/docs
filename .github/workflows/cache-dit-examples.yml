@@ -27,6 +27,17 @@ on:
         required: false
         default: ''
         type: string
+  # PR trigger: changes to the guard assets (examples-guards/cache-dit/**)
+  # or this workflow file re-run the guard against the latest upstream
+  # release so a regression is caught before merge. paths filter avoids
+  # burning the self-hosted NPU runner on unrelated PRs. `pull_request`
+  # (not `pull_request_target`): contents: read is enough, no write-token
+  # risk. Mirrors the peft-quick-start example.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'examples-guards/cache-dit/**'
+      - '.github/workflows/cache-dit-examples.yml'
 
 # Engine jobs query the GitHub Job API (validate-results); called
 # workflows run with the caller's GITHUB_TOKEN permissions.
