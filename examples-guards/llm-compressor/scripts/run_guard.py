@@ -15,6 +15,7 @@ import runpy
 import shlex
 import sys
 
+import datasets
 import llmcompressor
 import torch
 import torch_npu
@@ -92,11 +93,15 @@ def find_model(namespace: dict) -> torch.nn.Module | None:
 def main() -> None:
     if not torch.npu.is_available():
         raise SystemExit("torch.npu.is_available() is false before the example")
+    # Post-load Dataset.map caches live on the shared HF volume; disable
+    # them so two examples that define the same helper name do not reuse
+    # each other's Arrow output. load_dataset still reads the Hub cache.
+    datasets.disable_caching()
     patch_accelerator_memory()
     remember_oneshot_model()
     path = os.environ["EXAMPLE_PATH"]
     sys.argv = [path, *overlay_args()]
-    namespace = runpy.run_path(path)
+    namespace = runpy.run_path(path, run_name="__main__")
     if not is_rank0():
         return
     model = find_model(namespace)
