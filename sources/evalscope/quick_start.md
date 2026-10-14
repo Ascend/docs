@@ -63,8 +63,8 @@ print('count:', torch.npu.device_count())
 输出结果如下：
 
 ```shell #test-result id="check-torch" fuzzy='xxx'
-torch=2.9.0+cpu
-torch_npu=2.9.0.post2
+torch= 2.9.0+cpu
+torch_npu= 2.9.0.post2
 is_available: True
 count: 1
 ```
