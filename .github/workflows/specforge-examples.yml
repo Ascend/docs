@@ -8,10 +8,9 @@
 # save-monitor-state) lives in the engine. See examples-guards/README.md
 # for the design.
 #
-# Bring-up phase: schedule is commented out (same policy as peft / trl).
 # specforge upstream has no formal release cadence (latest tagged builds
-# are intermittent); re-enable schedule after a few green dispatch rounds
-# to confirm the manifest overlay is stable under matrix churn.
+# are intermittent); the engine's monitor falls back to the default
+# branch HEAD when no release exists.
 
 name: specforge-examples
 
@@ -28,11 +27,11 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 on:
-  # Bring-up phase: keep the schedule disabled until a few manual
-  # rounds are green (same policy as peft-examples.yml / trl-examples.yml).
-  # Re-enable:
-  # schedule:
-  #   - cron: '30 */6 * * *'
+  # Daily at 07:00 UTC (15:00 Beijing). Slot is staggered from the
+  # other example guards (accelerate/ray/slime/... at 18:00, tgi at
+  # 19:00, peft at 23:00; xtuner at 03:00, torchtune at 05:00).
+  schedule:
+    - cron: '0 7 * * *'
   workflow_dispatch:
     inputs:
       target_ref:
