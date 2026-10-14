@@ -1,0 +1,909 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py']
+supported:
+  # overlay_args 约定：
+  #   - 只写与脚本默认值不同的项；每个参数的注释解释其作用或取值原因。
+  #   - ${VAR} 引用 setup_example.sh 写入 GITHUB_ENV 的模型快照路径变量
+  #     （DISTILBERT_PATH/TINYGPT2_PATH/TINYMBART_PATH/TINYXLNET_PATH/
+  #     TINYVIT_PATH/TINYMAE_PATH/TINYCLIP_PATH/TINYWAV2VEC2_PATH/
+  #     TINYWHISPER_PATH）；${TARGET_ROOT} 为上游仓库 checkout 根目录，
+  #     ${CI_OUTPUT_DIR} 为本 job 的产物目录（两者均由引擎注入）。
+  # --- 以下用例均已在 NPU 验证通过，全量放开执行 ---
+  - path: examples/pytorch/text-generation/run_generation.py
+    profile: generation
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 脚本按该架构名选择 AutoModel/AutoTokenizer 的实例化类（非 HF 模型 id）
+      - --model_type gpt2
+      # 模型来源：setup_example.sh 导出的 tiny-gpt2 本地快照路径（离线加载）
+      - --model_name_or_path ${TINYGPT2_PATH}
+      # 生成起始提示词
+      - --prompt Hello
+      # 本轮生成的最大 token 数；smoke 只验证生成链路，取最小开销
+      - --length 10
+      # 固定采样随机种子，保证结果可复现
+      - --seed 42
+    timeout_minutes: 60
+  - path: examples/pytorch/text-classification/run_glue_no_trainer.py
+    profile: glue
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 MRPC 训练/验证 csv fixture，替代 Hub 数据集下载
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/MRPC/train.csv
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/MRPC/dev.csv
+      # tokenizer 最大序列长度（截断/填充基准）；MRPC 句子短，64 足够
+      - --max_length 64
+      # 每卡训练/验证 batch size
+      - --per_device_train_batch_size 2
+      - --per_device_eval_batch_size 2
+      # 只跑 1 个优化步，smoke 预算（no-trainer 版参数名带下划线）
+      - --max_train_steps 1
+      # 训练产物落盘目录，收进 job artifacts
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/question-answering/run_qa_no_trainer.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 SQUAD 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      # 声明数据含 no-answer 样本（SQuAD 2.0 语义），影响预处理与评估指标路径
+      - --version_2_with_negative
+      # 问答输入最大 token 长度
+      - --max_seq_length 128
+      # 长文档滑窗切分步长（相邻窗口重叠 128-64=64 token）
+      - --doc_stride 64
+      # 各取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      - --max_eval_samples 4
+      # 每卡训练/验证 batch size
+      - --per_device_train_batch_size 1
+      - --per_device_eval_batch_size 1
+      # 只跑 1 个优化步，smoke 预算
+      - --max_train_steps 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/question-answering/run_qa_beam_search_no_trainer.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny xlnet 本地快照（beam search 评估仅 XLNet 家族脚本实现）
+      - --model_name_or_path ${TINYXLNET_PATH}
+      # 上游自带 SQUAD 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      # 声明数据含 no-answer 样本（SQuAD 2.0 语义）
+      - --version_2_with_negative
+      # 问答输入最大 token 长度
+      - --max_seq_length 128
+      # 长文档滑窗切分步长
+      - --doc_stride 64
+      # 各取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      - --max_eval_samples 4
+      # 每卡训练/验证 batch size
+      - --per_device_train_batch_size 1
+      - --per_device_eval_batch_size 1
+      # 只跑 1 个优化步，smoke 预算
+      - --max_train_steps 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/multiple-choice/run_swag_no_trainer.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 SWAG 多选样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/swag/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/swag/sample.json
+      # 多选 4 选项拼接后的最大序列长度
+      - --max_seq_length 64
+      # 每卡训练/验证 batch size
+      - --per_device_train_batch_size 1
+      - --per_device_eval_batch_size 1
+      # 只跑 1 个优化步，smoke 预算
+      - --max_train_steps 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/token-classification/run_ner_no_trainer.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 CoNLL 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/conll/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/conll/sample.json
+      # tokenizer 最大序列长度（截断/填充基准）
+      - --max_length 64
+      # 每卡训练/验证 batch size
+      - --per_device_train_batch_size 1
+      - --per_device_eval_batch_size 1
+      # 只跑 1 个优化步，smoke 预算
+      - --max_train_steps 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  # --- 批次 1：文本类 example（LM、GLUE/分类、QA/多选/NER Trainer 版、摘要、翻译）---
+  - path: examples/pytorch/language-modeling/run_clm.py
+    profile: lm
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 tiny-gpt2 本地快照路径（离线加载）
+      - --model_name_or_path ${TINYGPT2_PATH}
+      # 训练语料：setup 把上游 extensionless 的 wiki_00 fixture 复制为
+      # train.txt（脚本按文件后缀推断 dataset loader）
+      - --train_file ${CI_OUTPUT_DIR}/train.txt
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算（Trainer 版用 TrainingArguments 的 max_steps）
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/language-modeling/run_mlm.py
+    profile: lm
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 训练语料：同 run_clm.py 的 train.txt（脚本按后缀推断 loader）
+      - --train_file ${CI_OUTPUT_DIR}/train.txt
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/text-classification/run_glue.py
+    profile: glue
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # int-label MRPC fixture（setup 由上游 csv 生成）：Trainer 版的
+      # label_to_id 映射在 datasets.map 里会把字符串标签回转 str，
+      # collator 崩 "too many dimensions 'str'"
+      - --train_file ${CI_OUTPUT_DIR}/mrpc_train.csv
+      - --validation_file ${CI_OUTPUT_DIR}/mrpc_dev.csv
+      # tokenizer 最大序列长度；MRPC 句子短，64 足够
+      - --max_seq_length 64
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 2
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/text-classification/run_classification.py
+    profile: glue
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # int-label MRPC fixture（同 run_glue.py 的原因）
+      - --train_file ${CI_OUTPUT_DIR}/mrpc_train.csv
+      - --validation_file ${CI_OUTPUT_DIR}/mrpc_dev.csv
+      # 指定 csv 中两个文本输入列（通用分类脚本不做 MRPC 专用探测）
+      - --text_column_names sentence1,sentence2
+      # 指定标签列名
+      - --label_column_name label
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 2
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/token-classification/run_ner.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 CoNLL 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/conll/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/conll/sample.json
+      # 指定 fixture 中的 token 文本列
+      - --text_column_name words
+      # 指定 fixture 中的标签列
+      - --label_column_name ner
+      # tokenizer 最大序列长度（截断/填充基准）
+      - --max_seq_length 64
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/question-answering/run_qa.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 SQUAD 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      # 声明数据含 no-answer 样本（SQuAD 2.0 语义）
+      - --version_2_with_negative
+      # 问答输入最大 token 长度
+      - --max_seq_length 128
+      # 长文档滑窗切分步长
+      - --doc_stride 64
+      # 各取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      - --max_eval_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/question-answering/run_qa_beam_search.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny xlnet 本地快照（beam search 评估仅 XLNet 家族脚本实现）
+      - --model_name_or_path ${TINYXLNET_PATH}
+      # 上游自带 SQUAD 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      # 声明数据含 no-answer 样本（SQuAD 2.0 语义）
+      - --version_2_with_negative
+      # 问答输入最大 token 长度
+      - --max_seq_length 128
+      # 长文档滑窗切分步长
+      - --doc_stride 64
+      # 各取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      - --max_eval_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/question-answering/run_seq2seq_qa.py
+    profile: seq2seq
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny mbart 本地快照（seq2seq 问答走生成式答案抽取）
+      - --model_name_or_path ${TINYMBART_PATH}
+      # 上游自带 SQUAD 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/SQUAD/sample.json
+      # 声明数据含 no-answer 样本（SQuAD 2.0 语义）
+      - --version_2_with_negative
+      # 问答输入最大 token 长度
+      - --max_seq_length 128
+      # 长文档滑窗切分步长
+      - --doc_stride 64
+      # 训练取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # transformers main 的 generate 要求 num_beams 非 None；显式置 1（等效贪心）
+      - --num_beams 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/multiple-choice/run_swag.py
+    profile: small-training
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：setup_example.sh 导出的 distilbert 本地快照路径（离线加载）
+      - --model_name_or_path ${DISTILBERT_PATH}
+      # 上游自带 SWAG 多选样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/swag/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/swag/sample.json
+      # 多选 4 选项拼接后的最大序列长度
+      - --max_seq_length 64
+      # 各取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      - --max_eval_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/summarization/run_summarization.py
+    profile: seq2seq
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny mbart 本地快照
+      - --model_name_or_path ${TINYMBART_PATH}
+      # 上游自带 XSum 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/xsum/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/xsum/sample.json
+      # 指定 fixture 中的正文列/摘要列
+      - --text_column document
+      - --summary_column summary
+      # mbart 源语言码（脚本据此设置 tokenizer 的 src/tgt 语言 token）
+      - --lang en_XX
+      # 编码器输入/生成目标的最大 token 长度；smoke 取小值
+      - --max_source_length 64
+      - --max_target_length 16
+      # 训练取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/summarization/run_summarization_no_trainer.py
+    profile: seq2seq
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny mbart 本地快照
+      - --model_name_or_path ${TINYMBART_PATH}
+      # 上游自带 XSum 样本 json fixture；同文件复用作训练/验证
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/xsum/sample.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/xsum/sample.json
+      # 指定 fixture 中的正文列/摘要列
+      - --text_column document
+      - --summary_column summary
+      # 编码器输入/生成目标的最大 token 长度；smoke 取小值
+      - --max_source_length 64
+      - --max_target_length 16
+      # 只跑 1 个 epoch，smoke 预算（no-trainer 版无 max_steps 默认值时用它）
+      - --num_train_epochs 1
+      # no-trainer 版 generate 的 num_beams 默认 None 会崩；显式置 1（等效贪心）
+      - --num_beams 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/translation/run_translation.py
+    profile: seq2seq
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny mbart 本地快照
+      - --model_name_or_path ${TINYMBART_PATH}
+      # mbart 源/目标语言码（脚本内部按 "_" 切分取主码匹配 fixture 列）
+      - --source_lang en_XX
+      - --target_lang ro_RO
+      # 上游自带 WMT en-ro 样本 json fixture；脚本按语言主码（en/ro）取列
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/wmt_en_ro/train.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/wmt_en_ro/val.json
+      # 编码器输入/生成目标的最大 token 长度；smoke 取小值
+      - --max_source_length 64
+      - --max_target_length 64
+      # 训练取 4 条样本，smoke 预算
+      - --max_train_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/translation/run_translation_no_trainer.py
+    profile: seq2seq
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny mbart 本地快照
+      - --model_name_or_path ${TINYMBART_PATH}
+      # mbart 源/目标语言码（脚本内部按 "_" 切分取主码匹配 fixture 列）
+      - --source_lang en_XX
+      - --target_lang ro_RO
+      # 上游自带 WMT en-ro 样本 json fixture
+      - --train_file ${TARGET_ROOT}/tests/fixtures/tests_samples/wmt_en_ro/train.json
+      - --validation_file ${TARGET_ROOT}/tests/fixtures/tests_samples/wmt_en_ro/val.json
+      # 编码器输入/生成目标的最大 token 长度；smoke 取小值
+      - --max_source_length 64
+      - --max_target_length 64
+      # 只跑 1 个 epoch，smoke 预算
+      - --num_train_epochs 1
+      # no-trainer 版 generate 的 num_beams 默认 None 会崩；显式置 1（等效贪心）
+      - --num_beams 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  # --- 批次 2（视觉/音频类）：vision profile，tiny-random 模型走 hf-mirror 通道 ---
+  - path: examples/pytorch/image-classification/run_image_classification.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-ViT 本地快照
+      - --model_name_or_path ${TINYVIT_PATH}
+      # ImageFolder 训练/验证目录（setup 由 COCO fixture 镜像出的 3 类布局）
+      - --train_dir ${CI_OUTPUT_DIR}/imgcls/train
+      - --validation_dir ${CI_OUTPUT_DIR}/imgcls/val
+      # 不再从 train 再切验证集（fixture 已分好 train/val 两目录）
+      - --train_val_split 0.0
+      # 脚本在 set_transform 回调里读 image 列，关掉 Trainer 的无用列裁剪
+      - --remove_unused_columns False
+      # 训练取 3 条样本（fixture 每类各 1 张），smoke 预算
+      - --max_train_samples 3
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/image-classification/run_image_classification_no_trainer.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-ViT 本地快照
+      - --model_name_or_path ${TINYVIT_PATH}
+      # ImageFolder 训练/验证目录（setup 由 COCO fixture 镜像出的 3 类布局）
+      - --train_dir ${CI_OUTPUT_DIR}/imgcls/train
+      - --validation_dir ${CI_OUTPUT_DIR}/imgcls/val
+      # 只跑 1 个优化步，smoke 预算
+      - --max_train_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/image-pretraining/run_mae.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-ViTMAE 本地快照
+      - --model_name_or_path ${TINYMAE_PATH}
+      # The script reads the image column inside a set_transform callback, but
+      # Trainer's default remove_unused_columns=True strips the "image" column
+      # (not part of ViTMAEModel.forward) before the batch is fetched.
+      - --remove_unused_columns False
+      # 用本地 imagefolder builder 加载数据，替代 Hub 数据集
+      - --dataset_name imagefolder
+      # ImageFolder 训练/验证目录（** 通配展开到具体文件）
+      - --train_dir ${CI_OUTPUT_DIR}/imgcls/train/**
+      - --validation_dir ${CI_OUTPUT_DIR}/imgcls/val/**
+      # 不再从 train 再切验证集（fixture 已分好 train/val 两目录）
+      - --train_val_split 0
+      # 训练取 3 条样本（fixture 每类各 1 张），smoke 预算
+      - --max_train_samples 3
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/image-pretraining/run_mim.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # transformers main removed ViTMAE from the AutoModelForMaskedImageModeling
+      # mapping, so the MIM examples can no longer load ViTMAE checkpoints. Use
+      # the tiny ViT model instead (ViTConfig is still in the mapping); the
+      # scripts take mask_ratio from the CLI and encoder_stride below.
+      - --model_name_or_path ${TINYVIT_PATH}
+      # run_mim*.py still falls back to config.encoder_stride when the flag is
+      # unset, and ViTConfig has no such field either — pass it explicitly.
+      # ViTForMaskedImageModeling.forward additionally requires
+      # encoder_stride == patch_size (2 for the tiny ViT) whenever
+      # bool_masked_pos is provided.
+      - --encoder_stride 2
+      # Same Trainer/set_transform interplay as run_mae.py above.
+      - --remove_unused_columns False
+      # tiny ViT image_size is 30; the default mask_patch_size (32) fails the
+      # MaskGenerator "input size % mask patch size" divisibility check.
+      - --mask_patch_size 30
+      # 用本地 imagefolder builder 加载数据，替代 Hub 数据集
+      - --dataset_name imagefolder
+      # ImageFolder 训练/验证目录（** 通配展开到具体文件）
+      - --train_dir ${CI_OUTPUT_DIR}/imgcls/train/**
+      - --validation_dir ${CI_OUTPUT_DIR}/imgcls/val/**
+      # 不再从 train 再切验证集（fixture 已分好 train/val 两目录）
+      - --train_val_split 0
+      # 训练取 3 条样本（fixture 每类各 1 张），smoke 预算
+      - --max_train_samples 3
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  # 批次 3：语音识别。asr_data 为 audiofolder + metadata.csv 布局（audio/text
+  # 两列）；CTC 两条共用 tiny-random-Wav2Vec2，seq2seq 用 tiny-random-Whisper
+  # （hf-mirror 通道下载）。
+  - path: examples/pytorch/speech-recognition/run_speech_recognition_ctc.py
+    profile: speech
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-Wav2Vec2 本地快照（setup 已植入 trainer_state.json）
+      - --model_name_or_path ${TINYWAV2VEC2_PATH}
+      # 音频数据集：setup 生成的 audiofolder 目录
+      - --dataset_name ${CI_OUTPUT_DIR}/asr_data
+      # 指定 audiofolder 里的音频列/转写文本列
+      - --audio_column_name audio
+      - --text_column_name text
+      # asr_data train/validation hold 2/1 wav files; larger values make
+      # .select(range(n)) raise IndexError.
+      - --max_train_samples 2
+      - --max_eval_samples 1
+      # Script default eval_split_name is "test"; our fixture splits are
+      # train/validation.
+      - --eval_split_name validation
+      # Upstream create_vocabulary_from_data builds the vocab with
+      # functools.reduce over the split Datasets; with a single split
+      # reduce returns the Dataset itself and sorted(dataset) iterates row
+      # dicts -> "unhashable type: 'dict'". do_eval loads the second split
+      # and sidesteps the bug.
+      - --do_eval
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      # The scripts resume from the model dir (see the trainer_state.json
+      # note in setup_example.sh); transformers main's checkpoint save then
+      # requires stateful_callbacks entries our planted state lacks
+      # (KeyError: TrainerControl). Disable checkpoint saving; the scripts'
+      # final trainer.save_model() does not go through that path.
+      - --save_strategy no
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/speech-recognition/run_speech_recognition_ctc_adapter.py
+    profile: speech
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-Wav2Vec2 本地快照（setup 已植入 trainer_state.json）
+      - --model_name_or_path ${TINYWAV2VEC2_PATH}
+      # 音频数据集：setup 生成的 audiofolder 目录
+      - --dataset_name ${CI_OUTPUT_DIR}/asr_data
+      # 指定 audiofolder 里的音频列/转写文本列
+      - --audio_column_name audio
+      - --text_column_name text
+      # Adds adapter attention layers and freezes everything else, so the
+      # smoke run trains only the freshly initialized adapter weights.
+      - --adapter_attn_dim 8
+      # Required arg (argparse exits 2 without it); labels the language
+      # adapter token + saved adapter file. "en" is not in the generated
+      # CTC vocab (single chars a/b), so no --overwrite_lang_vocab needed.
+      - --target_language en
+      # asr_data train/validation hold 2/1 wav files; larger values make
+      # .select(range(n)) raise IndexError.
+      - --max_train_samples 2
+      - --max_eval_samples 1
+      # Script default eval_split_name is "test"; our fixture splits are
+      # train/validation.
+      - --eval_split_name validation
+      # Same single-split reduce bug as run_speech_recognition_ctc.py.
+      - --do_eval
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      # Same checkpoint-save KeyError as run_speech_recognition_ctc.py.
+      - --save_strategy no
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  # run_speech_recognition_seq2seq.py：上游 breakage——脚本 L404 无条件调用
+  #   model.freeze_feature_encoder()，而 transformers main 的 Whisper 建模类已不提供
+  #   该方法（wav2vec2/hubert 家族仍有），AttributeError。等上游修复后按下方注释恢复
+  # - path: examples/pytorch/speech-recognition/run_speech_recognition_seq2seq.py
+  #   profile: speech
+  #   runner: linux-aarch64-a2-2
+  #   npu_devices: '0'
+  #   image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+  #   overlay_args:
+  #     - --model_name_or_path ${TINYWHISPER_PATH}
+  #     - --dataset_name ${CI_OUTPUT_DIR}/asr_data
+  #     - --audio_column_name audio
+  #     - --text_column_name text
+  #     - --max_duration_in_seconds 2
+  #     - --max_train_samples 2
+  #     - --max_eval_samples 1
+  #     - --do_train
+  #     - --max_steps 1
+  #     - --per_device_train_batch_size 1
+  #     - --output_dir ${CI_OUTPUT_DIR}
+  #   timeout_minutes: 60
+  # run_mim_no_trainer.py：与 run_clm/mlm_no_trainer 同因——脚本 L636 引用
+  #   DistributedType.TPU（accelerate 1.x 全线缺失），数据与训练前处理均已跑通，
+  #   属上游脚本 bug，等上游修复
+  # - path: examples/pytorch/image-pretraining/run_mim_no_trainer.py
+  #   profile: vision
+  #   runner: linux-aarch64-a2-2
+  #   npu_devices: '0'
+  #   image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+  #   overlay_args:
+  #     - --model_name_or_path ${TINYVIT_PATH}
+  #     - --encoder_stride 2
+  #     - --mask_patch_size 30
+  #     - --dataset_name imagefolder
+  #     - --train_dir ${CI_OUTPUT_DIR}/imgcls/train/**
+  #     - --train_val_split 0.3
+  #     - --max_train_steps 1
+  #     - --per_device_train_batch_size 1
+  #     - --output_dir ${CI_OUTPUT_DIR}
+  #   timeout_minutes: 60
+  - path: examples/pytorch/contrastive-image-text/run_clip.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-CLIP 本地快照
+      - --model_name_or_path ${TINYCLIP_PATH}
+      # CLIP 图文对训练集（setup 由 COCO fixture 图片生成的 json 行）
+      - --train_file ${CI_OUTPUT_DIR}/clip_train.json
+      # main 分支改了默认列名探测逻辑，必须显式指定 fixture 的图片/文本列
+      - --image_column image_path
+      - --caption_column captions
+      # 关掉 Trainer 的无用列裁剪（数据列不在 CLIPModel.forward 签名里）
+      - --remove_unused_columns False
+      # 训练取 4 条样本（fixture 共 3 行多取留量），smoke 预算
+      - --max_train_samples 4
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  - path: examples/pytorch/audio-classification/run_audio_classification.py
+    profile: vision
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      # 模型来源：tiny-random-Wav2Vec2 本地快照
+      - --model_name_or_path ${TINYWAV2VEC2_PATH}
+      # 音频数据集：setup 生成的 audiofolder 目录（train/validation 分目录带 ClassLabel）
+      - --dataset_name ${CI_OUTPUT_DIR}/audio_data
+      # 指定 audiofolder 里的音频列/标签列
+      - --audio_column_name audio
+      - --label_column_name label
+      # 音频截断长度（秒）；fixture 为 1 秒静音 wav
+      - --max_length_seconds 1
+      # The audiofolder train fixture holds 2 wav files; a larger
+      # max_train_samples makes .select(range(n)) raise IndexError.
+      - --max_train_samples 2
+      # Same Trainer/set_transform interplay as run_mae.py: without this the
+      # Trainer strips the audio/label columns (not in the model forward
+      # signature) and train_transforms dies with KeyError: 'audio'.
+      - --remove_unused_columns False
+      # Trainer 版必须显式开启才会进入训练分支
+      - --do_train
+      # 只跑 1 个优化步，smoke 预算
+      - --max_steps 1
+      # 每卡训练 batch size
+      - --per_device_train_batch_size 1
+      - --output_dir ${CI_OUTPUT_DIR}
+    timeout_minutes: 60
+  # run_clm_no_trainer.py / run_mlm_no_trainer.py：脚本仍引用 DistributedType.TPU，
+  #   该枚举在整个 accelerate 1.x 线（含 1.0/1.9/1.10）均不存在，降级不可行，等上游修复
+  # - path: examples/pytorch/language-modeling/run_clm_no_trainer.py
+  #   profile: lm
+  #   runner: linux-aarch64-a2-2
+  #   npu_devices: '0'
+  #   image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+  #   overlay_args:
+  #     - --model_name_or_path ${TINYGPT2_PATH}
+  #     - --train_file ${CI_OUTPUT_DIR}/train.txt
+  #     - --max_train_steps 1
+  #     - --per_device_train_batch_size 1
+  #     - --output_dir ${CI_OUTPUT_DIR}
+  #   timeout_minutes: 60
+  # - path: examples/pytorch/language-modeling/run_mlm_no_trainer.py
+  #   profile: lm
+  #   runner: linux-aarch64-a2-2
+  #   npu_devices: '0'
+  #   image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+  #   overlay_args:
+  #     - --model_name_or_path ${DISTILBERT_PATH}
+  #     - --train_file ${CI_OUTPUT_DIR}/train.txt
+  #     - --max_train_steps 1
+  #     - --per_device_train_batch_size 1
+  #     - --output_dir ${CI_OUTPUT_DIR}
+  #   timeout_minutes: 60
+  # run_plm.py：上游 main 在 Trainer(...) 调用中把 processing_class 误写成
+  #   processing_classtokenizer，报 "unexpected keyword argument"（上游批量改名失误，
+  #   NPU 侧 pin/TINYXLNET/tokenizer 链路均已验证通畅）
+  # - path: examples/pytorch/language-modeling/run_plm.py
+  #   profile: small-training
+  #   runner: linux-aarch64-a2-2
+  #   npu_devices: '0'
+  #   image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+  #   overlay_args:
+  #     - --model_name_or_path ${TINYXLNET_PATH}
+  #     - --train_file ${CI_OUTPUT_DIR}/train.txt
+  #     - --do_train
+  #     - --max_steps 1
+  #     - --per_device_train_batch_size 1
+  #     - --output_dir ${CI_OUTPUT_DIR}
+  #   timeout_minutes: 60
+unsupported:
+  # ---脚本对 CUDA/NCCL 的硬编码 ---
+  # 3D_parallel.py / 3d_parallel_checks.py：
+  #   dist.init_process_group("nccl") + DeviceMesh(device_type="cuda") +
+  #   torch.cuda.set_device 全部硬编码 CUDA/NCCL（NPU 需 hccl + npu 设备）；
+  # context_parallel.py：
+  #   init_device_mesh("cuda") / device="cuda" / device_map 全部硬编码，
+  #   NPU 环境无 CUDA 后端；
+  #   SDPBackend.FLASH_ATTENTION 为 CUDA 专属 backend。
+  # distributed_training.py：
+  #   模块顶层无条件读取 OMPI_COMM_WORLD_* 环境变量（torchrun 启动直接
+  #   KeyError），只能用 mpirun（OpenMPI）启动，Runner 未提供；backend
+  #   限定 nccl/gloo，nccl 分支再用 cuda:{LOCAL_RANK} 设备，NPU 不适用。
+  - examples/3D_parallel.py
+  - examples/pytorch/3d_parallel_checks.py
+  - examples/pytorch/context_parallel.py
+  - examples/training/distributed_training.py
+  # --- modular-transformers/*：modular 转换器的输入源文件，无 __main__，不是可运行入口 ---
+  - examples/modular-transformers/configuration_dummy.py
+  - examples/modular-transformers/configuration_duplicated_method.py
+  - examples/modular-transformers/configuration_my_new_model.py
+  - examples/modular-transformers/configuration_my_new_model2.py
+  - examples/modular-transformers/configuration_new_model.py
+  - examples/modular-transformers/configuration_super.py
+  - examples/modular-transformers/image_processing_new_imgproc_model.py
+  - examples/modular-transformers/modeling_add_function.py
+  - examples/modular-transformers/modeling_dummy_bert.py
+  - examples/modular-transformers/modeling_from_uppercase_model.py
+  - examples/modular-transformers/modeling_global_indexing.py
+  - examples/modular-transformers/modeling_multimodal2.py
+  - examples/modular-transformers/modeling_my_new_model2.py
+  - examples/modular-transformers/modeling_new_task_model.py
+  - examples/modular-transformers/modeling_roberta.py
+  - examples/modular-transformers/modeling_super.py
+  - examples/modular-transformers/modeling_switch_function.py
+  - examples/modular-transformers/modeling_test_detr.py
+  - examples/modular-transformers/modeling_test_suffix.py
+  - examples/modular-transformers/modular_add_function.py
+  - examples/modular-transformers/modular_dummy_bert.py
+  - examples/modular-transformers/modular_duplicated_method.py
+  - examples/modular-transformers/modular_from_uppercase_model.py
+  - examples/modular-transformers/modular_global_indexing.py
+  - examples/modular-transformers/modular_multimodal2.py
+  - examples/modular-transformers/modular_my_new_model.py
+  - examples/modular-transformers/modular_my_new_model2.py
+  - examples/modular-transformers/modular_new_imgproc_model.py
+  - examples/modular-transformers/modular_new_model.py
+  - examples/modular-transformers/modular_new_task_model.py
+  - examples/modular-transformers/modular_roberta.py
+  - examples/modular-transformers/modular_super.py
+  - examples/modular-transformers/modular_switch_function.py
+  - examples/modular-transformers/modular_test_detr.py
+  - examples/modular-transformers/modular_test_suffix.py
+  # --- pytest harness：会级联运行全部 example，非独立入口 ---
+  - examples/pytorch/conftest.py
+  - examples/pytorch/old_test_xla_examples.py
+  - examples/pytorch/test_accelerate_examples.py
+  - examples/pytorch/test_pytorch_examples.py
+  # --- 服务型/常驻或大模型 demo：不自行退出或超出 smoke 预算 ---
+  - examples/pytorch/continuous_batching.py
+  - examples/pytorch/continuous_batching_simple.py
+  - examples/pytorch/transformers_serve_cb_eval_job.py
+  # --- XLA / 量化 / 远程工具：NPU 栈不适用或非 NPU 训练入口 ---
+  - examples/pytorch/xla_spawn.py
+  - examples/quantization/custom_quantization.py
+  - examples/quantization/custom_quantization_int8_example.py
+  - examples/run_on_remote.py
+  # --- 被 import 的库模块，非独立入口 ---
+  - examples/pytorch/question-answering/trainer_qa.py
+  - examples/pytorch/question-answering/trainer_seq2seq_qa.py
+  - examples/pytorch/question-answering/utils_qa.py
+  # --- 上游 breakage（transformers main 自身损坏，manifest 层无法修复，上游修复后恢复）---
+  # run_fim.py：vocab 扩容分支对 Embedding 模块直接调用 .mean(dim=0)，
+  #   报 "'Embedding' object has no attribute 'mean'"（原意应为对 weight 张量取均值）
+  # run_fim_no_trainer.py：from huggingface_hub import Repository，该类已从新版 huggingface_hub 移除，报 ImportError
+  # run_clm_no_trainer.py / run_mlm_no_trainer.py / run_mim_no_trainer.py：引用
+  #   DistributedType.TPU，该枚举在 accelerate 1.x 全线缺失（1.0/1.9/1.10 已验证），
+  #   报 AttributeError，等上游修复
+  - examples/pytorch/language-modeling/run_fim.py
+  - examples/pytorch/language-modeling/run_fim_no_trainer.py
+  - examples/pytorch/language-modeling/run_clm_no_trainer.py
+  - examples/pytorch/language-modeling/run_mlm_no_trainer.py
+  - examples/pytorch/image-pretraining/run_mim_no_trainer.py
+  # --- 数据/模型可用性受限（脚本硬编码 Hub 数据集，Runner 无法访问 Hub，无本地文件入口）---
+  # object-detection / instance-segmentation / semantic-segmentation 共 6 条：
+  #   main 分支脚本仅支持 load_dataset(<hub_id>)，无 --train_file/--train_dir 参数，
+  #   且 COCO/ADE20k 数据 schema 特定，无法用本地 packaged 目录伪造
+  - examples/pytorch/instance-segmentation/run_instance_segmentation.py
+  - examples/pytorch/instance-segmentation/run_instance_segmentation_no_trainer.py
+  - examples/pytorch/object-detection/run_object_detection.py
+  - examples/pytorch/object-detection/run_object_detection_no_trainer.py
+  - examples/pytorch/semantic-segmentation/run_semantic_segmentation.py
+  - examples/pytorch/semantic-segmentation/run_semantic_segmentation_no_trainer.py
+  # run_wav2vec2_pretraining_no_trainer.py：数据为 librispeech 预处理产物格式
+  #   （预处理特征 + TSV 清单），本地 fixture 成本高，后续评估
+  - examples/pytorch/speech-pretraining/run_wav2vec2_pretraining_no_trainer.py
+  # run_speech_recognition_seq2seq.py：上游 breakage——脚本 L404 无条件调用
+  #   model.freeze_feature_encoder()，transformers main 的 Whisper 建模类已不提供
+  #   该方法（wav2vec2/hubert 家族仍在）。数据链路已验证：tiny-random-Whisper
+  #   （TINYWHISPER_PATH）+ asr_data 加载正常，死在模型冻结一步
+  - examples/pytorch/speech-recognition/run_speech_recognition_seq2seq.py
+  # --- 数据/模型可用性受限：依赖 Hub 数据集或缺失 tiny 模型 ---
+  # run_plm.py：Trainer(...) 调用中 processing_class 被误写为 processing_classtokenizer，
+  #   报 "unexpected keyword argument"（上游批量改名失误）。模型侧无碍：tiny xlnet 可经
+  #   setup_example.sh 的 hf-mirror.com 通道（TINYXLNET_PATH）下载，NPU 侧链路已验证通畅
+  - examples/pytorch/language-modeling/run_plm.py
+  # run_xnli.py：硬编码从 Hub 下载 xnli 数据集，无本地文件入口
+  - examples/pytorch/text-classification/run_xnli.py
+  # run_greedy.py：硬编码 load_dataset("wikitext") 从 Hub 拉取，且 bf16=True 无开关
+  - examples/scheduler/run_greedy.py
