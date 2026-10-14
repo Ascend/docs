@@ -81,11 +81,10 @@ fi
 
 # No sitecustomize shim. Both supported families run natively on NPU:
 #   - train_hf.py: transformers 4.48 auto-selects npu via
-#     is_torch_npu_available(); its dataset is tatsu-lab/alpaca, delivered
-#     by the cache-seed workflow (cache-seed/xtuner/ms_seeds.yaml), so
-#     alpaca_dataset's load_dataset("tatsu-lab/alpaca") hits the local hub
-#     cache (a former load_dataset shim + 8-row fixture were removed here
-#     2026-09-20 for this reason).
+#     is_torch_npu_available(); its dataset is tatsu-lab/alpaca, and
+#     alpaca_dataset's load_dataset("tatsu-lab/alpaca") downloads straight
+#     from huggingface.co into the local hub cache on first run (a former
+#     load_dataset shim + 8-row fixture were removed here for this reason).
 #   - demo_data/*/config.py: xtuner.tools.train is natively npu-aware, and
 #     its cfg already loads data via load_dataset("json", data_files=...).
 # (transfer_to_npu was also dropped: it broke bitsandbytes 0.50.2, whose

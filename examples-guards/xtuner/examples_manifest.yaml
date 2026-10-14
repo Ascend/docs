@@ -12,7 +12,7 @@ supported:
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - --model_name_or_path ${LLM_MODEL_PATH}        # 必须：不传时脚本拿 None 去加载模型，直接报错；注入 setup 预下载的本地 Qwen2.5-0.5B
-      - --dataset_name_or_path tatsu-lab/alpaca       # 必须：不传时报错（dataclass 默认 None → load_dataset(None)）；传 HF id，靠 cache-seed（cache-seed/xtuner/ms_seeds.yaml）种进本地缓存，load_dataset 原生命中，不再需要 load_dataset shim 或仓内 fixture
+      - --dataset_name_or_path tatsu-lab/alpaca       # 必须：不传时报错（dataclass 默认 None → load_dataset(None)）；传 HF id，load_dataset 直连 huggingface.co 自下载进本地缓存，命中即可复用，不再需要 load_dataset shim 或仓内 fixture
       # 可选调优项（不传也能跑通，仅按默认值执行）：
       - --output_dir ${CI_OUTPUT_DIR}                  # 默认 ./work_dirs：显式指定，把训练产物隔离到 CI 输出目录
       - --max_steps 1                                  # 默认跑满 3 epochs（24 步）：压到 1 步省时间
