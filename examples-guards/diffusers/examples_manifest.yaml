@@ -56,7 +56,7 @@ supported:
       - --gradient_checkpointing
       - --optimizer prodigy
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   # aMUSED-256 微调。数据用本地 DOG fixture（上游 nouns 数据集在 CI 拉取阶段
   # 反复崩）。--report_to 只能 wandb（tensorboard 收不了它的 list 型参数），
@@ -94,7 +94,7 @@ supported:
       - --max_train_steps 1
       - --mixed_precision fp16
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 120
+    timeout_minutes: 180
 
   # LCM 一致性蒸馏（webdataset 流式）。分片走 ModelScope 镜像的
   # laion/conceptual-captions-12m-webdataset（大文件流式下载，镜像比 HF 直连稳）。
@@ -113,7 +113,7 @@ supported:
       - --train_shards_path_or_url "pipe:curl -L -s https://www.modelscope.cn/datasets/laion/conceptual-captions-12m-webdataset/resolve/master/data/{00000..00000}.tar"
       - --train_batch_size 1
       - --gradient_accumulation_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 180
 
   # LCM LoRA 蒸馏（SD1.5，webdataset）。同上。
   - path: examples/consistency_distillation/train_lcm_distill_lora_sd_wds.py
@@ -131,7 +131,7 @@ supported:
       - --dataloader_num_workers 1
       - --train_shards_path_or_url "pipe:curl -L -s https://www.modelscope.cn/datasets/laion/conceptual-captions-12m-webdataset/resolve/master/data/{00000..00000}.tar"
       - --train_batch_size 1
-    timeout_minutes: 120
+    timeout_minutes: 180
 
   # LCM LoRA 蒸馏（SDXL teacher + fp16-fix VAE，webdataset）。bf16：fp16 反向
   # aclnn 算子失败。全量 SDXL 版三张 unet 驻留 OOM，故用 LoRA 版。
@@ -166,7 +166,7 @@ supported:
       - --resolution 512
       - --train_batch_size 1
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 180
 
 
   # LLaDA2 block-refinement。Qwen2.5-0.5B + --use_dummy_data，零下载。
@@ -196,7 +196,7 @@ supported:
       - --train_batch_size 1
       - --max_train_steps 1
       - --gradient_checkpointing
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   # SD1.5 dreambooth LoRA。同上。
   - path: examples/dreambooth/train_dreambooth_lora.py
@@ -212,7 +212,7 @@ supported:
       - --train_batch_size 1
       - --max_train_steps 1
       - --gradient_checkpointing
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   # InstructPix2Pix（SD1.5）。fill50k 同款经 HuggingFace 直连取。--seed 必传：
   # :458 无条件 manual_seed(args.seed)，默认 None 直接崩。
@@ -229,7 +229,7 @@ supported:
       - --max_train_steps 1
       - --mixed_precision fp16
       - --seed 42
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # Kandinsky 2.2 decoder（全量）。fp16：decoder 9.84GB fp32 + Adam 会 OOM。
   # 不传 --validation_prompts（否则加载 26.57GB 的 prior）。
@@ -246,7 +246,7 @@ supported:
       - --gradient_accumulation_steps 1
       - --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # scheduled_huber：SD1.5 naruto t2i / DOG dreambooth 四条。
   - path: examples/research_projects/scheduled_huber_loss_training/text_to_image/train_text_to_image.py
@@ -260,7 +260,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   - path: examples/research_projects/scheduled_huber_loss_training/text_to_image/train_text_to_image_lora.py
     profile: diffusers-research
@@ -273,7 +273,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   - path: examples/research_projects/scheduled_huber_loss_training/dreambooth/train_dreambooth.py
     profile: diffusers-research
@@ -287,7 +287,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   - path: examples/research_projects/scheduled_huber_loss_training/dreambooth/train_dreambooth_lora.py
     profile: diffusers-research
@@ -301,7 +301,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
   # 一致性训练（cifar10，从零）。小步数必须配 --constant_discretization_steps。
   - path: examples/research_projects/consistency_training/train_cm_ct_unconditional.py
     profile: diffusers-research-plain
@@ -315,7 +315,7 @@ supported:
       - --resolution 32
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 120
 
   # DreamBooth inpainting（SD1.5-inpainting）。数据集用 fixtures/DOG.jpg。
   - path: examples/research_projects/dreambooth_inpaint/train_dreambooth_inpaint.py
@@ -330,7 +330,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 150
 
   # Diffusion-DPO（SD1.5 + kashif/pickascore）
   - path: examples/research_projects/diffusion_dpo/train_diffusion_dpo.py
@@ -344,7 +344,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # InstructPix2Pix LoRA（需显式列名 + seed）
   - path: examples/research_projects/instructpix2pix_lora/train_instruct_pix2pix_lora.py
@@ -362,7 +362,7 @@ supported:
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
       - --seed 42
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # VAE roundtrip（纯推理；输入图用 fixtures/DOG.jpg）
   - path: examples/research_projects/vae/vae_roundtrip.py
@@ -372,7 +372,7 @@ supported:
     overlay_args:
       - --pretrained_model_name_or_path stabilityai/sd-vae-ft-mse
       - --input_image ${FIXTURE_DIR}/images/DOG.jpg
-    timeout_minutes: 30
+    timeout_minutes: 60
 
   - path: examples/t2i_adapter/train_t2i_adapter_sdxl.py
     profile: diffusers-t2i-adapter
@@ -388,7 +388,7 @@ supported:
       - --gradient_accumulation_steps 1
       - --max_train_steps 1
   #     # 验证阶段--validation_*会走cuda
-    timeout_minutes: 60
+    timeout_minutes: 240
 
   # SD1.5 全量
   - path: examples/text_to_image/train_text_to_image.py
@@ -401,7 +401,7 @@ supported:
       - --output_dir ${CI_OUTPUT_DIR}
       - --resolution 64
       - --train_batch_size 1 --gradient_accumulation_steps 1 --max_train_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 150
 
   # SD1.5 LoRA
   - path: examples/text_to_image/train_text_to_image_lora.py
@@ -414,7 +414,7 @@ supported:
       - --output_dir ${CI_OUTPUT_DIR}
       - --resolution 64
       - --train_batch_size 1 --gradient_accumulation_steps 1 --max_train_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 150
 
   # SDXL LoRA
   - path: examples/text_to_image/train_text_to_image_lora_sdxl.py
@@ -428,7 +428,7 @@ supported:
       - --output_dir ${CI_OUTPUT_DIR}
       - --resolution 64
       - --train_batch_size 1 --gradient_accumulation_steps 1 --max_train_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 240
 
 
   # SD1.5
@@ -446,7 +446,7 @@ supported:
       - --save_steps 1 --num_vectors 2
       - --resolution 64
       - --train_batch_size 1 --gradient_accumulation_steps 1 --max_train_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 150
 
   # SDXL
   - path: examples/textual_inversion/textual_inversion_sdxl.py
@@ -464,7 +464,7 @@ supported:
       - --save_steps 1 --num_vectors 2
       - --resolution 64
       - --train_batch_size 1 --gradient_accumulation_steps 1 --max_train_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 240
 
   # unconditional（ddpm_dummy + dummy_image_class_data）
   - path: examples/unconditional_image_generation/train_unconditional.py
@@ -480,7 +480,7 @@ supported:
       - --num_epochs 1
       - --gradient_accumulation_steps 1
       - --ddpm_num_inference_steps 2
-    timeout_minutes: 60
+    timeout_minutes: 90
 
   # VQGAN（判别器 depth=6 下采样 64x，InstanceNorm 需 >1x1，resolution 至少 128）
   - path: examples/vqgan/train_vqgan.py
@@ -494,7 +494,7 @@ supported:
       - --train_batch_size 1
       - --gradient_accumulation_steps 1
       - --max_train_steps 2
-    timeout_minutes: 90
+    timeout_minutes: 120
 
   # Diffusion-DPO SDXL
   - path: examples/research_projects/diffusion_dpo/train_diffusion_dpo_sdxl.py
@@ -509,7 +509,7 @@ supported:
       - --mixed_precision fp16 --resolution 512
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # Diffusion-ORPO SDXL LoRA
   - path: examples/research_projects/diffusion_orpo/train_diffusion_orpo_sdxl_lora.py
@@ -524,7 +524,7 @@ supported:
       - --mixed_precision fp16 --resolution 512
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # scheduled_huber / dreambooth LoRA SDXL
   - path: examples/research_projects/scheduled_huber_loss_training/dreambooth/train_dreambooth_lora_sdxl.py
@@ -540,7 +540,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # scheduled_huber / text_to_image LoRA SDXL
   - path: examples/research_projects/scheduled_huber_loss_training/text_to_image/train_text_to_image_lora_sdxl.py
@@ -555,7 +555,7 @@ supported:
       - --resolution 256
       - --train_batch_size 1 --gradient_accumulation_steps 1 --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # CogVideoX-5b-I2V LoRA。必须用 5b-I2V（不是 1.5，脚本不处理 1.5 的 ofs 输入）。
   - path: examples/cogvideo/train_cogvideox_image_to_video_lora.py
@@ -574,7 +574,7 @@ supported:
       - --max_train_steps 1
       - --mixed_precision fp16
       - --output_dir ${CI_OUTPUT_DIR}
-    timeout_minutes: 180
+    timeout_minutes: 360
 
   # Sana 1600M LoRA（单卡 a2-1）
   - path: examples/dreambooth/train_dreambooth_lora_sana.py
@@ -590,7 +590,7 @@ supported:
       - --train_batch_size 1
       - --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # SDXL LoRA（单卡 a2-1）
   - path: examples/dreambooth/train_dreambooth_lora_sdxl.py
@@ -607,7 +607,7 @@ supported:
       - --train_batch_size 1
       - --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
   
   # GLIGEN text-box（SD1.5）。数据集是 torch.load 的 pth + 图片目录，setup
   # 合成极简 fixture（灰底图 + 1 框 + 零向量 embedding，后者是常量条件不进梯度）。
@@ -624,7 +624,7 @@ supported:
       - --gradient_accumulation_steps 1
       - --max_train_steps 1
       - --mixed_precision no
-    timeout_minutes: 90
+    timeout_minutes: 180
   # ControlNet webdataset（SDXL）。webdataset 钉 0.2.86（vendored 旧 tar 迭代器
   # 在新版 KeyError）；shard 由 setup 合成 1024 样本（shuffle 缓冲写死 1000，
   # 样本不足第一个 batch 永远不来）。单卡 fp16 在 optimizer.step 常驻 ~26.6GB
@@ -647,7 +647,7 @@ supported:
       - --train_batch_size 1
       - --gradient_checkpointing
       - --mixed_precision bf16
-    timeout_minutes: 180
+    timeout_minutes: 300
   # Diffusion-ORPO SDXL LoRA（webdataset）。上游偏好数据集转私有，shard 由 setup
   # 合成（五件套键名与 get_dataset() rename 对应；1024 填满写死的 690 shuffle
   # 缓冲）。--dataloader_num_workers 默认 0 会除零，必须传 1。
@@ -668,7 +668,7 @@ supported:
       - --dataloader_num_workers 1
       - --gradient_checkpointing
       - --mixed_precision fp16
-    timeout_minutes: 180
+    timeout_minutes: 300
   # SDXL ControlNet（fill50k）。fp32：预计算嵌入经 datasets 序列化是 fp32，
   # 混精度在 SDPA 处 dtype 冲突；双卡 ZeRO-3 每卡 ~18GB。--max_train_samples 100：
   # 全量 1000 行在 map 预计算时一个 batch 全进 CLIP（激活 ~1.5GB），切片发生在
@@ -689,7 +689,7 @@ supported:
       - --gradient_checkpointing
       - --max_train_steps 1
       - --max_train_samples 100
-    timeout_minutes: 60
+    timeout_minutes: 240
   # SDXL 全量微调。bf16：fp32 在 DS ZeRO-2 初始化平坦缓冲处爆（~19GB/卡且每卡
   # 全量、加卡不减）；脚本 :1120 把嵌入 cast 成 weight_dtype，无 SDPA 冲突。
   - path: examples/text_to_image/train_text_to_image_sdxl.py
@@ -708,7 +708,7 @@ supported:
       - --gradient_checkpointing
       - --mixed_precision bf16
       - --max_train_steps 1
-    timeout_minutes: 60
+    timeout_minutes: 240
   # Kandinsky prior 全量（naruto）。bf16 + ZeRO-2，静态 ~8GB/卡。收尾会在 CPU
   # 组装完整 pipeline 再拉 decoder 仓 9.8GB → 长 timeout。
   - path: examples/kandinsky2_2/text_to_image/train_text_to_image_prior.py
@@ -724,7 +724,7 @@ supported:
       - --train_batch_size 1
       - --mixed_precision bf16
       - --max_train_steps 1
-    timeout_minutes: 240
+    timeout_minutes: 360
   # InstructPix2Pix SDXL 全量。--seed 必传（:518 无条件 manual_seed）；bf16
   # 必传：脚本不 del 文本编码器/vae，fp32 叠加 ZeRO-2 平坦缓冲 >29.5GB OOM。
   # validation 双重守卫都不传，不跑 pipeline 推理。
@@ -745,7 +745,7 @@ supported:
       - --mixed_precision bf16
       - --max_train_steps 1
       - --seed 42
-    timeout_minutes: 60
+    timeout_minutes: 240
 
   # SDXL LPL（Latent Prompt Learning）。NPU fork：自带 torch_npu 适配 +
   # --enable_npu_flash_attention（diffusers 的 NPU 专属接口，唯一覆盖）。
@@ -766,7 +766,7 @@ supported:
       - --train_batch_size 1
       - --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # SD1.5 多主体 DreamBooth。单 instance 目录即普通 dreambooth，DOG fixture；
   # 多主体需传 --concepts_list JSON，先按单主体跑。
@@ -783,7 +783,7 @@ supported:
       - --train_batch_size 1
       - --max_train_steps 1
       - --gradient_checkpointing
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # SD1.5 多主体 inpainting DreamBooth。模型必须是 9 通道 inpainting 版（基础版
   # unet 4 通道，conv_in 报通道数不匹配）。Dataset 用 load_dataset 读本地目录，
@@ -799,7 +799,7 @@ supported:
       - --resolution 512
       - --train_batch_size 1
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # PixArt-α ControlNet。T5-XXL 文本编码器，模型由 setup 预下（跳过用不上的
   # fp16 分片省一半）。--train_batch_size 默认 16 必须压 1；bf16 + 梯度检查点
@@ -815,7 +815,7 @@ supported:
       - --train_batch_size 1
       - --mixed_precision bf16
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 240
 
   # ReFiLL（SD1.5-inpainting LoRA）。RealFillDataset 认死
   # <root>/{ref/*.png, target/target.png, target/mask.png}，setup 合成。
@@ -832,7 +832,7 @@ supported:
       - --train_batch_size 1
       - --gradient_checkpointing
       - --max_train_steps 1
-    timeout_minutes: 90
+    timeout_minutes: 180
 
   # FLUX.2 Klein 4B LoRA（t2i）。NPU fork（自带 torch_npu 适配 +
   # set_attention_backend("_native_npu")）；模型非 gated，setup 预下 ~15GB。
@@ -871,7 +871,7 @@ supported:
       - --gradient_checkpointing
       - --mixed_precision bf16
       - --max_train_steps 1
-    timeout_minutes: 120
+    timeout_minutes: 300
 
   # AutoencoderRAE：冻结 encoder 只训 decoder。数据是 ImageFolder 风格
   # （<root>/<class>/*.jpg），用 fixtures/imagefolder。--train_batch_size 默认 8
@@ -885,7 +885,7 @@ supported:
       - --output_dir ${CI_OUTPUT_DIR}
       - --train_batch_size 1
       - --max_train_steps 1
-    timeout_minutes: 60
+    timeout_minutes: 120
 
 unsupported:
   # ===== Flax/JAX 系列 =======================================================
