@@ -13,7 +13,6 @@ PROFILE="$1"
 EXEC_REL="${EXEC:-}"
 EXAMPLE_REL="${EXAMPLE_PATH:-}"
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-PROJECT_DIR=$(cd "$HERE/.." && pwd)
 
 # This pool reaches huggingface.co directly. Pin the endpoint so a
 # leftover hf-mirror value cannot 308 a bare repo id back to the origin.
@@ -67,40 +66,6 @@ fetch_qwen() {
     --ms-url "$QWEN_MS_URL"
 }
 
-ensure_convert_deps() {
-  # llama.cpp v0.6.0 pins Linux convert deps to torch==2.11.0+cpu.
-  # The GGUF conversion runs on CPU. The example binary uses the image
-  # CANN via GGML_CANN and does not import torch_npu.
-  local site="${LLAMA_CPP_CACHE:-$HOME/.cache/llama.cpp}/convert-site"
-  local cp_abi
-  mkdir -p "$site"
-  export PYTHONPATH="${site}:${TARGET_ROOT}/gguf-py${PYTHONPATH:+:$PYTHONPATH}"
-  if python3 -c "
-import torch, transformers, numpy, huggingface_hub, modelscope, safetensors
-raise SystemExit(0 if torch.__version__.startswith('2.11.0') else 1)
-"; then
-    echo "reusing convert deps in $site"
-    return
-  fi
-  echo "installing CPU torch 2.11.0 and convert deps into $site"
-  cp_abi=$(python3 -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-  # setuptools 82 dropped pkg_resources, which torch still imports.
-  python3 -m pip install --target "$site" --no-deps \
-    "https://download.pytorch.org/whl/cpu/torch-2.11.0%2Bcpu-${cp_abi}-${cp_abi}-manylinux_2_28_aarch64.whl"
-  python3 -m pip install --target "$site" \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    -c "$PROJECT_DIR/constraints-npu.txt" \
-    'filelock' 'typing-extensions>=4.10.0' \
-    'setuptools<82' \
-    'sympy>=1.13.3' 'networkx>=2.5.1' 'jinja2' 'fsspec>=0.8.5' \
-    'numpy~=2.2.6' \
-    'sentencepiece>=0.1.98,<0.3.0' \
-    'transformers==4.57.6' \
-    'protobuf>=4.21.0,<5.0.0' \
-    'huggingface_hub' 'safetensors' 'modelscope'
-  python3 -c "import torch, transformers, huggingface_hub, modelscope, safetensors; print('convert torch', torch.__version__)"
-}
-
 setup_cann() {
   source_cann
   fetch_qwen
@@ -112,15 +77,6 @@ setup_cann() {
 setup_cpu() {
   cmake_llama
   build_target
-}
-
-setup_cann-diffusion() {
-  source_cann
-  ensure_convert_deps
-  python3 "$HERE/prepare_dream_gguf.py"
-  cmake_llama -DGGML_CANN=on
-  build_target
-  assert_cann_lib "$TARGET_ROOT/build/bin"
 }
 
 setup_cmake-pkg() {

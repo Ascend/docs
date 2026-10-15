@@ -29,7 +29,6 @@
 
 - `cann`：打开 `GGML_CANN`，只编 `exec` 指向的那一个 target。Qwen2.5 0.5B Instruct 的 Q4_0 GGUF 先从 huggingface.co 下，失败再从 ModelScope 下。量化选 Q4_0，因为上游 CANN 文档里 910B 的数据类型表写了 FP16、Q8_0、Q4_0、BF16。
 - `cpu`：cmake 不开 `GGML_CANN`。绿灯只表示这个目录在 aarch64 上能编完、能跑完。外部汇总不要把这些条目读成昇腾推理成功。
-- `cann-diffusion`：同样打开 CANN，编 `llama-diffusion-cli`。权重是 Dream-v0-Instruct-7B 的官方 safetensors，先 Hugging Face，失败再 ModelScope，再用这次 checkout 的 `convert_hf_to_gguf.py` 转成 Q8_0 GGUF。共用引擎没有前置 job，下载和转换都在这条矩阵腿里做。转换用的 torch 是上游 `v0.6.0` 在 Linux 上钉死的 CPU 轮子 `2.11.0+cpu`，不装 `torch_npu`。llama.cpp 走镜像里的 CANN 和 `GGML_CANN`，不走 PyTorch 昇腾插件。
 - `cmake-pkg`：安装之后再用 `find_package` 编 `examples/simple-cmake-pkg`，确认安装包还能链上 CANN 后端。`LD_LIBRARY_PATH` 指到 `inst/lib`，因为消费方二进制的 RUNPATH 盖不住 `libggml` 再加载的 `libggml-cann`。
 
 镜像是 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。编译器用镜像自带的 cmake、g++、make，不改 apt 源。
@@ -40,11 +39,9 @@
 
 多条 `cann` 腿共用同一个 Qwen GGUF。脚本先下到本 job 的暂存文件，核对 GGUF 文件头之后再改名进缓存，并用 mkdir 锁避开并发追加写。
 
-Dream 的 safetensors 同样先暂存、核对分片头，再转 GGUF。转好的文件留在缓存里，下次命中就不再下载。
-
 ## 设备锚点
 
-`cann`、`cann-diffusion`、`cmake-pkg` 的运行日志里必须出现 `CANN` 后接数字的那一行。ggml 在卡没挂上时会静默退回 CPU，进程仍然可以 0 退出。看护只在自己的运行脚本里检查这行，不改上游 example 文件。
+`cann`、`cmake-pkg` 的运行日志里必须出现 `CANN` 后接数字的那一行。ggml 在卡没挂上时会静默退回 CPU，进程仍然可以 0 退出。看护只在自己的运行脚本里检查这行，不改上游 example 文件。
 
 ## 触发
 
