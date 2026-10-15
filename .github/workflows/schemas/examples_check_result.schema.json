@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Ascend/docs/blob/main/.github/workflows/schemas/examples_check_result.schema.json",
+  "title": "Examples check result",
+  "description": "Daily reconciliation of upstream example trees against examples_manifest.yaml (design: docs/examples-check-design.md). One aggregate result.json per run; per-project status is success / failed / error / skipped.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "trigger",
+    "run_at",
+    "workflows_ref",
+    "summary",
+    "projects"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "trigger": {
+      "type": "string",
+      "description": "How this run was started (schedule / workflow_dispatch / manual)."
+    },
+    "run_at": {
+      "type": "string",
+      "minLength": 1,
+      "description": "UTC timestamp of this run."
+    },
+    "workflows_ref": {
+      "type": "string",
+      "description": "Commit SHA of this repository the check ran from."
+    },
+    "not_in_scope": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Projects that have an examples_manifest.yaml but no thin workflow calling the engine (guard not brought up); reported in the step summary, not checked."
+    },
+    "summary": {
+      "type": "object",
+      "required": ["success", "failed", "error", "skipped"],
+      "properties": {
+        "success": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "error": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "project",
+          "status",
+          "scan_repo",
+          "missing_paths",
+          "stale_paths",
+          "detail"
+        ],
+        "properties": {
+          "project": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Project name (= projects/<project>/ directory, from the thin workflow's with.project)."
+          },
+          "status": {
+            "type": "string",
+            "enum": ["success", "failed", "error", "skipped"]
+          },
+          "scan_repo": {
+            "type": "string",
+            "pattern": "^[^/]+/[^/]+$",
+            "description": "Repository whose example tree was reconciled: with.examples_repo when set, else with.upstream_repo."
+          },
+          "target_ref": {
+            "type": "string",
+            "description": "Reconciliation ref: latest release tag, or the fallback branch name. Empty for skipped (no fetch)."
+          },
+          "ref_source": {
+            "type": "string",
+            "enum": ["release", "default-branch"],
+            "description": "How target_ref was resolved. Absent for skipped."
+          },
+          "tree_sha": {
+            "type": "string",
+            "description": "git tree SHA of the scanned tree (traceability)."
+          },
+          "scanned_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of reconciliation units scanned upstream."
+          },
+          "recorded_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of recorded entries (supported upstream paths + unsupported strings)."
+          },
+          "missing_paths": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Upstream units not covered by any exclude/supported/unsupported entry. Non-empty => failed."
+          },
+          "stale_paths": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Covering entries (supported/unsupported/exclude) that match no upstream unit. Info only, never fails."
+          },
+          "detail": {
+            "type": "string",
+            "description": "error reason (config / fetch-failed / scan-root-missing) or skipped reason; empty otherwise."
+          }
+        }
+      }
+    }
+  }
+}
