@@ -1,0 +1,60 @@
+# examples-check: daily reconciliation of every project's examples_manifest.yaml
+# against its upstream example tree.
+#
+# Data source of truth is the thin workflow that actually runs (with.project /
+# with.upstream_repo / with.examples_repo / with.default_branch) - never any
+# registry. Ref resolution matches the examples engine: latest release,
+# falling back to the workflow's default_branch; split-mode examples repos
+# always follow their default branch.
+#
+name: examples-check
+
+on:
+  schedule:
+    - cron: '20 1 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+
+      - name: Run examples check
+        run: |
+          set -euo pipefail
+          python3 -m pip install -q pyyaml
+          python3 scripts/examples_check.py \
+            --workflows-dir .github/workflows \
+            --projects-root examples-guards \
+            --output result.json
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+
+      - name: Validate result.json
+        run: |
+          set -euo pipefail
+          # check-jsonschema lives in an isolated venv: a bare pip install
+          # can otherwise make check-jsonschema fail on import.
+          schema_venv="$RUNNER_TEMP/examples-check-schema-venv"
+          python3 -m venv "$schema_venv"
+          "$schema_venv/bin/python" -m pip install -q "check-jsonschema==0.38.0"
+          "$schema_venv/bin/check-jsonschema" \
+            --schemafile .github/workflows/schemas/examples_check_result.schema.json \
+            result.json
+
+      - if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: examples-check-${{ github.run_id }}
+          if-no-files-found: error
+          path: result.json
