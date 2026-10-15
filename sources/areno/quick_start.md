@@ -292,7 +292,7 @@ owned_by: areno
 
 ### 验证端到端生成
 
-用服务端的模型 ID 发一条 chat 请求，验证「服务端 → 生成」全链路可用（只断言返回非空）：
+用服务端的模型 ID 发一条 chat 请求，验证「服务端 → 生成」全链路可用：
 
 ```shell #test id="serve-chat"
 MODEL_ID=$(curl -fsS http://127.0.0.1:8000/v1/models | python -c "import sys, json; print(json.load(sys.stdin)['data'][0]['id'])")
