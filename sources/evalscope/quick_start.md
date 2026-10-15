@@ -17,7 +17,6 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为*
 | CANN | toolkit + 驱动固件已安装并可 `source set_env.sh` |
 | Python | 3.12 |
 | PyTorch | `torch==2.9.0` 与 `torch_npu==2.9.0.post2`，见下文安装 |
-| EvalScope | 从 PyPI 安装（撰写时 `1.11.0`），见下文 |
 | 模型 / 数据 | ModelScope 上的 Qwen2.5-0.5B-Instruct 与评测数据集 |
 
 本文验证镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
