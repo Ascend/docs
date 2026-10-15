@@ -32,13 +32,12 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  # Bring-up: schedule stays commented; validate via workflow_dispatch
-  # and the PR run first. Enable after a few green dispatch rounds,
-  # staggered off the existing guards (tensordict already sits at
-  # :05 */6; sharing one slot with it is the accepted worst case - the
-  # :45 */6 slot is shared four ways today).
-  # schedule:
-  #   - cron: '5 */6 * * *'
+  schedule:
+    # Daily at 05:05 UTC (13:05 Beijing) per review: once a day is
+    # enough for this guard. Staggered off the other daily jobs
+    # (funasr 04:30, torchtune-examples 05:00) so they don't contend
+    # for the NPU runners.
+    - cron: '5 5 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
