@@ -105,49 +105,6 @@ if ((${#EXTRA_ARGS[@]})); then
   printf 'overlay arg: %q\n' "${EXTRA_ARGS[@]}"
 fi
 
-ensure_passthrough() {
-  # Shell examples that already forward "$@" need no patch; otherwise
-  # attach it in this CI working copy only, on the last non-comment
-  # line (the tail of the example's main command). YAML recipes are
-  # dispatched below and never get "$@" attached — specforge reads
-  # its overrides from the CLI argument list, which is what we already
-  # pass through EXTRA_ARGS.
-  local script="$1"
-  case "$script" in
-    *.yaml|*.yml) return 0 ;;
-  esac
-  [[ "$script" == *.sh ]] || return 0
-  if grep -qE '"\$@"' "$script"; then
-    echo "example already has \"\$@\"; skipping patch"
-    return
-  fi
-  "$PYTHON" - "$script" <<'PY'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
-for i in range(len(lines) - 1, -1, -1):
-    stripped = lines[i].strip()
-    if stripped and not stripped.startswith('#'):
-        raw = lines[i]
-        newline = ''
-        if raw.endswith('\r\n'):
-            newline = '\r\n'
-            raw = raw[:-2]
-        elif raw.endswith('\n'):
-            newline = '\n'
-            raw = raw[:-1]
-        lines[i] = raw.rstrip() + ' "$@"' + newline
-        path.write_text(''.join(lines), encoding='utf-8')
-        print(f'patched {path} to pass "$@" on last command line')
-        raise SystemExit(0)
-raise SystemExit(f'{path}: cannot find a command line to attach "$@"')
-PY
-}
-
-ensure_passthrough "$LAUNCH_PATH"
-
 # The `external/` disaggregated recipes expect an already-running Mooncake
 # master + SGLang capture server (their endpoints are hard-coded in the YAML
 # as 127.0.0.1:35551 / 35880 / 30000). specforge only plays producer+consumer,
