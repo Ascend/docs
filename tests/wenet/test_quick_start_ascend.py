@@ -138,6 +138,10 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         """Source CANN env + write CUDA exclusion list + pin NPU card 0 +
         torch stack probe + safetensors + ModelScope cache validation.
 
+        Each labeled fence runs in its own subprocess, so this hook is
+        what makes the CANN env visible to all of them -- the doc's own
+        ``source set_env.sh`` only reaches the fence it sits in.
+
         The doc's ``## 4. 安装 WeNet 与依赖`` block is the single source of
         truth for the WeNet / torch stack (``pip install -e .[torch-npu]``
         pins torch / torch-npu / torchaudio at 2.2.0); this hook only
@@ -150,24 +154,37 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
 
         # 0) CANN env: source set_env.sh and merge the env stream into
-        # os.environ.
-        if os.path.isfile(cls._CANN_SET_ENV):
-            merged = subprocess.run(
-                ['bash', '-c', f'source {cls._CANN_SET_ENV} >/dev/null 2>&1; env'],
-                capture_output=True, text=True, check=True,
+        # os.environ, so every later fence inherits it. Each labeled fence
+        # is a new subprocess (the framework runs ``bash -c`` / ``python
+        # -c``), so the doc's ``source set_env.sh`` -- which only runs
+        # inside the equivalent shell fence -- does not persist.
+        #
+        # Merge is OVERWRITE, not ``setdefault``: this image already ships
+        # ``LD_LIBRARY_PATH`` in its own ENV, so ``setdefault`` kept the
+        # stale value and silently dropped the increment ``set_env.sh``
+        # adds -- leaving the CANN lib dirs out of every fence. The doc's
+        # first consumer of them is the ``check-npu`` fence, and it is a
+        # ``python`` block, which cannot source a shell script the way
+        # upstream's shell-block version did:
+        #   ImportError: libhccl.so: cannot open shared object file
+        # Overwriting reproduces exactly the env a
+        # ``bash -c "source set_env.sh; python -c ..."`` fence sees --
+        # same shell, same stream -- which is the shape upstream's guarded
+        # doc used, so the two paths agree by construction.
+        if not os.path.isfile(cls._CANN_SET_ENV):
+            raise RuntimeError(
+                f'required Ascend env script missing: {cls._CANN_SET_ENV}'
             )
-            for line in merged.stdout.splitlines():
-                if '=' not in line:
-                    continue
-                key, _, value = line.partition('=')
-                # Don't overwrite envs explicitly injected by the workflow;
-                # only fill in CANN keys that are missing.
-                os.environ.setdefault(key, value)
-            print('setup: sourced CANN env from set_env.sh')
-        else:
-            print(
-                f'setup: skipping CANN env source ({cls._CANN_SET_ENV} not present)'
-            )
+        merged = subprocess.run(
+            ['bash', '-c', f'source {cls._CANN_SET_ENV} >/dev/null 2>&1; env'],
+            capture_output=True, text=True, check=True,
+        )
+        for line in merged.stdout.splitlines():
+            if '=' not in line:
+                continue
+            key, _, value = line.partition('=')
+            os.environ[key] = value
+        print('setup: sourced CANN env from set_env.sh')
 
         # 1) CUDA exclusion list + process-level env (subprocess.run
         # inherits it).
@@ -193,6 +210,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         probe = subprocess.run(
             ['python', '-c', _PROBE_SCRIPT],
             capture_output=True,
+            text=True,
             check=False,  # probe's exit code is the branch signal
         )
         if probe.returncode == 0:
@@ -206,6 +224,20 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             )
             print(f'setup: reusing image torch stack ({versions.stdout.strip()})')
         else:
+            # Say why before the install fallback. An ``ImportError`` here
+            # means the env is broken (a CANN lib the loader cannot find),
+            # not that the version mismatched -- installing over it only
+            # defers the same failure to the doc's ``check-npu`` fence,
+            # which is what made the first CI run read like a torch
+            # problem instead of an env one.
+            reason = (probe.stderr or probe.stdout or '').strip()
+            print('setup: torch probe failed; last lines:')
+            for line in reason.splitlines()[-4:]:
+                print(f'  {line}')
+            print(
+                'setup: LD_LIBRARY_PATH='
+                f'{os.environ.get("LD_LIBRARY_PATH", "(unset)")}'
+            )
             print('setup: installing torch==2.2.0 torch-npu==2.2.0.post2')
             subprocess.run(
                 [
