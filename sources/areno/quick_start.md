@@ -39,7 +39,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11
 | torch_npu | 2.10.0.post2 |
 | AReno | 最新 release（v0.9.0 起已含 NPU 后端） |
 | 模型 | [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)（HuggingFace Hub） |
-| 数据集 | `gsm8k:main`（HuggingFace Hub） |
+| 数据集 | `openai/gsm8k:main`（HuggingFace Hub） |
 
 ### 前置安装
 
@@ -211,7 +211,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 set -o pipefail
 ASCEND_RT_VISIBLE_DEVICES=0 areno train \
   --ckpt Qwen/Qwen3-0.6B \
-  --dataset-path gsm8k:main \
+  --dataset-path openai/gsm8k:main \
   --model-hub hf \
   --dataset-loader-fn examples/math/dataset_loader.py \
   --reward-fn-path examples/math/math_verify_reward.py \
