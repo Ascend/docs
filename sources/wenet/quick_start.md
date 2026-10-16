@@ -163,61 +163,46 @@ apt-get update && apt-get install -y sox libsox-dev || true
 
 ## 5. 下载数据（stage -1）
 
-从 Hugging Face 下载 aishell-1 数据集（约 15.6 GB），然后创建软链接适配 WeNet 脚本期望的目录结构。
+stage -1 用官方脚本下载：`run_npu.sh` 调用 `local/download_and_untar.sh`，它按脚本内硬编码的字节数
+（`data_aishell.tgz` 15582913665、`resource_aishell.tgz` 1246920）校验已有归档、必要时用 `wget` 拉取，
+解压归档后再逐个解开 `data_aishell/wav/` 里按说话人二次打包的 `*.tar.gz`，最后写 `.complete` 标记。因此
+这一节既是下载也是续跑入口：已完成的部分凭标记跳过，中断留下的归档因字节数不符会被删掉重下（`wget`
+不续传）。
 
-数据集源 `JazerJu/aishell1-full-slr33` 是 [OpenSLR 33](https://www.openslr.org/33) 两个原始压缩包的字节保真
-镜像：`data_aishell.tgz` / `resource_aishell.tgz` 的字节数（15582913665 / 1246920）与 openslr.org 上的原档
-一致，解压后的目录结构因此与官方 `local/download_and_untar.sh` 完全对齐。也可以直接用 OpenSLR 原站替换下面
-的下载命令。
+下载源由官方脚本的 `--data_url` 指定，默认是 OpenSLR 原站 `www.openslr.org/resources/33`。下面把它指向
+[OpenSLR 33](https://www.openslr.org/33) 两个原档的 [Hugging Face 字节保真镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
+（两个归档的字节数与 openslr.org 上的原档逐个一致）以加快下载；也可以换成 OpenSLR 自己的镜像：
 
-如果访问 Hugging Face 较慢，可先切换到国内镜像（该设置只影响当前终端）：
+| `--data_url` | 数据源 |
+| --- | --- |
+| `www.openslr.org/resources/33` | 官方 OpenSLR 原站（不传 `--data_url` 时的默认值） |
+| `openslr.magicdatatech.com/resources/33` | OpenSLR 国内镜像 |
+| `https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main` | 本文使用（Hugging Face 原档镜像） |
 
-```shell
-export HF_ENDPOINT=https://hf-mirror.com
-```
+数据目录落在 `/root/.cache/asr-data`（runner 池挂载的共享缓存盘）上，`/root/asr-data` 是指向它的软链接，
+因此后续各 stage 仍用官方教程里的 `/root/asr-data/OpenSLR/33` 路径，且下载与解压产物跨 run 复用。
 
 ```shell #test-setup id="download-data"
-# hf_transfer 让这个 15.6 GB 的单文件走分片并行下载，是相对单连接拉取的主要提速点；
-# 装不上时下面的 snapshot_download 仍会走普通 HTTP 路径
-pip install -q "huggingface_hub[hf_transfer]" || pip install -q huggingface_hub
-if python -c "import hf_transfer" >/dev/null 2>&1; then
-  export HF_HUB_ENABLE_HF_TRANSFER=1
+mkdir -p /root/.cache/asr-data/OpenSLR/33
+# /root/.cache 是 runner 池挂的共享缓存盘，数据与 .complete 标记落在其上即可跨 run 复用；
+# /root/asr-data 软链过去。首次运行时该路径还不存在；若存在的是容器内的旧目录（不在缓存盘上）
+# 则清掉重建，避免又下载一遍
+if [ ! -L /root/asr-data ]; then
+  rm -rf /root/asr-data
+  ln -s /root/.cache/asr-data /root/asr-data
 fi
-mkdir -p /root/asr-data/OpenSLR/33
-# 用 local_dir 固定下载落点：落点与下面解压出的数据都在 /root/.cache 上（runner 的共享缓存盘），
-# 跨 run 复用；已经完整的文件由 snapshot_download 按 etag / 字节数跳过，中断的 tgz 续传
-python -c "
-from huggingface_hub import snapshot_download
-snapshot_download(
-    'JazerJu/aishell1-full-slr33',
-    repo_type='dataset',
-    local_dir='/root/.cache/huggingface/datasets/aishell1-slr33',
-    max_workers=8,
-)
-"
-echo "=== 下载后目录结构 ==="
-ls -l /root/.cache/huggingface/datasets/aishell1-slr33
-# 解压数据集：data_aishell.tgz 内层 wav/ 下是按说话人二次打包的 *.tar.gz，
-# 必须再解压内层包（对齐官方 local/download_and_untar.sh），否则 stage 0 找不到任何 wav。
-# 解压产物随 /root/.cache 上的共享缓存盘跨 run 保留：用标记文件 wav/.extracted 做幂等判断，
-# 首次解压后（约 40min）后续 run 直接跳过整段；缓存盘被清空时标记随之消失，自动重新解压
-cd /root/.cache/huggingface/datasets/aishell1-slr33
-if [ ! -f data_aishell/wav/.extracted ]; then
-  tar xzf data_aishell.tgz
-  tar xzf resource_aishell.tgz
-  (
-    cd data_aishell/wav
-    for x in *.tar.gz; do tar xzf "$x"; done
-    rm -f *.tar.gz
-    touch .extracted
-  )
-fi
-# 创建软链接
-ln -sf /root/.cache/huggingface/datasets/aishell1-slr33/data_aishell /root/asr-data/OpenSLR/33/data_aishell
-ln -sf /root/.cache/huggingface/datasets/aishell1-slr33/resource_aishell /root/asr-data/OpenSLR/33/resource_aishell
-touch /root/asr-data/OpenSLR/33/data_aishell/.complete
-touch /root/asr-data/OpenSLR/33/resource_aishell/.complete
-echo "=== 软链接验证 ==="
+cd wenet/examples/aishell/s0
+# 官方 stage -1：local/download_and_untar.sh（wget）下载 data_aishell / resource_aishell，
+# 按脚本内硬编码字节数校验归档，解压后解开 wav/ 下的内层包，最后写 .complete
+# 冷缓存首次约 30-60min（15.6GB 下载 + 解压）；命中 .complete 时该 stage 直接返回
+# --data_url：OpenSLR 33 的 Hugging Face 原档镜像；去掉该参数即回落到官方 www.openslr.org
+bash run_npu.sh --stage -1 --stop_stage -1 \
+  --data /root/asr-data/OpenSLR/33 \
+  --data_url https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main
+# run_npu.sh 没有 set -e，退出码只反映最后一条命令，故在此显式确认两个包都已就绪
+test -f /root/asr-data/OpenSLR/33/data_aishell/.complete
+test -f /root/asr-data/OpenSLR/33/resource_aishell/.complete
+echo "=== /root/asr-data/OpenSLR/33 ==="
 ls -la /root/asr-data/OpenSLR/33/
 ```
 
@@ -445,7 +430,8 @@ exp/conformer/final_quant.zip
 | `import torch_npu` 失败 | torch / torch-npu 版本不匹配 | 检查 [兼容矩阵](https://gitcode.com/Ascend/pytorch) |
 | `npu available: False` | NPU 设备未挂载或驱动问题 | 检查 `/dev/davinci0` 是否存在 |
 | `FileNotFoundError: data/dict/lang_char.txt` | 未执行 stage 1-3 | 重做第 7 节 |
-| 数据下载慢 / 失败 | Hugging Face 带宽波动 | 重跑 stage -1：`snapshot_download` 跳过已完成文件、续传未完成的 tgz |
+| 数据下载慢 / 失败 | 数据源（OpenSLR / 镜像）带宽波动 | 重跑 stage -1：已完成的部分凭 `.complete` 跳过，中断的归档按字节数校验不通过会被删掉重下 |
+| `wget is not installed` | 容器内缺 wget | `apt-get install -y wget`（官方 `local/download_and_untar.sh` 用 wget 下载） |
 | `sox` 命令失败 | 未安装 sox | `apt-get install sox libsox-dev` |
 | DataLoader 段错误 | 主进程初始化 CANN 后 fork worker | 保持 `num_workers=0`（第 8 节已改） |
 
@@ -454,6 +440,6 @@ exp/conformer/final_quant.zip
 - 上游仓库：[wenet-e2e/wenet](https://github.com/wenet-e2e/wenet)
 - 官方教程：[AISHELL-1 示例](https://wenet.org.cn/wenet/tutorial_aishell.html)
 - NPU 实验脚本：[`examples/aishell/s0/run_npu.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/run_npu.sh)
-- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)、[Hugging Face 原档镜像 `JazerJu/aishell1-full-slr33`](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
+- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)；stage -1 的下载脚本：[`local/download_and_untar.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/local/download_and_untar.sh)，本文把它的 `--data_url` 指向 [Hugging Face 原档镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
 - 昇腾 PyTorch 安装：[Ascend/pytorch](https://gitcode.com/Ascend/pytorch)
 - 本项目昇腾环境与安装步骤：[安装指南](https://ascend.github.io/docs/sources/wenet/install.html)

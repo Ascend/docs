@@ -2,8 +2,9 @@
 
 End-to-end case built on top of the ``MarkdownDocTestBase`` contract:
 env check + WeNet ``main`` clone (+ ``[torch-npu]`` install) + aishell-1
-download (~15.6 GB, Hugging Face) + data prep + conformer training
-(stage 4, ``max_epoch=1``) + decode (stage 5) + jit export (stage 6).
+download through the upstream stage -1 script (~15.6 GB) + data prep +
+conformer training (stage 4, ``max_epoch=1``) + decode (stage 5) + jit
+export (stage 6).
 
 Run: ``python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1``
 
@@ -24,17 +25,13 @@ Environment variables (injected by the engine
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import unittest
 from pathlib import Path
 
 from doc_test.base import MarkdownDocTestBase
-from doc_test.model_cache import (
-    diagnose_mount_environment,
-    ensure_safetensors,
-    purge_huggingface_corrupt,
-    resolve_huggingface_cache,
-)
+from doc_test.model_cache import diagnose_mount_environment
 
 
 def _is_truthy(value: str | None) -> bool:
@@ -56,8 +53,11 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     Scope: env check + WeNet clone/install + aishell-1 download and prep +
     one conformer epoch on 910B4 + stage 5 decode of 7176 test utts +
-    stage 6 jit export. The doc's ``--data`` path keeps the downloaded
-    dataset on the shared cache disk, so repeat runs skip stage -1.
+    stage 6 jit export. Stage -1 now runs the upstream script
+    (``run_npu.sh`` -> ``local/download_and_untar.sh``), which downloads
+    into ``/root/.cache/asr-data`` (linked from ``/root/asr-data``) on the
+    shared cache disk and writes its own ``.complete`` markers, so repeat
+    runs skip the download and the un-tar.
     """
 
     # 6 h per command: the doc runs the full aishell-1 flow per labeled
@@ -134,24 +134,20 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     # ``wenet-quick-start.yml`` (cann:8.0.0-910b-ubuntu22.04-py3.10).
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
-    # Doc-driven dataset landing zone: the doc's stage -1 fence pins
-    # ``local_dir=/root/.cache/huggingface/datasets/aishell1-slr33``, and the
-    # NPU runner starts the container as root, so ``Path.home()`` resolves to
-    # ``/root`` here. The byte sizes are the ones openslr.org publishes for
-    # the two SLR33 archives; the doc's Hugging Face source mirrors them
-    # byte-for-byte.
-    _DATASET_DIR = (
-        Path.home() / '.cache' / 'huggingface' / 'datasets' / 'aishell1-slr33'
-    )
-    _DATASET_ARCHIVES = {
-        'data_aishell.tgz': 15_582_913_665,
-        'resource_aishell.tgz': 1_246_920,
-    }
+    # Dataset landing zone used by the doc's stage -1 fence: ``--data`` is
+    # ``/root/asr-data/OpenSLR/33``, which the fence links to this path on
+    # the runner pool's shared cache disk (``/root/.cache``). The NPU runner
+    # starts the container as root, so ``Path.home()`` resolves to ``/root``.
+    # Nothing to purge here: the archives' integrity is ``download_and_untar.sh``'s
+    # own job -- it validates both files against the sizes it hard-codes
+    # (15582913665 / 1246920) and removes any archive whose size disagrees,
+    # so an interrupted transfer heals itself on the next run.
+    _DATA_CACHE = Path.home() / '.cache' / 'asr-data'
 
     @classmethod
     def prepare_environment(cls) -> None:
         """Source CANN env + write CUDA exclusion list + pin NPU card 0 +
-        torch stack probe + safetensors + Hugging Face cache validation.
+        torch stack probe + wget + dataset cache diagnostics.
 
         Each labeled fence runs in its own subprocess, so this hook is
         what makes the CANN env visible to all of them -- the doc's own
@@ -264,38 +260,33 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 check=True,
             )
 
-        # 3) safetensors: native loader used by the cache validation below.
-        ensure_safetensors()
+        # 3) wget: the doc's ``download-data`` fence runs the upstream stage
+        # -1 (``run_npu.sh`` -> ``local/download_and_untar.sh``), which shells
+        # out to ``wget`` and hard-fails with "wget is not installed"
+        # otherwise. The image does not guarantee it, so make sure it is
+        # there before the fences run (same shape as tests/deepspeed, which
+        # apt-installs libopenmpi-dev in this hook).
+        wget = shutil.which('wget')
+        if wget is None:
+            print('setup: wget missing; installing via apt-get')
+            subprocess.run(['apt-get', 'update'], check=True)
+            subprocess.run(['apt-get', 'install', '-y', 'wget'], check=True)
+            wget = shutil.which('wget')
+            if wget is None:
+                raise RuntimeError(
+                    'wget is required by local/download_and_untar.sh'
+                )
+        print(f'setup: wget at {wget}')
 
-        # 4) Hugging Face cache: the doc's ``download-data`` fence pulls the
-        # aishell-1 archives (~15.6 GB) into the dataset ``local_dir`` under
-        # ``/root/.cache`` (the runner's shared cache disk), which is what
-        # lets repeat runs skip stage -1. The purge walks the hub cache's
-        # ``models--*`` model dirs and drops the ones whose safetensors
-        # header is CONFIRMED broken, so a persistent host-side cache cannot
-        # keep feeding truncated shards to the next run.
-        hf_cache = resolve_huggingface_cache()
-        diagnose_mount_environment(hf_cache)
-        purge_huggingface_corrupt(hf_cache)
-
-        # The dataset itself lands in a ``local_dir`` rather than the hub
-        # cache, so the purge above cannot see it. A run killed mid-transfer
-        # leaves a short ``data_aishell.tgz`` behind, and ``snapshot_download``
-        # would resume from bytes that no longer match the hub. Drop any
-        # archive whose size disagrees with the published one.
-        for name, expected_bytes in cls._DATASET_ARCHIVES.items():
-            archive = cls._DATASET_DIR / name
-            if not archive.is_file():
-                continue
-            actual_bytes = archive.stat().st_size
-            if actual_bytes == expected_bytes:
-                continue
-            print(
-                f'setup: dropping truncated {name} '
-                f'({actual_bytes} != {expected_bytes} bytes); '
-                f'huggingface_hub will re-download'
-            )
-            archive.unlink()
+        # 4) Dataset cache: the doc's stage -1 fence downloads through the
+        # upstream script into /root/.cache/asr-data (the runner pool's shared
+        # cache disk), which is what lets repeat runs skip the 15.6 GB fetch
+        # and the un-tar. Cache integrity is the upstream script's own job
+        # (it validates both archives against its hard-coded sizes and drops
+        # the mismatching ones), so all this hook does is report where the
+        # cache actually lives -- /root/.cache is the NFS mount, so the data
+        # survives across runs without any container volume flag.
+        diagnose_mount_environment(cls._DATA_CACHE)
 
     @classmethod
     def setUpClass(cls) -> None:
