@@ -350,11 +350,14 @@ git<span class="w"> </span>checkout<span class="w"> </span>&lt;ref&gt;
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>torch-npu<span class="o">]</span>
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
 pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"deepspeed==0.14.4"</span>
-<span class="c1"># train_utils.py 无条件 import tensorboardX；requirements.txt 是开发全量清单</span>
-<span class="c1"># （含 flake8/clang-format/openai-whisper 等与训练无关项），aarch64 上任一包</span>
+<span class="c1"># train_utils.py 无条件 import deepspeed 与 tensorboardX；requirements.txt 是开发</span>
+<span class="c1"># 全量清单（含 flake8/clang-format/openai-whisper 等与训练无关项），aarch64 上任一包</span>
 <span class="c1"># 解析失败会导致整张清单未安装，且失败被命令块尾部的 rc 静默吞掉，</span>
-<span class="c1"># 故训练核心依赖在安装步骤显式补齐（装失败将在此步骤快速失败）</span>
+<span class="c1"># 故训练核心依赖在安装步骤显式补齐</span>
 pip<span class="w"> </span>install<span class="w"> </span>tensorboardX
+<span class="c1"># 依赖校验：train_utils.py 无条件 import deepspeed，缺失要到 stage 4 训练才暴露，</span>
+<span class="c1"># 且训练块的 rc 会被 run_npu.sh 末尾命令掩盖，故在此显式校验（装不上立即失败）</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import deepspeed, tensorboardX; print('deepspeed', deepspeed.__version__)"</span>
 </pre></div>
 </div>
 <p>安装 <code class="docutils literal notranslate"><span class="pre">sox</span></code>（<code class="docutils literal notranslate"><span class="pre">sox</span></code> 命令与 <code class="docutils literal notranslate"><span class="pre">libsox-dev</span></code> 头文件）：</p>
