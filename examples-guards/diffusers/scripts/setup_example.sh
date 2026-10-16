@@ -274,10 +274,15 @@ if "sd15" in WANT:
             "*.json", "*.txt", "*.model",
             "unet/*", "vae/*",
             "text_encoder/*", "tokenizer/*", "scheduler/*",
+            # The training scripts end by building StableDiffusionPipeline from
+            # this path, which loads the safety_checker / feature_extractor too,
+            # so both components must be on disk.
+            "safety_checker/*", "feature_extractor/*",
         ],
-        # Same as SDXL: the repo carries both .bin and .safetensors; only the
-        # latter is needed.
-        ignore_file_pattern=["*.fp16.*", "*.bin"],
+        # Drop the fp16 duplicates and the large unet/vae/text_encoder .bin
+        # duplicates (the repo ships safetensors for those). safety_checker's
+        # .bin is kept: some mirrors ship that component as .bin only.
+        ignore_file_pattern=["*.fp16.*", "unet/*.bin", "vae/*.bin", "text_encoder/*.bin"],
     )
 
 # SD 1.5 inpainting (9-channel unet: 4 latent + 4 masked-latent + 1 mask).
