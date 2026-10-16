@@ -111,6 +111,14 @@ uv pip install -U 'setuptools>=69' wheel
 
 ## 安装 AReno
 
+从源码安装——PyPI 包不含 `examples/` 目录，而本文的训练示例要用到仓库里的 `examples/math/*.py`。
+
+<!-- 工作流注入的 UPSTREAM_REF（最新 release tag）通过这个隐藏的 #test-setup 捕获并注入到下方 install 命令中-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
 
 克隆上游仓库并 checkout 到最新 release tag，安装并且验证：
 
