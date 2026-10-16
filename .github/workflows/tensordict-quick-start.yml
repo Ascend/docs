@@ -78,11 +78,10 @@ jobs:
       # from pybind11 + CMake, ~5-10 min) + the 13 ~1s smoke commands.
       timeout_minutes: 90
       upstream_repo: pytorch/tensordict
-      # tensordict 0.15.0 起依赖 torch>=2.13.0a0，与本仓库配套的 torch 2.9.0
-      # 冲突（源码安装会强制升 torch，破坏 torch_npu 2.9.0.post2 配套）。
-      # 在文档升 torch 栈之前，钉住最后一个兼容 torch 2.9.0 的 0.14.x
-      # release（其依赖为裸 torch，无版本下限）。
-      fixed_ref: v0.14.3
+      # Release 仍追 latest（不 fixed_ref）。tensordict 0.15.0 起声明
+      # torch>=2.13.0a0，与本仓库配套 torch 2.9.0 相悖；test 的
+      # prepare_environment 用 uv override 强制 torch 2.9.0（经验证 0.15.0
+      # 源码兼容 2.9.0），无需钉版本。
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
       # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
       # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
