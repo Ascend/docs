@@ -147,11 +147,14 @@ cd wenet
 pip install -e .[torch-npu]
 pip install -r requirements.txt
 pip install "deepspeed==0.14.4"
-# train_utils.py 无条件 import tensorboardX；requirements.txt 是开发全量清单
-# （含 flake8/clang-format/openai-whisper 等与训练无关项），aarch64 上任一包
+# train_utils.py 无条件 import deepspeed 与 tensorboardX；requirements.txt 是开发
+# 全量清单（含 flake8/clang-format/openai-whisper 等与训练无关项），aarch64 上任一包
 # 解析失败会导致整张清单未安装，且失败被命令块尾部的 rc 静默吞掉，
-# 故训练核心依赖在安装步骤显式补齐（装失败将在此步骤快速失败）
+# 故训练核心依赖在安装步骤显式补齐
 pip install tensorboardX
+# 依赖校验：train_utils.py 无条件 import deepspeed，缺失要到 stage 4 训练才暴露，
+# 且训练块的 rc 会被 run_npu.sh 末尾命令掩盖，故在此显式校验（装不上立即失败）
+python -c "import deepspeed, tensorboardX; print('deepspeed', deepspeed.__version__)"
 ```
 
 安装 `sox`（`sox` 命令与 `libsox-dev` 头文件）：

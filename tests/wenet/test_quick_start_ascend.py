@@ -83,6 +83,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     # from the default index, which drag ``nvidia-*`` in; the constraints
     # keep an accidental re-resolution of the torch stack from breaking the
     # torch_npu pairing.
+    #
+    # ``nvidia-ml-py`` is deliberately NOT capped: deepspeed 0.14.4 declares
+    # it as a hard dependency, so capping it makes pip refuse to install
+    # deepspeed at all ("deepspeed 0.14.4 depends on nvidia-ml-py / the user
+    # requested (constraint) nvidia-ml-py<0" -> ResolutionImpossible), and
+    # ``wenet/utils/train_utils.py`` imports deepspeed unconditionally. It is
+    # a pure-Python NVML binding that NPU runs never touch. Same reasoning as
+    # examples-guards/llm-compressor/constraints-npu.txt, which leaves this
+    # one out for the same reason.
     _CUDA_CONSTRAINTS = (
         'cuda-toolkit<0',
         'cuda-python<0',
@@ -104,7 +113,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'nvidia-cutlass-dsl-libs-base<0',
         'nvidia-cutlass-dsl-libs-core<0',
         'nvidia-cutlass-dsl-libs-cu12<0',
-        'nvidia-ml-py<0',
         'nvidia-nccl<0',
         'nvidia-nvjitlink<0',
         'nvidia-nvtx<0',
