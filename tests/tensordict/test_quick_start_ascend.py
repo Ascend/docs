@@ -121,6 +121,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'nvidia-nvtx-cu12<0',
     )
     _CONSTRAINTS_FILE = '/tmp/tensordict_npu_constraints.txt'
+    _OVERRIDES_FILE = '/tmp/tensordict_npu_overrides.txt'
 
     # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source.
     _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
@@ -174,6 +175,18 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             fh.write('\n'.join(cls._CUDA_CONSTRAINTS) + '\n')
         os.environ['PIP_CONSTRAINT'] = cls._CONSTRAINTS_FILE
         os.environ['UV_CONSTRAINT'] = cls._CONSTRAINTS_FILE
+
+        # 1b) torch version override: tensordict 0.15.0 declares
+        # ``torch>=2.13.0a0``, but this repo pairs torch 2.9.0
+        # (torch_npu 2.9.0.post2 / CANN 9.1.0). uv's ``--overrides``
+        # (env ``UV_OVERRIDE``) forces torch 2.9.0 so the doc installs the
+        # latest tensordict against the pinned torch stack. Verified 0.15.0
+        # is source-compatible with torch 2.9.0 for the APIs the doc
+        # exercises (its ``torch>=2.13`` bound is the upstream CI matrix,
+        # not a hard runtime requirement).
+        with open(cls._OVERRIDES_FILE, 'w', encoding='utf-8') as fh:
+            fh.write('torch==2.9.0\n')
+        os.environ['UV_OVERRIDE'] = cls._OVERRIDES_FILE
 
         # 2) uv: the doc's ``tensordict-install-source`` block calls
         # ``uv pip install -e .`` which handles PEP 517 build deps more
