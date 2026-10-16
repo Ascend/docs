@@ -201,9 +201,14 @@ def corrupt_weights(root: Path) -> list[Path]:
             print(f"corrupt {path}: {exc}", flush=True)
             bad.append(path)
     for path in sorted(root.rglob("*.bin")):
-        if not zipfile.is_zipfile(path):
-            print(f"corrupt {path}: not a readable zip archive (truncated?)", flush=True)
-            bad.append(path)
+        try:
+            with zipfile.ZipFile(path) as archive:
+                if archive.testzip() is None:
+                    continue
+        except (zipfile.BadZipFile, OSError, EOFError):
+            pass
+        print(f"corrupt {path}: zip archive is unreadable or has bad entries", flush=True)
+        bad.append(path)
     return bad
 
 
