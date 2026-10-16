@@ -44,6 +44,11 @@ export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 export PIP_CONSTRAINT="$ROOT_DIR/constraints-npu.txt"
 # Shard-by-shard download bars flood the job log.
 export HF_HUB_DISABLE_PROGRESS_BARS=1
+# MindSpeed patching walks transformers' lazy modules, and each access logs a
+# warning: 33,000 lines in one process (run 38866705483). Errors still print.
+if [[ "$PROFILE" == megatron ]]; then
+  export TRANSFORMERS_VERBOSITY=error
+fi
 
 select_pip_index() {
   # Prefer the in-cluster pip cache when it answers; otherwise leave pip on

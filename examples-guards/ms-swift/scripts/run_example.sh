@@ -56,6 +56,11 @@ export PYTHONUNBUFFERED=1
 export USE_HF=1
 export HF_HUB_DISABLE_PROGRESS_BARS=1
 export HF_DATASETS_DISABLE_PROGRESS_BARS=1
+# Same reason as in setup_example.sh: MindSpeed makes transformers log tens of
+# thousands of warnings in every rank. Errors still print.
+if [[ "${PROFILE:-}" == megatron ]]; then
+  export TRANSFORMERS_VERBOSITY=error
+fi
 
 echo "running $EXAMPLE_PATH"
 
