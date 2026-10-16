@@ -1,7 +1,8 @@
 快速上手
 ==============
 
-.. note::
+.. admonition:: Note
+   :class: note
 
    阅读本篇前，请确保已按照 :doc:`安装指南 <./install>` 完成昇腾环境与 Liger-Kernel 的安装。
 

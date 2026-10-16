@@ -1,0 +1,55 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.sh']
+
+supported:
+  # 四个场景共用 profile: tgi-serve（Rust 构建 + Python server 安装 +
+  # 产物冒烟），由 setup_example.sh 解释。npu_devices 必须与场景脚本
+  # 的默认 --devices 一致（单卡 "0"、双卡 "0,1"），改卡时两处同步。
+  # timeout 统一 180 分钟：冷缓存首腿要付 release-opt 编译（约 2 小时），
+  # 热缓存腿只有几分钟的增量构建 + 服务场景本身。
+
+  # 单卡基线：起服务 + 一条 /generate。
+  - path: examples/npu/serve_basic.sh
+    profile: tgi-serve
+    runner: linux-aarch64-a2-1
+    npu_devices: "0"
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 180
+
+  # 双卡张量并行（--num-shard 2，HCCL 权重切分）。
+  - path: examples/npu/serve_tensor_parallel.sh
+    profile: tgi-serve
+    runner: linux-aarch64-a2-2
+    npu_devices: "0,1"
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 180
+
+  # SSE 流式（/generate_stream）：增量 token 事件 + 流式最终文本与
+  # 非流式回复逐字一致（两者均为贪心解码，比对是确定性断言）。
+  - path: examples/npu/serve_streaming.sh
+    profile: tgi-serve
+    runner: linux-aarch64-a2-1
+    npu_devices: "0"
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 180
+
+  # 并发请求：NUM_REQUESTS 条 /generate 并行打同一服务（continuous
+  # batching 调度路径），全部须返回非空回复。
+  - path: examples/npu/serve_concurrent.sh
+    profile: tgi-serve
+    runner: linux-aarch64-a2-1
+    npu_devices: "0"
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: []
+    timeout_minutes: 180
+
+unsupported:
+  # 非独立入口的配套物：common.sh 是场景脚本 source 的公共助手
+  # （请求 payload 构造 + 响应断言），不带 main 流程，独立执行无事可做。
+  # 扫描引擎按 include_extensions 会命中，落 unsupported 是审计去重。
+  - examples/npu/common.sh

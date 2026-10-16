@@ -1,0 +1,64 @@
+# slime examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml; this
+# file only declares what varies per project: schedule, concurrency,
+# upstream repo, dispatch input forwarding, and matrix parallelism.
+# The guard loop (release-only monitor / manifest-check / run-example
+# matrix / validate-results / save-monitor-state) lives in the engine.
+# See .github/workflows/examples-template.yml for the engine contract.
+#
+# Ascend-specific note: THUDM/slime publishes releases but has no NPU
+# support; the Ascend adaptation lives in the gitcode fork
+# gitcode.com/Ascend/slime-ascend (no releases, main branch only). The
+# engine's checkout and release monitor are GitHub-only, so this guard
+# monitors THUDM/slime releases for the trigger signal and manifest
+# validation tree, while examples-guards/slime/scripts/setup_example.sh clones
+# the fork main HEAD at CI time and installs slime from it. The tested
+# code is therefore fork main HEAD; the trigger signal is the upstream
+# release tag.
+
+name: slime-examples
+
+concurrency:
+  # Serialize schedule runs; cancel stale runs only within the same project PR.
+  # Each manual run gets its own group.
+  group: ${{ github.event_name == 'schedule' && 'slime-examples-schedule' || (github.event_name == 'pull_request' && format('slime-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 02:00 Beijing time (UTC 18:00).
+  schedule:
+    - cron: '0 18 * * *'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/slime/**'
+      - '.github/workflows/slime-examples.yml'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA of THUDM/slime to test (empty resolves to upstream latest release)
+        required: false
+        default: ''
+        type: string
+
+# Engine jobs query the GitHub Job API (validate-results); called workflows
+# run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  slime-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces monitor-state cache keys, artifact names, and the
+      # scheduling paths under examples-guards/slime.
+      project: slime
+      # Release signal + manifest-check tree come from the upstream repo;
+      # the Ascend fork is cloned and installed by setup_example.sh.
+      upstream_repo: THUDM/slime
+      target_ref: ${{ inputs.target_ref }}
+      # Run up to four examples when matching NPU runners are available.
+      max_parallel: 4

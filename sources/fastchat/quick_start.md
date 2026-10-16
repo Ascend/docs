@@ -73,9 +73,10 @@ print('FastChat version:', fastchat.__version__)
 FastChat version: xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `xxx` 表示实际安装的 FastChat 版本号。
-:::
+```
 
 ## 运行示例：OpenAI 兼容 API
 
@@ -137,9 +138,10 @@ python -m json.tool --no-ensure-ascii /tmp/fastchat-models.json
 }
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `xxx` 表示动态生成的标识与时间戳，`...` 表示省略的字段。
-:::
+```
 
 发送一次对话请求，调用 OpenAI 兼容的 Chat Completions 接口并打印模型回复：
 
@@ -175,9 +177,10 @@ python -m json.tool --no-ensure-ascii /tmp/fastchat-chat.json
 }
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `xxx` 表示每次请求动态生成的 ID、时间戳、模型回复和 token 统计等内容，`...` 表示省略的字段。
-:::
+```
 
 ## 外部链接
 

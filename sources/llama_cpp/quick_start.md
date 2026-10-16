@@ -30,9 +30,10 @@ export PATH=/usr/local/sbin:$PATH
 npu-smi info
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 如果 `npu-smi` 找不到，回到 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 检查驱动与设备挂载。
-:::
+```
 
 ### 2.2 确认 CANN 与编译工具
 

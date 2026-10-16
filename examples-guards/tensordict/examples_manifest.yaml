@@ -1,0 +1,71 @@
+version: 1
+# 只把上游可运行的教程 .py 作为对账单位；不把文档、图片或 benchmarks 当成 example。
+# 首批 3 条已在 examples #2 上通过；新增条目仍待手动 workflow 验证。
+scan:
+  root: tutorials/sphinx_tuto
+  include_extensions: ['.py']
+
+supported:
+  # torch.export 导出与前向；合成模型和输出检查 NPU 驻留。
+  - path: tutorials/sphinx_tuto/export.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 函数式参数替换/vmap；小型合成模型，检查参数栈与输出在 NPU。
+  - path: tutorials/sphinx_tuto/functional.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 嵌套键与更新；微型合成张量，默认 NPU 并检查结果设备。
+  - path: tutorials/sphinx_tuto/tensordict_keys.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 切片/堆叠/变形/gather；合成张量在 NPU 完整运行。
+  - path: tutorials/sphinx_tuto/tensordict_shapes.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 预分配与赋值；10×3 合成张量，检查 NPU 写入。
+  - path: tutorials/sphinx_tuto/tensordict_preallocation.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+
+  # 布尔掩码与切片；保留 CPU 掩码原配方，检查 NPU 索引结果，待实跑。
+  - path: tutorials/sphinx_tuto/tensordict_slicing.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # 异步流/lazy stack/nested densify；完整 11 秒配方并检查 NPU 数据，待实跑。
+  - path: tutorials/sphinx_tuto/streamed_tensordict.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+  # memmap 存储教程；NPU 原始张量、CPU 映射及 NPU 回读验证，待实跑。
+  - path: tutorials/sphinx_tuto/tensordict_memory.py
+    profile: tensordict_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 90
+
+unsupported:
+  # FashionMNIST 双模型训练；显式选择 CPU/CUDA，无 NPU 设备参数。
+  - tutorials/sphinx_tuto/data_fashion.py
+  # 序列化吞吐对比；固定 512MiB/32 次全格式写盘，无 CI 缩规模接口。
+  - tutorials/sphinx_tuto/serialization_speed.py
+  # FashionMNIST tensorclass 训练；显式选择 CPU/CUDA，无 NPU 设备参数。
+  - tutorials/sphinx_tuto/tensorclass_fashion.py
+  # ImageFolder tensorclass 训练；FRACTION 可缩数据，但设备仍显式 CPU/CUDA。
+  - tutorials/sphinx_tuto/tensorclass_imagenet.py
+  # 模块与编译教程；硬用默认 Inductor，未提供 NPU 编译后端选择接口。
+  - tutorials/sphinx_tuto/tensordict_module.py
+  # Zarr 存储教程；CPU ZipStore 结果与原始 NPU 张量直接比较，设备不一致。
+  - tutorials/sphinx_tuto/zarr_storage.py

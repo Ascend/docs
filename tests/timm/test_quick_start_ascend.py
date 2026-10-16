@@ -1,12 +1,12 @@
-"""Quick-start-Ascend documentation test: end-to-end case built on top
+"""timm quick-start documentation test: end-to-end case built on top
 of the MarkdownDocTestBase contract.
 
-Document under test: projects/timm/docs/Quick-start-Ascend.md
+Document under test: sources/timm/quick_start.md
 (follows the docs/markdown_doc_test_label.md contract: every shell
 code block carries one of the #test / #test-setup / #test-result labels
 plus id= / store= / load='x>>y' / fuzzy='xxx' parameters).
 
-Run: python -m unittest tests.test_quick_start_ascend -v 2>&1
+Run: python -m unittest tests.timm.test_quick_start_ascend -v 2>&1
 
 Environment variables (injected by GitHub workflow timm-quick-start.yml):
     MONITORED_DOC_URL   Used by the engine's monitor step (ubuntu, not the
@@ -49,7 +49,7 @@ def _e2e_enabled() -> bool:
 
 
 class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
-    """Quick-start-Ascend.md end-to-end test: fetch doc -> validate
+    """quick_start.md end-to-end test: read doc -> validate
     contract -> run #test-setup / #test in order -> compare against
     #test-result.
 
@@ -61,8 +61,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     extraction.
     """
 
-    # pip install timm + the doc's two quick-start #test smoke
-    # commands (inference / features) + modelscope weight download.
+    # The document installs the PyTorch stack and timm, then runs two
+    # examples (inference / features) with ModelScope weights.
     # The stack is small (torch / torchvision / pyyaml / huggingface_hub /
     # safetensors / modelscope / timm), so 30 min covers cold cache +
     # first-time wheel pulls + the 45 MB model download + the ~1s smoke
@@ -119,16 +119,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
     _CONSTRAINTS_FILE = '/tmp/timm_npu_constraints.txt'
 
-    _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
-    _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     def pre_process(self) -> str:
-        """Read Quick-start-Ascend.md from the local checkout."""
+        """Read sources/timm/quick_start.md from the local checkout."""
         doc_path = (
-            Path(__file__).resolve().parent.parent
-            / 'docs'
-            / 'Quick-start-Ascend.md'
+            Path(__file__).resolve().parents[2]
+            / 'sources'
+            / 'timm'
+            / 'quick_start.md'
         )
         if not doc_path.is_file():
             raise RuntimeError(
@@ -138,14 +137,10 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     @classmethod
     def prepare_environment(cls) -> None:
-        """Source CANN env + write CUDA exclusion list +
-        torch stack + torchvision + modelscope + model cache sanity.
+        """Source CANN env, constrain CUDA packages, and prepare model cache.
 
-        The doc's install-timm section is the single source of truth for
-        which timm version gets installed; this class only handles torch /
-        torch_npu / torchvision here (via the cluster cache + Huawei ascend
-        dual-source). timm itself installs itself in document order via the
-        #test machinery.
+        The document installs the PyTorch stack and timm in order via its
+        #test blocks.
 
         modelscope is installed here because the doc's examples call
         snapshot_download; the modelscope cache is purged of corrupt shards
@@ -173,59 +168,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             fh.write('\n'.join(cls._CUDA_CONSTRAINTS) + '\n')
         os.environ['PIP_CONSTRAINT'] = cls._CONSTRAINTS_FILE
 
-        # 2) torch stack probe + install
-        _PROBE_SCRIPT = (
-            'import torch, torch_npu\n'
-            "raise SystemExit(0 if "
-            "torch.__version__.startswith('2.9.0') "
-            "and torch_npu.__version__.startswith('2.9.0') "
-            "else 1)"
-        )
-        probe = subprocess.run(
-            ['python', '-c', _PROBE_SCRIPT],
-            capture_output=True,
-            check=False,
-        )
-        if probe.returncode == 0:
-            _VERSIONS_SCRIPT = (
-                'import torch, torch_npu; '
-                'print(torch.__version__, torch_npu.__version__)'
-            )
-            versions = subprocess.run(
-                ['python', '-c', _VERSIONS_SCRIPT],
-                capture_output=True, text=True, check=True,
-            )
-            print(f'setup: reusing image torch stack ({versions.stdout.strip()})')
-        else:
-            print('setup: installing torch==2.9.0 torch_npu==2.9.0.post2')
-            subprocess.run(
-                [
-                    'python', '-m', 'pip', 'install',
-                    '--index-url', cls._CLUSTER_INDEX,
-                    '--extra-index-url', cls._ASCEND_EXTRA,
-                    'torch==2.9.0', 'torch_npu==2.9.0.post2',
-                ],
-                check=True,
-            )
-
-        # 3) torchvision (pinned to match torch 2.9.0)
-        subprocess.run(
-            ['python', '-m', 'pip', 'install', '--no-deps', 'torchvision==0.24.0'],
-            check=True,
-        )
-
-        # 4) modelscope
+        # 2) ModelScope is used by the document's inference examples.
         subprocess.run(
             ['python', '-m', 'pip', 'install', 'modelscope'],
             check=True,
         )
 
-        # 5) model cache sanity
+        # 3) model cache sanity
         ensure_safetensors()
         purge_modelscope_corrupt(resolve_modelscope_cache())
-
-        # 6) timm itself is NOT installed here - the doc's
-        # install-timm block installs timm via pip.
 
     @classmethod
     def setUpClass(cls) -> None:

@@ -1,0 +1,535 @@
+version: 1
+# 清单以 Ascend/slime-ascend 的 examples/ 为基准；supported 路径也须存在于 THUDM/slime release。
+scan:
+  root: examples
+  include_extensions: ['.sh', '.py']
+supported:
+  # run-qwen2.5-0.5B-fully_async.sh：全异步训练；有 fork NPU 测试先例，可压缩到四卡 CI。
+  - path: examples/fully_async/run-qwen2.5-0.5B-fully_async.sh
+    profile: slime_fully_async
+    runner: linux-aarch64-a2-4
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--rollout-function-path slime.rollout.fully_async_rollout.generate_rollout_fully_async"
+      - "--input-key prompt"
+      - "--label-key label"
+      - --apply-chat-template
+      - "--rm-type deepscaler"
+      - "--rollout-temperature 0.8"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 1024"
+      - "--n-samples-per-prompt 4"
+      - "--actor-num-gpus-per-node 1"
+      - "--rollout-num-gpus 3"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.65"
+      - "--sglang-cuda-graph-max-bs 16"
+      - "--max-tokens-per-gpu 4096"
+      - --use-dynamic-batch-size
+      - --sequence-parallel
+      - --accumulate-allreduce-grads-in-fp32
+      - --attention-softmax-in-fp32
+      - "--attention-backend flash"
+      - --ci-test
+
+  # run-qwen3-8B-opd.sh：SGLang teacher 的 OPD 蒸馏；有 fork NPU 测试先例，可缩至八卡 CI。
+  - path: examples/on_policy_distillation/run-qwen3-8B-opd.sh
+    profile: slime_opd
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - --use-dist-ckpt
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - --apply-chat-template
+      - "--custom-rm-path slime.rollout.on_policy_distillation.reward_func"
+      - "--custom-reward-post-process-path slime.rollout.on_policy_distillation.post_process_rewards"
+      - "--rm-url ${SLIME_TEACHER_URL}"
+      - --use-opd
+      - "--opd-type sglang"
+      - "--opd-kl-coef 1.0"
+      - "--rollout-temperature 0.8"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 1024"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 3"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.6"
+      - "--sglang-cuda-graph-max-bs 16"
+      - "--max-tokens-per-gpu 4096"
+      - --use-dynamic-batch-size
+      - "--megatron-to-hf-mode bridge"
+      - --use-flash-attn
+      - "--attention-backend flash"
+      - --ci-test
+
+  # retool_qwen3_4b_rl.sh：工具调用强化学习；八卡隔离训练与推理，短 rollout 验证。
+  - path: examples/retool/retool_qwen3_4b_rl.sh
+    profile: slime_retool
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - --apply-chat-template
+      - "--reward-key score"
+      - "--custom-generate-function-path generate_with_retool.generate"
+      - "--custom-rm-path generate_with_retool.reward_func"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 2"
+      - "--global-batch-size 8"
+      - "--rollout-max-response-len 512"
+      - "--rollout-max-context-len 1024"
+      - "--rollout-temperature 0.8"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 4"
+      - "--rollout-num-gpus-per-engine 2"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--max-tokens-per-gpu 1024"
+      - "--log-probs-chunk-size 128"
+      - --use-dynamic-batch-size
+      - "--recompute-granularity full"
+      - "--recompute-method uniform"
+      - "--recompute-num-layers 1"
+      - "--attention-backend flash"
+      - --ci-test
+
+  # ReTool SFT：监督对话训练；保留原生 SFT token mask，四卡 TP4 和重计算控制显存。
+  - path: examples/retool/retool_qwen3_4b_sft.sh
+    profile: slime_retool_sft
+    runner: linux-aarch64-a2-4
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_SFT_FIXTURE_JSONL}"
+      - "--input-key messages"
+      - "--rollout-function-path slime.rollout.sft_rollout.generate_rollout"
+      - "--loss-mask-type qwen3"
+      - --rollout-shuffle
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 1"
+      - "--global-batch-size 4"
+      - "--loss-type sft_loss"
+      - --calculate-per-token-loss
+      - --disable-compute-advantages-and-returns
+      - --debug-train-only
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 0"
+      - "--num-gpus-per-node 4"
+      - "--tensor-model-parallel-size 4"
+      - --sequence-parallel
+      - "--context-parallel-size 1"
+      - --use-dynamic-batch-size
+      - "--max-tokens-per-gpu 1024"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--recompute-granularity full"
+      - "--recompute-method uniform"
+      - "--recompute-num-layers 1"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-5"
+      - "--lr-decay-style cosine"
+      - "--min-lr 1e-6"
+      - "--weight-decay 0.1"
+
+  # Megatron OPD：真实教师前向蒸馏；本地小模型 checkpoint，训练与 rollout 分卡运行。
+  - path: examples/on_policy_distillation/run-qwen3-8B-opd-megatron.sh
+    profile: slime_opd_megatron
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--opd-teacher-load ${SLIME_TORCH_DIST_PATH}"
+      - --use-dist-ckpt
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - --apply-chat-template
+      - "--rm-type deepscaler"
+      - --use-opd
+      - "--opd-type megatron"
+      - "--opd-kl-coef 1.0"
+      - "--advantage-estimator grpo"
+      - --use-kl-loss
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 2"
+      - --sequence-parallel
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 1"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - --use-dynamic-batch-size
+      - "--max-tokens-per-gpu 2048"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+
+  # MIS：训练/推理偏差校正；保留原生 TIS 函数和 TP2/CP2，八卡隔离训练推理。
+  - path: examples/train_infer_mismatch_helper/run-qwen3-4b-mis.sh
+    profile: slime_mis
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - --apply-chat-template
+      - "--rm-type deepscaler"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 2"
+      - "--global-batch-size 8"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 2"
+      - --sequence-parallel
+      - "--context-parallel-size 2"
+      - "--rollout-num-gpus-per-engine 2"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--advantage-estimator grpo"
+      - --use-kl-loss
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--eps-clip 0.2"
+      - "--eps-clip-high 0.28"
+      - --use-tis
+      - "--custom-config-path examples/train_infer_mismatch_helper/mis.yaml"
+      - "--custom-tis-function-path examples.train_infer_mismatch_helper.mis.compute_mis_weights_with_cp"
+      - --use-dynamic-batch-size
+      - "--max-tokens-per-gpu 2048"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+
+  # 多任务评测：训练后执行数学与选择题两类本地奖励评测；保留原生 eval-config 分发。
+  - path: examples/eval_multi_task/multi_task.sh
+    profile: slime_multi_task
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - "--apply-chat-template"
+      - "--rm-type deepscaler"
+      - "--advantage-estimator grpo"
+      - "--use-kl-loss"
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 2"
+      - "--sequence-parallel"
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 1"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--use-dynamic-batch-size"
+      - "--max-tokens-per-gpu 2048"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+      - "--eval-interval 1"
+      - "--eval-config ${SLIME_EVAL_CONFIG}"
+
+  # 多智能体训练：保留三阶段和原生五路并行；小型 thinking Qwen3 与本地纯数学题压缩规模。
+  - path: examples/multi_agent/run-qwen3-30B-A3B-multi-agent.sh
+    profile: slime_multi_agent
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - "--apply-chat-template"
+      - "--rm-type deepscaler"
+      - "--advantage-estimator grpo"
+      - "--use-kl-loss"
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 2"
+      - "--n-samples-per-prompt 2"
+      - "--global-batch-size 4"
+      - "--rollout-max-response-len 1024"
+      - "--rollout-temperature 0.6"
+      - "--rollout-top-p 0.95"
+      - "--rollout-top-k 20"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 4"
+      - "--sequence-parallel"
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 2"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--use-dynamic-batch-size"
+      - "--max-tokens-per-gpu 1024"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--recompute-granularity full"
+      - "--recompute-method uniform"
+      - "--recompute-num-layers 1"
+      - "--attention-backend flash"
+      - "--keep-old-actor"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+      - "--rollout-max-context-len 2048"
+      - "--custom-generate-function-path examples.multi_agent.rollout_with_multi_agents.generate_with_multi_agents"
+      - "--save-debug-rollout-data ${CI_OUTPUT_DIR}/agent-rollouts/{rollout_id}.pt"
+      - "--ci-save-grad-norm ${CI_OUTPUT_DIR}/agent-gradients/{role}_{rollout_id}_{step_id}.pt"
+
+  # Strands 工具智能体：保留原生 Python 工具、TITO 与 ToolLimiter；本地小模型和短 rollout。
+  - path: examples/strands_sglang/strands_qwen3_8b.sh
+    profile: slime_strands
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key label"
+      - "--rm-type deepscaler"
+      - "--advantage-estimator grpo"
+      - "--use-kl-loss"
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 4"
+      - "--sequence-parallel"
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 2"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--use-dynamic-batch-size"
+      - "--max-tokens-per-gpu 1024"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--recompute-granularity full"
+      - "--recompute-method uniform"
+      - "--recompute-num-layers 1"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+      - "--rollout-max-context-len 2048"
+      - "--custom-generate-function-path generate_with_strands.generate"
+      - "--custom-rm-path generate_with_strands.reward_func"
+      - "--save-debug-rollout-data ${CI_OUTPUT_DIR}/agent-rollouts/{rollout_id}.pt"
+      - "--ci-save-grad-norm ${CI_OUTPUT_DIR}/agent-gradients/{role}_{rollout_id}_{step_id}.pt"
+
+  # Search-R1：搜索增强训练；原生 BM25 CPU 检索小型本地索引，模型训练保留 NPU。
+  - path: examples/search-r1/run_qwen2.5_3B.sh
+    profile: slime_search
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--ref-load ${SLIME_TORCH_DIST_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key prompt"
+      - "--label-key reward_model"
+      - "--apply-chat-template"
+      - "--advantage-estimator grpo"
+      - "--use-kl-loss"
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 4"
+      - "--n-samples-per-prompt 4"
+      - "--global-batch-size 16"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 4"
+      - "--rollout-num-gpus 4"
+      - "--num-gpus-per-node 8"
+      - "--tensor-model-parallel-size 2"
+      - "--sequence-parallel"
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 1"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--use-dynamic-batch-size"
+      - "--max-tokens-per-gpu 2048"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+      - "--custom-generate-function-path generate_with_search.generate"
+      - "--custom-rm-path generate_with_search.reward_func"
+      - "--rollout-max-context-len 2048"
+
+  # Geo3K 多轮视觉训练：原生图像与评分反馈，ModelScope 2B VL 模型和八张本地图像压缩为四卡 CI。
+  - path: examples/geo3k_vlm_multi_turn/run_geo3k_vlm_multi_turn.py
+    profile: slime_geo3k
+    runner: linux-aarch64-a2-4
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 300
+    overlay_args:
+      - "--hf-checkpoint ${SLIME_MODEL_PATH}"
+      - "--prompt-data ${SLIME_FIXTURE_JSONL}"
+      - "--input-key problem"
+      - "--label-key answer"
+      - "--tool-key tools"
+      - "--apply-chat-template"
+      - "--rm-type math"
+      - "--advantage-estimator grpo"
+      - "--kl-loss-coef 0.0"
+      - "--kl-loss-type low_var_kl"
+      - "--num-rollout 2"
+      - "--rollout-batch-size 2"
+      - "--n-samples-per-prompt 2"
+      - "--global-batch-size 4"
+      - "--rollout-max-response-len 512"
+      - "--rollout-temperature 0.8"
+      - "--actor-num-gpus-per-node 2"
+      - "--rollout-num-gpus 2"
+      - "--num-gpus-per-node 4"
+      - "--tensor-model-parallel-size 2"
+      - "--sequence-parallel"
+      - "--context-parallel-size 1"
+      - "--rollout-num-gpus-per-engine 2"
+      - "--sglang-device npu"
+      - "--sglang-mem-fraction-static 0.4"
+      - "--sglang-cuda-graph-max-bs 4"
+      - "--use-dynamic-batch-size"
+      - "--max-tokens-per-gpu 1024"
+      - "--attention-dropout 0.0"
+      - "--hidden-dropout 0.0"
+      - "--attention-backend flash"
+      - "--optimizer adam"
+      - "--lr 1e-6"
+      - "--weight-decay 0.1"
+      - "--load ${SLIME_MODEL_PATH}"
+      - "--megatron-to-hf-mode bridge"
+      - "--multimodal-keys '{\"image\":\"images\"}'"
+      - "--recompute-granularity full"
+      - "--recompute-method uniform"
+      - "--recompute-num-layers 1"
+      - "--recompute-loss-function"
+      - "--log-probs-chunk-size 64"
+      - "--custom-generate-function-path examples.geo3k_vlm_multi_turn.rollout.generate"
+      - "--custom-config-path examples/geo3k_vlm_multi_turn/geo3k_vlm_multi_turn_config.yaml"
+      - "--rollout-max-context-len 2048"
+      - "--save-debug-rollout-data ${CI_OUTPUT_DIR}/agent-rollouts/{rollout_id}.pt"
+      - "--ci-save-grad-norm ${CI_OUTPUT_DIR}/agent-gradients/{role}_{rollout_id}_{step_id}.pt"
+
+unsupported:
+  # run_qwen36_35b_a3b_swe_8nodes.sh：SWE 编码智能体训练；硬编码八节点和远程 sandbox，CI 无法接入。
+  - examples/coding_agent_rl/run_qwen36_35b_a3b_swe_8nodes.sh
+  # run-glm4.7-355B-A32B-delta.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/delta_weight_sync/run-glm4.7-355B-A32B-delta.sh
+  # run-qwen3.5-9B-fully_async.sh：上游 release 存在此入口，但当前 NPU fork 缺少同名入口。
+  - examples/fully_async/run-qwen3.5-9B-fully_async.sh
+  # run_geo3k_qwen35.sh：Geo3K 视觉语言训练；依赖私有 Megatron-Bridge fork，CI 无法获取。
+  - examples/geo3k_vlm/run_geo3k_qwen35.sh
+  # run_geo3k_vlm.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/geo3k_vlm/run_geo3k_vlm.sh
+  # run_geo3k_vlm_sft.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/geo3k_vlm/run_geo3k_vlm_sft.sh
+  # run_grpo_npu.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/geo3k_vlm_multi_turn/run_grpo_npu.sh
+  # run_ppo_npu.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/geo3k_vlm_multi_turn/run_ppo_npu.sh
+  # Qwen3.5 多轮视觉训练：fork 专有入口，上游 release 缺此路径；同例 .sh 已合并。
+  - examples/geo3k_vlm_multi_turn/npu_run_geo3k_vlm_multi_turn_qwen35_9b.py
+  # run-glm4.7-30B-opd.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/on_policy_distillation/run-glm4.7-30B-opd.sh
+  # retool_glm4.7_flash_rl_npu.sh：仅在 NPU fork 存在，受监控的上游 release 缺此入口。
+  - examples/retool/retool_glm4.7_flash_rl_npu.sh
+  # run_qwen3_4B.sh：tau-bench 工具调用训练；用户模拟器硬依赖 Gemini API，无法离线运行。
+  - examples/tau-bench/run_qwen3_4B.sh

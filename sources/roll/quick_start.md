@@ -9,6 +9,8 @@
 
 本文档示例在 Python 3.12、CANN 9.1.0 环境下验证通过。
 
+本文档配套镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+
 ## 加载 CANN 环境
 
 ```shell
@@ -31,9 +33,10 @@ echo "ROLL $(git -C ROLL describe --tags --exact-match HEAD)"
 pip install -e ROLL
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `<ref>` 为最新正式 release 的 tag
-:::
+```
 
 输出结果如下：
 
@@ -41,15 +44,16 @@ pip install -e ROLL
 ROLL xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 为实际安装到的 release 版本号
-:::
+```
 
 ## 运行示例：FrozenLake agentic 强化学习
 
 FrozenLake 是 ROLL 官方快速入门的示例：Qwen2.5-0.5B-Instruct 作为策略模型，在 4×4 冰面网格中逐轮输出移动方向，绕开冰洞到达终点，环境按结果返回奖励。
 
-**安装 vLLM 与 triton。**
+**安装 vLLM 与 triton。** 安装 `vllm-ascend` 时，配套的 `torch`、`torch_npu`、`torchvision` 和 `torchaudio` 会作为依赖自动安装，无需单独安装 PyTorch 软件栈。
 
 ```shell #test-setup id="install-npu-runtime"
 pip install --index-url https://repo.huaweicloud.com/repository/pypi/simple vllm==0.23.0
@@ -152,6 +156,10 @@ tracker_kwargs:
   log_dir: ./output/tensorboard
 
 num_gpus_per_node: 1
+
+# 禁用 TransferQueue 远程传输，数据直接走 Ray 传递。
+transfer_backend:
+  backend_name: null
 
 # 单卡快速跑通：只训练 1 步，批量收缩。
 max_steps: 1
@@ -300,9 +308,10 @@ print(f"FrozenLake 平均得分：{metrics.Scalars('critic/score/mean')[-1].valu
 FrozenLake 平均得分：xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 为本次训练实际得到的平均得分，随训练随机性变化
-:::
+```
 
 ## 外部链接
 

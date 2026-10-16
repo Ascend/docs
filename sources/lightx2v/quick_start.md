@@ -72,9 +72,10 @@ echo "LightX2V $(git -C LightX2V describe --tags --exact-match HEAD)"
 pip install --no-deps ./LightX2V
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 `<ref>` 为上游最新 release 版本。
-:::
+```
 
 输出结果如下：
 
@@ -82,9 +83,10 @@ pip install --no-deps ./LightX2V
 LightX2V xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 输出中的 `xxx` 为实际检出的 release 版本。
-:::
+```
 
 ## 4. 示例：生成视频
 

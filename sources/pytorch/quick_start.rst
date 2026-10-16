@@ -1,7 +1,8 @@
 快速开始
 ===========================
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     在运行下述示例之前，需要您已经安装了PyTorch-NPU环境，有关环境安装，请参考 :doc:`./install`
 

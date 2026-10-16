@@ -1,0 +1,301 @@
+version: 1
+scan:
+  root: recipes
+  include_extensions: ['.py']
+
+supported:
+  # LoRA SFT：Qwen2.5-0.5B + 50 行 alpaca，1 step，1 卡 ~12 秒
+  - path: recipes/lora_finetune_single_device.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2_5/0.5B_lora_single_device.yaml  # 完整相对路径（cwd=target root）；OmegaConf 不补 .yaml 后缀
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json  # upstream 默认 /tmp/Qwen2.5-0.5B-Instruct/vocab.json；TT_MODEL_PATH 来自 hub_cache.py 解析的 HF hub cache（cache hit / HF-first / ModelScope fallback）
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt  # BPE 分词器配套 merges 文件
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}  # FullModelHFCheckpointer 从 snapshot 根目录读权重（避免 HF 下载）
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}  # 输出到 CI 工作目录（默认 /tmp/torchtune/qwen2_5_0_5B/lora_single_device 在容器内会被清）
+      - dataset.source=json  # upstream alpaca_cleaned_dataset 默认 yahma/alpaca-cleaned（HF 不可达）；换成本地 json builder
+      - dataset.data_files=${TARGET_ROOT}/fixtures/ci_alpaca_50.json  # 仓内 50 行 alpaca fixture
+      - gradient_accumulation_steps=1  # upstream 默认 8：压规模
+      - max_steps_per_epoch=1  # upstream 默认 null=跑全 epoch（50 行 fixture / batch 1 = 50 步）；1 步即可验证。注意必须用 max_steps_per_epoch：v0.6.1 recipe 只读该字段，顶层 max_steps 会被 @config.parse 静默塞进 cfg 但从不消费
+      - batch_size=1  # upstream 默认 2：压批
+    timeout_minutes: 60
+
+  # 全量 SFT：Qwen2.5-0.5B + 50 行 alpaca，1 步，1 卡
+  - path: recipes/full_finetune_single_device.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2_5/0.5B_full_single_device.yaml
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}
+      - dataset.source=json
+      - dataset.data_files=${TARGET_ROOT}/fixtures/ci_alpaca_50.json
+      - gradient_accumulation_steps=1
+      - max_steps_per_epoch=1
+      - batch_size=1
+    timeout_minutes: 60
+
+  # LoRA DPO：Qwen2.5-0.5B + 8 行对话式偏好数据，1 step
+  - path: recipes/lora_dpo_single_device.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2_5/0.5B_lora_single_device.yaml  # 复用 LoRA SFT 配置（DPO 在 cfg 层级覆盖 loss/dataset）
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}
+      - loss._component_=torchtune.rlhf.loss.DPOLoss  # upstream LoRA config 无 loss 项；DPO 必填
+      - dataset._component_=torchtune.datasets.preference_dataset  # 走偏好数据 builder（默认 alpaca_cleaned_dataset 走 SFT 路径）
+      - dataset.source=json  # 本地 json 文件
+      - dataset.data_files=${TARGET_ROOT}/fixtures/ci_preference_conv_8.jsonl  # 8 行 chosen/rejected 消息列表（与 ChosenRejectedToMessages 对齐）
+      - gradient_accumulation_steps=1
+      - max_steps_per_epoch=1
+      - batch_size=1
+    timeout_minutes: 60
+
+  # 推理生成：Qwen2.5-0.5B，单条 prompt（upstream 配置默认是 Llama2 7B）
+  - path: recipes/generate.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/generation.yaml  # upstream generation 配置：默认 model=llama2_7b
+      - model._component_=torchtune.models.qwen2_5.qwen2_5_0_5b  # 覆盖为 Qwen2.5-0.5B base
+      - tokenizer._component_=torchtune.models.qwen2_5.qwen2_5_tokenizer  # Qwen2.5 BPE tokenizer
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - checkpointer.checkpoint_files=[model.safetensors]  # upstream 默认 2 个 .bin shard（Llama2 风格）；0.5B 单 shard
+      - checkpointer.model_type=QWEN2  # upstream 默认 LLAMA2；走 qwen2_hf_to_tune（处理 q/k/v bias）而不是基类 hf_to_tune
+      - 'prompt.user="The capital of France is"'  # Dict[Role,str] 格式（generate.py:104 强类型）；内嵌空格会被 shlex.split 拆开，run_example.sh 必须改用 shlex.quote 包值或收紧为单 token；CI 矩阵里此 overlay_arg 在 coder 复现必抛 ValueError "got capital"，由 examples-guard 守护。prompt.system 默认已 null，无需覆盖
+      - max_new_tokens=20  # upstream 默认 300：压 token 数
+    # 2026-09-18 CI run 35322839791：timeout=15 在 setup 阶段撞墙，torch 148MB
+    # 走 cluster pip cache 被 4 个并发 job 压到 237 kB/s，光 torch 就要 10min；
+    # torchvision 装到一半容器被 k8s 杀掉 ("container implementation failed")。
+    # 跟同 run 的 lora_finetune/full_finetune/lora_dpo（timeout=30，setup 17min 内
+    # 跑通）对齐，提到 30。2026-09-20 run 35483424375 30min 仍不够（torch 下载
+    # 挂 28min 直接超时），跟 xtuner（35483448757）同修：setup 改 curl 续传，
+    # timeout 提到 60 兜底。
+    timeout_minutes: 60
+
+  # 量化：Qwen2.5-0.5B，Int8DynActInt4 权重量化（torchao）
+  # Int8DynActInt4WeightQuantizer 用 torchao 0.18 的
+  # Int8DynamicActivationIntxWeightConfig + PerGroup(groupsize=256)，
+  # 要求每一维的 hidden_size 是 groupsize 的倍数。Qwen2.5-0.5B 的
+  # hidden_size=896，896/256=3.5 不整除 → AssertionError at
+  # choose_qparams_affine。v0.6.1 跑得通是因为 torchao 0.13 的
+  # int8_dynamic_activation_int4_weight 不做这个 block_size 校验。
+  # 修法：overlay 把 groupsize 改成 128（896/128=7，整除）。
+  # 量化算法仍是 Int8DynActInt4，意图保留，只是 group size 调小。
+  - path: recipes/quantize.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/quantization.yaml  # upstream quantize 配置：默认 Int8DynActInt4WeightQuantizer + Llama2 7B
+      - model._component_=torchtune.models.qwen2_5.qwen2_5_0_5b  # 覆盖为 Qwen2.5-0.5B base（quantize.py 只消费 model/quantizer/checkpointer/device/dtype/seed，无 tokenizer 字段）
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - checkpointer.checkpoint_files=[model.safetensors]
+      - checkpointer.model_type=QWEN2  # 同 generate：走 qwen2_hf_to_tune
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}  # 量化结果落 CI 工作目录
+      - quantizer.groupsize=128  # Qwen2.5-0.5B hidden_size=896，128 是能整除的标准 group size
+    # 2026-09-18 CI run 35322839791：同上 setup timeout 不足，提到 30。
+    # 2026-09-20 run 35483424375 30min 仍超时（torch 下载挂 28min），提到 60。
+    timeout_minutes: 60
+
+  # 评测：Qwen2.5-0.5B + lm_eval + 自定义 ci_truthfulqa_mc2 任务（本地 JSON 驱动）
+  # eleuther_eval recipe 在 __init__ 强检 `version("lm-eval") < "0.4.5"`
+  # （**字符串比较**，不是 packaging.version——0.4.10-0.4.49 都被误拒；
+  # 详见 setup_example.sh 注释 + 端到端跑通日期 2026-09-17），setup 装
+  # `lm-eval==0.4.5`（recipe import 链只用到 lm_eval.tasks /
+  # lm_eval.evaluator / lm_eval.models.huggingface / lm_eval.utils 这四块，
+  # 0.4.5 已稳定）。任务数据走 fixtures/ci_truthfulqa_2.json（2 行手工写的
+  # TruthfulQA mc2 格式），通过 `include_path` 指向 fixtures/eleuther_tasks/，
+  # lm_eval 的 TaskManager 把 `ci_truthfulqa_mc2` 注册为覆盖 built-in
+  # truthfulqa_mc2 的本地任务，绕开 HF datasets 拉取 truthfulqa。`acc`
+  # 指标而非原版 `mc2`：原版 mc2 是 truthfulqa/utils.py 里的自定义聚合函数，
+  # 用 built-in `acc` 避免把 utils.py 也 vendor 进 fixtures。`device=npu`
+  # overlay 把 upstream config 的 `device: cuda` 翻成 NPU。
+  # 2026-09-18 在 coder hdc-stable-npu-3 跑通：exit 0，acc=1.0 / 0.94s /
+  # 1.56GB HBM（5×5 loglikelihood 一次性跑完）。
+  # ⚠️ eleuther_eval recipe 内部硬编 `pretrained="gpt2"`（recipes/eleuther_eval.py:311
+  #   `super().__init__(pretrained="gpt2", device=str(device))`），会触发
+  #   `transformers.AutoConfig.from_pretrained("gpt2")`。coder pod 无法访问
+  #   huggingface.co（curl hang），需要在 runner 环境里设置
+  #   `HF_ENDPOINT=https://hf-mirror.com` 让 transformers 走中国镜像；CI 集群
+  #   直连 HF 时不设也无害。fixture YAML 需要 `data_files`
+  # 写相对 cwd 的路径（datasets 4.x resolve_pattern 用 base_path="")，并且
+  # multiple_choice 类型要求 `doc_to_choice` 显式提供，不能只给 doc_to_text /
+  # doc_to_target。
+  - path: recipes/eleuther_eval.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2_5/evaluation.yaml  # 默认已是 qwen2_5_0_5b / qwen2_5_tokenizer / [model.safetensors] / QWEN2，无需重复覆盖
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - device=npu  # upstream 默认 cuda
+      - tasks=[ci_truthfulqa_mc2]  # 默认 built-in truthfulqa_mc2 走 HF；换 fixtures 注册的本地任务
+      - include_path=${TARGET_ROOT}/fixtures/eleuther_tasks  # TaskManager 从这里注册 ci_truthfulqa_mc2
+      - batch_size=1  # upstream 默认 8：0.5B + 多项选择 5 个候选压批
+      - max_seq_length=512  # upstream 默认 4096：2 行短问答压短
+    # 2026-09-18 CI run 35322839791：setup 比其它 3 个 recipe 还要重（多装
+    # lm-eval==0.4.5 + evaluate==0.4.6 + sacrebleu + scikit-learn 等 30+ 包），
+    # 15min 连 setup 跑不完；同 run 的 lora_finetune/full_finetune/lora_dpo
+    # 用 30min 全过，对齐到 30。2026-09-20 run 35483424375 30min 仍超时
+    # （torch 下载挂 28min 直接超时），提到 60 兜底（同 xtuner 35483448757）。
+    timeout_minutes: 60
+
+  # 知识蒸馏 single_device：Qwen2.5-0.5B student + Qwen2.5-1.5B teacher
+  # recipe 自身硬编 StatefulDistributedSampler(num_replicas=1, rank=0)，
+  # 完全不调 init_process_group；只走 upstream yaml + overlay + cached teacher。
+  # 复用 upstream qwen2/1.5_to_0.5B_KD_lora_single_device.yaml，overlay 把
+  # 所有 qwen2 _component_ 换成 qwen2_5（torchtune.models.qwen2_5.qwen2_5_1_5b_instruct
+  # 是 1.5B factory——upstream qwen2_5 只暴露 _base / _instruct 后缀族，
+  # 没有裸 qwen2_5_1_5b，需要 _instruct 后缀）。
+  - path: recipes/knowledge_distillation_single_device.py
+    profile: torchtune_single
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2/1.5_to_0.5B_KD_lora_single_device.yaml  # upstream KD yaml，overlay 改 qwen2→qwen2_5
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json  # upstream 默认 /tmp/Qwen2-0.5B-Instruct/vocab.json；TT_MODEL_PATH 来自 hub_cache.py 解析的 HF hub cache
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}  # student = Qwen2.5-0.5B
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}
+      - teacher_model._component_=torchtune.models.qwen2_5.qwen2_5_1_5b_instruct  # overlay qwen2→qwen2_5 + 1.5B factory 是 _instruct 后缀
+      - teacher_checkpointer.checkpoint_dir=${TT_TEACHER_PATH}  # teacher = Qwen2.5-1.5B（setup_example.sh 新加的 download）
+      - teacher_checkpointer.output_dir=${CI_OUTPUT_DIR}
+      - model._component_=torchtune.models.qwen2_5.lora_qwen2_5_0_5b  # overlay qwen2→qwen2_5
+      - dataset.source=json  # upstream alpaca_cleaned_dataset 走 HF，CI 不可达
+      - dataset.data_files=${TARGET_ROOT}/fixtures/ci_alpaca_50.json  # 仓内 50 行 alpaca fixture
+      - max_steps_per_epoch=1
+      - gradient_accumulation_steps=1
+      - batch_size=1
+    timeout_minutes: 60
+
+  # 全量 SFT distributed：Qwen2.5-0.5B + alpaca fixture
+  # 复用 upstream qwen2_5/0.5B_full_single_device.yaml。世界大小由
+  # run_example.sh 的 WORLD_SIZE=1 决定；v0.6.1 recipe 只读
+  # tensor_parallel_dim（cfg.get 默认 1），data_parallel_dim =
+  # world_size // tp = 1，无需显式 dim overlay（context_parallel_dim /
+  # data_parallel_shard_dim / data_parallel_replicate_dim /
+  # enable_fp8_training 是 main HEAD 字段，v0.6.1 不消费）。
+  # backend 无需补丁：它是唯一走 init_process_group(self.distributed_backend)
+  # → get_distributed_backend("npu") 的 distributed recipe（v0.6.1 :139-144），
+  # torch_npu 2.11.0 注册 npu→hccl，device=npu overlay 即拿到 hccl。
+  # seed=42 绕过 _broadcast_tensor（training/seed.py:57 只在 seed=None 时
+  # broadcast rand_seed CPU tensor，hccl 不收 CPU tensor 会报
+  # `No backend type associated with device type cpu`）。
+  - path: recipes/full_finetune_distributed.py
+    profile: torchtune_distributed
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args:
+      - --config recipes/configs/qwen2_5/0.5B_full_single_device.yaml
+      - tokenizer.path=${TT_MODEL_PATH}/vocab.json
+      - tokenizer.merges_file=${TT_MODEL_PATH}/merges.txt
+      - checkpointer.checkpoint_dir=${TT_MODEL_PATH}
+      - checkpointer.output_dir=${CI_OUTPUT_DIR}
+      - dataset.source=json
+      - dataset.data_files=${TARGET_ROOT}/fixtures/ci_alpaca_50.json
+      - gradient_accumulation_steps=1
+      - max_steps_per_epoch=1
+      - batch_size=1
+      - device=npu
+      - seed=42  # 非 None 时 set_seed 不走 _broadcast_tensor（见上），零补丁跑通的充要 overlay
+    timeout_minutes: 60
+
+# ===== unsupported（每条附标签：runtime-verified / inferred / files-only） =====
+unsupported:
+  # ===== PPO：v0.6.1 config 路径已实证跑通，卡在 aclnn advanced-index kernel 间歇崩溃 =====
+  # torch 2.11.0+cpu / torch_npu 2.11.0 / torchao 0.13.0：v0.6.1 唯一的 PPO config 是 mistral/7B_full_ppo_low_memory.yaml，
+  # overlay 把 policy 换 qwen2_5_0_5b、reward_and_value_model 换
+  # llama2_classifier（tinyllama RM 维度：hidden 2048 / 22 层 / 32+4 heads /
+  # vocab 32000）、tokenizer/checkpointer 指向 TT_MODEL_PATH + TT_RM_PATH
+  # （RM 走 curl seed plant，torchtune_ppo profile resolve refs/main），
+  # 端到端 exit 0、policy/value checkpoint 均落盘（1 step ~4.3s）。但
+  # PPO trajectory 路径的 bool-mask advanced-index 赋值在 torch_npu
+  # 2.11.0 + CANN 9.1.0 上间歇触发 aclnnNonzeroV2 vector-core crash
+  # （"MTE accesses an invalid GM address"；站点：sequence_processing.py:80
+  # sequences[padding_mask]=fill_value、rewards.py:218 advantages[~masks]=0.0、
+  # recipe:849/852/865/1090/1104 的 scores/logprobs/values[mask]=…，其中
+  # backward 里的 IndexPutBackward 站点独立复现）。实测 bf16 下 ~20-30%
+  # 失败率；dtype=fp32 规避时 0.5B policy + 1B value 全参 fp32 在 32GB 卡
+  # OOM。等 torch_npu/CANN 修 advanced-index kernel 后回移；
+  # torchtune_ppo profile + RM curl seed 机制保留，回移即用（overlay 见
+  # 本条历史 git show 0fa51f0^）。
+  - recipes/ppo_full_finetune_single_device.py
+
+  # ===== distributed recipes：v0.6.1 硬编码 CUDA-only backend / CPU tensor，
+  # ===== overlay 不可解，需源码补丁才能跑通 =====
+  # 这 6 个 recipe 在 ref=v0.6.1 上必须改源码才能跑通，按"supported =
+  # 零源码修改可跑通"原则归档（runtime-verified，torch 2.11.0+cpu /
+  # torch_npu 2.11.0 / torchao 0.13.0 / transformers 4.57.1）。卡点分三类：
+  #   1) init_process_group("cuda:nccl,cpu:gloo") 字面量硬编（lora_dpo :848
+  #      / lora_finetune :918 / full_dpo :1068 / KD :968 / qat :950）——
+  #      torch 2.11.0+cpu 无 nccl backend，`Distributed package doesn't
+  #      have NCCL built in`（CI run 35721666282）。backend 是函数体字面量
+  #      非 cfg 字段，overlay 够不到。
+  #   2) num_tokens += torch.tensor(batch[0].numel()) 造 CPU tensor 后
+  #      all_reduce，hccl 只收 NPU tensor（lora_dpo_distributed /
+  #      full_dpo_distributed，CI run 35729818620）。
+  #   3) qat_lora :965 ternary `... else "nccl"` 硬编（同类坑，另一形态）。
+  # 对照组：full_finetune_distributed 走 get_distributed_backend("npu")
+  # → hccl + seed overlay 绕 _broadcast_tensor，零补丁 exit 0，故保留
+  # supported。回移条件：upstream 把 backend 提为 cfg 字段或改用
+  # get_distributed_backend()（届时 seed overlay 方案同样适用，参见
+  # full_finetune_distributed 条目注释）。历史 overlay 配置见
+  # git show 本条目上一版本；qat_lora 专用的 Llama-3.2-1B plant 也已
+  # 随本条移出 ms_seeds.yaml（同见 git 历史），回移时一并恢复。
+  - recipes/lora_dpo_distributed.py
+  - recipes/lora_finetune_distributed.py
+  - recipes/full_dpo_distributed.py
+  - recipes/knowledge_distillation_distributed.py
+  - recipes/qat_distributed.py
+  - recipes/qat_lora_finetune_distributed.py
+
+  # ===== files-only 排除项（不是 recipe 入口） =====
+  # 扫描引擎对账单位是入口文件 .py。这些条目不是 recipe 入口，列出是为了
+  # 显式声明 examples 引擎会落到 unsupported（其扫描后缀与本仓 examples
+  # 树里几乎不出现，仅作声明）：
+  #   - __init__.py: torchtune.recipes 包初始化
+  #   - configs/: upstream 公开的 recipe config 树（被 --config 引用，.yaml 后缀未被扫描命中）
+  #   - dev/: 维护者工具脚本（不在用户路径上，扫描会命中 .py 文件故下面逐文件列出）
+  #   - full_finetune_multinode.slurm: SLURM 启动器，不是 recipe（.slurm 后缀未被扫描命中）
+  - recipes/__init__.py
+
+  # ===== dev/ 维护者工具脚本（按 import 链逐文件分类） =====
+  # 早期退出训练实验：引入 torchtune.modules.early_exit_loss + layer_dropout，
+  # 对每一 transformer 层后插 early-exit 头，训练时联合主 loss + 多个 exit
+  # head 的辅助 loss；不是 stable recipe API（早期实验，可能随 main 改动）。
+  - recipes/dev/early_exit_finetune_distributed.py
+
+  # 新版 generate（实验）：用 SingleTurnYAMLToMessages Transform + LLMServerGenerator
+  # 替代 recipes/generate.py 的 prompt.user/prompt.system Dict 路径；上游 dev 标记。
+  - recipes/dev/generate_v2.py
+
+  # 新版 generate distributed（实验）：同上 generate_v2 的多卡版本，
+  # 用 torchrun + LLMServerGenerator 集群；尚未稳定。
+  - recipes/dev/generate_v2_distributed.py
+
+  # GRPO（实验）：imports torchtune.dev.grpo.{generation,rewards,types}，
+  # 用 GRPOLoss + GRPO sampler 替代 PPO/DPO 训练范式；torchtune.dev.grpo
+  # 模块本身还在 main HEAD 演进，v0.6.1 上 import 路径存在但子模块 API
+  # 未冻结（无稳定 contract）。
+  - recipes/dev/grpo_full_finetune_distributed.py
+
+  # 多数据集拼接 LoRA SFT（实验）：imports torchdata.nodes.Loader +
+  # get_multi_dataset，把多个 HF dataset 在 dataloader 层做 round-robin /
+  # interleaved 拼接，不再受 single_dataset 的 packing 假设约束；上游
+  # dev 标记，未进入 stable recipe。
+  - recipes/dev/lora_finetune_distributed_multi_dataset.py

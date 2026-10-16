@@ -182,6 +182,13 @@
          <div class="card-footer"><a href="https://github.com/axolotl-ai-cloud/axolotl">官方链接</a><span class="split">|</span><a href="https://docs.axolotl.ai/">文档中心</a><span class="split">|</span><a href="sources/axolotl/index.html">快速上手</a></div>
       </div>
 
+      <!-- ColossalAI -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/colossalai.png')"></div><h3 class="card-title">ColossalAI</h3></div>
+         <p class="card-desc">大规模并行训练框架。本页在单卡昇腾上用 Booster 做一步训练。</p>
+         <div class="card-footer"><a href="https://github.com/hpcaitech/ColossalAI">官方链接</a><span class="split">|</span><a href="https://colossalai.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="sources/colossalai/index.html">快速上手</a></div>
+      </div>
+
       <!-- LLaMA-Factory：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/LLaMA-Factory.png')"></div><h3 class="card-title">LLaMA-Factory</h3></div>
@@ -292,12 +299,20 @@
    <h2 class="scene-header">🚀 高性能推理与服务</h2>
    <div class="grid-container">
 
+      <!-- aibrix -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">aibrix</h3></div>
+         <p class="card-desc">vLLM 的推理网关。本文用 local mode，在一张昇腾卡上把一次 OpenAI 兼容请求转到一个 vLLM 引擎。</p>
+         <div class="card-footer"><a href="https://github.com/vllm-project/aibrix">官方链接</a><span class="split">|</span><a href="https://aibrix.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="sources/aibrix/index.html">快速上手</a></div>
+      </div>
+
       <!-- bitsandbytes -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">bitsandbytes</h3></div>
          <p class="card-desc">8-bit / 4-bit 量化库。本文在单卡昇腾上跑通默认后端的 NF4 Linear4bit 前向。</p>
          <div class="card-footer"><a href="https://github.com/bitsandbytes-foundation/bitsandbytes">官方链接</a><span class="split">|</span><a href="https://huggingface.co/docs/bitsandbytes">文档中心</a><span class="split">|</span><a href="sources/bitsandbytes/index.html">快速上手</a></div>
       </div>
+
 
       <!-- KTransformers -->
       <div class="project-card">
@@ -310,7 +325,14 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">cache-dit</h3></div>
          <p class="card-desc">A PyTorch-native Inference Engine with Cache, Parallelism, Quantization and CPU Offload for DiTs.</p>
-         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
+         <div class="card-footer"><a href="https://github.com/vipshop/cache-dit">官方链接</a><span class="split">|</span><a href="https://cache-dit.readthedocs.io/latest/">文档中心</a><span class="split">|</span><a href="https://github.com/vipshop/cache-dit/blob/main/docs/user_guide/ASCEND_NPU.md">昇腾教程</a></div>
+      </div>
+
+      <!-- FlagScale -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">FlagScale</h3></div>
+         <p class="card-desc">面向大模型训练、推理与服务的统一命令行。本文在昇腾上用 vLLM-Ascend 做一次双卡离线推理。</p>
+         <div class="card-footer"><a href="https://github.com/flagos-ai/FlagScale">官方链接</a><span class="split">|</span><a href="https://github.com/flagos-ai/FlagScale">文档中心</a><span class="split">|</span><a href="sources/flagscale/index.html">快速上手</a></div>
       </div>
 
       <!-- llama.cpp -->
@@ -369,11 +391,11 @@
          <div class="card-footer"><a href="https://github.com/kvcache-ai/Mooncake">官方链接</a><span class="split">|</span><a href="https://kvcache-ai.github.io/Mooncake/">文档中心</a><span class="split">|</span><a href="sources/mooncake/index.html">快速上手</a></div>
       </div>
 
-      <!-- ONNX Runtime：官方文档站已含 CANN/昇腾说明，外链跳转，不再本地编译 -->
+      <!-- onnxruntime -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/onnxruntime.png')"></div><h3 class="card-title">onnxruntime</h3></div>
-         <p class="card-desc">跨平台高性能推理加速器，v1.13.1 起支持昇腾。</p>
-         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/execution-providers/community-maintained/CANN-ExecutionProvider.html">昇腾教程</a></div>
+         <p class="card-desc">跨平台高性能推理引擎。在昇腾上从当前正式 Release 编译 CANN 后端，并完成一次加法推理。</p>
+         <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="sources/onnxruntime/index.html">快速上手</a></div>
       </div>
 
       <!-- Sentence Transformers -->
@@ -469,11 +491,25 @@
       </div>
 
 
+      <!-- DiffSynth-Studio -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/diffsynth_studio.png')"></div><h3 class="card-title">DiffSynth-Studio</h3></div>
+         <p class="card-desc">ModelScope 的扩散模型引擎，支持在昇腾 NPU 上文生图。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/DiffSynth-Studio">官方链接</a><span class="split">|</span><a href="https://diffsynth-studio-doc.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="sources/diffsynth_studio/index.html">快速上手</a></div>
+      </div>
+
       <!-- LM-Eval -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/lm-evalution.png')"></div><h3 class="card-title">lm-evaluation-harness</h3></div>
          <p class="card-desc">语言模型评测工具，支持昇腾基准。</p>
          <div class="card-footer"><a href="https://github.com/EleutherAI/lm-evaluation-harness">官方链接</a><span class="split">|</span><a href="sources/lm_evaluation/index.html">快速上手</a></div>
+      </div>
+
+      <!-- EvalScope -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">EvalScope</h3></div>
+         <p class="card-desc">ModelScope 开源大模型评测框架。本文在单卡 910B 上对 Qwen2.5-0.5B-Instruct 跑 GSM8K 与 ARC。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/evalscope">官方链接</a><span class="split">|</span><a href="sources/evalscope/index.html">快速上手</a></div>
       </div>
 
       <!-- Open CLIP -->
@@ -525,6 +561,13 @@
          <div class="card-footer"><a href="https://github.com/ggml-org/whisper.cpp">官方链接</a><span class="split">|</span><a href="sources/whisper_cpp/index.html">快速上手</a></div>
       </div>
 
+      <!-- FunASR -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">FunASR</h3></div>
+         <p class="card-desc">面向离线、流式与边缘部署的工业级语音识别工具箱，支持 ASR、VAD、标点、说话人、情感等。</p>
+         <div class="card-footer"><a href="https://github.com/modelscope/FunASR">官方链接</a><span class="split">|</span><a href="sources/funasr/index.html">快速上手</a></div>
+      </div>
+
       <!-- ModelScope -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">ModelScope</h3></div>
@@ -570,6 +613,7 @@
 
    sources/axolotl/index.rst
    sources/LLaMA-Factory/index.rst
+   sources/colossalai/index.rst
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
@@ -590,9 +634,11 @@
    :hidden:
    :caption: 🚀 推理与服务
 
+   sources/aibrix/index.rst
    sources/bitsandbytes/index.rst
    sources/ktransformers/index.rst
    sources/cache-dit/index.rst
+   sources/flagscale/index.rst
    sources/llama_cpp/index.rst
    sources/internlm/index.rst
    sources/llm_compressor/index.rst
@@ -626,6 +672,8 @@
 
    sources/Diffusers/index.rst
    sources/xdit/index.rst
+   sources/diffsynth_studio/index.rst
+   sources/evalscope/index.rst
    sources/lm_evaluation/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
@@ -634,5 +682,6 @@
    sources/timm/index.rst
    sources/wenet/index.rst
    sources/whisper_cpp/index.rst
+   sources/funasr/index.md
    sources/modelscope/index.md
    sources/comfyui/index.md

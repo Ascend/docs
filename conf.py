@@ -70,7 +70,7 @@ language = 'zh_CN'
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
-                    '.github', 'tests',
+                    '.github', 'tests', 'examples-guards',
                     # Guard / CI source of truth; Sphinx includes each into
                     # the project index.rst so the sidebar landing page
                     # is the tutorial, not a nested「快速开始」child page.
@@ -102,6 +102,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/colossalai/quick_start.md',
                     'sources/diffsynth_studio/quick_start.md',
                     'sources/flagscale/quick_start.md',
+                    'sources/funasr/quick_start.md',
                     'sources/lmcache/quick_start.md',
                     'sources/onnxruntime/quick_start.md']
 

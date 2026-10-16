@@ -1,0 +1,184 @@
+# llama.cpp example guard for the shared engine in examples-template.yml.
+# Profiles are implemented by scripts/setup_example.sh. Timeouts include a
+# cold-cache budget: this runner pool does not have the source repo's
+# pre-seeded weights. Entries that crash in ggml-cann, or that cannot
+# prove the CANN device without editing upstream sources, are unsupported.
+version: 1
+scan:
+  root: examples
+  unit: directories
+  marker: CMakeLists.txt
+  max_depth: 1
+supported:
+  - path: examples/simple
+    profile: cann
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-simple
+    overlay_args:
+      - -m ${LLAMA_CI_MODEL}
+      - -n 16
+      - -ngl 99
+    timeout_minutes: 90
+  - path: examples/passkey
+    profile: cann
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-passkey
+    overlay_args:
+      - -m ${LLAMA_CI_MODEL}
+      - --junk 16
+      - -ngl 99
+      - -v
+    timeout_minutes: 90
+  - path: examples/debug
+    profile: cann
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-debug
+    overlay_args:
+      - -m ${LLAMA_CI_MODEL}
+      - -p hello
+      - -ngl 99
+      - -c 256
+      - --save-logits
+      - --logits-output-dir ${CI_OUTPUT_DIR}
+      - --no-warmup
+      - -v
+    timeout_minutes: 90
+  - path: examples/eval-callback
+    profile: cann
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-eval-callback
+    overlay_args:
+      - -m ${LLAMA_CI_MODEL}
+      - -p hello
+      - -ngl 99
+    timeout_minutes: 90
+  - path: examples/convert-llama2c-to-ggml
+    profile: cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-convert-llama2c-to-ggml
+    overlay_args:
+      - --llama2c-model ${FIXTURE_DIR}/stories260K.bin
+      - --copy-vocab-from-model ${FIXTURE_DIR}/tok512.bin
+      - --llama2c-output-model ${CI_OUTPUT_DIR}/stories260K.gguf
+    timeout_minutes: 90
+  - path: examples/gguf
+    profile: cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-gguf
+    timeout_minutes: 90
+  - path: examples/gguf-hash
+    profile: cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-gguf-hash
+    overlay_args:
+      - ${FIXTURE_DIR}/ci-demo.gguf
+    timeout_minutes: 90
+  - path: examples/gen-docs
+    profile: cpu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: build/bin/llama-gen-docs
+    timeout_minutes: 90
+  - path: examples/simple-cmake-pkg
+    profile: cmake-pkg
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    exec: examples/simple-cmake-pkg/build/llama-simple-cmake-pkg
+    overlay_args:
+      - -m ${LLAMA_CI_MODEL}
+      - -n 16
+      - -ngl 99
+    timeout_minutes: 120
+unsupported:
+  # examples/idle/README.md links PR 17766, titled
+  # "metal : add residency sets keep-alive heartbeat". That PR's log is
+  # "ggml_metal_init: found device: Apple M2 Ultra". idle.cpp:78 sleeps
+  # to "simulate idle GPU", then times llama_process. The example measures
+  # Metal residency after idle, not a CANN workload.
+  - examples/idle
+  # ls-sycl-device.cpp:8 includes ggml-sycl.h and line 13 calls
+  # ggml_backend_sycl_print_sycl_devices(). CMakeLists.txt builds
+  # llama-ls-sycl-device. README.md says to build with GGML_SYCL_TARGET
+  # and run `source /opt/intel/oneapi/setvars.sh`. Intel oneAPI, not CANN.
+  - examples/sycl
+  # finetune.cpp:85 calls llama_opt_epoch. Lines 33-39 force an F32 KV
+  # cache because OUT_PROD has no f16 support. README.md:6-7 documents
+  # only a CPU build with no extra backend, or CUDA with -ngl 999.
+  # README.md:9 says FLASH_ATTN_EXT has no backward pass. v0.6.0
+  # ggml/src/ggml-cann/ggml-cann.cpp has no "backward" string, so the
+  # CANN backend does not implement the training backward this binary needs.
+  - examples/training
+  # simple-chat.cpp:72-77 installs llama_log_set and prints only when
+  # level >= GGML_LOG_LEVEL_ERROR. The CANN device line is below ERROR,
+  # so the guard cannot see it unless that filter is edited. Exit 0
+  # would not show that the NPU was used.
+  - examples/simple-chat
+  # retrieval.cpp:265-268 is `while (true)` then getline and
+  # common_tokenize, with no break on an empty line or EOF. One prompt
+  # does not end the process. Exiting would mean editing this loop.
+  - examples/retrieval
+  # llama-batched on v0.6.0, CANN 9.1.0, Ascend910B3 aborted in
+  # ggml-cann.cpp:70 with Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134. Fixing it means editing ggml-cann, not this example.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295302
+  - examples/batched
+  # llama-embedding on run 38228583901 aborted in ggml-cann.cpp:70 with
+  # Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295286
+  - examples/embedding
+  # llama-lookahead on run 38228583901 aborted in ggml-cann.cpp:70 with
+  # Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295384
+  - examples/lookahead
+  # llama-lookup on run 38228583901 aborted in ggml-cann.cpp:70 with
+  # Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295213
+  - examples/lookup
+  # llama-speculative on run 38228583901 aborted in ggml-cann.cpp:70 with
+  # Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295204
+  - examples/speculative
+  # llama-speculative-simple on run 38228583901 aborted in ggml-cann.cpp:70
+  # with Invalid_Argument(EZ0026): Parameter y of
+  # aclnnWeightQuantBatchMatmulV2GetWorkspaceSize is not contiguous.
+  # Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295188
+  - examples/speculative-simple
+  # llama-parallel on run 38228583901 aborted in ggml-cann.cpp:70 with
+  # Invalid_Argument(EZ0037): Parameter key of FusedInferAttentionScore
+  # is invalid because in non-PA scenarios the key tensor must be
+  # contiguous. Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38228583901/job/114742295315
+  - examples/parallel
+  # llama-diffusion-cli on run 38249312071 downloaded Dream-v0-Instruct-7B
+  # and wrote Dream-v0-Instruct-7B.Q8_0.gguf, then aborted in
+  # ggml-cann.cpp:70 with Invalid_Argument(EZ0037): Parameter key of
+  # FusedInferAttentionScore is invalid because in non-PA scenarios the
+  # key tensor must be contiguous. Exit 134.
+  # https://github.com/Ascend/docs/actions/runs/38249312071/job/114811506183
+  - examples/diffusion

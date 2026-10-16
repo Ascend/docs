@@ -1,7 +1,8 @@
 快速开始
 ==================
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 OpenCV ！
     
@@ -21,7 +22,8 @@ OpenCV 当前支持 20+ 昇腾算子，此处根据图像处理应用场景，�
 使用 C++
 ~~~~~~~~~~~~~
 
-.. note::
+.. admonition:: Note
+    :class: note
     
     通过命令行传参 ``input`` 和 ``output`` 来指定输入和输出图像路径
 
@@ -84,7 +86,8 @@ OpenCV 当前支持 20+ 昇腾算子，此处根据图像处理应用场景，�
 使用 Python
 ~~~~~~~~~~~~~
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     通过命令行传参 ``input`` 和 ``output`` 来指定输入和输出图像路径
 

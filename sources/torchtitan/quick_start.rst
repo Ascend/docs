@@ -1,7 +1,9 @@
 快速开始
 ==================
 
-.. note::
+.. admonition:: Note
+    :class: note
+
     阅读本篇前，请确保已按照 :doc:`安装教程 <./install>` 准备好昇腾环境及 TorchTitan 
 
 本文档帮助昇腾开发者快速使用 TorchTitan × 昇腾 进行LLM预训练。你可以访问 `这篇官方论文 <https://arxiv.org/abs/2410.06511>`_ 获取更多信息。
@@ -16,7 +18,8 @@ TorchTitan是一个用于LLM预训练的PyTorch原生库，用于大规模的分
 配置训练参数
 ---------------------
 
-.. note::
+.. admonition:: Note
+    :class: note
 
     在 TorchTitan 中，每个训练任务的参数可以由CLI和TOML文件来进行配置。其优先级是CLI > TOML文件 > 默认值
 

@@ -56,9 +56,10 @@ python -c "import deepspeed; print('deepspeed', deepspeed.__version__)"
 deepspeed xxx
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 其中 `xxx` 表示实际版本号。
-:::
+```
 
 确认 DeepSpeed 已识别昇腾 NPU 加速器（输出 `accelerator: npu` 即接入成功）：
 
@@ -208,9 +209,10 @@ Finished Training
 ...
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 其中 `xxx` 表示实际 loss。
-:::
+```
 
 ### 多卡分布式训练
 
@@ -229,9 +231,10 @@ Finished Training
 ...
 ```
 
-:::{note}
+```{admonition} Note
+:class: note
 其中 `xxx` 表示实际 loss。
-:::
+```
 
 ## 外部链接
 

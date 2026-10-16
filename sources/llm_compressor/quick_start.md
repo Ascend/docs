@@ -1,6 +1,6 @@
 # llm-compressor
 
-在单卡昇腾上安装 llm-compressor，对公开小模型做一次 W4A16 GPTQ，再保存、重载并完成一次前向。
+在单卡昇腾上安装 llm-compressor，对公开小模型做一次 W4A16 RTN 量化，再保存、重载并完成一次前向。
 
 ## 前置条件
 
@@ -15,14 +15,9 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | CANN | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
 | Python | 落在官方配套表给出的范围内，并满足 llm-compressor 下限；当前正式版要求 `>=3.10` |
 | PyTorch | 安装官方当前推荐的 `torch` 与 `torch_npu`，见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) 和 [PyTorch 安装包](https://www.hiascend.com/developer/software/ai-frameworks/pytorch/download) |
-| llm-compressor | 从 PyPI 安装当前正式版；用 `--no-build-isolation` 对着已装的 torch 装 |
 | 模型 | [nm-testing/tinysmokeqwen3](https://huggingface.co/nm-testing/tinysmokeqwen3)（约 10 MB） |
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
-
-### 本文验证环境
-
-本文在配套镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` 上验证，镜像内为 CANN 9.1.0 与 Python 3.12。本次按官方当前推荐对解析到 `torch 2.12.0+cpu` 与 `torch_npu 2.12.0`。这不是唯一支持组合。
 
 ## 1. 加载 CANN 环境
 
@@ -53,12 +48,12 @@ command -v npu-smi
 python --version
 ```
 
-<!--
-```shell #test-result id="check-tools"
-...
+输出路径和版本号随环境而变化，格式如下：
+
+```text #test-result id="check-tools"
+.../npu-smi
 Python ...
 ```
--->
 
 ## 3. 安装 PyTorch NPU 栈
 
@@ -70,16 +65,18 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
-```shell #test-result id="install-torch"
+完整安装日志较长，其中应包含：
+
+```text #test-result id="install-torch"
 ...
+torch ...+cpu
+torch_npu ...
 npu_available True
 ```
--->
 
 ## 4. 安装 llm-compressor
 
-NPU 栈就绪后，用 `--no-build-isolation` 安装当前正式版，让构建对着已装的 torch。将 `<UPSTREAM_REF>` 换成目标 PyPI 版本号；撰写时最新正式版是 `0.13.0`。
+NPU 栈就绪后，用 `--no-build-isolation` 安装当前正式版，让构建对着已装的 torch。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -92,16 +89,22 @@ python -m pip install --no-build-isolation "llmcompressor==<UPSTREAM_REF>"
 python -c "import llmcompressor; print('llmcompressor', llmcompressor.__version__)"
 ```
 
-<!--
-```shell #test-result id="install-llmcompressor"
+
+完整安装日志较长，其中应包含：
+
+```text #test-result id="install-llmcompressor" load="upstream_ref>>UPSTREAM_REF"
 ...
-llmcompressor ...
+llmcompressor <UPSTREAM_REF>
 ```
--->
 
-## 5. 在 NPU 上做一次单层 W4A16 GPTQ
+```{admonition} Note
+:class: note
+将 `<UPSTREAM_REF>` 换成最新的 release 版本号。
+```
 
-下面从 Hugging Face 下载公开小模型 `nm-testing/tinysmokeqwen3`，用 8 条本地校准文本只量化第 3 层的 `q_proj`。`oneshot` 把压缩后的模型写到本机 `~/llm-compressor-work/compressed`，随后从该目录重载并做一次前向。
+## 5. 在 NPU 上做一次 W4A16 RTN 量化
+
+下面从 Hugging Face 下载公开小模型 `nm-testing/tinysmokeqwen3`，用 RTN 将全部 `Linear` 层的权重量化到 4 位，并跳过 `lm_head`。`oneshot` 把压缩后的模型写到本机 `~/llm-compressor-work/compressed`，随后从该目录重载并做一次前向。
 
 保存为 `oneshot_forward.py`：
 
@@ -111,34 +114,24 @@ from pathlib import Path
 import torch
 import torch_npu
 from compressed_tensors.quantization import QuantizationArgs, QuantizationScheme
-from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from llmcompressor import oneshot
-from llmcompressor.modifiers.gptq import GPTQModifier
+from llmcompressor.modifiers.quantization import QuantizationModifier
 
 model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
-model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id, dtype=torch.float16
+).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-ds = Dataset.from_dict(
-    {
-        "text": [
-            "The quick brown fox jumps over the lazy dog.",
-            "Quantization maps weights to fewer bits.",
-            "Ascend NPU runs this oneshot calibration.",
-            "A short sentence is enough for a smoke test.",
-        ]
-        * 2
-    }
-)
-recipe = GPTQModifier(
+recipe = QuantizationModifier(
     ignore=["lm_head"],
     config_groups={
         "group_0": QuantizationScheme(
-            targets=["re:.*model.layers.2.self_attn.q_proj$"],
+            targets=["Linear"],
             weights=QuantizationArgs(num_bits=4, strategy="group", group_size=32),
         )
     },
@@ -147,22 +140,22 @@ torch.accelerator.max_memory_allocated = lambda device=None: 0
 torch.accelerator.get_memory_info = lambda device=None: (0, 1)
 oneshot(
     model=model,
-    dataset=ds,
     recipe=recipe,
-    num_calibration_samples=8,
-    max_seq_length=64,
     output_dir=str(compressed_dir),
 )
 
-reloaded = AutoModelForCausalLM.from_pretrained(compressed_dir).to(device)
+reloaded = AutoModelForCausalLM.from_pretrained(
+    compressed_dir, dtype=torch.float16
+).to(device)
 inputs = tokenizer("hello", return_tensors="pt").to(device)
 logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
 inner = getattr(qc, "quantization_config", qc)
 group0 = inner.config_groups["group_0"]
 print("weight_num_bits", group0.weights.num_bits)
-print("targeted", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
+print("q_proj_quantized", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
+print("logits.dtype", logits.dtype)
 print("logits.device", logits.device)
 ```
 
@@ -174,34 +167,24 @@ from pathlib import Path
 import torch
 import torch_npu
 from compressed_tensors.quantization import QuantizationArgs, QuantizationScheme
-from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 from llmcompressor import oneshot
-from llmcompressor.modifiers.gptq import GPTQModifier
+from llmcompressor.modifiers.quantization import QuantizationModifier
 
 model_id = "nm-testing/tinysmokeqwen3"
 device = "npu:0"
 compressed_dir = Path.home() / "llm-compressor-work" / "compressed"
 
-model = AutoModelForCausalLM.from_pretrained(model_id).to(device)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id, dtype=torch.float16
+).to(device)
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-ds = Dataset.from_dict(
-    {
-        "text": [
-            "The quick brown fox jumps over the lazy dog.",
-            "Quantization maps weights to fewer bits.",
-            "Ascend NPU runs this oneshot calibration.",
-            "A short sentence is enough for a smoke test.",
-        ]
-        * 2
-    }
-)
-recipe = GPTQModifier(
+recipe = QuantizationModifier(
     ignore=["lm_head"],
     config_groups={
         "group_0": QuantizationScheme(
-            targets=["re:.*model.layers.2.self_attn.q_proj$"],
+            targets=["Linear"],
             weights=QuantizationArgs(num_bits=4, strategy="group", group_size=32),
         )
     },
@@ -210,22 +193,22 @@ torch.accelerator.max_memory_allocated = lambda device=None: 0
 torch.accelerator.get_memory_info = lambda device=None: (0, 1)
 oneshot(
     model=model,
-    dataset=ds,
     recipe=recipe,
-    num_calibration_samples=8,
-    max_seq_length=64,
     output_dir=str(compressed_dir),
 )
 
-reloaded = AutoModelForCausalLM.from_pretrained(compressed_dir).to(device)
+reloaded = AutoModelForCausalLM.from_pretrained(
+    compressed_dir, dtype=torch.float16
+).to(device)
 inputs = tokenizer("hello", return_tensors="pt").to(device)
 logits = reloaded(**inputs).logits
 qc = reloaded.config.quantization_config
 inner = getattr(qc, "quantization_config", qc)
 group0 = inner.config_groups["group_0"]
 print("weight_num_bits", group0.weights.num_bits)
-print("targeted", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
+print("q_proj_quantized", hasattr(reloaded.model.layers[2].self_attn.q_proj, "quantization_scheme"))
 print("lm_head_quantized", hasattr(reloaded.lm_head, "quantization_scheme"))
+print("logits.dtype", logits.dtype)
 print("logits.device", logits.device)
 PY
 ```
@@ -242,8 +225,9 @@ python oneshot_forward.py
 ```shell #test-result id="oneshot-forward"
 ...
 weight_num_bits 4
-targeted True
+q_proj_quantized True
 lm_head_quantized False
+logits.dtype torch.float16
 logits.device npu:0
 ```
 
@@ -251,4 +235,4 @@ logits.device npu:0
 
 - 上游仓库：[vllm-project/llm-compressor](https://github.com/vllm-project/llm-compressor)
 - 文档中心：[LLM Compressor Docs](https://docs.vllm.ai/projects/llm-compressor/en/latest/)
-- oneshot 与 GPTQ：[oneshot](https://docs.vllm.ai/projects/llm-compressor/en/latest/guides/entrypoints/oneshot)
+- oneshot 与 RTN：[oneshot](https://docs.vllm.ai/projects/llm-compressor/en/latest/guides/entrypoints/oneshot)
