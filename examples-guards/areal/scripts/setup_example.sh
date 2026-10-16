@@ -320,11 +320,13 @@ echo "AREAL_ALLOW_DEFAULT_ADMIN_KEY=1" >> "$GITHUB_ENV"
 # -------------------------------------------------------
 # No local fixtures and no shared-cache dependency (cache-seed is NOT used):
 # the dataset is fetched online at train time (`load_dataset`, inside the data
-# service), and the model is downloaded fresh on every run - HF mirror first,
-# ModelScope (魔搭) fallback - into the per-run workspace. HF_ENDPOINT is
-# exported through GITHUB_ENV so the run-example step (and any later
-# load_dataset) inherits it.
-export HF_ENDPOINT="${HF_ENDPOINT:-https://hf-mirror.com}"
+# service), and the model is downloaded fresh on every run - HF first,
+# ModelScope (魔搭) fallback - into the per-run workspace. HF_ENDPOINT points
+# at huggingface.co (this repo's runner pool reaches it directly; hf-mirror's
+# 308 redirect on namespace-less ids such as t5-base is not followed by
+# huggingface_hub), exported through GITHUB_ENV so the run-example step (and
+# any later load_dataset) inherits it.
+export HF_ENDPOINT="${HF_ENDPOINT:-https://huggingface.co}"
 echo "HF_ENDPOINT=${HF_ENDPOINT}" >> "$GITHUB_ENV"
 export AREAL_MODEL_ID="$MODEL_ID"
 
@@ -409,7 +411,7 @@ target_root = os.environ["TARGET_ROOT"]
 aime_dir = os.path.join(workspace, "areal_data", "aime")
 os.makedirs(aime_dir, exist_ok=True)
 
-# hf_hub_download honors HF_ENDPOINT (mirror) set in section 3.
+# hf_hub_download honors HF_ENDPOINT set in section 3.
 for repo, dst in [
     ("MathArena/aime_2025", "aime_train.parquet"),
     ("MathArena/aime_2026", "aime_test.parquet"),
@@ -491,7 +493,7 @@ fi
 # per-subset subdirectories (harmless-base/, helpful-base/, ...), so the
 # upstream loader's load_dataset(path, split=...) without a config name
 # fails with a multi-config error. Work around it boba-style: download the
-# harmless-base subset online (via HF_ENDPOINT mirror) into a flat local
+# harmless-base subset online (via HF_ENDPOINT) into a flat local
 # dir; load_dataset(<dir>, split="train"/"test") then infers splits from
 # the file names. Exposed to overlay args via AREAL_HHRLHF_DATA.
 # NOTE: the dir is deliberately named "hh-rlhf" 鈥?areal's dataset dispatch
