@@ -365,56 +365,54 @@ apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&am
 </section>
 <section id="stage-1">
 <h2>5. 下载数据（stage -1）<a class="headerlink" href="#stage-1" title="Link to this heading"></a></h2>
-<p>从 Hugging Face 下载 aishell-1 数据集（约 15.6 GB），然后创建软链接适配 WeNet 脚本期望的目录结构。</p>
-<p>数据集源 <code class="docutils literal notranslate"><span class="pre">JazerJu/aishell1-full-slr33</span></code> 是 <a class="reference external" href="https://www.openslr.org/33">OpenSLR 33</a> 两个原始压缩包的字节保真
-镜像：<code class="docutils literal notranslate"><span class="pre">data_aishell.tgz</span></code> / <code class="docutils literal notranslate"><span class="pre">resource_aishell.tgz</span></code> 的字节数（15582913665 / 1246920）与 openslr.org 上的原档
-一致，解压后的目录结构因此与官方 <code class="docutils literal notranslate"><span class="pre">local/download_and_untar.sh</span></code> 完全对齐。也可以直接用 OpenSLR 原站替换下面
-的下载命令。</p>
-<p>如果访问 Hugging Face 较慢，可先切换到国内镜像（该设置只影响当前终端）：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_ENDPOINT</span><span class="o">=</span>https://hf-mirror.com
-</pre></div>
-</div>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># hf_transfer 让这个 15.6 GB 的单文件走分片并行下载，是相对单连接拉取的主要提速点；</span>
-<span class="c1"># 装不上时下面的 snapshot_download 仍会走普通 HTTP 路径</span>
-pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span><span class="s2">"huggingface_hub[hf_transfer]"</span><span class="w"> </span><span class="o">||</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-q<span class="w"> </span>huggingface_hub
-<span class="k">if</span><span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import hf_transfer"</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">  </span><span class="nb">export</span><span class="w"> </span><span class="nv">HF_HUB_ENABLE_HF_TRANSFER</span><span class="o">=</span><span class="m">1</span>
+<p>stage -1 用官方脚本下载：<code class="docutils literal notranslate"><span class="pre">run_npu.sh</span></code> 调用 <code class="docutils literal notranslate"><span class="pre">local/download_and_untar.sh</span></code>，它按脚本内硬编码的字节数
+（<code class="docutils literal notranslate"><span class="pre">data_aishell.tgz</span></code> 15582913665、<code class="docutils literal notranslate"><span class="pre">resource_aishell.tgz</span></code> 1246920）校验已有归档、必要时用 <code class="docutils literal notranslate"><span class="pre">wget</span></code> 拉取，
+解压归档后再逐个解开 <code class="docutils literal notranslate"><span class="pre">data_aishell/wav/</span></code> 里按说话人二次打包的 <code class="docutils literal notranslate"><span class="pre">*.tar.gz</span></code>，最后写 <code class="docutils literal notranslate"><span class="pre">.complete</span></code> 标记。因此
+这一节既是下载也是续跑入口：已完成的部分凭标记跳过，中断留下的归档因字节数不符会被删掉重下（<code class="docutils literal notranslate"><span class="pre">wget</span></code>
+不续传）。</p>
+<p>下载源由官方脚本的 <code class="docutils literal notranslate"><span class="pre">--data_url</span></code> 指定，默认是 OpenSLR 原站 <code class="docutils literal notranslate"><span class="pre">www.openslr.org/resources/33</span></code>。下面把它指向
+<a class="reference external" href="https://www.openslr.org/33">OpenSLR 33</a> 两个原档的 <a class="reference external" href="https://huggingface.co/datasets/JazerJu/aishell1-full-slr33">Hugging Face 字节保真镜像</a>
+（两个归档的字节数与 openslr.org 上的原档逐个一致）以加快下载；也可以换成 OpenSLR 自己的镜像：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">--data_url</span></code></p></th>
+<th class="head"><p>数据源</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">www.openslr.org/resources/33</span></code></p></td>
+<td><p>官方 OpenSLR 原站（不传 <code class="docutils literal notranslate"><span class="pre">--data_url</span></code> 时的默认值）</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">openslr.magicdatatech.com/resources/33</span></code></p></td>
+<td><p>OpenSLR 国内镜像</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main</span></code></p></td>
+<td><p>本文使用（Hugging Face 原档镜像）</p></td>
+</tr>
+</tbody>
+</table>
+<p>数据目录落在 <code class="docutils literal notranslate"><span class="pre">/root/.cache/asr-data</span></code>（runner 池挂载的共享缓存盘）上，<code class="docutils literal notranslate"><span class="pre">/root/asr-data</span></code> 是指向它的软链接，
+因此后续各 stage 仍用官方教程里的 <code class="docutils literal notranslate"><span class="pre">/root/asr-data/OpenSLR/33</span></code> 路径，且下载与解压产物跨 run 复用。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/root/.cache/asr-data/OpenSLR/33
+<span class="c1"># /root/.cache 是 runner 池挂的共享缓存盘，数据与 .complete 标记落在其上即可跨 run 复用；</span>
+<span class="c1"># /root/asr-data 软链过去。首次运行时该路径还不存在；若存在的是容器内的旧目录（不在缓存盘上）</span>
+<span class="c1"># 则清掉重建，避免又下载一遍</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-L<span class="w"> </span>/root/asr-data<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span>rm<span class="w"> </span>-rf<span class="w"> </span>/root/asr-data
+<span class="w">  </span>ln<span class="w"> </span>-s<span class="w"> </span>/root/.cache/asr-data<span class="w"> </span>/root/asr-data
 <span class="k">fi</span>
-mkdir<span class="w"> </span>-p<span class="w"> </span>/root/asr-data/OpenSLR/33
-<span class="c1"># 用 local_dir 固定下载落点：落点与下面解压出的数据都在 /root/.cache 上（runner 的共享缓存盘），</span>
-<span class="c1"># 跨 run 复用；已经完整的文件由 snapshot_download 按 etag / 字节数跳过，中断的 tgz 续传</span>
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<span class="s2">from huggingface_hub import snapshot_download</span>
-<span class="s2">snapshot_download(</span>
-<span class="s2">    'JazerJu/aishell1-full-slr33',</span>
-<span class="s2">    repo_type='dataset',</span>
-<span class="s2">    local_dir='/root/.cache/huggingface/datasets/aishell1-slr33',</span>
-<span class="s2">    max_workers=8,</span>
-<span class="s2">)</span>
-<span class="s2">"</span>
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== 下载后目录结构 ==="</span>
-ls<span class="w"> </span>-l<span class="w"> </span>/root/.cache/huggingface/datasets/aishell1-slr33
-<span class="c1"># 解压数据集：data_aishell.tgz 内层 wav/ 下是按说话人二次打包的 *.tar.gz，</span>
-<span class="c1"># 必须再解压内层包（对齐官方 local/download_and_untar.sh），否则 stage 0 找不到任何 wav。</span>
-<span class="c1"># 解压产物随 /root/.cache 上的共享缓存盘跨 run 保留：用标记文件 wav/.extracted 做幂等判断，</span>
-<span class="c1"># 首次解压后（约 40min）后续 run 直接跳过整段；缓存盘被清空时标记随之消失，自动重新解压</span>
-<span class="nb">cd</span><span class="w"> </span>/root/.cache/huggingface/datasets/aishell1-slr33
-<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span>data_aishell/wav/.extracted<span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
-<span class="w">  </span>tar<span class="w"> </span>xzf<span class="w"> </span>data_aishell.tgz
-<span class="w">  </span>tar<span class="w"> </span>xzf<span class="w"> </span>resource_aishell.tgz
-<span class="w">  </span><span class="o">(</span>
-<span class="w">    </span><span class="nb">cd</span><span class="w"> </span>data_aishell/wav
-<span class="w">    </span><span class="k">for</span><span class="w"> </span>x<span class="w"> </span><span class="k">in</span><span class="w"> </span>*.tar.gz<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>tar<span class="w"> </span>xzf<span class="w"> </span><span class="s2">"</span><span class="nv">$x</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
-<span class="w">    </span>rm<span class="w"> </span>-f<span class="w"> </span>*.tar.gz
-<span class="w">    </span>touch<span class="w"> </span>.extracted
-<span class="w">  </span><span class="o">)</span>
-<span class="k">fi</span>
-<span class="c1"># 创建软链接</span>
-ln<span class="w"> </span>-sf<span class="w"> </span>/root/.cache/huggingface/datasets/aishell1-slr33/data_aishell<span class="w"> </span>/root/asr-data/OpenSLR/33/data_aishell
-ln<span class="w"> </span>-sf<span class="w"> </span>/root/.cache/huggingface/datasets/aishell1-slr33/resource_aishell<span class="w"> </span>/root/asr-data/OpenSLR/33/resource_aishell
-touch<span class="w"> </span>/root/asr-data/OpenSLR/33/data_aishell/.complete
-touch<span class="w"> </span>/root/asr-data/OpenSLR/33/resource_aishell/.complete
-<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== 软链接验证 ==="</span>
+<span class="nb">cd</span><span class="w"> </span>wenet/examples/aishell/s0
+<span class="c1"># 官方 stage -1：local/download_and_untar.sh（wget）下载 data_aishell / resource_aishell，</span>
+<span class="c1"># 按脚本内硬编码字节数校验归档，解压后解开 wav/ 下的内层包，最后写 .complete</span>
+<span class="c1"># 冷缓存首次约 30-60min（15.6GB 下载 + 解压）；命中 .complete 时该 stage 直接返回</span>
+<span class="c1"># --data_url：OpenSLR 33 的 Hugging Face 原档镜像；去掉该参数即回落到官方 www.openslr.org</span>
+bash<span class="w"> </span>run_npu.sh<span class="w"> </span>--stage<span class="w"> </span>-1<span class="w"> </span>--stop_stage<span class="w"> </span>-1<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data<span class="w"> </span>/root/asr-data/OpenSLR/33<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--data_url<span class="w"> </span>https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main
+<span class="c1"># run_npu.sh 没有 set -e，退出码只反映最后一条命令，故在此显式确认两个包都已就绪</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>/root/asr-data/OpenSLR/33/data_aishell/.complete
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>/root/asr-data/OpenSLR/33/resource_aishell/.complete
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"=== /root/asr-data/OpenSLR/33 ==="</span>
 ls<span class="w"> </span>-la<span class="w"> </span>/root/asr-data/OpenSLR/33/
 </pre></div>
 </div>
@@ -630,14 +628,18 @@ exp/conformer/final_quant.zip
 <td><p>重做第 7 节</p></td>
 </tr>
 <tr class="row-even"><td><p>数据下载慢 / 失败</p></td>
-<td><p>Hugging Face 带宽波动</p></td>
-<td><p>重跑 stage -1：<code class="docutils literal notranslate"><span class="pre">snapshot_download</span></code> 跳过已完成文件、续传未完成的 tgz</p></td>
+<td><p>数据源（OpenSLR / 镜像）带宽波动</p></td>
+<td><p>重跑 stage -1：已完成的部分凭 <code class="docutils literal notranslate"><span class="pre">.complete</span></code> 跳过，中断的归档按字节数校验不通过会被删掉重下</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sox</span></code> 命令失败</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wget</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">installed</span></code></p></td>
+<td><p>容器内缺 wget</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">-y</span> <span class="pre">wget</span></code>（官方 <code class="docutils literal notranslate"><span class="pre">local/download_and_untar.sh</span></code> 用 wget 下载）</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sox</span></code> 命令失败</p></td>
 <td><p>未安装 sox</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">sox</span> <span class="pre">libsox-dev</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>DataLoader 段错误</p></td>
+<tr class="row-odd"><td><p>DataLoader 段错误</p></td>
 <td><p>主进程初始化 CANN 后 fork worker</p></td>
 <td><p>保持 <code class="docutils literal notranslate"><span class="pre">num_workers=0</span></code>（第 8 节已改）</p></td>
 </tr>
@@ -650,7 +652,7 @@ exp/conformer/final_quant.zip
 <li><p>上游仓库：<a class="reference external" href="https://github.com/wenet-e2e/wenet">wenet-e2e/wenet</a></p></li>
 <li><p>官方教程：<a class="reference external" href="https://wenet.org.cn/wenet/tutorial_aishell.html">AISHELL-1 示例</a></p></li>
 <li><p>NPU 实验脚本：<a class="reference external" href="https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/run_npu.sh"><code class="docutils literal notranslate"><span class="pre">examples/aishell/s0/run_npu.sh</span></code></a></p></li>
-<li><p>数据集：<a class="reference external" href="https://www.openslr.org/33">aishell-1（OpenSLR 33）</a>、<a class="reference external" href="https://huggingface.co/datasets/JazerJu/aishell1-full-slr33">Hugging Face 原档镜像 <code class="docutils literal notranslate"><span class="pre">JazerJu/aishell1-full-slr33</span></code></a></p></li>
+<li><p>数据集：<a class="reference external" href="https://www.openslr.org/33">aishell-1（OpenSLR 33）</a>；stage -1 的下载脚本：<a class="reference external" href="https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/local/download_and_untar.sh"><code class="docutils literal notranslate"><span class="pre">local/download_and_untar.sh</span></code></a>，本文把它的 <code class="docutils literal notranslate"><span class="pre">--data_url</span></code> 指向 <a class="reference external" href="https://huggingface.co/datasets/JazerJu/aishell1-full-slr33">Hugging Face 原档镜像</a></p></li>
 <li><p>昇腾 PyTorch 安装：<a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend/pytorch</a></p></li>
 <li><p>本项目昇腾环境与安装步骤：<a class="reference external" href="https://ascend.github.io/docs/sources/wenet/install.html">安装指南</a></p></li>
 </ul>
