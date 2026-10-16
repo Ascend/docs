@@ -224,9 +224,9 @@ npu_available True
 
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
 
-## 7. 用离线 LLM 做一次 KV 卸载
+## 7. 启动 LMCache 服务并做一次 KV 卸载
 
-用 `vllm.LLM` 和 LMCache-Ascend 提供的 `LMCacheAscendConnectorV1Dynamic` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。
+先启动独立的 `lmcache server`，再用 `vllm.LLM` 加 `LMCacheMPConnector` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。服务端的 `--chunk-size 128` 与 vLLM 的 block size 对齐。
 
 
 | 参数                       | 含义         |
@@ -242,7 +242,10 @@ npu_available True
 
 ```python #test id="offload"
 import os
+import socket
+import subprocess
 import sys
+import time
 
 os.environ["PYTHONHASHSEED"] = "0"
 os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
@@ -255,40 +258,63 @@ from vllm.config import KVTransferConfig
 import lmcache_ascend
 import torch
 import torch_npu
-from lmcache.integration.vllm.utils import ENGINE_NAME
-from lmcache.v1.cache_engine import LMCacheEngineBuilder
+
+
+def wait_for_port(port, timeout=180):
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=2):
+                return
+        except OSError:
+            time.sleep(2)
+    raise RuntimeError(f"lmcache server port {port} not ready in {timeout}s")
 
 
 def main():
-    os.environ.setdefault("LMCACHE_CHUNK_SIZE", "256")
-    os.environ.setdefault("LMCACHE_LOCAL_CPU", "True")
-    os.environ.setdefault("LMCACHE_MAX_LOCAL_CPU_SIZE", "2")
-
-    model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
-    ktc = KVTransferConfig(
-        kv_connector="LMCacheAscendConnectorV1Dynamic",
-        kv_role="kv_both",
-        kv_connector_module_path="lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1",
+    server = subprocess.Popen(
+        [
+            "lmcache",
+            "server",
+            "--chunk-size",
+            "128",
+            "--l1-size-gb",
+            "5",
+            "--eviction-policy",
+            "LRU",
+        ]
     )
-    llm = LLM(
-        model=model,
-        enforce_eager=True,
-        kv_transfer_config=ktc,
-        max_model_len=512,
-        gpu_memory_utilization=0.4,
-        trust_remote_code=True,
-    )
-    params = SamplingParams(temperature=0, top_p=0.95, max_tokens=8)
-    outputs = llm.generate(
-        ["Hello, my name is", "Tell me a short story"],
-        params,
-    )
-    for item in outputs:
-        print("reply", item.outputs[0].text)
-    print("current_device", f"npu:{torch.npu.current_device()}")
-    print("npu_available", torch.npu.is_available())
-    print("workload_ok", True)
-    LMCacheEngineBuilder.destroy(ENGINE_NAME)
+    try:
+        wait_for_port(5555)
+        model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
+        ktc = KVTransferConfig(
+            kv_connector="LMCacheMPConnector",
+            kv_role="kv_both",
+        )
+        llm = LLM(
+            model=model,
+            enforce_eager=True,
+            kv_transfer_config=ktc,
+            max_model_len=512,
+            gpu_memory_utilization=0.4,
+            trust_remote_code=True,
+        )
+        params = SamplingParams(temperature=0, top_p=0.95, max_tokens=8)
+        outputs = llm.generate(
+            ["Hello, my name is", "Tell me a short story"],
+            params,
+        )
+        for item in outputs:
+            print("reply", item.outputs[0].text)
+        print("current_device", f"npu:{torch.npu.current_device()}")
+        print("npu_available", torch.npu.is_available())
+        print("workload_ok", True)
+    finally:
+        server.terminate()
+        try:
+            server.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            server.kill()
 
 
 if __name__ == "__main__":
@@ -298,7 +324,7 @@ if __name__ == "__main__":
 完整输出较长，其中应包含：
 
 ```text #test-result id="offload"
-...Platform plugin ascend is activated...Storing KV cache for...
+...Platform plugin ascend is activated...Creating transfer context (device_type=npu, mode=lmcache_driven)...
 current_device npu:0
 npu_available True
 workload_ok True
