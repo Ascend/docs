@@ -505,6 +505,13 @@
          <div class="card-footer"><a href="https://github.com/modelscope/evalscope">官方链接</a><span class="split">|</span><a href="sources/evalscope/index.html">快速上手</a></div>
       </div>
 
+      <!-- VBench -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="font-size:28px;display:flex;align-items:center;justify-content:center">🎬</div><h3 class="card-title">VBench</h3></div>
+         <p class="card-desc">视频生成评测框架，在单卡昇腾 NPU 上运行 human_action 动作评测。</p>
+         <div class="card-footer"><a href="https://github.com/Vchitect/VBench">官方链接</a><span class="split">|</span><a href="sources/vbench/index.html">快速上手</a></div>
+      </div>
+
       <!-- Open CLIP -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/huggingface.png')"></div><h3 class="card-title">open_clip</h3></div>
@@ -667,6 +674,7 @@
    sources/diffsynth_studio/index.rst
    sources/evalscope/index.rst
    sources/lm_evaluation/index.rst
+   sources/vbench/index.rst
    sources/open_clip/index.rst
    sources/opencompass/index.rst
    sources/opencv/index.rst
