@@ -451,19 +451,6 @@ supported:
       - gconfig.max_new_tokens=256
       - ++rollout.setup_timeout=1800
     timeout_minutes: 150
-  # HITL 在线 RL demo（zeroclaw 客户端）：生态验证——真实第三方 OpenAI 兼容 CLI 打
-  # AReaL 网关。demo 自带完整驱动（起 online_rollout → 临时改写 ~/.zeroclaw/
-  # config.toml → 4 轮问答 + set_reward）；argparse 严格解析，overlay 只能传它的
-  # flag。链路与 online_rollout 重叠，增量即 zeroclaw 兼容性本身。
-  - path: examples/experimental/inference_service/human_in_the_loop_demo.py
-    profile: areal-hitl-demo
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
-    overlay_args:
-      - --inference-backend vllm
-      - --actor-path ${AREAL_MODEL_PATH}
-    timeout_minutes: 150
   # tau2 rollout-only：与 tau2/train.py 同一个 Tau2AgentWorkflow（真用户模拟器，
   # airline 域），但直接驱动 v2 推理服务（RolloutControllerV2 批量 rollout，无
   # PPO 栈），且自带终点（跑完 dataloater 打印 Rollout complete 退出 0）。
@@ -514,6 +501,23 @@ unsupported:
   - examples/alignment/hhrlhf_dpo.py
   - examples/vlm_npu/virl39k_grpo.py
   - examples/agent_service/run_agent_service.py
+
+  # ===== 上游 demo 设计缺陷（时序竞态，双向不稳定；2026-10-16 实测定位）=========
+  # hitl demo（zeroclaw 第三方 CLI 兼容性验证，价值仍在）：admin key 被
+  # data_proxy/app.py:181 _resolve_session_from_token 解析到持久 HITL session
+  # （__hitl__），demo 与 zeroclaw 全部流量共用一个 session；而
+  # set_reward_finish_timeout 默认 0（cli_args.py:2454）→ 每次 set_reward 立即
+  # finalize 当前 trajectory 并清空 active_completions（session.py:206-237），
+  # online workflow 异步消费 ready trajectory。demo 假设"问完即 set_reward 必
+  # 有效"，当 finalize+消费落在 chat 与 set_reward 之间时 session.set_reward
+  # 抛 ValueError("No interactions in session")（session.py:270）→ HTTP 400 →
+  # demo 崩溃。崩溃只在答对（reward=1.0）路径触发；全答错时 hollow 通过（通过
+  # 判据不要求答对）。假绿（2026-10-16 17:18 run，4 轮全错）与假红（同日 19:07
+  # run，T3 答对 "3" 即 400）双向复现；v2.1.0 与 main 同码，上游尚未修复。修法
+  # 建议：每轮独立 session（参照 online_rollout 流程 start_session/set_reward/
+  # end_session）或 set_reward 幂等重试。上游修复后可直接迁回：run_example.sh
+  # 的 hitl 分支与 setup 的 areal-hitl-demo profile 均保留未动。
+  - examples/experimental/inference_service/human_in_the_loop_demo.py
 
   # ===== 需外部服务 / 密钥 / 集群（CI 单机零外部依赖，跑不通）=================
   # 链路本身健康，但依赖 CI 提供不了的外部资源：
