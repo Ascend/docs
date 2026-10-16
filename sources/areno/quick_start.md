@@ -63,7 +63,10 @@ npu-smi info
 +===========================+===============+====================================================+
 ```
 
-> 如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动。
+```{admonition} Note
+:class: note
+如果 `npu-smi` 不存在，请回到 [Ascend 官方快速安装指南](https://ascend.github.io/docs/sources/ascend/quick_install.html) 补装驱动。
+```
 
 检查 Python 版本：
 
@@ -99,7 +102,10 @@ is_available: True
 count: 1
 ```
 
-> 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
+```{admonition} Note
+:class: note
+如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch) 检查 torch / torch_npu / CANN 三方兼容矩阵。
+```
 
 补齐构建工具与构建后端（AReno 安装时会现场编译 Ascend C 内核与 torch_npu 扩展，`--no-build-isolation` 要求环境里已有 setuptools ≥ 69）：
 
@@ -242,7 +248,10 @@ epoch=0 step=0 stage=save_checkpoint_end path=...
 epoch=0 step=1 stage=max_steps_reached
 ```
 
-> `...` 处为随训练变化的数值与路径；`train_stats` 的完整内容是本步训练指标字典。
+```{admonition} Note
+:class: note
+`...` 处为随训练变化的数值与路径；`train_stats` 的完整内容是本步训练指标字典。
+```
 
 捕获 checkpoint 路径供推理服务复用：
 
@@ -275,7 +284,10 @@ done
 curl -fsS http://127.0.0.1:8000/health
 ```
 
-> `--max-running-prompts 2` 控制 KV cache 池规模：默认 16 并发 × 32k 上下文预留约 60 GB，会把单卡 HBM 占满导致请求期 OOM，冒烟 2 个槽足够。
+```{admonition} Note
+:class: note
+`--max-running-prompts 2` 控制 KV cache 池规模：默认 16 并发 × 32k 上下文预留约 60 GB，会把单卡 HBM 占满导致请求期 OOM，冒烟 2 个槽足够。
+```
 
 ### 验证模型列表
 
