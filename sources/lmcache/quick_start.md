@@ -153,7 +153,9 @@ python -m pip install \
   aiofile aiofiles blake3 aiohttp msgspec numpy psutil pyyaml pyzmq \
   redis safetensors sortedcontainers transformers huggingface_hub \
   prometheus_client py-cpuinfo cachetools cryptography fastapi \
-  httpx numba uvicorn
+  httpx numba uvicorn opentelemetry-api opentelemetry-sdk \
+  opentelemetry-exporter-otlp opentelemetry-exporter-prometheus \
+  grpcio protobuf
 python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache'))"
 ```
 
