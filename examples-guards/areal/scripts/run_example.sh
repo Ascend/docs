@@ -110,8 +110,9 @@ http_healthy() {
 }
 
 # Wait for "Proxy gateway available at <url>" in a background process's log.
-# Echoes the gateway URL; returns 1 (with a log tail on stderr) when the
-# process dies first or 20min elapse. The URL charset is strict: areal log
+# Echoes the gateway URL to STDOUT (callers capture it via $(...)); the
+# heartbeat and error tails go to STDERR so they reach the job log without
+# polluting the captured value. The URL charset is strict: areal log
 # lines can carry ANSI colour bytes right after the URL, and a looser
 # pattern would swallow the ESC byte into the address.
 wait_gateway() {
@@ -125,7 +126,7 @@ wait_gateway() {
       tail -n 120 "$log" >&2
       return 1
     fi
-    echo "[wait $((i * 10))s] $label: $(tail -n 1 "$log" 2>/dev/null | cut -c1-200)"
+    echo "[wait $((i * 10))s] $label: $(tail -n 1 "$log" 2>/dev/null | cut -c1-200)" >&2
     sleep 10
   done
   echo "$label gateway did not come up in 20min; tail of $log:" >&2

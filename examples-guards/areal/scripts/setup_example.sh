@@ -104,8 +104,13 @@ shallow_clone() {
   git clone --depth 1 --branch "$2" "$1" "$3"
 }
 
+# Tarball fetch with a long budget and one resume retry: the zeroclaw
+# release comes from github.com, whose throughput from the CN runners is
+# marginal - 15.5MB once needed >600s and got cut at 91%. -C - resumes
+# the partial file instead of restarting from byte 0.
 fetch_tarball() {
-  curl -fsSL --connect-timeout 30 --max-time 600 "$1" -o "$2" \
+  curl -fsSL --connect-timeout 30 --max-time 1800 -C - "$1" -o "$2" \
+    || curl -fsSL --connect-timeout 30 --max-time 1800 -C - "$1" -o "$2" \
     || { echo "failed to download $1" >&2; exit 2; }
 }
 
