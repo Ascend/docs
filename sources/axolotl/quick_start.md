@@ -49,12 +49,14 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
-```shell #test-result id="install-torch"
+完整输出较长，其中应包含，`xxx` 表示实际安装的版本号：
+
+```shell #test-result id="install-torch" fuzzy="..." fuzzy="xxx"
 ...
+torch xxx
+torch_npu xxx
 npu_available True
 ```
--->
 
 ---
 
@@ -73,11 +75,16 @@ python -m pip install --no-build-isolation "axolotl==<ver>"
 python -c "import axolotl; print('axolotl', axolotl.__version__)"
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="install-axolotl" load="axolotl_ver>>ver"
 ...axolotl <ver>
 ```
--->
+
+```{admonition} Note
+:class: note
+将 `<ver>` 换成最新的 release 版本号。
+```
 
 ---
 
