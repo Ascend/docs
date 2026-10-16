@@ -112,14 +112,14 @@ cmake version 3...
 按 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装配套的 `vllm`、`vllm-ascend` 和 `triton-ascend`。
 
 ```shell #test id="install-vllm"
-python -m pip install --retries 3 vllm==0.22.1
+python -m pip install --retries 3 vllm==0.23.0
 python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  vllm-ascend==0.22.1rc1
+  vllm-ascend==0.23.0
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  triton-ascend==3.2.1
+  triton-ascend==3.2.2
 python -c "import importlib.metadata as m
 for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
@@ -152,7 +152,8 @@ NO_CUDA_EXT=1 python -m pip install --no-build-isolation lmcache==<ver> --no-dep
 python -m pip install \
   aiofile aiofiles blake3 aiohttp msgspec numpy psutil pyyaml pyzmq \
   redis safetensors sortedcontainers transformers huggingface_hub \
-  prometheus_client py-cpuinfo
+  prometheus_client py-cpuinfo cachetools cryptography fastapi \
+  httpx numba uvicorn
 python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache'))"
 ```
 
@@ -225,7 +226,7 @@ npu_available True
 
 ## 7. 用离线 LLM 做一次 KV 卸载
 
-用 `vllm.LLM` 和 vLLM-Ascend 内置的 `LMCacheAscendConnector` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。
+用 `vllm.LLM` 和 LMCache-Ascend 提供的 `LMCacheAscendConnectorV1Dynamic` 做一次离线 KV 卸载。模型是 Hugging Face 上的 Qwen/Qwen2.5-0.5B-Instruct。
 
 
 | 参数                       | 含义         |
@@ -265,8 +266,9 @@ def main():
 
     model = snapshot_download("Qwen/Qwen2.5-0.5B-Instruct")
     ktc = KVTransferConfig(
-        kv_connector="LMCacheAscendConnector",
+        kv_connector="LMCacheAscendConnectorV1Dynamic",
         kv_role="kv_both",
+        kv_connector_module_path="lmcache_ascend.integration.vllm.lmcache_ascend_connector_v1",
     )
     llm = LLM(
         model=model,
@@ -296,7 +298,7 @@ if __name__ == "__main__":
 完整输出较长，其中应包含：
 
 ```text #test-result id="offload"
-...Platform plugin ascend is activated...Using NPU for LMCache engine...
+...Platform plugin ascend is activated...Storing KV cache for...
 current_device npu:0
 npu_available True
 workload_ok True

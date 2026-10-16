@@ -51,7 +51,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'ERR99999',
         'HostRegisterError',
         'libatb.so',
-        'Unsupported device platform for LMCache engine',
+        'Unsupported device type',
     )
 
     _MODEL_ID = 'Qwen/Qwen2.5-0.5B-Instruct'
