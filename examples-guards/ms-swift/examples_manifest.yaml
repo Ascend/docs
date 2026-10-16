@@ -1,0 +1,162 @@
+# ms-swift example guard for the shared engine in examples-template.yml.
+# Profiles are implemented by scripts/setup_example.sh. Every entry runs the
+# upstream script unmodified, at the scale its author chose, in the
+# vLLM-Ascend 0.23.0 image: no overlay_args, no edited file. Models come from
+# the shared HF hub cache, filled during setup; datasets are fetched from
+# huggingface.co by ms-swift while the example runs. The timeouts are far
+# above the usual 180 minutes because upstream scale is long; each one is
+# an estimate, noted on its entry, to be replaced by measured times.
+version: 1
+scan:
+  root: examples/ascend
+  include_extensions: ['.sh']
+supported:
+  # Megatron-SWIFT LoRA SFT of Qwen3-8B on 2 cards, tensor parallel 2: 1500 samples,
+  # about 750 iterations. Estimated 40 to 60 minutes.
+  # The script pins ASCEND_RT_VISIBLE_DEVICES=0,1; npu_devices must match it.
+  - path: examples/ascend/train/qwen3/qwen3_lora_megatron.sh
+    profile: megatron
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # LoRA SFT of Qwen3-32B with DeepSpeed ZeRO-3 on 8 cards: 625 steps.
+  # Estimated 1 to 2.5 hours; a cold cache adds the 65 GB model download.
+  - path: examples/ascend/train/qwen3/qwen3_lora_deepspeed.sh
+    profile: deepspeed
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 480
+  # LoRA SFT of Qwen3-32B with accelerate FSDP and packing on 8 cards. The data is
+  # small, so the run is about 2 optimizer steps and most of the time is loading.
+  # fsdp.json turns off cpu_ram_efficient_loading: each of the 8 processes holds a
+  # full 65.5 GB copy in host memory, about 488Gi against the 512Gi of an a2-8 pod.
+  # A kill here is a host-memory failure, not an NPU one.
+  - path: examples/ascend/train/qwen3/qwen3_lora_fsdp/train.sh
+    profile: swift
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # LoRA SFT of Qwen3.5-35B-A3B with accelerate FSDP2 and packing on 8 cards.
+  # fsdp2.json also turns off cpu_ram_efficient_loading: 8 copies of the 72 GB
+  # weights are about 536Gi, more than the 512Gi an a2-8 pod has.
+  - path: examples/ascend/train/qwen3_5/qwen3_5_lora_fsdp2.sh
+    profile: swift
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # GRPO of Qwen3.5-35B-A3B: FSDP2 training with vLLM-Ascend colocated rollouts on
+  # 8 cards. 1000 prompts with 4 generations each and 8 samples per step make about
+  # 500 steps, each generating up to 2048 tokens and syncing 72 GB of weights into
+  # vLLM. Estimated 8 to 25 hours or more; the timeout is 36 hours. Set it again
+  # from the first measured step time.
+  - path: examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_fsdp2.sh
+    profile: swift
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 2160
+  # Megatron-SWIFT LoRA SFT of Qwen3-Next-80B-A3B: TP 2, PP 2, EP 4 on 8 cards,
+  # 125 iterations. A cold cache adds the 163 GB model download. Estimated 1 to 1.5
+  # hours without it.
+  - path: examples/ascend/train/qwen3_next/qwen3_next_megatron.sh
+    profile: megatron
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 480
+  # LoRA SFT of Qwen3-8B with FSDP2 activation CPU offload on 2 cards: the full
+  # 48,818-row alpaca dataset, 1,526 steps, a checkpoint every 5 steps. The log
+  # lines in the script measure 9.7 to 13 seconds per step with offload on, so
+  # 4 to 5.5 hours.
+  - path: examples/ascend/activation_cpu_offload/train.sh
+    profile: swift
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 720
+  # GRPO of Qwen3.5-4B: FSDP2 training with vLLM-Ascend colocated rollouts on 2 cards.
+  # The script is already at smoke scale: one step, 128-token completions.
+  - path: examples/ascend/grpo/fsdp2/qwen3_5_4b_lora.sh
+    profile: swift
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # GRPO of Qwen3.5-4B with Megatron-SWIFT and colocated vLLM-Ascend rollouts on
+  # 2 cards. The script is already at smoke scale: one iteration, 128-token completions.
+  - path: examples/ascend/grpo/megatron/qwen3_5_4b_lora.sh
+    profile: megatron
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # Batch inference of Qwen3-8B on vLLM-Ascend: data parallel 2 times tensor parallel 2,
+  # 2000 prompts of up to 2048 new tokens. Estimated 20 to 40 minutes.
+  - path: examples/ascend/infer/vllm/dp_tp.sh
+    profile: swift
+    runner: linux-aarch64-a2-4
+    npu_devices: '0,1,2,3'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # Megatron-SWIFT full-parameter SFT of Qwen3-4B on 4 cards: TP 2, PP 2, packing,
+  # 5 epochs of the full alpaca dataset, about 2,200 iterations. Estimated 2.5 to
+  # 3.5 hours. The script hardcodes --use_hf true, which matches USE_HF=1 here.
+  - path: examples/ascend/megatron/train_sft_full.sh
+    profile: megatron
+    runner: linux-aarch64-a2-4
+    npu_devices: '0,1,2,3'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 600
+
+# unsupported 每个条目上方都写明了不支持的原因，依据是 v4.6.0 示例脚本本身。
+# 范围只有 examples/ascend，这是上游为昇腾维护的目录。examples 下其余目录面向 CUDA 机器，不在本看护范围，也就不逐条登记。
+# 本仓清单里出现过的 runner 标签只有 linux-aarch64-a2-1、a2-2、a2-4、a2-8，没有 16 卡标签，也没有 A5 机型的标签。
+unsupported:
+
+  # 第 1 行起的 swift deploy 启动常驻 HTTP 服务，脚本只有这一条命令，服务不会自行退出，没有退出码可以反映示例是否成功。
+  - examples/ascend/deploy/vllm.sh
+
+  # 第 4 行 NNODES=2 且第 5 行 NODE_RANK=0，需要两台各 8 卡的机器同时参与，一个 runner 只有一台机器。
+  # 第 9 行 HCCL_SOCKET_IFNAME=xxx 是未填写的网卡名占位符。
+  - examples/ascend/multi-node/megatron/node1.sh
+
+  # 第 4 行 NNODES=2 且第 5 行 NODE_RANK=1，是两机训练的第二个节点，必须与 node1.sh 同时运行。
+  # 第 6 行 MASTER_ADDR=xxx.xxx.xxx.xxx 和第 9 行 HCCL_SOCKET_IFNAME=xxx 都是未填写的占位符。
+  - examples/ascend/multi-node/megatron/node2.sh
+
+  # 第 1、2 行的 <your_local_megatron_lm_path> 在 bash 里是重定向语法，bash -n 对第 1 行报 syntax error near unexpected token newline，脚本原样无法启动。
+  # 第 6、7 行还要求 16 张卡，超过 runner 的 8 卡上限。
+  - examples/ascend/train/qwen3_5/qwen3_5_full_grpo_megatron.sh
+
+  # 第 1、2 行的 <your_local_megatron_lm_path> 在 bash 里是重定向语法，bash -n 对第 1 行报 syntax error near unexpected token newline，脚本原样无法启动。
+  # 想让它跑起来只能改写示例文件替换占位符，本看护不改示例源码。
+  - examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_megatron.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 12、13 行 ASCEND_RT_VISIBLE_DEVICES 列出 0 到 15 并设 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 9、11 行同样要求 16 张卡。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu_a3.sh
+
+  # 第 1 行注明 8 * 96GiB Ascend A5，目标是 A5 机型，本仓没有 A5 的 runner 标签。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu_a5.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 5 行 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_full_mindspeed.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 13、14 行要求 16 张卡。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_lora_megatron_A3.sh
+
+  # 第 1 行注明 8 * 96GiB Ascend A5，目标是 A5 机型，本仓没有 A5 的 runner 标签。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_lora_megatron_A5.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 11 行 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_vl/moe_full_mindspeed.sh
+
+  # 第 2 行注明 Atlas 800T A3，第 21 行 ASCEND_RT_VISIBLE_DEVICES 列出 0 到 15，需要 16 张卡。
+  # 源仓的看护清单没有登记过这个示例。
+  - examples/ascend/train/qwen3_8/qwen3_8_27b_lora_fsdp2.sh

@@ -1,0 +1,76 @@
+# ms-swift examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release + workflow-files monitor /
+# manifest-check / run-example matrix / validate-results /
+# save-monitor-state) lives in the engine. See examples-guards/README.md
+# for the design.
+
+name: ms-swift-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'ms-swift-examples-schedule' || (github.event_name == 'pull_request' && format('ms-swift-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 05:00 Beijing time. 02:00 (0 18), 03:00 (0 19) and 04:00
+  # (0 20) are taken by other guards; this matrix holds five 8-card
+  # runners for hours, so it gets a slot of its own. Not the source
+  # repo's every-6-hours cron: that would share the NPU pool with the
+  # old guard all day.
+  schedule:
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files, as the
+  # quick-start triggers do: a PR that touches only the shared engine,
+  # scripts or schema starts no project's matrix.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/ms-swift/**'
+      - '.github/workflows/ms-swift-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  ms-swift-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-ms-swift_*),
+      # artifact names and the scheduling paths under
+      # examples-guards/ms-swift.
+      project: ms-swift
+      upstream_repo: modelscope/ms-swift
+      target_ref: ${{ inputs.target_ref }}
+      # 11 supported legs, five of them on 8-card runners; the source
+      # repo capped concurrency at 4 on purpose. The examples run at
+      # upstream scale and the 35B GRPO leg is estimated at a day, so one
+      # run can outlast the daily cron: the next scheduled run then waits
+      # in the concurrency group instead of starting beside it.
+      max_parallel: 4
