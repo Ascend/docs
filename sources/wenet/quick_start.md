@@ -54,7 +54,7 @@ CANN 最低版本为 8.0.rc1，安装 CANN 时请同时安装 Kernel 算子包�
 | torch / torch-npu / torchaudio | 2.2.0 |
 | deepspeed | 0.14.4 |
 | WeNet 源码 | `main`（仓库 `wenet-e2e/wenet`） |
-| 数据集 | aishell-1（ModelScope `OmniData/AISHELL-1`，约 15.6 GB） |
+| 数据集 | aishell-1（Hugging Face `JazerJu/aishell1-full-slr33`，OpenSLR 33 原档，约 15.6 GB） |
 
 本文配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10`
 （CANN 8.0.0 + Python 3.10，满足最低要求）。
@@ -163,23 +163,45 @@ apt-get update && apt-get install -y sox libsox-dev || true
 
 ## 5. 下载数据（stage -1）
 
-通过 ModelScope 下载 aishell-1 数据集（约 15.6 GB），然后创建软链接适配 WeNet 脚本期望的目录结构：
+从 Hugging Face 下载 aishell-1 数据集（约 15.6 GB），然后创建软链接适配 WeNet 脚本期望的目录结构。
+
+数据集源 `JazerJu/aishell1-full-slr33` 是 [OpenSLR 33](https://www.openslr.org/33) 两个原始压缩包的字节保真
+镜像：`data_aishell.tgz` / `resource_aishell.tgz` 的字节数（15582913665 / 1246920）与 openslr.org 上的原档
+一致，解压后的目录结构因此与官方 `local/download_and_untar.sh` 完全对齐。也可以直接用 OpenSLR 原站替换下面
+的下载命令。
+
+如果访问 Hugging Face 较慢，可先切换到国内镜像（该设置只影响当前终端）：
+
+```shell
+export HF_ENDPOINT=https://hf-mirror.com
+```
 
 ```shell #test-setup id="download-data"
-pip install modelscope -q
+# hf_transfer 让这个 15.6 GB 的单文件走分片并行下载，是相对单连接拉取的主要提速点；
+# 装不上时下面的 snapshot_download 仍会走普通 HTTP 路径
+pip install -q "huggingface_hub[hf_transfer]" || pip install -q huggingface_hub
+if python -c "import hf_transfer" >/dev/null 2>&1; then
+  export HF_HUB_ENABLE_HF_TRANSFER=1
+fi
 mkdir -p /root/asr-data/OpenSLR/33
-# 从 ModelScope 下载 AISHELL-1 数据集
+# 用 local_dir 固定下载落点：落点与下面解压出的数据都在 /root/.cache 上（runner 的共享缓存盘），
+# 跨 run 复用；已经完整的文件由 snapshot_download 按 etag / 字节数跳过，中断的 tgz 续传
 python -c "
-from modelscope import snapshot_download
-snapshot_download('OmniData/AISHELL-1', local_dir='/root/.cache/modelscope/hub/datasets/OmniData/AISHELL-1', repo_type='dataset')
+from huggingface_hub import snapshot_download
+snapshot_download(
+    'JazerJu/aishell1-full-slr33',
+    repo_type='dataset',
+    local_dir='/root/.cache/huggingface/datasets/aishell1-slr33',
+    max_workers=8,
+)
 "
 echo "=== 下载后目录结构 ==="
-find /root/.cache/modelscope/hub/datasets/OmniData/AISHELL-1
+ls -l /root/.cache/huggingface/datasets/aishell1-slr33
 # 解压数据集：data_aishell.tgz 内层 wav/ 下是按说话人二次打包的 *.tar.gz，
 # 必须再解压内层包（对齐官方 local/download_and_untar.sh），否则 stage 0 找不到任何 wav。
-# 解压产物随 modelscope 缓存卷跨 run 保留：用标记文件 wav/.extracted 做幂等判断，
-# 首次解压后（约 40min）后续 run 直接跳过整段；缓存卷被清空时标记随之消失，自动重新解压
-cd /root/.cache/modelscope/hub/datasets/OmniData/AISHELL-1/raw/33/
+# 解压产物随 /root/.cache 上的共享缓存盘跨 run 保留：用标记文件 wav/.extracted 做幂等判断，
+# 首次解压后（约 40min）后续 run 直接跳过整段；缓存盘被清空时标记随之消失，自动重新解压
+cd /root/.cache/huggingface/datasets/aishell1-slr33
 if [ ! -f data_aishell/wav/.extracted ]; then
   tar xzf data_aishell.tgz
   tar xzf resource_aishell.tgz
@@ -190,10 +212,9 @@ if [ ! -f data_aishell/wav/.extracted ]; then
     touch .extracted
   )
 fi
-cd ../..
 # 创建软链接
-ln -sf /root/.cache/modelscope/hub/datasets/OmniData/AISHELL-1/raw/33/data_aishell /root/asr-data/OpenSLR/33/data_aishell
-ln -sf /root/.cache/modelscope/hub/datasets/OmniData/AISHELL-1/raw/33/resource_aishell /root/asr-data/OpenSLR/33/resource_aishell
+ln -sf /root/.cache/huggingface/datasets/aishell1-slr33/data_aishell /root/asr-data/OpenSLR/33/data_aishell
+ln -sf /root/.cache/huggingface/datasets/aishell1-slr33/resource_aishell /root/asr-data/OpenSLR/33/resource_aishell
 touch /root/asr-data/OpenSLR/33/data_aishell/.complete
 touch /root/asr-data/OpenSLR/33/resource_aishell/.complete
 echo "=== 软链接验证 ==="
@@ -424,7 +445,7 @@ exp/conformer/final_quant.zip
 | `import torch_npu` 失败 | torch / torch-npu 版本不匹配 | 检查 [兼容矩阵](https://gitcode.com/Ascend/pytorch) |
 | `npu available: False` | NPU 设备未挂载或驱动问题 | 检查 `/dev/davinci0` 是否存在 |
 | `FileNotFoundError: data/dict/lang_char.txt` | 未执行 stage 1-3 | 重做第 7 节 |
-| 数据下载慢 / 失败 | ModelScope CDN 波动 | 重跑 stage -1，脚本按 `.complete` 断点续传 |
+| 数据下载慢 / 失败 | Hugging Face 带宽波动 | 重跑 stage -1：`snapshot_download` 跳过已完成文件、续传未完成的 tgz |
 | `sox` 命令失败 | 未安装 sox | `apt-get install sox libsox-dev` |
 | DataLoader 段错误 | 主进程初始化 CANN 后 fork worker | 保持 `num_workers=0`（第 8 节已改） |
 
@@ -433,6 +454,6 @@ exp/conformer/final_quant.zip
 - 上游仓库：[wenet-e2e/wenet](https://github.com/wenet-e2e/wenet)
 - 官方教程：[AISHELL-1 示例](https://wenet.org.cn/wenet/tutorial_aishell.html)
 - NPU 实验脚本：[`examples/aishell/s0/run_npu.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/run_npu.sh)
-- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)、[ModelScope `OmniData/AISHELL-1`](https://www.modelscope.cn/datasets/OmniData/AISHELL-1)
+- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)、[Hugging Face 原档镜像 `JazerJu/aishell1-full-slr33`](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
 - 昇腾 PyTorch 安装：[Ascend/pytorch](https://gitcode.com/Ascend/pytorch)
 - 本项目昇腾环境与安装步骤：[安装指南](https://ascend.github.io/docs/sources/wenet/install.html)

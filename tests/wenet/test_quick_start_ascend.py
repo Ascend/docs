@@ -2,7 +2,7 @@
 
 End-to-end case built on top of the ``MarkdownDocTestBase`` contract:
 env check + WeNet ``main`` clone (+ ``[torch-npu]`` install) + aishell-1
-download (~15.6 GB, ModelScope) + data prep + conformer training
+download (~15.6 GB, Hugging Face) + data prep + conformer training
 (stage 4, ``max_epoch=1``) + decode (stage 5) + jit export (stage 6).
 
 Run: ``python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1``
@@ -26,13 +26,14 @@ from __future__ import annotations
 import os
 import subprocess
 import unittest
+from pathlib import Path
 
 from doc_test.base import MarkdownDocTestBase
 from doc_test.model_cache import (
     diagnose_mount_environment,
     ensure_safetensors,
-    purge_modelscope_corrupt,
-    resolve_modelscope_cache,
+    purge_huggingface_corrupt,
+    resolve_huggingface_cache,
 )
 
 
@@ -56,7 +57,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     Scope: env check + WeNet clone/install + aishell-1 download and prep +
     one conformer epoch on 910B4 + stage 5 decode of 7176 test utts +
     stage 6 jit export. The doc's ``--data`` path keeps the downloaded
-    dataset on the modelscope cache volume, so repeat runs skip stage -1.
+    dataset on the shared cache disk, so repeat runs skip stage -1.
     """
 
     # 6 h per command: the doc runs the full aishell-1 flow per labeled
@@ -133,10 +134,24 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     # ``wenet-quick-start.yml`` (cann:8.0.0-910b-ubuntu22.04-py3.10).
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
+    # Doc-driven dataset landing zone: the doc's stage -1 fence pins
+    # ``local_dir=/root/.cache/huggingface/datasets/aishell1-slr33``, and the
+    # NPU runner starts the container as root, so ``Path.home()`` resolves to
+    # ``/root`` here. The byte sizes are the ones openslr.org publishes for
+    # the two SLR33 archives; the doc's Hugging Face source mirrors them
+    # byte-for-byte.
+    _DATASET_DIR = (
+        Path.home() / '.cache' / 'huggingface' / 'datasets' / 'aishell1-slr33'
+    )
+    _DATASET_ARCHIVES = {
+        'data_aishell.tgz': 15_582_913_665,
+        'resource_aishell.tgz': 1_246_920,
+    }
+
     @classmethod
     def prepare_environment(cls) -> None:
         """Source CANN env + write CUDA exclusion list + pin NPU card 0 +
-        torch stack probe + safetensors + ModelScope cache validation.
+        torch stack probe + safetensors + Hugging Face cache validation.
 
         Each labeled fence runs in its own subprocess, so this hook is
         what makes the CANN env visible to all of them -- the doc's own
@@ -252,15 +267,35 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # 3) safetensors: native loader used by the cache validation below.
         ensure_safetensors()
 
-        # 4) ModelScope cache: the doc downloads the aishell-1 dataset
-        # (~15.6 GB) into ``<cache>/hub/datasets`` on the first run. No
-        # model repo is involved (the dataset is not a ``<org>/<model>``
-        # entry), so report/purge run against the shared cache root; a
-        # persistent host-side cache can hold truncated shards from
-        # interrupted runs, and purge walks the model dirs and drops them
-        # so modelscope re-downloads cleanly on next access.
-        diagnose_mount_environment()
-        purge_modelscope_corrupt(resolve_modelscope_cache())
+        # 4) Hugging Face cache: the doc's ``download-data`` fence pulls the
+        # aishell-1 archives (~15.6 GB) into the dataset ``local_dir`` under
+        # ``/root/.cache`` (the runner's shared cache disk), which is what
+        # lets repeat runs skip stage -1. The purge walks the hub cache's
+        # ``models--*`` model dirs and drops the ones whose safetensors
+        # header is CONFIRMED broken, so a persistent host-side cache cannot
+        # keep feeding truncated shards to the next run.
+        hf_cache = resolve_huggingface_cache()
+        diagnose_mount_environment(hf_cache)
+        purge_huggingface_corrupt(hf_cache)
+
+        # The dataset itself lands in a ``local_dir`` rather than the hub
+        # cache, so the purge above cannot see it. A run killed mid-transfer
+        # leaves a short ``data_aishell.tgz`` behind, and ``snapshot_download``
+        # would resume from bytes that no longer match the hub. Drop any
+        # archive whose size disagrees with the published one.
+        for name, expected_bytes in cls._DATASET_ARCHIVES.items():
+            archive = cls._DATASET_DIR / name
+            if not archive.is_file():
+                continue
+            actual_bytes = archive.stat().st_size
+            if actual_bytes == expected_bytes:
+                continue
+            print(
+                f'setup: dropping truncated {name} '
+                f'({actual_bytes} != {expected_bytes} bytes); '
+                f'huggingface_hub will re-download'
+            )
+            archive.unlink()
 
     @classmethod
     def setUpClass(cls) -> None:

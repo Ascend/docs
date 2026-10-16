@@ -57,7 +57,12 @@ jobs:
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10
       container_options: >-
         --shm-size=64g
-        --volume=/data/ci-cache/modelscope/wenet:/root/.cache/modelscope
+        --volume=/data/ci-cache/huggingface/wenet:/root/.cache/huggingface
+      # Dataset cache: the doc's stage -1 fence pulls the ~15.6 GB aishell-1
+      # archives from Hugging Face into /root/.cache/huggingface/datasets/,
+      # which is what makes repeat runs skip stage -1. /root/.cache is the
+      # runner pool's shared NFS cache, so reuse does not depend on the
+      # container flag above.
       # 12 h budget: stage -1 pulls the ~15.6 GB aishell-1 archive (plus
       # the ~40 min inner tar pass on a cold cache) and stage 4 trains one
       # conformer epoch over 120k utts. Hot-cache runs skip stage -1.
