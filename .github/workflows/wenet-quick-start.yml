@@ -1,0 +1,89 @@
+# WeNet Ascend Quick Start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml.
+#
+# The latest upstream release (v3.1.0, 2024-05) predates the NPU work: it has
+# no examples/aishell/s0/run_npu.sh, which is what this guard executes. Only
+# the upstream main branch carries that script, so the engine tracks main's
+# commit SHA through fixed_ref instead of resolving the latest release.
+
+name: wenet-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'wenet-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Every 12 h (minute 15, offset from the other '*/12' guards at
+    # 35/45/55). The full aishell-1 flow lands in the 6-12 h range on a
+    # single 910B4, so a tighter cadence would only queue behind itself.
+    - cron: '15 */12 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/wenet/**'
+      - 'tests/wenet/**'
+      - '.github/workflows/wenet-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  wenet-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (quick-start-monitor-state-wenet_*), artifacts
+      # (wenet-quick-start-<run_id>) and the test working dir (tests/wenet).
+      project: wenet
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      # CANN 8.0.0 + Python 3.10: the doc pins torch / torch-npu /
+      # torchaudio at the official NPU script's recommended 2.2.0.
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10
+      container_options: >-
+        --shm-size=64g
+        --volume=/data/ci-cache/asr-data/wenet:/root/.cache/asr-data
+      # Dataset cache: the doc's stage -1 fence runs the upstream download
+      # script (run_npu.sh -> local/download_and_untar.sh) with --data on
+      # /root/.cache/asr-data, so the ~15.6 GB aishell-1 archives and the
+      # un-tarred data sit on the runner pool's shared NFS cache and the
+      # script's own .complete markers make repeat runs skip the download.
+      # Reuse does not depend on the container flag above -- these k8s
+      # runners ignore --volume (see the notes in the diffusers /
+      # speculators / mooncake triggers).
+      # 12 h budget: stage -1 pulls the ~15.6 GB aishell-1 archive (plus
+      # the ~40 min inner tar pass on a cold cache) and stage 4 trains one
+      # conformer epoch over 120k utts. Hot-cache runs skip stage -1.
+      timeout_minutes: 720
+      upstream_repo: wenet-e2e/wenet
+      # Latest release (v3.1.0, 2024-05) has no run_npu.sh - track main,
+      # whose commit SHA drives the scheduled change signal.
+      fixed_ref: main
+      # Doc URL points at the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/wenet/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/wenet/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1
