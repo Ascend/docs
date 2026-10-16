@@ -46,7 +46,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | CANN | 9.1.0 |
 | torch | 2.9.0+cpu |
 | torch_npu | 2.9.0.post2 |
-| tensordict | 最新 release 的源码/二进制 |
+| tensordict | 0.14.3 |
 
 ## 前置安装
 
@@ -128,7 +128,7 @@ tensordict 同时支持 PyPI 二进制安装与 GitHub 源码安装，两条路�
 ### 使用 uv 进行安装
 
 ```shell #test id="tensordict-install-binary"
-uv pip install --index-url https://mirrors.aliyun.com/pypi/simple tensordict
+uv pip install --index-url https://mirrors.aliyun.com/pypi/simple tensordict==0.14.3
 python -c "import tensordict; print('tensordict', tensordict.__version__)"
 ```
 
@@ -166,7 +166,7 @@ python -c "import tensordict; print('tensordict', tensordict.__version__)"
 
 ```{admonition} Note
 :class: note
-`<ref>` 替换为 tensordict 当前的最新 release 版本。
+`<ref>` 替换为本节配套的 tensordict 版本（本文为 v0.14.3）。
 ```
 
 输出结果类似如下：

@@ -38,9 +38,8 @@ on:
     # every-3h guards (axolotl/tgi/whisper_cpp :15, diffusers :20,
     # peft :30, accelerate/llama_cpp :45, speculators :25, mooncake/llm_compressor :50)
     # so the guards don't contend for NPU runners. Cadence is loose enough
-    # for an upstream that releases a few times a year (tensordict
-    # current latest is v0.14.0), but tight enough that doc fixes
-    # propagate within a day.
+    # for an upstream that releases a few times a year, but tight enough
+    # that doc fixes propagate within a day.
     - cron: '5 */6 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
@@ -79,6 +78,11 @@ jobs:
       # from pybind11 + CMake, ~5-10 min) + the 13 ~1s smoke commands.
       timeout_minutes: 90
       upstream_repo: pytorch/tensordict
+      # tensordict 0.15.0 起依赖 torch>=2.13.0a0，与本仓库配套的 torch 2.9.0
+      # 冲突（源码安装会强制升 torch，破坏 torch_npu 2.9.0.post2 配套）。
+      # 在文档升 torch 栈之前，钉住最后一个兼容 torch 2.9.0 的 0.14.x
+      # release（其依赖为裸 torch，无版本下限）。
+      fixed_ref: v0.14.3
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
       # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
       # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
