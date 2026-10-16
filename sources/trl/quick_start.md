@@ -44,18 +44,34 @@ torch_npu version: 2.9.0.post2
 
 ## 安装 TRL
 
-安装 TRL 并查看安装版本：
+安装与最新正式 release 对应的 TRL 包，并查看安装版本：
 
-```shell #test id="install-trl"
-python -m pip install trl
-python -c "import trl; print('trl', trl.__version__)"
+<!--
+```shell #test-setup store="trl_version"
+echo "${UPSTREAM_REF#v}"
+```
+-->
+
+```shell #test id="install-trl" load="trl_version>>version"
+python -m pip install "trl==<version>"
+python -c "import trl; assert trl.__version__ == '<version>'; print('trl', trl.__version__)"
 ```
 
-输出结果如下，其中 `xxx` 为实际安装的 TRL 版本：
+```{admonition} Note
+:class: note
+`<version>` 为 release tag 去掉 `v` 前缀后的版本号。
+```
+
+输出结果如下：
 
 ```shell #test-result id="install-trl" fuzzy='...' fuzzy='xxx'
 ...
 trl xxx
+```
+
+```{admonition} Note
+:class: note
+输出中的 `xxx` 为实际安装的 TRL 版本号。
 ```
 
 ## 示例一：SFT LoRA 后训练

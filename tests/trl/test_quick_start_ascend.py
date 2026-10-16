@@ -6,8 +6,9 @@ from __future__ import annotations
 import os
 import subprocess
 import unittest
+from pathlib import Path
 
-from doc_test.base import MarkdownDocTestBase
+from doc_test.base import MarkdownDocTestBase, TestCommand
 from doc_test.model_cache import (
     ensure_safetensors,
     purge_modelscope_corrupt,
@@ -81,6 +82,13 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
+    def pre_process(self) -> str:
+        doc = (
+            Path(__file__).resolve().parents[2]
+            / 'sources' / 'trl' / 'quick_start.md'
+        )
+        return doc.read_text(encoding='utf-8')
+
     @classmethod
     def prepare_environment(cls) -> None:
         if os.path.isfile(cls._CANN_SET_ENV):
@@ -147,6 +155,19 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     def setUpClass(cls) -> None:
         if _e2e_enabled():
             cls.prepare_environment()
+
+    def _run_one(self, cmd, results, env, cwd, timeout, idx):
+        if isinstance(cmd, TestCommand) and cmd.id == 'install-trl':
+            env = env.copy()
+            extra_indexes = env.get('PIP_EXTRA_INDEX_URL', '').split()
+            # The cluster package cache can lag the monitored GitHub release.
+            if not any(
+                url.rstrip('/') == 'https://pypi.org/simple'
+                for url in extra_indexes
+            ):
+                extra_indexes.append('https://pypi.org/simple')
+            env['PIP_EXTRA_INDEX_URL'] = ' '.join(extra_indexes)
+        return super()._run_one(cmd, results, env, cwd, timeout, idx)
 
     @unittest.skipIf(
         not _e2e_enabled(),
