@@ -193,6 +193,19 @@ wait_bounded() {
 }
 
 run_rc=0
+
+# Warm the guard import chain before the entry forks RPC guards: the data
+# controller waits a hardcoded 30s for worker readiness (data_service/
+# controller/controller.py:73 - no config/env outlet), while a cold
+# `python -m areal.infra.rpc.guard` boot (areal.infra pulls torch/torch_npu)
+# takes ~30s on these runners. gsm8k_sft already lost that race by under a
+# second (guard ready at +30.8s). One throwaway import in this step warms
+# the page cache for every guard the entry forks afterwards.
+if [[ "$LAUNCH_PATH" == *.py ]]; then
+  echo "warming guard import chain (torch/torch_npu page cache) ..."
+  "$PYTHON" -c "import areal.infra.rpc.guard" >/dev/null 2>&1 || true
+fi
+
 case "$EXAMPLE_REL" in
   examples/scaffolding/*.py)
     MODULE="${EXAMPLE_REL%.py}"
