@@ -105,7 +105,6 @@ supported:
       - cluster.n_gpus_per_node=2
       - rollout.backend=vllm:d1p1t2
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - ++actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - vllm.gpu_memory_utilization=0.3
@@ -147,7 +146,6 @@ supported:
       - cluster.n_gpus_per_node=2
       - rollout.backend=vllm:d1p1t2
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - ++actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - vllm.gpu_memory_utilization=0.3
@@ -176,7 +174,6 @@ supported:
       - rollout.backend=vllm:d1p1t2
       - +rollout.setup_timeout=1800
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - +actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - actor.mb_spec.max_tokens_per_mb=1024
@@ -199,7 +196,6 @@ supported:
       - cluster.n_gpus_per_node=2
       - rollout.backend=vllm:d1p1t2
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - +actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - actor.mb_spec.max_tokens_per_mb=1024
@@ -214,8 +210,8 @@ supported:
     timeout_minutes: 150
   # CLEVR 计数 GRPO（复用 areal-vlm-grpo profile；重数据：10.4GB 下载 +
   # 7 万图单进程预处理，故 setup_timeout 3600 / timeout 180）
-  # 已知偶发：CI pod CPU 争抢时 disk 权重同步的 actor 存盘可超上游 120s
-  # 硬编码等待（remote_inf_engine.py）而超时，非代码问题，重跑即可。
+  # 已知问题：offload+disk 的存盘聚合走 CPU gloo，会超上游 120s 硬编码等待
+  # （remote_inf_engine.py）；1.5B 条目已去 offload 规避，3B 待内存验证。
   - path: examples/vlm/clevr_count_70k_grpo.py
     profile: areal-vlm-grpo
     runner: linux-aarch64-a2-2
@@ -256,7 +252,6 @@ supported:
       - rollout.backend=vllm:d1p1t2
       - +rollout.setup_timeout=1800
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - +actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - actor.mb_spec.max_tokens_per_mb=1024
@@ -315,7 +310,6 @@ supported:
       - rollout.backend=vllm:d1p1t2
       - +rollout.setup_timeout=1800
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - +actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - actor.mb_spec.max_tokens_per_mb=1024
@@ -344,7 +338,6 @@ supported:
       - cluster.n_gpus_per_node=2
       - rollout.backend=vllm:d1p1t2
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - +actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - vllm.gpu_memory_utilization=0.3
@@ -370,7 +363,6 @@ supported:
       - rollout.backend=vllm:d1p1t2
       - +rollout.setup_timeout=1800
       - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
       - ++actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - actor.mb_spec.max_tokens_per_mb=1024
@@ -398,7 +390,6 @@ supported:
       - rollout._version=v1
       - actor.backend=fsdp:d1p1t1
       - actor._version=v1
-      - +actor.fsdp.offload_params=true
       - ++actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - rollout.admin_api_key=sk-areal-ci
@@ -421,7 +412,6 @@ supported:
       - --config examples/openclaw/config.yaml
       - rollout.backend=vllm:d1p1t1
       - actor.backend=fsdp:d1p1t1
-      - +actor.fsdp.offload_params=true
       - ++actor.weight_update_mode=disk
       - actor.path=${AREAL_MODEL_PATH}
       - train_dataset.batch_size=1
