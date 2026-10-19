@@ -37,6 +37,25 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 npu-smi info
 ```
 
+输出结果类似如下：
+
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B3               | OK            | 92.8        34                0    / 0             |
+| 0                         | 0000:C1:00.0  | 0           0    / 0          3492 / 65536         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+```
+
 ---
 
 ## 3. 安装 PyTorch NPU 栈
@@ -49,11 +68,11 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-完整输出较长，其中应包含，`xxx` 表示实际安装的版本号：
+完整输出较长，其中应包含，`xxx` 表示实际安装的版本号。torch 为 CPU 构建版本，`+cpu` 表示 NPU 支持由 torch_npu 提供：
 
 ```shell #test-result id="install-torch" fuzzy="..." fuzzy="xxx"
 ...
-torch xxx
+torch xxx+cpu
 torch_npu xxx
 npu_available True
 ```
