@@ -1,6 +1,6 @@
 version: 1
-# 只把上游可运行的教程 .py 作为对账单位；不把文档、图片或 benchmarks 当成 example。
-# 首批 3 条已在 examples #2 上通过；新增条目仍待手动 workflow 验证。
+# 只把上游可运行的用例 .py 作为对账单位；不把文档、图片或 benchmarks 当成 example。
+# 序列化用例已在 workflows #6/#7 通过；迁移后的 NPU CI 待验证，不修改上游源码。
 scan:
   root: tutorials/sphinx_tuto
   include_extensions: ['.py']
@@ -43,29 +43,30 @@ supported:
     runner: linux-aarch64-a2-1
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 90
-  # 异步流/lazy stack/nested densify；完整 11 秒配方并检查 NPU 数据，待实跑。
+  # 异步流/lazy stack/nested densify；原样运行上游配方并检查 NPU 数据。
   - path: tutorials/sphinx_tuto/streamed_tensordict.py
     profile: tensordict_npu
     runner: linux-aarch64-a2-1
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 90
-  # memmap 存储教程；NPU 原始张量、CPU 映射及 NPU 回读验证，待实跑。
-  - path: tutorials/sphinx_tuto/tensordict_memory.py
+
+  # 序列化格式与吞吐对比；每布局 128MiB/8 次的原生配方，workflows #6/#7 已通过。
+  - path: tutorials/sphinx_tuto/serialization_speed.py
     profile: tensordict_npu
     runner: linux-aarch64-a2-1
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 90
 
 unsupported:
+  # 模块组合与编译；workflows #7 原生计时统计在默认 NPU 上执行 float64 quantile/sort，当前算子不支持。
+  - tutorials/sphinx_tuto/tensordict_module.py
+  # 内存映射与设备迁移；v0.15.0 原生断言直接比较 CPU memmap 与 NPU 张量，无设备选择参数，暂不支持。
+  - tutorials/sphinx_tuto/tensordict_memory.py
   # FashionMNIST 双模型训练；显式选择 CPU/CUDA，无 NPU 设备参数。
   - tutorials/sphinx_tuto/data_fashion.py
-  # 序列化吞吐对比；固定 512MiB/32 次全格式写盘，无 CI 缩规模接口。
-  - tutorials/sphinx_tuto/serialization_speed.py
   # FashionMNIST tensorclass 训练；显式选择 CPU/CUDA，无 NPU 设备参数。
   - tutorials/sphinx_tuto/tensorclass_fashion.py
   # ImageFolder tensorclass 训练；FRACTION 可缩数据，但设备仍显式 CPU/CUDA。
   - tutorials/sphinx_tuto/tensorclass_imagenet.py
-  # 模块与编译教程；硬用默认 Inductor，未提供 NPU 编译后端选择接口。
-  - tutorials/sphinx_tuto/tensordict_module.py
   # Zarr 存储教程；CPU ZipStore 结果与原始 NPU 张量直接比较，设备不一致。
   - tutorials/sphinx_tuto/zarr_storage.py

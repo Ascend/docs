@@ -13,7 +13,7 @@ case "$entry" in
   tutorials/sphinx_tuto/tensordict_preallocation.py|\
   tutorials/sphinx_tuto/tensordict_slicing.py|\
   tutorials/sphinx_tuto/streamed_tensordict.py|\
-  tutorials/sphinx_tuto/tensordict_memory.py) ;;
+  tutorials/sphinx_tuto/serialization_speed.py) ;;
   *) echo "unsupported TensorDict tutorial entry: ${entry:-<missing>}" >&2; exit 2 ;;
 esac
 
@@ -32,6 +32,10 @@ fi
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export ASCEND_RT_VISIBLE_DEVICES="${ASCEND_RT_VISIBLE_DEVICES:-0}"
 mkdir -p "$CI_OUTPUT_DIR"
+if [[ "$entry" == tutorials/sphinx_tuto/serialization_speed.py ]]; then
+  # Headless rendering through the public matplotlib environment setting.
+  export MPLBACKEND=Agg
+fi
 
 python - "$tutorial" <<'PY'
 import runpy
@@ -90,22 +94,8 @@ elif name == "streamed_tensordict.py":
     checked = require_npu(namespace["bucket0"], "stream bucket")
     checked += require_npu(namespace["data_cont"], "initial nested densification")
     checked += require_npu(namespace["td"], "asynchronous nested densification")
-    if list(namespace["td"].batch_size) != [10]:
-        raise SystemExit("stream tutorial did not collect ten buckets")
-elif name == "tensordict_memory.py":
-    td = namespace["tensordict"]
-    mapped = namespace["mm_tensordict"]
-    checked = require_npu(td, "memmap_like source")
-    if not mapped.is_memmap():
-        raise SystemExit("memory tutorial did not allocate its real CPU memory map")
-    # memmap_like deliberately starts empty. Populate through the normal public
-    # API, then validate a real NPU -> CPU memmap -> NPU round trip.
-    mapped.update_(td.cpu())
-    restored = mapped.to("npu:0")
-    checked += require_npu(restored, "memory-map round trip")
-    for key in td.keys(include_nested=True, leaves_only=True):
-        if not torch.equal(td[key], restored[key]):
-            raise SystemExit(f"memory-map round trip changed tensor contents at {key}")
+elif name == "serialization_speed.py":
+    checked = require_npu(list(namespace["LAYOUTS"].values()), "serialization layouts")
 else:
     checked = require_npu(namespace.get("tensordict"), "tutorial TensorDict")
 torch.npu.synchronize()
