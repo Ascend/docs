@@ -87,10 +87,14 @@ uv pip install -f https://mirrors.aliyun.com/pytorch-wheels/cpu torch==2.10.0
 uv pip install --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi torch_npu==2.10.0.post2
 ```
 
-检查 torch / torch_npu 是否装好且 NPU 设备可用：
+检查 torch / torch_npu 是否装好且 NPU 设备可用（下面的命令用 Python 执行）：
 
-```shell #test id="check-torch"
-python -c "import torch, torch_npu; print('torch=', torch.__version__); print('torch_npu=', torch_npu.__version__); print('is_available:', torch.npu.is_available()); print('count:', torch.npu.device_count())"
+```python #test id="check-torch"
+import torch, torch_npu
+print('torch=', torch.__version__)
+print('torch_npu=', torch_npu.__version__)
+print('is_available:', torch.npu.is_available())
+print('count:', torch.npu.device_count())
 ```
 
 输出结果如下：
@@ -156,15 +160,13 @@ areno xxx
 
 ### 验证 NPU 加速扩展已编译
 
-`areno.accel._areno_accel_npu` 是安装时编译出的 NPU 加速扩展，缺失时训练与推理都无法运行：
+`areno.accel._areno_accel_npu` 是安装时编译出的 NPU 加速扩展，缺失时训练与推理都无法运行（下面的命令用 Python 执行）：
 
-```shell #test id="areno-accel-check"
-python -c "
+```python #test id="areno-accel-check"
 import importlib.util as u
 specs = {m: u.find_spec(m) for m in ['areno', 'areno.accel', 'areno.accel._areno_accel_npu']}
 for m, s in specs.items():
     print(m, 'ok' if s is not None else 'MISSING')
-"
 ```
 
 输出结果如下：
