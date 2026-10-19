@@ -50,10 +50,15 @@ export PYTHONNOUSERSITE=1
 # Output goes through a pipe to tee. Flush every line so a hang shows
 # where it stopped.
 export PYTHONUNBUFFERED=1
-# The model was put into the HF hub cache during setup. USE_HF makes
-# ms-swift resolve model ids there instead of on ModelScope, and fetch the
-# example's datasets from huggingface.co. The run stays online for those.
+# The model and datasets were put into the shared cache during setup.
+# USE_HF makes ms-swift resolve ids against the HuggingFace cache layout
+# (setup plants even ModelScope-only dataset ids there), and the offline
+# switches keep the run from revalidating against the hub: several of
+# the dataset ids do not exist on HuggingFace at all, and a slow download
+# by every rank at once outlasts the collective timeout.
 export USE_HF=1
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
 export HF_HUB_DISABLE_PROGRESS_BARS=1
 export HF_DATASETS_DISABLE_PROGRESS_BARS=1
 # Same reason as in setup_example.sh: MindSpeed makes transformers log tens of

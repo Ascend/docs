@@ -102,8 +102,8 @@ print('ms-swift', swift.__version__)
 }
 
 resolve_model() {
-  # Make the example's model available in the shared hub cache, so no rank
-  # downloads weights while the run is in progress.
+  # Make the example's model and datasets available in the shared cache,
+  # so no rank downloads weights or data while the run is in progress.
   python "$HERE/hub_cache.py" "$TARGET_ROOT/$EXAMPLE_PATH"
 }
 
