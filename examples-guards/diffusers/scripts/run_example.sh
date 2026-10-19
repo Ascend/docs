@@ -49,7 +49,7 @@ python -c "import torch, torch_npu; print('NPU available:', torch.npu.is_availab
 expand_overlay() {
   # The workflow serializes manifest.overlay_args as JSON. Expand each
   # item with shell quoting intact, then allow CI paths such as
-  # ${CI_OUTPUT_DIR} / ${SDXL_BASE_PATH} to resolve only in this job's
+  # ${CI_OUTPUT_DIR} / ${SD15_MODEL_PATH} to resolve only in this job's
   # environment.
   "$PYTHON" - <<'PY'
 import json
@@ -90,9 +90,7 @@ count_npus() {
 }
 
 # Materialize an accelerate+DeepSpeed launch config (num_processes = visible
-# NPU count). LAUNCHER picks the ds config: ds_zero2.json (params replicated,
-# the default) or ds_zero3.json (params sharded, for 20B-scale models whose
-# params cannot replicate - frozen encoders must still fit whole per card).
+# NPU count) from the project fixture fixtures/configs/ds_zero2.json.
 prepare_deepspeed_configs() {
   local ds_name="$1"
   local ds_json="${PROJECT_ROOT:?PROJECT_ROOT is required}/fixtures/configs/$ds_name"
@@ -118,14 +116,9 @@ EOF
   echo "deepspeed launch config: $cfg_file (ds: $ds_json, $npus npu(s))"
 }
 
-# Shell examples run with cwd = the example's directory; Python entry
-# points run with cwd = the target root (diffusers examples resolve
-# their own paths relative to the repo root).
+# Python entry points run with cwd = the target root (diffusers examples
+# resolve their own paths relative to the repo root).
 case "$LAUNCH_PATH" in
-  *.sh)
-    cd "$(dirname "$LAUNCH_PATH")"
-    bash "$LAUNCH_PATH" "${EXTRA_ARGS[@]}"
-    ;;
   *)
     cd "$TARGET_ROOT"
     # Examples import helper packages two ways: the module next to them (e.g.
@@ -142,12 +135,6 @@ case "$LAUNCH_PATH" in
           --config_file "$GITHUB_WORKSPACE/ci_patch/ds_zero2.yml" \
           "$LAUNCH_PATH" "${EXTRA_ARGS[@]}"
         ;;
-      accelerate-deepspeed-zero3)
-        prepare_deepspeed_configs ds_zero3.json
-        "$PYTHON" -m accelerate.commands.launch \
-          --config_file "$GITHUB_WORKSPACE/ci_patch/ds_zero3.yml" \
-          "$LAUNCH_PATH" "${EXTRA_ARGS[@]}"
-        ;;
       "")
         # Training examples expect the upstream entrypoint. Single process;
         # the script's own --mixed_precision controls the precision, so the
@@ -156,7 +143,7 @@ case "$LAUNCH_PATH" in
           --mixed_precision no "$LAUNCH_PATH" "${EXTRA_ARGS[@]}"
         ;;
       *)
-        echo "unknown LAUNCHER: $LAUNCHER (supported: accelerate-deepspeed, accelerate-deepspeed-zero3)" >&2
+        echo "unknown LAUNCHER: $LAUNCHER (supported: accelerate-deepspeed)" >&2
         exit 2
         ;;
     esac

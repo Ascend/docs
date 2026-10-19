@@ -23,11 +23,10 @@ SUPPORTED_PROFILES=(
   diffusers-sdxl diffusers-sd15 diffusers-dreambooth diffusers-instruct-pix2pix
   diffusers-kandinsky diffusers-research diffusers-research-plain diffusers-t2i-adapter
   diffusers-text-to-image diffusers-textual-inversion diffusers-unconditional
-  diffusers-vqgan diffusers-sdxl-online diffusers-flux diffusers-sana diffusers-lumina2
-  diffusers-z-image diffusers-qwen-image diffusers-amused diffusers-cogvideo
+  diffusers-vqgan diffusers-sdxl-online diffusers-sana diffusers-amused diffusers-cogvideo
   diffusers-cogvideo-i2v diffusers-lcm diffusers-lcm-sdxl diffusers-controlnet
   diffusers-controlnet-sdxl diffusers-llada2 diffusers-gligen diffusers-controlnet-wds
-  diffusers-orpo-wds diffusers-sdxl-full diffusers-lcm-zero3
+  diffusers-orpo-wds diffusers-sdxl-full
   diffusers-kandinsky-prior diffusers-multi-subject-inpaint diffusers-pixart
   diffusers-realfill diffusers-flux2-klein
 )
@@ -140,14 +139,14 @@ install_example_stack() {
 }
 
 # download_assets <what>: comma-separated tokens from
-# {sdxl, sdxl-vae, sd15, sd15-inpaint, 3d-icon, cogvideo, sana-sprint}. Each token
-# exports a path to GITHUB_ENV under the name overlay_args reference:
-#   sdxl         -> SDXL_BASE_PATH      (AI-ModelScope/stable-diffusion-xl-base-1.0)
-#   sdxl-vae     -> SDXL_VAE_PATH       (AI-ModelScope/sdxl-vae-fp16-fix)
+# {sd15, sd15-inpaint, 3d-icon, cogvideo, cogvideo-dataset, sana-sprint}. Each
+# token exports a path to GITHUB_ENV under the name overlay_args reference:
 #   sd15         -> SD15_MODEL_PATH     (AI-ModelScope/stable-diffusion-v1-5)
 #   sd15-inpaint -> SD15_INPAINT_PATH   (AI-ModelScope/stable-diffusion-inpainting)
 #   3d-icon      -> THREE_D_ICON_PATH   (HF linoyts/3d_icon)
 #   cogvideo     -> COGVIDEOX_MODEL_PATH + COGVIDEOX_DATASET_DIR
+#   cogvideo-dataset -> COGVIDEOX_DATASET_DIR
+#   sana-sprint  -> SANA_SPRINT_TEACHER_PATH (HF)
 download_assets() {
   DIFFUSERS_DOWNLOAD="$1" python - <<'PY'
 import os
@@ -244,31 +243,6 @@ def hf_snapshot(repo_id: str, **kwargs) -> str:
     raise last
 
 
-# SDXL base components only. The repo also carries sd_xl_base_1.0.safetensors
-# (6.9 GB, ComfyUI single-file) and fp16 duplicates (~11 GB) that
-# from_pretrained does not need; the script loads the fp32 component weights
-# and casts to bf16 itself.
-if "sdxl" in WANT:
-    snapshot(
-        "SDXL_BASE_PATH",
-        "AI-ModelScope/stable-diffusion-xl-base-1.0",
-        allow_file_pattern=[
-            "*.json", "*.txt", "*.model",
-            "unet/*", "vae/*",
-            "text_encoder/*", "text_encoder_2/*",
-            "tokenizer/*", "tokenizer_2/*", "scheduler/*",
-        ],
-        # .bin is the duplicate of .safetensors; skip both fp16 and .bin to
-        # halve the download (and the .bin download is what fails).
-        ignore_file_pattern=["*.fp16.*", "*.bin"],
-    )
-
-# SDXL fp16-safe VAE. Only entries that pass
-# --pretrained_vae_model_name_or_path need it (the advanced SDXL entry does
-# not; the LCM SDXL distillation does).
-if "sdxl-vae" in WANT:
-    snapshot("SDXL_VAE_PATH", "AI-ModelScope/sdxl-vae-fp16-fix")
-
 # SD 1.5 diffusers components only; skip the single-file checkpoints
 # (v1-5-pruned*.safetensors, ~4 GB each). Also the LCM SD teacher.
 if "sd15" in WANT:
@@ -308,20 +282,6 @@ if "sd15-inpaint" in WANT:
         # This repo ships only .bin + *.fp16.safetensors (no full-precision
         # safetensors), so keep .bin and drop only the fp16 duplicates.
         ignore_file_pattern=["*.fp16.*"],
-    )
-
-# SD 1.4 (the dreambooth examples' README base model). Same component-only
-# filter as SD1.5.
-if "sd14" in WANT:
-    snapshot(
-        "SD14_MODEL_PATH",
-        "AI-ModelScope/stable-diffusion-v1-4",
-        allow_file_pattern=[
-            "*.json", "*.txt", "*.model",
-            "unet/*", "vae/*",
-            "text_encoder/*", "tokenizer/*", "scheduler/*",
-        ],
-        ignore_file_pattern=["*.fp16.*", "*.bin"],
     )
 
 # CogVideoX-2b (transformer + T5 text_encoder + VAE). The ModelScope repo
@@ -424,21 +384,16 @@ PY
 # `pip install -r` it verbatim (it pins to git main / loose versions and
 # pulls CUDA-only deps).
 
-# deepspeed serves the accelerate-deepspeed (ZeRO-3) launcher; decord2 is the
+# deepspeed serves the accelerate-deepspeed (ZeRO-2) launcher; decord2 is the
 # Ascend/aarch64 build of decord (plain decord has no NPU wheel).
 declare -A PROFILE_PIP=(
   [diffusers-text-to-image]="deepspeed>=0.18.2"
-  [diffusers-flux]="deepspeed>=0.18.2 webdataset braceexpand"
   [diffusers-vqgan]="timm"
   [diffusers-lcm]="webdataset braceexpand"
   [diffusers-lcm-sdxl]="webdataset braceexpand"
   [diffusers-cogvideo]="decord2 imageio imageio-ffmpeg"
   [diffusers-cogvideo-i2v]="decord2 imageio imageio-ffmpeg"
-  [diffusers-lumina2]="deepspeed>=0.18.2"
-  [diffusers-z-image]="deepspeed>=0.18.2"
-  [diffusers-qwen-image]="deepspeed>=0.18.2"
   [diffusers-sdxl-full]="deepspeed>=0.18.2"
-  [diffusers-lcm-zero3]="deepspeed>=0.18.2 webdataset braceexpand"
   [diffusers-controlnet-sdxl]="deepspeed>=0.18.2"
   [diffusers-kandinsky-prior]="deepspeed>=0.18.2"
   # controlnet-wds runs with launcher=accelerate-deepspeed (ZeRO-2), hence
