@@ -6,9 +6,7 @@
 # possibly []).
 #
 # Python examples are launched with `accelerate launch` (the upstream
-# entrypoint for the training scripts). Shell examples that do not pass
-# "$@" get it attached in this working copy only (last command line).
-# Never git add/commit/push.
+# entrypoint for the training scripts). Never git add/commit/push.
 #
 # Contract: examples-guards/README.md "项目数据" (scripts/run_example.sh).
 set -euo pipefail
@@ -85,44 +83,6 @@ echo "running $LAUNCH_PATH with ${#EXTRA_ARGS[@]} overlay args"
 if ((${#EXTRA_ARGS[@]})); then
   printf 'overlay arg: %q\n' "${EXTRA_ARGS[@]}"
 fi
-
-ensure_passthrough() {
-  # Shell examples that already forward "$@" need no patch; otherwise
-  # attach it in this CI working copy only, on the last non-comment
-  # line (the tail of the example's main command). Python entry points
-  # take the overlay args directly on their own command line.
-  local script="$1"
-  [[ "$script" == *.sh ]] || return 0
-  if grep -qE '"\$@"' "$script"; then
-    echo "example already has \"\$@\"; skipping patch"
-    return 0
-  fi
-  "$PYTHON" - "$script" <<'PY'
-from pathlib import Path
-import sys
-
-path = Path(sys.argv[1])
-lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
-for i in range(len(lines) - 1, -1, -1):
-    stripped = lines[i].strip()
-    if stripped and not stripped.startswith('#'):
-        raw = lines[i]
-        newline = ''
-        if raw.endswith('\r\n'):
-            newline = '\r\n'
-            raw = raw[:-2]
-        elif raw.endswith('\n'):
-            newline = '\n'
-            raw = raw[:-1]
-        lines[i] = raw.rstrip() + ' "$@"' + newline
-        path.write_text(''.join(lines), encoding='utf-8')
-        print(f'patched {path} to pass "$@" on last command line')
-        raise SystemExit(0)
-raise SystemExit(f'{path}: cannot find a command line to attach "$@"')
-PY
-}
-
-ensure_passthrough "$LAUNCH_PATH"
 
 # Visible NPU count for the multi-card launcher.
 count_npus() {
