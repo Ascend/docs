@@ -1,9 +1,9 @@
 # ms-swift example guard for the shared engine in examples-template.yml.
 # Profiles are implemented by scripts/setup_example.sh. Every entry runs the
 # upstream script unmodified, at the scale its author chose, in the
-# vLLM-Ascend 0.23.0 image: no overlay_args, no edited file. Models come from
-# the shared HF hub cache, filled during setup; datasets are fetched from
-# huggingface.co by ms-swift while the example runs. The timeouts are far
+# vLLM-Ascend 0.23.0 image: no overlay_args, no edited file. Models and
+# datasets come from the shared cache, filled during setup; the run step
+# is offline. The timeouts are far
 # above the usual 180 minutes because upstream scale is long; each one is
 # an estimate, noted on its entry, to be replaced by measured times.
 version: 1
@@ -48,17 +48,6 @@ supported:
     npu_devices: '0,1,2,3,4,5,6,7'
     image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
     timeout_minutes: 240
-  # GRPO of Qwen3.5-35B-A3B: FSDP2 training with vLLM-Ascend colocated rollouts on
-  # 8 cards. 1000 prompts with 4 generations each and 8 samples per step make about
-  # 500 steps, each generating up to 2048 tokens and syncing 72 GB of weights into
-  # vLLM. Estimated 8 to 25 hours or more; the timeout is 36 hours. Set it again
-  # from the first measured step time.
-  - path: examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_fsdp2.sh
-    profile: swift
-    runner: linux-aarch64-a2-8
-    npu_devices: '0,1,2,3,4,5,6,7'
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
-    timeout_minutes: 2160
   # Megatron-SWIFT LoRA SFT of Qwen3-Next-80B-A3B: TP 2, PP 2, EP 4 on 8 cards,
   # 125 iterations. A cold cache adds the 163 GB model download. Estimated 1 to 1.5
   # hours without it.
@@ -78,22 +67,6 @@ supported:
     npu_devices: '0,1'
     image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
     timeout_minutes: 720
-  # GRPO of Qwen3.5-4B: FSDP2 training with vLLM-Ascend colocated rollouts on 2 cards.
-  # The script is already at smoke scale: one step, 128-token completions.
-  - path: examples/ascend/grpo/fsdp2/qwen3_5_4b_lora.sh
-    profile: swift
-    runner: linux-aarch64-a2-2
-    npu_devices: '0,1'
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
-    timeout_minutes: 240
-  # GRPO of Qwen3.5-4B with Megatron-SWIFT and colocated vLLM-Ascend rollouts on
-  # 2 cards. The script is already at smoke scale: one iteration, 128-token completions.
-  - path: examples/ascend/grpo/megatron/qwen3_5_4b_lora.sh
-    profile: megatron
-    runner: linux-aarch64-a2-2
-    npu_devices: '0,1'
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
-    timeout_minutes: 240
   # Batch inference of Qwen3-8B on vLLM-Ascend: data parallel 2 times tensor parallel 2,
   # 2000 prompts of up to 2048 new tokens. Estimated 20 to 40 minutes.
   - path: examples/ascend/infer/vllm/dp_tp.sh
@@ -160,3 +133,19 @@ unsupported:
   # 第 2 行注明 Atlas 800T A3，第 21 行 ASCEND_RT_VISIBLE_DEVICES 列出 0 到 15，需要 16 张卡。
   # 源仓的看护清单没有登记过这个示例。
   - examples/ascend/train/qwen3_8/qwen3_8_27b_lora_fsdp2.sh
+
+  # 脚本第 5 行用 accelerate launch 加载同目录 fsdp2.json，该文件第 19 行 fsdp_cpu_ram_efficient_loading 为 false，8 个进程各在主机内存保留一份完整权重。
+  # 模型 Qwen/Qwen3.5-35B-A3B 的 safetensors 权重经 Hugging Face 接口实测 67.0 GiB，8 份合计约 536 GiB，超过 a2-8 runner 的 512 GiB 主机内存。
+  # PR 241 首次运行中 8 个 rank 同时收到 Signal 9 被杀，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381087
+  - examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_fsdp2.sh
+
+  # 脚本第 18 到 19 行开启 vllm colocate rollout 且没有设置 vllm_enforce_eager，ms-swift 该参数默认 false，vLLM-Ascend 0.23.0 引擎走图模式。
+  # PR 241 首次运行先完成图捕获，第一次 rollout 时在 vllm_ascend 的 attention_v1.py 更新图参数处报 AttributeError，GDNAttentionMetadata 对象没有 seq_lens_list 属性。
+  # 报错后进程没有退出，直到 240 分钟 job 超时被取消，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381116
+  # 关掉图模式需要给示例命令追加参数，本看护不改示例源码。
+  - examples/ascend/grpo/fsdp2/qwen3_5_4b_lora.sh
+
+  # 脚本第 21 到 22 行开启 vllm colocate rollout 且没有设置 vllm_enforce_eager，ms-swift 该参数默认 false，vLLM-Ascend 0.23.0 引擎走图模式。
+  # PR 241 首次运行在引擎初始化的 profile_run 阶段报 RuntimeError，aot_compile 在当前配置下不受支持，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381150
+  # 关掉图模式需要给示例命令追加参数，本看护不改示例源码。
+  - examples/ascend/grpo/megatron/qwen3_5_4b_lora.sh
