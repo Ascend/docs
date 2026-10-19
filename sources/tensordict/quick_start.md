@@ -158,8 +158,8 @@ echo "${UPSTREAM_REF}"
 -->
 
 ```shell #test id="tensordict-install-source" load="upstream_ref>>ref"
-git clone --depth 1 --branch <ref> https://github.com/pytorch/tensordict.git
-cd tensordict
+git clone --depth 1 --branch <ref> https://github.com/pytorch/tensordict.git tensordict-src
+cd tensordict-src
 uv pip install -e . --config-settings editable_mode=compat
 python -c "import tensordict; print('tensordict', tensordict.__version__)"
 ```
