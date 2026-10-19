@@ -24,6 +24,37 @@ scan:
 #   processor warmup + tokenizer 深拷贝）在慢机上会超，RL 条目统一
 #   +rollout.setup_timeout=1800 兜底。
 supported:
+  # CLEVR 计数 GRPO（复用 areal-vlm-grpo profile；重数据：10.4GB 下载 +
+  # 7 万图单进程预处理，故 setup_timeout 3600 / timeout 180）
+  # 已知问题：offload+disk 的存盘聚合走 CPU gloo，会超上游 120s 硬编码等待
+  # （remote_inf_engine.py）；1.5B 条目已去 offload 规避，3B 待内存验证。
+  - path: examples/vlm/clevr_count_70k_grpo.py
+    profile: areal-vlm-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/vlm/clevr_count_70k_grpo.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.fsdp.offload_params=true
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.35
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=3600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+      - vllm.max_model_len=8576
+    timeout_minutes: 300
   # tau2-bench 客服多轮 RL（保留真实 UserSimulator，solo_mode=false）：用户侧由
   # run_example 在另一张卡拉本地 vLLM（同一份 Qwen3-1.7B 权重、多 served-model-name
   # 别名吸收 econfig.user_llm 的 litellm 命名），econfig.user_llm_base_url 指过去；
@@ -208,37 +239,6 @@ supported:
       - +valid_dataset.setup_timeout=600
       - +total_train_steps=1
     timeout_minutes: 150
-  # CLEVR 计数 GRPO（复用 areal-vlm-grpo profile；重数据：10.4GB 下载 +
-  # 7 万图单进程预处理，故 setup_timeout 3600 / timeout 180）
-  # 已知问题：offload+disk 的存盘聚合走 CPU gloo，会超上游 120s 硬编码等待
-  # （remote_inf_engine.py）；1.5B 条目已去 offload 规避，3B 待内存验证。
-  - path: examples/vlm/clevr_count_70k_grpo.py
-    profile: areal-vlm-grpo
-    runner: linux-aarch64-a2-2
-    npu_devices: '0,1'
-    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
-    overlay_args:
-      - --config examples/vlm/clevr_count_70k_grpo.yaml
-      - scheduler.type=local
-      - cluster.n_gpus_per_node=2
-      - rollout.backend=vllm:d1p1t2
-      - +rollout.setup_timeout=1800
-      - actor.backend=fsdp:d2p1t1
-      - +actor.fsdp.offload_params=true
-      - +actor.weight_update_mode=disk
-      - actor.path=${AREAL_MODEL_PATH}
-      - actor.mb_spec.max_tokens_per_mb=1024
-      - ref.mb_spec.max_tokens_per_mb=1024
-      - vllm.gpu_memory_utilization=0.35
-      - gconfig.max_new_tokens=64
-      - gconfig.n_samples=1
-      - train_dataset.batch_size=2
-      - valid_dataset.batch_size=2
-      - +train_dataset.setup_timeout=3600
-      - +valid_dataset.setup_timeout=600
-      - +total_train_steps=1
-      - vllm.max_model_len=8576
-    timeout_minutes: 300
   # TIR 工具集成推理 GRPO（带内工具调用 + 本地 python/calculator；torl 数据
   # 仅 GitHub 来源、job 容器不可达，parquet 以 fixture 入库）
   - path: examples/tir/train_tir.py
