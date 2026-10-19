@@ -44,8 +44,8 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | --- | --- |
 | Python | 3.12 |
 | CANN | 9.1.0 |
-| torch | 2.9.0+cpu |
-| torch_npu | 2.9.0.post2 |
+| torch | 2.13.0+cpu |
+| torch_npu | 2.13.0 |
 | tensordict | 最新 release 的源码/二进制 |
 
 ## 前置安装
@@ -97,6 +97,17 @@ Python 3.12.xxx
 xxx 表示 Python 的补丁版本号。
 ```
 
+## 安装 torch 与 torch_npu
+
+tensordict 0.15.x 要求 `torch>=2.13`，`torch_npu` 严格绑定配套的 `torch` 版本，且需要 **CPU 版 torch**（CUDA 版会与 NPU 后端冲突）。按如下命令安装：
+
+```shell #test-setup
+# torch：CPU 版（官方 CPU 索引；CUDA 版会与 NPU 后端冲突）
+python -m pip install torch==2.13.0+cpu --index-url https://download.pytorch.org/whl/cpu
+# torch_npu：阿里云镜像（提供 aarch64 wheel）
+python -m pip install torch_npu==2.13.0 --index-url https://mirrors.aliyun.com/pypi/simple
+```
+
 检查 torch / torch_npu 是否装好且 NPU 设备可用(下面的命令用 Python 执行)：
 
 ```python #test id="check-torch"
@@ -110,8 +121,8 @@ print('count:', torch.npu.device_count())
 输出结果如下：
 
 ```shell #test-result id="check-torch"
-torch= 2.9.0+cpu
-torch_npu= 2.9.0.post2
+torch= 2.13.0+cpu
+torch_npu= 2.13.0
 is_available: True
 count: 1
 ```

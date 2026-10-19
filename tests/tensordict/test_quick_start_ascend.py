@@ -121,11 +121,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'nvidia-nvtx-cu12<0',
     )
     _CONSTRAINTS_FILE = '/tmp/tensordict_npu_constraints.txt'
-    _OVERRIDES_FILE = '/tmp/tensordict_npu_overrides.txt'
-
-    # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source.
-    _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
-    _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
 
     # CANN toolkit: source once to get ASCEND_HOME / LD_LIBRARY_PATH etc.
     # Path is hard-coded, tied to the container image pinned by the
@@ -133,7 +128,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     # ----------------------------------------------------------
-    # prepare_environment: CANN env + CUDA constraints + uv + cmake + torch stack probe
+    # prepare_environment: CANN env + CUDA constraints + uv + cmake
     # (tensordict itself is installed by the doc's `## 安装 tensordict` blocks;
     #  no model download, so no modelscope cache binding)
     # ----------------------------------------------------------
@@ -176,18 +171,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         os.environ['PIP_CONSTRAINT'] = cls._CONSTRAINTS_FILE
         os.environ['UV_CONSTRAINT'] = cls._CONSTRAINTS_FILE
 
-        # 1b) torch version override: tensordict 0.15.0 declares
-        # ``torch>=2.13.0a0``, but this repo pairs torch 2.9.0
-        # (torch_npu 2.9.0.post2 / CANN 9.1.0). uv's ``--overrides``
-        # (env ``UV_OVERRIDE``) forces torch 2.9.0 so the doc installs the
-        # latest tensordict against the pinned torch stack. Verified 0.15.0
-        # is source-compatible with torch 2.9.0 for the APIs the doc
-        # exercises (its ``torch>=2.13`` bound is the upstream CI matrix,
-        # not a hard runtime requirement).
-        with open(cls._OVERRIDES_FILE, 'w', encoding='utf-8') as fh:
-            fh.write('torch==2.9.0\n')
-        os.environ['UV_OVERRIDE'] = cls._OVERRIDES_FILE
-
         # 2) uv: the doc's ``tensordict-install-source`` block calls
         # ``uv pip install -e .`` which handles PEP 517 build deps more
         # reliably than pip. Inherits ``PIP_INDEX_URL`` + ``PIP_TRUSTED_HOST``
@@ -210,42 +193,9 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             check=True,
         )
 
-        # 4) torch stack probe: when version matches the image's
-        # pre-installed wheels, reuse them to avoid the cluster cache
-        # triggering ``+cpu`` resolution.
-        _PROBE_SCRIPT = (
-            'import torch, torch_npu\n'
-            "raise SystemExit(0 if "
-            "torch.__version__.startswith('2.9.0') "
-            "and torch_npu.__version__.startswith('2.9.0') "
-            "else 1)"
-        )
-        probe = subprocess.run(
-            ['python', '-c', _PROBE_SCRIPT],
-            capture_output=True,
-            check=False,  # probe's success/failure is the branch signal — don't raise
-        )
-        if probe.returncode == 0:
-            _VERSIONS_SCRIPT = (
-                'import torch, torch_npu; '
-                'print(torch.__version__, torch_npu.__version__)'
-            )
-            versions = subprocess.run(
-                ['python', '-c', _VERSIONS_SCRIPT],
-                capture_output=True, text=True, check=True,
-            )
-            print(f'setup: reusing image torch stack ({versions.stdout.strip()})')
-        else:
-            print('setup: installing torch==2.9.0 torch_npu==2.9.0.post2')
-            subprocess.run(
-                [
-                    'python', '-m', 'pip', 'install',
-                    '--index-url', cls._CLUSTER_INDEX,
-                    '--extra-index-url', cls._ASCEND_EXTRA,
-                    'torch==2.9.0', 'torch_npu==2.9.0.post2',
-                ],
-                check=True,
-            )
+        # 4) torch / torch_npu 由文档「安装 torch 与 torch_npu」的
+        # ``#test-setup`` 块安装——源（torch 官方 CPU 索引 + 阿里云镜像）
+        # 明确写在文档里，读者与看护走同一条安装路径，不在此隐藏安装。
 
         # 5) tensordict itself is NOT installed here — the doc's
         # ``## 安装 tensordict`` blocks ``tensordict-install-binary`` /
