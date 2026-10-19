@@ -1,0 +1,641 @@
+version: 1
+scan:
+  root: examples
+  include_extensions: ['.py', '.sh']
+  # files-only 模式（docs/examples-guard-engine.md §2.7）：scan 只保留
+  # root + include_extensions 两个键；实现模块、上游自测等一律进
+  # unsupported 段（带分组注释与理由）。
+  # 对账口径：release 树（当前 v2.1.0）114 个 .py/.sh =
+  # supported(18) + unsupported(96)。
+
+# 看护 release 线（workflow target_ref 留空，由引擎按 latest release
+# 解析）。supported 配方用专用镜像 ghcr.io/hwvanici/areal_npu:v1.0.5-a2
+# （国内源 ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2）；镜像内的
+# vllm 栈由 setup_example.sh §1b 换装 0.22.1 线以匹配 v2.x 代码布局。
+# 通用配方：
+# - 双卡 colocate：rollout vllm:d1p1t2 + actor fsdp:d2p1t1；offload 解
+#   optimizer-state OOM，disk 权重同步解共卡 xccl 建不起 HCCL 组（EI0015）。
+# - weight_update_mode：yaml 没写的用 + 新增，已写 xccl 的用 ++ 覆盖。
+# - scheduler.type=null 的 yaml（math 系）必须补 scheduler.type=local。
+# - norm：reward=group + adv=batch 实测可过；reward/adv 为 batch 级的需加
+#   mean_level=null（HCCL 不支持 float64 allreduce）。
+# - setup_timeout=600 兜底数据集在线冷下载（HF_ENDPOINT=huggingface.co）。
+# - rollout.setup_timeout 默认仅 300s，vLLM-Ascend 多模态 server 预热（mm
+#   processor warmup + tokenizer 深拷贝）在慢机上会超，RL 条目统一
+#   +rollout.setup_timeout=1800 兜底。
+supported:
+  # CLEVR 计数 GRPO（复用 areal-vlm-grpo profile；重数据：10.4GB 下载 +
+  # 7 万图单进程预处理，故 setup_timeout 3600 / timeout 180）
+  # 已知问题：offload+disk 的存盘聚合走 CPU gloo，会超上游 120s 硬编码等待
+  # （remote_inf_engine.py）；1.5B 条目已去 offload 规避，3B 待内存验证。
+  - path: examples/vlm/clevr_count_70k_grpo.py
+    profile: areal-vlm-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/vlm/clevr_count_70k_grpo.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.fsdp.offload_params=true
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.35
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=3600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+      - vllm.max_model_len=8576
+    timeout_minutes: 300
+  # tau2-bench 客服多轮 RL（保留真实 UserSimulator，solo_mode=false）：用户侧由
+  # run_example 在另一张卡拉本地 vLLM（同一份 Qwen3-1.7B 权重、多 served-model-name
+  # 别名吸收 econfig.user_llm 的 litellm 命名），econfig.user_llm_base_url 指过去；
+  # agent 侧照常走 AReaL proxy。max_steps/new_tokens/n_samples/batch_size 压到
+  # 冒烟量级（单集远低于入口硬编码的 600s episode 超时）。
+  - path: examples/tau2/train.py
+    profile: areal-tau2-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/tau2/config_1.7b_airline.yaml
+      - cluster.n_gpus_per_node=1
+      - rollout.backend=vllm:d1p1t1
+      - actor.backend=fsdp:d1p1t1
+      - +actor.fsdp.offload_params=true
+      - +actor.weight_update_mode=disk
+      - actor.enable_tree_training=false
+      # mb 容量必须 ≥ 单条最长轨迹（tau2 airline 轨迹 ~4978 token，1024 时
+      # ffd_allocate 直接 RuntimeError）；24576+pad_to_maximum=true 实测 OOM
+      # （4978 垫到 24576 的 5 倍 padding）——8192 + 不垫的组合。
+      - actor.pad_to_maximum=false
+      - actor.mb_spec.max_tokens_per_mb=8192
+      - ref.mb_spec.max_tokens_per_mb=8192
+      - actor.path=${AREAL_MODEL_PATH}
+      - econfig.max_steps=2
+      - econfig.user_llm_base_url=http://127.0.0.1:18888/v1/
+      - econfig.user_llm_args.max_completion_tokens=64
+      - gconfig.n_samples=1
+      - gconfig.max_new_tokens=64
+      - gconfig.max_tokens=8192
+      - train_dataset.batch_size=1
+      - valid_dataset.batch_size=1
+      - stats_logger.wandb.mode=disabled
+      - vllm.gpu_memory_utilization=0.3
+      - vllm.max_model_len=8192
+      - +rollout.setup_timeout=1800
+      - total_train_steps=1
+      - total_train_epochs=1
+    timeout_minutes: 150
+  # Qwen2.5-VL-3B Geometry3K GRPO（双卡）
+  - path: examples/vlm/geometry3k_grpo.py
+    profile: areal-vlm-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/vlm_npu/qwen2_5_vl_3b_geometry3k_grpo.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      # mm 预热会超默认 300s 健康等待（mm server 预热见头部通用配方）
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.fsdp.offload_params=true
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+      - vllm.max_model_len=8576
+    timeout_minutes: 150
+  # GSM8K GRPO（用上游 NPU 专用 yaml）
+  - path: examples/math/gsm8k_rl.py
+    profile: areal-math-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/math/gsm8k_grpo_npu.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - actor.backend=fsdp:d2p1t1
+      - ++actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # GSM8K SFT（纯 FSDP，无 rollout）
+  - path: examples/math/gsm8k_sft.py
+    profile: areal-math-sft
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/math/gsm8k_sft.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - actor.backend=fsdp:d2p1t1
+      - actor.path=${AREAL_MODEL_PATH}
+      - train_dataset.batch_size=4
+      - valid_dataset.batch_size=4
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # BoBa GRPO（本地 jsonl，setup 预下载到 AREAL_BOBA_DATA）
+  - path: examples/math/boba_grpo.py
+    profile: areal-math-boba
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/math/boba_grpo.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - actor.backend=fsdp:d2p1t1
+      - ++actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - actor.ppo_n_minibatches=1
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - rollout.enable_rollout_tracing=false
+      - perf_tracer.enabled=false
+      - train_dataset.path=${AREAL_BOBA_DATA}
+      - train_dataset.batch_size=2
+      - +total_train_steps=1
+      - ++actor.scheduling_spec.0.env_vars.TASK_QUEUE_ENABLE=1
+    timeout_minutes: 150
+  # Countdown GRPO（数据由 setup 现场生成）
+  - path: examples/countdown/train.py
+    profile: areal-countdown-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/countdown/train_config.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # GSM8K 多轮自我纠错 GRPO（复用 areal-math-grpo profile）
+  - path: examples/multi_turn_math/gsm8k_rl_mt.py
+    profile: areal-math-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/multi_turn_math/gsm8k_grpo_mt.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - actor.backend=fsdp:d2p1t1
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # TIR 工具集成推理 GRPO（带内工具调用 + 本地 python/calculator；torl 数据
+  # 仅 GitHub 来源、job 容器不可达，parquet 以 fixture 入库）
+  - path: examples/tir/train_tir.py
+    profile: areal-tir-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/tir/tir_math_config.yaml
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=128
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+      - vllm.max_model_len=4096
+    timeout_minutes: 150
+  # Scaffolding RLVR（旧版 SPMD yaml：+scheduler/+backend，~ 删 legacy 键，
+  # python -m 启动）；worker 写死 model="default" 而 vLLM 按模型路径名服务会
+  # 404，故 setup 建 TARGET_ROOT/default 软链 + vllm.model=default。
+  - path: examples/scaffolding/gsm8k_rlvr_scaffolding.py
+    profile: areal-scaffold-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/scaffolding/gsm8k_rlvr_scaffolding.yaml
+      - +scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - +rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - +actor.backend=fsdp:d2p1t1
+      - +ref.backend=fsdp:d2p1t1
+      - +actor.fsdp.offload_params=true
+      - ~actor.behav_imp_weight_cap
+      - actor.path=${AREAL_MODEL_PATH}
+      - vllm.model=default
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # OpenAI Agents SDK 多 agent handoff GRPO（LLM 走本地 vLLM）
+  - path: examples/openai_agents/train_agents.py
+    profile: areal-agents-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/openai_agents/config.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - +gconfig.max_new_tokens=64
+      - gconfig.max_tokens=256
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  
+  # camel-ai ChatAgent 多轮 GRPO（GSM8K）。入口脚本内定义了 Config，必须由
+  # run_example.sh 以「import 成模块再调 main()」启动；camel-ai 由 setup 另装。
+  - path: examples/camel/train.py
+    profile: areal-camel-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/camel/config.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - actor.backend=fsdp:d2p1t1
+      - +actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - vllm.gpu_memory_utilization=0.3
+      - gconfig.max_new_tokens=64
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # Agent Workflow（OpenAI SDK agent，GSM8K）。agent 用 AReaL 注入的本地 proxy
+  # endpoint（非外部 LLM、无需 key）；复用 areal-agents-grpo。
+  - path: examples/agent_workflow/train.py
+    profile: areal-agents-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/agent_workflow/config.yaml
+      - scheduler.type=local
+      - cluster.n_gpus_per_node=2
+      - rollout.backend=vllm:d1p1t2
+      - +rollout.setup_timeout=1800
+      - actor.backend=fsdp:d2p1t1
+      - ++actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - actor.mb_spec.max_tokens_per_mb=1024
+      - ref.mb_spec.max_tokens_per_mb=1024
+      - vllm.gpu_memory_utilization=0.3
+      - ++gconfig.max_new_tokens=64
+      - gconfig.max_tokens=256
+      - gconfig.n_samples=1
+      - train_dataset.batch_size=2
+      - valid_dataset.batch_size=2
+      - +train_dataset.setup_timeout=600
+      - +valid_dataset.setup_timeout=600
+      - +total_train_steps=1
+    timeout_minutes: 150
+  # Hermes 在线 RL（唯一覆盖 online 模式 + Agent Service + per-session key）；
+  # _version 回退 v1（默认 v2 强制 SGLang-only 的 awex，vLLM 404）。
+  - path: examples/hermes/train.py
+    profile: areal-hermes-grpo
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/hermes/config.yaml
+      - rollout.backend=vllm:d1p1t1
+      - rollout._version=v1
+      - actor.backend=fsdp:d1p1t1
+      - actor._version=v1
+      - ++actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - rollout.admin_api_key=sk-areal-ci
+      - +rollout.agent.admin_api_key=sk-areal-ci
+      - vllm.gpu_memory_utilization=0.25
+      - vllm.max_model_len=16384
+      - gconfig.max_new_tokens=256
+      - +rollout.setup_timeout=1800
+      - total_train_steps=1
+      - total_train_epochs=1
+    timeout_minutes: 150
+  # OpenClaw 在线 RL：任意 OpenAI 兼容 agent runtime（chat-completions 协议，
+  # 无 runtime 依赖）；驱动由 run_example.sh 直接 HTTP。
+  - path: examples/openclaw/train.py
+    profile: areal-openclaw-grpo
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/openclaw/config.yaml
+      - rollout.backend=vllm:d1p1t1
+      - actor.backend=fsdp:d1p1t1
+      - ++actor.weight_update_mode=disk
+      - actor.path=${AREAL_MODEL_PATH}
+      - train_dataset.batch_size=1
+      - actor.reward_norm=null
+      - actor.adv_norm=null
+      - vllm.gpu_memory_utilization=0.2
+      - vllm.max_model_len=16384
+      - gconfig.max_new_tokens=256
+      - +rollout.setup_timeout=1800
+      - total_train_steps=1
+      - total_train_epochs=1
+    timeout_minutes: 150
+  # 在线推理服务（rollout-only）：online_rollout.py 起 gateway 后等外部流量；
+  # run_example.sh 用直接 HTTP 造流量（start_session→chat/completions→set_reward
+  # →refresh），收满 batch_size 轨迹即打印 Rollout complete 退出。
+  - path: examples/experimental/inference_service/online_rollout.py
+    profile: areal-online-rollout
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/experimental/inference_service/online_rollout.yaml
+      - rollout.backend=vllm:d1p1t1
+      - actor.backend=fsdp:d1p1t1
+      - actor.path=${AREAL_MODEL_PATH}
+      - train_dataset.batch_size=1
+      - vllm.gpu_memory_utilization=0.25
+      - vllm.max_model_len=16384
+      - gconfig.max_new_tokens=256
+      - ++rollout.setup_timeout=1800
+    timeout_minutes: 150
+  # tau2 rollout-only：与 tau2/train.py 同一个 Tau2AgentWorkflow（真用户模拟器，
+  # airline 域），但直接驱动 v2 推理服务（RolloutControllerV2 批量 rollout，无
+  # PPO 栈），且自带终点（跑完 dataloater 打印 Rollout complete 退出 0）。
+  # run_example 分支在 2 号卡起本地 user-sim vLLM（同训练条目）；rollout 独占
+  # 0 卡（无 actor，vllm 可用高 util）。复用 areal-tau2-grpo（fork+数据同装）。
+  - path: examples/experimental/inference_service/tau2_rollout.py
+    profile: areal-tau2-grpo
+    runner: linux-aarch64-a2-2
+    npu_devices: '0'
+    image: ghcr.nju.edu.cn/hwvanici/areal_npu:v1.0.5-a2
+    overlay_args:
+      - --config examples/experimental/inference_service/tau2_rollout.yaml
+      - cluster.n_gpus_per_node=1
+      - model_path=${AREAL_MODEL_PATH}
+      - rollout.backend=vllm:d1p1t1
+      - +vllm.gpu_memory_utilization=0.85
+      - +vllm.max_model_len=16384
+      - econfig.domain=airline
+      - econfig.max_steps=2
+      - econfig.user_llm_base_url=http://127.0.0.1:18888/v1/
+      - econfig.user_llm_args.max_completion_tokens=64
+      - gconfig.n_samples=1
+      - gconfig.max_new_tokens=64
+      - gconfig.max_tokens=8192
+      - train_dataset.batch_size=16
+      - ++rollout.setup_timeout=1800
+    timeout_minutes: 150
+unsupported:
+  # ===== 上游源码 bug（改上游源码才能通，无 overlay 可绕）=======================
+  # 以下 5 条都是上游脚本 / 引擎自身的 bug，实测必崩：
+  # 1) clevr SFT：loader 读错 processor 键名——clevr_count_70k.py:110 用旧键
+  #    token_type_ids 取 mm_token_type_ids（transformers 5.x 下恒 None），SFT
+  #    collate 阶段 torch.tensor(None) 崩。（geometry3k_grpo 读同一错键无碍：GRPO
+  #    不 collate 数据集样本。）
+  # 2) hhrlhf RW：引擎在打包前就读 x["cu_seqlens"]（rw_engine.py:52→21），而 collate
+  #    只产 input_ids/attention_mask（rw_trainer.py:61-73）→ KeyError。
+  # 3) hhrlhf DPO：loss 聚合硬编码 fp64（functional.py:829-835），Ascend 不支持。
+  # 4) virl39k GRPO：reward_fn 以函数对象传入，过 RPC 时 JSON 序列化失败（正常条目
+  #    传"点路径"字符串）；同 bug 的 vlm_npu/geometry3k_grpo.py 见下方工具段。
+  # 5) agent_service：入口硬编码 LocalScheduler(experiment_name=..., trial_name=...,
+  #    gpu_devices=[])，不传 fileroot 也不传 log_dir，local.py:158 断言必炸；CLI 仅
+  #    --admin-api-key、LocalScheduler 无环境变量兜底，无 overlay 出口（README 的
+  #    Quick Start 与 Programmatic 片段同一写法，同样必炸）。sidecar 方案本身已实测
+  #    可行（本地 online_rollout 网关正常就绪），配方沉淀在 run_example.sh 的
+  #    agent-service 分支与 setup §1g，上游修复后可直接复用。
+  - examples/vlm/clevr_count_70k_sft.py
+  - examples/alignment/hhrlhf_rw.py
+  - examples/alignment/hhrlhf_dpo.py
+  - examples/vlm_npu/virl39k_grpo.py
+  - examples/agent_service/run_agent_service.py
+
+  # ===== 上游 demo 设计缺陷（时序竞态，双向不稳定；2026-10-16 实测定位）=========
+  # hitl demo（zeroclaw 第三方 CLI 兼容性验证，价值仍在）：admin key 被
+  # data_proxy/app.py:181 _resolve_session_from_token 解析到持久 HITL session
+  # （__hitl__），demo 与 zeroclaw 全部流量共用一个 session；而
+  # set_reward_finish_timeout 默认 0（cli_args.py:2454）→ 每次 set_reward 立即
+  # finalize 当前 trajectory 并清空 active_completions（session.py:206-237），
+  # online workflow 异步消费 ready trajectory。demo 假设"问完即 set_reward 必
+  # 有效"，当 finalize+消费落在 chat 与 set_reward 之间时 session.set_reward
+  # 抛 ValueError("No interactions in session")（session.py:270）→ HTTP 400 →
+  # demo 崩溃。崩溃只在答对（reward=1.0）路径触发；全答错时 hollow 通过（通过
+  # 判据不要求答对）。假绿（2026-10-16 17:18 run，4 轮全错）与假红（同日 19:07
+  # run，T3 答对 "3" 即 400）双向复现；v2.1.0 与 main 同码，上游尚未修复。修法
+  # 建议：每轮独立 session（参照 online_rollout 流程 start_session/set_reward/
+  # end_session）或 set_reward 幂等重试。上游修复后可直接迁回：run_example.sh
+  # 的 hitl 分支与 setup 的 areal-hitl-demo profile 均保留未动。
+  - examples/experimental/inference_service/human_in_the_loop_demo.py
+
+  # ===== 需外部服务 / 密钥 / 集群（CI 单机零外部依赖，跑不通）=================
+  # 链路本身健康，但依赖 CI 提供不了的外部资源：
+  # terminal_bench：任务需要另起 docker 容器跑——agent 的每条 shell 命令和最终
+  # 测试都在容器里执行（Terminal/DockerComposeManager 起容器 :197-206，评估把
+  # 测试拷进容器跑 run-tests.sh :278-293）。容器开关写死、无 config 出口：
+  #   camel_terminal_agent.py:223    use_docker_backend=True
+  # CI 无权限起容器（实测：CapEff=00000000a80425fb 无 CAP_SYS_ADMIN、tmpfs
+  # mount 被拒，dockerd 起不来）→ 无法验证。模型侧有现成 config_tb_vllm_npu.yaml，
+  # terminal_bench/camel-ai 可 pip 装——卡点纯在容器权限。
+  - examples/terminal_bench/train.py
+  # 真实网络搜索，需 SERPER_KEY_ID + JINA_API_KEYS
+  - examples/scaffolding/search_scaffolding.py
+  # judge 引擎硬编码 SGLang（NPU 不支持）+ 搜索需 SERPER/JINA key
+  - examples/search_agent/tongyi_deepresearch/train.py
+  # 沙箱必须 AEnvironment 集群（k8s+Helm），CI 无集群；自建路线实测锁死（容器无 
+  # CAP_SYS_ADMIN、mount 被拒，起不了 DinD/k8s）。回归：单容器自托管或注入 AENV_SYSTEM_URL
+  - examples/swe/train_swe_rl.py
+
+  # ===== 工具套件（非独立入口；被上面的入口 import 的实现 / 测试 / 包标识 / helper / CLI）=====
+  # scan 到但都不是可独立运行的示例，只被入口间接调用：
+  # -- 上游自测（scaffolding/tests、tir/tests）与 pytest 基础设施
+  - examples/scaffolding/tests/test_controllers.py
+  - examples/scaffolding/tests/test_scaffolding_llm_integration.py
+  - examples/scaffolding/tests/test_self_contained.py
+  - examples/scaffolding/tests/test_worker.py
+  - examples/tir/tests/conftest.py
+  - examples/tir/tests/test_aexecute_default.py
+  - examples/tir/tests/test_daytona_python_tool.py
+  - examples/tir/tests/test_optional_dep.py
+  - examples/tir/tests/test_tir.py
+  - examples/tir/tests/test_tir_workflow_async.py
+  - examples/tir/tests/test_tool_manager_async.py
+  - examples/tir/tests/test_tool_registry_lazy.py
+  # -- 包标识文件（__init__.py）
+  - examples/hermes/__init__.py
+  - examples/scaffolding/__init__.py
+  - examples/scaffolding/core/__init__.py
+  - examples/scaffolding/tests/__init__.py
+  - examples/terminal_bench/__init__.py
+  - examples/terminal_bench/agent/__init__.py
+  - examples/terminal_bench/workflow/__init__.py
+  - examples/tir/tools/__init__.py
+  # -- scaffolding 框架实现（run_example.sh 以 python -m 跑 scaffolding/*.py 时 import）
+  - examples/scaffolding/_compat.py
+  - examples/scaffolding/controllers.py
+  - examples/scaffolding/core/controller.py
+  - examples/scaffolding/core/math_utils.py
+  - examples/scaffolding/core/result.py
+  - examples/scaffolding/core/scaffolding_llm.py
+  - examples/scaffolding/core/task.py
+  - examples/scaffolding/core/task_collection.py
+  - examples/scaffolding/core/worker.py
+  - examples/scaffolding/fake_tools.py
+  - examples/scaffolding/real_tools.py
+  - examples/scaffolding/search_agent_controller.py
+  - examples/scaffolding/search_reward.py
+  - examples/scaffolding/task.py
+  - examples/scaffolding/worker.py
+  - examples/scaffolding/workflow.py
+  # -- tir 工具链实现（train_tir.py 调用）
+  - examples/tir/prompts.py
+  - examples/tir/tir_workflow.py
+  - examples/tir/tool_manager.py
+  - examples/tir/tools/base.py
+  - examples/tir/tools/calculator_tool.py
+  - examples/tir/tools/daytona_python_tool.py
+  - examples/tir/tools/python_tool.py
+  # -- terminal_bench 实现（train.py 调用）
+  - examples/terminal_bench/agent/camel_terminal_agent.py
+  - examples/terminal_bench/agent/chat_agent_trace.py
+  - examples/terminal_bench/agent/prompts.py
+  - examples/terminal_bench/agent_rl_config.py
+  - examples/terminal_bench/workflow/camel_rlvr_workflow.py
+  - examples/terminal_bench/workflow/pre_build_tasks_utils.py
+  # -- search_agent/tongyi_deepresearch 实现（entry 调用）
+  - examples/search_agent/tongyi_deepresearch/config.py
+  - examples/search_agent/tongyi_deepresearch/prompt.py
+  - examples/search_agent/tongyi_deepresearch/react_agent.py
+  - examples/search_agent/tongyi_deepresearch/tool_search.py
+  - examples/search_agent/tongyi_deepresearch/tool_visit.py
+  # -- 各 example 的单文件 config / utils / reward helper
+  - examples/agent_workflow/configs.py
+  - examples/countdown/reward_score.py
+  - examples/multi_turn_math/config.py
+  - examples/openai_agents/config.py
+  - examples/tau2/utils.py
+  # -- profile rank helper（run_qwen3_30b_a3b_sft_profile.sh 内嵌调用）
+  - examples/profile/profile_rank_utils.py
+  # -- SWE env/train config dataclass（train_swe_rl.py import）
+  - examples/swe/utils.py
+  # -- SWE rollout 过滤函数（按组内 reward 方差过滤全对/全错样本）
+  - examples/swe/filter_function.py
+  # -- 其它被入口 import 的实现 / 环境 / demo
+  - examples/agent_service/agent.py
+  - examples/docs/debug/cmp_rollout.py
+  - examples/sandbox_daytona/reward_example.py
+  - examples/tau2/agent.py
+  # -- openclaw 在线链路的驱动与工具（run_example 已改为直接 HTTP，这些脚本不再调用）
+  - examples/openclaw/_fmt.py
+  - examples/openclaw/demo_lifecycle.py
+  - examples/openclaw/set_reward.py
+  - examples/openclaw/start_session.py
+  # -- Hermes 的 AgentRunnable 实现（Agent Service 进程内每 session 加载）
+  - examples/hermes/hermes.py
+  # -- SWE 的 agent workflow 实现（train_swe_rl.py 调用）
+  - examples/swe/agent.py
+  # -- SWE InteractionCache 前缀匹配器
+  - examples/swe/prefix_matchers.py
+  # -- SWE 消息预处理器
+  - examples/swe/preprocessors.py
+  # -- hermes 会话工具（纯 HTTP；run_example 已改为直接 HTTP，hermes_loop 不再调用）
+  - examples/hermes/hermes_loop.py
+  - examples/hermes/set_reward.py
+  - examples/hermes/start_session.py
+  # -- SGLang 工具链补丁（环境修补工具，非入口）
+  - examples/swe/apply_sgl_radix_cache_patch.py
+  # -- profile 性能剖析三件套（CUDA 专属工具链，NPU 无对应产物）
+  - examples/profile/postprocess_profile.py
+  - examples/profile/run_qwen3_30b_a3b_sft_profile.sh
+  - examples/profile/train_sft_profile.py
+  # -- 特殊 CLI（countdown 数据生成 / gsm8k_eval 评估器，非入口）
+  - examples/countdown/countdown.py
+  - examples/math/gsm8k_eval.py
+  # -- vlm_npu 包装层 / 坏副本（geometry3k_grpo.py 同 virl39k 的 RPC bug；.sh 为包装）
+  - examples/vlm_npu/geometry3k_grpo.py
+  - examples/vlm_npu/qwen2_5_vl_3b_geometry3k_grpo.sh
+  - examples/vlm_npu/qwen2_5_vl_3b_virl39k_grpo_multinode.sh
+  - examples/vlm_npu/qwen3_vl_2b_geometry3k_grpo.sh
