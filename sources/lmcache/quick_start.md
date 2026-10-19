@@ -71,13 +71,11 @@ test -n "$ASCEND_HOME_PATH"
 python --version
 ```
 
-<!--
 完整输出较长，其中应包含：
 
 ```shell #test-result id="check-tools"
 Python 3...
 ```
--->
 
 ## 3. 安装编译依赖
 
@@ -98,14 +96,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y cmake ninja-build libnuma-dev
 cmake --version
 ```
 
-<!--
 完整输出较长，其中应包含：
 
 ```shell #test-result id="install-system-prereqs"
 ...
 cmake version 3...
 ```
--->
 
 ## 4. 安装 vLLM-Ascend
 
@@ -125,7 +121,6 @@ for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
     print(n, m.version(n))"
 ```
 
-<!--
 完整输出较长，其中应包含：
 
 ```shell #test-result id="install-vllm"
@@ -135,7 +130,6 @@ torch-npu ...
 vllm ...
 vllm-ascend ...
 ```
--->
 
 ## 5. 安装 lmcache
 
@@ -166,8 +160,10 @@ python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache')
 lmcache <ver>
 ```
 
-> `<ver>` 是最新 Release 去掉开头的 `v`。
-
+```{admonition} Note
+:class: note
+`<ver>` 是最新 Release 去掉开头的 `v`。
+```
 
 
 ## 6. 克隆并编译 LMCache-Ascend
@@ -202,7 +198,10 @@ git -C LMCache-Ascend describe --tags --exact-match
 <ref>
 ```
 
-> `<ref>` 是最新 Release 的 tag。
+```{admonition} Note
+:class: note
+`<ref>` 是最新 Release 的 tag。
+```
 
 删除已有的 `LMCache-Ascend/build`，再在当前目录安装 `./LMCache-Ascend`。
 
@@ -222,7 +221,10 @@ c_ops_ok True
 npu_available True
 ```
 
-> `<ver>` 是最新 Release 去掉开头的 `v`。
+```{admonition} Note
+:class: note
+`<ver>` 是最新 Release 去掉开头的 `v`。
+```
 
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
 
@@ -327,6 +329,8 @@ if __name__ == "__main__":
 
 ```text #test-result id="offload"
 ...Platform plugin ascend is activated...Creating transfer context (device_type=npu, mode=lmcache_driven)...
+reply  Alex and I am a 17
+reply  about a person who discovers they have the
 current_device npu:0
 npu_available True
 workload_ok True
