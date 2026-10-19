@@ -783,11 +783,6 @@ PY
       tail -n 120 "$TR_LOG"
     fi
     ;;
-  *.sh)
-    # Shell examples dispatch with bash (generic guard contract: .sh -> bash,
-    # .py -> python).
-    bash "$LAUNCH_PATH" "${EXTRA_ARGS[@]}" || run_rc=$?
-    ;;
   *)
     "$PYTHON" "$LAUNCH_PATH" "${EXTRA_ARGS[@]}" || run_rc=$?
     ;;
