@@ -44,15 +44,8 @@ release 安装。安装脚本会安装系统依赖，建议在具备 root 权限
 | timm | 0.9.12 |
 | numpy | 1.26.4 |
 | Decord | 0.6.0，CPU 源码构建 |
-| VBench | xxx |
 | 评测器 | 官方 UMT `l16_ptk710_ftk710_ftk400_f16_res224.pth` |
 | 样本 | 官方 LaVie `A person is strumming guitar`，原始索引 0～4 |
-
-```{admonition} Note
-:class: note
-xxx 表示最新的版本号。`<ref>` 替换为 VBench 当前最新 release 的标签，可从
-[Releases](https://github.com/Vchitect/VBench/releases) 获取。不要直接输入尖括号。
-```
 
 ### 准备 Python 环境
 
@@ -123,6 +116,12 @@ torchvision: 0.24.0...
 ## 获取上游并应用 Ascend patch
 
 获取 VBench 最新正式 release 的源码并应用配套 Ascend 补丁。
+
+```{admonition} Note
+:class: note
+`<ref>` 替换为 VBench 当前最新 release 的标签，可从
+[Releases](https://github.com/Vchitect/VBench/releases) 获取。
+```
 
 <!--
 ```shell #test-setup store="upstream_ref"

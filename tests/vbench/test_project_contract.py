@@ -30,7 +30,8 @@ class TestVBenchContract(unittest.TestCase):
             set(re.findall(r'#test id="([^"]+)"', text)),
         )
         self.assertEqual(text.count("输出结果如下："), 7)
-        self.assertIn("| VBench | xxx |", text)
+        prerequisites = text.split("## 前置条件", 1)[1].split("## 检查并安装运行环境", 1)[0]
+        self.assertNotIn("| VBench |", prerequisites)
         self.assertIn("git clone https://github.com/cosdt-ci-test/workflows.git", text)
         self.assertIn(HELPER_REF, text)
         self.assertIn("vbench evaluate", text)
@@ -46,6 +47,17 @@ class TestVBenchContract(unittest.TestCase):
         home = (ROOT / "index.rst").read_text(encoding="utf-8")
         self.assertIn('href="sources/vbench/index.html">快速上手', home)
         self.assertIn("sources/vbench/index.rst", home)
+
+    def test_release_ref_note_is_next_to_the_checkout_command(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        prerequisites = text.split("## 前置条件", 1)[1].split("## 检查并安装运行环境", 1)[0]
+        checkout = text.split("## 获取上游并应用 Ascend patch", 1)[1].split("## 安装 VBench", 1)[0]
+        self.assertNotIn("xxx 表示最新的版本号", text)
+        self.assertNotIn("不要直接输入尖括号", text)
+        self.assertNotIn("`<ref>`", prerequisites)
+        note = "`<ref>` 替换为 VBench 当前最新 release 的标签"
+        self.assertIn(note, checkout)
+        self.assertLess(checkout.index("```{admonition} Note"), checkout.index('```shell #test id="checkout-and-patch"'))
 
     def test_guard_uses_the_npu_runtime_and_pinned_helpers(self) -> None:
         self.assertTrue(WORKFLOW.is_file())
