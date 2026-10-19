@@ -200,12 +200,7 @@ cli_serve_ok
 
 ## RLVR 训练（GSPO on GSM8K）
 
-对齐上游 README「Tiny training smoke test」：Qwen3-0.6B 在 GSM8K 上跑 GSPO，一条命令串起数据集加载、奖励校验（`examples/math/*.py`）、rollout 与训练步。为控制 CI 资源，命令里收敛了几处：
-
-- `--max-steps 1`、`--max-new-tokens 256`：训练 1 步、生成 256 token（想跑完整训练，去掉这几个即可）；
-- `--save-path` + `--save-interval 1`：落盘 checkpoint 供下一节推理复用；
-- `--model-hub hf`：模型与数据集走 HuggingFace Hub，首次运行自动下载；
-- `--attn-backend native`：绕开 flash-attn-npu 的 flash 解码路径在 NPU graph capture 下触发的 `aclrtMemcpy` 107030。
+对齐上游 README「Tiny training smoke test」：下面把训练压到最小（1 步、生成 256 token），目标是验证 GSPO-on-GSM8K 链路（数据集加载、奖励校验、rollout、训练步）在 NPU 上跑通。想跑完整训练，去掉 `--max-steps` / `--max-new-tokens` 即可。
 
 ```shell #test-setup id="train-smoke-run"
 cd AReno
@@ -284,11 +279,6 @@ for i in $(seq 1 90); do
   curl -fsS http://127.0.0.1:8000/health >/dev/null 2>&1 && break
 done
 curl -fsS http://127.0.0.1:8000/health
-```
-
-```{admonition} Note
-:class: note
-`--max-running-prompts 2` 控制 KV cache 池规模：默认 16 并发 × 32k 上下文预留约 60 GB，会把单卡 HBM 占满导致请求期 OOM，冒烟 2 个槽足够。
 ```
 
 ### 验证模型列表
