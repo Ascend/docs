@@ -37,6 +37,25 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 npu-smi info
 ```
 
+输出结果类似如下：
+
+```text
++------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B3               | OK            | 92.8        34                0    / 0             |
+| 0                         | 0000:C1:00.0  | 0           0    / 0          3492 / 65536         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+```
+
 ---
 
 ## 3. 安装 PyTorch NPU 栈
@@ -49,12 +68,14 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
-```shell #test-result id="install-torch"
+完整输出较长，其中应包含，`xxx` 表示实际安装的版本号。torch 为 CPU 构建版本，`+cpu` 表示 NPU 支持由 torch_npu 提供：
+
+```shell #test-result id="install-torch" fuzzy="..." fuzzy="xxx"
 ...
+torch xxx+cpu
+torch_npu xxx
 npu_available True
 ```
--->
 
 ---
 
@@ -73,11 +94,16 @@ python -m pip install --no-build-isolation "axolotl==<ver>"
 python -c "import axolotl; print('axolotl', axolotl.__version__)"
 ```
 
-<!--
+完整输出较长，其中应包含：
+
 ```shell #test-result id="install-axolotl" load="axolotl_ver>>ver"
 ...axolotl <ver>
 ```
--->
+
+```{admonition} Note
+:class: note
+将 `<ver>` 换成最新的 release 版本号。
+```
 
 ---
 
@@ -248,6 +274,6 @@ axolotl train /root/axolotl-qs/lora-npu.yml --launcher python 2>&1
 ...{'loss': '12.49'...
 ...{'loss': ...
 ...{'loss': ...
-...{'train_loss': ...
+...'train_loss': ...
 ...Training completed!...
 ```
