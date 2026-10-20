@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run one example from a CI working copy of the target tree.
+# Run one example from a CI working copy of the examples tree.
 # Overlay CLI args come from OVERLAY_ARGS (JSON array). Do not
 # patch the working copy. Never git add/commit/push.
 set -euo pipefail
@@ -11,11 +11,15 @@ fi
 
 EXAMPLE_REL="$1"
 TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
+# Examples tree root: split mode sets EXAMPLES_ROOT (the
+# onnxruntime-inference-examples checkout); non-split it falls back
+# to TARGET_ROOT (the monitored microsoft/onnxruntime checkout).
+EXAMPLES_ROOT="${EXAMPLES_ROOT:-$TARGET_ROOT}"
 CI_OUTPUT_DIR="${CI_OUTPUT_DIR:?CI_OUTPUT_DIR is required}"
 PROFILE="${PROFILE:?PROFILE is required}"
 HERE=$(cd "$(dirname "$0")" && pwd)
 
-EXAMPLE_PATH="$TARGET_ROOT/$EXAMPLE_REL"
+EXAMPLE_PATH="$EXAMPLES_ROOT/$EXAMPLE_REL"
 
 if [[ ! -f "$EXAMPLE_PATH" ]]; then
   echo "example not found: $EXAMPLE_PATH" >&2

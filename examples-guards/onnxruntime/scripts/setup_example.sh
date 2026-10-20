@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Prepare the CI environment for one supported onnxruntime example.
 # $1 is the manifest profile. Unknown profiles fail before any install.
-# Do not patch files under TARGET_ROOT.
+# Do not patch files under TARGET_ROOT or EXAMPLES_ROOT.
 #
 # Both profiles are host CPU. The CANN image may already contain
 # torch_npu and an onnxruntime build; those are removed so

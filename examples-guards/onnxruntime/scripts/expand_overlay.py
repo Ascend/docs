@@ -3,7 +3,7 @@
 
 Empty, null, and missing values print nothing. Each JSON string is
 expanded with os.path.expandvars and then split with POSIX shell rules,
-matching the manifest values that contain ${TARGET_ROOT}.
+matching the manifest values that contain ${EXAMPLES_ROOT}.
 """
 import json
 import os

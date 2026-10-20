@@ -1,6 +1,9 @@
 version: 1
-# Checkout is microsoft/onnxruntime-inference-examples. That repo has
-# no GitHub releases; the engine falls back to the default branch.
+# Split mode: the engine monitors microsoft/onnxruntime (latest
+# release preferred, main as fallback) but scans and runs examples
+# from microsoft/onnxruntime-inference-examples. That repo has no
+# GitHub releases of its own and is checked out without a ref, so it
+# always follows its default branch.
 # scan.root is the repo root because supported units live under both
 # python/ and quantization/.
 #
@@ -26,11 +29,11 @@ supported:
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - --input_model
-      - ${TARGET_ROOT}/quantization/image_classification/cpu/mobilenetv2-7.onnx
+      - ${EXAMPLES_ROOT}/quantization/image_classification/cpu/mobilenetv2-7.onnx
       - --output_model
       - ${CI_OUTPUT_DIR}/mobilenetv2-7.quant.onnx
       - --calibrate_dataset
-      - ${TARGET_ROOT}/quantization/image_classification/cpu/test_images
+      - ${EXAMPLES_ROOT}/quantization/image_classification/cpu/test_images
     timeout_minutes: 30
 unsupported:
   # create_hybrid_model.py builds an AzureTritonInvoker node and writes yolo_azure_proxy.onnx. The file says AzureExecutionProvider ops need onnxruntime-extensions.
