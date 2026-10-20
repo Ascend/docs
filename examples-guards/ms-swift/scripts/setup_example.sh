@@ -12,7 +12,6 @@
 #
 # Profiles are environment families:
 #   swift      ms-swift alone (transformers, FSDP, vllm rollouts)
-#   deepspeed  ms-swift plus DeepSpeed
 #   megatron   ms-swift plus Megatron-LM, MindSpeed and mcore-bridge
 set -euo pipefail
 
@@ -37,7 +36,6 @@ MEGATRON_LM_REF=core_v0.16.0
 MINDSPEED_URL=https://github.com/Ascend/MindSpeed.git
 MINDSPEED_COMMIT=8787b1645be11e02a8d3f285a35fdd96e6c88b87
 MCORE_BRIDGE_VERSION=1.6.5
-DEEPSPEED_VERSION=0.19.7
 
 CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
 export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
@@ -140,14 +138,6 @@ prepare_stack() {
 
 setup_swift() {
   prepare_stack
-  resolve_model
-}
-
-setup_deepspeed() {
-  prepare_stack
-  # DS_BUILD_OPS=0 installs the pure-Python package: the example only needs
-  # DeepSpeed's runtime, and no device compiler is present to build ops.
-  DS_BUILD_OPS=0 python -m pip install "deepspeed==${DEEPSPEED_VERSION}"
   resolve_model
 }
 

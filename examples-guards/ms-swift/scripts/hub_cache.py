@@ -64,7 +64,7 @@ HUB_ROOT = Path(os.environ.get(
     'HF_HOME', os.path.expanduser('~/.cache/huggingface'))) / 'hub'
 # Siblings of HUB_ROOT on the same volume, so a rename from staging into
 # the snapshot is atomic, kept out of the hub's own cache layout.
-STAGING_DIR = 'guard-staging'
+STAGING_DIR = 'guard-staging-ms-swift'
 LOCKS_DIR = 'guard-locks'
 # The files ms-swift itself skips when it downloads a model
 # (swift.utils.hub_utils.safe_snapshot_download). Fetching the same set
@@ -465,6 +465,7 @@ def plant_dataset(dataset_id: str, subset: str) -> None:
         prefix=f'{repo_dir(dataset_id, dataset=True).name}-',
         dir=staging_root))
     leaf = dataset_id.rsplit('/', 1)[-1]
+    prepared_src: Path | None = None
     try:
         landed = Path(ms_dataset_snapshot_download(
             dataset_id, local_dir=str(staging / 'ms')))
@@ -496,10 +497,10 @@ def plant_dataset(dataset_id: str, subset: str) -> None:
                 shutil.copy2(item, target / item.name)
     finally:
         shutil.rmtree(staging, ignore_errors=True)
-        # The local-folder load left its own prepared cache behind,
-        # keyed by folder name; the transplant above supersedes it.
-        shutil.rmtree(HUB_ROOT.parent / 'datasets' / leaf,
-                      ignore_errors=True)
+        # The local-folder load left this prepared cache behind;
+        # the transplant above supersedes it.
+        if prepared_src is not None:
+            shutil.rmtree(prepared_src, ignore_errors=True)
     verify_dataset_offline(dataset_id, subset)
     print(f'[planted] {dataset_id} -> {snap}', flush=True)
 
