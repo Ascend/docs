@@ -28,7 +28,7 @@ on:
   workflow_dispatch:
     inputs:
       target_ref:
-        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main when the repo has no release)
+        description: Branch, tag, or SHA of microsoft/onnxruntime (empty = latest upstream release; falls back to main). Examples always follow the onnxruntime-inference-examples default branch.
         required: false
         default: ''
         type: string
@@ -61,10 +61,14 @@ jobs:
       # artifact names and the scheduling paths under
       # examples-guards/onnxruntime.
       project: onnxruntime
-      # Inference samples live here, not in microsoft/onnxruntime.
-      # The repo publishes no GitHub releases; the engine then tests
-      # the default branch HEAD.
-      upstream_repo: microsoft/onnxruntime-inference-examples
+      # Split mode: the monitored upstream is microsoft/onnxruntime
+      # (publishes releases; the engine prefers the latest release and
+      # falls back to main). The example scripts live in
+      # microsoft/onnxruntime-inference-examples (no releases of its
+      # own; the engine checks it out without a ref, so it always
+      # follows that repo's default branch).
+      upstream_repo: microsoft/onnxruntime
+      examples_repo: microsoft/onnxruntime-inference-examples
       target_ref: ${{ inputs.target_ref }}
       # Two single-card CPU entries. They do not download into the
       # shared hub cache, so they can run together.
