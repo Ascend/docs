@@ -109,8 +109,6 @@ npu available: True
 npu count: 1
 ```
 
-torch 为 CPU 构建，NPU 能力由 torch-npu 提供；本文使用的 2.2.0 在 aarch64 上的轮子版本号不带 `+cpu` 后缀。
-
 ```{admonition} Note
 :class: note
 如果 `import torch_npu` 失败，回到 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)
