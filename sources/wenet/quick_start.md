@@ -13,9 +13,9 @@
 
 ```{admonition} Note
 :class: note
-本文与看护流水线跟踪上游 **`main` 分支**：WeNet 最新的正式 release（`v3.1.0`，2024-05 发布）**不含** NPU
-训练/推理脚本 `examples/aishell/s0/run_npu.sh`，只有 `main` 分支提供该脚本。因此看护流水线用
-`fixed_ref: main` 跟踪 `main` 的 HEAD 提交，本文中的 `<ref>` 取 `main`。
+WeNet 最新的正式 release（`v3.1.0`，2024-05 发布）**不含** NPU 训练/推理脚本
+`examples/aishell/s0/run_npu.sh`，只有 `main` 分支提供该脚本。因此本文以 `main` 分支为准，文中的
+`<ref>` 取 `main`。
 ```
 
 ## 前置条件
@@ -54,10 +54,9 @@ CANN 最低版本为 8.0.rc1，安装 CANN 时请同时安装 Kernel 算子包�
 | torch / torch-npu / torchaudio | 2.2.0 |
 | deepspeed | 0.14.4 |
 | WeNet 源码 | `main`（仓库 `wenet-e2e/wenet`） |
-| 数据集 | aishell-1（Hugging Face `JazerJu/aishell1-full-slr33`，OpenSLR 33 原档，约 15.6 GB） |
+| 数据集 | aishell-1（Hugging Face `JazerJu/aishell1-full-slr33`，OpenSLR 33 原档） |
 
-本文配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10`
-（CANN 8.0.0 + Python 3.10，满足最低要求）。
+本文配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10`。
 
 `deepspeed` 最低要求 0.13.2，但 0.16+ 在 torch 2.2.0 下会触发 `torch.library.custom_op`
 `AttributeError`，本文显式钉在 **0.14.4**。
@@ -118,7 +117,7 @@ npu count: 1
 
 ## 3. 获取 WeNet 源码
 
-将 `<ref>` 替换为 `main`（`main` 分支才有 NPU 脚本 `examples/aishell/s0/run_npu.sh`）：
+将 `<ref>` 替换为 `main`：
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -152,7 +151,7 @@ pip install "deepspeed==0.14.4"
 # 解析失败会导致整张清单未安装，且失败被命令块尾部的 rc 静默吞掉，
 # 故训练核心依赖在安装步骤显式补齐
 pip install tensorboardX
-# 依赖校验：train_utils.py 无条件 import deepspeed，缺失要到 stage 4 训练才暴露，
+# 依赖校验：train_utils.py 无条件 import deepspeed，缺失要到训练阶段才暴露，
 # 且训练块的 rc 会被 run_npu.sh 末尾命令掩盖，故在此显式校验（装不上立即失败）
 python -c "import deepspeed, tensorboardX; print('deepspeed', deepspeed.__version__)"
 ```
@@ -164,41 +163,38 @@ pip install sox
 apt-get update && apt-get install -y sox libsox-dev || true
 ```
 
-## 5. 下载数据（stage -1）
+## 5. 下载数据
 
-stage -1 用官方脚本下载：`run_npu.sh` 调用 `local/download_and_untar.sh`，它按脚本内硬编码的字节数
-（`data_aishell.tgz` 15582913665、`resource_aishell.tgz` 1246920）校验已有归档、必要时用 `wget` 拉取，
-解压归档后再逐个解开 `data_aishell/wav/` 里按说话人二次打包的 `*.tar.gz`，最后写 `.complete` 标记。因此
-这一节既是下载也是续跑入口：已完成的部分凭标记跳过，中断留下的归档因字节数不符会被删掉重下（`wget`
-不续传）。
+本步骤用官方脚本下载数据：`run_npu.sh` 调用 `local/download_and_untar.sh`，它按脚本内硬编码的字节数
+校验已有归档、必要时用 `wget` 拉取，解压归档后再逐个解开 `data_aishell/wav/` 里按说话人二次打包的
+`*.tar.gz`，最后写 `.complete` 标记。
 
 下载源由官方脚本的 `--data_url` 指定，默认是 OpenSLR 原站 `www.openslr.org/resources/33`。下面把它指向
-[OpenSLR 33](https://www.openslr.org/33) 两个原档的 [Hugging Face 字节保真镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
-（两个归档的字节数与 openslr.org 上的原档逐个一致）以加快下载；也可以换成 OpenSLR 自己的镜像：
+[OpenSLR 33](https://www.openslr.org/33) 两个原档的 [Hugging Face 镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
+以加快下载；也可以换成 OpenSLR 自己的镜像：
 
 | `--data_url` | 数据源 |
 | --- | --- |
 | `www.openslr.org/resources/33` | 官方 OpenSLR 原站（不传 `--data_url` 时的默认值） |
 | `openslr.magicdatatech.com/resources/33` | OpenSLR 国内镜像 |
-| `https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main` | 本文使用（Hugging Face 原档镜像） |
+| `https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main` | 本文使用（Hugging Face 镜像） |
 
-数据目录落在 `/root/.cache/asr-data`（runner 池挂载的共享缓存盘）上，`/root/asr-data` 是指向它的软链接，
-因此后续各 stage 仍用官方教程里的 `/root/asr-data/OpenSLR/33` 路径，且下载与解压产物跨 run 复用。
+数据统一落在 `/root/asr-data/OpenSLR/33`，与官方教程的路径一致，后续步骤直接沿用。
 
 ```shell #test-setup id="download-data"
 mkdir -p /root/.cache/asr-data/OpenSLR/33
-# /root/.cache 是 runner 池挂的共享缓存盘，数据与 .complete 标记落在其上即可跨 run 复用；
-# /root/asr-data 软链过去。首次运行时该路径还不存在；若存在的是容器内的旧目录（不在缓存盘上）
-# 则清掉重建，避免又下载一遍
+# 数据与 .complete 标记放在缓存目录，容器重启后仍可复用；/root/asr-data 软链过去，
+# 后续步骤因此仍用官方教程的 /root/asr-data/OpenSLR/33 路径。首次运行时该路径还不存在；
+# 若已存在但不是软链接（容器内的旧目录），清掉重建，避免重复下载
 if [ ! -L /root/asr-data ]; then
   rm -rf /root/asr-data
   ln -s /root/.cache/asr-data /root/asr-data
 fi
 cd wenet/examples/aishell/s0
-# 官方 stage -1：local/download_and_untar.sh（wget）下载 data_aishell / resource_aishell，
+# 官方下载脚本：local/download_and_untar.sh（wget）拉取 data_aishell / resource_aishell，
 # 按脚本内硬编码字节数校验归档，解压后解开 wav/ 下的内层包，最后写 .complete
-# 冷缓存首次约 30-60min（15.6GB 下载 + 解压）；命中 .complete 时该 stage 直接返回
-# --data_url：OpenSLR 33 的 Hugging Face 原档镜像；去掉该参数即回落到官方 www.openslr.org
+# 首次运行需完整下载并解压，耗时较长；命中 .complete 时该步骤直接返回
+# --data_url：OpenSLR 33 的 Hugging Face 镜像；去掉该参数即回落到官方 www.openslr.org
 bash run_npu.sh --stage -1 --stop_stage -1 \
   --data /root/asr-data/OpenSLR/33 \
   --data_url https://huggingface.co/datasets/JazerJu/aishell1-full-slr33/resolve/main
@@ -232,37 +228,39 @@ lexicon.txt
 speaker.info
 ```
 
-## 6. 准备训练数据（stage 0）
+## 6. 准备训练数据
 
-stage 0 为训练数据准备阶段，`local/aishell_data_prep.sh` 会把数据重新组织为 `wav.scp` 与 `text`：
+本步骤由 `local/aishell_data_prep.sh` 把数据重新组织为 `wav.scp` 与 `text`：
 
 ```shell #test-setup id="prep-data"
 cd wenet/examples/aishell/s0
 bash run_npu.sh --stage 0 --stop_stage 0 --data /root/asr-data/OpenSLR/33
 ```
 
-验证训练 / 验证 / 测试集划分（aishell-1 官方固定划分为 120098 / 14326 / 7176 条）：
+验证训练 / 验证 / 测试集划分，并确认每条转写都有对应的音频：
 
 ```shell #test id="verify-prep"
+set -euo pipefail
 cd wenet/examples/aishell/s0
-wc -l data/train/wav.scp data/train/text data/dev/wav.scp data/test/wav.scp | awk '{print $1, $2}'
+for x in train dev test; do
+  test -s data/$x/wav.scp
+  test -s data/$x/text
+  test "$(wc -l < data/$x/wav.scp)" = "$(wc -l < data/$x/text)"
+done
+echo "train/dev/test splits ok"
 ```
 
 输出结果如下：
 
 ```shell #test-result id="verify-prep"
-120098 data/train/wav.scp
-120098 data/train/text
-14326 data/dev/wav.scp
-7176 data/test/wav.scp
-261698 total
+train/dev/test splits ok
 ```
 
-## 7. 生成 CMVN、词典与 data.list（stage 1-3）
+## 7. 生成 CMVN、词典与 data.list
 
-stage 1 去除转写文本中的词间空格（普通话字符建模标准做法）并计算全局 CMVN 统计，stage 2 从训练转写生成
-字符级词典 `data/dict/lang_char.txt`，stage 3 把 `wav.scp` / `text` 组织为训练可读的 `data.list`
-（raw 格式，每行一条 utterance 的 JSON）。三者均为训练（stage 4）的前置产物，缺少时训练启动即报
+本步骤的脚本依次完成三件事：去除转写文本中的词间空格（普通话字符建模标准做法）并计算全局 CMVN 统计；
+从训练转写生成字符级词典 `data/dict/lang_char.txt`；把 `wav.scp` / `text` 组织为训练可读的 `data.list`
+（raw 格式，每行一条 utterance 的 JSON）。三者都是训练的前置产物，缺少时训练启动即报
 `FileNotFoundError: data/dict/lang_char.txt`：
 
 ```shell #test-setup id="prep-cmvn-dict"
@@ -270,27 +268,28 @@ cd wenet/examples/aishell/s0
 bash run_npu.sh --stage 1 --stop_stage 3 --data /root/asr-data/OpenSLR/33
 ```
 
-验证三个前置产物（`data.list` 行数与对应 `wav.scp` / `text` 一致）：
+验证三个前置产物，并确认 `data.list` 行数与对应的 `wav.scp` 一致：
 
-```shell #test id="verify-stages123"
+```shell #test id="verify-cmvn-dict"
+set -euo pipefail
 cd wenet/examples/aishell/s0
 test -f data/train/global_cmvn && echo "global_cmvn ok"
 test -f data/dict/lang_char.txt && echo "lang_char.txt ok"
-wc -l data/train/data.list data/dev/data.list data/test/data.list | awk '{print $1, $2}'
+for x in train dev test; do
+  test "$(wc -l < data/$x/data.list)" = "$(wc -l < data/$x/wav.scp)"
+done
+echo "data.list matches wav.scp"
 ```
 
 输出结果如下：
 
-```shell #test-result id="verify-stages123"
+```shell #test-result id="verify-cmvn-dict"
 global_cmvn ok
 lang_char.txt ok
-120098 data/train/data.list
-14326 data/dev/data.list
-7176 data/test/data.list
-141600 total
+data.list matches wav.scp
 ```
 
-## 8. 模型训练（stage 4）
+## 8. 模型训练
 
 `run_npu.sh` 中实现了 NPU 卡号的自动获取与相关环境变量设置，可直接启动昇腾 NPU 上的模型训练。为控制时长，
 将 `max_epoch` 从 240 缩短到 1（其余参数全部保持脚本默认值）：
@@ -328,11 +327,10 @@ ls exp/conformer/epoch_*.pt
 exp/conformer/epoch_0.pt
 ```
 
-## 9. 测试推理（stage 5）
+## 9. 测试推理
 
-stage 5 为模型测试推理阶段，把测试集中的语音文件识别为文本。此外，当 `${average_checkpoint}` 为 `true`
-（脚本默认值）时，本阶段会把交叉验证集上最佳的 `${average_num}` 个模型平均，生成增强模型 `avg_1.pt`，供解码
-与导出使用：
+本步骤把测试集中的语音文件识别为文本。此外，当 `${average_checkpoint}` 为 `true`（脚本默认值）时，本步骤
+会把交叉验证集上最佳的 `${average_num}` 个模型平均，生成增强模型 `avg_1.pt`，供解码与导出使用：
 
 ```shell #test-setup id="infer"
 # CANN 环境必须显式加载：否则 LD_LIBRARY_PATH 缺少 libascendcl 等库路径，
@@ -343,12 +341,14 @@ cd wenet/examples/aishell/s0
 bash run_npu.sh --stage 5 --stop_stage 5 --average_num 1 --data /root/asr-data/OpenSLR/33
 ```
 
-验证推理结果（测试集 7176 条全部识别完成，并抽样打印前两条识别文本）：
+验证推理结果：`avg_1.pt` 已生成，识别文本覆盖全部测试集。
 
 ```shell #test id="verify-infer"
+set -euo pipefail
 cd wenet/examples/aishell/s0
 test -f exp/conformer/avg_1.pt && echo "avg_1.pt ok"
-wc -l exp/conformer/ctc_greedy_search/text | awk '{print $1}'
+test "$(wc -l < exp/conformer/ctc_greedy_search/text)" = "$(wc -l < data/test/wav.scp)"
+echo "recognized all test utterances"
 head -2 exp/conformer/ctc_greedy_search/text
 ```
 
@@ -356,15 +356,15 @@ head -2 exp/conformer/ctc_greedy_search/text
 
 ```shell #test-result id="verify-infer" fuzzy='xxx'
 avg_1.pt ok
-7176
+recognized all test utterances
 xxx
 xxx
 ```
 
-## 10. 导出训练好的模型（stage 6）
+## 10. 导出训练好的模型
 
-stage 6 为模型导出阶段，`wenet/bin/export_jit.py` 使用 `Libtorch` 导出以上训练好的模型（基于 stage 5 生成的
-`avg_1.pt`），导出的模型可用于其他编程语言（如 C++）的推理：
+`wenet/bin/export_jit.py` 使用 `Libtorch` 导出训练好的模型（基于上一步生成的 `avg_1.pt`），导出的模型可用于
+其他编程语言（如 C++）的推理：
 
 ```shell #test-setup id="export"
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
@@ -425,24 +425,11 @@ exp/conformer/final_quant.zip
 === 流程完成 ===
 ```
 
-## 故障排查
-
-| 现象 | 可能原因 | 建议 |
-| --- | --- | --- |
-| `npu-smi` 找不到 | 未 `source set_env.sh`，或 `npu-smi` 不在 `PATH` | 重做第 1-2 节 |
-| `import torch_npu` 失败 | torch / torch-npu 版本不匹配 | 检查 [兼容矩阵](https://gitcode.com/Ascend/pytorch) |
-| `npu available: False` | NPU 设备未挂载或驱动问题 | 检查 `/dev/davinci0` 是否存在 |
-| `FileNotFoundError: data/dict/lang_char.txt` | 未执行 stage 1-3 | 重做第 7 节 |
-| 数据下载慢 / 失败 | 数据源（OpenSLR / 镜像）带宽波动 | 重跑 stage -1：已完成的部分凭 `.complete` 跳过，中断的归档按字节数校验不通过会被删掉重下 |
-| `wget is not installed` | 容器内缺 wget | `apt-get install -y wget`（官方 `local/download_and_untar.sh` 用 wget 下载） |
-| `sox` 命令失败 | 未安装 sox | `apt-get install sox libsox-dev` |
-| DataLoader 段错误 | 主进程初始化 CANN 后 fork worker | 保持 `num_workers=0`（第 8 节已改） |
-
 ## 相关链接
 
 - 上游仓库：[wenet-e2e/wenet](https://github.com/wenet-e2e/wenet)
 - 官方教程：[AISHELL-1 示例](https://wenet.org.cn/wenet/tutorial_aishell.html)
 - NPU 实验脚本：[`examples/aishell/s0/run_npu.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/run_npu.sh)
-- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)；stage -1 的下载脚本：[`local/download_and_untar.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/local/download_and_untar.sh)，本文把它的 `--data_url` 指向 [Hugging Face 原档镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
+- 数据集：[aishell-1（OpenSLR 33）](https://www.openslr.org/33)；数据下载脚本：[`local/download_and_untar.sh`](https://github.com/wenet-e2e/wenet/blob/main/examples/aishell/s0/local/download_and_untar.sh)，本文把它的 `--data_url` 指向 [Hugging Face 镜像](https://huggingface.co/datasets/JazerJu/aishell1-full-slr33)
 - 昇腾 PyTorch 安装：[Ascend/pytorch](https://gitcode.com/Ascend/pytorch)
 - 本项目昇腾环境与安装步骤：[安装指南](https://ascend.github.io/docs/sources/wenet/install.html)
