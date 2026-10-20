@@ -31,16 +31,6 @@ supported:
     npu_devices: '0,1,2,3,4,5,6,7'
     image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
     timeout_minutes: 240
-  # LoRA SFT of Qwen3-8B with FSDP2 activation CPU offload on 2 cards: the full
-  # 48,818-row alpaca dataset, 1,526 steps, a checkpoint every 5 steps. The log
-  # lines in the script measure 9.7 to 13 seconds per step with offload on, so
-  # 4 to 5.5 hours.
-  - path: examples/ascend/activation_cpu_offload/train.sh
-    profile: swift
-    runner: linux-aarch64-a2-2
-    npu_devices: '0,1'
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
-    timeout_minutes: 720
   # Batch inference of Qwen3-8B on vLLM-Ascend: data parallel 2 times tensor parallel 2,
   # 2000 prompts of up to 2048 new tokens. Estimated 20 to 40 minutes.
   - path: examples/ascend/infer/vllm/dp_tp.sh
@@ -139,3 +129,9 @@ unsupported:
   # PR 241 在 2026 年 10 月 19 日的运行中，第一个训练步就触发断言，mcore-bridge 的 gated_delta_net.py 第 334 行指出 fla 不可用时不支持打包序列，同一份日志里 MindSpeed 也警告 fla_npu 未安装，作业为 https://github.com/Ascend/docs/actions/runs/39193709387/job/117871867445
   # 当前昇腾环境没有可用的 fla 组件，关掉打包又需要给示例命令追加参数，本看护不改示例源码。
   - examples/ascend/train/qwen3_next/qwen3_next_megatron.sh
+
+  # 脚本第 7 行的数据集是 AI-ModelScope/alpaca-gpt4-data-zh 全量数据，第 9 行训练 1 轮，第 18 行梯度累积 16 步，日志显示总步数 1526 步，第 20 行每 5 步保存一次检查点。
+  # PR 241 在 2026 年 10 月 19 日的运行中实测每步约 36.8 秒，跑到第 715 步时已用 7 小时 18 分，同一行日志给出的剩余时间估算还有 8 小时 17 分，全程约 15.6 小时，超过清单此前给这条设定的 720 分钟上限。
+  # 同一次运行跑到第 717 步时容器工作舱消失，运行步骤没有打出训练完成标记，随后的收尾步骤报临时脚本文件不存在，作业最终判失败，作业为 https://github.com/Ascend/docs/actions/runs/39223743427/job/117965262189
+  # 缩小数据规模需要改脚本里写死的数据集，本看护不改示例源码。
+  - examples/ascend/activation_cpu_offload/train.sh
