@@ -29,14 +29,12 @@ concurrency:
 
 on:
   schedule:
-    # Run every 6 hours at minute 40 (00:40, 06:40, 12:40, 18:40) -
-    # offset from timm's :00, torchtune's :10, xtuner's :50 and the
-    # every-3h guards (axolotl/tgi/whisper_cpp :15, diffusers :20,
-    # peft :30, accelerate/llama_cpp :45) so the guards don't contend
-    # for NPU runners. Cadence is loose enough for an upstream that
-    # releases a few times a year, but tight enough that doc fixes
-    # propagate within a day.
-    - cron: '40 */6 * * *'
+    # Run twice a day at minute 40 (00:40, 12:40) - offset from the
+    # other guards so they don't contend for NPU runners. Twice-daily is
+    # enough for an upstream that releases a few times a year: doc fixes
+    # propagate within 12h, and a broken upstream recipe no longer gets
+    # re-retried 4x a day on the self-hosted NPU pool.
+    - cron: '40 */12 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
