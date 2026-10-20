@@ -104,7 +104,7 @@ cmake version 3...
 
 ## 4. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装配套的 `vllm`、`vllm-ascend` 和 `triton-ascend`。
+按 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装配套的 `vllm`、`vllm-ascend` 和 `triton-ascend`。`vllm-ascend` 会把 `torch` 换成昇腾索引的 2.10.0 构建，最后再装回与 `torch_npu` 同版本的 CPU 构建。
 
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.23.0
@@ -112,6 +112,10 @@ python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   vllm-ascend==0.23.0
+python -m pip install --retries 3 \
+  --index-url https://download.pytorch.org/whl/cpu \
+  --extra-index-url https://pypi.org/simple \
+  torch==2.10.0+cpu torchvision==0.25.0+cpu torchaudio==2.10.0+cpu
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend==3.2.2
