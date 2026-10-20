@@ -102,12 +102,14 @@ print('npu count:', torch.npu.device_count())
 
 输出结果如下：
 
-```shell #test-result id="check-npu" fuzzy='xxx'
-torch: xxx
-torch_npu: xxx
+```shell #test-result id="check-npu"
+torch: 2.2.0
+torch_npu: 2.2.0.post2
 npu available: True
 npu count: 1
 ```
+
+torch 为 CPU 构建，NPU 能力由 torch-npu 提供；本文使用的 2.2.0 在 aarch64 上的轮子版本号不带 `+cpu` 后缀。
 
 ```{admonition} Note
 :class: note
@@ -329,8 +331,8 @@ exp/conformer/epoch_0.pt
 
 ## 9. 测试推理
 
-本步骤把测试集中的语音文件识别为文本。此外，当 `${average_checkpoint}` 为 `true`（脚本默认值）时，本步骤
-会把交叉验证集上最佳的 `${average_num}` 个模型平均，生成增强模型 `avg_1.pt`，供解码与导出使用：
+本步骤把测试集中的语音文件识别为文本。此外，当 `average_checkpoint` 为 `true`（脚本默认值）时，本步骤
+会把交叉验证集上最佳的 `average_num` 个模型平均，生成增强模型 `avg_1.pt`，供解码与导出使用：
 
 ```shell #test-setup id="infer"
 # CANN 环境必须显式加载：否则 LD_LIBRARY_PATH 缺少 libascendcl 等库路径，
@@ -354,11 +356,10 @@ head -2 exp/conformer/ctc_greedy_search/text
 
 输出结果如下（识别文本随模型收敛情况变化）：
 
-```shell #test-result id="verify-infer" fuzzy='xxx'
+```shell #test-result id="verify-infer"
 avg_1.pt ok
 recognized all test utterances
-xxx
-xxx
+...
 ```
 
 ## 10. 导出训练好的模型
