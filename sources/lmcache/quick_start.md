@@ -1,12 +1,12 @@
 # LMCache
 
-LMCache 是大模型推理的 KV cache 管理层，把已经算过的 KV cache 卸到 CPU 等存储里再复用。昇腾实现在 [LMCache-Ascend](https://github.com/LMCache/LMCache-Ascend)。主仓 [LMCache](https://github.com/LMCache/LMCache) 没有昇腾实现。这篇在单卡上安装 vLLM-Ascend 和 LMCache-Ascend，再用 `vllm.LLM` 做一次离线 KV 卸载。
+LMCache 是大模型推理的 KV cache 管理层，把 KV cache 卸到 CPU 等存储里复用。昇腾实现在 [LMCache-Ascend](https://github.com/LMCache/LMCache-Ascend)。
 
 ## 前置条件
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单卡。编译会读 `npu-smi` 得到芯片型号，A2 上常见 `Ascend910B3` 或 `Ascend910B4`。没有 `npu-smi` 时再设 `SOC_VERSION`。
+Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单卡。
 
 ### 软件
 
@@ -18,13 +18,12 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 | Python      | 3.10 到 3.13，见 [vLLM-Ascend 安装文档](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | 编译依赖        | `cmake`、`ninja`、`libnuma-dev`，见下文安装                                                                |
 | vLLM-Ascend | 装带轮子的最新 `vllm-ascend`，`vllm` 装与之主版本号相同的版本，见下文安装                                                    |
-| LMCache     | PyPI `lmcache` 的版本号等于 Release tag 去掉开头的 `v`，再编译 LMCache-Ascend                                     |
 | 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
 
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
-本文验证环境：镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，Python 3.12。这一行记录的是本文跑通时的环境。
+本文验证环境：镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，Python 3.12。
 
 ## 1. 加载 CANN 环境
 
@@ -125,15 +124,13 @@ for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
 
 ```shell #test-result id="install-vllm"
 ...
-torch ...
+torch ...+cpu
 torch-npu ...
 vllm ...
 vllm-ascend ...
 ```
 
-## 5. 安装 lmcache
-
-将 `<ver>` 换成最新 Release 的 tag 去掉开头的 `v`。
+## 5. 安装 LMCache
 
 <!--
 ```shell #test-setup store="lmcache_ver"
@@ -162,13 +159,11 @@ lmcache <ver>
 
 ```{admonition} Note
 :class: note
-`<ver>` 是最新 Release 去掉开头的 `v`。
+`<ver>` 是 LMCache 最新的 Release tag。
 ```
 
 
 ## 6. 克隆并编译 LMCache-Ascend
-
-将 `<ref>` 换成最新 Release 的 tag。主仓在 GitHub。子模块和主仓分开拉。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -198,10 +193,6 @@ git -C LMCache-Ascend describe --tags --exact-match
 <ref>
 ```
 
-```{admonition} Note
-:class: note
-`<ref>` 是最新 Release 的 tag。
-```
 
 删除已有的 `LMCache-Ascend/build`，再在当前目录安装 `./LMCache-Ascend`。
 
@@ -223,7 +214,7 @@ npu_available True
 
 ```{admonition} Note
 :class: note
-`<ver>` 是最新 Release 去掉开头的 `v`。
+`<ref>` 是 LMCache-Ascend 的最新 Release 的 tag；`<ver>` 是 LMCache 最新的 Release tag。
 ```
 
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
