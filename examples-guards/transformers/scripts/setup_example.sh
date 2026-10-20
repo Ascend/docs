@@ -63,16 +63,21 @@ python -m pip install "${DEPS[@]}" "datasets==3.6.0"
 
 # run_greedy.py 默认取 meta-llama/Llama-3.2-1B（gated，Runner 拉不到），且默认走
 # AutoModelForCausalLM.from_config 从零训练，只需要 config.json 与 tokenizer
-# 文件；tiny 快照两者都带。引擎不设 HF_ENDPOINT、也不禁用 Xet，下载直连
-# huggingface.co。run_greedy.py 是唯一 supported 条目，下载失败直接让 job 失败，
-# 不像以前那样降级成 warning。
-if TINYLLAMA=$(python - <<'PY'
+# 文件。这里用 tiny-random-gpt2 而不是 tiny-random-LlamaForCausalLM：后者的
+# config.json 把 pad_token_id 写成 -1（HF 的「未设置」哨兵值），v5 的
+# GenerationConfig.validate(strict=True) 会在 trainer.save_model() 阶段判为非法
+# （`pad_token_id` should be positive but got -1），训练跑完也存不下产物。
+# tiny-random-gpt2 的 pad_token_id 与 eos_token_id 同为 98，同一份上游脚本无需
+# 打补丁。引擎不设 HF_ENDPOINT、也不禁用 Xet，下载直连 huggingface.co。
+# run_greedy.py 是唯一 supported 条目，下载失败直接让 job 失败，不像以前那样
+# 降级成 warning。
+if TINY_LM=$(python - <<'PY'
 from huggingface_hub import snapshot_download
 
-print(snapshot_download("hf-internal-testing/tiny-random-LlamaForCausalLM"))
+print(snapshot_download("hf-internal-testing/tiny-random-gpt2"))
 PY
 ); then
-  echo "TINYLLAMA_PATH=$TINYLLAMA" >> "$GITHUB_ENV"
+  echo "TINY_LM_PATH=$TINY_LM" >> "$GITHUB_ENV"
 else
   echo "error: tiny causal LM download failed; run_greedy.py is the only supported entry" >&2
   exit 1

@@ -5,7 +5,7 @@ scan:
 supported:
   # overlay_args 约定：
   #   - 只写与脚本默认值不同的项；每个参数的注释解释其作用或取值原因。
-  #   - ${TINYLLAMA_PATH} 由 setup_example.sh 预下后写入 GITHUB_ENV；
+  #   - ${TINY_LM_PATH} 由 setup_example.sh 预下后写入 GITHUB_ENV；
   #     ${CI_OUTPUT_DIR} 为本 job 的产物目录，由引擎注入。
   #
   # 范围说明：上游 v5.20.0 起删除 examples/pytorch/ 整棵树（PR #49357），
@@ -18,9 +18,9 @@ supported:
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       # 默认 meta-llama/Llama-3.2-1B 是 gated 模型，Runner 拉不到；改用
-      # setup_example.sh 导出的 tiny 因果 LM 本地快照。脚本默认
-      # from_config 从零训练，只需 config + tokenizer，不读权重。
-      - --model_name_or_path ${TINYLLAMA_PATH}
+      # setup_example.sh 导出的 tiny 因果 LM 本地快照（脚本默认 from_config
+      # 从零训练，只读 config + tokenizer，不读权重）
+      - --model_name_or_path ${TINY_LM_PATH}
       # 默认 2000 步，压成 1 步 smoke（eval_steps=200 / save_steps=500
       # 因此不会触发，训练结束直接 save_model）
       - --max_steps 1
