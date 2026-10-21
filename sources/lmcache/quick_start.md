@@ -23,7 +23,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
-本文验证环境：镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，Python 3.12。
+本文验证环境：镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`
 
 ## 1. 加载 CANN 环境
 
