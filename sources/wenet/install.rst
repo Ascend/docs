@@ -1,5 +1,12 @@
+:orphan:
+
 安装指南
 ==============
+
+.. admonition:: Note
+   :class: note
+
+   与 CANN 8.0 / 910B 配套、命令已被看护的安装与训练推理步骤见 :doc:`index`。
 
 本教程面向使用 WeNet & 昇腾的开发者，帮助完成昇腾环境下 WeNet 的安装。
 

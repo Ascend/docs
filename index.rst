@@ -551,7 +551,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/wenet.png')"></div><h3 class="card-title">wenet</h3></div>
          <p class="card-desc">端到端的语音识别工具包。</p>
-         <div class="card-footer"><a href="https://github.com/wenet-e2e/wenet">官方链接</a><span class="split">|</span><a href="sources/wenet/install.html">安装指南</a><span class="split">|</span><a href="sources/wenet/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/wenet-e2e/wenet">官方链接</a><span class="split">|</span><a href="sources/wenet/install.html">安装指南</a><span class="split">|</span><a href="sources/wenet/index.html">快速上手</a></div>
       </div>
 
       <!-- Whisper.cpp -->
