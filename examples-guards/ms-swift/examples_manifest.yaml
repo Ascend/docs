@@ -1,0 +1,137 @@
+# ms-swift example guard for the shared engine in examples-template.yml.
+# Profiles are implemented by scripts/setup_example.sh. Every entry runs the
+# upstream script unmodified, at the scale its author chose, in the
+# vLLM-Ascend 0.23.0 image: no overlay_args, no edited file. Models and
+# datasets come from the shared cache, filled during setup; the run step
+# is offline. The timeouts are far
+# above the usual 180 minutes because upstream scale is long; each one is
+# an estimate, noted on its entry, to be replaced by measured times.
+version: 1
+scan:
+  root: examples/ascend
+  include_extensions: ['.sh']
+supported:
+  # Megatron-SWIFT LoRA SFT of Qwen3-8B on 2 cards, tensor parallel 2: 1500 samples,
+  # about 750 iterations. Estimated 40 to 60 minutes.
+  # The script pins ASCEND_RT_VISIBLE_DEVICES=0,1; npu_devices must match it.
+  - path: examples/ascend/train/qwen3/qwen3_lora_megatron.sh
+    profile: megatron
+    runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # LoRA SFT of Qwen3-32B with accelerate FSDP and packing on 8 cards. The data is
+  # small, so the run is about 2 optimizer steps and most of the time is loading.
+  # fsdp.json turns off cpu_ram_efficient_loading: each of the 8 processes holds a
+  # full 65.5 GB copy in host memory, about 488Gi against the 512Gi of an a2-8 pod.
+  # A kill here is a host-memory failure, not an NPU one.
+  - path: examples/ascend/train/qwen3/qwen3_lora_fsdp/train.sh
+    profile: swift
+    runner: linux-aarch64-a2-8
+    npu_devices: '0,1,2,3,4,5,6,7'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # Batch inference of Qwen3-8B on vLLM-Ascend: data parallel 2 times tensor parallel 2,
+  # 2000 prompts of up to 2048 new tokens. Estimated 20 to 40 minutes.
+  - path: examples/ascend/infer/vllm/dp_tp.sh
+    profile: swift
+    runner: linux-aarch64-a2-4
+    npu_devices: '0,1,2,3'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 240
+  # Megatron-SWIFT full-parameter SFT of Qwen3-4B on 4 cards: TP 2, PP 2, packing,
+  # 5 epochs of the full alpaca dataset, about 2,200 iterations. Estimated 2.5 to
+  # 3.5 hours. The script hardcodes --use_hf true, which matches USE_HF=1 here.
+  - path: examples/ascend/megatron/train_sft_full.sh
+    profile: megatron
+    runner: linux-aarch64-a2-4
+    npu_devices: '0,1,2,3'
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    timeout_minutes: 600
+
+# unsupported 每个条目上方都写明了不支持的原因，依据是 v4.6.0 示例脚本本身。
+# 范围只有 examples/ascend，这是上游为昇腾维护的目录。examples 下其余目录面向 CUDA 机器，不在本看护范围，也就不逐条登记。
+# 本仓清单里出现过的 runner 标签只有 linux-aarch64-a2-1、a2-2、a2-4、a2-8，没有 16 卡标签，也没有 A5 机型的标签。
+unsupported:
+
+  # 第 1 行起的 swift deploy 启动常驻 HTTP 服务，脚本只有这一条命令，服务不会自行退出，没有退出码可以反映示例是否成功。
+  - examples/ascend/deploy/vllm.sh
+
+  # 第 4 行 NNODES=2 且第 5 行 NODE_RANK=0，需要两台各 8 卡的机器同时参与，一个 runner 只有一台机器。
+  # 第 9 行 HCCL_SOCKET_IFNAME=xxx 是未填写的网卡名占位符。
+  - examples/ascend/multi-node/megatron/node1.sh
+
+  # 第 4 行 NNODES=2 且第 5 行 NODE_RANK=1，是两机训练的第二个节点，必须与 node1.sh 同时运行。
+  # 第 6 行 MASTER_ADDR=xxx.xxx.xxx.xxx 和第 9 行 HCCL_SOCKET_IFNAME=xxx 都是未填写的占位符。
+  - examples/ascend/multi-node/megatron/node2.sh
+
+  # 第 1、2 行的 <your_local_megatron_lm_path> 在 bash 里是重定向语法，bash -n 对第 1 行报 syntax error near unexpected token newline，脚本原样无法启动。
+  # 第 6、7 行还要求 16 张卡，超过 runner 的 8 卡上限。
+  - examples/ascend/train/qwen3_5/qwen3_5_full_grpo_megatron.sh
+
+  # 第 1、2 行的 <your_local_megatron_lm_path> 在 bash 里是重定向语法，bash -n 对第 1 行报 syntax error near unexpected token newline，脚本原样无法启动。
+  # 想让它跑起来只能改写示例文件替换占位符，本看护不改示例源码。
+  - examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_megatron.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 12、13 行 ASCEND_RT_VISIBLE_DEVICES 列出 0 到 15 并设 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 9、11 行同样要求 16 张卡。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu_a3.sh
+
+  # 第 1 行注明 8 * 96GiB Ascend A5，目标是 A5 机型，本仓没有 A5 的 runner 标签。
+  - examples/ascend/train/qwen3_5/qwen3_lora_megatron_npu_a5.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 5 行 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_full_mindspeed.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 13、14 行要求 16 张卡。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_lora_megatron_A3.sh
+
+  # 第 1 行注明 8 * 96GiB Ascend A5，目标是 A5 机型，本仓没有 A5 的 runner 标签。
+  - examples/ascend/train/qwen3_omni/qwen3_omni_lora_megatron_A5.sh
+
+  # 第 1 行注明 16 * 64GiB Ascend A3，第 11 行 NPROC_PER_NODE=16，需要 16 张卡。
+  - examples/ascend/train/qwen3_vl/moe_full_mindspeed.sh
+
+  # 第 2 行注明 Atlas 800T A3，第 21 行 ASCEND_RT_VISIBLE_DEVICES 列出 0 到 15，需要 16 张卡。
+  # 源仓的看护清单没有登记过这个示例。
+  - examples/ascend/train/qwen3_8/qwen3_8_27b_lora_fsdp2.sh
+
+  # 脚本第 5 行用 accelerate launch 加载同目录 fsdp2.json，该文件第 19 行 fsdp_cpu_ram_efficient_loading 为 false，8 个进程各在主机内存保留一份完整权重。
+  # 模型 Qwen/Qwen3.5-35B-A3B 的 safetensors 权重经 Hugging Face 接口实测 67.0 GiB，8 份合计约 536 GiB，超过 a2-8 runner 的 512 GiB 主机内存。
+  # PR 241 首次运行中 8 个 rank 同时收到 Signal 9 被杀，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381087
+  - examples/ascend/train/qwen3_5/qwen3_5_lora_grpo_fsdp2.sh
+
+  # 脚本第 18 到 19 行开启 vllm colocate rollout 且没有设置 vllm_enforce_eager，ms-swift 该参数默认 false，vLLM-Ascend 0.23.0 引擎走图模式。
+  # PR 241 首次运行先完成图捕获，第一次 rollout 时在 vllm_ascend 的 attention_v1.py 更新图参数处报 AttributeError，GDNAttentionMetadata 对象没有 seq_lens_list 属性。
+  # 报错后进程没有退出，直到 240 分钟 job 超时被取消，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381116
+  # 关掉图模式需要给示例命令追加参数，本看护不改示例源码。
+  - examples/ascend/grpo/fsdp2/qwen3_5_4b_lora.sh
+
+  # 脚本第 21 到 22 行开启 vllm colocate rollout 且没有设置 vllm_enforce_eager，ms-swift 该参数默认 false，vLLM-Ascend 0.23.0 引擎走图模式。
+  # PR 241 首次运行在引擎初始化的 profile_run 阶段报 RuntimeError，aot_compile 在当前配置下不受支持，作业为 https://github.com/Ascend/docs/actions/runs/38871415002/job/116876381150
+  # 关掉图模式需要给示例命令追加参数，本看护不改示例源码。
+  - examples/ascend/grpo/megatron/qwen3_5_4b_lora.sh
+
+  # 脚本第 5 行用 accelerate launch 加载同目录的 fsdp2.json，该文件第 19 行把 fsdp_cpu_ram_efficient_loading 设为 false，8 个进程各在主机内存保留一份完整权重。
+  # 模型 Qwen/Qwen3.5-35B-A3B 的 safetensors 权重经 Hugging Face 接口实测 67.0 GiB，8 份合计约 536 GiB，超过 a2-8 运行机 512 GiB 的主机内存上限。
+  # PR 241 在 2026 年 10 月 19 日的运行中，数据集打包完成后日志停在模型结构打印处，此后 164 分钟没有新输出，也没有出现第一个训练步，最后以退出码 137 结束，作业为 https://github.com/Ascend/docs/actions/runs/39193709387/job/117871867338
+  # 打开高效加载需要改上游的 fsdp2.json，本看护不改示例源码。
+  - examples/ascend/train/qwen3_5/qwen3_5_lora_fsdp2.sh
+
+  # 脚本第 31 行开启 DeepSpeed ZeRO-3，第 8 行的模型是 Qwen/Qwen3-32B，第 12 行训练 10 轮，日志显示总步数 630 步。
+  # PR 241 在 2026 年 10 月 19 日的运行中，第一个训练步的反向传播阶段就报 NPU 显存不足，4 号卡总容量 60.96 GiB，已分配 58.54 GiB，仅剩 75.07 MiB，ZeRO-3 临时聚合参数时申请 252.00 MiB 失败，作业为 https://github.com/Ascend/docs/actions/runs/39193709387/job/117871867421
+  # 日志打印的 zero3 配置中参数卸载和优化器卸载均为 none，减小显存需要给示例命令追加参数或改配置，本看护不改示例源码。
+  - examples/ascend/train/qwen3/qwen3_lora_deepspeed.sh
+
+  # 脚本第 5 行的模型是 Qwen/Qwen3-Next-80B-A3B-Instruct，第 15 行模型类型为 qwen3_next，训练路径经过 Gated Delta Net 线性注意力。
+  # PR 241 在 2026 年 10 月 19 日的运行中，第一个训练步就触发断言，mcore-bridge 的 gated_delta_net.py 第 334 行指出 fla 不可用时不支持打包序列，同一份日志里 MindSpeed 也警告 fla_npu 未安装，作业为 https://github.com/Ascend/docs/actions/runs/39193709387/job/117871867445
+  # 当前昇腾环境没有可用的 fla 组件，关掉打包又需要给示例命令追加参数，本看护不改示例源码。
+  - examples/ascend/train/qwen3_next/qwen3_next_megatron.sh
+
+  # 脚本第 7 行的数据集是 AI-ModelScope/alpaca-gpt4-data-zh 全量数据，第 9 行训练 1 轮，第 18 行梯度累积 16 步，日志显示总步数 1526 步，第 20 行每 5 步保存一次检查点。
+  # PR 241 在 2026 年 10 月 19 日的运行中实测每步约 36.8 秒，跑到第 715 步时已用 7 小时 18 分，同一行日志给出的剩余时间估算还有 8 小时 17 分，全程约 15.6 小时，超过清单此前给这条设定的 720 分钟上限。
+  # 同一次运行跑到第 717 步时容器工作舱消失，运行步骤没有打出训练完成标记，随后的收尾步骤报临时脚本文件不存在，作业最终判失败，作业为 https://github.com/Ascend/docs/actions/runs/39223743427/job/117965262189
+  # 缩小数据规模需要改脚本里写死的数据集，本看护不改示例源码。
+  - examples/ascend/activation_cpu_offload/train.sh
