@@ -36,7 +36,6 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11
 | Python | 3.11 |
 | CANN | 9.0.0 |
 | JAX / jaxlib | 0.8.1（`build.sh` 自动安装） |
-| xla-npu | \<ref>（源码构建） |
 
 ### 检查前置是否满足
 
