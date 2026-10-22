@@ -135,6 +135,13 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- xla-npu -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/triton-ascend.png')"></div><h3 class="card-title">xla-npu</h3></div>
+         <p class="card-desc">华为面向昇腾 NPU 的 XLA 后端，接入 OpenXLA/XLA 与 JAX，提供图编译加速。</p>
+         <div class="card-footer"><a href="https://gitcode.com/cann/xla-npu">官方链接</a><span class="split">|</span><a href="sources/xla/quick_start.html">快速上手</a></div>
+      </div>
+
       <!-- DeepSpeed -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
@@ -600,6 +607,7 @@
    :caption: 🏗️  基础设施与框架
 
    sources/accelerate/index.rst
+   sources/xla/index.rst
    sources/deepspeed/index.rst
    sources/kernels/index.rst
    sources/pytorch/index.rst
