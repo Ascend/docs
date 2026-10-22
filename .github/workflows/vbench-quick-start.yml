@@ -1,0 +1,35 @@
+# Guard the user-facing VBench human_action Quick Start on one Ascend NPU.
+name: vbench-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'vbench-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    - cron: '40 */12 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/vbench/**'
+      - 'tests/vbench/**'
+      - '.github/workflows/vbench-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  vbench-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: vbench
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/vbench:/root/.cache/vbench
+      timeout_minutes: 180
+      upstream_repo: Vchitect/VBench
+      doc_url: 'https://api.github.com/repos/Ascend/docs/contents/sources/vbench/quick_start.md?ref={0}'
+      doc_path: https://github.com/Ascend/docs/blob/${{ github.sha }}/sources/vbench/quick_start.md
+      test_command: PYTHONPATH=tests python -u -m unittest tests.vbench.test_quick_start_ascend -v 2>&1
