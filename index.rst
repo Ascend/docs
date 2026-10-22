@@ -135,11 +135,11 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
-      <!-- xla-npu：官方仓库已含安装与样例说明，外链跳转，不再本地编译 -->
+      <!-- xla：昇腾 NPU 支持由 xla-npu 提供，外链跳转，不再本地编译 -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/triton-ascend.png')"></div><h3 class="card-title">xla-npu</h3></div>
-         <p class="card-desc">华为面向昇腾 NPU 的 XLA 后端，接入 OpenXLA/XLA 与 JAX，提供图编译加速。</p>
-         <div class="card-footer"><a href="https://gitcode.com/cann/xla-npu">官方链接</a><span class="split">|</span><a href="https://gitcode.com/cann/xla-npu/blob/master/INSTALL_GUIDE.md">安装指南</a><span class="split">|</span><a href="https://gitcode.com/cann/xla-npu/blob/master/examples/README.md">运行样例</a></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/openxla.svg')"></div><h3 class="card-title">xla</h3></div>
+         <p class="card-desc">XLA（Accelerated Linear Algebra）是面向 GPU、CPU 和 ML 加速器的开源机器学习编译器。</p>
+         <div class="card-footer"><a href="https://github.com/openxla/xla">官方链接</a><span class="split">|</span><a href="https://openxla.org/">文档中心</a><span class="split">|</span><a href="https://gitcode.com/cann/xla-npu">NPU 支持</a></div>
       </div>
 
       <!-- DeepSpeed -->
