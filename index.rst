@@ -137,7 +137,7 @@
 
       <!-- xla：昇腾 NPU 支持由 xla-npu 提供，外链跳转，不再本地编译 -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/openxla.svg')"></div><h3 class="card-title">xla</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/openxla.png')"></div><h3 class="card-title">xla</h3></div>
          <p class="card-desc">XLA（Accelerated Linear Algebra）是面向 GPU、CPU 和 ML 加速器的开源机器学习编译器。</p>
          <div class="card-footer"><a href="https://github.com/openxla/xla">官方链接</a><span class="split">|</span><a href="https://openxla.org/">文档中心</a><span class="split">|</span><a href="https://gitcode.com/cann/xla-npu">NPU 支持</a></div>
       </div>
