@@ -249,7 +249,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchvision</h3></div>
          <p class="card-desc">计算机视觉库，基于 torch_npu 在昇腾 NPU 上跑通 transforms v2 与 transforms 链路。</p>
-         <div class="card-footer"><a href="https://github.com/pytorch/vision">官方链接</a><span class="split">|</span><a href="sources/torch_vision/index.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/pytorch/vision">官方链接</a><span class="split">|</span><a href="sources/torchvision/index.html">快速上手</a></div>
       </div>
 
       <!-- TorchTune -->
@@ -629,6 +629,7 @@
    sources/specforge/index.rst
    sources/tensordict/index.rst
    sources/torchtitan/index.rst
+   sources/torchvision/index.rst
    sources/torchtune/index.rst
    sources/trl/index.rst
    sources/twinkle/index.rst
