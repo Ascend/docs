@@ -135,6 +135,13 @@
          <div class="card-footer"><a href="https://github.com/huggingface/accelerate">官方链接</a><span class="split">|</span><a href="sources/accelerate/quick_start.html">快速上手</a></div>
       </div>
 
+      <!-- xla：昇腾 NPU 支持由 xla-npu 提供，外链跳转，不再本地编译 -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/openxla.png')"></div><h3 class="card-title">xla</h3></div>
+         <p class="card-desc">XLA（Accelerated Linear Algebra）是面向 GPU、CPU 和 ML 加速器的开源机器学习编译器。</p>
+         <div class="card-footer"><a href="https://github.com/openxla/xla">官方链接</a><span class="split">|</span><a href="https://openxla.org/">文档中心</a><span class="split">|</span><a href="https://gitcode.com/cann/xla-npu">NPU 支持</a></div>
+      </div>
+
       <!-- DeepSpeed -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/deepspeed.png')"></div><h3 class="card-title">DeepSpeed</h3></div>
@@ -177,7 +184,7 @@
 
       <!-- areno -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">areno</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/areno.svg')"></div><h3 class="card-title">areno</h3></div>
          <p class="card-desc">单机 RL post-training 工具包，支持在昇腾 NPU 上做 SFT/DPO/GRPO/GSPO/PPO 训练与 OpenAI 兼容推理服务。</p>
          <div class="card-footer"><a href="https://github.com/inclusionAI/AReno">官方链接</a><span class="split">|</span><a href="sources/areno/index.html">快速上手</a></div>
       </div>
@@ -442,7 +449,7 @@
 
       <!-- xllm：官方文档站已含完整 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">xllm</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/xllm.png')"></div><h3 class="card-title">xllm</h3></div>
          <p class="card-desc">高效易用的开源智能推理框架，为模型在国产芯片上的推理提供企业级服务保障与高性能引擎计算能力。</p>
          <div class="card-footer"><a href="https://github.com/xLLM-AI/xllm">官方链接</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/">文档中心</a><span class="split">|</span><a href="https://docs.xllm-ai.com/zh/getting_started/launch_xllm/">快速上手</a></div>
       </div>
@@ -607,6 +614,7 @@
    :caption: 🏗️  基础设施与框架
 
    sources/accelerate/index.rst
+   sources/xla/index.rst
    sources/deepspeed/index.rst
    sources/kernels/index.rst
    sources/pytorch/index.rst
