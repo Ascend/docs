@@ -23,7 +23,7 @@
 #
 # Two notes vs. the Quick-start smoke:
 #   - the smoke downloads a real Qwen3.5-4B from ModelScope (~8GB). For the
-#     single supported example (qwen3.5-4b-dflash-online-npu.yaml) we do
+#     single supported example (qwen3.5-4b-dflash-npu.yaml) we do
 #     the same download because the smoke config is the supported recipe.
 #     Smaller qwen2.5-0.5b recipes are not currently in `supported`; they
 #     would need a separate profile if added later.
