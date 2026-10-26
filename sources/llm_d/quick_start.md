@@ -10,7 +10,7 @@ llm-d 是架在推理引擎之上的路由层。最小部署是三个进程：
 
 请求路径：客户端 `POST :8081` → Envoy → EPP `:9002` 做路由决策 → vLLM `:8000`。
 
-本文基于上游 [no-kubernetes-deployment](https://github.com/llm-d/llm-d/tree/v0.9.0/guides/no-kubernetes-deployment) 指南，把 model server 换成 vllm-ascend，并把模型换成适合单卡验证的 [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)。工作目录统一用 `/root/llm-d`。
+本文基于上游 [no-kubernetes-deployment](https://github.com/llm-d/llm-d/tree/v1.0.0/guides/no-kubernetes-deployment) 指南，把 model server 换成 vllm-ascend，并把模型换成适合单卡验证的 [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)。工作目录统一用 `/root/llm-d`。
 
 ## 前置条件
 
@@ -44,8 +44,8 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | Python        | 3.12，来自上面的镜像                                                                    |
 | CANN          | 9.1.0                                                                           |
 | llm-d 配置仓     | Release tag，看护里替换尖括号里的版本                                                        |
-| EPP           | llm-d-router v0.10.0                                                            |
-| Go            | 1.26.6 linux-arm64                                                              |
+| EPP           | llm-d-router v1.0.0                                                            |
+| Go            | 1.27.2 linux-arm64                                                              |
 | vLLM          | 0.23.0                                                                          |
 | vllm-ascend   | 0.23.0                                                                          |
 | triton-ascend | 3.2.2                                                                           |
@@ -122,18 +122,18 @@ triton-ascend 3.2.2
 
 ## 4. 构建 EPP
 
-用 Go 1.26.6 编译 `llm-d-router` 的 `cmd/epp`。
+用 Go 1.27.2 编译 `llm-d-router` 的 `cmd/epp`。
 
 <!--
 ```shell #test-setup
 set -euo pipefail
 ci='/root/.cache/huggingface/llm_d'
-go_tar="$ci/go1.26.6.linux-arm64.tar.gz"
-sum='d0507e9e9d7fe012aae570108cbd76c15de879e17130ab8cb90d4d7445cb1f2e'
+go_tar="$ci/go1.27.2.linux-arm64.tar.gz"
+sum='94f3e30b8e374bc285e7dadc11e0865726b9bc6e85b841ccceaabc0214c6b7c8'
 mkdir -p /root/llm-d/bin
 if [ -f "$go_tar" ]; then
   if echo "$sum  $go_tar" | sha256sum -c >/dev/null 2>&1; then
-    if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.26.6'; then
+    if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.27.2'; then
       rm -rf /root/llm-d/go
       tar -C /root/llm-d -xzf "$go_tar"
     fi
@@ -141,8 +141,8 @@ if [ -f "$go_tar" ]; then
     rm -f "$go_tar"
   fi
 fi
-if [ -x "$ci/epp-v0.10.0" ] && [ -s "$ci/epp-v0.10.0" ]; then
-  cp -a "$ci/epp-v0.10.0" /root/llm-d/bin/epp
+if [ -x "$ci/epp-v1.0.0" ] && [ -s "$ci/epp-v1.0.0" ]; then
+  cp -a "$ci/epp-v1.0.0" /root/llm-d/bin/epp
   chmod 0755 /root/llm-d/bin/epp
 fi
 ```
@@ -150,14 +150,14 @@ fi
 
 ```shell #test id="build-epp"
 mkdir -p /root/llm-d/bin
-if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.26.6'; then
-  if [ ! -f /root/llm-d/go1.26.6.linux-arm64.tar.gz ]; then
+if ! /root/llm-d/go/bin/go version 2>/dev/null | grep -q 'go1.27.2'; then
+  if [ ! -f /root/llm-d/go1.27.2.linux-arm64.tar.gz ]; then
     curl -fL --retry 3 --retry-delay 5 --connect-timeout 30 --max-time 600 \
-      -o /root/llm-d/go1.26.6.linux-arm64.tar.gz \
-      https://go.dev/dl/go1.26.6.linux-arm64.tar.gz
+      -o /root/llm-d/go1.27.2.linux-arm64.tar.gz \
+      https://go.dev/dl/go1.27.2.linux-arm64.tar.gz
   fi
   rm -rf /root/llm-d/go
-  tar -C /root/llm-d -xzf /root/llm-d/go1.26.6.linux-arm64.tar.gz
+  tar -C /root/llm-d -xzf /root/llm-d/go1.27.2.linux-arm64.tar.gz
 fi
 export GOROOT=/root/llm-d/go
 export GOPATH=/root/llm-d/gopath
@@ -166,7 +166,7 @@ mkdir -p "$GOPATH"
 if [ ! -x /root/llm-d/bin/epp ]; then
   rm -rf /root/llm-d/llm-d-router
   for _ in 1 2 3; do
-    GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch v0.10.0 \
+    GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch v1.0.0 \
       https://github.com/llm-d/llm-d-router /root/llm-d/llm-d-router && break
     rm -rf /root/llm-d/llm-d-router
     sleep 5
@@ -182,25 +182,25 @@ test -x /root/llm-d/bin/epp
 输出结果如下：
 
 ```shell #test-result id="build-epp"
-go version go1.26.6 linux/arm64
+go version go1.27.2 linux/arm64
 ```
 
 <!--
 ```shell #test-setup
 set -euo pipefail
 ci='/root/.cache/huggingface/llm_d'
-sum='d0507e9e9d7fe012aae570108cbd76c15de879e17130ab8cb90d4d7445cb1f2e'
+sum='94f3e30b8e374bc285e7dadc11e0865726b9bc6e85b841ccceaabc0214c6b7c8'
 mkdir -p "$ci"
-if [ -f /root/llm-d/go1.26.6.linux-arm64.tar.gz ]; then
-  echo "$sum  /root/llm-d/go1.26.6.linux-arm64.tar.gz" | sha256sum -c
-  cp -a /root/llm-d/go1.26.6.linux-arm64.tar.gz "$ci/go1.26.6.linux-arm64.tar.gz.part"
-  mv "$ci/go1.26.6.linux-arm64.tar.gz.part" "$ci/go1.26.6.linux-arm64.tar.gz"
-elif [ -f "$ci/go1.26.6.linux-arm64.tar.gz" ]; then
-  echo "$sum  $ci/go1.26.6.linux-arm64.tar.gz" | sha256sum -c
+if [ -f /root/llm-d/go1.27.2.linux-arm64.tar.gz ]; then
+  echo "$sum  /root/llm-d/go1.27.2.linux-arm64.tar.gz" | sha256sum -c
+  cp -a /root/llm-d/go1.27.2.linux-arm64.tar.gz "$ci/go1.27.2.linux-arm64.tar.gz.part"
+  mv "$ci/go1.27.2.linux-arm64.tar.gz.part" "$ci/go1.27.2.linux-arm64.tar.gz"
+elif [ -f "$ci/go1.27.2.linux-arm64.tar.gz" ]; then
+  echo "$sum  $ci/go1.27.2.linux-arm64.tar.gz" | sha256sum -c
 fi
 test -x /root/llm-d/bin/epp
-cp -a /root/llm-d/bin/epp "$ci/epp-v0.10.0.part"
-mv "$ci/epp-v0.10.0.part" "$ci/epp-v0.10.0"
+cp -a /root/llm-d/bin/epp "$ci/epp-v1.0.0.part"
+mv "$ci/epp-v1.0.0.part" "$ci/epp-v1.0.0"
 ```
 -->
 
@@ -260,7 +260,7 @@ mv "$ci/envoy-1.33.2-linux-aarch_64.part" "$ci/envoy-1.33.2-linux-aarch_64"
 
 克隆 llm-d，把 no-kubernetes 指南里的三份 YAML 复制到工作目录，并把模型改成 `Qwen/Qwen3-0.6B`。复制后的 `endpoints.yaml` 使用字面 IPv4 地址。
 
-将下面克隆命令里的 `<ref>` 换成要用的 llm-d Release tag，例如 `v0.9.0`。
+将下面克隆命令里的 `<ref>` 换成要用的 llm-d Release tag，例如 `v1.0.0`。
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -412,7 +412,7 @@ else
     echo 'EPP ports 9002/9003/9090 are already in use' >&2
     exit 1
   fi
-  setsid -f sh -c 'echo $$ > /root/llm-d/epp.pid; exec /root/llm-d/bin/epp --config-file=/root/llm-d/config.yaml --pool-name=file-discovery --pool-namespace=default --grpc-port=9002 --grpc-health-port=9003 --metrics-port=9090 --secure-serving=false --v=2 >/root/llm-d/epp.log 2>&1'
+  setsid -f sh -c 'echo $$ > /root/llm-d/epp.pid; exec /root/llm-d/bin/epp --config-file=/root/llm-d/config.yaml --pool-name=file-discovery --pool-namespace=default --grpc-port=9002 --grpc-health-port=9003 --metrics-port=9090 --secure-serving=false --health-checking=true --v=2 >/root/llm-d/epp.log 2>&1'
 fi
 for _ in $(seq 1 50); do
   [ -s /root/llm-d/epp.pid ] && break
@@ -426,7 +426,7 @@ for _ in $(seq 1 60); do
     tail -c 8000 /root/llm-d/epp.log >&2 || true
     exit 1
   fi
-  if curl -sf --max-time 5 http://127.0.0.1:9090/metrics | grep -m1 '^# HELP inference_extension_info '; then
+  if curl -sf --max-time 5 http://127.0.0.1:9090/metrics | grep -m1 '^# HELP llm_d_epp_info '; then
     ok=1
     break
   fi
@@ -438,7 +438,7 @@ done
 输出结果如下：
 
 ```text #test-result id="start-epp"
-# HELP inference_extension_info [ALPHA] General information of the current build of Inference Extension.
+# HELP llm_d_epp_info [ALPHA] General information of the current build of Inference Extension.
 ```
 
 
