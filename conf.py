@@ -106,7 +106,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/funasr/quick_start.md',
                     'sources/lmcache/quick_start.md',
                     'sources/onnxruntime/quick_start.md',
-                    'sources/wenet/quick_start.md']
+                    'sources/wenet/quick_start.md',
+                    'sources/torchvision/quick_start.md']
 
 
 # -- Options for HTML output -------------------------------------------------

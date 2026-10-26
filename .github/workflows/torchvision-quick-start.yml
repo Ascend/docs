@@ -1,0 +1,126 @@
+# torchvision quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# Cache keys (quick-start-monitor-state-torchvision_*) and artifact
+# names are derived from project=torchvision, not from the workflow
+# name.
+#
+# Upstream: github.com/pytorch/vision. The doc builds torchvision from
+# source only: the source build section `git clone`s pytorch/vision at
+# the latest release tag (`<ref>`) and runs `FORCE_CUDA=0 uv pip install
+# -e .`. PyPI's linux wheels all link `libcudart.so` and therefore
+# conflict with torch_npu, so a CPU-only source build is the only
+# compatible route. pytorch/vision publishes GitHub Releases (e.g.
+# v0.29.0) so the engine's default release_source=releases works — no
+# special source=tags override needed.
+#
+# torch / torch_npu both pinned to 2.14.0: torchvision v0.29.0
+# (Sep 2026) migrated to the PyTorch Stable C ABI and its build target
+# is pinned to torch 2.14 (setup.py
+# TORCH_TARGET_VERSION=0x020e000000000000). Its
+# deform_conv2d_kernel.cpp uses torch::stable::permute, which only
+# enters the stable API surface in torch 2.14 (2.12 / 2.13 wheels'
+# stable/ops.h lack it). With torch 2.14.0+cpu (aliyun
+# pytorch-wheels/cpu) + torch_npu 2.14.0 (aliyun pypi/simple), the
+# source build compiles cleanly with no patch.
+#
+# No container devices / volumes: torch_npu auto-registers with the
+# CANN base image, and torchvision transforms run on synthetic images
+# generated in-process — no `modelscope snapshot_download` and no host
+# driver bind-mounts needed. End-to-end
+# `torchvision.models.resnet50().to('npu:0')` is documented as
+# out-of-scope (model-side NPU inference needs Ascend/vision's model
+# zoo, which is a separate effort).
+
+name: torchvision-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'torchvision-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch runs
+  # already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, at minute 35 of the 3 / 15 o'clock hours (UTC 03:35
+    # and 15:35, i.e. 11:35 and 23:35 Beijing time). Minute 35 is the
+    # only slot in the second half of the hour that is still free on
+    # both hours: minute 35 already carries the every-6h roll guard
+    # (hours 0 / 6 / 12 / 18) and the every-12h internlm guard (hours
+    # 0 / 12), so those hours are excluded and the odd 3-hour block is
+    # used instead. Twice a day is enough for an upstream that releases
+    # a few times a year (pytorch/vision ships roughly one torchvision
+    # release per quarter) while still letting a doc fix propagate
+    # within half a day.
+    - cron: '35 3,15 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/torchvision/**'
+      - 'tests/torchvision/**'
+      - '.github/workflows/torchvision-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  # Job ID rules: alphanumeric + '-' + '_' only, no dots.
+  torchvision-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (quick-start-monitor-state-torchvision_*),
+      # artifacts (torchvision-quick-start-<run_id>) and the test
+      # working dir (tests/torchvision in the repo root; the engine
+      # sets cwd to the repo root).
+      project: torchvision
+      # Single-card NPU runner: the doc's transforms.v2 smoke path
+      # runs everything on npu:0, and the doc's `torch.npu.device_count()`
+      # expectation is 1. The engine pins the cache I/O jobs
+      # (restore-cache / publish-and-persist) to GitHub-hosted
+      # ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      # CANN 9.1.0 + Python 3.12 base image. The doc's `## 前置安装`
+      # section only verifies versions + installs torch / torch_npu /
+      # pillow, then `## 安装 torchvision` builds torchvision from
+      # source (FORCE_CUDA=0, no patch needed on torch 2.14).
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # Empty: torch_npu auto-registers with the CANN base image; no
+      # /dev/davinci* mounts or /usr/local/Ascend/* bind-mounts are
+      # needed for the doc's smoke path (transforms.v2 + NPU dispatch
+      # on a synthetic image).
+      container_options: ''
+      # 90 min budget. The doc installs torch / torch_npu from the
+      # Aliyun pytorch-wheels + Aliyun PyPI mirror (the torch_npu wheel
+      # is the slowest piece, ~30 min on a cold cache), builds
+      # torchvision from source (clone + FORCE_CUDA=0 uv pip install
+      # -e .), then runs 9 transforms.v2 smoke tests on NPU.
+      timeout_minutes: 90
+      upstream_repo: pytorch/vision
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/torchvision/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/torchvision/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.torchvision.test_quick_start_ascend -v 2>&1
