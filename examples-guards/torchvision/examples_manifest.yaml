@@ -1,0 +1,107 @@
+version: 1
+# 以共享引擎本次解析的 pytorch/vision release 为受测树：examples/cpp + gallery 的 plot_*.py + references 的独立入口。
+# gallery/transforms/helpers.py 与 references 下被 import 的模块是配套代码，不计作独立 example。
+# torch 2.14.0 起 stable API 含 permute，无需再对库源码打补丁，不修改任何 example 源码。
+scan:
+  root: ''
+  include_extensions: ['.py', '.cpp']
+
+supported:
+  # 按实测腿耗时降序排列（2026-10-23 run 39891721325）：空闲 runner 数
+  # 小于矩阵规模时，最慢的先进矩阵能压缩总 wall time。custom_tv_tensors
+  # 当天在 setup 步骤停滞 24min+（7/8 条同构 setup ~6min 完成，单次偶发），
+  # 转绿后按新耗时复排。
+  # 自定义 TVTensor/hflip 演示张量子类与变换注册；仅用小型合成张量，运行后断言最终结果在 NPU。
+  - path: gallery/transforms/plot_custom_tv_tensors.py
+    profile: vision_gallery_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 120
+  # 关键点几何变换；单卡 NPU 坐标/PIL 绘图，完整旋转与透视配方（2026-10-23 CI 实跑通过）。
+  - path: gallery/transforms/plot_keypoints_transforms.py
+    profile: vision_gallery_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 120
+  # VOC 语义分割训练/评估；本地三张带掩码图片、轻量 LR-ASPP/MobileNet、单卡 1 epoch，保留真实 NPU 前后向与混淆矩阵路径。
+  - path: references/segmentation/train.py
+    profile: vision_segmentation_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: [--dataset, voc, --model, lraspp_mobilenet_v3_large, --device, 'npu:0', --epochs, '1', --batch-size, '1', --workers, '0']
+    timeout_minutes: 120
+  # TVTensor FAQ 演示 Image/BoundingBoxes 的零拷贝包装与算术；合成张量在 NPU 上运行，仓内图片只供辅助说明。
+  - path: gallery/transforms/plot_tv_tensors.py
+    profile: vision_gallery_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 120
+  # ResNet18 ImageFolder 分类训练；本地五类微型图片、单卡 NPU、1 epoch 与 batch 2，避开 CUDA AMP/分布式路径。
+  - path: references/classification/train.py
+    profile: vision_classification_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: [--model, resnet18, --device, 'npu:0', --epochs, '1', --batch-size, '2', --workers, '0', --train-crop-size, '64', --val-crop-size, '64', --val-resize-size, '72']
+    timeout_minutes: 120
+  # 自定义 v2 Transform 演示合成图像、边框和嵌套结构变换；无下载或训练规模，运行后检查图像与框均驻留 NPU。
+  - path: gallery/transforms/plot_custom_transforms.py
+    profile: vision_gallery_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 120
+  # R3D-18 视频分类；400 类本地四帧短视频、32×32/50 训练批次，NPU。解码走
+  # torchcodec（torchvision v0.29 移除了视频解码），setup 从 download.pytorch.org
+  # 直连装 0.17.0+cpu wheel（PyPI aarch64 是 CUDA 构建）+ 系统 ffmpeg。CANN
+  # 9.1.0 的 fp32 Conv3DBackpropInput kernel 不支持 stride_d > kernel_d
+  # （R3D-18 layer2-4 downsample 1x1x1 conv / stride(2,2,2)，run 39895381622；
+  # allow_tf32/internal_format 均绕不开，npu-3 最小复现确认），fp16 kernel 正常
+  # ——用上游 --amp 降 fp16，run_example 的 transfer_to_npu shim 把
+  # torch.cuda.amp.autocast 映射到 NPU autocast（+cpu torch 构建上原生是
+  # no-op；npu-3 实测 autocast fp16 + 反传 + GradScaler + optimizer 全通）。
+  - path: references/video_classification/train.py
+    profile: vision_video_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: [--model, r3d_18, --device, 'npu:0', --epochs, '1', --batch-size, '8', --workers, '0', --clip-len, '4', --frame-rate, '8', --clips-per-video, '1', --lr-warmup-epochs, '0', --lr, '0.001', --train-crop-size, '32', '32', --train-resize-size, '40', '40', --val-crop-size, '32', '32', --val-resize-size, '40', '40', --amp]
+    timeout_minutes: 120
+  # RAFT-small 光流训练；4 对本地帧/合成 .flo、1 epoch 两步，单卡 NPU（2026-10-23 CI 实跑通过）。
+  - path: references/optical_flow/train.py
+    profile: vision_flow_npu
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    overlay_args: [--model, raft_small, --device, 'npu:0', --train-dataset, chairs, --epochs, '1', --batch-size, '2', --workers, '0', --num_flow_updates, '2', --name, ci_flow]
+    timeout_minutes: 120
+
+unsupported:
+  # TorchScript 导出包装；依赖原 Faster R-CNN/NMS，无模型/设备 CLI。
+  - examples/cpp/script_model.py
+  # C++ TorchScript 推理；设备只支持 CPU/kCUDA，无 NPU 路径。
+  - examples/cpp/run_model.cpp
+  # RAFT 光流绘图；显式选择 CPU/CUDA，无 NPU 设备参数。
+  - gallery/others/plot_optical_flow.py
+  # 标注转换与检测演示；最终 Faster R-CNN 必经 NMS 无 NPU 内核。
+  - gallery/others/plot_repurposing_annotations.py
+  # 脚本化变换与分类；显式 CPU/CUDA 设备，无 NPU 参数。
+  - gallery/others/plot_scripted_tensor_transforms.py
+  # 检测/分割可视化；预训练检测模型必经 NMS/RoIAlign。
+  - gallery/others/plot_visualization_utils.py
+  # CutMix/MixUp；默认 NPU 会使 CPU sampler/多进程 DataLoader 设备冲突。
+  - gallery/transforms/plot_cutmix_mixup.py
+  # 旋转框几何绘图；默认 NPU 后 helper 对绘图张量直接 .numpy()。
+  - gallery/transforms/plot_rotated_box_transforms.py
+  # Mask R-CNN 端到端；必经 torchvision C++ NMS/RoIAlign 无 NPU 内核。
+  - gallery/transforms/plot_transforms_e2e.py
+  # v2 变换入门；CPU 解码图像与 NPU 框/绘图 .numpy() 路径不一致。
+  - gallery/transforms/plot_transforms_getting_started.py
+  # v2 变换图示；默认 NPU 图像进入 helper .numpy()，无设备配置接口。
+  - gallery/transforms/plot_transforms_illustrations.py
+  # 分类 QAT/PTQ；量化核心固定 qnnpack/fbgemm CPU，不可替换为 NPU。
+  - references/classification/train_quantization.py
+  # 双目深度评测；当前 release 已删除所导入的 torchvision.prototype。
+  - references/depth/stereo/cascade_evaluation.py
+  # 双目深度训练；当前 release 已删除所导入的 torchvision.prototype。
+  - references/depth/stereo/train.py
+  # COCO 检测训练；标准 C++ 扩展 NMS/RoIAlign 无 NPU 内核。
+  - references/detection/train.py
+  # Triplet 相似度训练；显式 CPU/CUDA，未暴露 NPU 设备参数。
+  - references/similarity/train.py
