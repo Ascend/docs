@@ -249,7 +249,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pytorch.png')"></div><h3 class="card-title">torchtitan</h3></div>
          <p class="card-desc">用于语言大模型训练的 PyTorch 原生库。</p>
-         <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/install.html">安装指南</a><span class="split">|</span><a href="sources/torchtitan/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/pytorch/torchtitan">官方链接</a><span class="split">|</span><a href="sources/torchtitan/index.html">快速上手</a></div>
       </div>
 
       <!-- torchvision -->
