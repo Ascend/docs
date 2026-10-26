@@ -1,0 +1,119 @@
+# torchtitan quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# Cache keys (quick-start-monitor-state-torchtitan_*) and artifact
+# names are derived from project=torchtitan, not from the workflow
+# name.
+#
+# Upstream: github.com/pytorch/torchtitan. The doc installs torchtitan
+# twice: once from PyPI (pure-python wheel, proves the binary route)
+# and once from source (`git clone` at the latest release tag +
+# `uv pip install -e .`) — the training commands need the upstream
+# tree for the config registry (`llama3_debugmodel_ce_loss`) and the
+# `--override.imports` mechanism. pytorch/torchtitan publishes GitHub
+# Releases, so the engine's default release_source=releases works — no
+# special source=tags override needed.
+#
+# torch / torch_npu both pinned to 2.14.0: torch_npu 2.14.0 requires
+# CANN 9.2.0 (an older CANN 9.1.0 image fails with a missing
+# libhccl.so / missing aclnn symbols), so the image below is the
+# 9.2.0 one. triton-ascend 3.6.0 comes from Huawei Cloud's ascend
+# `test` index and is installed with --no-deps so the CUDA-only
+# community `triton` wheel never lands in the environment.
+#
+# The modelscope volume caches the `snapshot_download` demo of the
+# doc's tokenizer section between runs (the training itself uses
+# torchtitan's bundled tests/assets/tokenizer, so no checkpoint is
+# downloaded).
+
+name: torchtitan-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'torchtitan-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch runs
+  # already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Every 6 hours at minute 35 (00:35, 06:35, 12:35, 18:35 UTC).
+    # Minute 35 is free on the 2-card runner: the other a2-2 guards
+    # sit at minutes 0 / 15 / 20 / 45 / 50, so a 6-hourly slot keeps
+    # the long training job (up to 180 min) from queueing behind the
+    # short single-card ones. Every 6 hours is enough for an upstream
+    # that releases a few times a year (pytorch/torchtitan ships
+    # roughly one release per quarter) while still letting a doc fix
+    # propagate within half a day.
+    - cron: '35 */6 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/torchtitan/**'
+      - 'tests/torchtitan/**'
+      - '.github/workflows/torchtitan-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  # Job ID rules: alphanumeric + '-' + '_' only, no dots.
+  torchtitan-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (quick-start-monitor-state-torchtitan_*),
+      # artifacts (torchtitan-quick-start-<run_id>) and the test
+      # working dir (tests/torchtitan in the repo root; the engine
+      # sets cwd to the repo root).
+      project: torchtitan
+      # Dual-card NPU runner: the doc's multi-card section really runs
+      # `torchrun --nproc_per_node=2` (FSDP shard=2 + HCCL), and the
+      # single-card section asserts `torch.npu.device_count() == 2`.
+      test_runner: '["linux-aarch64-a2-2"]'
+      # CANN 9.2.0 + Python 3.12 base image — torch_npu 2.14.0 needs
+      # CANN 9.2.0 (the 9.1.0 image fails with a missing libhccl.so).
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+      # Persist the modelscope cache across runs: the doc's tokenizer
+      # section demonstrates `snapshot_download`, and re-downloading the
+      # Llama 3 tokenizer on every guard run is pure waste.
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/torchtitan:/root/.cache/modelscope
+      # 180 min budget. The doc installs torch / torch_npu / modelscope /
+      # triton-ascend / torchtitan, clones the upstream tree, writes the
+      # NPU override module, then runs a 2-step single-card training and
+      # a 2-step dual-card FSDP training. The first cold-cache run also
+      # compiles a handful of dataloader Triton kernels through the
+      # bisheng compiler (serial, TORCHINDUCTOR_COMPILE_THREADS=1, to
+      # stay under the runner cgroup memory limit).
+      timeout_minutes: 180
+      upstream_repo: pytorch/torchtitan
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/torchtitan/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/torchtitan/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      # The doc test first (it installs torchtitan into the environment), then
+      # the override equivalence checks -- unittest runs the named modules in
+      # the given order, so the second module sees the installed torchtitan.
+      test_command: python -m unittest tests.torchtitan.test_quick_start_ascend tests.torchtitan.test_npu_overrides -v 2>&1
