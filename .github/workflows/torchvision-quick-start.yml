@@ -53,17 +53,11 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, at minute 35 of the 3 / 15 o'clock hours (UTC 03:35
-    # and 15:35, i.e. 11:35 and 23:35 Beijing time). Minute 35 is the
-    # only slot in the second half of the hour that is still free on
-    # both hours: minute 35 already carries the every-6h roll guard
-    # (hours 0 / 6 / 12 / 18) and the every-12h internlm guard (hours
-    # 0 / 12), so those hours are excluded and the odd 3-hour block is
-    # used instead. Twice a day is enough for an upstream that releases
-    # a few times a year (pytorch/vision ships roughly one torchvision
-    # release per quarter) while still letting a doc fix propagate
-    # within half a day.
-    - cron: '35 3,15 * * *'
+    # Twice a day, 12 h apart: UTC 05:35 and 17:35
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '35 5,17 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

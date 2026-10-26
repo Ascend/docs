@@ -23,10 +23,11 @@ concurrency:
 
 on:
   schedule:
-    # Every 12 h (minute 15, offset from the other '*/12' guards at
-    # 35/45/55). The full aishell-1 flow lands in the 6-12 h range on a
-    # single 910B4, so a tighter cadence would only queue behind itself.
-    - cron: '15 */12 * * *'
+    # Twice a day, 12 h apart: UTC 01:15 and 13:15
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '15 1,13 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

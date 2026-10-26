@@ -47,15 +47,11 @@ concurrency:
 
 on:
   schedule:
-    # Every 6 hours at minute 35 (00:35, 06:35, 12:35, 18:35 UTC).
-    # Minute 35 is free on the 2-card runner: the other a2-2 guards
-    # sit at minutes 0 / 15 / 20 / 45 / 50, so a 6-hourly slot keeps
-    # the long training job (up to 180 min) from queueing behind the
-    # short single-card ones. Every 6 hours is enough for an upstream
-    # that releases a few times a year (pytorch/torchtitan ships
-    # roughly one release per quarter) while still letting a doc fix
-    # propagate within half a day.
-    - cron: '35 */6 * * *'
+    # Twice a day, 12 h apart: UTC 11:35 and 23:35
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '35 11,23 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
