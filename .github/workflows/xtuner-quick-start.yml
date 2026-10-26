@@ -38,14 +38,11 @@ concurrency:
 
 on:
   schedule:
-    # Run every 6 hours at minute 50 (00:50, 06:50, 12:50, 18:50) -
-    # offset from timm's :00, torchtune's :10 and the every-3h guards
-    # (axolotl/tgi/whisper_cpp :15, diffusers :20, peft :30,
-    # accelerate/llama_cpp :45) so the guards don't contend for NPU
-    # runners. Cadence is loose enough for an upstream that releases
-    # every few months, but tight enough that doc fixes propagate
-    # within a day.
-    - cron: '50 */6 * * *'
+    # Twice a day, 12 h apart: UTC 06:50 and 18:50
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '50 6,18 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

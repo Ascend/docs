@@ -49,11 +49,11 @@ concurrency:
 
 on:
   schedule:
-    # Run every 3 hours at minute 20 (00:20, 03:20, ..., 21:20) -
-    # offset from axolotl/tgi/whisper_cpp's :15, peft's :30 and
-    # accelerate/llama_cpp's :45 so the guards don't contend for NPU
-    # runners.
-    - cron: '20 */3 * * *'
+    # Twice a day, 12 h apart: UTC 05:20 and 17:20
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '20 5,17 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

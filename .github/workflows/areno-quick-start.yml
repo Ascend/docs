@@ -33,11 +33,11 @@ concurrency:
 
 on:
   schedule:
-    # Daily at 05:05 UTC (13:05 Beijing) per review: once a day is
-    # enough for this guard. Staggered off the other daily jobs
-    # (funasr 04:30, torchtune-examples 05:00) so they don't contend
-    # for the NPU runners.
-    - cron: '5 5 * * *'
+    # Twice a day, 12 h apart: UTC 03:05 and 15:05
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '5 3,15 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

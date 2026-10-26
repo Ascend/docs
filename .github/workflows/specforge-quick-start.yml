@@ -29,12 +29,11 @@ concurrency:
 
 on:
   schedule:
-    # Run twice a day at minute 40 (00:40, 12:40) - offset from the
-    # other guards so they don't contend for NPU runners. Twice-daily is
-    # enough for an upstream that releases a few times a year: doc fixes
-    # propagate within 12h, and a broken upstream recipe no longer gets
-    # re-retried 4x a day on the self-hosted NPU pool.
-    - cron: '40 */12 * * *'
+    # Twice a day, 12 h apart: UTC 07:40 and 19:40
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '40 7,19 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

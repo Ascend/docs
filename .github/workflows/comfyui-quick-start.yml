@@ -40,8 +40,11 @@ concurrency:
 
 on:
   schedule:
-    # Same 12 h cadence as the legacy workflows-side trigger.
-    - cron: '45 */12 * * *'
+    # Twice a day, 12 h apart: UTC 10:45 and 22:45
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '45 10,22 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

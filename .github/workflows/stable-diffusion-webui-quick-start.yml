@@ -7,7 +7,11 @@ concurrency:
 
 on:
   schedule:
-    - cron: '20 */6 * * *'
+    # Twice a day, 12 h apart: UTC 08:20 and 20:20
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '20 8,20 * * *'
   workflow_dispatch:
   pull_request:
     branches: [main]

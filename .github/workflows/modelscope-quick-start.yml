@@ -40,9 +40,11 @@ concurrency:
 
 on:
   schedule:
-    # Same 12 h cadence as the comfyui trigger, minute offset (55 vs 45)
-    # so the two jobs don't contend for the single NPU runner slot.
-    - cron: '55 */12 * * *'
+    # Twice a day, 12 h apart: UTC 07:55 and 19:55
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '55 7,19 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

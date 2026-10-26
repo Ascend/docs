@@ -18,11 +18,11 @@ concurrency:
 
 on:
   schedule:
-    # Run every 3 hours: '30 */3 * * *' fires at minute 30 of every
-    # 3rd hour (00:30, 03:30, 06:30, ..., 21:30). GitHub Actions caps
-    # schedule at 5 min minimum, so tighter cadences need
-    # workflow_dispatch instead.
-    - cron: '30 */3 * * *'
+    # Twice a day, 12 h apart: UTC 02:30 and 14:30
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '30 2,14 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not

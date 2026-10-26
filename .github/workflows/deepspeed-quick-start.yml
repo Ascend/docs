@@ -8,7 +8,11 @@ concurrency:
 on:
   # Every 3 hours at minute 0, offset from peft (minute 30) to avoid NPU runner contention.
   schedule:
-    - cron: '0 */3 * * *'
+    # Twice a day, 12 h apart: UTC 00:00 and 12:00
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '0 0,12 * * *'
   workflow_dispatch:
   pull_request:
     branches: [main]

@@ -18,9 +18,11 @@ concurrency:
 
 on:
   schedule:
-    # Run every 3 hours, offset from peft (minute 30) to spread load:
-    # '40 */3 * * *' fires at minute 40 of every 3rd hour.
-    - cron: '40 */3 * * *'
+    # Twice a day, 12 h apart: UTC 08:40 and 20:40
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '40 8,20 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
