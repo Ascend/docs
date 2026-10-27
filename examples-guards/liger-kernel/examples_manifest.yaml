@@ -1,76 +1,64 @@
 version: 1
-# Liger-Kernel examples ledger. The tested tree is the release the shared
-# engine resolves (linkedin/Liger-Kernel latest release; v0.8.3 at the time
-# of writing), and setup installs Liger from that same checkout, so kernel
-# source and examples always come from one release.
-#
-# v0.8.3 already ships an Ascend NPU backend
-# (src/liger_kernel/ops/backends/_ascend/, selected by device) plus an
-# infer_device()/infer_comm_backend() abstraction that returns "npu"/"hccl".
-# Upstream's README pins the NPU stack (torch==2.9.0, torch_npu==2.9.0,
-# triton-ascend==3.2.2, CANN==9.1.0) and links Huawei's own Ascend CI
-# (Ascend/Ascend-CI/.github/workflows/liger_kernel.yml), whose recipe this
-# project's setup_example.sh follows.
-#
-# supported lists entries whose upstream source, read statically, can run
-# unchanged on Ascend NPU with CI-sized CLI overrides. Unsupported
-# entries each carry a one-line Chinese reason.
+# Liger-Kernel examples ledger. The engine tests the latest upstream release and
+# setup installs Liger from that same checkout, so kernels and examples match.
+# Stack: transformers==5.3.0 + trl==0.12.1 (v0.8.5 requires transformers>=5;
+# trl 0.12.1 is the last release that accepts the examples' SFTTrainer kwargs).
+
 scan:
   root: examples
   include_extensions: ['.py', '.sh']
 
 supported:
-  # 单卡 HuggingFace Trainer SFT：用 AutoLigerKernelForCausalLM 一行 monkey-patch 应用
-  # Liger 内核（SwiGLU/RMSNorm/RoPE/FusedLinearCrossEntropy），trl SFTTrainer 训练；
-  # 无 CUDA/FSDP 依赖，设备由 accelerate 自动落 npu；规模靠 --max_steps/--model_name/
-  # --dataset/--per_device_train_batch_size 压缩，模型走 ModelScope、数据用仓内 8 行 fixture。
-  # --include_num_input_tokens_seen 与 --logging_steps 1 是 example 自带 EfficiencyCallback
-  # 的硬性要求（缺任一 on_init_end 直接抛异常）。
+  # 单卡 HF Trainer SFT；EfficiencyCallback 要求 --include_num_input_tokens_seen 与 --logging_steps 1。
   - path: examples/huggingface/training.py
     profile: liger_hf_trainer
     runner: linux-aarch64-a2-1
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args: ['--model_name ${LIGER_MODEL_PATH}', '--dataset ${LIGER_DATASET_PATH}', '--max_steps 3', '--per_device_train_batch_size 2', '--max_seq_length 256', '--eval_strategy no', '--save_strategy no', '--report_to none', '--logging_steps 1', '--include_num_input_tokens_seen', '--use_liger True', '--output_dir ${CI_OUTPUT_DIR}/hf_trainer']
     timeout_minutes: 180
-  # 单卡 Medusa 多头重训：冻结 backbone、注入 medusa heads，用 Liger 的
-  # fused_linear_cross_entropy 训练多 token 预测头（--medusa_return True 才走 Liger loss）。
-  # HfArgumentParser 全参数可覆盖，设备经 callback 的 infer_device() 落 npu，无 CUDA 硬编码。
-  # 规模必须压到 1 步：example 自带 callback 的 MFU 分支 _get_gpu_peak_tflops 只认
-  # A100/H100/V100，Ascend 上返回 None 会让第 2 步的 TFLOPS 除法崩溃；warmup 步数 2 内
-  # 提前 return，故 max_steps 1 安全（改大即触发，属上游代码问题）。
-  - path: examples/medusa/train.py
-    profile: liger_medusa
-    runner: linux-aarch64-a2-1
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    overlay_args: ['--model_name_or_path ${LIGER_MODEL_PATH}', '--data_path ${LIGER_FIXTURE_JSON}', '--max_steps 1', '--model_max_length 256', '--per_device_train_batch_size 2', '--eval_strategy no', '--save_strategy no', '--report_to none', '--logging_steps 1', '--include_num_input_tokens_seen', '--medusa_num_heads 2', '--medusa_return True', '--lazy_preprocess False', '--use_liger True', '--output_dir ${CI_OUTPUT_DIR}/medusa']
-    timeout_minutes: 180
-  # 两卡 Qwen SFT/FSDP 配方：run_qwen.sh 原用 4 卡 Qwen2-7B 和 batch 48 启动同一 training.py；
-  # CI 复刻 torchrun + full_shard auto_wrap，改为 2 卡、ModelScope 0.5B、2 步和本地数据，验证 HCCL/FSDP 路径。
+  # 两卡 torchrun + FSDP（full_shard auto_wrap）配方。
   - path: examples/huggingface/run_qwen.sh
     profile: liger_hf_fsdp
     runner: linux-aarch64-a2-2
+    npu_devices: '0,1'
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args: ['--model_name ${LIGER_MODEL_PATH}', '--dataset ${LIGER_DATASET_PATH}', '--max_steps 2', '--per_device_train_batch_size 1', '--max_seq_length 256', '--bf16', '--eval_strategy no', '--save_strategy no', '--report_to none', '--logging_steps 1', '--include_num_input_tokens_seen', '--use_liger True', '--fsdp "full_shard auto_wrap"', '--fsdp_config config/fsdp_config.json', '--output_dir ${CI_OUTPUT_DIR}/hf_fsdp']
     timeout_minutes: 180
-  # 单卡 Qwen2-VL 图文 SFT：monkey_patch Qwen2-VL 的多模态 RoPE、RMSNorm、SwiGLU
-  # 与 fused_linear_cross_entropy（这 4 族的 _ascend 实现 v0.8.3 都有），走 trl
-  # SFTTrainer。7 个 CustomArguments 字段都是真 CLI 参数，可把模型/数据/步数整体
-  # 覆盖；上游 the_cauldron 在 ModelScope 有镜像但 168 GB，故数据换 setup 现生成的
-  # 4 行本地 fixture（schema 逐字段复刻 ai2d，含 config card）。额外依赖 torchvision：
-  # AutoProcessor 走 torchvision 图像后端，纯文本栈里没有（0.24.0 配 torch 2.9.0）。
-  - path: examples/huggingface/training_multimodal.py
-    profile: liger_multimodal
-    runner: linux-aarch64-a2-1
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    overlay_args: ['--model_name ${LIGER_VL_MODEL_PATH}', '--dataset ${LIGER_VL_DATASET_PATH}', '--dataset_subset ai2d', '--dataset_split train', '--max_seq_length 256', '--dataset_text_field texts', '--max_steps 1', '--per_device_train_batch_size 1', '--bf16', '--eval_strategy no', '--save_strategy no', '--report_to none', '--logging_steps 1', '--include_num_input_tokens_seen', '--use_liger True', '--output_dir ${CI_OUTPUT_DIR}/multimodal']
-    timeout_minutes: 240
 
 unsupported:
-  # ORPO 偏好对齐；#9 两卡 FSDP 首步在 grad_and_value/logsigmoid 报 TensorWrapper 无 storage，当前 NPU 栈需上游修复。
+  # medusa 用 Trainer(tokenizer=...)，transformers 5 已改为 processing_class。
+  - examples/medusa/train.py
+  # from_pretrained(use_cache=False) 在 transformers 5 上必 TypeError。
+  - examples/huggingface/training_multimodal.py
+
+  # LigerORPOTrainer 的 _FSDPForwardRedirection 断言模型必须被 FSDP 包装。
   - examples/alignment/run_orpo.py
-  # Lightning SFT；尝试本地 MMLU/小模型后，Trainer 无 NPU 注册且 fused AdamW 无切换参数。
+
+  # lightning 没有 npu accelerator，也没有可安装的插件包。
   - examples/lightning/training.py
-  # Megatron 内核替换；两卡规模可满足，但必经 cuda.set_device/.cuda 和 NCCL。
+
+  # Gemma-7B-it 是 gated 模型，无 HF token 时 403。
+  - examples/huggingface/run_gemma.sh
+  # Meta-Llama-3-8B 是 gated 模型，无 HF token 时 403。
+  - examples/huggingface/run_llama.sh
+  # 未覆盖数据集参数，会拉 168 GB 的 the_cauldron，90 分钟超时。
+  - examples/huggingface/run_qwen2_vl.sh
+  # 30 次 × 20 步复跑，2 小时超时。
+  - examples/huggingface/run_benchmarks.sh
+
+  # Megatron 内核替换，CUDA/NCCL 硬编码。
   - examples/megatron/run_mode1_monkey_patch.py
-  # Megatron 手工层定义；两卡规模可满足，但必经 CUDA/NCCL 初始化。
+  # Megatron 手工层定义，CUDA/NCCL 硬编码。
   - examples/megatron/run_mode2_hand_spec.py
+
+  # Modal 云 GPU 启动器。
+  - examples/huggingface/launch_on_modal.py
+  # medusa 启动包装，nvidia-smi 数卡 + CUDA FSDP 配置。
+  - examples/medusa/scripts/llama3_8b_medusa.sh
+
+  # training.py 的 EfficiencyCallback 辅助模块。
+  - examples/huggingface/callback.py
+  # medusa 的 EfficiencyCallback 辅助模块。
+  - examples/medusa/callback.py
+  # medusa 头注入工具模块。
+  - examples/medusa/medusa_util.py
