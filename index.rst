@@ -196,6 +196,13 @@
          <div class="card-footer"><a href="https://github.com/axolotl-ai-cloud/axolotl">官方链接</a><span class="split">|</span><a href="https://docs.axolotl.ai/">文档中心</a><span class="split">|</span><a href="sources/axolotl/index.html">快速上手</a></div>
       </div>
 
+      <!-- MMEngine -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/mmengine.png')"></div><h3 class="card-title">mmengine</h3></div>
+         <p class="card-desc">OpenMMLab 的深度学习训练引擎，提供 Runner、配置系统、注册表与 Hook 等核心组件。</p>
+         <div class="card-footer"><a href="https://github.com/open-mmlab/mmengine">官方链接</a><span class="split">|</span><a href="https://mmengine.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="sources/mmengine/index.html">快速上手</a></div>
+      </div>
+
       <!-- ColossalAI -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/colossalai.png')"></div><h3 class="card-title">ColossalAI</h3></div>
@@ -630,6 +637,7 @@
    sources/axolotl/index.rst
    sources/LLaMA-Factory/index.rst
    sources/colossalai/index.rst
+   sources/mmengine/index.rst
    sources/ms-swift/index.rst
    sources/peft/index.md
    sources/roll/index.rst
