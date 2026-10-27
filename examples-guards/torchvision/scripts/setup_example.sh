@@ -25,6 +25,14 @@ echo "TorchVision tested commit: $(git -C "$TARGET_ROOT" rev-parse HEAD)"
 # come from aliyun's pytorch-wheels/cpu find-links repo — PyPI's
 # torch==2.14.0 aarch64 wheel is the CUDA build.
 python -m pip install uv
+# The matrix jobs of this guard run concurrently on one runner and share
+# /root/.cache/uv. The first job to build the torchvision sdist holds the
+# cache-entry lock for the ~6 min C build, and uv's default 300 s lock wait
+# (UV_LOCK_TIMEOUT) is occasionally too short for the other jobs (observed:
+# "Timeout (300s) when waiting for lock on .../sdists-v10/editable/...").
+# 30 min covers a full build with ample headroom; flock dies with the
+# holder, so a crashed build cannot leave a stale lock behind.
+export UV_LOCK_TIMEOUT=1800
 uv pip install --system -f https://mirrors.aliyun.com/pytorch-wheels/cpu 'torch==2.14.0+cpu'
 uv pip install --system 'torch_npu==2.14.0'
 uv pip install --system 'pillow>=10.0' numpy

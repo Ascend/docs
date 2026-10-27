@@ -62,6 +62,11 @@ if [[ "${EXAMPLE_PATH:-}" == tutorials/sphinx_tuto/serialization_speed.py ]]; th
   # Enable every optional format used by the unchanged upstream benchmark.
   python -m pip install matplotlib safetensors 'zarr>=3,<4'
 fi
+# Matrix jobs of this guard can run concurrently on one runner and share
+# /root/.cache/uv; a long source build under the cache lock can outlive
+# uv's default 300 s lock wait (UV_LOCK_TIMEOUT). See torchvision's
+# setup_example.sh for the full rationale.
+export UV_LOCK_TIMEOUT=1800
 uv pip install --system --no-deps -e "$TARGET_ROOT" --config-settings editable_mode=compat
 
 python - <<'PY'
