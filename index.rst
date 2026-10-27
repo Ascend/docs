@@ -584,7 +584,7 @@
 
       <!-- FunASR -->
       <div class="project-card">
-         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/modelscope.png')"></div><h3 class="card-title">FunASR</h3></div>
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/funasr.png')"></div><h3 class="card-title">FunASR</h3></div>
          <p class="card-desc">面向离线、流式与边缘部署的工业级语音识别工具箱，支持 ASR、VAD、标点、说话人、情感等。</p>
          <div class="card-footer"><a href="https://github.com/modelscope/FunASR">官方链接</a><span class="split">|</span><a href="sources/funasr/index.html">快速上手</a></div>
       </div>
