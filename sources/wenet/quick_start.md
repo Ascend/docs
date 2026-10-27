@@ -256,6 +256,64 @@ echo "train/dev/test splits ok"
 train/dev/test splits ok
 ```
 
+### 截取子集（可选）
+
+aishell-1 的完整训练集跑完一轮训练需要数小时。如果只想确认流程能否跑通，可以把训练、验证、测试三份数据各截成子集，后面每一步的耗时会随之下降。
+
+本步骤只截 `wav.scp` 与 `text`，后面的 CMVN、词典与 `data.list` 都由这两个文件推导，会自动跟着变小。三个变量设为 `0` 即使用全量数据。
+
+```{admonition} Note
+:class: note
+子集只用于缩短首次跑通的时间，样本量不足以训练出可用的识别模型。
+```
+
+```shell #test-setup id="subset-data"
+cd wenet/examples/aishell/s0
+# 每份数据保留的条数，设为 0 表示使用全量
+train_utts=12000
+dev_utts=1400
+test_utts=700
+truncate_split() {
+  split=$1
+  n=$2
+  if [ "$n" -eq 0 ]; then
+    return 0
+  fi
+  for f in wav.scp text; do
+    head -n "$n" "data/$split/$f" > "data/$split/$f.tmp"
+    mv "data/$split/$f.tmp" "data/$split/$f"
+  done
+}
+truncate_split train "$train_utts"
+truncate_split dev "$dev_utts"
+truncate_split test "$test_utts"
+```
+
+截取后 `wav.scp` 与 `text` 的条数与 utterance id 应完全一致：
+
+```shell #test id="verify-subset"
+set -euo pipefail
+cd wenet/examples/aishell/s0
+for split in train dev test; do
+  n=$(wc -l < "data/$split/wav.scp")
+  test "$n" = "$(wc -l < "data/$split/text")"
+  awk '{print $1}' "data/$split/wav.scp" > "/tmp/$split.wav.ids"
+  awk '{print $1}' "data/$split/text" > "/tmp/$split.text.ids"
+  diff -q "/tmp/$split.wav.ids" "/tmp/$split.text.ids"
+  echo "$split: $n utterances"
+done
+echo "subset ok"
+```
+
+输出结果如下：
+
+```shell #test-result id="verify-subset"
+train: 12000 utterances
+dev: 1400 utterances
+test: 700 utterances
+subset ok
+```
+
 ## 7. 生成 CMVN、词典与 data.list
 
 本步骤的脚本依次完成三件事：去除转写文本中的词间空格（普通话字符建模标准做法）并计算全局 CMVN 统计；
