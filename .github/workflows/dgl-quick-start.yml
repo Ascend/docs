@@ -1,0 +1,39 @@
+# DGL-Ascend guard: build the engine-selected source and train LightGCN on NPU.
+name: dgl-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'dgl-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  # Twice a day, 12 h apart: UTC 08:55 and 20:55
+  # (Beijing 16:55 and 04:55), staggered against other quick-start guards.
+  schedule:
+    - cron: '55 8,20 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/dgl/**'
+      - 'tests/dgl/**'
+      - '.github/workflows/dgl-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  dgl-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: dgl
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10
+      container_options: ''
+      # Includes the source build, complete graph checks, and one training epoch.
+      timeout_minutes: 240
+      # The tagless fork resolves to a full SHA; the fixture pins it before build.
+      upstream_repo: BUPT-GAMMA/dgl-ascend
+      # Bind both the repository and document to this run's checkout.
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/dgl/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/dgl/quick_start.md
+      test_command: python -m unittest tests.dgl.test_quick_start_ascend -v 2>&1

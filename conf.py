@@ -75,6 +75,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     # the project index.rst so the sidebar landing page
                     # is the tutorial, not a nested「快速开始」child page.
                     'sources/trl/quick_start.md',
+                    'sources/dgl/quick_start.md',
                     'sources/deepspeed/quick_start.md',
                     'sources/lightx2v/quick_start.md',
                     'sources/fastchat/quick_start.md',
