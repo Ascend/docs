@@ -82,8 +82,7 @@ python -m pip install \
 python -c "import numpy, yaml, torch, torch_npu; print('torch', torch.__version__); print('torch_npu', torch_npu.__version__); print('npu_available', torch.npu.is_available())"
 ```
 
-<!--
-完整输出较长，其中应包含。`xxx` 表示实际安装的版本号，`torch` 为 CPU 构建版本，`+cpu` 表示 NPU 支持由 `torch_npu` 提供：
+完整输出较长，其中应包含。`xxx` 表示实际安装的版本号，`torch` 一行的 `+cpu` 表示装到的是 CPU 构建，NPU 支持由 `torch_npu` 提供：
 
 ```shell #test-result id="install-torch" fuzzy="..." fuzzy="xxx"
 ...
@@ -91,7 +90,6 @@ torch xxx+cpu
 torch_npu xxx
 npu_available True
 ```
--->
 
 ---
 
@@ -110,13 +108,11 @@ python -m pip install --no-build-isolation "torch_geometric==<ver>" scipy
 python -c "import torch_geometric; print('torch_geometric', torch_geometric.__version__)"
 ```
 
-<!--
 完整输出较长，其中应包含：
 
 ```shell #test-result id="install-pyg" load="pyg_ver>>ver"
 ...torch_geometric <ver>
 ```
--->
 
 ```{admonition} Note
 :class: note
