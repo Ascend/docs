@@ -301,6 +301,13 @@
          <div class="card-footer"><a href="https://github.com/volcengine/verl">官方链接</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/">文档中心</a><span class="split">|</span><a href="https://verl.readthedocs.io/en/latest/ascend_tutorial/index.html">昇腾教程</a></div>
       </div>
 
+      <!-- DGL -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/dgl.png')"></div><h3 class="card-title">DGL</h3></div>
+         <p class="card-desc">面向图结构数据的深度学习框架，提供图数据结构、消息传递和常用图神经网络模块。</p>
+         <div class="card-footer"><a href="https://github.com/dmlc/dgl">官方链接</a><span class="split">|</span><a href="https://github.com/BUPT-GAMMA/dgl-ascend">昇腾适配</a><span class="split">|</span><a href="sources/dgl/index.html">快速上手</a></div>
+      </div>
+
       <!-- PyG -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pyg.png')"></div><h3 class="card-title">PyG</h3></div>
@@ -651,6 +658,7 @@
    sources/twinkle/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
+   sources/dgl/index.rst
    sources/pyg/index.rst
    sources/xtuner/index.rst
 
