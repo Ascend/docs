@@ -201,18 +201,22 @@ stage_fixtures() {
   ls -la "$dst/"
 }
 
+# Shared HF stack for every example that trains through transformers/trl.
+# transformers 5.3.0 is the 5.x pairing Huawei's Ascend-CI validates on torch
+# 2.9.0 (v0.8.5's monkey_patch refuses anything below 5.0.0); trl 0.12.1 is
+# the last release whose SFTTrainer/ORPOTrainer still accept the examples'
+# max_seq_length=/tokenizer= kwargs.
+install_hf_stack() {
+  python -m pip install "transformers==5.3.0" "trl==0.12.1" \
+    "datasets>=3.0.0" "accelerate>=1.1" "sentencepiece" "pillow"
+}
+
 # ----- profile: liger_hf_trainer (examples/huggingface/training.py) -----
 # AutoLigerKernelForCausalLM monkey-patches Qwen2 with Liger kernels and
 # trains through trl's SFTTrainer. The example itself is unchanged; only
 # the model/dataset/step flags are overridden.
 setup_liger_hf_trainer() {
-  # Pin the transformers/trl pair the example's API surface needs:
-  #   dtype= (not torch_dtype=) requires transformers>=4.56.0;
-  #   SFTTrainer(max_seq_length=) was removed from trl 0.13.0 (moved into SFTConfig);
-  #   DataCollatorForCompletionOnlyLM was removed in trl 0.20.0.
-  # verifier: examples/huggingface/training.py byte-identical run on trl 0.12.1 + 4.57.1.
-  python -m pip install "transformers==4.57.1" "trl==0.12.1" \
-    "datasets>=3.0.0" "accelerate>=0.34" "sentencepiece" "pillow"
+  install_hf_stack
   verify_data_stack
   stage_fixtures
   # load_dataset(path) needs a DIRECTORY containing a train split file; a
@@ -244,10 +248,11 @@ PY
 # Liger's fused_linear_cross_entropy. Needs scikit-learn (train_test_split)
 # and safetensors; the wrapper's nvidia-smi launcher is not used.
 setup_liger_medusa() {
-  # Same transformers/trl window as the HF profile: medusa's train.py calls
-  # Trainer(tokenizer=...), which exists only before transformers 5.0.
-  python -m pip install "transformers==4.57.1" "trl==0.12.1" \
-    "datasets>=3.0.0" "accelerate>=0.34" "scikit-learn" "safetensors" "sentencepiece" "pillow"
+  # Same stack as the HF profile. The entry itself stays unsupported upstream:
+  # medusa's train.py calls Trainer(tokenizer=...), removed in transformers 5.0,
+  # so this profile is only kept for a future upstream fix.
+  install_hf_stack
+  python -m pip install "scikit-learn" "safetensors"
   python -c "import transformers, sklearn, safetensors; print('transformers', transformers.__version__)"
   verify_data_stack
   stage_fixtures
@@ -264,8 +269,7 @@ setup_liger_medusa() {
 # a dataset card declaring the config name - without the card
 # load_dataset(dir, "ai2d") raises "BuilderConfig 'ai2d' not found".
 setup_liger_multimodal() {
-  python -m pip install "transformers==4.57.1" "trl==0.12.1" \
-    "datasets>=3.0.0" "accelerate>=0.34" "sentencepiece" "pillow"
+  install_hf_stack
   verify_data_stack
   # AutoProcessor for Qwen2-VL pulls in the torchvision image backend, which
   # the plain text stack does not carry. 0.24.0 matches torch 2.9.0.
@@ -326,6 +330,69 @@ Dataset.from_list(rows, features=features).to_parquet(str(config / "train.parque
 print(f"image-text fixture ready: {root} ({len(rows)} rows)")
 PY
   printf 'LIGER_VL_DATASET_PATH=%s\n' "$TARGET_ROOT/fixtures/cauldron_ai2d" >> "$GITHUB_ENV"
+}
+
+# ----- profile: liger_orpo (examples/alignment/run_orpo.py) -----
+# ORPO through LigerORPOTrainer (chunked ORPO loss). The example hardcodes its
+# model/data/steps, so it always runs at upstream scale; it also hardcodes the
+# gated repo id meta-llama/Llama-3.2-1B-Instruct, so the same snapshot is
+# mirrored from ModelScope into the HuggingFace hub cache and the run step
+# resolves model + preference dataset from cache while offline.
+setup_liger_orpo() {
+  install_hf_stack
+  python -m pip install -q "modelscope==1.37.0"
+  python - <<'PY'
+import os
+import shutil
+from pathlib import Path
+
+from modelscope import snapshot_download
+
+repo = "meta-llama/Llama-3.2-1B-Instruct"
+ms_id = "LLM-Research/Llama-3.2-1B-Instruct"
+source = Path(snapshot_download(ms_id, cache_dir="/tmp/liger-modelscope-orpo"))
+
+hub = Path(os.environ.get("HF_HUB_CACHE") or Path.home() / ".cache" / "huggingface" / "hub")
+org, name = repo.split("/", 1)
+commit = "0" * 40
+root = hub / f"models--{org}--{name}"
+snapshot = root / "snapshots" / commit
+snapshot.mkdir(parents=True, exist_ok=True)
+copied = 0
+for path in sorted(source.rglob("*")):
+    if not path.is_file() or path.name.startswith("."):
+        continue
+    target = snapshot / path.relative_to(source)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        continue
+    try:
+        os.link(path, target)
+    except OSError:
+        shutil.copy2(path, target)
+    copied += 1
+(root / "refs").mkdir(parents=True, exist_ok=True)
+(root / "refs" / "main").write_text(commit)
+print(f"staged {repo} from ModelScope {ms_id}: {copied} files -> {snapshot}")
+PY
+  # The run step is offline, so the preference dataset must already be cached.
+  python - <<'PY'
+from datasets import load_dataset
+
+rows = load_dataset("trl-lib/tldr-preference", split="train")
+print("cached trl-lib/tldr-preference rows:", len(rows))
+PY
+  python -c "import transformers, trl; print('transformers', transformers.__version__, 'trl', trl.__version__)"
+}
+
+# ----- profile: liger_launcher (examples/huggingface/run_*.sh) -----
+# The upstream launcher scripts build their own torchrun command and pick
+# their own 7-8B models/datasets; they take no CLI overrides, so they run at
+# upstream scale. torchvision is only needed by the Qwen2-VL launcher.
+setup_liger_launcher() {
+  install_hf_stack
+  python -m pip install "torchvision==0.24.0"
+  python -c "import transformers, trl, torchvision; print('transformers', transformers.__version__, 'trl', trl.__version__, 'torchvision', torchvision.__version__)"
 }
 
 verify_data_stack() {
