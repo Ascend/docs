@@ -1,0 +1,74 @@
+# pyg quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image, upstream repo, monitored
+# doc, and the test entry command.
+
+name: pyg-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'pyg-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, 12 h apart: UTC 08:08 and 20:08, i.e. Beijing
+    # 16:08 and 04:08. All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time. Minute 8 and the
+    # 8,20 hour pair keep this guard clear of every existing slot.
+    - cron: '8 8,20 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/pyg/**'
+      - 'tests/pyg/**'
+      - '.github/workflows/pyg-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  pyg-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-pyg-*), artifacts
+      # (pyg-quick-start-<run_id>) and the test working dir
+      # (tests/pyg in the repo root; engine sets cwd to repo root).
+      project: pyg
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest.
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # 1 h budget. The doc installs the torch / torch_npu pair and
+      # torch_geometric, downloads the small Cora dataset from
+      # GitHub, then trains a 2-layer GCN for 200 epochs on one NPU.
+      timeout_minutes: 60
+      upstream_repo: pyg-team/pytorch_geometric
+      # Doc URL points at the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch — accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/pyg/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/pyg/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep lives in the test subclass's
+      # prepare_environment hook.
+      test_command: python -m unittest tests.pyg.test_quick_start_ascend -v 2>&1

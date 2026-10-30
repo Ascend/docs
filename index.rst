@@ -305,7 +305,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/pyg.png')"></div><h3 class="card-title">PyG</h3></div>
          <p class="card-desc">基于 PyTorch 的 GNN 训练库。</p>
-         <div class="card-footer"><a href="https://github.com/pyg-team/pytorch_geometric">官方链接</a><span class="split">|</span><a href="sources/pyg/install.html">安装指南</a><span class="split">|</span><a href="sources/pyg/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/pyg-team/pytorch_geometric">官方链接</a><span class="split">|</span><a href="sources/pyg/install.html">安装指南</a><span class="split">|</span><a href="sources/pyg/index.html">快速上手</a></div>
       </div>
 
       <!-- XTuner -->
