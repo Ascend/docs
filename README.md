@@ -1,6 +1,6 @@
-# The Doc of Ascend Supported Open Source project
+# The Doc of Huawei Ascend Supported Open Source project
 
-This repository is a collection of documentation for Ascend supported open source projects.
+This repository is a collection of documentation for Huawei Ascend supported open source projects.
 
 # Structure
 
