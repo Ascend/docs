@@ -4,20 +4,15 @@ scan:
   # .yaml is not scanned: the files under examples/ are deepspeed/accelerate
   # run configs, not launchable examples. .md/.txt/.json are non-examples.
   include_extensions: ['.py', '.sh']
-  # files-only 模型（examples-guards/README.md）。2026-10-08 起
-  # 对齐收口：原 scan.exclude 的 33 条规则全部迁入
-  # unsupported 段（上游自测 / helper / pipeline 模块 / community 整目录等，
-  # 带分组注释与理由），scan 只保留 root + include_extensions 两个键。
-  # unsupported 覆盖全部 308 个扫描文件：supported(52) + unsupported(256)。
-
-# 新版 diffusers 需求 huggingface-hub>=1.23，huggingface-hub>=1.23 需求
-# transformers>=5.x，任何 transformers<5.x 的用例都无法跑通
+  # 合计 316：
+  #   已支持（可看护）            52 (16.5%)
+  #   可看护（当前无法支持）       82 (25.9%)
+  #   不可看护（非用例/工具类）    182 (57.6%)
 
 supported:
   # ${...} 由 setup_example.sh 预下后写入 GITHUB_ENV：
   #   ${SD15_MODEL_PATH} / ${THREE_D_ICON_PATH} <- profile diffusers-sd15
   # SDXL 模型直接走 stabilityai/stable-diffusion-xl-base-1.0 在线加载。
-
 
   # FLUX.2 Klein 4B LoRA（t2i）。NPU fork（自带 torch_npu 适配 +
   # set_attention_backend("_native_npu")）；模型非 gated，setup 预下 ~15GB。
@@ -959,11 +954,19 @@ unsupported:
   - examples/research_projects/wuerstchen/text_to_image/train_text_to_image_lora_prior.py
   # ==== GATED_MODEL ========================================================
   # 需接受作者设定的许可条款并使用有效的 Hugging Face Token（HF_TOKEN）
-  # 进行身份验证才能下载模型
-  # FLUX.1-dev        FLUX.1-Kontext-dev    FLUX.2-dev
-  # FLUX.2-klein-9B   SD3-medium            SD3.5-medium
-  # SD3.5-large       ideogram-4-nf4        Cosmos-Predict2.5-2B
-  # Krea-2-Raw        Krea-2-Turbo
+  # 进行身份验证才能下载模型：
+  #   black-forest-labs/FLUX.1-dev
+  #   black-forest-labs/FLUX.1-Kontext-dev
+  #   black-forest-labs/FLUX.2-dev
+  #   black-forest-labs/FLUX.2-klein-9B
+  #   black-forest-labs/flux-3-image-klein-base
+  #   stabilityai/stable-diffusion-3-medium-diffusers
+  #   stabilityai/stable-diffusion-3.5-medium
+  #   stabilityai/stable-diffusion-3.5-large
+  #   ideogram-ai/ideogram-4-nf4-diffusers
+  #   nvidia/Cosmos-Predict2.5-2B
+  #   krea/Krea-2-Raw
+  #   krea/Krea-2-Turbo
   - examples/controlnet/train_controlnet_flux.py
   - examples/controlnet/train_controlnet_sd3.py
   - examples/flux-control/train_control_flux.py
@@ -977,11 +980,11 @@ unsupported:
   - examples/dreambooth/train_dreambooth_lora_flux_kontext.py
   - examples/dreambooth/train_dreambooth_lora_flux2.py
   - examples/dreambooth/train_dreambooth_lora_flux2_img2img.py
+  - examples/dreambooth/train_dreambooth_lora_flux3_klein.py
+  - examples/dreambooth/train_dreambooth_lora_flux3_klein_img2img.py
   - examples/dreambooth/train_dreambooth_lora_ideogram4.py
   - examples/cosmos/eval_cosmos_predict25_lora.py
-  - examples/cosmos/eval_lora.sh
   - examples/cosmos/train_cosmos_predict25_lora.py
-  - examples/cosmos/train_lora.sh
   # ==== CUDA硬编码类 =======================================================
   - examples/cogview4-control/train_control_cogview4.py
   - examples/community/tiled_upscaling.py
@@ -991,7 +994,6 @@ unsupported:
   - examples/research_projects/control_lora/control_lora.py
   - examples/cosmos3/inference_cosmos3.py
   - examples/profiling/profiling_pipelines.py
-  - examples/profiling/run_profiling.sh
   - examples/research_projects/flux_lora_quantization/compute_embeddings.py # GATED_MODEL
   - examples/research_projects/flux_lora_quantization/train_dreambooth_lora_flux_miniature.py # GATED_MODEL
   - examples/research_projects/realfill/infer.py
@@ -1053,6 +1055,9 @@ unsupported:
   # 而 NPU 的 matmul(linear) 未实现前向 AD → NotImplementedError
   # 回归条件：torch_npu 补 matmul 的前向 AD，或上游提供非 jvp 的蒸馏实现
   - examples/research_projects/sana/train_sana_sprint_diffusers.py
+  # bria fibo-2：RoPE 的 complex64 索引在 NPU 未实现（aclnnIndex 不支持 DT_COMPLEX64）
+  - examples/dreambooth/train_dreambooth_lora_bria_fibo2.py
+  - examples/dreambooth/train_dreambooth_lora_bria_fibo2_img2img.py
   # ===== 代码BUG ==========================================================
   # 这些用例存在明确的代码缺陷，修复后可恢复：
   # autoencoderkl：final validation 用 AutoencoderKL.from_pretrained(output_dir)
@@ -1084,7 +1089,7 @@ unsupported:
   - examples/research_projects/pytorch_xla/training/text_to_image/train_text_to_image_xla.py
 
   # =====================================================================
-  # ===== 工具类套件
+  # ===== 不可看护的用例（工具类套件等）
   # =====================================================================
   # 上游自测与 pytest 基础设施（test_*.py / conftest.py），非可守卫 example。
   - examples/advanced_diffusion_training/test_dreambooth_lora_flux_advanced.py
@@ -1095,11 +1100,15 @@ unsupported:
   - examples/dreambooth/test_dreambooth.py
   - examples/dreambooth/test_dreambooth_flux.py
   - examples/dreambooth/test_dreambooth_lora.py
+  - examples/dreambooth/test_dreambooth_lora_bria_fibo2.py
+  - examples/dreambooth/test_dreambooth_lora_bria_fibo2_img2img.py
   - examples/dreambooth/test_dreambooth_lora_edm.py
   - examples/dreambooth/test_dreambooth_lora_flux.py
   - examples/dreambooth/test_dreambooth_lora_flux_kontext.py
   - examples/dreambooth/test_dreambooth_lora_flux2.py
   - examples/dreambooth/test_dreambooth_lora_flux2_klein.py
+  - examples/dreambooth/test_dreambooth_lora_flux3_klein.py
+  - examples/dreambooth/test_dreambooth_lora_flux3_klein_img2img.py
   - examples/dreambooth/test_dreambooth_lora_hidream.py
   - examples/dreambooth/test_dreambooth_lora_lumina2.py
   - examples/dreambooth/test_dreambooth_lora_qwenimage.py
@@ -1159,6 +1168,9 @@ unsupported:
   - examples/dreambooth/convert_to_imagefolder.py
   - examples/research_projects/promptdiffusion/convert_original_promptdiffusion_to_diffusers.py
   - examples/research_projects/sana/train_sana_sprint_diffusers.sh
+  - examples/cosmos/eval_lora.sh
+  - examples/cosmos/train_lora.sh
+  - examples/profiling/run_profiling.sh
   # 外部服务 / 废弃 shim / 库模块 / HTTP 客户端：不可独立执行
   # （retrieve 需 knn.laion.ai；inference 两条是无 __main__ 的废弃 shim；
   # pipeline_easy 是查 civitai API 的库模块；server-async/test.py 需常驻服务）。
