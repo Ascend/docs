@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>torchvision &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="torchtune" href="../torchtune/index.html" />
+    <link rel="prev" title="torchtitan" href="../torchtitan/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xla/index.html">xla</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../areno/index.html">areno</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../colossalai/index.html">ColossalAI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmengine/index.html">mmengine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../speculators/index.html">Speculators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specforge/index.html">SpecForge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torchvision</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">前置安装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">安装 torchvision</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transforms-v2">transforms v2 入门</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#npu">合成一张测试图并确认 NPU 可用</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#centercrop-transform">用 CenterCrop 跑通第一个 transform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#npu-224224">在 NPU 上裁剪出 224×224 的图</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compose">用 <code class="docutils literal notranslate"><span class="pre">Compose</span></code> 搭一条分类预处理流水线</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">让标注框跟着图像一起做变换</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transform-5-tvtensor">一次 transform 同时处理 5 种 TVTensor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tvtensor-torch-tensor-npu">验证 TVTensor 是 <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> 的子类，搬到 NPU 后类型不变</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transform">把 (图像, 标注字典) 一起传进 transform，验证字典结构原样返回</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tvtensor-dataset-v2-transform">写一个返回 TVTensor 的自定义 Dataset，直接接上 v2 transform</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtune/index.html">torchtune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">TRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dgl/index.html">DGL (Huawei Ascend NPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xtuner/index.html">xtuner</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aibrix/index.html">AIBrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitsandbytes/index.html">bitsandbytes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flagscale/index.html">FlagScale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lmcache/index.html">LMCache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fastchat/index.html">FastChat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mooncake/index.html">Mooncake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightx2v/index.html">LightX2V</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xdit/index.html">xDiT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diffsynth_studio/index.html">DiffSynth-Studio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evalscope/index.html">evalscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../funasr/index.html">FunASR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">torchvision</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/torchvision/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="torchvision">
+<h1>torchvision<a class="headerlink" href="#torchvision" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://github.com/pytorch/vision">Torchvision</a> 是 PyTorch 的计算机视觉库。本文在昇腾 NPU 上跑通它的最小链路：</p>
+<ul class="simple">
+<li><p><strong>安装</strong>：源码构建 <code class="docutils literal notranslate"><span class="pre">torchvision</span></code>（<code class="docutils literal notranslate"><span class="pre">FORCE_CUDA=0</span></code>），配合 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 2.14.0 + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 2.14.0。</p></li>
+<li><p><strong>transforms v2</strong>：用合成图在 NPU 上验证 9 段核心用法（基础 / 随机裁剪 / 分类流水线 / 检测 / 多类型 TVTensor / <code class="docutils literal notranslate"><span class="pre">tv_tensors</span></code> 语义 / 嵌套结构透传 / <code class="docutils literal notranslate"><span class="pre">Dataset</span></code> 互操作）。</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">torchvision</span></code> 通过 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 在 NPU 上跑通。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载（<code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code> 等）。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>与上面 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，32 GB × 1）</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.14.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.14.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torchvision</p></td>
+<td><p>最新 release（<strong>源码构建</strong> <code class="docutils literal notranslate"><span class="pre">FORCE_CUDA=0</span></code>，见「安装 torchvision」）</p></td>
+</tr>
+<tr class="row-odd"><td><p>pillow</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&gt;=10.0</span></code>（<code class="docutils literal notranslate"><span class="pre">torchvision.transforms.functional.to_pil_image</span></code> 等的运行时依赖）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id5">
+<h2>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 5     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 5                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动。</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<p>安装 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>https://mirrors.aliyun.com/pytorch-wheels/cpu<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.14.0
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.14.0
+</pre></div>
+</div>
+<p>检查 torch / torch_npu 是否装好且 NPU 设备可用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch='</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu='</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'is_available:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'count:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.14.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.14.0
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵。</p>
+</div>
+<p>安装 <code class="docutils literal notranslate"><span class="pre">pillow</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'pillow&gt;=10.0'</span>
+</pre></div>
+</div>
+<p>打印版本(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">PIL</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'Pillow'</span><span class="p">,</span> <span class="n">PIL</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Pillow<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示 Pillow 的版本号。</p>
+</div>
+</section>
+<section id="id6">
+<h2>安装 torchvision<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>PyPI 上的 linux wheel 全是 CUDA 版（链 <code class="docutils literal notranslate"><span class="pre">libcudart.so</span></code>），跟 torch_npu 不兼容，所以只能<strong>从源码构建</strong>：<code class="docutils literal notranslate"><span class="pre">FORCE_CUDA=0</span></code> 让构建脚本跳过 CUDA 依赖。构建工具（g++ / make / cmake / git）基础镜像里已有，无需额外安装。</p>
+<!-- 工作流注入的 UPSTREAM_REF（最新 release tag）通过这个隐藏的 #test-setup 捕获并注入到下方 install 命令中-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆上游仓库、<code class="docutils literal notranslate"><span class="pre">FORCE_CUDA=0</span></code> 源码构建：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/pytorch/vision.git
+<span class="nb">cd</span><span class="w"> </span>vision
+<span class="nv">FORCE_CUDA</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--no-build-isolation
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 替换为 pytorch/vision 当前的最新 release 版本。</p>
+</div>
+<p>验证装上的版本(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torchvision'</span><span class="p">,</span> <span class="n">torchvision</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchvision<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号。</p>
+</div>
+</section>
+<section id="transforms-v2">
+<h2>transforms v2 入门<a class="headerlink" href="#transforms-v2" title="Link to this heading"></a></h2>
+<p>用一个<strong>合成的 256×256 RGB 测试图</strong>走一遍 transforms v2 的核心用法。每节都把图搬到 NPU 上运行（<code class="docutils literal notranslate"><span class="pre">img.to('npu:0')</span></code>），用 v2 的 <code class="docutils literal notranslate"><span class="pre">BoundingBoxes</span></code> / <code class="docutils literal notranslate"><span class="pre">Mask</span></code> / <code class="docutils literal notranslate"><span class="pre">Video</span></code> / <code class="docutils literal notranslate"><span class="pre">KeyPoints</span></code> 配合验证 dispatch 链路。</p>
+<section id="npu">
+<h3>合成一张测试图并确认 NPU 可用<a class="headerlink" href="#npu" title="Link to this heading"></a></h3>
+<p><strong>确认环境就绪</strong>：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 装好且能看到 NPU 设备</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tv_tensors</span></code> 跟 <code class="docutils literal notranslate"><span class="pre">torchvision.io</span></code> 的链路通</p></li>
+<li><p>把 numpy 数组装进 <code class="docutils literal notranslate"><span class="pre">tv_tensors.Image</span></code>——这是后面所有 transform 的入口数据类型</p></li>
+</ul>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torchvision</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+
+<span class="c1"># 固定随机种子，后面每节的合成图都用同一颗种子，结果可复现</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># 合成 256×256 RGB 图：CPU 路径、零网络依赖</span>
+<span class="c1"># （官方教程用的是 github.com/pytorch/vision gallery 里的 astronaut.jpg，</span>
+<span class="c1">#  那边要 git clone 整个仓库，本烟雾路径跳过）</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img</span><span class="o">.</span><span class="n">dtype</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="c1"># torchvision.io.decode_image 走 libjpeg-turbo 入口（不是 Pillow），</span>
+<span class="c1"># 这里只是验 import 通，不需要真去解码文件</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">decode_image</span><span class="o">.</span><span class="vm">__module__</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="c1"># 验证 NPU：先看有没有设备，再做一次最简 cpu → npu → cpu 往返</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"npu_available: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"npu_count: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">x_npu</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">x_back</span> <span class="o">=</span> <span class="n">x_npu</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"npu round-trip: in=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">, npu=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">x_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">, back=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">x_back</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">x_back</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>type<span class="o">(</span>img<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>&lt;class<span class="w"> </span><span class="s1">'torchvision.tv_tensors._image.Image'</span>&gt;,<span class="w"> </span>img.dtype<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.uint8,<span class="w"> </span>img.shape<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.Size<span class="o">([</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">])</span>
+decode_image.__module__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'torchvision.io.image'</span>
+npu_available:<span class="w"> </span>True
+npu_count:<span class="w"> </span>xxx
+npu<span class="w"> </span>round-trip:<span class="w"> </span><span class="k">in</span><span class="o">=(</span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>on<span class="w"> </span>cpu,<span class="w"> </span><span class="nv">npu</span><span class="o">=(</span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>on<span class="w"> </span>npu,<span class="w"> </span><span class="nv">back</span><span class="o">=(</span><span class="m">2</span>,<span class="w"> </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>on<span class="w"> </span>cpu
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示当前可见的 NPU 设备数量。</p>
+</div>
+</section>
+<section id="centercrop-transform">
+<h3>用 CenterCrop 跑通第一个 transform<a class="headerlink" href="#centercrop-transform" title="Link to this heading"></a></h3>
+<p>v2 transform 用起来跟普通 <code class="docutils literal notranslate"><span class="pre">nn.Module</span></code> 一样：<strong>实例化一次，可以反复调用</strong>。跑最简单的 <code class="docutils literal notranslate"><span class="pre">CenterCrop</span></code>：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="c1"># 跟上一节一样的合成图</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># 把图搬到 NPU——transform 在哪个 device 上跑由输入 tensor 决定</span>
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">transform</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">CenterCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">transform</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"in:  type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">in</span>:<span class="w">  </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+out:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">224</span>,<span class="w"> </span><span class="m">224</span><span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="npu-224224">
+<h3>在 NPU 上裁剪出 224×224 的图<a class="headerlink" href="#npu-224224" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">RandomCrop</span></code> 默认 input 必须 ≥ output，否则要 pad。这里 256 ≥ 224，offset 恒为 <code class="docutils literal notranslate"><span class="pre">(0,</span> <span class="pre">0)</span></code>——<strong>这条路径是确定的</strong>，只在 NPU 上跑一次验形状：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># NPU 端 crop</span>
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">RandomCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">))(</span><span class="n">img_npu</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"in:  type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">in</span>:<span class="w">  </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+out:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">224</span>,<span class="w"> </span><span class="m">224</span><span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="compose">
+<h3>用 <code class="docutils literal notranslate"><span class="pre">Compose</span></code> 搭一条分类预处理流水线<a class="headerlink" href="#compose" title="Link to this heading"></a></h3>
+<p>单 transform 容易验；<strong>多个串起来</strong>才是真实训练场景。<code class="docutils literal notranslate"><span class="pre">Compose</span></code> 把一组 transform 按顺序作用在输入上。ImageNet 训练的经典 pipeline：</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomResizedCrop</span></code> — 随机切一块再 resize 到目标尺寸</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RandomHorizontalFlip(p=0.5)</span></code> — 一半概率水平翻转</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ToDtype(float32,</span> <span class="pre">scale=True)</span></code> — uint8 → float32，顺便除以 255</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Normalize(mean,</span> <span class="pre">std)</span></code> — 用 ImageNet 均值 / 方差归一化</p></li>
+</ol>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+<span class="c1"># 锁定 crop / flip 的随机性——这两步都走 torch 的 RNG</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">transforms</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">ToDtype</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="p">[</span><span class="mf">0.485</span><span class="p">,</span> <span class="mf">0.456</span><span class="p">,</span> <span class="mf">0.406</span><span class="p">],</span> <span class="n">std</span><span class="o">=</span><span class="p">[</span><span class="mf">0.229</span><span class="p">,</span> <span class="mf">0.224</span><span class="p">,</span> <span class="mf">0.225</span><span class="p">]),</span>
+<span class="p">])</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"in:  type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> dtype=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> dtype=</span><span class="si">{</span><span class="n">out</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="c1"># 归一化后值大致落在 [-2.12, 2.64]——mean=0.485/std=0.229 推算：</span>
+<span class="c1">#   (1 - 0.485) / 0.229 ≈ 2.25   (像素最大值的归一化结果)</span>
+<span class="c1">#   (0 - 0.485) / 0.229 ≈ -2.12  (像素最小值的归一化结果)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out stats: min=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> mean=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> max=</span><span class="si">{</span><span class="nb">float</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">())</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out finite: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># 兜底检查：cast / div 路径没有 NaN/Inf</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="k">in</span>:<span class="w">  </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">dtype</span><span class="o">=</span>torch.uint8<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+out:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">dtype</span><span class="o">=</span>torch.float32<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">224</span>,<span class="w"> </span><span class="m">224</span><span class="o">)</span>
+out<span class="w"> </span>stats:<span class="w"> </span><span class="nv">min</span><span class="o">=</span>xxx<span class="w"> </span><span class="nv">mean</span><span class="o">=</span>xxx<span class="w"> </span><span class="nv">max</span><span class="o">=</span>xxx
+out<span class="w"> </span>finite:<span class="w"> </span>True
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>让标注框跟着图像一起做变换<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>分类只处理图像；<strong>检测任务</strong>还要同时处理标注框（bounding box）。v2 用 <code class="docutils literal notranslate"><span class="pre">BoundingBoxes</span></code> TVTensor 表达标注框——形状 <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">4)</span></code>，带 <code class="docutils literal notranslate"><span class="pre">format</span></code>（坐标格式：<code class="docutils literal notranslate"><span class="pre">XYXY</span></code> / <code class="docutils literal notranslate"><span class="pre">CXCYWH</span></code> 等）跟 <code class="docutils literal notranslate"><span class="pre">canvas_size</span></code>（图像尺寸）两个 metadata：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+<span class="c1"># 3 个检测框：XYXY = (x1, y1, x2, y2)</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">BoundingBoxes</span><span class="p">(</span>
+    <span class="p">[[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">370</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">275</span><span class="p">,</span> <span class="mi">340</span><span class="p">,</span> <span class="mi">510</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">345</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="mi">425</span><span class="p">]],</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">"XYXY"</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">))</span>
+
+<span class="n">torch</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="c1"># 图像上 NPU；box 坐标留在 CPU——坐标是几个数字，搬到 NPU 没收益反而慢</span>
+<span class="n">transforms</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">RandomResizedCrop</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span> <span class="n">antialias</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>   <span class="c1"># crop 后 box 跟着重映射</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">RandomPhotometricDistort</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>                          <span class="c1"># 颜色 jitter 链：亮度/对比度/饱和度/色相</span>
+    <span class="n">v2</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>                              <span class="c1"># 永远翻，box 同步翻</span>
+<span class="p">])</span>
+<span class="n">out_img</span><span class="p">,</span> <span class="n">out_boxes</span> <span class="o">=</span> <span class="n">transforms</span><span class="p">(</span><span class="n">img_npu</span><span class="p">,</span> <span class="n">boxes</span><span class="p">)</span>
+<span class="n">fmt</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">b</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="s1">'name'</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span><span class="o">.</span><span class="n">format</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"in_img: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> dtype=</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"in_boxes: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> format=</span><span class="si">{</span><span class="n">fmt</span><span class="p">(</span><span class="n">boxes</span><span class="p">)</span><span class="si">}</span><span class="s2"> canvas_size=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">boxes</span><span class="o">.</span><span class="n">canvas_size</span><span class="p">)</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out_img: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_img</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_img</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> dtype=</span><span class="si">{</span><span class="n">out_img</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out_boxes: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_boxes</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> format=</span><span class="si">{</span><span class="n">fmt</span><span class="p">(</span><span class="n">out_boxes</span><span class="p">)</span><span class="si">}</span><span class="s2"> canvas_size=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">canvas_size</span><span class="p">)</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out_img finite: </span><span class="si">{</span><span class="n">torch</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">out_img</span><span class="o">.</span><span class="n">float</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># photometric 链路里某一步意外产 NaN/Inf？</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"out_boxes min/max: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># crop + flip 后坐标应仍在 [0, 224]</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>in_img:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">dtype</span><span class="o">=</span>torch.uint8<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+in_boxes:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>BoundingBoxes<span class="w"> </span><span class="nv">format</span><span class="o">=</span>XYXY<span class="w"> </span><span class="nv">canvas_size</span><span class="o">=(</span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span><span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span><span class="o">)</span>
+out_img:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">dtype</span><span class="o">=</span>torch.uint8<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">224</span>,<span class="w"> </span><span class="m">224</span><span class="o">)</span>
+out_boxes:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>BoundingBoxes<span class="w"> </span><span class="nv">format</span><span class="o">=</span>XYXY<span class="w"> </span><span class="nv">canvas_size</span><span class="o">=(</span><span class="m">224</span>,<span class="w"> </span><span class="m">224</span><span class="o">)</span><span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span><span class="o">)</span>
+out_img<span class="w"> </span>finite:<span class="w"> </span>True
+out_boxes<span class="w"> </span>min/max:<span class="w"> </span>xxx
+</pre></div>
+</div>
+</section>
+<section id="transform-5-tvtensor">
+<h3>一次 transform 同时处理 5 种 TVTensor<a class="headerlink" href="#transform-5-tvtensor" title="Link to this heading"></a></h3>
+<p>v2 不只能 transform image——一次调用可以塞 5 种 TVTensor（Image + BoundingBoxes + Mask + Video + KeyPoints），transform 内部按<strong>类型</strong>分别 dispatch：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">BoundingBoxes</span><span class="p">(</span>
+    <span class="p">[[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">370</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">275</span><span class="p">,</span> <span class="mi">340</span><span class="p">,</span> <span class="mi">510</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">345</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="mi">425</span><span class="p">]],</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">"XYXY"</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">))</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Mask</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>           <span class="c1"># 分割 mask</span>
+<span class="n">video</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Video</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>  <span class="c1"># (T, C, H, W)</span>
+<span class="n">keypoints</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">KeyPoints</span><span class="p">(</span>
+    <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">150</span><span class="p">]]),</span>
+    <span class="n">canvas_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">))</span>                                                     <span class="c1"># 关键点</span>
+
+<span class="c1"># p=0 保证确定性：这次不验证"翻得对不对"，只验证"5 种类型都正确 dispatch 了"</span>
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">mask_npu</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">video_npu</span> <span class="o">=</span> <span class="n">video</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="c1"># box / keypoints 留 CPU——坐标无需 NPU 计算</span>
+<span class="n">out_img</span><span class="p">,</span> <span class="n">out_boxes</span><span class="p">,</span> <span class="n">out_mask</span><span class="p">,</span> <span class="n">out_video</span><span class="p">,</span> <span class="n">out_kp</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">RandomHorizontalFlip</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="mi">0</span><span class="p">)(</span>
+    <span class="n">img_npu</span><span class="p">,</span> <span class="n">boxes</span><span class="p">,</span> <span class="n">mask_npu</span><span class="p">,</span> <span class="n">video_npu</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"img: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_img</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_img</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"boxes: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_boxes</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mask: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_mask</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_mask</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"video: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_video</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_video</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_video</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"keypoints: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_kp</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> device=</span><span class="si">{</span><span class="n">out_kp</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2"> shape=</span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_kp</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>img:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Image<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+boxes:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>BoundingBoxes<span class="w"> </span><span class="nv">device</span><span class="o">=</span>cpu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span><span class="o">)</span>
+mask:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Mask<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">1</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+video:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>Video<span class="w"> </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">32</span>,<span class="w"> </span><span class="m">32</span><span class="o">)</span>
+keypoints:<span class="w"> </span><span class="nv">type</span><span class="o">=</span>KeyPoints<span class="w"> </span><span class="nv">device</span><span class="o">=</span>cpu<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">3</span>,<span class="w"> </span><span class="m">2</span><span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="tvtensor-torch-tensor-npu">
+<h3>验证 TVTensor 是 <code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> 的子类，搬到 NPU 后类型不变<a class="headerlink" href="#tvtensor-torch-tensor-npu" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Image</span></code> / <code class="docutils literal notranslate"><span class="pre">BoundingBoxes</span></code> / <code class="docutils literal notranslate"><span class="pre">Mask</span></code> / <code class="docutils literal notranslate"><span class="pre">Video</span></code> / <code class="docutils literal notranslate"><span class="pre">KeyPoints</span></code> 都是 <strong><code class="docutils literal notranslate"><span class="pre">torch.Tensor</span></code> 的子类</strong>。换句话说：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">isinstance(img_dp,</span> <span class="pre">torch.Tensor)</span></code> 永远为 <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p>所有原生 tensor 接口（<code class="docutils literal notranslate"><span class="pre">.sum()</span></code> / <code class="docutils literal notranslate"><span class="pre">.to(...)</span></code> / <code class="docutils literal notranslate"><span class="pre">torch.cat(...)</span></code> / <code class="docutils literal notranslate"><span class="pre">tensor.shape</span></code>）都能用</p></li>
+<li><p><strong>transforms 就是按这个子类类型做 dispatch 的</strong>——这正是为什么 <code class="docutils literal notranslate"><span class="pre">BoundingBoxes</span></code> 能跟 <code class="docutils literal notranslate"><span class="pre">Image</span></code> 一起 transform</p></li>
+</ul>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+
+<span class="n">img_dp</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">uint8</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">img_dp</span><span class="p">,</span><span class="w"> </span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">img_dp</span><span class="o">.</span><span class="n">dtype</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_dp</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_dp</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img_dp</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>   <span class="c1"># TVTensor 子类化不被打断，搬到 NPU 后仍然是 tv_tensors.Image</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">img_npu</span><span class="p">,</span><span class="w"> </span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">dtype</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>isinstance<span class="o">(</span>img_dp,<span class="w"> </span>torch.Tensor<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>True
+img_dp.dtype<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.uint8,<span class="w"> </span>img_dp.shape<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.Size<span class="o">([</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">])</span>,<span class="w"> </span>img_dp.sum<span class="o">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>tensor<span class="o">(</span>xxx<span class="o">)</span>
+isinstance<span class="o">(</span>img_npu,<span class="w"> </span>torch.Tensor<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>True
+img_npu.dtype<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.uint8,<span class="w"> </span>img_npu.shape<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.Size<span class="o">([</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">])</span>,<span class="w"> </span>img_npu.device.type<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'npu'</span>,<span class="w"> </span>img_npu.sum<span class="o">()</span>.cpu<span class="o">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>tensor<span class="o">(</span>xxx<span class="o">)</span>
+</pre></div>
+</div>
+</section>
+<section id="transform">
+<h3>把 (图像, 标注字典) 一起传进 transform，验证字典结构原样返回<a class="headerlink" href="#transform" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">transforms</span></code> 只看 TVTensor <strong>类型</strong>做 dispatch，外来的 str / int / tuple / dict 原样穿透。所以你可以传任意嵌套结构——单 image、<code class="docutils literal notranslate"><span class="pre">(img,</span> <span class="pre">target)</span></code> 元组、dict、嵌套 dict——返回<strong>同结构</strong>：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span>
+<span class="n">boxes</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">BoundingBoxes</span><span class="p">(</span>
+    <span class="p">[[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">370</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">275</span><span class="p">,</span> <span class="mi">340</span><span class="p">,</span> <span class="mi">510</span><span class="p">,</span> <span class="mi">510</span><span class="p">],</span> <span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">345</span><span class="p">,</span> <span class="mi">210</span><span class="p">,</span> <span class="mi">425</span><span class="p">]],</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">"XYXY"</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">=</span><span class="p">(</span><span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">))</span>
+
+<span class="c1"># 经典检测 dataset 形态：image + target dict</span>
+<span class="n">target</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"boxes"</span><span class="p">:</span> <span class="n">boxes</span><span class="p">,</span>                                  <span class="c1"># TVTensor → 会被 transform</span>
+    <span class="s2">"labels"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">boxes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>           <span class="c1"># 普通 Tensor → 穿透（原样返回）</span>
+    <span class="s2">"this_is_ignored"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"arbitrary"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"structure"</span><span class="p">:</span> <span class="s2">"!"</span><span class="p">}),</span>  <span class="c1"># 任意对象 → 穿透</span>
+<span class="p">}</span>
+<span class="n">img_npu</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">)</span>
+<span class="n">out_img</span><span class="p">,</span> <span class="n">out_target</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">v2</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))])(</span><span class="n">img_npu</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_img</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">out_target</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">out_target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">out_target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">canvas_size</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_target</span><span class="p">[</span><span class="s1">'labels'</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">out_target</span><span class="p">[</span><span class="s1">'this_is_ignored'</span><span class="p">]</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>out_img.device.type<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'npu'</span>,<span class="w"> </span>type<span class="o">(</span>out_target<span class="o">)</span>.__name__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'dict'</span>
+out_target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.shape<span class="w"> </span><span class="o">=</span><span class="w"> </span>torch.Size<span class="o">([</span><span class="m">3</span>,<span class="w"> </span><span class="m">4</span><span class="o">])</span>,<span class="w"> </span>out_target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.format.name<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'XYXY'</span>,<span class="w"> </span>tuple<span class="o">(</span>out_target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.canvas_size<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">128</span>,<span class="w"> </span><span class="m">128</span><span class="o">)</span>
+out_target<span class="o">[</span><span class="s1">'labels'</span><span class="o">]</span>.tolist<span class="o">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="m">0</span>,<span class="w"> </span><span class="m">1</span>,<span class="w"> </span><span class="m">2</span><span class="o">]</span>
+out_target<span class="o">[</span><span class="s1">'this_is_ignored'</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="s1">'arbitrary'</span>,<span class="w"> </span><span class="o">{</span><span class="s1">'structure'</span>:<span class="w"> </span><span class="s1">'!'</span><span class="o">})</span>
+</pre></div>
+</div>
+</section>
+<section id="tvtensor-dataset-v2-transform">
+<h3>写一个返回 TVTensor 的自定义 Dataset，直接接上 v2 transform<a class="headerlink" href="#tvtensor-dataset-v2-transform" title="Link to this heading"></a></h3>
+<p>你只要保证自定义 Dataset 的 <code class="docutils literal notranslate"><span class="pre">__getitem__</span></code> 返回<strong>已经是 TVTensor</strong>的对象，v2 transform 就能直接用：</p>
+<p>下面用 <strong>python</strong> 执行：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision</span><span class="w"> </span><span class="kn">import</span> <span class="n">tv_tensors</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torchvision.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">v2</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SyntheticDetectionDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""模拟 CocoDetection 的 (image, target_dict) 形态，无网络依赖。"""</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>   <span class="c1"># 确定性合成</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="p">(</span><span class="n">rng</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">'uint8'</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">boxes</span> <span class="o">=</span> <span class="n">tv_tensors</span><span class="o">.</span><span class="n">BoundingBoxes</span><span class="p">(</span>
+            <span class="p">[[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">250</span><span class="p">]],</span>
+            <span class="nb">format</span><span class="o">=</span><span class="s2">"XYXY"</span><span class="p">,</span> <span class="n">canvas_size</span><span class="o">=</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">img</span><span class="p">,</span> <span class="p">{</span><span class="s2">"boxes"</span><span class="p">:</span> <span class="n">boxes</span><span class="p">,</span> <span class="s2">"labels"</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)}</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">SyntheticDetectionDataset</span><span class="p">()</span>
+<span class="n">img</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="c1"># 先看一眼 dataset 直接返什么——TVTensor + 完整 metadata</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">canvas_size</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="c1"># 然后正常过 Compose</span>
+<span class="n">img_npu</span><span class="p">,</span> <span class="n">target_npu</span> <span class="o">=</span> <span class="n">v2</span><span class="o">.</span><span class="n">Compose</span><span class="p">([</span><span class="n">v2</span><span class="o">.</span><span class="n">Resize</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">))])(</span><span class="n">img</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu:0'</span><span class="p">),</span> <span class="n">target</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after resize → </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">img_npu</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">img_npu</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">img_npu</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"after resize → </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">target_npu</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">])</span><span class="o">.</span><span class="vm">__name__</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target_npu</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="n">target_npu</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="si">= }</span><span class="s2">, </span><span class="si">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">target_npu</span><span class="p">[</span><span class="s1">'boxes'</span><span class="p">]</span><span class="o">.</span><span class="n">canvas_size</span><span class="p">)</span><span class="w"> </span><span class="si">= }</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"labels: </span><span class="si">{</span><span class="n">target_npu</span><span class="p">[</span><span class="s1">'labels'</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"len(dataset): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>type<span class="o">(</span>img<span class="o">)</span>.__name__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Image'</span>,<span class="w"> </span>tuple<span class="o">(</span>img.shape<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">3</span>,<span class="w"> </span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+type<span class="o">(</span>target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">])</span>.__name__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BoundingBoxes'</span>,<span class="w"> </span>tuple<span class="o">(</span>target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.shape<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">2</span>,<span class="w"> </span><span class="m">4</span><span class="o">)</span>,<span class="w"> </span>target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.format.name<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'XYXY'</span>,<span class="w"> </span>tuple<span class="o">(</span>target<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.canvas_size<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">256</span>,<span class="w"> </span><span class="m">256</span><span class="o">)</span>
+after<span class="w"> </span>resize<span class="w"> </span>→<span class="w"> </span>type<span class="o">(</span>img_npu<span class="o">)</span>.__name__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'Image'</span>,<span class="w"> </span>img_npu.device.type<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'npu'</span>,<span class="w"> </span>tuple<span class="o">(</span>img_npu.shape<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">3</span>,<span class="w"> </span><span class="m">128</span>,<span class="w"> </span><span class="m">128</span><span class="o">)</span>
+after<span class="w"> </span>resize<span class="w"> </span>→<span class="w"> </span>type<span class="o">(</span>target_npu<span class="o">[</span><span class="s1">'boxes'</span><span class="o">])</span>.__name__<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'BoundingBoxes'</span>,<span class="w"> </span>tuple<span class="o">(</span>target_npu<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.shape<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">2</span>,<span class="w"> </span><span class="m">4</span><span class="o">)</span>,<span class="w"> </span>target_npu<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.format.name<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'XYXY'</span>,<span class="w"> </span>tuple<span class="o">(</span>target_npu<span class="o">[</span><span class="s1">'boxes'</span><span class="o">]</span>.canvas_size<span class="o">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="m">128</span>,<span class="w"> </span><span class="m">128</span><span class="o">)</span>
+labels:<span class="w"> </span><span class="o">[</span><span class="m">0</span>,<span class="w"> </span><span class="m">0</span><span class="o">]</span>
+len<span class="o">(</span>dataset<span class="o">)</span>:<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h2>外部链接<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/pytorch/vision">pytorch/vision</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://pytorch.org/vision/stable/index.html">Torchvision Docs</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../torchtitan/index.html" class="btn btn-neutral float-left" title="torchtitan" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../torchtune/index.html" class="btn btn-neutral float-right" title="torchtune" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
