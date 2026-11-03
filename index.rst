@@ -426,6 +426,13 @@
          <div class="card-footer"><a href="https://github.com/microsoft/onnxruntime">官方链接</a><span class="split">|</span><a href="https://onnxruntime.ai/docs/">文档中心</a><span class="split">|</span><a href="sources/onnxruntime/index.html">快速上手</a></div>
       </div>
 
+      <!-- RTP-LLM -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/rtp-llm.png')"></div><h3 class="card-title">RTP-LLM</h3></div>
+         <p class="card-desc">阿里云的大模型推理引擎。在昇腾上从源码构建 Ascend 分支，启动服务并完成一次生成。</p>
+         <div class="card-footer"><a href="https://github.com/alibaba/rtp-llm">官方链接</a><span class="split">|</span><a href="https://rtp-llm.ai/">文档中心</a><span class="split">|</span><a href="sources/rtp_llm/index.html">快速上手</a></div>
+      </div>
+
       <!-- Sentence Transformers -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/sentence_transformers.png')"></div><h3 class="card-title">sentence-transformers</h3></div>
@@ -681,6 +688,7 @@
    sources/fastchat/index.rst
    sources/mooncake/index.rst
    sources/onnxruntime/index.rst
+   sources/rtp_llm/index.rst
    sources/sentence_transformers/index.rst
    sources/sglang/index.rst
    sources/tgi/index.md
