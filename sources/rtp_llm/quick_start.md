@@ -69,7 +69,6 @@ if [ ! -x /usr/local/bin/bazelisk ]; then
   chmod +x /usr/local/bin/bazelisk
 fi
 export USE_BAZEL_VERSION=6.4.0
-export BAZELISK_BASE_URL=https://mirrors.huaweicloud.com/bazel/
 bazelisk version | grep -m1 'Build label'
 ```
 
@@ -128,56 +127,71 @@ HEAD xxx
 上游这套构建输入是按 x86_64 宿主写的：运行时依赖清单、lock 里的直链、bazel 自己的两个 `http_archive` 全都指向 x86 轮子。不改的话 pip 要么直接拒装，要么一路跑到链接阶段才报 `cannot find -ltorch_npu`。**x86 宿主跳过本节。**
 
 ```shell #test id="patch-aarch64"
+set -euo pipefail
 cd /root/rtp-llm-test/rtp-llm
 
 # 1) 运行时依赖清单：torch 换 aarch64 直链，torch_npu 钉到与本镜像配套的 post2
 cat > deps/requirements_ascend_x86.txt <<'REQ'
 -r requirements_base.txt
-https://mirrors.aliyun.com/pytorch-wheels/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl
+https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl
 torch_npu==2.9.0.post2
 torchvision==0.24.0
 numpy==1.26.4
 REQ
 
-# 2) lock 里的两条直链同步改写（其余行是版本号 + 全平台 hash，aarch64 能命中）
+# 2) 取 aarch64 轮子，sha256 由轮子本身算出
 mkdir -p /opt/rtp_wheels
-curl -fsSL -o /opt/rtp_wheels/torch-2.9.0+cpu-cp310-cp310-manylinux_2_28_aarch64.whl \
-  "https://mirrors.aliyun.com/pytorch-wheels/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl"
-SHA_T=$(sha256sum /opt/rtp_wheels/torch-2.9.0+cpu-*.whl | awk '{print $1}')
-test -n "$SHA_T"
-sed -i "s|torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_x86_64.whl|torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl|" deps/requirements_lock_ascend_x86.txt
-sed -i "s|bd2a257e670ede9fc01c6d76dccdc473040913b8e9328169bf177dbdc38e2484|$SHA_T|" deps/requirements_lock_ascend_x86.txt
-sed -i "s|https://gitcode.com/Ascend/pytorch/releases/download/v26.1.0-beta.1-pytorch2.9.0/torch_npu-2.9.0.post3-cp310-cp310-manylinux_2_28_x86_64.whl|https://mirrors.aliyun.com/pypi/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl|" deps/requirements_lock_ascend_x86.txt
-sed -i "s|3d436f74af70089b4320e6dae374641ddfb76712cdd593e67763ded33cf31a2a|727d97f5436161a94035ae00002d657369664e1dd397141db9d8fd54912f346b|" deps/requirements_lock_ascend_x86.txt
+TORCH_WHL=/opt/rtp_wheels/torch-2.9.0+cpu-cp310-cp310-manylinux_2_28_aarch64.whl
+NPU_WHL=/opt/rtp_wheels/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl
+curl -fsSL -o "$TORCH_WHL" \
+  "https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl"
+curl -fsSL -o "$NPU_WHL" \
+  "https://files.pythonhosted.org/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl"
+SHA_T=$(sha256sum "$TORCH_WHL" | awk '{print $1}')
+SHA_N=$(sha256sum "$NPU_WHL" | awk '{print $1}')
 
-# 3) bazel 自己的两个 http_archive（deps/http.bzl）同样是 x86 直链
-curl -fsSL -o /opt/rtp_wheels/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl \
-  "https://mirrors.aliyun.com/pypi/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl"
-SHA_N=$(sha256sum /opt/rtp_wheels/torch_npu-2.9.0.post2-*.whl | awk '{print $1}')
-test "$SHA_N" = 727d97f5436161a94035ae00002d657369664e1dd397141db9d8fd54912f346b
-sed -i "s|torch-2\.9\.0%2Bcpu-cp310-cp310-manylinux_2_28_x86_64\.whl|torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl|g" deps/http.bzl
-sed -i -E 's#https://[^"]*torch_npu-2\.9\.0[^"]*manylinux_2_28_x86_64\.whl#https://mirrors.aliyun.com/pypi/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl#g' deps/http.bzl
-#    两个 sha256 不写死：先读出文件里的当前值当锚点，再替换（上游改过这些 hash）
-SHA_OLD_T=$(grep -A1 'name = "torch_cpu_ascend"' deps/http.bzl | sed -n 's/.*sha256 = "\([0-9a-f]\{64\}\)".*/\1/p')
-SHA_OLD_N=$(grep -A1 'name = "torch_npu_ascend"' deps/http.bzl | sed -n 's/.*sha256 = "\([0-9a-f]\{64\}\)".*/\1/p')
+# 3) lock 里的两条直链：URL 换平台后缀，hash 用上面算出的值；
+#    旧 URL 与旧 hash 都从文件里读出来当锚点，上游改版本了也不会静默失效
+LOCK=deps/requirements_lock_ascend_x86.txt
+SHA_OLD_T=$(grep -A1 '^torch @ ' "$LOCK" | sed -n 's/.*--hash=sha256:\([0-9a-f]\{64\}\).*/\1/p')
+SHA_OLD_N=$(grep -A1 '^torch-npu @ ' "$LOCK" | sed -n 's/.*--hash=sha256:\([0-9a-f]\{64\}\).*/\1/p')
 test -n "$SHA_OLD_T" -a -n "$SHA_OLD_N"
-sed -i "s|$SHA_OLD_T|$SHA_T|g" deps/http.bzl
-sed -i "s|$SHA_OLD_N|$SHA_N|g" deps/http.bzl
+sed -i -E 's#https://[^ ]*torch-2\.9\.0%2Bcpu[^ ]*x86_64\.whl#https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl#' "$LOCK"
+sed -i -E 's#https://[^ ]*torch_npu-2\.9\.0[^ ]*x86_64\.whl#https://files.pythonhosted.org/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl#' "$LOCK"
+sed -i "s|$SHA_OLD_T|$SHA_T|" "$LOCK"
+sed -i "s|$SHA_OLD_N|$SHA_N|" "$LOCK"
 
-# 4) wheel 元数据里的 torch_npu 版本（漏了这处，装 wheel 时会把 post2 降级成裸 2.9.0）
+# 4) bazel 自己的两个 http_archive（deps/http.bzl）同样指向 x86 轮子
+sed -i -E 's#https://[^"]*torch-2\.9\.0%2Bcpu[^"]*x86_64\.whl#https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl#g' deps/http.bzl
+sed -i -E 's#https://[^"]*torch_npu-2\.9\.0[^"]*x86_64\.whl#https://files.pythonhosted.org/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl#g' deps/http.bzl
+SHA_BZL_T=$(grep -A1 'name = "torch_cpu_ascend"' deps/http.bzl | sed -n 's/.*sha256 = "\([0-9a-f]\{64\}\)".*/\1/p')
+SHA_BZL_N=$(grep -A1 'name = "torch_npu_ascend"' deps/http.bzl | sed -n 's/.*sha256 = "\([0-9a-f]\{64\}\)".*/\1/p')
+test -n "$SHA_BZL_T" -a -n "$SHA_BZL_N"
+sed -i "s|$SHA_BZL_T|$SHA_T|g" deps/http.bzl
+sed -i "s|$SHA_BZL_N|$SHA_N|g" deps/http.bzl
+
+# 5) wheel 元数据里的 torch_npu 版本（漏了这处，装 wheel 时会把 post2 降级成裸 2.9.0）
 sed -i 's/"torch_npu==2\.9\.0"/"torch_npu==2.9.0.post2"/' arch_config/arch_select.bzl
 
-# 5) 上游依赖冲突：transformers==5.2.0 与 xgrammar==0.2.5（要求 transformers<5）无法同时满足
+# 6) 上游依赖冲突：transformers==5.2.0 与 xgrammar==0.2.5（要求 transformers<5）无法同时满足
 sed -i 's/^xgrammar==0\.2\.5$/xgrammar==0.2.8/' deps/requirements_base.txt
 
-# 6) 校验：lock 里 2 条 aarch64 直链、0 条 x86 直链、0 条 gitcode、0 条旧 hash；
-#    http.bzl 里两个 ascend archive 各 1 条 aarch64 直链
-test "$(grep -c 'manylinux_2_28_aarch64.whl' deps/requirements_lock_ascend_x86.txt)" = 2
-test "$(grep -c 'manylinux_2_28_x86_64.whl' deps/requirements_lock_ascend_x86.txt)" = 0
-test "$(grep -c 'gitcode.com' deps/requirements_lock_ascend_x86.txt)" = 0
-test "$(grep -c '3d436f74' deps/requirements_lock_ascend_x86.txt)" = 0
+# 7) 校验：lock 里 2 条 aarch64 直链、0 条 x86 直链、0 条 gitcode、旧 hash 清零；
+#    http.bzl 里两个 ascend archive 各 1 条 aarch64 直链；两个轮子能正常解开
+test "$(grep -c 'manylinux_2_28_aarch64.whl' "$LOCK")" = 2
+test "$(grep -c 'manylinux_2_28_x86_64.whl' "$LOCK")" = 0
+test "$(grep -c 'gitcode.com' "$LOCK")" = 0
+test "$(grep -c "$SHA_OLD_T" "$LOCK")" = 0
+test "$(grep -c "$SHA_OLD_N" "$LOCK")" = 0
 test "$(grep -A6 'name = "torch_cpu_ascend"' deps/http.bzl | grep -c 'manylinux_2_28_aarch64.whl')" = 1
 test "$(grep -A6 'name = "torch_npu_ascend"' deps/http.bzl | grep -c 'manylinux_2_28_aarch64.whl')" = 1
+python - "$TORCH_WHL" "$NPU_WHL" <<'PY'
+import sys
+import zipfile
+
+for path in sys.argv[1:]:
+    assert zipfile.ZipFile(path).testzip() is None, path
+PY
 echo "aarch64 build inputs patched"
 ```
 
@@ -193,8 +207,7 @@ aarch64 build inputs patched
 
 ```shell #test id="install-deps"
 cd /root/rtp-llm-test/rtp-llm
-python -m pip install -r deps/requirements_ascend_x86.txt \
-  --index-url https://mirrors.aliyun.com/pypi/simple/ > /tmp/pip-deps.log 2>&1 \
+python -m pip install -r deps/requirements_ascend_x86.txt > /tmp/pip-deps.log 2>&1 \
   || { tail -n 60 /tmp/pip-deps.log; exit 1; }
 python - <<'PY'
 from importlib.metadata import version
@@ -240,7 +253,6 @@ build:ascend --copt="-Wno-error=format-security"
 ```shell #test id="build"
 cd /root/rtp-llm-test/rtp-llm
 export USE_BAZEL_VERSION=6.4.0
-export BAZELISK_BASE_URL=https://mirrors.huaweicloud.com/bazel/
 bazelisk build //rtp_llm:rtp_llm_whl --config=ascend --jobs=32 > /tmp/build.log 2>&1 \
   && echo "build ok" || { tail -n 80 /tmp/build.log; exit 1; }
 ```
