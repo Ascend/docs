@@ -322,15 +322,14 @@ engine ops ok
 
 ```shell #test id="download-model"
 cd /root/rtp-llm-test
-python -m pip install -q modelscope
-# modelscope 收尾时会 import torch，在 torch_npu 环境下析构可能报 Segmentation fault（rc=139），
-# 而下载本身已经完成，所以这里不看 rc，改为校验产物。
-python - <<'PY' > /tmp/model-dl.log 2>&1 || true
-from modelscope import snapshot_download
-snapshot_download('Qwen/Qwen3-0.6B', local_dir='/root/rtp-llm-test/models/Qwen3-0.6B')
+python -m pip install -q huggingface_hub
+python - <<'PY' > /tmp/model-dl.log 2>&1 \
+  || { tail -n 40 /tmp/model-dl.log; exit 1; }
+from huggingface_hub import snapshot_download
+snapshot_download(repo_id='Qwen/Qwen3-0.6B', local_dir='/root/rtp-llm-test/models/Qwen3-0.6B')
 print('model ready')
 PY
-# modelscope 的依赖解析不能动 torch_npu / torchvision 的版本
+# 这一步不该动 torch / torch_npu / torchvision 的版本
 python - <<'PY'
 from importlib.metadata import version
 
