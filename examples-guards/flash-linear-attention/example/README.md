@@ -8,48 +8,49 @@
 
 需要一张可用的 Ascend 910B，以及已经安装好驱动和 CANN 的 Linux 环境。如果使用容器，容器内必须能够访问 NPU 设备；安装 Python 包不会替你完成驱动和设备配置。
 
-以下命令以 FLA v0.5.2 为安装基线。底层配套来自该版本的[依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/pyproject.toml)和 [Triton-Ascend 官方镜像配套](https://github.com/triton-lang/triton-ascend/blob/main/docker/OVERVIEW.md#release-321)。
+以下命令以 FLA v0.6.0 为安装基线。依赖范围和运行镜像分别来自该版本的[依赖声明](https://github.com/fla-org/flash-linear-attention/blob/v0.6.0/pyproject.toml)和 [Ascend A2 工作流](https://github.com/fla-org/flash-linear-attention/blob/v0.6.0/.github/workflows/ascend-a2-ci.yml)。
 
 | 组件 | 本文使用的配套 |
 | --- | --- |
 | 硬件 | Ascend 910B，单卡 |
 | 操作系统 | Ubuntu 22.04，aarch64 |
-| Python | 3.11 |
-| CANN Toolkit | 9.0.0；宿主机驱动须与其兼容 |
-| FLA | v0.5.2 |
-| PyTorch | 2.7.1 |
-| Torch-NPU | 2.7.1.post4 |
-| torchvision | 0.22.1，由 FLA 的 NPU extra 安装 |
-| Triton-Ascend | 3.2.1 |
-| Transformers | 使用 4.x，实测版本为 4.57.6；安装时将 FLA 的 `>=4.45.0` 要求与本示例的 `<5` 兼容约束共同解析 |
+| Python | 3.12 |
+| CANN Toolkit | 9.1.0；宿主机驱动须与其兼容 |
+| FLA | v0.6.0 |
+| PyTorch | 2.10.0 |
+| Torch-NPU | 2.10.0.post7 |
+| torchvision | 0.25.0，由 FLA 的 NPU extra 安装 |
+| Triton-Ascend | 3.6.0 |
+| Transformers | `>=5.6.2,<6`，由目标 FLA 的依赖声明决定 |
 
-默认示例已在上述配套和 Transformers 4.57.6 上[完成 NPU 端到端验证](https://github.com/cosdt-ci-test/workflows/actions/runs/36403948431)：20 步训练、模型保存、重载一致性检查和 32-token 生成均通过。该结果限于本示例配置；换用其他语料、模型尺寸或软件版本时，需要重新验证。FLA v0.5.2 与 Transformers 5.17.0 的模型保存接口不兼容，因此本示例使用 4.x 约束。
+历史上，该示例在 FLA v0.5.2 / CANN 9.0 / Transformers 4.57.6 上[完成过 NPU 端到端验证](https://github.com/cosdt-ci-test/workflows/actions/runs/36403948431)。该结果不能直接代替 v0.6.0 新配套的验证；版本升级后仍需确认训练、保存、重载和生成完整通过。
 
-先进入存放本示例的 workflows 仓库根目录，以下命令均从该目录执行。按默认安装路径加载 CANN，并确认设备可见：
+v0.6.0 已迁移到 Transformers 5.x 的模型接口，并明确要求 `>=5.6.2,<6`。不要沿用旧示例的 `transformers<5` 约束，否则依赖安装会失败。本文与当前镜像面向 v0.6.0；复现旧版本时应使用对应的旧配套，不能只替换源码 tag。
+
+先进入存放本示例的 Ascend/docs 仓库根目录，以下命令均从该目录执行。按默认安装路径加载 CANN，并确认设备可见：
 
 ```bash
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 npu-smi info
-python --version
+python3.12 --version
 ```
 
 然后在独立的 Python 环境中安装选定版本的 FLA：
 
 ```bash
-git clone --branch v0.5.2 --depth 1 \
-  https://github.com/fla-org/flash-linear-attention.git ./fla-v0.5.2
-python -m venv .venv-fla
+git clone --branch v0.6.0 --depth 1 \
+  https://github.com/fla-org/flash-linear-attention.git ./fla-v0.6.0
+python3.12 -m venv .venv-fla
 source .venv-fla/bin/activate
 python -m pip install -U pip setuptools wheel
 python -m pip install pybind11 cmake attrs sympy pyyaml scipy decorator einops
-python -m pip install -e './fla-v0.5.2[npu]' \
-  --constraint projects/flash-linear-attention/constraints-npu.txt \
+python -m pip install -e './fla-v0.6.0[npu]' \
   --extra-index-url https://triton-ascend.osinfra.cn/pypi/simple
 ```
 
 `[npu]` 会安装该版本声明的 Torch、Torch-NPU 和 Triton-Ascend，不需要手工分别挑选版本。换用其他 FLA release 时，请重新核对其依赖和 CANN 配套；不要直接把这些命令中的某个组件升级到最新版。
 
-请保留上面的 `--constraint` 参数。它让 Transformers 在 4.x 范围内选择符合要求的版本，避免 FLA v0.5.2 的模型保存接口与 5.x 不兼容；并没有固定某个 4.x 补丁版本。
+安装直接遵循目标源码的依赖声明，不另外固定 Transformers 的补丁版本。如果使用过旧示例环境，建议重新创建虚拟环境，并检查是否仍通过 `PIP_CONSTRAINT` 等环境变量引入了旧限制。
 
 安装后检查 NPU 后端和实际包版本：
 
@@ -68,14 +69,14 @@ print("FLA backend:", device_platform)
 PY
 ```
 
-这里确认的是安装和设备识别。训练与生成是否可用，需要继续运行下面的完整流程。CANN 安装可参考 [Quick Start 的环境要求](../docs/Quick-start-Ascend.md)。
+这里确认的是安装和设备识别。训练与生成是否可用，需要继续运行下面的完整流程。CANN 安装可参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)，安装版本请与上表一致。
 
 ## 运行示例
 
-在 workflows 仓库根目录运行：
+在 Ascend/docs 仓库根目录运行：
 
 ```bash
-python projects/flash-linear-attention/example/train_text.py \
+python examples-guards/flash-linear-attention/example/train_text.py \
   --output-dir ./fla-text-run
 ```
 
@@ -93,7 +94,7 @@ python projects/flash-linear-attention/example/train_text.py \
 ## 使用自己的文本
 
 ```bash
-python projects/flash-linear-attention/example/train_text.py \
+python examples-guards/flash-linear-attention/example/train_text.py \
   --text-file ./my-text.txt \
   --prompt 'The small model' \
   --steps 200 \
@@ -138,6 +139,6 @@ python -m json.tool ./fla-text-run/metrics.json
 - **输出目录已存在**：选择新的 `--output-dir`，已有模型不会被自动覆盖。
 - **续写重复或不通顺**：这是小模型短时训练的正常可能结果，可增加语料和训练步数；本示例不保证生成质量。
 
-维护者的 CI 接入和校验规则见[看护维护文档](../docs/examples-maintenance.md)。
+维护者的 CI 接入和结果契约见[examples 看护说明](../../README.md)。工作流默认跟随最新 release；依赖范围取自目标源码，但 CANN/Python 镜像仍需在配套升级时同步维护。
 
-接口参考：[FLA Usage](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/README.md#usage)、[GatedDeltaNetConfig](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/fla/models/gated_deltanet/configuration_gated_deltanet.py)、[GatedDeltaNetForCausalLM](https://github.com/fla-org/flash-linear-attention/blob/v0.5.2/fla/models/gated_deltanet/modeling_gated_deltanet.py)。
+接口参考：[FLA Usage](https://github.com/fla-org/flash-linear-attention/blob/v0.6.0/README.md#usage)、[GatedDeltaNetConfig](https://github.com/fla-org/flash-linear-attention/blob/v0.6.0/fla/models/gated_deltanet/configuration_gated_deltanet.py)、[GatedDeltaNetForCausalLM](https://github.com/fla-org/flash-linear-attention/blob/v0.6.0/fla/models/gated_deltanet/modeling_gated_deltanet.py)。
