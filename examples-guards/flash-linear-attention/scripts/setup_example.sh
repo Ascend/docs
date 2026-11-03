@@ -7,7 +7,6 @@ if [[ "${1:-}" != "npu" ]]; then
 fi
 
 TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
-PROJECT_ROOT="${PROJECT_ROOT:?PROJECT_ROOT is required}"
 export PATH="/usr/local/sbin:$PATH"
 export PYTHONNOUSERSITE=1
 # CANN's environment script can reference unset shell variables.
@@ -35,10 +34,9 @@ export PIP_INDEX_URL="http://cache-service.nginx-pypi-cache.svc.cluster.local/py
 export PIP_TRUSTED_HOST="cache-service.nginx-pypi-cache.svc.cluster.local"
 echo "pip index: $PIP_INDEX_URL"
 
-# Matches upstream Ascend installation; target extras own the dependency versions.
+# The target checkout owns both Transformers and NPU dependency ranges.
 python -m pip install -U pip setuptools wheel
 python -m pip install pybind11 cmake attrs sympy pyyaml scipy decorator einops
 python -m pip install -e '.[npu]' \
-  --constraint "$PROJECT_ROOT/constraints-npu.txt" \
   --extra-index-url https://triton-ascend.osinfra.cn/pypi/simple
 python -m pip freeze
