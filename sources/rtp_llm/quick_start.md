@@ -16,9 +16,9 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 | --- | --- |
 | CANN | toolkit 与驱动固件已安装，并可 `source set_env.sh`，9.1.0 或以上 |
 | gcc / g++ | 11 |
-| Python | 3.10，须落在 `/opt/conda310`，见第 2.3 节 |
-| PyTorch | `torch` 2.9.0 的 CPU 构建版 + `torch_npu` 2.9.0.post2，见第 4 节 |
-| Bazel | 6.4.0，由 `bazelisk` 拉起，见第 2.2 节 |
+| Python | 3.10 |
+| PyTorch | `torch` 2.9.0 + `torch_npu` 2.9.0.post2 |
+| Bazel | 6.4.0 |
 | 模型 | [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B) |
 
 ### 本文验证环境
@@ -27,9 +27,6 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 | --- | --- |
 | 机器 | Atlas 900 A2，Ascend 910B，单卡 |
 | 镜像 | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
-| Python | 3.10.12，用发行版自带的 3.10 建 venv 到 `/opt/conda310` |
-| torch / torch_npu | 2.9.0+cpu / 2.9.0.post2 |
-| Bazel | 6.4.0 |
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
@@ -124,7 +121,7 @@ HEAD xxx
 
 ## 4. 适配 aarch64 构建输入
 
-上游这套构建输入是按 x86_64 宿主写的：运行时依赖清单、lock 里的直链、bazel 自己的两个 `http_archive` 全都指向 x86 轮子。不改的话 pip 要么直接拒装，要么一路跑到链接阶段才报 `cannot find -ltorch_npu`。**x86 宿主跳过本节。**
+上游这套构建输入是按 x86_64 宿主写的：运行时依赖清单、lock 里的直链、bazel 自己的两个 `http_archive` 全都指向 x86 的安装包。不改的话 pip 要么直接拒装，要么一路跑到链接阶段才报 `cannot find -ltorch_npu`。**x86 宿主跳过本节。**
 
 ```shell #test id="patch-aarch64"
 set -euo pipefail
@@ -139,7 +136,7 @@ torchvision==0.24.0
 numpy==1.26.4
 REQ
 
-# 2) 取 aarch64 轮子，sha256 由轮子本身算出
+# 2) 取 aarch64 安装包，sha256 由安装包本身算出
 mkdir -p /opt/rtp_wheels
 TORCH_WHL=/opt/rtp_wheels/torch-2.9.0+cpu-cp310-cp310-manylinux_2_28_aarch64.whl
 NPU_WHL=/opt/rtp_wheels/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl
@@ -161,7 +158,7 @@ sed -i -E 's#https://[^ ]*torch_npu-2\.9\.0[^ ]*x86_64\.whl#https://files.python
 sed -i "s|$SHA_OLD_T|$SHA_T|" "$LOCK"
 sed -i "s|$SHA_OLD_N|$SHA_N|" "$LOCK"
 
-# 4) bazel 自己的两个 http_archive（deps/http.bzl）同样指向 x86 轮子
+# 4) bazel 自己的两个 http_archive（deps/http.bzl）同样指向 x86 安装包
 sed -i -E 's#https://[^"]*torch-2\.9\.0%2Bcpu[^"]*x86_64\.whl#https://download.pytorch.org/whl/cpu/torch-2.9.0%2Bcpu-cp310-cp310-manylinux_2_28_aarch64.whl#g' deps/http.bzl
 sed -i -E 's#https://[^"]*torch_npu-2\.9\.0[^"]*x86_64\.whl#https://files.pythonhosted.org/packages/97/d8/685fc488350ba63e158620d3ea04367c908456f03a01f9a9cc158fec380b/torch_npu-2.9.0.post2-cp310-cp310-manylinux_2_28_aarch64.whl#g' deps/http.bzl
 SHA_BZL_T=$(grep -A1 'name = "torch_cpu_ascend"' deps/http.bzl | sed -n 's/.*sha256 = "\([0-9a-f]\{64\}\)".*/\1/p')
@@ -177,7 +174,7 @@ sed -i 's/"torch_npu==2\.9\.0"/"torch_npu==2.9.0.post2"/' arch_config/arch_selec
 sed -i 's/^xgrammar==0\.2\.5$/xgrammar==0.2.8/' deps/requirements_base.txt
 
 # 7) 校验：lock 里 2 条 aarch64 直链、0 条 x86 直链、0 条 gitcode、旧 hash 清零；
-#    http.bzl 里两个 ascend archive 各 1 条 aarch64 直链；两个轮子能正常解开
+#    http.bzl 里两个 ascend archive 各 1 条 aarch64 直链；两个安装包能正常解开
 test "$(grep -c 'manylinux_2_28_aarch64.whl' "$LOCK")" = 2
 test "$(grep -c 'manylinux_2_28_x86_64.whl' "$LOCK")" = 0
 test "$(grep -c 'gitcode.com' "$LOCK")" = 0
@@ -203,7 +200,7 @@ aarch64 build inputs patched
 
 ## 5. 安装运行时依赖
 
-按 lock 装依赖，torch 与 torch_npu 的 aarch64 轮子在这一步落地。
+按 lock 装依赖，torch 与 torch_npu 在这一步装好。
 
 ```shell #test id="install-deps"
 cd /root/rtp-llm-test/rtp-llm
