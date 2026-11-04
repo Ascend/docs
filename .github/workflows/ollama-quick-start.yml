@@ -1,0 +1,67 @@
+# Build Ascend/ollama and verify CANN inference on A2 and A3.
+name: ollama-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'ollama-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  # Twice a day, 12 h apart: UTC 07:00 and 19:00 (Beijing 15:00 and 03:00).
+  schedule:
+    - cron: '0 7,19 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/ollama/**'
+      - 'tests/ollama/**'
+      - '.github/workflows/ollama-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  qs-a2:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: ollama
+      machine_type: a2
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # Persist downloads, model blobs, Go caches and verification reports.
+      container_options: '--volume /data/ci-cache/ollama:/ollama-cache'
+      timeout_minutes: 240
+      upstream_repo: Ascend/ollama
+      # Bind the monitored tutorial to this run's checkout, including PRs.
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/ollama/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/ollama/quick_start.md
+      test_command: python -m unittest tests.ollama.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: ollama
+      machine_type: a3
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: '--volume /data/ci-cache/ollama:/ollama-cache'
+      timeout_minutes: 240
+      upstream_repo: Ascend/ollama
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/ollama/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/ollama/quick_start.md
+      # First-time cache writes for A2 and A3 may run concurrently.
+      test_command: OLLAMA_TEST_CACHE=/ollama-cache/a3 python -m unittest tests.ollama.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: ollama
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
