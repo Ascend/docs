@@ -1,0 +1,108 @@
+# RTP-LLM quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml; this
+# file only declares what varies per project: schedule, concurrency, runner,
+# container image + options, upstream repo, the pinned ref, the monitored doc
+# and the test entry command. The guard loop, cache I/O, state relay and
+# publishing all live in the engine - see its `workflow_call.inputs` block for
+# the full contract.
+#
+# Cache keys (quick-start-monitor-state-rtp-llm_*) and artifact names
+# (rtp-llm-quick-start-<run_id>) are derived from project=rtp-llm.
+#
+# Upstream shape: the Ascend adaptation is NOT on `main`. It landed via
+# PR #1481 (merged 2026-10-27) into the dedicated branch
+# `alibaba/rtp-llm:feature/ascend`, and the follow-up Ascend PRs (#1612
+# Qwen3.5, #1620 aclgraph, #1621 MTP) target that branch too. `main` still has
+# no Ascend code, so the guard pins fixed_ref=feature/ascend: the engine
+# resolves it to the branch tip SHA on every run, which is also the monitor's
+# change key.
+#
+# Scope: single card (910B). The doc clones the branch, adapts the aarch64
+# build inputs (upstream pins x86_64 torch wheels, x86 lock direct links, x86
+# http_archive entries and a bare torch_npu in the wheel metadata), installs
+# the dependency set, builds //rtp_llm:rtp_llm_whl with bazel, installs the
+# wheel, loads the C++ engine ops, downloads Qwen3-0.6B, then starts the HTTP
+# server and issues one generation request. The bazel build is the dominant
+# cost (cold: 40-90 min), hence timeout_minutes=240.
+
+name: rtp-llm-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'rtp-llm-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, 12 h apart: UTC 10:50 and 22:50
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '50 10,22 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run before merge. paths filter
+  # avoids burning the self-hosted NPU runner on unrelated PRs.
+  # `pull_request` (not `pull_request_target`): contents: read is enough, no
+  # write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/rtp_llm/**'
+      - 'tests/rtp_llm/**'
+      - '.github/workflows/rtp-llm-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  rtp-llm-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (quick-start-monitor-state-rtp-llm_*), artifacts
+      # (rtp-llm-quick-start-<run_id>) and the test working dir.
+      project: rtp-llm
+      # Self-hosted NPU runner for the test job only; the engine pins the
+      # cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest. The quick start is single-card
+      # (ASCEND_RT_VISIBLE_DEVICES=0).
+      test_runner: '["linux-aarch64-a2-1"]'
+      # The image bundles Python 3.12, but upstream hardcodes the interpreter
+      # at /opt/conda310 and every lock entry is a cp310 wheel, so the doc
+      # builds that venv from the system python3.10 (2.3) and installs the
+      # compiler toolchain (gcc / g++ / make) itself.
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # bazel compiles ~900 local actions with --jobs=32; the default 64 MB
+      # /dev/shm is too small for that.
+      container_options: >-
+        --shm-size=64g
+      # Cold bazel build (external repo fetch + ~12k actions) plus the pip
+      # dependency set (~400 packages) and a 0.6B model download. Warm runs
+      # reuse the runner pool's NFS-backed /root/.cache and finish in ~15 min.
+      timeout_minutes: 240
+      upstream_repo: alibaba/rtp-llm
+      # Ascend support lives on this branch, not on main. The engine resolves
+      # the branch to its commit SHA, so branch tip moves still fire the
+      # change signal.
+      fixed_ref: feature/ascend
+      # Doc URL points at the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/rtp_llm/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/rtp_llm/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches the
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. CANN env, the JVM truststore and the build toolchain live in
+      # the test subclass's prepare_environment hook; every business step is
+      # in the doc.
+      test_command: python -m unittest tests.rtp_llm.test_quick_start_ascend -v 2>&1

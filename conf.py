@@ -111,6 +111,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '.venv', 'README.md',
                     'sources/onnxruntime/quick_start.md',
                     'sources/wenet/quick_start.md',
                     'sources/torchvision/quick_start.md',
+                    'sources/rtp_llm/quick_start.md',
                     'sources/pyg/quick_start.md']
 
 
