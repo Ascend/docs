@@ -1,0 +1,39 @@
+# Ollama quick-start guard: build the CANN-enabled fork and run an NPU inference.
+name: ollama-quick-start
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'ollama-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  # Twice a day, 12 h apart: UTC 00:35 and 12:35
+  # (Beijing 08:35 and 20:35), staggered against other quick-start guards.
+  schedule:
+    - cron: '35 0,12 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/ollama/**'
+      - 'tests/ollama/**'
+      - '.github/workflows/ollama-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ollama-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: ollama
+      test_runner: '["linux-aarch64-a2-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # Persist downloads, model blobs, Go caches and verification reports.
+      container_options: '--volume /data/ci-cache/ollama:/ollama-cache'
+      timeout_minutes: 240
+      # This fork has no releases; the engine resolves its default-branch SHA.
+      upstream_repo: lltiaor/ollama
+      # Bind the monitored tutorial to this run's checkout, including PRs.
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/ollama/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/ollama/quick_start.md
+      test_command: python -m unittest tests.ollama.test_quick_start_ascend -v 2>&1

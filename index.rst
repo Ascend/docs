@@ -370,6 +370,13 @@
          <div class="card-footer"><a href="https://github.com/ggml-org/llama.cpp">官方链接</a><span class="split">|</span><a href="sources/llama_cpp/index.html">快速上手</a></div>
       </div>
 
+      <!-- Ollama -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/ollama.svg')"></div><h3 class="card-title">Ollama</h3></div>
+         <p class="card-desc">在本地运行和管理大语言模型，通过 llama.cpp 的 CANN 后端在昇腾 NPU 上完成推理。</p>
+         <div class="card-footer"><a href="https://github.com/ollama/ollama">官方链接</a><span class="split">|</span><a href="https://docs.ollama.com/">文档中心</a><span class="split">|</span><a href="sources/ollama/index.html">快速上手</a></div>
+      </div>
+
       <!-- llm-compressor -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/vllm-ascend.png')"></div><h3 class="card-title">llm-compressor</h3></div>
@@ -680,6 +687,7 @@
    sources/cache-dit/index.rst
    sources/flagscale/index.rst
    sources/llama_cpp/index.rst
+   sources/ollama/index.rst
    sources/internlm/index.rst
    sources/llm_compressor/index.rst
    sources/llm_d/index.rst
