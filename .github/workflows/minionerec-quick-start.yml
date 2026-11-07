@@ -1,0 +1,92 @@
+# MiniOneRec quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml; this
+# file only declares what varies per project: schedule, concurrency, runner,
+# container image, upstream repo, the pinned ref, the monitored doc and the
+# test entry command. The guard loop, cache I/O, state relay and publishing
+# all live in the engine - see its `workflow_call.inputs` block for the full
+# contract.
+#
+# Cache keys (quick-start-monitor-state-minionerec_*) and artifact names
+# (minionerec-quick-start-<run_id>) are derived from project=minionerec.
+#
+# Upstream shape: MiniOneRec is research code on `main`, no release tags, so
+# fixed_ref=main - the engine resolves it to the branch tip SHA on every run,
+# which is also the monitor's change key.
+#
+# Scope: single card (910B), three stages on one 0.5B model - SFT (one epoch,
+# sample=600 per sub-dataset), constrained-decoding evaluation (CC must be 0)
+# and one GRPO epoch. Upstream PR #85 ships `npu_support.py` and imports it
+# first in every entry script, so no injection or source edit is needed:
+# `rl.py` picks adamw_torch on NPU and `--sample 40` caps the RL datasets.
+# Measured: ~30 min end to end.
+
+name: minionerec-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'minionerec-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, 12 h apart: UTC 11:50 and 23:50
+    # (Beijing +8). All quick-start guards share this cadence; the
+    # (hour, minute) slot is staggered across the guards so the NPU
+    # runners do not all fire at the same time.
+    - cron: '50 11,23 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run before merge. paths filter
+  # avoids burning the self-hosted NPU runner on unrelated PRs.
+  # `pull_request` (not `pull_request_target`): contents: read is enough, no
+  # write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/minionerec/**'
+      - 'tests/minionerec/**'
+      - '.github/workflows/minionerec-quick-start.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  minionerec-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (quick-start-monitor-state-minionerec_*),
+      # artifacts (minionerec-quick-start-<run_id>) and the test working dir.
+      project: minionerec
+      # Self-hosted NPU runner for the test job only; the engine pins the
+      # cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest. The quick start is single-card
+      # (ASCEND_RT_VISIBLE_DEVICES=0).
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      container_options: ''
+      # SFT ~11 min, evaluation ~1.5 min, RL ~14 min, plus the clone and the
+      # HuggingFace downloads; 120 min covers a cold run of the whole doc.
+      timeout_minutes: 120
+      upstream_repo: AkaliKong/MiniOneRec
+      # No release tags upstream; `main` is the branch the README documents.
+      fixed_ref: main
+      # Doc URL points at the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/minionerec/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/minionerec/quick_start.md
+      # cwd is the repo root inside the `workflows` checkout (matches the
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. The test subclass pins cwd to /root/minionerec-test and
+      # sources CANN; every business step is in the doc.
+      test_command: python -m unittest tests.minionerec.test_quick_start_ascend -v 2>&1

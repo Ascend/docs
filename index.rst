@@ -224,6 +224,13 @@
          <div class="card-footer"><a href="https://github.com/modelscope/ms-swift">官方链接</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/">文档中心</a><span class="split">|</span><a href="https://swift.readthedocs.io/zh-cn/latest/BestPractices/NPU-support.html">NPU 支持</a></div>
       </div>
 
+      <!-- MiniOneRec -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/minionerec.svg')"></div><h3 class="card-title">MiniOneRec</h3></div>
+         <p class="card-desc">生成式推荐框架：把商品编码成 3 层语义 ID，再用 LLM 生成推荐结果。在昇腾上完成 SFT、约束解码评估与推荐导向 RL。</p>
+         <div class="card-footer"><a href="https://github.com/AkaliKong/MiniOneRec">官方链接</a><span class="split">|</span><a href="sources/minionerec/index.html">快速上手</a></div>
+      </div>
+
       <!-- roll -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/roll.png')"></div><h3 class="card-title">ROLL</h3></div>
@@ -653,6 +660,7 @@
    sources/colossalai/index.rst
    sources/mmengine/index.rst
    sources/ms-swift/index.rst
+   sources/minionerec/index.rst
    sources/peft/index.md
    sources/roll/index.rst
    sources/speculators/index.rst
