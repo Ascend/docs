@@ -84,13 +84,12 @@
 <li class="toctree-l2"><a class="reference internal" href="#id5">2. 检查环境是否就绪</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id6">3. 获取代码</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#id7">4. 安装依赖</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">5. 观察默认行为：两个入口的设备走向不一样</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#rl-npu">6. 为评估与 RL 启用 NPU 映射</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">7. 下载基座模型与预处理数据</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sft">8. SFT 训练</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id10">9. 约束解码评估</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#rl">10. 推荐导向 RL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id11">相关链接</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#npu">5. 确认 NPU 映射已生效</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">6. 下载基座模型与预处理数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sft">7. SFT 训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">8. 约束解码评估</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rl">9. 推荐导向 RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">相关链接</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
@@ -186,7 +185,7 @@
   <section id="minionerec">
 <h1>MiniOneRec<a class="headerlink" href="#minionerec" title="Link to this heading"></a></h1>
 <p><a class="reference external" href="https://github.com/AkaliKong/MiniOneRec">MiniOneRec</a> 是全开源的生成式推荐框架：把每件商品编码成 3 层语义 ID（SID），再用 LLM 按「下一个 SID」的方式生成推荐结果。本文在单张昇腾 NPU 上完成 SID 监督微调（SFT）、约束解码评估与推荐导向 RL 三个阶段。</p>
-<p>前两个阶段不改上游源码：<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 的设备由 transformers 自己选到 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>，<code class="docutils literal notranslate"><span class="pre">evaluate.py</span></code> 则把设备判定写在模块级，靠一条只在评估与 RL 命令上生效的 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 注入 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code>。RL 阶段有三处写死值与单卡运行冲突，用一条 <code class="docutils literal notranslate"><span class="pre">sed</span></code> 就地替换。</p>
+<p>三个阶段都不需要改动源码：上游入口脚本第一行会导入 <code class="docutils literal notranslate"><span class="pre">npu_support</span></code>，在 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 可用时启用 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code>，把 <code class="docutils literal notranslate"><span class="pre">torch.cuda</span></code> 这套接口映射到 NPU；<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 的设备则由 transformers 自己选到 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>。RL 阶段只需用 <code class="docutils literal notranslate"><span class="pre">--sample</span></code> 把数据规模压下来。</p>
 <section id="id1">
 <h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <section id="id2">
@@ -287,58 +286,34 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="nv">trans
 <span class="w">    </span><span class="nv">trl</span><span class="o">==</span><span class="m">0</span>.24.0<span class="w"> </span>scikit-learn<span class="o">==</span><span class="m">1</span>.5.2<span class="w"> </span><span class="nv">wandb</span><span class="o">==</span><span class="m">0</span>.22.2
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">bitsandbytes</span></code> 钉在 aarch64 有预编译包的 0.48.1：<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 与 <code class="docutils literal notranslate"><span class="pre">evaluate.py</span></code> 顶部的 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">bitsandbytes</span> <span class="pre">as</span> <span class="pre">bnb</span></code> 从未被实际使用，但不改源码就绕不开这行 import，必须让它能导入。<code class="docutils literal notranslate"><span class="pre">trl</span></code> 提供 <code class="docutils literal notranslate"><span class="pre">rl.py</span></code> 用的 <code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code>，<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> 提供 <code class="docutils literal notranslate"><span class="pre">ndcg_score</span></code>，<code class="docutils literal notranslate"><span class="pre">wandb</span></code> 则是 <code class="docutils literal notranslate"><span class="pre">sasrec.py</span></code> 无条件导入的。<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 的 <code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code> 默认 <code class="docutils literal notranslate"><span class="pre">report_to=&quot;all&quot;</span></code>，装好 wandb 后会尝试 <code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code> 并因缺少 API key 失败，所以第 8 节导出 <code class="docutils literal notranslate"><span class="pre">WANDB_MODE=disabled</span></code>。</p>
+<p><code class="docutils literal notranslate"><span class="pre">bitsandbytes</span></code> 钉在 aarch64 有预编译包的 0.48.1：<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 与 <code class="docutils literal notranslate"><span class="pre">evaluate.py</span></code> 顶部的 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">bitsandbytes</span> <span class="pre">as</span> <span class="pre">bnb</span></code> 从未被实际使用，但不改源码就绕不开这行 import，必须让它能导入。<code class="docutils literal notranslate"><span class="pre">trl</span></code> 提供 <code class="docutils literal notranslate"><span class="pre">rl.py</span></code> 用的 <code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code>，<code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> 提供 <code class="docutils literal notranslate"><span class="pre">ndcg_score</span></code>，<code class="docutils literal notranslate"><span class="pre">wandb</span></code> 则是 <code class="docutils literal notranslate"><span class="pre">sasrec.py</span></code> 无条件导入的。<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 的 <code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code> 默认 <code class="docutils literal notranslate"><span class="pre">report_to=&quot;all&quot;</span></code>，装好 wandb 后会尝试 <code class="docutils literal notranslate"><span class="pre">wandb.init()</span></code> 并因缺少 API key 失败，所以第 7 节导出 <code class="docutils literal notranslate"><span class="pre">WANDB_MODE=disabled</span></code>。</p>
 </section>
-<section id="id8">
-<h2>5. 观察默认行为：两个入口的设备走向不一样<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
-<p>只 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 不会改写 <code class="docutils literal notranslate"><span class="pre">torch.cuda</span></code> 这一面，而 MiniOneRec 的两个入口对它的依赖并不相同。<code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 把设备选择交给 <code class="docutils literal notranslate"><span class="pre">TrainingArguments</span></code>，transformers 的设备链里 NPU 分支排在 CUDA 之前，所以能直接拿到 <code class="docutils literal notranslate"><span class="pre">npu:0</span></code>；<code class="docutils literal notranslate"><span class="pre">evaluate.py</span></code> 在模块级就把 <code class="docutils literal notranslate"><span class="pre">device</span></code> 固化成 <code class="docutils literal notranslate"><span class="pre">&quot;cpu&quot;</span></code>。下面这段命令能同时看到两种结果：</p>
+<section id="npu">
+<h2>5. 确认 NPU 映射已生效<a class="headerlink" href="#npu" title="Link to this heading"></a></h2>
+<p>上游入口脚本的第一行是 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">npu_support</span></code>：<code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 可用时，它会导入 <code class="docutils literal notranslate"><span class="pre">transfer_to_npu</span></code>，把 <code class="docutils literal notranslate"><span class="pre">torch.cuda.is_available()</span></code>、<code class="docutils literal notranslate"><span class="pre">&quot;cuda&quot;</span></code> 设备字符串等整套接口映射到 NPU；在没有 <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的 CUDA / CPU 机器上则是空操作。下面这段命令确认映射生效，也确认 <code class="docutils literal notranslate"><span class="pre">sft.py</span></code> 的设备选择：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">cd</span><span class="w"> </span>MiniOneRec
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<span class="s2">import torch, torch_npu</span>
+<span class="s2">import npu_support</span>
+<span class="s2">import torch</span>
 <span class="s2">from transformers import TrainingArguments</span>
-<span class="s2">print('npu available:', torch.npu.is_available())</span>
+<span class="s2">print('IS_NPU:', npu_support.IS_NPU)</span>
 <span class="s2">print('cuda mapped:', torch.cuda.is_available())</span>
 <span class="s2">print('evaluate.py device:', 'cuda' if torch.cuda.is_available() else 'cpu')</span>
-<span class="s2">print('trainer device:', TrainingArguments(output_dir='/tmp/probe-default').device)</span>
-<span class="s2">"</span>
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu<span class="w"> </span>available:<span class="w"> </span>True
-cuda<span class="w"> </span>mapped:<span class="w"> </span>False
-evaluate.py<span class="w"> </span>device:<span class="w"> </span>cpu
-trainer<span class="w"> </span>device:<span class="w"> </span>npu:0
-</pre></div>
-</div>
-</section>
-<section id="rl-npu">
-<h2>6. 为评估与 RL 启用 NPU 映射<a class="headerlink" href="#rl-npu" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">torch_npu.contrib.transfer_to_npu</span></code> 把 <code class="docutils literal notranslate"><span class="pre">torch.cuda</span></code> 这一整套接口映射到 NPU，导入即生效。为了让映射只作用于需要它的命令，把 <code class="docutils literal notranslate"><span class="pre">sitecustomize.py</span></code> 放进独立目录、通过 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 挂到命令上——不写进 site-packages，其他进程不受影响。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>/tmp/minionerec-npu-shim
-cat<span class="w"> </span>&gt;<span class="w"> </span>/tmp/minionerec-npu-shim/sitecustomize.py<span class="w"> </span><span class="s">&lt;&lt;'INS'</span>
-<span class="s">import torch_npu.contrib.transfer_to_npu  # noqa: F401</span>
-<span class="s">INS</span>
-</pre></div>
-</div>
-<p>确认映射只覆盖挂了 <code class="docutils literal notranslate"><span class="pre">PYTHONPATH</span></code> 的那条命令：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
-<span class="nb">cd</span><span class="w"> </span>MiniOneRec
-python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torch; print('default process:', 'cuda' if torch.cuda.is_available() else 'cpu')"</span>
-<span class="nv">PYTHONPATH</span><span class="o">=</span>/tmp/minionerec-npu-shim<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
-<span class="s2">import torch</span>
-<span class="s2">print('with shim:', 'cuda' if torch.cuda.is_available() else 'cpu')</span>
+<span class="s2">print('trainer device:', TrainingArguments(output_dir='/tmp/check-npu').device)</span>
 <span class="s2">print('tensor landed on:', torch.zeros(1, device='cuda').device.type)</span>
 <span class="s2">"</span>
 </pre></div>
 </div>
 <p>输出结果如下（代码里写的是 <code class="docutils literal notranslate"><span class="pre">cuda</span></code>，张量实际落在 NPU）：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>default<span class="w"> </span>process:<span class="w"> </span>cpu
-with<span class="w"> </span>shim:<span class="w"> </span>cuda
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>IS_NPU:<span class="w"> </span>True
+cuda<span class="w"> </span>mapped:<span class="w"> </span>True
+evaluate.py<span class="w"> </span>device:<span class="w"> </span>cuda
+trainer<span class="w"> </span>device:<span class="w"> </span>npu:0
 tensor<span class="w"> </span>landed<span class="w"> </span>on:<span class="w"> </span>npu
 </pre></div>
 </div>
-<p>确认仓库源码没被动过（前面的检查与注入都不落在仓库里）：</p>
+<p>确认仓库源码没被动过：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
 <span class="nb">test</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>git<span class="w"> </span>status<span class="w"> </span>--porcelain<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"source untouched"</span>
 </pre></div>
@@ -348,8 +323,9 @@ tensor<span class="w"> </span>landed<span class="w"> </span>on:<span class="w"> 
 </pre></div>
 </div>
 </section>
-<section id="id9">
-<h2>7. 下载基座模型与预处理数据<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<hr class="docutils" />
+<section id="id8">
+<h2>6. 下载基座模型与预处理数据<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
 <p>基座模型取 Qwen2.5 的 <strong>base</strong> 版，Instruct 版会让约束解码失效。模型与预处理数据都在 HuggingFace 上：<code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-0.5B</span></code> 是权重，<code class="docutils literal notranslate"><span class="pre">kkknight/MiniOneRec</span></code> 是官方预处理好的 Amazon Industrial_and_Scientific 数据。数据侧只取 SID 索引、训练 / 验证 / 测试 CSV 与 <code class="docutils literal notranslate"><span class="pre">info/</span></code> 下的 SID-条目清单；<code class="docutils literal notranslate"><span class="pre">.npy</span></code> 嵌入文件只有 RQ/SID 构建阶段需要，跳过。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
 python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from huggingface_hub import snapshot_download; snapshot_download(repo_id='Qwen/Qwen2.5-0.5B', local_dir='./Qwen2.5-0.5B')"</span>
@@ -377,7 +353,7 @@ info<span class="w"> </span>txt<span class="w"> </span>ok
 </div>
 </section>
 <section id="sft">
-<h2>8. SFT 训练<a class="headerlink" href="#sft" title="Link to this heading"></a></h2>
+<h2>7. SFT 训练<a class="headerlink" href="#sft" title="Link to this heading"></a></h2>
 <p>单卡跑 1 epoch：<code class="docutils literal notranslate"><span class="pre">sample=600</span></code> 限制每个子数据集（SID 序列 / SID-条目对齐 / 融合序列推荐）各取 600 条，<code class="docutils literal notranslate"><span class="pre">cutoff_len=256</span></code> 截断序列。完整训练（8 卡 A100、全量数据）见上游 <code class="docutils literal notranslate"><span class="pre">sft.sh</span></code>。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
@@ -416,8 +392,8 @@ tokenizer<span class="w"> </span>saved
 </pre></div>
 </div>
 </section>
-<section id="id10">
-<h2>9. 约束解码评估<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<section id="id9">
+<h2>8. 约束解码评估<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
 <p>用上一节得到的 <code class="docutils literal notranslate"><span class="pre">final_checkpoint</span></code> 在 test 切片上做 beam search 评估，再算 HR/NDCG/CC。<strong>CC（无效 SID 生成数）必须为 0</strong>——<code class="docutils literal notranslate"><span class="pre">ConstrainedLogitsProcessor</span></code> 用 trie 约束每步只允许合法 SID 前缀 token，这是约束解码在 NPU 上生效的关键信号。本节用 <code class="docutils literal notranslate"><span class="pre">num_beams=20</span></code>、<code class="docutils literal notranslate"><span class="pre">batch_size=2</span></code>。</p>
 <p>切出 test 子集：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
@@ -429,7 +405,7 @@ wc<span class="w"> </span>-l<span class="w"> </span>test_small.csv
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
 <span class="nb">cd</span><span class="w"> </span>MiniOneRec
-<span class="nv">PYTHONPATH</span><span class="o">=</span>/tmp/minionerec-npu-shim<span class="w"> </span>python<span class="w"> </span>evaluate.py<span class="w"> </span><span class="se">\</span>
+python<span class="w"> </span>evaluate.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--base_model<span class="w"> </span>./sft_out/final_checkpoint<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--info_file<span class="w"> </span>./data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--test_data_path<span class="w"> </span>test_small.csv<span class="w"> </span><span class="se">\</span>
@@ -470,52 +446,16 @@ HR...
 </div>
 </section>
 <section id="rl">
-<h2>10. 推荐导向 RL<a class="headerlink" href="#rl" title="Link to this heading"></a></h2>
+<h2>9. 推荐导向 RL<a class="headerlink" href="#rl" title="Link to this heading"></a></h2>
 <p>RL 在 SFT 产物上再做一轮 GRPO：每个 prompt 采样多条候选、组内归一化奖励、并用 KL 约束贴近参考模型；动作空间是有限的 SID 列表，候选由约束 beam search 生成。</p>
-<p>上游有三处写死值与单卡运行冲突，用一条 <code class="docutils literal notranslate"><span class="pre">sed</span></code> 就地替换（都是单行，只在本次运行生效）：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">optim=&quot;paged_adamw_32bit&quot;</span></code> 走 bitsandbytes，而 bitsandbytes 只提供 CPU、CUDA 等后端，没有 NPU 实现，换成 torch 原生 <code class="docutils literal notranslate"><span class="pre">adamw_torch</span></code>。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sample</span> <span class="pre">=</span> <span class="pre">-1</span></code> 决定 SID 数据集与「标题→SID」数据集的样本数，<code class="docutils literal notranslate"><span class="pre">-1</span></code> 会把整个商品目录展开，训练会拉长到上万步，改为 40。</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">RLSeqTitle2SidDataset(...,</span> <span class="pre">sample=10000)</span></code> 是第三个数据集，采样上限写死在调用处，不受上面那个变量影响；训练集切到 40 行后样本池只有 40，<code class="docutils literal notranslate"><span class="pre">sample(10000)</span></code> 会抛 <code class="docutils literal notranslate"><span class="pre">Cannot</span> <span class="pre">take</span> <span class="pre">a</span> <span class="pre">larger</span> <span class="pre">sample</span> <span class="pre">than</span> <span class="pre">population</span></code>，同样改为 40。</p></li>
-</ul>
-<p>本节会就地修改 <code class="docutils literal notranslate"><span class="pre">rl.py</span></code> 三行。</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
-sed<span class="w"> </span>-i<span class="w"> </span>-e<span class="w"> </span><span class="s1">'s/optim="paged_adamw_32bit"/optim="adamw_torch"/'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">       </span>-e<span class="w"> </span><span class="s1">'s/^    sample = -1$/    sample = 40/'</span><span class="w"> </span><span class="se">\</span>
-<span class="w">       </span>-e<span class="w"> </span><span class="s1">'s/sample=10000/sample=40/'</span><span class="w"> </span>rl.py
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">'optim="adamw_torch"'</span><span class="w"> </span>rl.py
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">'^    sample = 40$'</span><span class="w"> </span>rl.py
-grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">'sample=40'</span><span class="w"> </span>rl.py
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">1</span>
-<span class="m">1</span>
-<span class="m">1</span>
-</pre></div>
-</div>
-<p>三个数据集都按 40 取样，所以把训练集也切到 40 行（<code class="docutils literal notranslate"><span class="pre">pandas</span></code> 允许取样数等于总体数）：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
-python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'PY'</span>
-<span class="s">import pandas as pd</span>
-
-<span class="s">df = pd.read_csv('data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv')</span>
-<span class="s">df.head(40).to_csv('data/rl_train_40.csv', index=False)</span>
-<span class="s">print('rl train rows:', len(pd.read_csv('data/rl_train_40.csv')))</span>
-<span class="s">PY</span>
-</pre></div>
-</div>
-<p>输出结果如下：</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rl<span class="w"> </span>train<span class="w"> </span>rows:<span class="w"> </span><span class="m">40</span>
-</pre></div>
-</div>
+<p>上游 <code class="docutils literal notranslate"><span class="pre">rl.py</span></code> 已按 <code class="docutils literal notranslate"><span class="pre">npu_support.IS_NPU</span></code> 选择 <code class="docutils literal notranslate"><span class="pre">adamw_torch</span></code> 优化器（bitsandbytes 的 paged 优化器没有 NPU 实现），无需改动源码。数据规模用 <code class="docutils literal notranslate"><span class="pre">--sample</span> <span class="pre">40</span></code> 控制：<code class="docutils literal notranslate"><span class="pre">sample</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> 时三个训练数据集与评估数据集都按这个数取样；不传则会展开整个商品目录，单卡跑不完。</p>
 <p>在 0 号卡上跑 1 epoch。<code class="docutils literal notranslate"><span class="pre">train_batch_size</span></code> 必须能被 <code class="docutils literal notranslate"><span class="pre">num_generations</span></code> 整除；<code class="docutils literal notranslate"><span class="pre">num_generations</span></code> 同时是 beam 宽度，本节取 2。</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
 <span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
 <span class="nb">cd</span><span class="w"> </span>MiniOneRec
-<span class="nv">PYTHONPATH</span><span class="o">=</span>/tmp/minionerec-npu-shim<span class="w"> </span>python<span class="w"> </span>rl.py<span class="w"> </span><span class="se">\</span>
+python<span class="w"> </span>rl.py<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--model_path<span class="w"> </span>./sft_out/final_checkpoint<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--train_file<span class="w"> </span>./data/rl_train_40.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_file<span class="w"> </span>./data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--eval_file<span class="w"> </span>./data/Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--info_file<span class="w"> </span>./data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--category<span class="w"> </span>Industrial_and_Scientific<span class="w"> </span><span class="se">\</span>
@@ -531,6 +471,7 @@ python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'
 <span class="w">    </span>--sync_ref_model<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--test_during_training<span class="w"> </span>False<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--eval_step<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sample<span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--output_dir<span class="w"> </span>./rl_out<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--sid_index_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.index.json<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--item_meta_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.item.json
@@ -541,7 +482,7 @@ python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;'
 ...
 </pre></div>
 </div>
-<p>日志里的 <code class="docutils literal notranslate"><span class="pre">reward</span></code>、<code class="docutils literal notranslate"><span class="pre">reward_std</span></code>、<code class="docutils literal notranslate"><span class="pre">loss</span></code>、<code class="docutils literal notranslate"><span class="pre">grad_norm</span></code>、<code class="docutils literal notranslate"><span class="pre">kl</span></code> 会一直是 0，这不是故障。<code class="docutils literal notranslate"><span class="pre">rule_reward</span></code> 要求生成的 SID 与目标完全相等；上一节只训 1 epoch，精确命中率接近 0，组内两条候选都命不中，<code class="docutils literal notranslate"><span class="pre">ndcg_rule_reward</span></code> 还会把整组补 0，GRPO 的组内优势因此无从计算，梯度自然为 0。到这里三个阶段都已跑通；要看到非零的训练信号，需要更充分的 SFT。</p>
+<p>日志里的 <code class="docutils literal notranslate"><span class="pre">reward</span></code>、<code class="docutils literal notranslate"><span class="pre">reward_std</span></code>、<code class="docutils literal notranslate"><span class="pre">loss</span></code>、<code class="docutils literal notranslate"><span class="pre">grad_norm</span></code>、<code class="docutils literal notranslate"><span class="pre">kl</span></code> 会一直是 0，这不是故障。<code class="docutils literal notranslate"><span class="pre">rule_reward</span></code> 要求生成的 SID 与目标完全相等；SFT 阶段只训 1 epoch，精确命中率接近 0，组内两条候选都命不中，<code class="docutils literal notranslate"><span class="pre">ndcg_rule_reward</span></code> 还会把整组补 0，GRPO 的组内优势因此无从计算，梯度自然为 0。到这里三个阶段都已跑通；要看到非零的训练信号，需要更充分的 SFT。</p>
 <p>校验 <code class="docutils literal notranslate"><span class="pre">rl.py</span></code> 结尾的两步落盘（<code class="docutils literal notranslate"><span class="pre">trainer.save_model</span></code> 与 <code class="docutils literal notranslate"><span class="pre">model.save_pretrained</span></code>）：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
 <span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>rl_out/final_checkpoint/model.safetensors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"rl model saved"</span>
@@ -556,8 +497,9 @@ rl<span class="w"> </span>tokenizer<span class="w"> </span>saved
 </pre></div>
 </div>
 </section>
-<section id="id11">
-<h2>相关链接<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<hr class="docutils" />
+<section id="id10">
+<h2>相关链接<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>上游仓库：<a class="reference external" href="https://github.com/AkaliKong/MiniOneRec">AkaliKong/MiniOneRec</a></p></li>
 <li><p>基座模型：<a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen2.5-0.5B</a></p></li>
