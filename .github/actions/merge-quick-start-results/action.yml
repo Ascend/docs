@@ -1,0 +1,70 @@
+# Merge per-machine quick-start results into one aggregate result.json.
+#
+# A thin trigger that runs the engine twice (once per machine generation)
+# calls this composite action from a `merge` job. It collects each leg's
+# result.json (shipped out of the engine via workflow_call.outputs) and
+# collects them into a single JSON array, then uploads one aggregate
+# artifact <project>-quick-start-<run_id>.
+#
+# Empty inputs (a leg whose monitor decided need_to_test=false) are
+# skipped rather than materialized as a null entry.
+
+name: merge-quick-start-results
+description: Collect per-machine quick-start result.json files into one JSON array.
+
+inputs:
+  project:
+    description: Project name, used as the aggregate artifact prefix.
+    required: true
+  result_a2:
+    description: Single-line result.json for the a2 leg (empty when that leg skipped).
+    required: false
+    default: ''
+  result_a3:
+    description: Single-line result.json for the a3 leg (empty when that leg skipped).
+    required: false
+    default: ''
+  name_a2:
+    description: First-level caller job name for the a2 leg (recorded as `name`).
+    required: false
+    default: qs-a2
+  name_a3:
+    description: First-level caller job name for the a3 leg (recorded as `name`).
+    required: false
+    default: qs-a3
+
+runs:
+  using: composite
+  steps:
+    - name: Merge per-machine results
+      shell: bash
+      env:
+        RESULT_A2: ${{ inputs.result_a2 }}
+        RESULT_A3: ${{ inputs.result_a3 }}
+        NAME_A2: ${{ inputs.name_a2 }}
+        NAME_A3: ${{ inputs.name_a3 }}
+        RUN_ID: ${{ github.run_id }}
+      run: |
+        set -euo pipefail
+        mkdir -p output
+        jq -n \
+          --argjson a2 "${RESULT_A2:-null}" \
+          --argjson a3 "${RESULT_A3:-null}" \
+          --arg run_id "$RUN_ID" \
+          --arg name_a2 "$NAME_A2" \
+          --arg name_a3 "$NAME_A3" \
+          'def add_name($v; $name):
+             if $v then $v + { name: $name } else empty end;
+           [ add_name($a2; $name_a2), add_name($a3; $name_a3) ]
+           | to_entries
+           | map(.value + { id: ($run_id + "-" + ((.key + 1) | tostring)) })' \
+          > output/result.json
+        echo "merged result.json ($(wc -c < output/result.json) bytes):"
+        cat output/result.json
+
+    - name: Upload aggregate result
+      uses: actions/upload-artifact@v6
+      with:
+        name: ${{ inputs.project }}-quick-start-${{ github.run_id }}
+        path: output/result.json
+        if-no-files-found: error
