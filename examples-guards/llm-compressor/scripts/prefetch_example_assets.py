@@ -6,6 +6,9 @@ first. A failure, or a repo that requires a login, falls back to
 ModelScope and is published under the Hub id the example already uses.
 Gated Llama and Gemma ids are planted from ModelScope first: the Hub
 copy 401s without a token, and that 401 is a download failure.
+A dropped ModelScope connection keeps the partial shard and the next
+attempt continues it. The library default of 5 drops gives up while a
+multi-GB shard is still incomplete.
 """
 
 from __future__ import annotations
@@ -22,6 +25,7 @@ from pathlib import Path
 
 from datasets import load_dataset
 from huggingface_hub import snapshot_download, try_to_load_from_cache
+from modelscope.hub import file_download as ms_file_download
 from modelscope.hub.snapshot_download import (
     dataset_snapshot_download,
     snapshot_download as ms_snapshot_download,
@@ -51,7 +55,13 @@ PILE_10K = "NeelNanda/pile-10k"
 HUB_ROOT = Path(os.environ.get("HF_HOME", Path.home() / ".cache/huggingface")) / "hub"
 STAGING_DIR = "guard-staging"
 STAGING_STALE_SECONDS = 24 * 3600
-SKIP_DIRS = {".cache", "original"}
+RESUME_DIR = "modelscope-resume"
+MS_DOWNLOAD_ATTEMPTS = 3
+# modelscope 1.37 binds this to 5. Five dropped connections stopped
+# Llama-3-8B shards while they were still incomplete, and the partial
+# file was then deleted with the staging directory.
+MS_FILE_DOWNLOAD_RETRIES = 30
+SKIP_DIRS = {".cache", "._____temp", "original"}
 SKIP_NAMES = {".mdl", ".msc", ".mv"}
 
 
@@ -274,18 +284,66 @@ def download_hf_model(model_id: str, dest: Path) -> Path:
     return tree
 
 
-def download_ms_model(ms_id: str, dest: Path) -> Path:
-    dest.mkdir(parents=True, exist_ok=True)
-    landed = Path(
-        ms_snapshot_download(
-            ms_id,
-            local_dir=str(dest),
-            ignore_file_pattern=["original/*"],
-        )
-    )
-    tree = flatten_config(landed if landed.is_dir() else dest)
-    require_model_tree(tree)
-    return tree
+def resume_folder(ms_id: str) -> Path:
+    """Stable directory for one ModelScope repo.
+
+    Staging is removed when a download raises, which throws away a
+    half-written shard. This directory stays until the snapshot is
+    published, so the next attempt and the next job continue the bytes
+    modelscope already wrote.
+    """
+    folder = HUB_ROOT.parent / RESUME_DIR / ms_id.replace("/", "--")
+    folder.mkdir(parents=True, exist_ok=True)
+    return folder
+
+
+def discard_resume(src: Path) -> None:
+    """Remove a resume tree after its bytes have been hardlinked into the Hub snapshot."""
+    root = (HUB_ROOT.parent / RESUME_DIR).resolve()
+    current = src.resolve()
+    try:
+        current.relative_to(root)
+    except ValueError:
+        return
+    while current.parent != root and current.parent != current:
+        current = current.parent
+    if current.parent == root:
+        shutil.rmtree(current, ignore_errors=True)
+
+
+def download_ms_model(ms_id: str, _dest: Path) -> Path:
+    """Download ms_id, continuing partial shards across attempts.
+
+    _dest is the per-attempt staging directory. The bytes are stored
+    under modelscope-resume instead, because staging is deleted if this
+    raises.
+    """
+    ms_file_download.API_FILE_DOWNLOAD_RETRY_TIMES = MS_FILE_DOWNLOAD_RETRIES
+    folder = resume_folder(ms_id)
+    last_exc: Exception | None = None
+    for attempt in range(1, MS_DOWNLOAD_ATTEMPTS + 1):
+        try:
+            landed = Path(
+                ms_snapshot_download(
+                    ms_id,
+                    local_dir=str(folder),
+                    ignore_file_pattern=["original/*"],
+                )
+            )
+            tree = flatten_config(landed if landed.is_dir() else folder)
+            require_model_tree(tree)
+            return tree
+        except Exception as exc:
+            last_exc = exc
+            print(
+                f"modelscope download {ms_id} attempt {attempt}/{MS_DOWNLOAD_ATTEMPTS} "
+                f"failed ({exc}); keeping partial files in {folder}",
+                flush=True,
+            )
+            if attempt < MS_DOWNLOAD_ATTEMPTS:
+                time.sleep(5)
+    assert last_exc is not None
+    raise last_exc
 
 
 def install_model(model_id: str, src: Path, origin: str) -> None:
@@ -343,6 +401,7 @@ def fetch_from(origin: str, model_id: str, download) -> None:
     try:
         src = download(staging)
         install_model(model_id, src, origin)
+        discard_resume(src)
     finally:
         shutil.rmtree(staging, ignore_errors=True)
 
