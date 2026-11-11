@@ -1,0 +1,69 @@
+# ktransformers examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop lives in the engine. The guarded example
+# is project-owned
+# (examples-guards/ktransformers/example/llamafile_npu_forward.py) and
+# runs against kt-kernel built from the upstream checkout.
+
+name: ktransformers-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name: a bare
+  # pr-<number> would let two projects' runs on one PR cancel each
+  # other.
+  group: ${{ github.event_name == 'schedule' && 'ktransformers-examples-schedule' || (github.event_name == 'pull_request' && format('ktransformers-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 00:00 Beijing time (UTC 16:00). The engine's monitor gates
+  # actual runs on upstream release / guard-file changes, so the cadence
+  # only bounds detection latency. 16:00 UTC is clear of the other
+  # example-guard hours.
+  schedule:
+    - cron: '0 16 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. Whether a fork PR waits for a maintainer's approval
+  # first is the repository's fork-PR policy. `pull_request`, not
+  # `pull_request_target`: the declared read permissions are all the
+  # engine needs. paths lists only this project's files.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/ktransformers/**'
+      - '.github/workflows/ktransformers-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  ktransformers-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-ktransformers_*),
+      # artifact names and the scheduling paths under
+      # examples-guards/ktransformers.
+      project: ktransformers
+      upstream_repo: kvcache-ai/ktransformers
+      target_ref: ${{ inputs.target_ref }}
+      # One supported example, and the kt-kernel build is heavy.
+      max_parallel: 1

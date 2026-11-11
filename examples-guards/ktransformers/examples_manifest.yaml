@@ -1,0 +1,129 @@
+# ktransformers example guard.
+# The supported entry is project-owned and lives in this directory.
+# scan.root is the upstream kt-kernel example tree. Every Python file
+# there is unsupported; see the per-file notes below. main at
+# 787258cc on 2026-11-06 still has this same file list, last touched
+# on 2026-06-18.
+version: 1
+scan:
+  root: kt-kernel/examples
+  include_extensions: ['.py']
+supported:
+  - source: project
+    path: example/llamafile_npu_forward.py
+    profile: npu
+    runner: linux-aarch64-a2-1
+    npu_devices: '0'
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+    timeout_minutes: 180
+unsupported:
+  # 只定义 DeepseekV3Config，继承 transformers 的 PretrainedConfig。没有会自己跑起来的入口。
+  - kt-kernel/examples/configuration_deepseek_v3.py
+
+  # 供别的脚本 import 的模型定义。is_flash_attn_2_available 为真时从 flash_attn 引入 NVIDIA 注意力函数。没有独立的运行入口。
+  - kt-kernel/examples/modeling_deepseek_v3.py
+
+  # 供 test_mla_simple.py import 的注意力辅助类，例如 KDeepSeekV3Cache。单独执行不跑 kt-kernel。
+  - kt-kernel/examples/torch_attention.py
+
+  # 文件头要求环境变量 WEIGHT_PATH 指向一份 GGUF 目录，并写明默认 DEVICE 在有 CUDA 时走 cuda。看护机没有这份权重。
+  - kt-kernel/examples/repro_llamafile_re.py
+
+  # 从 kt_kernel_ext.moe 引入 AMXBF16_MOE、AMXInt8_MOE、AMXInt4_MOE、AMXInt4_1_MOE。这些类在 ext_bindings.cpp 里包在 __x86_64__ 且 USE_AMX_AVX_KERNEL 下，aarch64 上升腾构建没有这些符号。
+  - kt-kernel/examples/test-debug.py
+
+  # 启动时用 load_fp16_tensor 读取 csrc/ktransformers_ext/build/before_softmax 和 after_softmax。仓库里没有这两份二进制。
+  - kt-kernel/examples/test_softmax.py
+
+  # 启动时读取 csrc/ktransformers_ext/build/before_rope、after_rope、cos、sin。仓库里没有这些二进制。
+  - kt-kernel/examples/test_rope.py
+
+  # 启动时读取 ./debug_decode 与 ./debug_prefill 下的 query_0_tp_0_input.bin 等多份 dump。仓库里没有这些文件。
+  - kt-kernel/examples/test_mla_quant.py
+
+  # 只定义 rotate_half、apply_rotary_pos_emb、my_apply，文件到末尾没有调用，也没有断言。退出码 0 证明不了任何计算。
+  - kt-kernel/examples/test_apply_rope.py
+
+  # 构造 kt_kernel_ext.moe.AMXInt8_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__ 且 USE_AMX_AVX_KERNEL 下。权重还用 device="cuda" 创建。
+  - kt-kernel/examples/bench_moe_amx_int8.py
+
+  # 构造 kt_kernel_ext.moe.AMXInt4_1KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__ 且 USE_AMX_AVX_KERNEL 下。
+  - kt-kernel/examples/test_awq_moe_amx.py
+
+  # 构造 kt_kernel_ext.moe.AMXBF16_MOE。该类在 ext_bindings.cpp 里还要求 __AVX512F__，外层是 __x86_64__ 且 USE_AMX_AVX_KERNEL。
+  - kt-kernel/examples/test_bf16_moe.py
+
+  # 构造 kt_kernel_ext.moe.AMXFP4_KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__、USE_AMX_AVX_KERNEL 且 __AVX512F__ 下。
+  - kt-kernel/examples/test_fp4_moe_amx.py
+
+  # getattr 取 kt_kernel_ext.moe.AVX2MXFP4_MOE，取不到就抛 RuntimeError。AVX2MXFP4_MOE 绑在 x86 的 AVX2 段，aarch64 上升腾构建没有这个符号。
+  - kt-kernel/examples/test_fp4_moe_avx2.py
+
+  # 构造 kt_kernel_ext.moe.AMXFP4_KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__、USE_AMX_AVX_KERNEL 且 __AVX512F__ 下。
+  - kt-kernel/examples/test_fp4_moe_v4.py
+
+  # 构造 kt_kernel_ext.moe.AMXFP8_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__、USE_AMX_AVX_KERNEL 且 __AVX512F__ 下。
+  - kt-kernel/examples/test_fp8_moe.py
+
+  # 构造 kt_kernel_ext.moe.AMXFP8PerChannel_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__、USE_AMX_AVX_KERNEL 且 __AVX512F__ 下。
+  - kt-kernel/examples/test_fp8_perchannel_moe.py
+
+  # 构造 kt_kernel_ext.moe.AMXInt4_KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__ 且 USE_AMX_AVX_KERNEL 下。
+  - kt-kernel/examples/test_k2_moe_amx.py
+
+  # 构造 kt_kernel_ext.moe.AMXInt4_KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__ 且 USE_AMX_AVX_KERNEL 下。
+  - kt-kernel/examples/test_k2_write_buffer.py
+
+  # 按分支构造 AMXBF16_MOE、AMXInt8_MOE、AMXInt4_MOE、AMXInt4_1_MOE、AMXInt4_1KGroup_MOE。这些类都在 ext_bindings.cpp 的 __x86_64__ 且 USE_AMX_AVX_KERNEL 段里。
+  - kt-kernel/examples/test_moe_amx.py
+
+  # getattr 取 kt_kernel_ext.moe.AVX2MXFP8_MOE，并要求 --weight-path 指向 MiniMax-M3 权重。AVX2 符号不在 aarch64 构建里，看护机也没有这份权重。
+  - kt-kernel/examples/test_mxfp8_moe_avx2.py
+
+  # 构造 kt_kernel_ext.moe.AMXMXFP8_KGroup_MOE。该类在 ext_bindings.cpp 里包在 __x86_64__、USE_AMX_AVX_KERNEL 且 __AVX512F__ 下。
+  - kt-kernel/examples/test_mxfp8_moe_m3.py
+
+  # 同一文件里构造 AMXFP8_MOE、AMXFP8PerChannel_MOE、AMXBF16_MOE。三者都在 ext_bindings.cpp 的 x86 AMX 段，其中 FP8 与 BF16 还要求 __AVX512F__。
+  - kt-kernel/examples/test_write_buffer.py
+
+  # 按分支构造 KMLInt8_MOE 或 KMLInt4_MOE。当前 ext_bindings.cpp 里搜不到这两个名字。operators/kml 源码已不在树里。
+  - kt-kernel/examples/test_moe_kml.py
+
+  # 调用 kt_kernel_ext.moe.KMLInt8_MOE、kt_kernel_ext.mla.MLA_F32 或 MLA_F16 或 MLA_QUAN_F32，以及 kt_kernel_ext.gate.MoEGate。KMLInt8_MOE 已不导出。MLA 与 MoEGate 包在 __aarch64__ 且 CPU_USE_KML 且 KTRANSFORMERS_CPU_MLA 下，而 operators/kml 已删除。权重路径写死为 /home/bd/models/DeepSeek-R1 和 /home/bd/models/DeepSeek-R1-BF16。
+  - kt-kernel/examples/test_deepseekv3.py
+
+  # 与 test_deepseekv3.py 相同：KMLInt8_MOE、MLA_F32、MLA_F16、MLA_QUAN_F32、MoEGate，以及写死的 /home/bd/models/DeepSeek-R1 路径。KML 源码已不在树里。
+  - kt-kernel/examples/test_deepseekv3_prefill.py
+
+  # 与 test_deepseekv3.py 相同：KMLInt8_MOE、MLA_F32、MLA_F16、MLA_QUAN_F32、MoEGate，以及写死的 /home/bd/models/DeepSeek-R1 路径。KML 源码已不在树里。
+  - kt-kernel/examples/test_deepseekv3_prefill_speed.py
+
+  # 调用 kt_kernel_ext.linear.Linear。ext_bindings.cpp 里 py::class_ Linear 整段被注释。权重用 device="cuda" 创建后再 .to("cpu")。
+  - kt-kernel/examples/test_linear.py
+
+  # 调用 kt_kernel_ext.mlp.MLP。ext_bindings.cpp 里 py::class_ MLP 整段被注释。三份权重都用 device="cuda" 创建。
+  - kt-kernel/examples/test_mlp.py
+
+  # llamafile 的 kt_kernel_ext.moe.MOE 在 aarch64 上可以绑定，但三份权重都写成 torch.randn(..., device="cuda")。脚本没有改设备的参数。
+  - kt-kernel/examples/test_moe.py
+
+  # 文件顶部 from flash_attn import flash_attn_with_kvcache，后面把 q、k_cache、v_cache、cache_seqlens 做 .to("cuda") 再调用它。flash_attn 是 NVIDIA 包。
+  - kt-kernel/examples/test_attention.py
+
+  # use_real_weights 被赋值为 True，gguf_path 写死为 /home/bd/models/DeepSeek-R1-BF16。随后构造 MLA_F32、MLA_F16、MLA_QUAN_F32。这些类只在打开 KML 时导出，operators/kml 已删除。还会读取 ./debug/query_0_tp_0_input.bin。
+  - kt-kernel/examples/test_mla.py
+
+  # 与 test_mla.py 相同的写死路径 /home/bd/models/DeepSeek-R1-BF16，以及 MLA_F32、MLA_F16。MLA 绑定依赖已删除的 KML。
+  - kt-kernel/examples/test_mla_qlen.py
+
+  # 调用 kt_kernel_ext.mla.MLA。当前 ext_bindings.cpp 在 KML 条件下只导出 MLA_F16、MLA_F32、MLA_QUAN_F32，没有名为 MLA 的类。
+  - kt-kernel/examples/test_mla_torch.py
+
+  # 不 import kt_kernel。它 import torch_attention，并用 torch.cuda.manual_seed_all。跑完也不经过 kt-kernel。
+  - kt-kernel/examples/test_mla_simple.py
+
+  # 构造 kt_kernel_ext.gate.MoEGate。该类在 ext_bindings.cpp 里包在 __aarch64__ 且 CPU_USE_KML 且 KTRANSFORMERS_CPU_MLA 下。operators/moe_kernel/api/common.h 在 __aarch64__ 上还会强制定义 CPU_USE_KML，CMake 接着去编译已经不存在的 operators/kml。
+  - kt-kernel/examples/test_gate.py
+
+  # 构造 kt_kernel_ext.moe.Int8_KERNEL_MOE 或 Int4_KERNEL_MOE。Int8 绑定挂在 USE_MOE_KERNEL 下，但 aarch64 上 common.h 强制 CPU_USE_KML，CMake 会去编译已删除的 operators/moe_kernel/mat_kernel/kml_kernel。树里剩下的矩阵核实现只有 x86 的 aocl_kernel。
+  - kt-kernel/examples/test_moe_kernel.py
