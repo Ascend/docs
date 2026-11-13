@@ -122,11 +122,20 @@ install_sglang_source() {
   echo "installing sglang from source at ${sglang_commit}"
   local src="${GITHUB_WORKSPACE}/sglang-src"
   rm -rf "$src" && mkdir -p "$src"
+  # HTTP/1.1 + 5 次重试：拉大仓库时偶发 HTTP2 framing / GnuTLS recv error。
+  local git_opts=(-c http.version=HTTP/1.1 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=60)
   (
     cd "$src"
     git init -q
     git remote add origin https://github.com/sgl-project/sglang.git
-    git fetch --depth 1 origin "$sglang_commit"
+    for attempt in 1 2 3 4 5; do
+      if git "${git_opts[@]}" fetch --depth 1 origin "$sglang_commit"; then
+        break
+      fi
+      echo "sglang fetch attempt ${attempt} failed, retrying" >&2
+      sleep 10
+      [ "$attempt" = 5 ] && { echo "setup: FAILED - fetch sglang" >&2; exit 1; }
+    done
     git checkout -q FETCH_HEAD
   ) >/tmp/setup-sglang-clone.log 2>&1 \
     || { echo "setup: FAILED - clone sglang:" >&2; tail -20 /tmp/setup-sglang-clone.log >&2; exit 1; }
@@ -162,9 +171,20 @@ PYUNZIP
   ) >/tmp/setup-sglang-kernel.log 2>&1 \
     || { echo "setup: FAILED - install sgl-kernel-npu:" >&2; tail -20 /tmp/setup-sglang-kernel.log >&2; exit 1; }
 
-  # SGLang itself: --no-deps keeps the image's torch 2.10.0 (the runtime deps
-  # are installed right after, matching upstream's pyproject_npu.toml pins).
-  python -m pip install --no-deps -e "$src/python" >/tmp/setup-sglang-pip.log 2>&1 \
+  # triton must be the ascend fork: the community one has no
+  # triton.language.extra.cann, so the NPU model modules fail to import.
+  if ! python -c "import triton.language.extra.cann" 2>/dev/null; then
+    python -m pip install --reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
+      --extra-index-url "$ASCEND_PIP_INDEX" >/tmp/setup-triton.log 2>&1 \
+      || { echo "setup: FAILED - install triton-ascend:" >&2; tail -20 /tmp/setup-triton.log >&2; exit 1; }
+  fi
+
+  # SGLang itself, with upstream's own dependency set (pyproject_npu.toml).
+  # torch stays pinned at 2.10.0 (the image's torch_npu requires it) - without
+  # the constraint the resolver would pull the newest torch and break the pair.
+  printf 'torch==2.10.0\ntorchvision==0.25.0\ntorchaudio==2.10.0\n' >/tmp/torch-constraint.txt
+  python -m pip install -e "$src/python" --constraint /tmp/torch-constraint.txt \
+    >/tmp/setup-sglang-pip.log 2>&1 \
     || { echo "setup: FAILED - pip install sglang:" >&2; tail -20 /tmp/setup-sglang-pip.log >&2; exit 1; }
   python -c "from importlib.metadata import version; print('sglang', version('sglang'), '/ sgl_kernel_npu', version('sgl_kernel_npu'))"
 }
