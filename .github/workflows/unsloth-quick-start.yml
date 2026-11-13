@@ -1,0 +1,39 @@
+# Unsloth quick start guard.
+
+name: unsloth-quick-start
+
+concurrency:
+  # format() is load-bearing: 'manual-' || github.run_id short-circuits
+  # to the literal manual- and every dispatch shares one group.
+  group: ${{ github.event_name == 'schedule' && 'unsloth-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, UTC 09:35 and 21:35. Slot is staggered from the
+    # other quick-start guards.
+    - cron: '35 9,21 * * *'
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/unsloth/**'
+      - 'tests/unsloth/**'
+
+permissions:
+  contents: read
+
+jobs:
+  unsloth-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: unsloth
+      test_runner: '["linux-aarch64-a2-1"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+      # Two small LoRA runs plus a cold Hub download. Hot runs reuse
+      # /root/.cache/huggingface/hub, which the runner already mounts.
+      timeout_minutes: 180
+      upstream_repo: unslothai/unsloth
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/unsloth/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/unsloth/quick_start.md
+      test_command: python -m unittest tests.unsloth.test_quick_start_ascend -v 2>&1

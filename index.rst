@@ -287,6 +287,13 @@
          <div class="card-footer"><a href="https://github.com/huggingface/trl">官方链接</a><span class="split">|</span><a href="sources/trl/index.html">快速上手</a></div>
       </div>
 
+      <!-- Unsloth -->
+      <div class="project-card">
+         <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/unsloth.png')"></div><h3 class="card-title">Unsloth</h3></div>
+         <p class="card-desc">大语言模型微调库。本文在单卡昇腾上做 bfloat16 LoRA 监督微调。</p>
+         <div class="card-footer"><a href="https://github.com/unslothai/unsloth">官方链接</a><span class="split">|</span><a href="https://docs.unsloth.ai/">文档中心</a><span class="split">|</span><a href="sources/unsloth/index.html">快速上手</a></div>
+      </div>
+
       <!-- Twinkle：官方文档站已含 NPU 说明，外链跳转，不再本地编译 -->
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/twinkle.png')"></div><h3 class="card-title">Twinkle</h3></div>
@@ -670,6 +677,7 @@
    sources/torchvision/index.rst
    sources/torchtune/index.rst
    sources/trl/index.rst
+   sources/unsloth/index.rst
    sources/twinkle/index.rst
    sources/VeOmni/index.rst
    sources/verl/index.rst
