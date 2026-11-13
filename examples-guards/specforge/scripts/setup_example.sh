@@ -174,7 +174,7 @@ PYUNZIP
   # triton must be the ascend fork: the community one has no
   # triton.language.extra.cann, so the NPU model modules fail to import.
   if ! python -c "import triton.language.extra.cann" 2>/dev/null; then
-    python -m pip install --reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
+    python -m pip install --force-reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
       --extra-index-url "$ASCEND_PIP_INDEX" >/tmp/setup-triton.log 2>&1 \
       || { echo "setup: FAILED - install triton-ascend:" >&2; tail -20 /tmp/setup-triton.log >&2; exit 1; }
   fi
