@@ -1,4 +1,5 @@
-# DeepSpeed quick start guard - thin trigger over quick-start-template.yml; the engine owns the monitor loop, cache I/O and result publishing.
+# Run the DeepSpeed quick start on A2 and A3 with the shared engine.
+# Each machine has its own monitor cache and result artifact.
 name: deepspeed-quick-start
 
 concurrency:
@@ -6,7 +7,6 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  # Every 3 hours at minute 0, offset from peft (minute 30) to avoid NPU runner contention.
   schedule:
     # Twice a day, 12 h apart: UTC 00:00 and 12:00
     # (Beijing +8). All quick-start guards share this cadence; the
@@ -19,20 +19,50 @@ on:
     paths:
       - 'sources/deepspeed/**'
       - 'tests/deepspeed/**'
+      - '.github/workflows/deepspeed-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  deepspeed-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
       project: deepspeed
+      machine_type: a2
       test_runner: '["linux-aarch64-a2-2"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
       container_options: ''
       timeout_minutes: 180
       upstream_repo: deepspeedai/DeepSpeed
-      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/deepspeed/quick_start.md'
-      doc_path: https://github.com/Ascend/docs/blob/main/sources/deepspeed/quick_start.md
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/deepspeed/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/deepspeed/quick_start.md
       test_command: python -m unittest tests.deepspeed.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: deepspeed
+      machine_type: a3
+      test_runner: '["linux-aarch64-a3-800i-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: ''
+      timeout_minutes: 180
+      upstream_repo: deepspeedai/DeepSpeed
+      doc_url: https://api.github.com/repos/${{ github.repository }}/contents/sources/deepspeed/quick_start.md?ref=${{ github.sha }}
+      doc_path: https://github.com/${{ github.repository }}/blob/${{ github.sha }}/sources/deepspeed/quick_start.md
+      test_command: python -m unittest tests.deepspeed.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: deepspeed
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

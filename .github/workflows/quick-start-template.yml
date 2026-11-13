@@ -14,6 +14,10 @@ on:
         description: JSON array of runner labels for the test job, e.g. '["linux-aarch64-a2-1"]' (cache jobs stay on ubuntu-latest)
         type: string
         required: true
+      machine_type:
+        description: Machine generation label - 'a2' for Atlas 900 A2 (Ascend 910B, runner linux-aarch64-a2-*), 'a3' for Atlas 900 A3 (Ascend 910C, runner linux-aarch64-a3-*). Namespaces cache keys and artifact names per generation.
+        type: string
+        default: a2
       image:
         description: Container image for the test job (also recorded in result.json)
         type: string
@@ -47,6 +51,19 @@ on:
         description: Test entry command, executed with cwd = repo root (inside the `workflows` checkout)
         type: string
         required: true
+    outputs:
+      result_json:
+        description: The test job's result.json (single-line JSON), empty when the test was skipped
+        value: ${{ jobs.test.outputs.result_json }}
+      trigger:
+        description: How this run was started (workflow_dispatch / schedule / pull_request)
+        value: ${{ jobs.test.outputs.trigger }}
+      job_status:
+        description: Test job conclusion
+        value: ${{ jobs.test.outputs.job_status }}
+      need_to_test:
+        description: Whether the monitor decided to run the test this cycle
+        value: ${{ jobs.test.outputs.need_to_test }}
 
 # Concurrency deliberately lives in the caller (thin trigger): it is
 # evaluated at the run entry point and covers the whole called chain.
@@ -72,18 +89,19 @@ jobs:
           # Per-run key always misses; restore-keys picks the latest
           # save. The '_' terminator makes this prefix match only keys
           # of the very same project (see header comment).
-          key: quick-start-monitor-state-${{ inputs.project }}_${{ github.run_id }}
+          key: quick-start-monitor-state-${{ inputs.project }}-${{ inputs.machine_type }}_${{ github.run_id }}
           restore-keys: |
-            quick-start-monitor-state-${{ inputs.project }}_
+            quick-start-monitor-state-${{ inputs.project }}-${{ inputs.machine_type }}_
 
       - name: Verify matched cache key
         env:
           PROJECT: ${{ inputs.project }}
+          MACHINE_TYPE: ${{ inputs.machine_type }}
           MATCHED_KEY: ${{ steps.cache-restore.outputs.cache-matched-key }}
         run: |
           set -euo pipefail
           if [ -n "$MATCHED_KEY" ] \
-            && ! printf '%s' "$MATCHED_KEY" | grep -Eq "^quick-start-monitor-state-${PROJECT}_[0-9]+$"; then
+            && ! printf '%s' "$MATCHED_KEY" | grep -Eq "^quick-start-monitor-state-${PROJECT}-${MACHINE_TYPE}_[0-9]+$"; then
             echo "::warning::monitor-state cache cross-talk: matched key '$MATCHED_KEY' is not owned by project '$PROJECT' - discarding cache (cold start)"
             rm -rf .monitor-state
           else
@@ -570,6 +588,7 @@ jobs:
           TARGET_REF:      ${{ steps.decide.outputs.test_ref }}
           DOC_PATH:        ${{ inputs.doc_path }}
           IMAGE:           ${{ inputs.image }}
+          MACHINE_TYPE:    ${{ inputs.machine_type }}
           JOB_STATUS:      ${{ job.status }}
           UPSTREAM_SHA:    ${{ steps.decide.outputs.sha }}
         run: |
@@ -583,15 +602,17 @@ jobs:
             --arg target_ref       "$TARGET_REF" \
             --arg path             "$DOC_PATH" \
             --arg image            "$IMAGE" \
+            --arg machine_type     "$MACHINE_TYPE" \
             --arg job_status       "$JOB_STATUS" \
             '{
-              trigger:     $trigger,
-              reason:      $reason,
-              target_repo: $target_repo,
-              target_ref:  $target_ref,
-              path:        $path,
-              image:       $image,
-              job_status:  $job_status
+              trigger:      $trigger,
+              reason:       $reason,
+              target_repo:  $target_repo,
+              target_ref:   $target_ref,
+              path:         $path,
+              image:        $image,
+              machine_type: $machine_type,
+              job_status:   $job_status
             }' > output/result.json
           echo "wrote $(wc -c < output/result.json) bytes:"
           cat output/result.json
@@ -683,7 +704,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: ${{ inputs.project }}-quick-start-${{ github.run_id }}
+          name: ${{ inputs.project }}-quick-start-${{ github.run_id }}-${{ inputs.machine_type }}
           path: output/result.json
           if-no-files-found: warn
 
@@ -722,4 +743,4 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: .monitor-state
-          key: quick-start-monitor-state-${{ inputs.project }}_${{ github.run_id }}
+          key: quick-start-monitor-state-${{ inputs.project }}-${{ inputs.machine_type }}_${{ github.run_id }}
