@@ -221,10 +221,12 @@ supported:
       - deployment.disaggregated.managed_local.trainer_cuda_visible_devices=["1"]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
-      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment（主机内存），
-      # 在同一个容器里跟 capture server + trainer 一起跑会被 OOM kill
-      # （capture-server-0 exited with status -9）。1 步 smoke 用 8 GiB 足够。
-      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=8589934592
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
+      # buffer（都是主机内存），与 capture server（8B 权重）+ trainer 同容器时
+      # 会被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke
+      # 只存 32 个 anchor 的 hidden states，2 GiB + 256 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=2147483648
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=268435456
     timeout_minutes: 180
 
   - path: examples/configs/online/disaggregated/managed-local/qwen3-8b-dflash-1server-dp7.yaml
@@ -243,10 +245,12 @@ supported:
       - deployment.disaggregated.managed_local.capture_servers=[{"port":30000,"cuda_visible_devices":["0"],"tp_size":1,"mem_fraction_static":0.65}]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
-      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment（主机内存），
-      # 在同一个容器里跟 capture server + trainer 一起跑会被 OOM kill
-      # （capture-server-0 exited with status -9）。1 步 smoke 用 8 GiB 足够。
-      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=8589934592
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
+      # buffer（都是主机内存），与 capture server（8B 权重）+ trainer 同容器时
+      # 会被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke
+      # 只存 32 个 anchor 的 hidden states，2 GiB + 256 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=2147483648
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=268435456
     timeout_minutes: 180
 
   # ===== offline/colocated（2026-09-23 coder 2x910B4 端到端实测通过）：
