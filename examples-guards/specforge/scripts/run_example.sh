@@ -171,10 +171,11 @@ PY
 }
 
 # Offline colocated recipes consume pre-captured hidden states from disk, so the
-# engine must first run the producer: scripts/prepare_hidden_states.py, which
-# drives a local in-proc SGLang capture through the model's native capture
-# hooks (no server, no mooncake, no spec-capture patch). Its arguments come
-# from the same typed config the trainer uses — load the recipe WITH the
+# engine must first run the producer: scripts/prepare_hidden_states.py. Since
+# upstream #1064 that producer is a CLIENT: it needs a capture server
+# (--server-urls) and reads the hidden states back from Mooncake, so the
+# Mooncake master and the capture server are up before it runs. Its arguments
+# come from the same typed config the trainer uses — load the recipe WITH the
 # overlay args applied so max_length / train_data_path / hidden_states_path
 # match exactly what `specforge train` will see.
 resolve_offline() {
@@ -230,11 +231,10 @@ prepare_hidden_states() {
       --output-path "$PREP_HIDDEN_STATES" \
       --chat-template "$PREP_CHAT_TEMPLATE" \
       --max-length "$PREP_MAX_LENGTH" \
-      --tp-size 1 --batch-size 1 --num-samples 1 \
+      --batch-size 1 --num-samples 1 \
       --strategy "$PREP_STRATEGY" \
       --draft-model-config "$draft_cfg" \
-      --sglang-attention-backend ascend \
-      --sglang-mem-fraction-static "${SPECFORGE_PREPARE_MEM_FRACTION:-0.65}" \
+      --server-urls "http://127.0.0.1:${SGLANG_PORT:-30000}" \
       ${trust_args[@]+"${trust_args[@]}"}
 }
 
@@ -325,18 +325,23 @@ case "$LAUNCH_PATH" in
     cd "$TARGET_ROOT"
     if [[ "$LAUNCH_PATH" == *"/offline/"* ]]; then
       # Offline colocated recipes: the trainer reads hidden states from disk;
-      # the engine runs the producer (in-proc capture) first, then the
-      # pure-torch trainer. No external services, no mooncake, no spec-capture
-      # server patch.
+      # the engine runs the producer (prepare_hidden_states.py) first, then the
+      # pure-torch trainer. Upstream #1064 rewrote that producer: it no longer
+      # drives an in-proc capture, it talks to a capture SERVER (--server-urls
+      # is required) and reads the hidden states back from Mooncake - so the
+      # Mooncake master and the capture server are started here as well.
       if ! OFFLINE_VARS="$(resolve_offline)"; then
         echo "FAILED - resolve_offline could not load the offline recipe config" >&2
         exit 1
       fi
       eval "$OFFLINE_VARS"
+      eval "$(resolve_capture)"
       rm -rf "outputs/${CAP_RUN_ID}"
       if [[ -n "${PREP_HIDDEN_STATES:-}" ]]; then
         rm -rf "${PREP_HIDDEN_STATES%/}"
       fi
+      start_mooncake
+      start_sglang_capture "$CAP_METHOD" "$CAP_AUX"
       prepare_hidden_states
       ATB_LIB=/usr/local/Ascend/nnal/atb/9.0.0/atb/cxx_abi_1/lib
       TRAIN_LD_PATH="${LD_LIBRARY_PATH:-}"

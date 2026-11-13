@@ -221,6 +221,10 @@ supported:
       - deployment.disaggregated.managed_local.trainer_cuda_visible_devices=["1"]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment（主机内存），
+      # 在同一个容器里跟 capture server + trainer 一起跑会被 OOM kill
+      # （capture-server-0 exited with status -9）。1 步 smoke 用 8 GiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=8589934592
     timeout_minutes: 180
 
   - path: examples/configs/online/disaggregated/managed-local/qwen3-8b-dflash-1server-dp7.yaml
@@ -239,11 +243,15 @@ supported:
       - deployment.disaggregated.managed_local.capture_servers=[{"port":30000,"cuda_visible_devices":["0"],"tp_size":1,"mem_fraction_static":0.65}]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment（主机内存），
+      # 在同一个容器里跟 capture server + trainer 一起跑会被 OOM kill
+      # （capture-server-0 exited with status -9）。1 步 smoke 用 8 GiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=8589934592
     timeout_minutes: 180
 
   # ===== offline/colocated（2026-09-23 coder 2x910B4 端到端实测通过）：
-  # 纯 torch trainer（sdpa）读盘训练，前置 prepare_hidden_states.py（in-proc
-  # sglang capture，--sglang-attention-backend ascend，不需要 mooncake、不
+  # 纯 torch trainer（sdpa）读盘训练，前置 prepare_hidden_states.py（上游
+  # #1064 后是 capture server 的客户端：需要 mooncake + capture server，
   # 需要 spec-capture server patch），run_example.sh 的 offline 分支自动跑
   # 预生成步骤。qwen3-4b-dspark（step 1 loss=3.715）与 qwen3-8b-dflash
   # （step 1 loss=13.96）直接实测通过；qwen3-8b-dspark
