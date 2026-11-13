@@ -52,18 +52,13 @@ supported:
     npu_devices: '0'
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     timeout_minutes: 180
-  - path: examples/quantization_w4a4_fp4/llama3_example_prefetch.py
-    profile: npu_oneshot
-    runner: linux-aarch64-a2-1
-    npu_devices: '0'
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    timeout_minutes: 180
+  # 暖缓存整次作业约 157 分钟。冷下载再占掉前面几十分钟时，180 分钟会在示例结束前取消作业。
   - path: examples/quantization_w4a4_mxfp4/llama3_mxfp4.py
     profile: npu_oneshot
     runner: linux-aarch64-a2-1
     npu_devices: '0'
     image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    timeout_minutes: 180
+    timeout_minutes: 240
 
 # unsupported 每个条目上方都写明了不支持的原因。
 # 显存与内存上限取 910B4 单卡 32GB 显存与容器 32GiB 内存，数值来自源仓实测，香港池本轮迁移尚未复核。
