@@ -279,46 +279,17 @@ supported:
   # 后者由 supported 的 online qwen3-8b-dspark 证明）。
   # mem-fraction：4B 0.5 即可、8B 需 >=0.537，统一用 SPECFORGE_PREPARE_
   # MEM_FRACTION 默认 0.65。=====
-  - path: examples/configs/offline/colocated/qwen3-4b-dspark.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    # recipe 已是 batch_size=1 / nproc_per_node=1，accumulation_steps / report_to
-    # 走 schema 默认 1 / none（同 qwen3-4b-dspark 消融结论）。
-    overlay_args:
-      - training.max_steps=1
-      - training.attention_backend=sdpa
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
-  - path: examples/configs/offline/colocated/qwen3-8b-dflash.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    overlay_args:
-      - training.max_steps=1
-      - training.batch_size=1  # recipe 默认 4：prepare 只产 1 个样本，drop_last=True 下凑不出 batch，必须压 1
-      - training.attention_backend=sdpa
-      - training.num_anchors=32
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
-  - path: examples/configs/offline/colocated/qwen3-8b-dspark.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-    # recipe 已是 batch_size=1 / nproc_per_node=1，accumulation_steps / report_to
-    # 走 schema 默认 1 / none（同 qwen3-4b-dspark 消融结论）。
-    overlay_args:
-      - training.max_steps=1
-      - training.attention_backend=sdpa
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
 unsupported:
+  # ===== offline/colocated：上游 #1064 改了 offline producer 的形态，先挪到 unsupported =====
+  # prepare_hidden_states.py 从「in-proc capture」改成 capture server 的 CPU client
+  # 集合（--server-urls 必填、多个 worker 用 gloo 组、hidden states 经 mooncake 回传），
+  # 跟我们现在的编排（先起 mooncake master + capture server，再跑 producer）对不上：
+  # client 建连时拿不到 master 的 segment descriptor
+  # （GET /metadata?key=mooncake%2Fram%2F... -> 404 metadata not found）。
+  # 等把 offline 这条链按上游的新形态对齐后再放回 supported。
+  - examples/configs/offline/colocated/qwen3-8b-dspark.yaml
+  - examples/configs/offline/colocated/qwen3-8b-dflash.yaml
+  - examples/configs/offline/colocated/qwen3-4b-dspark.yaml
   # ===== LFM2.5 DFLASH：sglang 0.5.18 无 LFM2 capture setter（2026-09-23 源码确认）。
   # LiquidAI/LFM2.5-1.2B-Instruct 在 ModelScope 存在（Code 200），arch=
   # Lfm2ForCausalLM（/sgl-workspace/sglang/python/sglang/srt/models/lfm2.py），
