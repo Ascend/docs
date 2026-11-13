@@ -140,7 +140,12 @@ install_sglang_source() {
   # CANN-side custom ops from the image are reused as-is.
   local kernel_tag="2026.9.0.post12"
   local py_tag="py$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')"
-  local cann_ver="9.0.0" device="910b" arch
+  # CANN 版本取当前环境里的那个（sgl-kernel-npu 的 wheel 按 (torch, CANN, 设备,
+  # python) 出包，写死会拼出不存在的文件名 -> 404）。上游目前只发到 CANN 9.1.0
+  # 的 910b 包，可用 SGL_KERNEL_CANN_VER 覆盖。
+  local cann_ver device="910b" arch
+  cann_ver=$(ls -d /usr/local/Ascend/cann-* 2>/dev/null | head -1 | sed 's/.*cann-//')
+  cann_ver="${SGL_KERNEL_CANN_VER:-$cann_ver}"
   arch=$(uname -m)
   local wheel="sgl-kernel-npu-${kernel_tag}-torch2.10.0-${py_tag}-cann${cann_ver}-${device}-${arch}.zip"
   mkdir -p "$src/npu-ops"
