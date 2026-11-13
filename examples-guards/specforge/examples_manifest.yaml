@@ -222,11 +222,13 @@ supported:
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
       # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
-      # buffer（都是主机内存），与 capture server（8B 权重）+ trainer 同容器时
-      # 会被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke
-      # 只存 32 个 anchor 的 hidden states，2 GiB + 256 MiB 足够。
-      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=2147483648
-      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=268435456
+      # buffer（都是主机内存）。managed-local 把 capture server（8B 权重）、
+      # trainer（同样要 target 模型）和 mooncake master 放在同一个容器里，
+      # 插件流程下多出来的 segment/buffer 会把主机内存顶爆，capture server
+      # 被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke 只存
+      # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
     timeout_minutes: 180
 
   - path: examples/configs/online/disaggregated/managed-local/qwen3-8b-dflash-1server-dp7.yaml
@@ -246,11 +248,13 @@ supported:
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
       # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
-      # buffer（都是主机内存），与 capture server（8B 权重）+ trainer 同容器时
-      # 会被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke
-      # 只存 32 个 anchor 的 hidden states，2 GiB + 256 MiB 足够。
-      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=2147483648
-      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=268435456
+      # buffer（都是主机内存）。managed-local 把 capture server（8B 权重）、
+      # trainer（同样要 target 模型）和 mooncake master 放在同一个容器里，
+      # 插件流程下多出来的 segment/buffer 会把主机内存顶爆，capture server
+      # 被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke 只存
+      # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
     timeout_minutes: 180
 
   # ===== offline/colocated（2026-09-23 coder 2x910B4 端到端实测通过）：
