@@ -2,8 +2,8 @@
 
 在 4 卡昇腾 NPU 上端到端跑通 [SpecForge](https://github.com/sgl-project/SpecForge) 的投机解码草稿模型训练链路：
 
-- **安装**：huggingface_hub + mooncake（NPU prebuilt wheel）+ specforge（源码），CLI 自检。
-- **端到端 smoke**：从 HuggingFace Hub 拉 Qwen3.5-4B → 打 SGLang spec-capture 补丁 → 起 mooncake_master + SGLang capture server → 完成 1 步训练。
+- **安装**：huggingface_hub + mooncake（NPU prebuilt wheel）+ SGLang（源码构建）+ specforge（源码）+ 上游 capture 插件，CLI 自检。
+- **端到端 smoke**：从 HuggingFace Hub 拉 Qwen3.5-4B → 起 mooncake_master → 起带 capture 插件的 SGLang capture server → 完成 1 步训练。
 
 ## 前置条件
 
@@ -15,27 +15,51 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配、预装 `torch` / `torch_npu` / `sglang` 的镜像（本文用下方的 SGLang 专用镜像）
+- 与 CANN 匹配、预装 `torch` / `torch_npu` 的镜像（本文用下方的 SGLang 专用镜像；镜像自带的 sglang 会被下文源码构建的版本替换）
 
 ### 本文档示例使用的版本
 
-**配套镜像**：
+**配套镜像**（标准 CANN 镜像即可，SGLang 由本文自己从源码构建）：
 
-swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+
+也可以用 SGLang 专用镜像 `swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b`（自带 torch / torch_npu / triton-ascend，上面几步会自动跳过）；但本文要的是「capture API 只有 SGLang main 有」这个组合，镜像里预装的 SGLang 一定会被下文源码构建的版本替换掉。
 
 **软件版本**：
 
 | 组件 | 版本 |
 | --- | --- |
-| Python | 3.11 |
-| CANN | 9.0.0 |
-| torch / torch_npu | 2.10.0+cpu / 2.10.0 |
-| sglang | 0.5.18 |
+| Python | 3.12（CANN 镜像）/ 3.11（SGLang 镜像） |
+| CANN | 9.1.0（CANN 镜像）/ 9.0.0（SGLang 镜像） |
+| torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
+| sglang | 源码构建，commit `c757c4bb`（= 上游 SpecForge CI 的 `SGLANG_COMMIT`） |
+| sgl-kernel-npu | 2026.9.0.post12（`cann9.0.0-910b` 的 wheel） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.13.post1（NPU prebuilt wheel） |
-| specforge | 最新 release 的源码 |
+| specforge | 上游 `main`（`<ref>` 由看护工作流解析） |
+| capture 插件 | 上游 `plugins/sglang-spec-capture` |
 | 模型 | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) |
 | 参考样例 | `examples/configs/online/disaggregated/external/qwen3.5-4b-dflash-npu.yaml` |
+
+```{admonition} Note
+:class: note
+**为什么不再打补丁**：2026-11-07 上游把 server 端的 hidden-state 采集从「打补丁」改成了插件（SpecForge #1065 删掉了 `patches/sglang/v0.5.18/spec-capture.patch` 与 `scripts/apply_sglang_spec_capture_patch.sh`，改由 `specforge-sglang-capture` 插件接管）。插件要求 SGLang 提供三个扩展点：
+
+- `--enable-return-aux-hidden-states` / `--return-aux-hidden-state-layer-ids` / `--return-hidden-states-mode`
+- `ModelRunner.forward_observer`
+- `Scheduler.defer_response(req, completion)`（`sglang.srt.managers.deferred_output:ResponseCompletion`）
+
+这三个扩展点来自 SGLang PR #43449 / #43450（2026-10-26/27 合入 `main`），**任何已发布版本都不具备**（0.5.23 仍没有），所以 SGLang 必须从源码构建。本文按上游 SpecForge CI 自己的钉法（其 `.github/workflows/test.yaml` 里的 `SGLANG_COMMIT`）取 commit，保证插件与 SGLang 的 API 成对匹配。
+
+**为什么还要额外装 sgl-kernel-npu**：新的 SGLang 会 import `sgl_kernel_npu.activation.fused_sigmoid_mul` 等新符号，镜像自带的 `sgl_kernel_npu`（2026.6.1）没有这些符号，模型模块会静默注册失败，报 `Qwen3_5ForConditionalGeneration has no SGlang implementation`。因此本文额外装一份与 SGLang 匹配版本的 `sgl-kernel-npu` wheel；CANN 侧的自定义算子沿用镜像自带版本即可。
+
+```{admonition} Note
+:class: note
+`sgl-kernel-npu` 的 wheel 按 (torch, CANN, 设备, python) 出包，上游目前只发到 **CANN 9.1.0 / torch 2.10.0 / py3.12 的 910b（aarch64）**。本文的 sglang 安装步骤会按当前环境的 CANN 版本拼 wheel 文件名；如果你的 CANN 比这新（CANN 9.2.0 还没有 910b 包），用 `SGL_KERNEL_CANN_VER=9.1.0` 指定一个已有包的 CANN 版本。
+```
+
+**SGLang 与 specforge 的版本要成对**：SGLang 的 commit 由上游 SpecForge 的 `SGLANG_COMMIT` 决定，specforge 自身的 commit 由看护工作流解析上游 `main`。上游若改动插件与 SGLang 的对接方式（import 路径、参数名），两边要一起升。
+```
 
 ## 前置安装
 
@@ -90,7 +114,7 @@ python --version
 输出结果如下：
 
 ```shell #test-result id="check-py" fuzzy='xxx'
-Python 3.11.xxx
+Python xxx
 ```
 
 ```{admonition} Note
@@ -108,28 +132,52 @@ test -f /usr/local/Ascend/ascend-toolkit/latest/$(uname -m)-linux/ascend_toolkit
 
 输出结果如下：
 
-```shell #test-result id="check-cann"
-version=9.0.0
+```shell #test-result id="check-cann" fuzzy='xxx'
+version=xxx
 ```
 
-确认 torch / torch_npu / sglang 都能 import 且能看到 4 张卡(下面的命令用 Python 执行)：
+安装 torch / torch_npu（成对版本）：CANN 镜像默认不带 torch，带 torch 的镜像版本也可能不同，这里统一成 `torch 2.10.0` + `torch_npu 2.10.0.post6`（torch_npu 的 wheel 要求 torch 版本严格对齐）：
+
+```shell #test id="install-torch-stack"
+set -euo pipefail
+if python -c "import torch, torch_npu" 2>/dev/null; then
+    echo "torch stack already present, keeping it" >&2
+else
+    echo "installing torch==2.10.0 torch_npu==2.10.0.post6" >&2
+    python -m pip install \
+        -f https://mirrors.aliyun.com/pytorch-wheels/cpu \
+        --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi \
+        "torch==2.10.0" "torch_npu==2.10.0.post6" \
+        >/tmp/install-torch.log 2>&1 \
+        || { echo "install-torch-stack: FAILED - pip install:" >&2; tail -20 /tmp/install-torch.log >&2; exit 1; }
+fi
+python -c "
+import torch, torch_npu
+print('torch stack ready: torch=' + torch.__version__ + ' torch_npu=' + torch_npu.__version__)
+"
+```
+
+输出结果如下：
+
+```shell #test-result id="install-torch-stack" fuzzy='xxx'
+torch stack ready: torch=xxx torch_npu=xxx
+```
+
+确认 torch / torch_npu 能 import 且能看到 4 张卡(下面的命令用 Python 执行)：
 
 ```python #test id="check-torch"
 import torch, torch_npu
-from importlib.metadata import version
 print('torch=', torch.__version__)
 print('torch_npu=', torch_npu.__version__)
-print('sglang', version('sglang'))
 print('is_available:', torch.npu.is_available())
 print('count:', torch.npu.device_count())
 ```
 
 输出结果如下：
 
-```shell #test-result id="check-torch"
+```shell #test-result id="check-torch" fuzzy='xxx'
 torch= 2.10.0+cpu
-torch_npu= 2.10.0
-sglang 0.5.18
+torch_npu= xxx
 is_available: True
 count: 4
 ```
@@ -146,6 +194,11 @@ uv pip install huggingface_hub
 
 SpecForge 的在线训练用 mooncake 在 SGLang server 和 trainer 之间传数据。直接用 PyPI 上 Mooncake 官方发布的 NPU prebuilt wheel，wheel 没带的三个系统库用 apt 补齐：
 
+```{admonition} Note
+:class: note
+wheel 固定 `mooncake-transfer-engine-npu==0.3.14`：0.3.13.post1 的 Ascend transport（ADXL）在 CANN 9.1.0 上初始化会失败（`Failed to initialize AdxlEngine, status: 503900` → `Failed to install Ascend transport` → client 侧 `Mooncake setup failed (status -1)`），0.3.14 才正常。
+```
+
 ```shell #test-setup id="build-mooncake"
 set -euo pipefail
 # wheel 不带 libibverbs / libcurl / libnuma，apt 补（libtransfer_engine.so / libmooncake_store.so DT_NEEDED）。
@@ -155,7 +208,7 @@ apt-get install -qq -y --no-install-recommends \
     || { echo "build-mooncake: FAILED - apt install runtime deps" >&2; exit 1; }
 # Aliyun mirror 同步 PyPI；pip 找不到则退回 PyPI。
 uv pip install --upgrade \
-    'mooncake-transfer-engine-npu==0.3.13.post1' \
+    'mooncake-transfer-engine-npu==0.3.14' \
     --index-url https://mirrors.aliyun.com/pypi/simple/ \
     --extra-index-url https://pypi.org/simple/ \
     >/tmp/build-mooncake-pip.log 2>&1 \
@@ -185,9 +238,9 @@ mooncake_master binary present
 xxx 表示实际安装的版本号。
 ```
 
-## 安装 specforge
+## 克隆 SpecForge 源码
 
-从源码安装——PyPI wheel 不带示例配置和 sglang 补丁文件（`examples/` 与 `patches/` 目录）：
+PyPI wheel 不带示例配置（`examples/` 目录）和 capture 插件（`plugins/sglang-spec-capture`），所以从源码装：
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -195,37 +248,185 @@ echo "${UPSTREAM_REF}"
 ```
 -->
 
-```shell #test id="specforge-install-source" load="upstream_ref>>ref"
+```shell #test id="specforge-clone" load="upstream_ref>>ref"
+set -euo pipefail
+# 拉 GitHub 仓库的网络偶发抖动（HTTP/2 framing error / GnuTLS recv error），
+# 所以：走 HTTP/1.1 + 重试 3 次。
+# http.lowSpeedLimit/Time：连接卡住时尽快失败并重试，而不是一直挂着。
+GIT_NET_OPTS=(-c http.version=HTTP/1.1 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=60)
+clone_specforge() {
+    local url="$1" branch="${2:-}"
+    rm -rf SpecForge
+    for attempt in 1 2 3 4 5; do
+        if [ -n "$branch" ]; then
+            git "${GIT_NET_OPTS[@]}" clone --depth 1 --branch "$branch" "$url" SpecForge && return 0
+        else
+            git "${GIT_NET_OPTS[@]}" clone --depth 1 "$url" SpecForge && return 0
+        fi
+        echo "clone attempt ${attempt} failed, retrying" >&2
+        sleep 10
+    done
+    echo "FAILED - clone ${branch:+$branch }${url} after 5 attempts" >&2
+    return 1
+}
 if [[ "<ref>" =~ ^[0-9a-f]{40}$ ]]; then
-    git clone --depth 1 https://github.com/sgl-project/SpecForge.git SpecForge
-    git -C SpecForge fetch --depth 1 origin "<ref>"
+    clone_specforge https://github.com/sgl-project/SpecForge.git
+    git -C SpecForge -c http.version=HTTP/1.1 fetch --depth 1 origin "<ref>"
     git -C SpecForge checkout FETCH_HEAD
 else
-    git clone --depth 1 --branch "<ref>" https://github.com/sgl-project/SpecForge.git SpecForge
+    clone_specforge https://github.com/sgl-project/SpecForge.git "<ref>"
 fi
+git -C SpecForge log -1 --format='specforge checkout: %H'
+```
+
+输出结果如下：
+
+```shell #test-result id="specforge-clone" fuzzy='xxx'
+specforge checkout: xxx
+```
+
+```{admonition} Note
+:class: note
+`<ref>` 替换为被测的 SpecForge 版本（看护工作流解析上游 `main` 的 HEAD），xxx 为实际 checkout 的 commit。
+```
+
+## 安装 SGLang（源码构建）
+
+capture 插件要用的扩展点只在 SGLang `main` 上有（见「本文档示例使用的版本」的说明），任何 release wheel 都没有，所以从源码构建。commit 取自**上游 SpecForge CI 自己的钉法**，两边 API 才对得上：
+
+```shell #test-setup store="sglang_commit"
+cd SpecForge
+sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' .github/workflows/test.yaml | head -1
+```
+
+```shell #test id="sglang-install-source" load="sglang_commit>>commit"
+set -euo pipefail
+# 1) 拉 SGLang 源码（<commit> 就是上游 SpecForge CI 的 SGLANG_COMMIT）
+rm -rf sglang-src && mkdir sglang-src && cd sglang-src
+git init -q
+git remote add origin https://github.com/sgl-project/sglang.git
+GIT_NET_OPTS=(-c http.version=HTTP/1.1 -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=60)
+for attempt in 1 2 3 4 5; do
+    if git "${GIT_NET_OPTS[@]}" fetch --depth 1 origin "<commit>"; then
+        break
+    fi
+    echo "sglang fetch attempt ${attempt} failed, retrying" >&2
+    sleep 10
+    [ "$attempt" = 5 ] && { echo "sglang-install: FAILED - fetch <commit>" >&2; exit 1; }
+done
+git checkout -q FETCH_HEAD
+# 2) NPU 专用打包：pyproject_npu.toml 才是昇腾版的依赖声明（all_npu extra）
+cd python
+rm -f pyproject.toml
+mv pyproject_npu.toml pyproject.toml
+# 3) 升级 sgl-kernel-npu：新 SGLang 要用镜像自带版本（2026.6.1）里没有的新符号
+#    （sgl_kernel_npu.activation.fused_sigmoid_mul 等），否则模型模块注册失败、
+#    报 "has no SGlang implementation"。CANN 侧自定义算子沿用镜像自带版本即可。
+KERNEL_TAG=2026.9.0.post12
+PY_TAG=py$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')
+# sgl-kernel-npu 的 wheel 按 (torch, CANN, 设备, python) 出包；CANN 版本默认
+# 取当前环境里的那个（sgl-kernel-npu 目前只发到 cann9.1.0 的 910b 包）。
+CANN_VER=$(ls -d /usr/local/Ascend/cann-* 2>/dev/null | head -1 | sed 's/.*cann-//')
+CANN_VER="${SGL_KERNEL_CANN_VER:-$CANN_VER}"
+DEVICE=910b
+ARCH=$(uname -m)
+WHEEL="sgl-kernel-npu-${KERNEL_TAG}-torch2.10.0-${PY_TAG}-cann${CANN_VER}-${DEVICE}-${ARCH}.zip"
+cd ..
+mkdir -p npu-ops && cd npu-ops
+curl -fSL --retry 5 --retry-all-errors --http1.1 -C - -o "$WHEEL" \
+    "https://github.com/sgl-project/sgl-kernel-npu/releases/download/${KERNEL_TAG}/${WHEEL}" \
+    || { echo "sglang-install: FAILED - download $WHEEL" >&2; exit 1; }
+# 用 python 解压（CANN 镜像里没有 unzip）
+python - "$WHEEL" <<'PYUNZIP'
+import sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as z:
+    z.extractall(".")
+PYUNZIP
+uv pip install deep_ep*.whl sgl_kernel_npu*.whl torch_memory_saver*.whl
+cd ..
+# 4) 装 SGLang 本体。依赖按上游 pyproject_npu.toml 全装（含 transformers
+#    5.19.0），但把 torch 系列钉在 2.10.0 —— 不钉的话 uv 会把 torch 升到最新
+#    （2.15.x），和 torch_npu 2.10.0.post6 不匹配。
+cd python
+printf 'torch==2.10.0\ntorchvision==0.25.0\ntorchaudio==2.10.0\n' > /tmp/torch-constraint.txt
+uv pip install -e . --constraint /tmp/torch-constraint.txt
+cd ..
+# triton 必须用昇腾的 fork（triton-ascend）：社区 triton 里没有
+# triton.language.extra.cann，NPU 的模型模块（qwen3 / qwen3_5 ...）import 就失败。
+# sglang 的依赖会把社区 triton 带进来，这里覆盖成 triton-ascend。
+if python -c "import triton.language.extra.cann" 2>/dev/null; then
+    echo "triton-ascend already present" >&2
+else
+    # 昇腾的 triton fork 在昇腾 index 上（GitHub release 里那个 wheel 有 300MB，
+    # 走 index 快得多）。--reinstall 覆盖掉社区 triton 的同名包。
+    # pybind11 是 triton-ascend 的运行时依赖（--no-deps 下要自己带）。
+    uv pip install --reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
+        --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi \
+        >/tmp/triton-install.log 2>&1 \
+        || { echo "sglang-install: FAILED - install triton-ascend:" >&2; tail -10 /tmp/triton-install.log >&2; exit 1; }
+fi
+python -c "import importlib.metadata as m; print('sglang, version', m.version('sglang'))"
+python -c "import importlib.metadata as m; print('sgl_kernel_npu, version', m.version('sgl_kernel_npu'))"
+python -c "import triton.language.extra.cann; print('triton-ascend OK')"
+```
+
+输出结果如下：
+
+```shell #test-result id="sglang-install-source" fuzzy='xxx'
+sglang, version xxx
+sgl_kernel_npu, version 2026.9.0
+triton-ascend OK
+```
+
+确认 capture 插件要的扩展点都在（插件启动时会逐项检查）：
+
+```shell #test id="sglang-capture-api"
+python -c "
+from sglang.srt.server_args import ServerArgs
+from sglang.srt.model_executor.forward_observer import ForwardObserver
+from sglang.srt.managers.deferred_output import ResponseCompletion
+from sglang.srt.managers.scheduler import Scheduler
+for n in ('enable_return_aux_hidden_states', 'return_aux_hidden_state_layer_ids', 'return_hidden_states_mode'):
+    assert hasattr(ServerArgs, n), n
+for m in ('defer_response', 'get_output_streamer_class', 'get_internal_state'):
+    assert hasattr(Scheduler, m), m
+print('capture API present: aux-hidden-states + forward_observer + defer_response')
+"
+```
+
+输出结果如下：
+
+```shell #test-result id="sglang-capture-api"
+capture API present: aux-hidden-states + forward_observer + defer_response
+```
+
+## 安装 specforge 与 capture 插件
+
+capture 插件装进 SGLang server 所在的环境（与 SGLang 同一个 python），SGLang 通过 `sglang.srt.plugins` entry point 发现它：
+
+```shell #test id="specforge-install-source"
+set -euo pipefail
 cd SpecForge
 uv pip install --no-deps .
 # specforge/_train() lazy-import accelerate.utils.set_seed（仅 import 不触发，
 # 真正训练才暴露 ModuleNotFoundError）；CLI 的 click 依赖镜像已自带
 # （--no-deps 不会安装它）。
 uv pip install --no-deps accelerate
+uv pip install --no-deps plugins/sglang-spec-capture
 python -c "from importlib.metadata import version; print('specforge, version', version('specforge'))"
+python -c "
+from importlib.metadata import entry_points
+eps = [e.name for e in entry_points(group='sglang.srt.plugins')]
+assert 'specforge_spec_capture' in eps, eps
+print('capture plugin registered: specforge_spec_capture')
+"
 ```
 
-```{admonition} Note
-:class: note
-`<ref>` 替换为 SpecForge 当前的最新 release 版本。
-```
-
-确认安装成功，输出结果如下：
+输出结果如下：
 
 ```shell #test-result id="specforge-install-source" fuzzy='xxx'
 specforge, version xxx
-```
-
-```{admonition} Note
-:class: note
-xxx 表示实际安装的版本号。
+capture plugin registered: specforge_spec_capture
 ```
 
 ## CLI 自检
@@ -329,62 +530,6 @@ PY
 
 输出的模型缓存目录路径，供「起 SGLang capture server」（`--model-path`）和「跑 specforge 训练」（`model.target_model_path`）两节使用。
 
-### 打补丁 + apt 依赖
-
-SGLang 需要打 spec-capture 补丁才能在推理时导出训练所需的 hidden states。SpecForge 仓库自带补丁和 apply 脚本，对镜像里的 sglang 0.5.18 直接执行：
-
-```shell #test id="smoke-apply-patches"
-set -euo pipefail
-SPECFORGE_ROOT="${SPECFORGE_ROOT:-SpecForge}"
-if [[ ! -d "$SPECFORGE_ROOT" ]]; then
-    echo "smoke: FAILED - $SPECFORGE_ROOT/ missing; specforge-install-source first"
-    exit 1
-fi
-pushd "$SPECFORGE_ROOT" >/dev/null
-SGLANG_VER=$(python -c "from importlib.metadata import version; print(version('sglang'))")
-echo "smoke: applying spec-capture patches for sglang ${SGLANG_VER}"
-if [[ -f scripts/apply_sglang_spec_capture_patch.sh ]]; then
-    bash scripts/apply_sglang_spec_capture_patch.sh --target "v${SGLANG_VER}" >/tmp/smoke-patch.log 2>&1 || {
-        echo "smoke: FAILED - apply_sglang_spec_capture_patch.sh --target v${SGLANG_VER} returned non-zero" >&2
-        tail -30 /tmp/smoke-patch.log >&2
-        exit 1
-    }
-else
-    echo "smoke: WARNING - apply_sglang_spec_capture_patch.sh missing; assuming already patched"
-fi
-
-SGLANG_DIR=$(python -c "import importlib.util, os; print(os.path.dirname(os.path.dirname(importlib.util.find_spec('sglang').origin)))")
-APPLIED_COPY="$SGLANG_DIR/sglang/.spec_capture_patch.applied"
-SINK_FILE="$SGLANG_DIR/sglang/srt/spec_capture_sink.py"
-PATCH="$(pwd)/patches/sglang/v0.5.18/spec-capture.patch"
-if [[ ! -f "$SINK_FILE" ]] || ! grep -q 'class SpecCaptureSink' "$SINK_FILE"; then
-    echo "smoke: spec-capture sink missing or incomplete - forcing re-apply via git apply -p1 --reject" >&2
-    rm -f "$APPLIED_COPY"
-    if ! git -C "$SGLANG_DIR/.." apply -p1 --reject "$PATCH" >/tmp/smoke-reapply.log 2>&1; then
-        echo "smoke: FAILED - git apply -p1 --reject failed:" >&2
-        tail -30 /tmp/smoke-reapply.log >&2
-        exit 1
-    fi
-    cp "$PATCH" "$APPLIED_COPY"
-    if [[ ! -f "$SINK_FILE" ]] || ! grep -q 'class SpecCaptureSink' "$SINK_FILE"; then
-        echo "smoke: FAILED - spec_capture_sink.py still missing after re-apply" >&2
-        exit 1
-    fi
-    echo "smoke: spec-capture re-apply OK (12 files)" >&2
-fi
-
-popd >/dev/null
-
-echo "smoke: patches + apt deps applied"
-```
-
-输出结果如下：
-
-```shell #test-result id="smoke-apply-patches"
-smoke: applying spec-capture patches for sglang 0.5.18
-smoke: patches + apt deps applied
-```
-
 ### 起 mooncake_master
 
 后台拉起 mooncake_master（metadata + 传输协调服务），等 RPC 端口（默认 35551）就绪。端口探测用 Python socket 而非 `nc -z`——镜像里没装 nc：
@@ -441,7 +586,7 @@ xxx 为 mooncake_master 的进程号。
 
 ### 起 SGLang capture server
 
-后台拉起打好补丁的 SGLang server（卡 0），开启 dflash spec-capture，等 `/health` 就绪。首次启动含 NPU graph 编译，等 5-10 分钟属正常：
+后台拉起带 capture 插件的 SGLang server（卡 0），开启 dflash spec-capture，等 `/health` 就绪。首次启动含 NPU graph 编译，等 5-10 分钟属正常：
 
 ```shell #test id="smoke-start-sglang" load="model_path>>MODEL_PATH"
 set -euo pipefail
@@ -460,6 +605,9 @@ export MOONCAKE_METADATA_SERVER=http://127.0.0.1:$MOONCAKE_HTTP_PORT/metadata
 export MOONCAKE_MASTER_SERVER_ADDR=127.0.0.1:$MOONCAKE_RPC_PORT
 export MOONCAKE_PROTOCOL=tcp
 export MOONCAKE_GLOBAL_SEGMENT_SIZE=$((32<<30))
+# SPECFORGE_SPEC_CAPTURE=1 让插件在 server 进程内注册 scheduler hook；
+# 没开这个开关，插件的 register() 直接返回，采集不会发生。
+export SPECFORGE_SPEC_CAPTURE=1
 # Qwen3.5-4B 是 hybrid Mamba/GDN，forward 时 torch_npu op_plugin.atb lazy-load libatb.so；
 # CANN set_env.sh 把 atb bin 加进 PATH 但 lib 不进 LD_LIBRARY_PATH，graph capture 阶段
 # 调 torch_npu._npu_reshape_and_cache 就 OSError: libatb.so: cannot open shared object。
@@ -467,8 +615,10 @@ ATB_LIB=/usr/local/Ascend/nnal/atb/9.0.0/atb/cxx_abi_1/lib
 if [[ -d "$ATB_LIB" ]]; then
     export LD_LIBRARY_PATH="$ATB_LIB:${LD_LIBRARY_PATH:-}"
 fi
-# --enable-spec-capture 要求单遍 prefill（chunked=4096 切多段会让 captured hidden
-# states 只覆盖首段）；scheduler __init__ 硬性 assert --chunked-prefill-size -1。
+# --enable-return-aux-hidden-states 要求单遍 prefill（chunked=4096 切多段会让 captured
+# hidden states 只覆盖首段）；scheduler 硬性要求 --chunked-prefill-size -1。
+# --mamba-ssm-dtype bfloat16：GDN 的 initial_state 用 bf16，910B4 上 fp32 不被
+# sgl_kernel_npu 的 chunk_gated_delta_rule 支持（只在 Ascend950 上支持 fp32）。
 nohup python -m sglang.launch_server \
     --model-path "<MODEL_PATH>" \
     --trust-remote-code \
@@ -478,8 +628,11 @@ nohup python -m sglang.launch_server \
     --context-length 1024 \
     --chunked-prefill-size -1 \
     --attention-backend ascend \
-    --enable-spec-capture --spec-capture-method dflash \
-    --spec-capture-aux-layer-ids 1 8 15 22 29 \
+    --mamba-ssm-dtype bfloat16 \
+    --speculative-algorithm DFLASH \
+    --enable-return-aux-hidden-states \
+    --return-aux-hidden-state-layer-ids 1 8 15 22 29 \
+    --return-hidden-states-mode full \
     --host 127.0.0.1 --port "$SGLANG_PORT" \
     >/tmp/smoke-sglang.log 2>&1 &
 SGLANG_PID=$!
@@ -488,13 +641,18 @@ HEALTH_DEADLINE=$((SGLANG_HEALTH_TIMEOUT / 5))
 for _ in $(seq 1 "$HEALTH_DEADLINE"); do
     if curl -fsS "http://127.0.0.1:$SGLANG_PORT/health" >/dev/null 2>&1; then
         echo "smoke: sglang ready (pid=$SGLANG_PID)"
-        exit 0
+        break
     fi
     sleep 5
 done
-echo "smoke: FAILED - SGLang not healthy after ${SGLANG_HEALTH_TIMEOUT}s" >&2
-tail -50 /tmp/smoke-sglang.log >&2
-exit 1
+if ! curl -fsS "http://127.0.0.1:$SGLANG_PORT/health" >/dev/null 2>&1; then
+    echo "smoke: FAILED - SGLang not healthy after ${SGLANG_HEALTH_TIMEOUT}s" >&2
+    tail -50 /tmp/smoke-sglang.log >&2
+    exit 1
+fi
+# 插件生效的标志：scheduler 在 /server_info 里自报 capture backend。
+# specforge train 侧正是读这个字段来确认 server 支持 plugin 采集。
+echo "smoke: capture backend: $(curl -fsS "http://127.0.0.1:$SGLANG_PORT/server_info" | grep -o '"spec_capture_backend":"[a-z]*"' | head -1)"
 ```
 
 输出结果如下：
@@ -502,6 +660,7 @@ exit 1
 ```shell #test-result id="smoke-start-sglang" fuzzy='xxx'
 smoke: waiting for SGLang /health (up to 600s)
 smoke: sglang ready (pid=xxx)
+smoke: capture backend: "spec_capture_backend":"plugin"
 ```
 
 ```{admonition} Note
@@ -563,7 +722,7 @@ echo "$SHAREGPT_PATH"
 
 #### 启动 specforge train（后台）
 
-在卡 1 上后台启动 1 步训练（batch/步数压到最小的 smoke 配置），30 秒后确认进程还活着——典型失败（mooncake 没起或 sglang spec-capture 补丁没生效）会在 30s 内直接退出：
+在卡 1 上后台启动 1 步训练（batch/步数压到最小的 smoke 配置），30 秒后确认进程还活着——典型失败（mooncake 没起或 capture 插件没生效）会在 30s 内直接退出：
 
 ```shell #test id="smoke-train-launch" load="model_path>>MODEL_PATH" load="sharegpt_path>>SHAREGPT_PATH"
 set -euo pipefail
@@ -581,6 +740,16 @@ rm -rf outputs/qwen3.5-4b-dflash-npu-online
 # 补上 NPU 适配（同文件已有 _ascend_runtime_available()，一行 OR 的事）后可去掉此 override。
 # PYTHONUNBUFFERED=1 让 specforge train 的 stdout 无缓冲写 /tmp/smoke-train.log；
 # 即使外层框架缓冲整段命令输出，日志文件里也是行粒度（出问题后能 tail 看到断点位置）。
+# trainer 侧的 mooncake client 也要这些环境变量：specforge 从 env 读
+# MOONCAKE_MASTER_SERVER_ADDR / MOONCAKE_GLOBAL_SEGMENT_SIZE 等，缺了会拿到
+# global_segment_size=0，store setup 直接返回 -1（"Mooncake setup failed"）。
+MOONCAKE_RPC_PORT="${SPECFORGE_MOONCAKE_RPC_PORT:-35551}"
+MOONCAKE_HTTP_PORT="${SPECFORGE_MOONCAKE_HTTP_PORT:-35880}"
+export MOONCAKE_LOCAL_HOSTNAME=127.0.0.1
+export MOONCAKE_METADATA_SERVER=http://127.0.0.1:$MOONCAKE_HTTP_PORT/metadata
+export MOONCAKE_MASTER_SERVER_ADDR=127.0.0.1:$MOONCAKE_RPC_PORT
+export MOONCAKE_PROTOCOL=tcp
+export MOONCAKE_GLOBAL_SEGMENT_SIZE=$((32<<30))
 PYTHONUNBUFFERED=1 \
 ASCEND_RT_VISIBLE_DEVICES=$TRAINER_DEVICE \
 HCCL_CONNECT_TIMEOUT=7200 HCCL_EXEC_TIMEOUT=7200 \

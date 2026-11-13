@@ -256,7 +256,16 @@ start_sglang_capture() {
   if [[ -d "$ATB_LIB" ]]; then
     export LD_LIBRARY_PATH="$ATB_LIB:${LD_LIBRARY_PATH:-}"
   fi
+  # SPECFORGE_SPEC_CAPTURE=1 让上游 capture 插件注册 scheduler hook；没开这个
+  # 开关插件的 register() 直接返回，采集不会发生。
+  export SPECFORGE_SPEC_CAPTURE=1
   : "${SPECFORGE_MODEL_PATH:?SPECFORGE_MODEL_PATH is required}"
+  # --speculative-algorithm 命名采集约定（dflash/dspark/eagle3 -> 大写），
+  # --enable-return-aux-hidden-states 打开 aux hidden-state 采集；
+  # --mamba-ssm-dtype bfloat16：GDN 的 initial_state 用 bf16，910B4 上 fp32
+  # 不被 sgl_kernel_npu 的 chunk_gated_delta_rule 支持（只在 Ascend950 上支持 fp32）。
+  local algo
+  algo=$(printf '%s' "$method" | tr '[:lower:]' '[:upper:]')
   nohup python -m sglang.launch_server \
     --model-path "$SPECFORGE_MODEL_PATH" \
     --trust-remote-code \
@@ -266,8 +275,11 @@ start_sglang_capture() {
     --context-length 1024 \
     --chunked-prefill-size -1 \
     --attention-backend ascend \
-    --enable-spec-capture --spec-capture-method "$method" \
-    --spec-capture-aux-layer-ids $aux_layer_ids \
+    --mamba-ssm-dtype bfloat16 \
+    --speculative-algorithm "$algo" \
+    --enable-return-aux-hidden-states \
+    --return-aux-hidden-state-layer-ids $aux_layer_ids \
+    --return-hidden-states-mode full \
     --host 127.0.0.1 --port "$SGLANG_PORT" \
     >/tmp/examples-sglang.log 2>&1 &
   SGLANG_PID=$!
@@ -275,6 +287,16 @@ start_sglang_capture() {
   for _ in $(seq 1 "$HEALTH_DEADLINE"); do
     if curl -fsS "http://127.0.0.1:$SGLANG_PORT/health" >/dev/null 2>&1; then
       echo "sglang capture server ready (pid=$SGLANG_PID)"
+      # 插件生效的标志：scheduler 在 /server_info 里自报 capture backend。
+      local backend
+      backend=$(curl -fsS "http://127.0.0.1:$SGLANG_PORT/server_info" \
+        | grep -o '"spec_capture_backend":"[a-z]*"' | head -1)
+      if [[ "$backend" != '"spec_capture_backend":"plugin"' ]]; then
+        echo "FAILED - capture plugin not active (server_info: ${backend:-none})" >&2
+        tail -50 /tmp/examples-sglang.log >&2
+        return 1
+      fi
+      echo "capture plugin active (${backend})"
       return 0
     fi
     sleep 5
