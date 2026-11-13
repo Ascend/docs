@@ -225,7 +225,12 @@ prepare_hidden_states() {
   ASCEND_RT_VISIBLE_DEVICES="${SPECFORGE_CAPTURE_DEVICE:-0}" \
   LD_LIBRARY_PATH="$ld_path" \
   PYTHONUNBUFFERED=1 \
-    torchrun --nproc_per_node=1 "$TARGET_ROOT/scripts/prepare_hidden_states.py" \
+    # 上游的 offline producer 是 CPU client worker 集合：要用进程组做
+    # broadcast / 分片，所以必须 >=2 个进程（上游 README：
+    # "replace python with torchrun --standalone --nproc_per_node=4"）。
+    # 单进程跑会报 "Default process group has not been initialized"。
+    torchrun --standalone --nproc_per_node="${SPECFORGE_PREP_WORKERS:-4}" \
+      "$TARGET_ROOT/scripts/prepare_hidden_states.py" \
       --target-model-path "${SPECFORGE_MODEL_PATH:?SPECFORGE_MODEL_PATH is required}" \
       --data-path "$prep_data" \
       --output-path "$PREP_HIDDEN_STATES" \
