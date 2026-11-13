@@ -229,6 +229,12 @@ supported:
       # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
       - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
       - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
+      # managed-local 的 capture server 由 launch plan 起，命令行由 recipe 的
+      # model.sglang_* 渲染；910B4 上 Qwen3.5-4B（hybrid Mamba/GDN）的 fp32
+      # initial_state 不被 sgl_kernel_npu 支持（只在 Ascend950 上支持），
+      # 不显式给 bfloat16 server 会被 CANN 打挂（capture-server-0 exited
+      # with status -9）。
+      - model.sglang_extra_args=["--mamba-ssm-dtype","bfloat16"]
     timeout_minutes: 180
 
   - path: examples/configs/online/disaggregated/managed-local/qwen3-8b-dflash-1server-dp7.yaml
@@ -255,6 +261,12 @@ supported:
       # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
       - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
       - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
+      # managed-local 的 capture server 由 launch plan 起，命令行由 recipe 的
+      # model.sglang_* 渲染；910B4 上 Qwen3.5-4B（hybrid Mamba/GDN）的 fp32
+      # initial_state 不被 sgl_kernel_npu 支持（只在 Ascend950 上支持），
+      # 不显式给 bfloat16 server 会被 CANN 打挂（capture-server-0 exited
+      # with status -9）。
+      - model.sglang_extra_args=["--mamba-ssm-dtype","bfloat16"]
     timeout_minutes: 180
 
   # ===== offline/colocated（2026-09-23 coder 2x910B4 端到端实测通过）：
