@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniOneRec &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="peft" href="../peft/index.html" />
+    <link rel="prev" title="ms-swift" href="../ms-swift/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xla/index.html">xla</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../areno/index.html">areno</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../colossalai/index.html">ColossalAI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mmengine/index.html">mmengine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">MiniOneRec</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文验证环境</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">1. 加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">2. 检查环境是否就绪</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">3. 获取代码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">4. 安装依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">5. 确认运行环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">6. 下载基座模型与预处理数据</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sft">7. SFT 训练</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">8. 约束解码评估</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rl">9. 推荐导向 RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">相关链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../speculators/index.html">Speculators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../specforge/index.html">SpecForge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchvision/index.html">torchvision</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtune/index.html">torchtune</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">TRL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dgl/index.html">DGL (Huawei Ascend NPU)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xtuner/index.html">xtuner</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../aibrix/index.html">AIBrix</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bitsandbytes/index.html">bitsandbytes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flagscale/index.html">FlagScale</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lmcache/index.html">LMCache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fastchat/index.html">FastChat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mooncake/index.html">Mooncake</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rtp_llm/index.html">RTP-LLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lightx2v/index.html">LightX2V</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xdit/index.html">xDiT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../diffsynth_studio/index.html">DiffSynth-Studio</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../evalscope/index.html">evalscope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../funasr/index.html">FunASR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MiniOneRec</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/minionerec/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="minionerec">
+<h1>MiniOneRec<a class="headerlink" href="#minionerec" title="Link to this heading"></a></h1>
+<p><a class="reference external" href="https://github.com/AkaliKong/MiniOneRec">MiniOneRec</a> 是生成式推荐框架。本文在单张昇腾 NPU 上依次完成 SFT 训练、约束解码评估与推荐导向 RL 三个阶段。</p>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas <strong>800T</strong> / <strong>900 A2</strong> 训练系列，芯片为 Ascend <strong>910B</strong>，需支持 bf16。本文示例为单卡。</p>
+</section>
+<section id="id3">
+<h3>软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>类别</p></th>
+<th class="head"><p>要求</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>toolkit 与驱动固件已安装，并可 <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">set_env.sh</span></code>，9.1.0 或以上</p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.10 或以上</p></td>
+</tr>
+<tr class="row-even"><td><p>git</p></td>
+<td><p>用于克隆上游仓库</p></td>
+</tr>
+<tr class="row-odd"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen/Qwen2.5-0.5B</a>（base 版）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id4">
+<h3>本文验证环境<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>项目</p></th>
+<th class="head"><p>内容</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>机器</p></td>
+<td><p>Atlas 900 A2，Ascend 910B，单卡</p></td>
+</tr>
+<tr class="row-odd"><td><p>镜像</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-even"><td><p>torch / torch_npu</p></td>
+<td><p>2.9.0 / 2.9.0.post2</p></td>
+</tr>
+</tbody>
+</table>
+<p>阅读本文前，请先按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 准备好 CANN 与驱动。</p>
+</section>
+</section>
+<section id="cann">
+<h2>1. 加载 CANN 环境<a class="headerlink" href="#cann" title="Link to this heading"></a></h2>
+<p>每次新开终端后执行：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/sbin:/usr/local/bin:<span class="nv">$PATH</span>
+<span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</section>
+<section id="id5">
+<h2>2. 检查环境是否就绪<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">test</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">"</span><span class="nv">$ASCEND_HOME_PATH</span><span class="s2">"</span>
+<span class="nb">command</span><span class="w"> </span>-v<span class="w"> </span>npu-smi
+npu-smi<span class="w"> </span>info
+python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>确认 <code class="docutils literal notranslate"><span class="pre">npu-smi</span> <span class="pre">info</span></code> 输出设备列表且 <code class="docutils literal notranslate"><span class="pre">Health</span></code> 为 <code class="docutils literal notranslate"><span class="pre">OK</span></code>。若提示找不到 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code>，按 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a> 检查驱动与设备挂载。</p>
+</section>
+<section id="id6">
+<h2>3. 获取代码<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p>克隆 MiniOneRec 仓库：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>main<span class="w"> </span>https://github.com/AkaliKong/MiniOneRec.git
+<span class="nb">cd</span><span class="w"> </span>MiniOneRec
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>本文使用 MiniOneRec <code class="docutils literal notranslate"><span class="pre">main</span></code> 分支的最新提交。</p>
+</div>
+</section>
+<section id="id7">
+<h2>4. 安装依赖<a class="headerlink" href="#id7" title="Link to this heading"></a></h2>
+<p>安装以下依赖（与 CANN 9.1.0 配套）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span>torch-npu<span class="o">==</span><span class="m">2</span>.9.0.post2
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">transformers</span><span class="o">==</span><span class="m">4</span>.57.1<span class="w"> </span><span class="nv">accelerate</span><span class="o">==</span><span class="m">1</span>.10.1<span class="w"> </span><span class="nv">datasets</span><span class="o">==</span><span class="m">4</span>.2.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">tokenizers</span><span class="o">==</span><span class="m">0</span>.22.1<span class="w"> </span><span class="nv">fire</span><span class="o">==</span><span class="m">0</span>.7.1<span class="w"> </span><span class="nv">pandas</span><span class="o">==</span><span class="m">2</span>.2.2<span class="w"> </span>tqdm<span class="w"> </span><span class="nv">bitsandbytes</span><span class="o">==</span><span class="m">0</span>.48.1<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">trl</span><span class="o">==</span><span class="m">0</span>.24.0<span class="w"> </span>scikit-learn<span class="o">==</span><span class="m">1</span>.5.2<span class="w"> </span><span class="nv">wandb</span><span class="o">==</span><span class="m">0</span>.22.2
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h2>5. 确认运行环境<a class="headerlink" href="#id8" title="Link to this heading"></a></h2>
+<p>执行以下命令，确认 NPU 与训练设备就绪：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"</span>
+<span class="s2">import npu_support</span>
+<span class="s2">import torch</span>
+<span class="s2">from transformers import TrainingArguments</span>
+<span class="s2">print('IS_NPU:', npu_support.IS_NPU)</span>
+<span class="s2">print('cuda mapped:', torch.cuda.is_available())</span>
+<span class="s2">print('evaluate.py device:', 'cuda' if torch.cuda.is_available() else 'cpu')</span>
+<span class="s2">print('trainer device:', TrainingArguments(output_dir='/tmp/check-npu').device)</span>
+<span class="s2">print('tensor landed on:', torch.zeros(1, device='cuda').device.type)</span>
+<span class="s2">"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>IS_NPU:<span class="w"> </span>True
+cuda<span class="w"> </span>mapped:<span class="w"> </span>True
+evaluate.py<span class="w"> </span>device:<span class="w"> </span>cuda
+trainer<span class="w"> </span>device:<span class="w"> </span>npu:0
+tensor<span class="w"> </span>landed<span class="w"> </span>on:<span class="w"> </span>npu
+</pre></div>
+</div>
+<p>检查克隆目录状态：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+<span class="nb">test</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">"</span><span class="k">$(</span>git<span class="w"> </span>status<span class="w"> </span>--porcelain<span class="k">)</span><span class="s2">"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"source untouched"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>untouched
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id9">
+<h2>6. 下载基座模型与预处理数据<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<p>基座模型取 Qwen2.5 的 <strong>base</strong> 版（Instruct 版会使约束解码失效）。模型与预处理数据从 HuggingFace 下载：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from huggingface_hub import snapshot_download; snapshot_download(repo_id='Qwen/Qwen2.5-0.5B', local_dir='./Qwen2.5-0.5B')"</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from huggingface_hub import snapshot_download; snapshot_download(repo_id='kkknight/MiniOneRec', allow_patterns=['Amazon/index/Industrial_and_Scientific.index.json','Amazon/index/Industrial_and_Scientific.item.json','Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv','Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv','Amazon/test/Industrial_and_Scientific_5_2016-10-2018-11.csv','Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt'], local_dir='data')"</span>
+</pre></div>
+</div>
+<p>校验资产落位：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>Qwen2.5-0.5B/config.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"base model ok"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>data/Amazon/index/Industrial_and_Scientific.index.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"sid index ok"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>data/Amazon/index/Industrial_and_Scientific.item.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"item meta ok"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"train csv ok"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>data/Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"valid csv ok"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"info txt ok"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>base<span class="w"> </span>model<span class="w"> </span>ok
+sid<span class="w"> </span>index<span class="w"> </span>ok
+item<span class="w"> </span>meta<span class="w"> </span>ok
+train<span class="w"> </span>csv<span class="w"> </span>ok
+valid<span class="w"> </span>csv<span class="w"> </span>ok
+info<span class="w"> </span>txt<span class="w"> </span>ok
+</pre></div>
+</div>
+</section>
+<section id="sft">
+<h2>7. SFT 训练<a class="headerlink" href="#sft" title="Link to this heading"></a></h2>
+<p>在 0 号卡上执行 1 个 epoch：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">WANDB_MODE</span><span class="o">=</span>disabled
+<span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>sft.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--base_model<span class="w"> </span>./Qwen2.5-0.5B<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_file<span class="w"> </span>./data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_file<span class="w"> </span>./data/Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./sft_out<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--batch_size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--micro_batch_size<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--cutoff_len<span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sample<span class="w"> </span><span class="m">600</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--category<span class="w"> </span>Industrial_and_Scientific<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sid_index_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.index.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--item_meta_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.item.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--freeze_LLM<span class="w"> </span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_from_scratch<span class="w"> </span>False
+</pre></div>
+</div>
+<p>训练完成后校验产物：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>sft_out/final_checkpoint/model.safetensors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"model saved"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>sft_out/final_checkpoint/config.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"config saved"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>sft_out/final_checkpoint/tokenizer_config.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"tokenizer saved"</span>
+grep<span class="w"> </span>-o<span class="w"> </span><span class="s1">'"model_type": "[a-z0-9_.-]*"'</span><span class="w"> </span>sft_out/final_checkpoint/config.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>model<span class="w"> </span>saved
+config<span class="w"> </span>saved
+tokenizer<span class="w"> </span>saved
+<span class="s2">"model_type"</span>:<span class="w"> </span><span class="s2">"qwen2"</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h2>8. 约束解码评估<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
+<p>用上一节的 <code class="docutils literal notranslate"><span class="pre">final_checkpoint</span></code> 在 test 子集上做约束解码评估并计算 HR/NDCG/CC。<strong>CC 必须为 0。</strong></p>
+<p>切出 test 子集：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+head<span class="w"> </span>-n<span class="w"> </span><span class="m">200</span><span class="w"> </span>data/Amazon/test/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span>&gt;<span class="w"> </span>test_small.csv
+wc<span class="w"> </span>-l<span class="w"> </span>test_small.csv
+</pre></div>
+</div>
+<p>运行评估：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>evaluate.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--base_model<span class="w"> </span>./sft_out/final_checkpoint<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--info_file<span class="w"> </span>./data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--test_data_path<span class="w"> </span>test_small.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--result_json_data<span class="w"> </span>./eval_result.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--category<span class="w"> </span>Industrial_and_Scientific<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_beams<span class="w"> </span><span class="m">20</span><span class="w"> </span>--batch_size<span class="w"> </span><span class="m">2</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>industrial<span class="w"> </span>and<span class="w"> </span>scientific<span class="w"> </span>items
+...
+</pre></div>
+</div>
+<p>校验预测产物：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import json; d=json.load(open('eval_result.json')); print(len(d)); print('predict' in d[0])"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">199</span>
+True
+</pre></div>
+</div>
+<p>计算 HR/NDCG/CC：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>calc.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--path<span class="w"> </span>./eval_result.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--item_path<span class="w"> </span>./data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="m">20</span>
+<span class="o">[</span><span class="m">1</span>,<span class="w"> </span><span class="m">3</span>,<span class="w"> </span><span class="m">5</span>,<span class="w"> </span><span class="m">10</span>,<span class="w"> </span><span class="m">20</span><span class="o">]</span>
+NDCG:...
+HR...
+<span class="m">0</span>
+</pre></div>
+</div>
+</section>
+<section id="rl">
+<h2>9. 推荐导向 RL<a class="headerlink" href="#rl" title="Link to this heading"></a></h2>
+<p>在 0 号卡上执行 1 个 epoch。<code class="docutils literal notranslate"><span class="pre">--sample</span> <span class="pre">40</span></code> 用于限制数据规模，请勿省略；<code class="docutils literal notranslate"><span class="pre">train_batch_size</span></code> 必须能被 <code class="docutils literal notranslate"><span class="pre">num_generations</span></code> 整除。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+<span class="nb">export</span><span class="w"> </span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span>
+<span class="nb">cd</span><span class="w"> </span>MiniOneRec
+python<span class="w"> </span>rl.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_path<span class="w"> </span>./sft_out/final_checkpoint<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_file<span class="w"> </span>./data/Amazon/train/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_file<span class="w"> </span>./data/Amazon/valid/Industrial_and_Scientific_5_2016-10-2018-11.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--info_file<span class="w"> </span>./data/Amazon/info/Industrial_and_Scientific_5_2016-10-2018-11.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--category<span class="w"> </span>Industrial_and_Scientific<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--train_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_batch_size<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_generations<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>1e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--beta<span class="w"> </span>1e-3<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--beam_search<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--reward_type<span class="w"> </span>ranking<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sync_ref_model<span class="w"> </span>True<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--test_during_training<span class="w"> </span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_step<span class="w"> </span><span class="m">1</span>.0<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sample<span class="w"> </span><span class="m">40</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./rl_out<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sid_index_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.index.json<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--item_meta_path<span class="w"> </span>./data/Amazon/index/Industrial_and_Scientific.item.json
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Industrial_and_Scientific
+...
+</pre></div>
+</div>
+<p>日志中的 <code class="docutils literal notranslate"><span class="pre">reward</span></code>、<code class="docutils literal notranslate"><span class="pre">reward_std</span></code>、<code class="docutils literal notranslate"><span class="pre">loss</span></code>、<code class="docutils literal notranslate"><span class="pre">grad_norm</span></code>、<code class="docutils literal notranslate"><span class="pre">kl</span></code> 可能为 0，属正常现象。</p>
+<p>校验产物：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>MiniOneRec
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>rl_out/final_checkpoint/model.safetensors<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"rl model saved"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>rl_out/final_checkpoint/config.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"rl config saved"</span>
+<span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span>rl_out/final_checkpoint/tokenizer_config.json<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"rl tokenizer saved"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rl<span class="w"> </span>model<span class="w"> </span>saved
+rl<span class="w"> </span>config<span class="w"> </span>saved
+rl<span class="w"> </span>tokenizer<span class="w"> </span>saved
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id11">
+<h2>相关链接<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>上游仓库：<a class="reference external" href="https://github.com/AkaliKong/MiniOneRec">AkaliKong/MiniOneRec</a></p></li>
+<li><p>基座模型：<a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B">Qwen2.5-0.5B</a></p></li>
+<li><p>预处理数据与 SID 索引：<a class="reference external" href="https://huggingface.co/kkknight/MiniOneRec">kkknight/MiniOneRec</a></p></li>
+<li><p>昇腾 PyTorch 安装与兼容性：<a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend/pytorch</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../ms-swift/index.html" class="btn btn-neutral float-left" title="ms-swift" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../peft/index.html" class="btn btn-neutral float-right" title="peft" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
