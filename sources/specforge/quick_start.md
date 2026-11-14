@@ -15,15 +15,14 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配、预装 `torch` / `torch_npu` 的镜像（本文用下方的标准 CANN 镜像；torch / torch_npu 由文档自己装）
+
+`torch` / `torch_npu` / `triton-ascend` / `SGLang` 都由下面的安装步骤自己装，镜像只需要提供 CANN 运行时。
 
 ### 本文档示例使用的版本
 
-**配套镜像**（标准 CANN 镜像即可，SGLang 由本文自己从源码构建）：
+**配套镜像**：
 
 swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
-
-镜像只提供 CANN 运行时；`torch` / `torch_npu` / `triton-ascend` / `SGLang` 都由下文自己装（capture API 只有 SGLang main 有，镜像里不可能预装）。
 
 **软件版本**：
 
