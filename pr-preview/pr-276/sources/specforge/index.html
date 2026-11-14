@@ -84,25 +84,26 @@
 <li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">前置安装</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#huggingface-hub">安装 huggingface_hub</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#mooncake">安装 mooncake</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">克隆 SpecForge 源码</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">克隆 SpecForge 源码</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sglang">安装 SGLang（源码构建）</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#specforge-capture">安装 specforge 与 capture 插件</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#cli">CLI 自检</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#smoke-1">端到端 smoke：1 步训练</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#id6">预下载模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">预下载模型</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#mooncake-master">起 mooncake_master</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sglang-capture-server">起 SGLang capture server</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#id7">准备训练数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">准备训练数据</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#specforge-1">跑 specforge 训练（1 步）</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#specforge-train">启动 specforge train（后台）</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#id8">监控直到退出</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id9">监控直到退出</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">外部链接</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">外部链接</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../tensordict/index.html">TensorDict</a></li>
@@ -209,14 +210,14 @@
 <ul class="simple">
 <li><p>可用的 Python 环境</p></li>
 <li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
-<li><p>与 CANN 匹配、预装 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的镜像（本文用下方的 SGLang 专用镜像；镜像自带的 sglang 会被下文源码构建的版本替换）</p></li>
+<li><p>与 CANN 匹配、预装 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> 的镜像（本文用下方的标准 CANN 镜像；torch / torch_npu 由文档自己装）</p></li>
 </ul>
 </section>
 <section id="id4">
 <h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
 <p><strong>配套镜像</strong>（标准 CANN 镜像即可，SGLang 由本文自己从源码构建）：</p>
 <p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
-<p>也可以用 SGLang 专用镜像 <code class="docutils literal notranslate"><span class="pre">swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b</span></code>（自带 torch / torch_npu / triton-ascend，上面几步会自动跳过）；但本文要的是「capture API 只有 SGLang main 有」这个组合，镜像里预装的 SGLang 一定会被下文源码构建的版本替换掉。</p>
+<p>镜像只提供 CANN 运行时；<code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code> / <code class="docutils literal notranslate"><span class="pre">triton-ascend</span></code> / <code class="docutils literal notranslate"><span class="pre">SGLang</span></code> 都由下文自己装（capture API 只有 SGLang main 有，镜像里不可能预装）。</p>
 <p><strong>软件版本</strong>：</p>
 <table class="docutils align-default">
 <thead>
@@ -226,10 +227,10 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Python</p></td>
-<td><p>3.12（CANN 镜像）/ 3.11（SGLang 镜像）</p></td>
+<td><p>3.12</p></td>
 </tr>
 <tr class="row-odd"><td><p>CANN</p></td>
-<td><p>9.1.0（CANN 镜像）/ 9.0.0（SGLang 镜像）</p></td>
+<td><p>9.1.0</p></td>
 </tr>
 <tr class="row-even"><td><p>torch / torch_npu</p></td>
 <td><p>2.10.0+cpu / 2.10.0.post6</p></td>
@@ -238,13 +239,13 @@
 <td><p>源码构建，commit <code class="docutils literal notranslate"><span class="pre">c757c4bb</span></code>（= 上游 SpecForge CI 的 <code class="docutils literal notranslate"><span class="pre">SGLANG_COMMIT</span></code>）</p></td>
 </tr>
 <tr class="row-even"><td><p>sgl-kernel-npu</p></td>
-<td><p>2026.9.0.post12（<code class="docutils literal notranslate"><span class="pre">cann9.0.0-910b</span></code> 的 wheel）</p></td>
+<td><p>2026.9.0.post12（<code class="docutils literal notranslate"><span class="pre">cann9.1.0-910b-py3.12</span></code> 的 wheel）</p></td>
 </tr>
 <tr class="row-odd"><td><p>huggingface_hub</p></td>
 <td><p>最新稳定版</p></td>
 </tr>
 <tr class="row-even"><td><p>mooncake-transfer-engine</p></td>
-<td><p>0.3.13.post1（NPU prebuilt wheel）</p></td>
+<td><p>0.3.14（NPU prebuilt wheel，见下文说明）</p></td>
 </tr>
 <tr class="row-odd"><td><p>specforge</p></td>
 <td><p>上游 <code class="docutils literal notranslate"><span class="pre">main</span></code>（<code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 由看护工作流解析）</p></td>
@@ -262,27 +263,14 @@
 </table>
 <div class="note admonition">
 <p class="admonition-title">Note</p>
-<p><strong>为什么不再打补丁</strong>：2026-11-07 上游把 server 端的 hidden-state 采集从「打补丁」改成了插件（SpecForge #1065 删掉了 <code class="docutils literal notranslate"><span class="pre">patches/sglang/v0.5.18/spec-capture.patch</span></code> 与 <code class="docutils literal notranslate"><span class="pre">scripts/apply_sglang_spec_capture_patch.sh</span></code>，改由 <code class="docutils literal notranslate"><span class="pre">specforge-sglang-capture</span></code> 插件接管）。插件要求 SGLang 提供三个扩展点：</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--enable-return-aux-hidden-states</span></code> / <code class="docutils literal notranslate"><span class="pre">--return-aux-hidden-state-layer-ids</span></code> / <code class="docutils literal notranslate"><span class="pre">--return-hidden-states-mode</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ModelRunner.forward_observer</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Scheduler.defer_response(req,</span> <span class="pre">completion)</span></code>（<code class="docutils literal notranslate"><span class="pre">sglang.srt.managers.deferred_output:ResponseCompletion</span></code>）</p></li>
-</ul>
-<p>这三个扩展点来自 SGLang PR #43449 / #43450（2026-10-26/27 合入 <code class="docutils literal notranslate"><span class="pre">main</span></code>），<strong>任何已发布版本都不具备</strong>（0.5.23 仍没有），所以 SGLang 必须从源码构建。本文按上游 SpecForge CI 自己的钉法（其 <code class="docutils literal notranslate"><span class="pre">.github/workflows/test.yaml</span></code> 里的 <code class="docutils literal notranslate"><span class="pre">SGLANG_COMMIT</span></code>）取 commit，保证插件与 SGLang 的 API 成对匹配。</p>
-<p><strong>为什么还要额外装 sgl-kernel-npu</strong>：新的 SGLang 会 import <code class="docutils literal notranslate"><span class="pre">sgl_kernel_npu.activation.fused_sigmoid_mul</span></code> 等新符号，镜像自带的 <code class="docutils literal notranslate"><span class="pre">sgl_kernel_npu</span></code>（2026.6.1）没有这些符号，模型模块会静默注册失败，报 <code class="docutils literal notranslate"><span class="pre">Qwen3_5ForConditionalGeneration</span> <span class="pre">has</span> <span class="pre">no</span> <span class="pre">SGlang</span> <span class="pre">implementation</span></code>。因此本文额外装一份与 SGLang 匹配版本的 <code class="docutils literal notranslate"><span class="pre">sgl-kernel-npu</span></code> wheel；CANN 侧的自定义算子沿用镜像自带版本即可。</p>
-<div class="note admonition">
-<p class="admonition-title">Note</p>
 <p><code class="docutils literal notranslate"><span class="pre">sgl-kernel-npu</span></code> 的 wheel 按 (torch, CANN, 设备, python) 出包，上游目前只发到 <strong>CANN 9.1.0 / torch 2.10.0 / py3.12 的 910b（aarch64）</strong>。本文的 sglang 安装步骤会按当前环境的 CANN 版本拼 wheel 文件名；如果你的 CANN 比这新（CANN 9.2.0 还没有 910b 包），用 <code class="docutils literal notranslate"><span class="pre">SGL_KERNEL_CANN_VER=9.1.0</span></code> 指定一个已有包的 CANN 版本。</p>
 </div>
-</div>
-<p><strong>SGLang 与 specforge 的版本要成对</strong>：SGLang 的 commit 由上游 SpecForge 的 <code class="docutils literal notranslate"><span class="pre">SGLANG_COMMIT</span></code> 决定，specforge 自身的 commit 由看护工作流解析上游 <code class="docutils literal notranslate"><span class="pre">main</span></code>。上游若改动插件与 SGLang 的对接方式（import 路径、参数名），两边要一起升。</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
-## 前置安装
-
-确认能看到 NPU 设备（应至少列出 4 张 `910B4` 且状态 OK）：
-
-```shell
-npu-smi info
+</section>
+</section>
+<section id="id5">
+<h2>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>确认能看到 NPU 设备（应至少列出 4 张 <code class="docutils literal notranslate"><span class="pre">910B4</span></code> 且状态 OK）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
 </pre></div>
 </div>
 <p>输出类似：</p>
@@ -379,7 +367,6 @@ count:<span class="w"> </span><span class="m">4</span>
 </pre></div>
 </div>
 </section>
-</section>
 <section id="huggingface-hub">
 <h2>安装 huggingface_hub<a class="headerlink" href="#huggingface-hub" title="Link to this heading"></a></h2>
 <p>用 uv 安装 huggingface_hub（后面从 HuggingFace Hub 下载模型用）：</p>
@@ -428,8 +415,8 @@ mooncake_master<span class="w"> </span>binary<span class="w"> </span>present
 <p>xxx 表示实际安装的版本号。</p>
 </div>
 </section>
-<section id="id5">
-<h2>克隆 SpecForge 源码<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<section id="id6">
+<h2>克隆 SpecForge 源码<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
 <p>PyPI wheel 不带示例配置（<code class="docutils literal notranslate"><span class="pre">examples/</span></code> 目录）和 capture 插件（<code class="docutils literal notranslate"><span class="pre">plugins/sglang-spec-capture</span></code>），所以从源码装：</p>
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -477,7 +464,7 @@ git<span class="w"> </span>-C<span class="w"> </span>SpecForge<span class="w"> <
 </section>
 <section id="sglang">
 <h2>安装 SGLang（源码构建）<a class="headerlink" href="#sglang" title="Link to this heading"></a></h2>
-<p>capture 插件要用的扩展点只在 SGLang <code class="docutils literal notranslate"><span class="pre">main</span></code> 上有（见「本文档示例使用的版本」的说明），任何 release wheel 都没有，所以从源码构建。commit 取自<strong>上游 SpecForge CI 自己的钉法</strong>，两边 API 才对得上：</p>
+<p>capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建；commit 取自上游 SpecForge CI 自己的钉法（<code class="docutils literal notranslate"><span class="pre">SGLANG_COMMIT</span></code>），保证插件与 SGLang 的 API 匹配：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>SpecForge
 sed<span class="w"> </span>-n<span class="w"> </span><span class="s1">'s/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p'</span><span class="w"> </span>.github/workflows/test.yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-1
 </pre></div>
@@ -669,8 +656,8 @@ Options:
 <section id="smoke-1">
 <h2>端到端 smoke：1 步训练<a class="headerlink" href="#smoke-1" title="Link to this heading"></a></h2>
 <p>按顺序把 <code class="docutils literal notranslate"><span class="pre">mooncake_master</span></code> → SGLang capture server → <code class="docutils literal notranslate"><span class="pre">specforge</span> <span class="pre">train</span></code> 拉起来跑 1 步训练，每小节一个阶段，失败可定位到具体环节。<code class="docutils literal notranslate"><span class="pre">SPECFORGE_*</span></code> 环境变量可覆盖各段默认值。</p>
-<section id="id6">
-<h3>预下载模型<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<section id="id7">
+<h3>预下载模型<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
 <p>从 HuggingFace Hub 把 Qwen3.5-4B（约 8 GB）拉到本地缓存，路径供后面起 server 和训练用：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
 <span class="nv">MODEL_ID</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">SPECFORGE_MODEL_ID</span><span class="k">:-</span><span class="nv">Qwen</span><span class="p">/Qwen3.5-4B</span><span class="si">}</span><span class="s2">"</span>
@@ -819,8 +806,8 @@ smoke:<span class="w"> </span>capture<span class="w"> </span>backend:<span class
 <p><code class="docutils literal notranslate"><span class="pre">&lt;MODEL_PATH&gt;</span></code> 在运行时替换为「预下载模型」一节 <code class="docutils literal notranslate"><span class="pre">snapshot_download</span></code> 命令打印的模型缓存路径；xxx 为 server 进程号。</p>
 </div>
 </section>
-<section id="id7">
-<h3>准备训练数据<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<section id="id8">
+<h3>准备训练数据<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
 <p>写一条 user→assistant 对话的 JSONL 作为训练数据（smoke 只跑 1 步，不追求数据质量；assistant 段够长即可满足 dflash 采样 32 个 anchor 的要求）。正式训练可用上游的 <code class="docutils literal notranslate"><span class="pre">scripts/regenerate_train_data.py</span></code> 重新生成对齐分布的数据：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
 <span class="nv">SPECFORGE_ROOT</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">SPECFORGE_ROOT</span><span class="k">:-</span><span class="nv">SpecForge</span><span class="si">}</span><span class="s2">"</span>
@@ -939,8 +926,8 @@ sleep<span class="w"> </span><span class="m">30</span>
 <p><code class="docutils literal notranslate"><span class="pre">&lt;MODEL_PATH&gt;</span></code> / <code class="docutils literal notranslate"><span class="pre">&lt;SHAREGPT_PATH&gt;</span></code> 分别来自「预下载模型」「准备训练数据」两节保存的路径；xxx 为训练进程号。</p>
 </div>
 </section>
-<section id="id8">
-<h4>监控直到退出<a class="headerlink" href="#id8" title="Link to this heading"></a></h4>
+<section id="id9">
+<h4>监控直到退出<a class="headerlink" href="#id9" title="Link to this heading"></a></h4>
 <p>轮询等待训练完成：日志出现 step/loss 指标即训练成功，正常情况下进程随后自行退出。注意容器环境下进程退出后可能停留在僵尸状态（容器 PID 1 不回收孤儿，<code class="docutils literal notranslate"><span class="pre">kill</span> <span class="pre">-0</span></code> 仍返回成功），本段已按&quot;僵尸即退出&quot;处理。若进程确认活着但 300s 内不退出，杀掉进程树并按训练成功收尾，同时把各进程的 <code class="docutils literal notranslate"><span class="pre">/proc</span></code> 状态和 py-spy 线程栈写到日志（供定位）。若始终没有 step/loss 指标，则等到 80 min 上限判失败：</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span>-euo<span class="w"> </span>pipefail
 <span class="nv">LOG_FILE</span><span class="o">=</span>/tmp/smoke-train.log
@@ -1039,8 +1026,8 @@ smoke:<span class="w"> </span>OK<span class="w"> </span>-<span class="w"> </span
 </section>
 </section>
 </section>
-<section id="id9">
-<h2>外部链接<a class="headerlink" href="#id9" title="Link to this heading"></a></h2>
+<section id="id10">
+<h2>外部链接<a class="headerlink" href="#id10" title="Link to this heading"></a></h2>
 <ul class="simple">
 <li><p>GitHub：<a class="reference external" href="https://github.com/sgl-project/SpecForge">sgl-project/SpecForge</a></p></li>
 <li><p>文档中心：<a class="reference external" href="https://github.com/sgl-project/SpecForge#readme">SpecForge Docs</a></p></li>
