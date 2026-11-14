@@ -15,7 +15,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
-- 与 CANN 匹配、预装 `torch` / `torch_npu` 的镜像（本文用下方的 SGLang 专用镜像；镜像自带的 sglang 会被下文源码构建的版本替换）
+- 与 CANN 匹配、预装 `torch` / `torch_npu` 的镜像（本文用下方的标准 CANN 镜像；torch / torch_npu 由文档自己装）
 
 ### 本文档示例使用的版本
 
@@ -23,19 +23,19 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 
 swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 
-也可以用 SGLang 专用镜像 `swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b`（自带 torch / torch_npu / triton-ascend，上面几步会自动跳过）；但本文要的是「capture API 只有 SGLang main 有」这个组合，镜像里预装的 SGLang 一定会被下文源码构建的版本替换掉。
+镜像只提供 CANN 运行时；`torch` / `torch_npu` / `triton-ascend` / `SGLang` 都由下文自己装（capture API 只有 SGLang main 有，镜像里不可能预装）。
 
 **软件版本**：
 
 | 组件 | 版本 |
 | --- | --- |
-| Python | 3.12（CANN 镜像）/ 3.11（SGLang 镜像） |
-| CANN | 9.1.0（CANN 镜像）/ 9.0.0（SGLang 镜像） |
+| Python | 3.12 |
+| CANN | 9.1.0 |
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
 | sglang | 源码构建，commit `c757c4bb`（= 上游 SpecForge CI 的 `SGLANG_COMMIT`） |
-| sgl-kernel-npu | 2026.9.0.post12（`cann9.0.0-910b` 的 wheel） |
+| sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel） |
 | huggingface_hub | 最新稳定版 |
-| mooncake-transfer-engine | 0.3.13.post1（NPU prebuilt wheel） |
+| mooncake-transfer-engine | 0.3.14（NPU prebuilt wheel，见下文说明） |
 | specforge | 上游 `main`（`<ref>` 由看护工作流解析） |
 | capture 插件 | 上游 `plugins/sglang-spec-capture` |
 | 模型 | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) |
