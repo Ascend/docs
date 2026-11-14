@@ -16,8 +16,6 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
 
-`torch` / `torch_npu` / `triton-ascend` / `SGLang` 都由下面的安装步骤自己装，镜像只需要提供 CANN 运行时。
-
 ### 本文档示例使用的版本
 
 **配套镜像**：
