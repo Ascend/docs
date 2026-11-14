@@ -171,10 +171,11 @@ PY
 }
 
 # Offline colocated recipes consume pre-captured hidden states from disk, so the
-# engine must first run the producer: scripts/prepare_hidden_states.py, which
-# drives a local in-proc SGLang capture through the model's native capture
-# hooks (no server, no mooncake, no spec-capture patch). Its arguments come
-# from the same typed config the trainer uses — load the recipe WITH the
+# engine must first run the producer: scripts/prepare_hidden_states.py. Since
+# upstream #1064 that producer is a CLIENT: it needs a capture server
+# (--server-urls) and reads the hidden states back from Mooncake, so the
+# Mooncake master and the capture server are up before it runs. Its arguments
+# come from the same typed config the trainer uses — load the recipe WITH the
 # overlay args applied so max_length / train_data_path / hidden_states_path
 # match exactly what `specforge train` will see.
 resolve_offline() {
@@ -224,17 +225,21 @@ prepare_hidden_states() {
   ASCEND_RT_VISIBLE_DEVICES="${SPECFORGE_CAPTURE_DEVICE:-0}" \
   LD_LIBRARY_PATH="$ld_path" \
   PYTHONUNBUFFERED=1 \
-    torchrun --nproc_per_node=1 "$TARGET_ROOT/scripts/prepare_hidden_states.py" \
+    # 上游的 offline producer 是 CPU client worker 集合：要用进程组做
+    # broadcast / 分片，所以必须 >=2 个进程（上游 README：
+    # "replace python with torchrun --standalone --nproc_per_node=4"）。
+    # 单进程跑会报 "Default process group has not been initialized"。
+    torchrun --standalone --nproc_per_node="${SPECFORGE_PREP_WORKERS:-4}" \
+      "$TARGET_ROOT/scripts/prepare_hidden_states.py" \
       --target-model-path "${SPECFORGE_MODEL_PATH:?SPECFORGE_MODEL_PATH is required}" \
       --data-path "$prep_data" \
       --output-path "$PREP_HIDDEN_STATES" \
       --chat-template "$PREP_CHAT_TEMPLATE" \
       --max-length "$PREP_MAX_LENGTH" \
-      --tp-size 1 --batch-size 1 --num-samples 1 \
+      --batch-size 1 --num-samples 1 \
       --strategy "$PREP_STRATEGY" \
       --draft-model-config "$draft_cfg" \
-      --sglang-attention-backend ascend \
-      --sglang-mem-fraction-static "${SPECFORGE_PREPARE_MEM_FRACTION:-0.65}" \
+      --server-urls "http://127.0.0.1:${SGLANG_PORT:-30000}" \
       ${trust_args[@]+"${trust_args[@]}"}
 }
 
@@ -256,7 +261,16 @@ start_sglang_capture() {
   if [[ -d "$ATB_LIB" ]]; then
     export LD_LIBRARY_PATH="$ATB_LIB:${LD_LIBRARY_PATH:-}"
   fi
+  # SPECFORGE_SPEC_CAPTURE=1 让上游 capture 插件注册 scheduler hook；没开这个
+  # 开关插件的 register() 直接返回，采集不会发生。
+  export SPECFORGE_SPEC_CAPTURE=1
   : "${SPECFORGE_MODEL_PATH:?SPECFORGE_MODEL_PATH is required}"
+  # --speculative-algorithm 命名采集约定（dflash/dspark/eagle3 -> 大写），
+  # --enable-return-aux-hidden-states 打开 aux hidden-state 采集；
+  # --mamba-ssm-dtype bfloat16：GDN 的 initial_state 用 bf16，910B4 上 fp32
+  # 不被 sgl_kernel_npu 的 chunk_gated_delta_rule 支持（只在 Ascend950 上支持 fp32）。
+  local algo
+  algo=$(printf '%s' "$method" | tr '[:lower:]' '[:upper:]')
   nohup python -m sglang.launch_server \
     --model-path "$SPECFORGE_MODEL_PATH" \
     --trust-remote-code \
@@ -266,8 +280,11 @@ start_sglang_capture() {
     --context-length 1024 \
     --chunked-prefill-size -1 \
     --attention-backend ascend \
-    --enable-spec-capture --spec-capture-method "$method" \
-    --spec-capture-aux-layer-ids $aux_layer_ids \
+    --mamba-ssm-dtype bfloat16 \
+    --speculative-algorithm "$algo" \
+    --enable-return-aux-hidden-states \
+    --return-aux-hidden-state-layer-ids $aux_layer_ids \
+    --return-hidden-states-mode full \
     --host 127.0.0.1 --port "$SGLANG_PORT" \
     >/tmp/examples-sglang.log 2>&1 &
   SGLANG_PID=$!
@@ -275,6 +292,16 @@ start_sglang_capture() {
   for _ in $(seq 1 "$HEALTH_DEADLINE"); do
     if curl -fsS "http://127.0.0.1:$SGLANG_PORT/health" >/dev/null 2>&1; then
       echo "sglang capture server ready (pid=$SGLANG_PID)"
+      # 插件生效的标志：scheduler 在 /server_info 里自报 capture backend。
+      local backend
+      backend=$(curl -fsS "http://127.0.0.1:$SGLANG_PORT/server_info" \
+        | grep -o '"spec_capture_backend":"[a-z]*"' | head -1)
+      if [[ "$backend" != '"spec_capture_backend":"plugin"' ]]; then
+        echo "FAILED - capture plugin not active (server_info: ${backend:-none})" >&2
+        tail -50 /tmp/examples-sglang.log >&2
+        return 1
+      fi
+      echo "capture plugin active (${backend})"
       return 0
     fi
     sleep 5
@@ -303,18 +330,23 @@ case "$LAUNCH_PATH" in
     cd "$TARGET_ROOT"
     if [[ "$LAUNCH_PATH" == *"/offline/"* ]]; then
       # Offline colocated recipes: the trainer reads hidden states from disk;
-      # the engine runs the producer (in-proc capture) first, then the
-      # pure-torch trainer. No external services, no mooncake, no spec-capture
-      # server patch.
+      # the engine runs the producer (prepare_hidden_states.py) first, then the
+      # pure-torch trainer. Upstream #1064 rewrote that producer: it no longer
+      # drives an in-proc capture, it talks to a capture SERVER (--server-urls
+      # is required) and reads the hidden states back from Mooncake - so the
+      # Mooncake master and the capture server are started here as well.
       if ! OFFLINE_VARS="$(resolve_offline)"; then
         echo "FAILED - resolve_offline could not load the offline recipe config" >&2
         exit 1
       fi
       eval "$OFFLINE_VARS"
+      eval "$(resolve_capture)"
       rm -rf "outputs/${CAP_RUN_ID}"
       if [[ -n "${PREP_HIDDEN_STATES:-}" ]]; then
         rm -rf "${PREP_HIDDEN_STATES%/}"
       fi
+      start_mooncake
+      start_sglang_capture "$CAP_METHOD" "$CAP_AUX"
       prepare_hidden_states
       ATB_LIB=/usr/local/Ascend/nnal/atb/9.0.0/atb/cxx_abi_1/lib
       TRAIN_LD_PATH="${LD_LIBRARY_PATH:-}"
