@@ -2,7 +2,7 @@
 
 在 4 卡昇腾 NPU 上端到端跑通 [SpecForge](https://github.com/sgl-project/SpecForge) 的投机解码草稿模型训练链路：
 
-- **安装**：huggingface_hub + mooncake（NPU prebuilt wheel）+ SGLang（源码构建）+ specforge（源码）+ 上游 capture 插件，CLI 自检。
+- **安装**：huggingface_hub + mooncake（NPU prebuilt wheel）+ SGLang（源码构建）+ specforge（源码）+ 上游 capture 插件。
 - **端到端 smoke**：从 HuggingFace Hub 拉 Qwen3.5-4B → 起 mooncake_master → 起带 capture 插件的 SGLang capture server → 完成 1 步训练。
 
 ## 前置条件
@@ -120,7 +120,7 @@ test -f /usr/local/Ascend/ascend-toolkit/latest/$(uname -m)-linux/ascend_toolkit
 version=xxx
 ```
 
-安装 torch / torch_npu（成对版本）：CANN 镜像默认不带 torch，带 torch 的镜像版本也可能不同，这里统一成 `torch 2.10.0` + `torch_npu 2.10.0.post6`（torch_npu 的 wheel 要求 torch 版本严格对齐）：
+安装 torch / torch_npu（成对版本，torch_npu 的 wheel 要求 torch 版本严格对齐）：
 
 ```shell #test id="install-torch-stack"
 set -euo pipefail
@@ -224,7 +224,7 @@ xxx 表示实际安装的版本号。
 
 ## 克隆 SpecForge 源码
 
-PyPI wheel 不带示例配置（`examples/` 目录）和 capture 插件（`plugins/sglang-spec-capture`），所以从源码装：
+PyPI wheel 不带示例配置和 capture 插件，所以从源码装：
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -276,7 +276,7 @@ specforge checkout: xxx
 
 ## 安装 SGLang（源码构建）
 
-capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建；commit 取自上游 SpecForge CI 自己的钉法（`SGLANG_COMMIT`），保证插件与 SGLang 的 API 匹配：
+capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建；commit 取自上游 SpecForge CI 的 `SGLANG_COMMIT`：
 
 ```shell #test-setup store="sglang_commit"
 cd SpecForge
