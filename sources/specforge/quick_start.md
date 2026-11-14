@@ -43,22 +43,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 
 ```{admonition} Note
 :class: note
-**为什么不再打补丁**：2026-11-07 上游把 server 端的 hidden-state 采集从「打补丁」改成了插件（SpecForge #1065 删掉了 `patches/sglang/v0.5.18/spec-capture.patch` 与 `scripts/apply_sglang_spec_capture_patch.sh`，改由 `specforge-sglang-capture` 插件接管）。插件要求 SGLang 提供三个扩展点：
-
-- `--enable-return-aux-hidden-states` / `--return-aux-hidden-state-layer-ids` / `--return-hidden-states-mode`
-- `ModelRunner.forward_observer`
-- `Scheduler.defer_response(req, completion)`（`sglang.srt.managers.deferred_output:ResponseCompletion`）
-
-这三个扩展点来自 SGLang PR #43449 / #43450（2026-10-26/27 合入 `main`），**任何已发布版本都不具备**（0.5.23 仍没有），所以 SGLang 必须从源码构建。本文按上游 SpecForge CI 自己的钉法（其 `.github/workflows/test.yaml` 里的 `SGLANG_COMMIT`）取 commit，保证插件与 SGLang 的 API 成对匹配。
-
-**为什么还要额外装 sgl-kernel-npu**：新的 SGLang 会 import `sgl_kernel_npu.activation.fused_sigmoid_mul` 等新符号，镜像自带的 `sgl_kernel_npu`（2026.6.1）没有这些符号，模型模块会静默注册失败，报 `Qwen3_5ForConditionalGeneration has no SGlang implementation`。因此本文额外装一份与 SGLang 匹配版本的 `sgl-kernel-npu` wheel；CANN 侧的自定义算子沿用镜像自带版本即可。
-
-```{admonition} Note
-:class: note
 `sgl-kernel-npu` 的 wheel 按 (torch, CANN, 设备, python) 出包，上游目前只发到 **CANN 9.1.0 / torch 2.10.0 / py3.12 的 910b（aarch64）**。本文的 sglang 安装步骤会按当前环境的 CANN 版本拼 wheel 文件名；如果你的 CANN 比这新（CANN 9.2.0 还没有 910b 包），用 `SGL_KERNEL_CANN_VER=9.1.0` 指定一个已有包的 CANN 版本。
-```
-
-**SGLang 与 specforge 的版本要成对**：SGLang 的 commit 由上游 SpecForge 的 `SGLANG_COMMIT` 决定，specforge 自身的 commit 由看护工作流解析上游 `main`。上游若改动插件与 SGLang 的对接方式（import 路径、参数名），两边要一起升。
 ```
 
 ## 前置安装
@@ -292,7 +277,7 @@ specforge checkout: xxx
 
 ## 安装 SGLang（源码构建）
 
-capture 插件要用的扩展点只在 SGLang `main` 上有（见「本文档示例使用的版本」的说明），任何 release wheel 都没有，所以从源码构建。commit 取自**上游 SpecForge CI 自己的钉法**，两边 API 才对得上：
+capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建；commit 取自上游 SpecForge CI 自己的钉法（`SGLANG_COMMIT`），保证插件与 SGLang 的 API 匹配：
 
 ```shell #test-setup store="sglang_commit"
 cd SpecForge
