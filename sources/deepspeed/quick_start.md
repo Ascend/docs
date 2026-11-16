@@ -6,7 +6,7 @@
 
 ### 硬件
 
-Atlas 800T / 900 A2 训练服务器（Ascend 910B），并按需完成物理机或容器内的设备挂载。本文先单卡训练，再双卡分布式（需要 2 张卡）。
+Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载。
 
 ### 基础软件
 
@@ -15,7 +15,7 @@ Atlas 800T / 900 A2 训练服务器（Ascend 910B），并按需完成物理机�
 - 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)）
 
-本文档测试环境使用 Python 3.12、CANN 9.1.0。
+本文档示例在 Atlas 900 A2 训练系列产品上运行，并在 Python 3.12、CANN 9.1.0 环境下验证通过。
 
 本文档配套镜像：
 
