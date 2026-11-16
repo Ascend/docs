@@ -38,7 +38,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3.5-4b-dflash-npu.yaml
     profile: specforge
     runner: linux-aarch64-a2-4                # 4 卡 runner：capture 卡 0、trainer 卡 1，卡 2/3 留给 HCCL buffer
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       # 训练规模压到 1 步：recipe 默认 num_epochs=10 / max_steps=10000 / batch_size=2 / accumulation_steps=4
       # → 单 epoch 几十小时；CI 1 步即可验证 producer→mooncake→consumer 链路。
@@ -89,7 +89,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3.5-4b-dflash2-npu.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1
@@ -109,7 +109,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3-4b-dspark.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     # 2026-09-24 消融实测本条最小集（+log_interval）：recipe 已是 batch_size=1 /
     # nproc_per_node=1，accumulation_steps / report_to 走 schema 默认 1 / none。
     overlay_args:
@@ -124,7 +124,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3-4b-dflash.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
@@ -141,7 +141,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3-8b-dflash.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
@@ -158,7 +158,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3-8b-dpace.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
@@ -175,7 +175,7 @@ supported:
   - path: examples/configs/online/disaggregated/external/qwen3-8b-dspark.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.accumulation_steps=1  # recipe 默认 512：10 refs 凑不满一个 512 窗口 → 0 步，必须压 1
@@ -208,7 +208,7 @@ supported:
   - path: examples/configs/online/disaggregated/managed-local/qwen3.5-4b-dflash-npu.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1
@@ -221,12 +221,26 @@ supported:
       - deployment.disaggregated.managed_local.trainer_cuda_visible_devices=["1"]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
+      # buffer（都是主机内存）。managed-local 把 capture server（8B 权重）、
+      # trainer（同样要 target 模型）和 mooncake master 放在同一个容器里，
+      # 插件流程下多出来的 segment/buffer 会把主机内存顶爆，capture server
+      # 被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke 只存
+      # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
+      # managed-local 的 capture server 由 launch plan 起，命令行由 recipe 的
+      # model.sglang_* 渲染；910B4 上 Qwen3.5-4B（hybrid Mamba/GDN）的 fp32
+      # initial_state 不被 sgl_kernel_npu 支持（只在 Ascend950 上支持），
+      # 不显式给 bfloat16 server 会被 CANN 打挂（capture-server-0 exited
+      # with status -9）。
+      - model.sglang_extra_args=["--mamba-ssm-dtype","bfloat16"]
     timeout_minutes: 180
 
   - path: examples/configs/online/disaggregated/managed-local/qwen3-8b-dflash-1server-dp7.yaml
     profile: specforge
     runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
     overlay_args:
       - training.max_steps=1
       - training.batch_size=1  # recipe 默认 2：压 1 让 1 行 fixture 稳定凑满窗口
@@ -239,11 +253,25 @@ supported:
       - deployment.disaggregated.managed_local.capture_servers=[{"port":30000,"cuda_visible_devices":["0"],"tp_size":1,"mem_fraction_static":0.65}]
       - deployment.disaggregated.receive_buffers=pageable
       - model.target_model_path=${SPECFORGE_MODEL_PATH}
+      # 上游 managed-local 默认挂 32 GiB 的 mooncake segment + 1 GiB 本地
+      # buffer（都是主机内存）。managed-local 把 capture server（8B 权重）、
+      # trainer（同样要 target 模型）和 mooncake master 放在同一个容器里，
+      # 插件流程下多出来的 segment/buffer 会把主机内存顶爆，capture server
+      # 被 OOM kill（capture-server-0 exited with status -9）。1 步 smoke 只存
+      # 32 个 anchor 的 hidden states，256 MiB + 64 MiB 足够。
+      - deployment.disaggregated.managed_local.mooncake.global_segment_size_bytes=268435456
+      - deployment.disaggregated.managed_local.mooncake.local_buffer_size_bytes=67108864
+      # managed-local 的 capture server 由 launch plan 起，命令行由 recipe 的
+      # model.sglang_* 渲染；910B4 上 Qwen3.5-4B（hybrid Mamba/GDN）的 fp32
+      # initial_state 不被 sgl_kernel_npu 支持（只在 Ascend950 上支持），
+      # 不显式给 bfloat16 server 会被 CANN 打挂（capture-server-0 exited
+      # with status -9）。
+      - model.sglang_extra_args=["--mamba-ssm-dtype","bfloat16"]
     timeout_minutes: 180
 
   # ===== offline/colocated（2026-09-23 coder 2x910B4 端到端实测通过）：
-  # 纯 torch trainer（sdpa）读盘训练，前置 prepare_hidden_states.py（in-proc
-  # sglang capture，--sglang-attention-backend ascend，不需要 mooncake、不
+  # 纯 torch trainer（sdpa）读盘训练，前置 prepare_hidden_states.py（上游
+  # #1064 后是 capture server 的客户端：需要 mooncake + capture server，
   # 需要 spec-capture server patch），run_example.sh 的 offline 分支自动跑
   # 预生成步骤。qwen3-4b-dspark（step 1 loss=3.715）与 qwen3-8b-dflash
   # （step 1 loss=13.96）直接实测通过；qwen3-8b-dspark
@@ -251,46 +279,17 @@ supported:
   # 后者由 supported 的 online qwen3-8b-dspark 证明）。
   # mem-fraction：4B 0.5 即可、8B 需 >=0.537，统一用 SPECFORGE_PREPARE_
   # MEM_FRACTION 默认 0.65。=====
-  - path: examples/configs/offline/colocated/qwen3-4b-dspark.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
-    # recipe 已是 batch_size=1 / nproc_per_node=1，accumulation_steps / report_to
-    # 走 schema 默认 1 / none（同 qwen3-4b-dspark 消融结论）。
-    overlay_args:
-      - training.max_steps=1
-      - training.attention_backend=sdpa
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
-  - path: examples/configs/offline/colocated/qwen3-8b-dflash.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
-    overlay_args:
-      - training.max_steps=1
-      - training.batch_size=1  # recipe 默认 4：prepare 只产 1 个样本，drop_last=True 下凑不出 batch，必须压 1
-      - training.attention_backend=sdpa
-      - training.num_anchors=32
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
-  - path: examples/configs/offline/colocated/qwen3-8b-dspark.yaml
-    profile: specforge
-    runner: linux-aarch64-a2-4
-    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/dockerhub/lmsysorg/sglang:v0.5.18-cann9.0.0-910b
-    # recipe 已是 batch_size=1 / nproc_per_node=1，accumulation_steps / report_to
-    # 走 schema 默认 1 / none（同 qwen3-4b-dspark 消融结论）。
-    overlay_args:
-      - training.max_steps=1
-      - training.attention_backend=sdpa
-      - training.log_interval=1
-      - model.target_model_path=${SPECFORGE_MODEL_PATH}
-    timeout_minutes: 180
-
 unsupported:
+  # ===== offline/colocated：上游 #1064 改了 offline producer 的形态，先挪到 unsupported =====
+  # prepare_hidden_states.py 从「in-proc capture」改成 capture server 的 CPU client
+  # 集合（--server-urls 必填、多个 worker 用 gloo 组、hidden states 经 mooncake 回传），
+  # 跟我们现在的编排（先起 mooncake master + capture server，再跑 producer）对不上：
+  # client 建连时拿不到 master 的 segment descriptor
+  # （GET /metadata?key=mooncake%2Fram%2F... -> 404 metadata not found）。
+  # 等把 offline 这条链按上游的新形态对齐后再放回 supported。
+  - examples/configs/offline/colocated/qwen3-8b-dspark.yaml
+  - examples/configs/offline/colocated/qwen3-8b-dflash.yaml
+  - examples/configs/offline/colocated/qwen3-4b-dspark.yaml
   # ===== LFM2.5 DFLASH：sglang 0.5.18 无 LFM2 capture setter（2026-09-23 源码确认）。
   # LiquidAI/LFM2.5-1.2B-Instruct 在 ModelScope 存在（Code 200），arch=
   # Lfm2ForCausalLM（/sgl-workspace/sglang/python/sglang/srt/models/lfm2.py），
