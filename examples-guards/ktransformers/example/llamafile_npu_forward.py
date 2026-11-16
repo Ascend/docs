@@ -92,7 +92,15 @@ def main() -> None:
     stream = int(torch.npu.current_stream().npu_stream)
     kt_kernel_ext.subscribe_ascend_stream(stream)
 
-    cpu = kt_kernel_ext.CPUInfer(2)
+    # CPUInfer(n) divides n threads across every NUMA node the host reports.
+    # The guard runner reports 8 nodes, so a small n leaves 0 threads per node
+    # and llamafile then rejects intermediate_size 256. One subpool on node 0
+    # keeps a worker and satisfies the QK_K block split.
+    pool = kt_kernel_ext.WorkerPoolConfig()
+    pool.subpool_count = 1
+    pool.subpool_numa_map = [0]
+    pool.subpool_thread_count = [2]
+    cpu = kt_kernel_ext.CPUInfer(pool)
     moe, weights = build_moe(cpu)
     cpu.submit(moe.load_weights_task())
     cpu.sync()
