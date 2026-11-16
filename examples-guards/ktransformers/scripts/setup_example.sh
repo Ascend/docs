@@ -47,6 +47,10 @@ python -m pip install -U pip setuptools wheel uv
 # from the pytorch-wheels/cpu find-links index.
 uv pip install --system -f https://mirrors.aliyun.com/pytorch-wheels/cpu 'torch==2.14.0+cpu'
 uv pip install --system --no-deps 'torch_npu==2.14.0'
+# kt-kernel is installed with --no-deps below, so these import-time
+# dependencies are not pulled in. loader.py imports both before any
+# example code runs. Versions match kt-kernel's pyproject.toml.
+uv pip install --system 'safetensors>=0.4.0' 'gguf>=0.17.0'
 
 git -C "$TARGET_ROOT" submodule update --init third_party/pybind11 third_party/llama.cpp
 test -f "$TARGET_ROOT/third_party/pybind11/CMakeLists.txt"
