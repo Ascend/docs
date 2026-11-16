@@ -9,6 +9,8 @@ DeepSeek-V4-Flash and does not claim that serving path is healthy.
 
 from __future__ import annotations
 
+import time
+
 import torch
 import torch_npu
 from kt_kernel import kt_kernel_ext
@@ -136,10 +138,17 @@ def _run_forward() -> None:
         output_q.data_ptr(),
     )
     cpu.submit_with_cuda_stream(stream, task)
-    cpu.sync_with_cuda_stream(stream)
-    torch.npu.synchronize()
-
-    # to_float allocates torch.empty(count), so the buffer is 1-D.
+    # aclrtLaunchCallback uses ACL_CALLBACK_NO_BLOCK. torch.npu.synchronize
+    # returns before the subscriber thread runs that callback, so a read here
+    # still sees the zeroed buffer. Drain the worker pool until the callback
+    # has enqueued the forward and the forward has finished.
+    deadline = time.monotonic() + 30
+    output = to_float(output_q, QLEN * HIDDEN, ggml_type.BF16)
+    while float(output.abs().max()) == 0.0 and time.monotonic() < deadline:
+        time.sleep(0.05)
+        cpu.sync()
+        output = to_float(output_q, QLEN * HIDDEN, ggml_type.BF16)
+    cpu.sync()
     output = to_float(output_q, QLEN * HIDDEN, ggml_type.BF16)
     if output.numel() != QLEN * HIDDEN:
         raise SystemExit(f"unexpected output numel {output.numel()}")
