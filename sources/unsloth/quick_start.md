@@ -10,14 +10,14 @@ Atlas 900 A2 训练系列产品，单卡。
 
 ### 软件
 
-| 类别 | 要求 |
-| --- | --- |
-| CANN | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择 |
-| Python | 落在官方配套表给出的范围内，并满足 Unsloth 下限。当前正式版要求 Python 3.9 至 3.14 |
-| PyTorch | `torch==2.10.0` 与 `torch_npu==2.10.0.post7`。配套表见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) |
-| Unsloth | 克隆上游最新 release 标签 `<ref>`，安装检出目录里的 `huggingfacenotorch` 扩展 |
-| triton-ascend | 从昇腾 PyPI 安装，供 Qwen3 的 Triton 融合内核编译 |
-| 模型 | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B)、[Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B) |
+| 类别            | 要求                                                                                                                                    |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| CANN          | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择                    |
+| Python        | 落在官方配套表给出的范围内，并满足 Unsloth 下限。当前正式版要求 Python 3.9 至 3.14                                                                                |
+| PyTorch       | `torch==2.10.0` 与 `torch_npu==2.10.0.post7`。配套表见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) |
+| Unsloth       | 克隆上游最新 release，安装检出目录里的 `huggingfacenotorch` 扩展                                                                                       |
+| triton-ascend | 从昇腾 PyPI 安装，供 Qwen3 的 Triton 融合内核编译                                                                                                   |
+| 模型            | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B)、[Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)               |
 
 ### 本文验证环境
 
@@ -96,12 +96,13 @@ torch_npu 2.10.0.post7
 npu_available True
 ```
 
-
 ---
 
 ## 4. 安装 Unsloth
 
-克隆上游最新 release 标签 `<ref>`，安装检出目录里的 Hugging Face 训练依赖和 bitsandbytes。Qwen3.5 要加载视觉处理器，再从 PyTorch CPU 轮子源安装与 torch 2.10.0 配套的 torchvision。
+克隆上游最新 release，安装检出目录里的 Hugging Face 训练依赖和 bitsandbytes。Qwen3.5 要加载视觉处理器，再从 PyTorch CPU 轮子源安装与 torch 2.10.0 配套的 torchvision。
+
+
 
 <!--
 ```shell #test-setup store="upstream_ref"
@@ -118,7 +119,6 @@ python -m pip install --force-reinstall --no-deps \
   torchvision==0.25.0
 python -c "import unsloth, torchvision; print('unsloth', unsloth.__version__); print('torchvision', torchvision.__version__)"
 ```
-
 
 完整输出较长，其中应包含：
 
@@ -156,6 +156,8 @@ python -c "import triton.backends.ascend; print('triton_backend ascend')"
 triton_backend ascend
 ```
 -->
+
+
 
 ---
 
@@ -230,7 +232,6 @@ trainer = SFTTrainer(
 stats = trainer.train()
 print("train_loss", stats.training_loss)
 ```
-
 <!--
 ```shell #test-setup
 mkdir -p /root/unsloth-qs
@@ -297,6 +298,9 @@ print("train_loss", stats.training_loss)
 PY
 ```
 -->
+
+
+
 
 运行训练：
 
@@ -390,7 +394,6 @@ trainer = SFTTrainer(
 stats = trainer.train()
 print("train_loss", stats.training_loss)
 ```
-
 <!--
 ```shell #test-setup
 mkdir -p /root/unsloth-qs
@@ -459,6 +462,9 @@ print("train_loss", stats.training_loss)
 PY
 ```
 -->
+
+
+
 
 运行训练：
 
