@@ -86,6 +86,16 @@ def main() -> None:
     del probe
 
     kt_kernel_ext.init_ascend_callback_worker()
+    try:
+        _run_forward()
+    finally:
+        # The worker is a process-global std::thread. Leaving it joinable makes
+        # static destruction call std::terminate, so the process aborts after
+        # the forward has already finished.
+        kt_kernel_ext.shutdown_ascend_callback_worker()
+
+
+def _run_forward() -> None:
     if not kt_kernel_ext.is_ascend_callback_worker_running():
         raise SystemExit("Ascend callback worker did not start")
 
@@ -129,9 +139,11 @@ def main() -> None:
     cpu.sync_with_cuda_stream(stream)
     torch.npu.synchronize()
 
+    # to_float allocates torch.empty(count), so the buffer is 1-D.
     output = to_float(output_q, QLEN * HIDDEN, ggml_type.BF16)
-    if output.shape != (QLEN, HIDDEN):
-        raise SystemExit(f"unexpected output shape {tuple(output.shape)}")
+    if output.numel() != QLEN * HIDDEN:
+        raise SystemExit(f"unexpected output numel {output.numel()}")
+    output = output.reshape(QLEN, HIDDEN)
     if not torch.isfinite(output).all():
         raise SystemExit("llamafile forward returned a non-finite value")
     absmax = float(output.abs().max())
