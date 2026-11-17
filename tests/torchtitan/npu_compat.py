@@ -1,109 +1,89 @@
-"""NPU compatibility overrides for torchtitan v0.3.0 on Ascend.
+"""NPU compatibility override for torchtitan v0.4.0 on Ascend.
 
 Activated through torchtitan's official override mechanism
-(``--override.imports``); no upstream source file is modified -- the
-torchtitan checkout stays git clean.
+(``--override npu_compat.npu_attention``); no upstream source file is
+modified -- the torchtitan checkout stays git clean.
 
-One override replaces one config node (``GQAttention.Config``) because the
-override framework rejects *nested* overrides (an override claiming an
-ancestor of another override's node raises).  That single replacement
-carries both NPU fixes:
+One override replaces one config node (``GQAttention.Config``) and swaps one
+of its children -- the **attention backend**:
 
-1. **RoPE** -- upstream ``ComplexRoPE`` keeps a complex64 cache and indexes
-   it with the position ids; ``aclnnIndex`` has no ``DT_COMPLEX64``
-   implementation.  ``RealGatherComplexRoPE`` performs the same gather in
-   real space (the real / imaginary halves as float32) and hands the result
-   back to upstream's own rotation code, so the values -- including the
-   llama frequency scaling and the adjacent-dimension pairing convention --
-   are upstream's.  Upstream's ``CosSinRoPE`` is *not* a substitute: it
-   uses the rotate-half pairing convention and rejects
-   ``scaling="llama"`` outright.
+* upstream ships two backends for language models:
+  ``FlexInnerAttention`` (``torch.nn.attention.flex_attention``) and
+  ``VarlenInnerAttention`` (``torch.nn.attention.varlen``).  Neither works
+  on NPU: the varlen one calls ``aten::_flash_attention_forward``, which
+  torch_npu does not implement, and the flex one fails while building its
+  block mask (``torch._inductor.exc.InductorError: SympifyError``).
+  Upstream's SDPA does run on NPU, but upstream forbids it as a
+  language-model backend (``get_attention_config("sdpa")`` raises) because
+  it cannot consume per-document positions.
+  ``NpuBlockCausalSDPA`` is an ``InnerAttention`` that rebuilds the dense
+  block-causal mask from the per-document positions and hands it to SDPA,
+  which keeps upstream's masking semantics: a token attends to the tokens
+  of its own document that precede it.
 
-2. **Attention** -- upstream builds the per-document block-causal mask
-   only for the Flex / Varlen backends, and neither compiles on NPU.
-   Upstream's SDPA does compile, but upstream forbids it as a
-   language-model backend (``get_attention_config("sdpa")`` raises) because
-   it cannot consume per-document positions.  ``BlockCausalSDPA`` feeds
-   SDPA an explicit dense block-causal mask instead, which keeps upstream's
-   masking semantics: a token attends to the tokens of its own document
-   that precede it.
+Everything else stays upstream's:
 
-Both replacements are numerically equivalent to the upstream components
-they stand in for.  ``check_npu_overrides.py`` (same directory) asserts
-that on CPU; the quick-start doc runs it before the training steps.
+* **RoPE** -- upstream's ``ComplexRoPE`` keeps a complex64 cache and indexes
+  it with the position ids; ``aclnnIndex`` has no ``DT_COMPLEX64``
+  implementation, so the *eager* gather cannot run on NPU.  It does not have
+  to: upstream compiles the ``rope`` region by default
+  (``local_compile_regions``), and the compiled path gathers the cache's
+  real view (float32) instead of the complex one -- which NPU can do.  So
+  the RoPE stays upstream's, and no RoPE replacement is needed.
+* **Loss / compiled regions** -- upstream's ``ChunkedLossWrapper`` and its
+  compiled ``loss`` / ``fused_binary_activation`` regions run on the
+  torch_npu nightly stack as they are.
 
-Upstream private helpers used below (``_maybe_wrap_positions``,
-``_maybe_check_max_pos``, ``_reshape_for_broadcast``): if upstream renames
-them this module fails loudly at import time.
+The replacement is numerically equivalent to the upstream component it
+stands in for.  ``check_npu_overrides.py`` (same directory) asserts that on
+CPU; the quick-start doc runs it before the training steps.
 """
 
 from dataclasses import dataclass
+from typing import NamedTuple
 
 import torch
 import torch.nn.functional as F
 
 from torchtitan.config.override import derive, override
-from torchtitan.models.common.attention import GQAttention
-from torchtitan.models.common.rope import (
-    ComplexRoPE,
-    _maybe_check_max_pos,
-    _maybe_wrap_positions,
-    _reshape_for_broadcast,
-)
-from torchtitan.protocols.module import Module
-
-
-class RealGatherComplexRoPE(ComplexRoPE):
-    """``ComplexRoPE`` whose position gather happens in real space.
-
-    Upstream's ``ComplexRoPE._reshape_cache`` indexes the complex64 cache
-    directly (``rope_cache[positions]``), which NPU cannot do.  Here the
-    cache is viewed as float32 (real / imaginary interleaved), gathered as
-    a plain float32 tensor, and converted back to complex64 before
-    upstream's ``apply_rotary_emb`` runs.  The gathered values are
-    bit-identical to upstream's; only the kernel that produces them
-    differs.
-    """
-
-    @dataclass(kw_only=True, slots=True)
-    class Config(ComplexRoPE.Config):
-        pass
-
-    def _reshape_cache(self, query, positions=None):
-        positions = _maybe_wrap_positions(positions, query)
-        if positions is not None:
-            _maybe_check_max_pos(positions, max_valid_pos=self.cache.shape[0] - 1)
-        # complex64 (max_seq_len, dim/2) -> float32 (max_seq_len, dim) with
-        # real/imag interleaved -> two contiguous (max_seq_len, dim/2) caches.
-        real = self.cache.view(torch.float32)
-        cos_cache = real[:, 0::2].contiguous()
-        sin_cache = real[:, 1::2].contiguous()
-        # Same broadcast rules as upstream: the pair shape is
-        # (batch, seq, heads, head_dim / 2).
-        pair_shape = (*query.shape[:-1], query.shape[-1] // 2)
-        cos = _reshape_for_broadcast(cos_cache, pair_shape, positions)
-        sin = _reshape_for_broadcast(sin_cache, pair_shape, positions)
-        # Back to the complex64 layout upstream's rotation expects.
-        return torch.stack([cos, sin], dim=-1).flatten(-2).view(torch.complex64)
+from torchtitan.models.common.attention import GQAttention, InnerAttention
 
 
 def _block_causal_mask(
-    positions: torch.Tensor, seqlen: int, device: torch.device
+    positions: torch.Tensor, num_tokens: int
 ) -> torch.Tensor:
-    """Dense ``(B, 1, L, L)`` bool mask: same document, not in the future.
+    """Dense ``(1, 1, T, T)`` bool mask: same document, not in the future.
 
     Mirrors upstream's per-document (block causal) masking: positions reset
     to 0 at every document boundary, so tokens of one document must not
-    attend to another document's tokens.
+    attend to another document's tokens.  Upstream derives the document ids
+    the same way (``get_document_mask_mod``).
     """
-    pos = positions if positions.dim() > 1 else positions.unsqueeze(0)
-    doc = torch.cumsum((pos == 0).to(torch.int32), dim=1) - 1  # (B, L)
-    same_doc = doc[:, :, None] == doc[:, None, :]  # (B, L, L)
-    causal = torch.ones(seqlen, seqlen, dtype=torch.bool, device=device).tril()
-    return (same_doc & causal).unsqueeze(1)
+    if positions.dim() != 1:
+        raise ValueError(
+            f"block-causal masking expects 1-D positions, got {positions.shape}"
+        )
+    doc = torch.cumsum((positions == 0).to(torch.int64), dim=0) - 1  # (T,)
+    same_doc = doc[:, None] == doc[None, :]  # (T, T)
+    causal = torch.ones(
+        num_tokens, num_tokens, dtype=torch.bool, device=positions.device
+    ).tril()
+    return (same_doc & causal).unsqueeze(0).unsqueeze(0)
 
 
-class BlockCausalSDPA(Module):
+class NpuBlockCausalMetadata(NamedTuple):
+    """Per-microbatch metadata handed to ``NpuBlockCausalSDPA``.
+
+    Upstream's inner attentions receive a backend specific metadata object
+    (a ``BlockMask`` for flex, cumulative sequence lengths for varlen).  The
+    NPU backend needs the per-document positions themselves, because it
+    rebuilds the dense block-causal mask.
+    """
+
+    positions: torch.Tensor
+
+
+class NpuBlockCausalSDPA(InnerAttention):
     """``scaled_dot_product_attention`` with an explicit block-causal mask.
 
     Upstream's ``ScaledDotProductAttention`` refuses an ``attention_masks``
@@ -113,100 +93,89 @@ class BlockCausalSDPA(Module):
     """
 
     @dataclass(kw_only=True, slots=True)
-    class Config(Module.Config):
-        pass
+    class Config(InnerAttention.Config):
+        def build_attention_metadata(
+            self,
+            positions: torch.Tensor,
+            *,
+            padding_mask: torch.Tensor | None = None,
+            max_num_documents: int | None = None,
+            max_context_length: int | None = None,
+        ) -> NpuBlockCausalMetadata:
+            del padding_mask, max_num_documents, max_context_length
+            return NpuBlockCausalMetadata(positions=positions)
 
     def __init__(self, config: Config) -> None:
         super().__init__()
 
     def forward(
         self,
-        q_BLNH: torch.Tensor,
-        k_BLNH: torch.Tensor,
-        v_BLNH: torch.Tensor,
+        q_THK: torch.Tensor,
+        k_THK: torch.Tensor,
+        v_THV: torch.Tensor,
         *,
-        attention_masks=None,
-        positions: torch.Tensor | None = None,
+        attention_metadata: NpuBlockCausalMetadata | None = None,
         scale: float | None = None,
         enable_gqa: bool = False,
         **kwargs,
     ) -> torch.Tensor:
-        if positions is None:
-            raise ValueError("BlockCausalSDPA requires positions")
-        q_BNLH = q_BLNH.transpose(1, 2)
-        k_BNLH = k_BLNH.transpose(1, 2)
-        v_BNLH = v_BLNH.transpose(1, 2)
-        mask = _block_causal_mask(positions, q_BLNH.shape[1], q_BLNH.device)
-        out_BNLH = F.scaled_dot_product_attention(
-            q_BNLH,
-            k_BNLH,
-            v_BNLH,
+        if attention_metadata is None:
+            raise ValueError("NpuBlockCausalSDPA requires per-document positions")
+        positions = attention_metadata.positions
+        mask = _block_causal_mask(positions, q_THK.shape[0])
+        out_1HTV = F.scaled_dot_product_attention(
+            q_THK.transpose(0, 1).unsqueeze(0),
+            k_THK.transpose(0, 1).unsqueeze(0),
+            v_THV.transpose(0, 1).unsqueeze(0),
             attn_mask=mask,
             scale=scale,
             is_causal=False,
             enable_gqa=enable_gqa,
         )
-        return out_BNLH.transpose(1, 2)
+        # Return a fresh tensor, not a view: upstream's flex / varlen
+        # backends allocate, and a view output makes FSDP2's pre-backward
+        # hook unreliable.
+        return out_1HTV.squeeze(0).transpose(0, 1).contiguous()
 
 
 class NpuGQAttention(GQAttention):
-    """``GQAttention`` that forwards ``positions`` to the inner attention.
+    """``GQAttention`` wired for NPU.
 
-    Upstream's ``GQAttention.forward`` consumes ``positions`` for the RoPE
-    but does not pass it on, so an inner attention that has to rebuild the
-    per-document mask (everything but Flex / Varlen) cannot see it.  The
-    body below is upstream v0.3.0's ``GQAttention.forward`` with exactly
-    one addition: ``positions=positions`` in the inner-attention call.
+    Upstream's ``GQAttention.forward`` already hands the per-document
+    metadata to the inner attention, and the NPU inner attention rebuilds
+    the block-causal mask from it -- so the forward is upstream's, unchanged.
+    This subclass exists so the override has a distinct config class (and a
+    distinct name in the override log).
     """
 
     @dataclass(kw_only=True, slots=True)
     class Config(GQAttention.Config):
         pass
 
-    def forward(
-        self,
-        x_BLD: torch.Tensor,
-        attention_masks,
-        positions: torch.Tensor | None = None,
-    ) -> torch.Tensor:
-        xq_BLNH, xk_BLNH, xv_BLNH = self.qkv_linear(x_BLD)
-
-        # Optional QK normalization (before RoPE, per Qwen3)
-        if self.q_norm is not None or self.k_norm is not None:
-            assert self.q_norm is not None and self.k_norm is not None
-            xq_BLNH = self.q_norm(xq_BLNH)
-            xk_BLNH = self.k_norm(xk_BLNH)
-
-        # Apply rotary embeddings
-        xq_BLNH, xk_BLNH = self.rope(xq_BLNH, xk_BLNH, positions)
-
-        # inner_attention returns (B, L, N, H)
-        out_BLNH = self.inner_attention(
-            xq_BLNH,
-            xk_BLNH,
-            xv_BLNH,
-            attention_masks=attention_masks,
-            positions=positions,
-            scale=self.scaling,
-            enable_gqa=self.enable_gqa,
-        ).contiguous()
-        out_BLD = out_BLNH.flatten(2)
-        return self.wo(out_BLD)
-
 
 @override(
     target=GQAttention.Config,
     description=(
-        "NPU attention stack: real-space RoPE gather (aclnnIndex has no "
-        "DT_COMPLEX64) + SDPA with an explicit block-causal mask"
+        "NPU attention backend: SDPA with an explicit block-causal mask "
+        "(upstream's flex / varlen backends do not run on NPU)"
     ),
 )
 def npu_attention(cfg: GQAttention.Config) -> NpuGQAttention.Config:
     new = derive(cfg, NpuGQAttention.Config)
-    # complex64 RoPE cache -> same values, gathered in real space
-    new.rope = derive(new.rope, RealGatherComplexRoPE.Config)
-    # flex -> SDPA with a dense block-causal mask.  The config class must
-    # not be a Flex / Varlen config, otherwise the trainer would try to
-    # build a BlockMask (that path does not compile on NPU).
-    new.inner_attention = BlockCausalSDPA.Config()
+    # flex / varlen -> SDPA with a dense block-causal mask.  The config class
+    # must not be a Flex / Varlen config, otherwise the trainer would try to
+    # build a BlockMask (that path does not work on NPU).
+    #
+    # derive() keeps the fields the two configs share -- notably
+    # ``sharding_config`` (llama3 puts the local-SPMD sharding of q/k/v on
+    # the inner attention config), which a fresh Config() would silently drop.
+    new.inner_attention = derive(cfg.inner_attention, NpuBlockCausalSDPA.Config)
     return new
+
+
+__all__ = [
+    "NpuBlockCausalMetadata",
+    "NpuBlockCausalSDPA",
+    "NpuGQAttention",
+    "npu_attention",
+]

@@ -14,22 +14,23 @@
 # twice: once from PyPI (pure-python wheel, proves the binary route)
 # and once from source (`git clone` at the latest release tag +
 # `uv pip install -e .`) — the training commands need the upstream
-# tree for the config registry (`llama3_debugmodel_ce_loss`) and the
-# `--override.imports` mechanism. pytorch/torchtitan publishes GitHub
+# tree for the recipe-style config API (`--module X --config Y`) and the
+# `--override` mechanism. pytorch/torchtitan publishes GitHub
 # Releases, so the engine's default release_source=releases works — no
 # special source=tags override needed.
 #
-# torch / torch_npu both pinned to 2.14.0: torch_npu 2.14.0 requires
-# CANN 9.2.0 (an older CANN 9.1.0 image fails with a missing
-# libhccl.so / missing aclnn symbols), so the image below is the
-# 9.2.0 one. triton-ascend 3.6.0 comes from Huawei Cloud's ascend
-# `test` index and is installed with --no-deps so the CUDA-only
-# community `triton` wheel never lands in the environment.
-#
-# The modelscope volume caches the `snapshot_download` demo of the
-# doc's tokenizer section between runs (the training itself uses
-# torchtitan's bundled tests/assets/tokenizer, so no checkpoint is
-# downloaded).
+# torch 2.15.0 + torch_npu 2.15.0.dev20261116 (Ascend's nightly channel):
+# torchtitan v0.4.0 is developed against torch 2.15 (its own CI pins
+# torch==2.15.0) and uses torch-2.15-only APIs — the two
+# torch.distributed.pipelining symbols the optional Dist-MoE package
+# imports eagerly, and FSDP2's MixedPrecisionPolicy(param_dtype_override_fn=).
+# The newest *released* torch_npu is 2.14.0, which pins torch==2.14.0.*,
+# so the nightly build is the only one that matches torch 2.15.
+# torch_npu 2.14.0 requires CANN 9.2.0 (an older CANN 9.1.0 image fails
+# with a missing libhccl.so / missing aclnn symbols), so the image below
+# is the 9.2.0 one. triton-ascend comes from Ascend's nightly channel
+# (its `/test` sub-path is gone) and is installed with --no-deps so the
+# CUDA-only community `triton` wheel never lands in the environment.
 
 name: torchtitan-quick-start
 
@@ -80,21 +81,17 @@ jobs:
       # `torchrun --nproc_per_node=2` (FSDP shard=2 + HCCL), and the
       # single-card section asserts `torch.npu.device_count() == 2`.
       test_runner: '["linux-aarch64-a2-2"]'
-      # CANN 9.2.0 + Python 3.12 base image — torch_npu 2.14.0 needs
-      # CANN 9.2.0 (the 9.1.0 image fails with a missing libhccl.so).
+      # CANN 9.2.0 + Python 3.12 base image — torch_npu needs CANN 9.2.0
+      # (the 9.1.0 image fails with a missing libhccl.so).
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
-      # Persist the modelscope cache across runs: the doc's tokenizer
-      # section demonstrates `snapshot_download`, and re-downloading the
-      # Llama 3 tokenizer on every guard run is pure waste.
-      container_options: >-
-        --volume=/data/ci-cache/modelscope/torchtitan:/root/.cache/modelscope
-      # 180 min budget. The doc installs torch / torch_npu / modelscope /
-      # triton-ascend / torchtitan, clones the upstream tree, writes the
-      # NPU override module, then runs a 2-step single-card training and
-      # a 2-step dual-card FSDP training. The first cold-cache run also
-      # compiles a handful of dataloader Triton kernels through the
-      # bisheng compiler (serial, TORCHINDUCTOR_COMPILE_THREADS=1, to
-      # stay under the runner cgroup memory limit).
+      # 180 min budget. The doc installs torch / torch_npu / triton-ascend /
+      # torchtitan, clones the upstream tree, writes the NPU override module
+      # + recipe, then runs a 2-step single-card training and a 2-step
+      # dual-card FSDP training. The first cold-cache run also compiles the
+      # model's compiled regions and a handful of dataloader Triton kernels
+      # through the bisheng compiler (serial,
+      # TORCHINDUCTOR_COMPILE_THREADS=1, to stay under the runner cgroup
+      # memory limit).
       timeout_minutes: 180
       upstream_repo: pytorch/torchtitan
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the

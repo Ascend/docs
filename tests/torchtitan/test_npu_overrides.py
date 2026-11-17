@@ -21,7 +21,7 @@ import unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(HERE, 'check_npu_overrides.py')
 
-EXPECTED = 'npu override equivalence: rope OK, mask OK'
+EXPECTED = 'npu override equivalence: mask OK, metadata OK, attention selection OK'
 
 
 class NpuOverrideEquivalenceTests(unittest.TestCase):
