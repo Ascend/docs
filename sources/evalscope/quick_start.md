@@ -8,7 +8,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为**单卡**。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**）。本文示例为**单卡**。
 
 ### 软件
 
@@ -19,7 +19,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为*
 | PyTorch | `torch==2.9.0` 与 `torch_npu==2.9.0.post2`，见下文安装 |
 | 模型 / 数据 | ModelScope 上的 Qwen2.5-0.5B-Instruct 与评测数据集 |
 
-本文验证镜像：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+本文验证镜像：A2 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，A3 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 
@@ -65,7 +65,7 @@ print('count:', torch.npu.device_count())
 torch= 2.9.0+cpu
 torch_npu= 2.9.0.post2
 is_available: True
-count: 1
+count: xxx
 ```
 
 ```{admonition} Note
@@ -91,10 +91,10 @@ python -m pip install -e .
 python -m pip install evalscope
 ```
 
-EvalScope 经 `modelscope[datasets]` 引入的新版 `datasets` / `pyarrow` 在导入时**要求 NumPy ≥ 2**，且加载本地模型时会向 `from_pretrained` 传入 `device_map`（transformers ≥5 在收到 `device_map` 时要求 `accelerate`）。因此安装时一并带上这两个依赖的版本约束：
+EvalScope 经 `modelscope[datasets]` 引入的新版 `datasets` / `pyarrow` 在导入时**要求 NumPy ≥ 2**，且加载本地模型时会向 `from_pretrained` 传入 `device_map`（transformers ≥5 在收到 `device_map` 时要求 `accelerate`）。因此安装时一并带上这几个依赖的版本约束：
 
 ```shell #test-setup
-python -m pip install "numpy>=2.0,<3" accelerate
+python -m pip install "numpy>=2.0,<3" accelerate "transformers<=5.22.2"
 ```
 
 装完打印版本并确认 NPU 栈可用（下面的命令用 Python 执行）：
@@ -200,7 +200,7 @@ evalscope eval \
 输出结果如下（评测日志较长，此处仅展示关键片段）：
 
 ```shell #test-result id="run-eval" fuzzy='...'
-...Qwen2.5-0.5B-Instruct...
+...Finished evaluation for ... on ['gsm8k', 'arc']...
 ```
 
 ## 6. 查看评测结果

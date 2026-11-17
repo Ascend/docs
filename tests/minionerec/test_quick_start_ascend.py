@@ -38,8 +38,11 @@ import os
 import shutil
 import subprocess
 import unittest
+from pathlib import Path
 
-from doc_test.base import MarkdownDocTestBase
+import requests
+
+from doc_test.base import MarkdownDocTestBase, SetupCommand
 
 
 def _is_truthy(value: str | None) -> bool:
@@ -85,7 +88,24 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         '/usr/local/Ascend/cann/set_env.sh',
     )
 
+    # The A3 writable layer is small and quota-limited (the RL checkpoint
+    # write dies with EDQUOT), while ``/root/.cache`` is the volume the A3
+    # pool shares across runs. Keep this leg's workdir on the shared volume.
     _WORK_DIR = '/root/minionerec-test'
+    _A3_WORK_DIR = '/root/.cache/minionerec-test'
+
+    # Base model, fetched from the ModelScope mirror on A3 before the
+    # document's download block runs.
+    #
+    # Why: hf-mirror serves nine of the ten ``Qwen/Qwen2.5-0.5B`` files itself,
+    # but redirects the 988 MB ``model.safetensors`` to ``cas-bridge.xethub.hf.co``
+    # (Xet). On the A3 pool that redirected HEAD comes back without a
+    # ``Content-Length``, and ``snapshot_download`` refuses any file whose size
+    # it cannot read - a hard failure that its own retries do not cover. With
+    # the files already on disk, ``hf_hub_download`` falls back to them instead.
+    # The document keeps the HuggingFace step: readers are unaffected.
+    _MS_MODEL_API = 'https://modelscope.cn/api/v1/models/Qwen/Qwen2.5-0.5B'
+    _BASE_MODEL = 'Qwen/Qwen2.5-0.5B'
 
     # ----------------------------------------------------------
     # prepare_environment: PATH + CANN env + cwd
@@ -99,6 +119,16 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         install, the shim, the model and data download, SFT, evaluation
         and RL are the steps a reader follows.
         """
+        # Keep one visible card: the A3 runner exposes two.
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+        # A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. Xet off on
+        # A3: its data plane lives on cas-bridge.xethub.hf.co, outside
+        # HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
         # 0) PATH: /usr/local/sbin for npu-smi.
         current_path = os.environ.get('PATH', '')
         prefix_dirs = '/usr/local/sbin:/usr/local/bin'
@@ -139,9 +169,73 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
         # 3) Working directory: pinned before run_template() so the doc's
         # cwd-relative clone never lands in the guard checkout.
-        os.makedirs(cls._WORK_DIR, exist_ok=True)
-        os.chdir(cls._WORK_DIR)
-        print(f'setup: working dir {cls._WORK_DIR}')
+        work_dir = cls._WORK_DIR
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            # Leftovers from an earlier run survive on the shared volume and
+            # the doc clones into a fresh directory, so wipe it first.
+            work_dir = cls._A3_WORK_DIR
+            shutil.rmtree(work_dir, ignore_errors=True)
+        os.makedirs(work_dir, exist_ok=True)
+        os.chdir(work_dir)
+        # The A3 writable layer is quota-limited, so print what is actually
+        # available: a checkpoint write that dies with EDQUOT is otherwise
+        # indistinguishable from a network or model failure.
+        usage = shutil.disk_usage(work_dir)
+        print(
+            f'setup: working dir {work_dir}, '
+            f'total {usage.total / 2 ** 30:.0f} GiB, free {usage.free / 2 ** 30:.1f} GiB'
+        )
+
+    # ----------------------------------------------------------
+    # A3 only: seed the base model before the document downloads it
+    # ----------------------------------------------------------
+
+    def _run_one(self, cmd, results, env, cwd, timeout, idx):
+        """Seed ``Qwen/Qwen2.5-0.5B`` ahead of the document's download step.
+
+        ``#test-setup`` blocks carry no ``id``, so the block is recognised by
+        what it does: pull the base model from the Hub.
+        """
+        if (
+            os.environ.get('MACHINE_TYPE') == 'a3'
+            and isinstance(cmd, SetupCommand)
+            and 'snapshot_download' in cmd.cmd
+            and self._BASE_MODEL in cmd.cmd
+        ):
+            self._seed_base_model(Path(cwd))
+        return super()._run_one(cmd, results, env, cwd, timeout, idx)
+
+    def _seed_base_model(self, cwd: Path) -> None:
+        """Download the base model from ModelScope into the cloned tree."""
+        target = cwd / 'MiniOneRec' / 'Qwen2.5-0.5B'
+        listing = requests.get(
+            f'{self._MS_MODEL_API}/repo/files',
+            params={'Revision': 'master', 'Recursive': 'true'},
+            timeout=120,
+        )
+        listing.raise_for_status()
+        files = [
+            entry['Path']
+            for entry in listing.json()['Data']['Files']
+            if entry.get('Type') == 'blob'
+        ]
+        print(f'seed: {len(files)} files from ModelScope -> {target}')
+        for name in files:
+            dest = target / name
+            if dest.is_file():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with requests.get(
+                f'{self._MS_MODEL_API}/repo',
+                params={'Revision': 'master', 'FilePath': name},
+                stream=True,
+                timeout=1800,
+            ) as response:
+                response.raise_for_status()
+                with open(dest, 'wb') as handle:
+                    for chunk in response.iter_content(1 << 20):
+                        handle.write(chunk)
+            print(f'seed: {name} ({dest.stat().st_size} bytes)')
 
     # ----------------------------------------------------------
     # test entry
