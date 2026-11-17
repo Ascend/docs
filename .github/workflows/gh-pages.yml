@@ -40,7 +40,13 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: 3.10.15
+          # 3.11 is the newest CPython that both the ubuntu-24.04 and the
+          # ubuntu-26.04 runner images ship *and* that the docs requirements
+          # support: 26.04 dropped 3.10 (the old pin failed with "The
+          # version '3.10.15' with architecture 'x64' was not found for
+          # Ubuntu 26.04"), while requirements.txt pins torch 2.5.1 and
+          # torch_npu 2.5.1rc1, whose newest wheels are cp311.
+          python-version: '3.11'
 
       - name: Setup dependencies
         run: |
