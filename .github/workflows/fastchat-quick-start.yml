@@ -18,15 +18,17 @@ on:
     paths:
       - 'sources/fastchat/**'
       - 'tests/fastchat/**'
+      - '.github/workflows/fastchat-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  fastchat-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
       project: fastchat
+      machine_type: a2
       test_runner: '["linux-aarch64-a2-1"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
       container_options: >-
@@ -36,3 +38,32 @@ jobs:
       doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/fastchat/quick_start.md'
       doc_path: https://github.com/Ascend/docs/blob/main/sources/fastchat/quick_start.md
       test_command: python -m unittest tests.fastchat.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: fastchat
+      machine_type: a3
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/fastchat:/root/.cache/modelscope
+      timeout_minutes: 120
+      upstream_repo: lm-sys/FastChat
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/fastchat/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/fastchat/quick_start.md
+      test_command: python -m unittest tests.fastchat.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: fastchat
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
