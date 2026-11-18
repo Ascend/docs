@@ -93,6 +93,11 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         Class-level preparation, triggered once by ``setUpClass`` (not the
         per-test-method ``unittest.TestCase.setUp``).
         """
+        # A3 runner pool has 2 cards; container /dev capping does not
+        # restrict driver-level enumeration, so pin visibility to card 0
+        # to align with the doc's `count: 1` check. Harmless on A2 (1 card).
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+
         # 0) CANN env: source set_env.sh and merge it into os.environ.
         # Workflow-level jobs.env / steps.env take precedence over the CANN
         # defaults. Every doc-block subprocess inherits this environment, so

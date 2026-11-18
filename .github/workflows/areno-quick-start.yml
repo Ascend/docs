@@ -1,21 +1,22 @@
 # areno quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
-# concurrency, runner, container image + options, upstream repo,
-# monitored doc, and the test entry command. The guard loop, cache
-# I/O, state relay and publishing all live in the engine.
+# Calls the common engine .github/workflows/quick-start-template.yml
+# once per machine generation (A2/A3) and merges the per-machine
+# result.json files into one artifact; this file only declares what
+# varies per project: schedule, concurrency, runner, container image,
+# upstream repo, monitored doc, and the test entry command.
 #
-# No device mounts: the self-hosted NPU runner (`linux-aarch64-a2-1`)
-# auto-passes `/dev/davinci*` into the container via the cluster
-# device-plugin, so container_options stays empty (same convention as
-# accelerate / peft / torchtune). The doc's GSPO smoke is single-card
-# and pins ASCEND_RT_VISIBLE_DEVICES=0.
+# No device mounts: the self-hosted NPU runner auto-passes
+# `/dev/davinci*` into the container via the cluster device-plugin,
+# so container_options stays empty (same convention as accelerate /
+# peft / torchtune). The doc's GSPO smoke is single-card and pins
+# ASCEND_RT_VISIBLE_DEVICES=0.
 #
 # CANN 9.0.0 image (not the 9.1.0 most guards use): AReno's NPU stack
 # pins torch 2.10.0+cpu + torch_npu 2.10.0.post2 against CANN 9.0.0
 # (upstream NPU guide matrix), and its installer compiles the Ascend C
-# extension on the spot.
+# extension on the spot. A2 and A3 legs share the same CANN line and
+# Python version, only the image tag differs (910b vs a3).
 
 name: areno-quick-start
 
@@ -47,18 +48,19 @@ on:
     paths:
       - 'sources/areno/**'
       - 'tests/areno/**'
+      - '.github/workflows/areno-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  areno-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-areno_*), artifacts
-      # (areno-quick-start-<run_id>) and the test working dir
-      # (tests/areno in the repo root; engine sets cwd to repo root).
+      # Namespaces cache keys, artifacts and the test working dir
+      # (tests/areno in the repo root) per machine generation.
       project: areno
+      machine_type: a2
       # Self-hosted single-card NPU runner for the test job only; the
       # engine pins the cache I/O jobs (restore-cache /
       # publish-and-persist) to GitHub-hosted ubuntu-latest.
@@ -81,9 +83,37 @@ jobs:
       # lands on Ascend/docs post-merge.
       doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/areno/quick_start.md'
       doc_path: https://github.com/Ascend/docs/blob/main/sources/areno/quick_start.md
-      # cwd is the repo root inside the `workflows` checkout (matches
-      # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # cwd is the repo root; env contract (MONITORED_DOC_URL /
+      # UPSTREAM_REF / NPU_READY) is injected by the engine. All project env
+      # prep and installs live in the test subclass's prepare_environment
+      # hook.
       test_command: python -m unittest tests.areno.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: areno
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C); same CANN 9.0.0 + py3.11 as A2.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-a3-ubuntu22.04-py3.11
+      container_options: ''
+      timeout_minutes: 60
+      upstream_repo: inclusionAI/AReno
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/areno/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/areno/quick_start.md
+      test_command: python -m unittest tests.areno.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: areno
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
