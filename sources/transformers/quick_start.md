@@ -314,10 +314,12 @@ apt-get install -y ffmpeg
 （以下代码使用Python执行）
 
 ```python #test id="pipeline-asr"
+from huggingface_hub import hf_hub_download
 from transformers import pipeline
 
+audio = hf_hub_download("Narsil/asr_dummy", "mlk.flac", repo_type="dataset")
 transcriber = pipeline(task="automatic-speech-recognition")
-print(transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac"))
+print(transcriber(audio))
 ```
 
 输出结果如下：
