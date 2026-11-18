@@ -20,14 +20,17 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，单卡即�
 
 ### 本文档示例使用的版本
 
+本文档示例在 Atlas 900 A2 / A3 训练系列产品上运行，并在 Python 3.11、CANN 9.0.0 环境下验证通过。
+
 **配套机器**：
 
-- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，32 GB × 1）
+- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，32 GB × 1）或 Atlas 900 A3 PODc（Ascend 910C）
 - **操作系统**：Ubuntu 22.04
 
 **配套镜像**：
 
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11
+- A2：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-910b-ubuntu22.04-py3.11`
+- A3：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.0.0-a3-ubuntu22.04-py3.11`
 
 **软件版本**（torch ↔ torch_npu ↔ CANN 按 [Ascend PyTorch 安装文档](https://gitcode.com/Ascend/pytorch)三方兼容矩阵选择，与上游 NPU 文档一致）：
 
@@ -200,7 +203,7 @@ cli_serve_ok
 
 ## RLVR 训练（GSPO on GSM8K）
 
-对齐上游 README「Tiny training smoke test」：下面把训练压到最小（1 步、生成 256 token），目标是验证 GSPO-on-GSM8K 链路（数据集加载、奖励校验、rollout、训练步）在 NPU 上跑通。想跑完整训练，去掉 `--max-steps` / `--max-new-tokens` 即可。
+对齐上游 README「Tiny training smoke test」：下面把训练压到最小，目标是验证 GSPO-on-GSM8K 链路在 NPU 上跑通。想跑完整训练，去掉 `--max-steps` / `--max-new-tokens` 即可。
 
 ```shell #test-setup id="train-smoke-run"
 cd AReno
