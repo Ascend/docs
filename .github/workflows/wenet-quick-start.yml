@@ -1,6 +1,7 @@
 # WeNet Ascend Quick Start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml.
+# Calls the common engine .github/workflows/quick-start-template.yml twice, once
+# per machine type, and merges the two results into a single artifact.
 #
 # The latest upstream release (v3.1.0, 2024-05) predates the NPU work: it has
 # no examples/aishell/s0/run_npu.sh, which is what this guard executes. Only
@@ -23,11 +24,11 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, 12 h apart: UTC 01:15 and 13:15
-    # (Beijing +8). All quick-start guards share this cadence; the
-    # (hour, minute) slot is staggered across the guards so the NPU
-    # runners do not all fire at the same time.
-    - cron: '15 1,13 * * *'
+    # Twice a day, 12 h apart: UTC 16:00 and 04:00 (Beijing +8). All
+    # quick-start guards share this cadence; the (hour, minute) slot is
+    # staggered across the guards so the NPU runners do not all fire at the
+    # same time.
+    - cron: '0 16,4 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
@@ -43,19 +44,22 @@ permissions:
   contents: read
 
 jobs:
-  wenet-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-wenet_*), artifacts
+      # Namespaces cache keys (quick-start-monitor-state-wenet_a2_*), artifacts
       # (wenet-quick-start-<run_id>) and the test working dir (tests/wenet).
       project: wenet
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
       test_runner: '["linux-aarch64-a2-1"]'
-      # CANN 8.0.0 + Python 3.10: the doc pins torch / torch-npu /
-      # torchaudio at the official NPU script's recommended 2.2.0.
-      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10
+      # CANN 9.1.0 + Python 3.10. torch / torch-npu / torchaudio are pinned
+      # at 2.5.1 by the doc's install block, and that stack runs on both 910B
+      # (this leg) and 910C (qs-a3); torch-npu 2.2 only enumerates devices on
+      # 910C and faults on the first operator.
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10
       container_options: >-
         --shm-size=64g
         --volume=/data/ci-cache/asr-data/wenet:/root/.cache/asr-data
@@ -69,7 +73,8 @@ jobs:
       # speculators / mooncake triggers).
       # 12 h budget: stage -1 pulls the ~15.6 GB aishell-1 archive (plus
       # the ~40 min inner tar pass on a cold cache) and stage 4 trains one
-      # conformer epoch over 120k utts. Hot-cache runs skip stage -1.
+      # conformer epoch over the 12k-utterance subset. Hot-cache runs skip
+      # stage -1.
       timeout_minutes: 720
       upstream_repo: wenet-e2e/wenet
       # Latest release (v3.1.0, 2024-05) has no run_npu.sh - track main,
@@ -84,7 +89,44 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/wenet/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: wenet
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg; same CANN line and Python version as
+      # the A2 leg, so the doc's pinned torch 2.5.1 stack is identical.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.10
+      container_options: >-
+        --shm-size=64g
+        --volume=/data/ci-cache/asr-data/wenet:/root/.cache/asr-data
+      # The A3 pool mounts its own cache volume, so it does not see the A2
+      # leg's aishell-1 archives. The test primes them from ModelScope before
+      # the doc's stage -1 fence runs, which then skips the download and only
+      # un-tars; the first A3 run pays the 15.6 GB fetch once.
+      timeout_minutes: 720
+      upstream_repo: wenet-e2e/wenet
+      fixed_ref: main
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/wenet/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/wenet/quick_start.md
+      test_command: python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: wenet
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
