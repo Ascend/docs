@@ -1,0 +1,846 @@
+version: 1
+scan:
+  root: torchtitan
+  include_extensions: ['.py', '.sh']
+  # torchtitan 的 "example" 不是目录 + 脚本的形态，而是一个 recipe 函数
+  # （v0.4.0 起 CLI 是 `--module X --config Y`，配置由 recipe 返回）。
+  # 所以 scan.root 设为仓库根 `torchtitan`，include_extensions 留宽；
+  # 其余子树都是库代码而非 example，用 exclude 声明「不是 example」
+  # （覆盖判定：supported(非 project 源) ∪ unsupported ∪ exclude）。
+  #
+  # 注意：本项目的 supported 条目是 project 源的启动脚本
+  # （projects/torchtitan/example/），它们调用上游的 torchtitan.train
+  # 入口，因此上游的 train.py / trainer.py 也不计入 example。
+  #
+  # v0.4.0 的包布局（exclude 按它对齐）：
+  #   新增 _torch_compat（torch 2.15 兼容层）、quantization（从
+  #   components/quantization 提上来）、rl（从 experiments/rl 提上来）、
+  #   training_engine.py（trainer 的底座）；
+  #   消失 hf_datasets（并入 components/data）、overrides（并入
+  #   config/transform）、protocols（并入 models/base）。
+  exclude:
+    - torchtitan/__init__.py
+    - torchtitan/_torch_compat
+    - torchtitan/components
+    - torchtitan/config
+    - torchtitan/distributed
+    - torchtitan/experiments
+    - torchtitan/models
+    - torchtitan/observability
+    - torchtitan/ops
+    - torchtitan/quantization
+    - torchtitan/rl
+    - torchtitan/tools
+    - torchtitan/train.py
+    - torchtitan/trainer.py
+    - torchtitan/training_engine.py
+
+# The example set of this project is the (module, config) combinations
+# below, not a file tree: the unsupported section records them as
+# "<path>:<config>" entries (the daily reconciliation matches paths
+# literally, so these entries are reported as stale by design - the
+# per-config reasons live in the comments next to them).
+#
+
+# Supported examples run torchtitan's own trainer entry point
+# (`python -m torchtitan.train --module X --config Y`) through the
+# project-side launchers in projects/torchtitan/example/ (source: project).
+#
+# --- torchtitan v0.4.0: the CLI is recipe-based -------------------------
+# Upstream dropped the "module + a long list of --training.* flags"
+# configuration.  A recipe is now a plain function returning a
+# `Trainer.Config`, selected with `--module <module> --config <function>`,
+# and the CLI only adds `--override`, `--comm-backend`, `--output-dir`,
+# `--resume-step` and `--print-config` on top of it: `--training.steps`,
+# `--comm.mode` and `--dump-folder` no longer exist.
+#
+# The project therefore ships its own recipe module
+# (projects/torchtitan/example/npu_recipes.py): every function in it calls
+# the matching **upstream** recipe and applies the NPU-specific
+# adjustments on top --
+#   1. two steps (upstream runs 10 to 1000; a CI smoke needs two to
+#      cover data -> forward -> backward -> optimizer -> metrics);
+#   2. the compiled regions torch_npu cannot lower stay eager (`loss` and
+#      `moe_aux_loss`, see npu_recipes.UNLOWERABLE_COMPILE_REGIONS), and
+#      activation checkpointing is off (see
+#      npu_recipes.NO_ACTIVATION_REMAT);
+#   3. the bundled `tests/assets/c4_test` dataset instead of HF's
+#      `allenai/c4`, which the cluster cannot reach;
+#   4. color-free metrics, so the CI log can be matched as plain text;
+#   5. an explicit dtype: float32 for the small smokes, bfloat16 for the
+#      two-card entry and for the 16B size tier (in float32 the 16B model
+#      needs 16B x 16 bytes = 256 GB, exactly the 8 x 32 GB of the
+#      eight-card runner).
+# The upstream checkout stays git clean -- no source file is patched.
+#
+# --- the NPU-incompatible attention backend ------------------------------
+# It is replaced through torchtitan's official override mechanism
+# (`--override <module.function>`, see torchtitan/config/override.py):
+#   NpuBlockCausalSDPA - upstream builds the per-document block-causal mask
+#       only for the Flex / Varlen backends (neither runs on NPU: varlen
+#       calls `aten::_flash_attention_forward`, which torch_npu does not
+#       implement, and flex dies in its block-mask lowering), and upstream
+#       forbids SDPA as a language-model backend (it cannot consume
+#       per-document positions). The override feeds SDPA an explicit dense
+#       block-causal mask instead (aclnn SDPA accepts attn_mask).
+# One override replaces one config node, so each family gets the override
+# that matches its own attention class:
+#   llama3 / qwen3 / sft -> npu_compat.npu_attention        (GQAttention.Config)
+#   deepseek_v3           -> npu_compat_deepseek.deepseek_attention (MLA)
+#   muse_glimmer          -> npu_compat_muse.muse_attention (its own class,
+#                            with the query scaling, the output gate and
+#                            the per-layer sliding window)
+# The RoPE is NOT replaced: upstream's ComplexRoPE keeps a complex64 cache
+# and the *eager* gather of it cannot run on NPU (aclnnIndex has no
+# DT_COMPLEX64 implementation), but upstream compiles the `rope` region by
+# default and the compiled path gathers the cache's real view -- which NPU
+# can do.  check_npu_overrides.py asserts that the override leaves the RoPE
+# alone.
+# The replacement is numerically equivalent to the upstream component it
+# stands in for; projects/torchtitan/example/check_npu_overrides.py
+# asserts that on CPU (the numbers quoted below are from the 2026-11-16
+# nightly-stack run: mask max_abs_diff 2.4e-07 against a naive
+# per-document causal reference.  Every examples run re-measures them and
+# prints the numbers to stderr).
+#
+# Stack: CANN 9.2.0 (container image) / torch 2.15.0 / torch_npu
+# 2.15.0.dev20261116 (Ascend's nightly channel) / triton-ascend
+# 3.6.0+dev20261112 (Ascend's nightly channel) / modelscope 1.40.2.
+# The nightly torch_npu is what makes torchtitan v0.4.0 runnable at all: it
+# needs torch >= 2.15 APIs, and the newest published torch_npu (2.14.0)
+# pins torch==2.14.0.*.
+#
+# Status: the entries below were re-written for the v0.4.0 recipe CLI on
+# 2026-11-10 and have **not** been re-measured yet.  The "measured exit 0"
+# notes further down come from the v0.3.0-era runs (2026-10-26 / -27) and
+# describe the same upstream recipes -- not the v0.4.0 CLI.
+supported:
+  # 1) Single card: 2 steps of the llama3 debugmodel on one NPU.  Covers
+  #    recipe loading, model build, tokenizer + dataloader (c4_test),
+  #    forward / backward, optimizer step and metrics.
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config llama3_debugmodel
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_debugmodel
+    timeout_minutes: 60
+
+  # 2) Two cards: the same model with FSDP shard=2 + bfloat16.  Adds real
+  #    cross-rank HCCL collectives, DTensor parameter distribution and the
+  #    FSDP2 MixedPrecisionPolicy (the one whose `param_dtype_override_fn`
+  #    keyword needs torch >= 2.15).
+  - path: example/run_train_2card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0,1'
+    overlay_args:
+      - --module npu_recipes
+      - --config llama3_debugmodel_bf16
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_debugmodel_2card
+    timeout_minutes: 90
+
+  # 3) One more llama3 recipe, single card.  All the entries below share
+  #    the same launcher and the same override; only --config changes.
+  #    Measured exit 0 on hdc-stable-npu-2 / -3 (2026-10-27, v0.3.0 CLI):
+  #    varlen attention backend, the ce_loss recipe (kept for coverage even
+  #    though the default recipe now runs), the dist_gemm TP backend, and
+  #    the SFT recipe with its chat dataset.
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config llama3_debugmodel_varlen_attn
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_debugmodel_varlen_attn
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config llama3_debugmodel_ce_loss
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_debugmodel_ce_loss
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config llama3_debugmodel_dist_gemm
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_debugmodel_dist_gemm
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config sft_debugmodel
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/llama3_sft_debugmodel
+    timeout_minutes: 60
+
+  # 4) qwen3 family, single card.  The rope is upstream's CosSinRoPE (a real
+  #    cache, no complex64 problem) so the override leaves it alone; only the
+  #    attention backend is swapped.  Covers the dense model and the two MoE
+  #    recipes.
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config qwen3_debugmodel
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/qwen3_debugmodel
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config qwen3_debugmodel_moe_param_groups
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/qwen3_debugmodel_moe_param_groups
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config qwen3_moe_debug
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/qwen3_moe_debug
+    timeout_minutes: 60
+
+  # 5) A size tier, not just a debugmodel: qwen3 0.6B on one card.  Two
+  #    things the debugmodel recipes do not need: the real tokenizer (the
+  #    recipe's hf_assets_path points at ./assets/hf/Qwen3-0.6B, which
+  #    setup_example.sh fetches from modelscope) and the bundled dataset
+  #    (the recipe asks for HF's allenai/c4, unreachable from the cluster;
+  #    c4_test is the local copy the debugmodel recipes use).
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config qwen3_0_6b
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/qwen3_0_6b
+    timeout_minutes: 60
+
+  # 6) deepseek_v3, single card.  Its attention is the family's own
+  #    DeepSeekMLAAttention (not GQAttention), so it needs the per-family
+  #    override in example/npu_compat_deepseek.py -- SDPA with a dense
+  #    block-causal mask, with upstream's forward plus a positions
+  #    passthrough.
+  #    MLA's value head dim differs from q/k's, which SDPA accepts.
+  #    The recipe additionally keeps the MoE aux-loss region eager
+  #    (npu_recipes.UNLOWERABLE_COMPILE_REGIONS): its reduction does not
+  #    lower on NPU (inductor SympifyError).  The other compiled regions
+  #    (loss / activation / rope) stay on.
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config deepseek_v3_debugmodel
+      - --override npu_compat_deepseek.deepseek_attention
+      - --output-dir ${CI_OUTPUT_DIR}/deepseek_v3_debugmodel
+    timeout_minutes: 60
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config deepseek_v3_debugmodel_mtp
+      - --override npu_compat_deepseek.deepseek_attention
+      - --output-dir ${CI_OUTPUT_DIR}/deepseek_v3_debugmodel_mtp
+    timeout_minutes: 60
+
+  # 7) Two cards: qwen3 1.7B.  The weights plus the optimizer state are
+  #    ~20 GB, which does not fit one 32 GB card together with the
+  #    activations (measured: OOM), but two cards do.  Same assets as the
+  #    0.6B entry (setup fetches Qwen3-1.7B's tokenizer) and the same
+  #    bundled dataset.
+  - path: example/run_train_2card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-2
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0,1'
+    overlay_args:
+      - --module npu_recipes
+      - --config qwen3_1_7b
+      - --override npu_compat.npu_attention
+      - --output-dir ${CI_OUTPUT_DIR}/qwen3_1_7b
+    timeout_minutes: 90
+
+  # 8) Eight cards: deepseek_v3 16B, whose recipe asks for expert
+  #    parallelism of 8.  It runs in bfloat16 (the recipe's
+  #    npu_recipes.deepseek_v3_16b sets training.dtype): in float32 the
+  #    parameters, gradients and AdamW states alone need 16B x 16 bytes =
+  #    256 GB, i.e. exactly the 8 x 32 GB of the runner before any
+  #    activation.  Needs the per-family override and the
+  #    deepseek-moe-16b-base tokenizer asset.
+  - path: example/run_train_8card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-8
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0,1,2,3,4,5,6,7'
+    overlay_args:
+      - --module npu_recipes
+      - --config deepseek_v3_16b
+      - --override npu_compat_deepseek.deepseek_attention
+      - --output-dir ${CI_OUTPUT_DIR}/deepseek_v3_16b
+    timeout_minutes: 120
+
+  # 9) muse_glimmer, single card (text path; the multimodal variant needs
+  #    an NPU op the vision path does not have yet).  Its attention is its
+  #    own class (GQAttention plus a query scaling, an output gate and a
+  #    per-layer sliding window), so it gets its own override -- the
+  #    generic one would drop those three fields.
+  - path: example/run_train_1card.sh
+    source: project
+    profile: torchtitan
+    runner: linux-aarch64-a2-1
+    image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+    npu_devices: '0'
+    overlay_args:
+      - --module npu_recipes
+      - --config muse_glimmer_debugmodel
+      - --override npu_compat_muse.muse_attention
+      - --output-dir ${CI_OUTPUT_DIR}/muse_glimmer_debugmodel
+    timeout_minutes: 60
+
+# No upstream file is an example on its own: torchtitan's examples are
+# (module, config) combinations, recorded in `unsupported_configs` below.
+# The upstream library tree is declared as "not an example" via
+# scan.exclude, so the path-based reconciliation has nothing to flag.
+unsupported: []
+
+# (module, config) ledger of the examples this project does NOT run, with
+# the reason per family. The reconciliation matches paths literally, so
+# these compound entries are not machine-checked - they are the human
+# record of what was tried and why it is out of scope.
+unsupported_configs:
+  # ===== 上游 v0.4.0 退役的 flavor（2026-11-10 核对 v0.4.0 tag，全树已无这些函数）=====
+  # 这些条目在 v0.3.0 时都存在、也曾各有归属段落；v0.4.0 把它们从 recipe 树里删了，
+  # 所以它们从 ledger 里整条移除（而不是留一条「已退役」的占位）：
+  #   llama3_debugmodel_float8 / llama3_debugmodel_float8_emulate_lora
+  #   qwen35_0_8b / qwen35_2b / qwen35_4b / qwen35_9b / qwen35_27b / qwen35_35b_a3b
+  #   transformers_modeling_backend_full / _sft_full / _full_moe
+  #   deepseek_v3_debugmodel_minimal_async_ep / deepseek_v3_16b_minimal_async_ep
+  #   deepseek_v3_671b_float8
+  #   gpt_oss_20b / gpt_oss_120b
+  #   llama3_405b
+  #   qwen3_debugmodel_non_fused_qkv（原先在 qwen3 段，已并入 qwen3 flavor）
+  # 核对方法：upstream v0.4.0 checkout 里 `grep -rn "def <flavor>" --include="*.py"` 全树 0 命中。
+
+  # flux_debugmodel：**网络不是瓶颈**，缺的是 gated 资产 + 显存。2026-10-27 在
+  # hdc-stable-npu-2（1 卡）用 modelscope 本地资产实测（集群到 modelscope 通、到
+  # huggingface.co 不通），可绕开的都绕开了：
+  # (1) tokenizer 资产可解 —— modelscope 有 google/t5-v1_1-small 与
+  #     AI-ModelScope/CLIP-vit-large-patch14，CLI 覆盖 --tokenizer.t5-tokenizer-path /
+  #     --tokenizer.clip-tokenizer-path / --encoder.t5-encoder / --encoder.clip-encoder
+  #     指向本地目录即可（实测生效）；
+  # (2) --encoder.random-init 生效，可跳过 gated 的 black-forest-labs/FLUX.1-dev
+  #     ae.safetensors（该仓库 401 gated）；顺带 transformers>=4.51.1 +
+  #     sentencepiece 可从 pypi 装；
+  # (3) --parallelism.spmd-backend spmd_types 生效，绕开 1 卡的
+  #     flux/parallelize.py:70 `assert dp_mesh is not None`（该 assert 只在非
+  #     spmd_types 分支；CUDA 同卡同死，非 NPU 专属）；实测模型能建、FSDP 能上；
+  # (4) 数据用本地 tests/assets/cc12m_test —— FluxDataLoader.Config.dataset 默认
+  #     就是 cc12m-test，不需要 HF 的 pixparse/cc12m-wds（后者同样 401 gated）；
+  # 仍然不通的是两件：
+  # (5) 文本编码器必须是真 T5-XXL —— flux 的投影层按 d_model=4096 建的，换
+  #     t5-v1_1-small（512）实测报 aclnnAddmm "The k-axis of the two inputs are
+  #     different"；google/t5-v1_1-xxl 非 gated 可下，但 pytorch_model.bin 44.5 GB；
+  # (6) 显存 —— T5-XXL fp32 19 GB + CLIP + 主干 + 优化器状态 > 1 卡 32 GB。
+  # → 网络通了之后仍缺 44.5 GB 权重与多卡，故仍留 unsupported。
+  - torchtitan_recipes/tests/models/flux.py:flux_debugmodel
+
+  # --- llama3 系：debugmodel 系（+ varlen/ce_loss/dist_gemm/sft 变体）现在是通过
+  # project 侧 launcher 跑的（见 supported 段），所以下面这些 upstream recipe
+  # 入口按「不是 example 文件」的语义留在 unsupported 段（reconciliation 按路径字面
+  # 匹配，会按设计报 stale；per-config 理由见本段注释）。
+  # v0.4.0 的 recipe 都在 `torchtitan_recipes/tests/models/<family>.py`（测试 flavor）
+  # 或 `torchtitan_recipes/models/<family>.py`（生产 flavor），函数名即 `--config` 的取值；
+  # v0.3.0 的 `torchtitan/models/<x>/config_registry.py` 在 v0.4.0 里已经没有了。
+  # 2026-10-26 复测（hdc-stable-npu-3，CANN 9.1.0 / torch 2.14.0 / torch_npu 2.14.0 /
+  # triton-ascend 3.6.0，torchtitan v0.3.0 干净 checkout）修正了原来的「三墙」结论：
+  #   · ComplexRoPE 复数墙 —— 仍然成立。rope.py:233,261 用 torch.polar/view_as_complex
+  #     生成 complex64，NPU 的 aclnnIndex 无 DT_COMPLEX64 实现（实测
+  #     AclNN_Parameter_Error(EZ1001): Tensor self not implemented for DT_COMPLEX64）。
+  #     supported 段用 npu_compat.npu_attention 在实数域做同样的 gather 绕过（数值与
+  #     upstream 逐位一致），但「upstream 组件在 NPU 上原样跑不了」这个事实不变。
+  #   · flex 墙 —— 仍然成立，但根因是三层，不是「NPU 缺算子」：
+  #     ① torch_npu 2.14.0 的 lowering.make_reduction 缺 strict_sum 形参，而 torch 2.14
+  #       的 inductor sum_ lowering 总是传它 → NPU 上**任何** compiled reduction 都挂
+  #       （连带 torchtitan 的 compile 特性整体不可用，与 flex 无关）；
+  #     ② triton-ascend 3.6.0 硬编码 -std=c++17（backends/ascend/utils.py:709），而
+  #       torch 2.14 的 ATen headers 要 C++20 → npu_utils 运行期扩展编不出来；
+  #     ③ torch_npu 自己的 flex lowering（_inductor/kernel/flex_attention.py:746）
+  #       SubgraphLoweringException: Buffers cannot be created while lowering a
+  #       pointwise subgraph —— 这层是真实的能力缺口，①②只是依赖版本 skew。
+  #     supported 段同样用 override 把 flex 换成带 dense block-causal 掩码的 SDPA
+  #     （upstream 禁止 SDPA 作语言模型 backend，因为它吃不了 per-document 位置）。
+  #   · ChunkedLoss 墙 —— **不再成立**。ChunkedLossWrapper（components/loss.py:567）在
+  #     torch 2.14 / torch_npu 2.14 上跑通（1 卡 / 2 卡 FSDP / seq-len 256 / 2048 全
+  #     exit 0），2026-09 记的 backward-inside-forward meta tensor 泄漏是 torch 2.12
+  #     时代的问题 → supported 段已改用 upstream 默认配置 llama3_debugmodel，不再走
+  #     llama3_debugmodel_ce_loss 绕路。
+  # 仍未列入 supported 的原因：这些是 upstream recipe 入口，我们不把它们当
+  # example 文件直接跑（launcher 侧见 supported 段）。
+  # 注：上面两墙对「配置本身」的阻塞可被同一套 override 绕开 —— 2026-10-26 实测
+  # qwen3_debugmodel / qwen3_debugmodel_moe_param_groups
+  # （只加 flex→SDPA override）与 gpt_oss_debugmodel_flex（再加 varlen→SDPA）均 exit 0，
+  # 即这些条目多数只是「还没给该族配 override」，不是硬墙。
+
+  # llama3_8b：两重阻塞（与 debugmodel 的 flex / ComplexRoPE 两墙同源；ChunkedLoss 墙
+  # 在 torch 2.14 上已不成立，见上面 llama3 系段落）——
+  # (1) 规模：~8.03B 参数，bf16 权重 16.1GB + 梯度 16.1GB + AdamW fp32 状态 64.2GB，
+  #     FSDP shard=2 后每卡约 48GB，超出 910B4 的 32GB HBM → 必须开
+  #     --training.enable-cpu-offload 才装得下；
+  # (2) cpu_offload 初始化必挂：torchtitan trainer.py 在 enable_cpu_offload 下把
+  #     init_device 设为 "cpu"，权重在 CPU 上初始化；此时 DTensor 的 mesh 仍是
+  #     device 类型（npu，对应上游 issue 里的 cuda），而 local tensor 在 CPU，
+  #     torch DTensor 的 RNG tracker 只推进 device 侧 RNG → CPU RNG 状态陈旧 →
+  #     normal_() 每次返回同样的值 → torch 2.12/2.14 的 nn.init.trunc_normal_
+  #     拒绝采样 while 循环永不收敛（卡在同一参数上无限重填）。
+  #     上游 issue：pytorch/pytorch#180088、#196072，修复方向 #199209
+  #     （拒绝采样实现来自 #174997）。与 CANN / torch_npu 无关（torch 2.12 时代同样现象）。
+  # 实测（hdc-stable-npu-1, CANN 9.2.0 + torch 2.14 + torch_npu 2.14）：
+  #   native 栈停在 at::native::normal_（真在算随机数，非内存回收自旋/通信空等）；
+  #   RSS 3.3GB / cgroup 32GB、无 OOM → 与内存无关；同一 FSDPLinear 实例的同一参数
+  #   被反复重填（8B 卡在 embedding 的 262M 元素分片）；规模无关——6M 参数的
+  #   debugmodel 开 cpu_offload 同样死锁（单参数 524K 元素、填充 16ms）；
+  #   与 FSDP2 相关——去掉 FSDP2 的裸 DTensor 复现（Shard(0) over npu mesh，
+  #   含完整拒绝采样循环与跨 rank 归约）全部秒过。
+  #   规避（不改上游）：自定义 param_init 用 uniform+erfinv 等价实现（不走拒绝采样），
+  #   或从 checkpoint 加载跳过 init_weights。
+  # 退役条件：上游修复 CPU local tensor 的 RNG 推进（#199209）后重测。
+  - torchtitan_recipes/tests/models/llama3.py:llama3_8b
+
+  # --- llama3 float8 系：两墙 + 量化墙 ---
+  # float8 非 emulate 需 has_cuda_capability(8,9)（components/quantization/float8.py:86），NPU 直接 ValueError。
+  # emulate=True 能过 float8 check（float8.py:88），但仍依赖 torchao 且 flex + ComplexRoPE 两墙未解。
+
+  # sft_qwen3_8b_math（4 卡档）：不是 NPU 问题，是**权重**问题 —— SFT recipe 从
+  # hf_assets_path 加载 8B 预训练权重（CI 首跑实测：assets/hf/Qwen3-8B 里只有
+  # tokenizer 时，报 "Missing key in checkpoint state_dict: lm_head.weight"）。
+  # 而 examples 的 setup 是**按 profile** 跑的（所有 entry 共用一次 setup），把 16 GB
+  # 权重每个 job 都拉一遍不现实（该 workflow 没有模型缓存卷）→ 留在 unsupported，
+  # 等有 entry 级资产缓存再说。数据侧没有障碍：gsm8k 只有 7473 行 / 约 2.3 MB parquet
+  # （modelscope 的 AI-ModelScope/gsm8k 有同一份），且 CI 机器能直连 huggingface.co。
+  # 另注：recipe 里 load_dataset(..., name="main") 的 "main" 配置名**无法从 CLI 改**
+  # （tyro 拒绝 --dataloader.load-dataset-kwargs.name 的三种写法），本地目录只暴露
+  # "default" → 想用本地替身数据必须改上游配置。
+  - torchtitan_recipes/tests/models/qwen3.py:sft_qwen3_8b_math
+
+  # qwen3_14b：dense 14B 的权重 + AdamW 状态放不进 8 张 32GB 卡 —— CI 实测
+  # （run 40478193658）：step 1 就到 28.09 GiB/卡（95.27%），下一个 1.45 GiB 的
+  # 分配直接 NPU OOM（8 卡全红）。算得过来：14B x (2 权重 + 2 梯度 + 8 AdamW fp32)
+  # = 168 GB / 8 卡 = 21 GB/卡，再加激活就满。8 卡这一档只有 MoE 能用
+  # （deepseek_v3_16b 的 ep=8 绿了）。要跑 14B dense 需要更多卡或 8-bit 优化器。
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_14b
+
+  # --- qwen3 系：RoPE 无墙（CosSinRoPE 纯 cos/sin，无 complex），debugmodel 系已跑通
+  # （见 supported 段：debugmodel / moe_param_groups / moe_debug，
+  # 2026-10-27 实测 exit 0）。规模档也进了 supported（0.6B 1 卡 / 1.7B 2 卡），
+  # 它们不是「跑不了」而是「要 tokenizer 资产 + 足够的卡」：真实 config 的
+  # hf_assets_path 指向 ./assets/hf/Qwen3-*（debugmodel 用的是本地
+  # tests/assets/tokenizer），tokenizer 由 setup_example.sh 从 modelscope 拉；数据由
+  # npu_recipes 把 recipe 的数据集换成 tests/assets/c4_test（HF 的 allenai/c4 不可达）。
+  # debugmodel 规模的 MoE 实测不触发 `torch._grouped_mm`（models/common/linear/linear.py:453，
+  # CUDA 专属，torch_npu 只有 npu_grouped_matmul、签名不同）—— supported 段的 moe 两条 exit 0。
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_0_6b
+
+  # --- qwen3_5 系：MRoPE(CosSinRoPE) 无 complex 墙，但 flex 墙 ---
+  # qwen35_* 是 MLLM（MultiModalTokenizer + MMDataLoader 图像管线，数据属 asset 非 NPU 范畴）；
+  # 训练侧 flex 墙仍是硬阻塞。
+  - torchtitan_recipes/tests/models/qwen3_5.py:qwen35_debugmodel
+  # debugmodel_moe：两墙 + `_grouped_mm`；且 mesh dp_shard=2/pp=2/ep=4/tp=2 需 >4 卡。
+  - torchtitan_recipes/tests/models/qwen3_5.py:qwen35_debugmodel_moe
+
+  # --- gpt_oss 系：CosSinRoPE(yarn) 无 complex 墙，但 NPU 上做不出等价的 attention ---
+  # gpt_oss 的 attention 类是自己的 `GptOssAttention(Attention)`（models/gpt_oss/model.py:51），
+  # 不是 GQAttention 的子类 → npu_compat.npu_attention 命中不到 → flex/varlen 没被替换
+  # → 撞 torch_npu 的 make_reduction(strict_sum) 墙。要跑需要再写一条针对该类的 override，
+  # 但 2026-10-27 在 hdc-stable-npu-2 上测出两个更硬的约束（实测）：
+  #   (1) attention sinks：gpt_oss 的注意力带 sink（out_transform(out, lse)），需要 attention
+  #       的 LSE，而 NPU 上三个能返回 LSE 的 SDPA 变体（aten::_scaled_dot_product_
+  #       flash_attention / _cudnn_attention / _efficient_attention）全部 fallback 到 CPU
+  #       → 拿不到 LSE → sink 无法实现（强行忽略就是静默改语义）；
+  #   (2) GQA + mask：gpt_oss 是 GQA（n_heads=64 / n_kv_heads=8），而 aclnnFlashAttention
+  #       不支持 enable_gqa 与 attn_mask 同时给（实测 aclnnFlashAttention failed），
+  #       而 dense block-causal 掩码正是要走 attn_mask。
+  # → 结论：gpt_oss 在 NPU 上需要上游补 SDPA 的 LSE 出口（或者 NPU 支持 GQA+mask）才能等价。
+  # gpt_oss 默认 attn_backend="varlen"（models/gpt_oss/flavors.py:95，已单列 CUDA-only 段）。
+  - torchtitan_recipes/tests/models/gpt_oss.py:gpt_oss_debugmodel_flex
+
+  # --- transformers_modeling_backend 系：loss 用 CrossEntropyLoss 直连，
+  # 但 attention 被硬路由到 flex（experiments/transformers_modeling_backend/model.py:181 _ATTN_IMPLEMENTATION=
+  # "flex_torchtitan"，_configure_hf_attention 改 config._attn_implementation 走 _flex_attention_torchtitan），
+  # 不提供 SDPA 出口 → flex 墙仍在。---
+  - torchtitan_recipes/tests/transformers_modeling_backend.py:transformers_modeling_backend_debugmodel
+  # debugmodel_moe：flex 墙 + HF 的 experts_implementation 默认 "grouped_mm"（__init__.py:85，走 CUDA fused 路径）。
+  - torchtitan_recipes/tests/transformers_modeling_backend.py:transformers_modeling_backend_debugmodel_moe
+  # sft_full / sft_debugmodel：flex 墙。
+  - torchtitan_recipes/tests/transformers_modeling_backend.py:transformers_modeling_backend_sft_debugmodel
+
+
+  # ===== experiments/torchft:torchft 包整体不在 NPU 覆盖范围 =====
+  # manager.py:16 顶层 `import torchft`（无 try/except），缺包直接 ImportError；
+  # manager.py:84-89 用 `torchft.ProcessGroupGloo`/`ProcessGroupNCCL`——是 torchft 自家
+  # 实现的 PG 类，**不走 `torch.distributed.ProcessGroupNCCL`**，所以 `transfer_to_npu`
+  # 的 NCCL→HCCL 重映射触达不到；torchft-nightly wheel 内部 PG 直调 `ncclCommInitRankConfig`
+  # (C++ API)，HCCL 是另一套 collective 库无 interop。
+  # `torchtitan_recipes/tests/torchft/llama3.py:84` `process_group="nccl"` + `semi_sync_method="diloco"`
+  # ——diloco 需要
+  # `torchft.diloco`（独立 PyTorch 子项目，未在 NPU 适配）。还要单独跑 `torchft_lighthouse`
+  # （Rust 服务，README Example 1 step 1），无 NPU 适配。
+  # 集成测试 [tests/integration_tests.py] 写死 `--ngpu default=8`（见下面「需 >4 卡」段）。
+  - torchtitan_recipes/tests/torchft/llama3.py:llama3_torchft_debugmodel
+
+  # ===== LM 类：FlexAttention CANN 编译墙（triton-ascend 编不出 flex 模板 kernel，
+  # BiShengIR 内部 hivm.hir.store / scf.for 报 vector loop tiling）—— no-patch 无解。
+  # 2026-10-27 复测：deepseek_v3 的 attention 类也是自己的 `DeepSeekMLAAttention(Attention)`
+  # （models/deepseek_v3/attention.py:30），不是 GQAttention 的子类 → 需要 per-family
+  # override；该 override 已落地（example/npu_compat_deepseek.py），debugmodel 与
+  # debugmodel_mtp 两条实测 exit 0（见 supported 段）。剩下的 EP 变体另有硬约束：
+  #   · deepseek_v3_debugmodel_minimal_async_ep：v0.4.0 已把这个 flavor 删了
+  #     （MinimalAsyncEPTokenDispatcher 也不存在了，EP dispatcher 现在是
+  #     AllToAll / TorchAO / DeepEP / HybridEP 四种）—— 见上面「退役」段；
+  #   · deepseek_v3_debugmodel_hybridep：过了 EP 校验后下一步要 deep_ep 库
+  #     （DeepEP，CUDA-only，需从 GitHub 源码编译）→ NPU 无解；
+  #   · deepseek_v3_16b：expert_parallel_degree=8 → 需要 8 卡（CI runner
+  #     linux-aarch64-a2-8 存在）—— 已进 supported 段（8 卡，bfloat16，per-family
+  #     override + deepseek-moe-16b-base 的 tokenizer 资产）。
+  # 2026-10-26 复测：flex 墙的根因已定位为三层（见上面 llama3 系段落）——除 torch_npu 自身
+  # 的 flex lowering 缺口外，torch_npu 2.14.0 的 make_reduction(strict_sum=) 与
+  # triton-ascend 3.6.0 的 -std=c++17 也各自独立地卡住编译路径。
+  # 配套阻塞：default spmd_types 缺 torch.distributed._local_tensor（torch 2.12 不含）、
+  # MoE `torch._grouped_mm` 无 NPU 算子（torch_npu 仅 npu_grouped_matmul,签名不同）。
+  # （ChunkedLossWrapper 的 meta tensor 泄漏是 torch 2.12 时代的问题，torch 2.14 上
+  #  已不复现，故不再列为阻塞项。）
+
+  # Kimi 同上根因（Flex + spmd_types + _grouped_mm），叠加 DistMuon 自定义 optimizer
+  # 含 ComputeLayout/BucketConfig 未在 NPU 验过；kimi_vl_a3b 额外需 8 卡 + gated HF 资产。
+  - torchtitan_recipes/tests/models/kimi_k2_7.py:kimi_k2_5_debugmodel
+  - torchtitan_recipes/tests/models/kimi_k2_7.py:kimi_vl_a3b
+
+  # flux_dev/schnell 走完整规模路径 + cc12m-wds webdataset + coco-validation 验证集
+  # （ModelScope 不代原始 webdataset / COCO 验证集），数据问题非 NPU 范畴。
+  - torchtitan_recipes/models/flux.py:flux_dev
+  - torchtitan_recipes/models/flux.py:flux_schnell
+
+  # Muse Glimmer 的 debugmodel 文本路径已跑通（见 supported 段）。剩下的
+  # debugmodel_mm 是视觉路径，实测卡在 NPU 算子：aclnnInplaceOne failed
+  #（muse_glimmer_debugmodel_mm.log）→ 属真实算子缺口。
+  - torchtitan_recipes/tests/models/muse_glimmer.py:muse_glimmer_debugmodel_mm
+
+  # 纯 dataclass + `__init_subclass__` 强制 `@dataclass(kw_only=True, slots=True)`,零 torch.* 调用。
+  - torchtitan/config/configurable.py
+  # clean —— `Function(Generic[R], Configurable)` 包任意 Callable, 零 torch.* 调用。
+  - torchtitan/config/function.py
+  # 全是 dataclass + importlib + fnmatch,零 torch.* 调用。
+  - torchtitan/config/override.py
+  # `os / shutil + fsspec`(lazy import)包装;本地路径根本不触发 fsspec,零 torch.* 调用。
+  - torchtitan/tools/filesystem.py
+  # `init_logger()` / `warn_once()` 全是 stdlib logging,
+  - torchtitan/observability/logging.py
+  # `BaseModel(Module, ABC)` 抽象基类,定义
+  # `init_states / preprocess_inputs / pipeline / parallelize / _apply_fsdp`
+  # 契约;只有 torch.* 类型注解,无设备相关 dispatch。
+  - torchtitan/models/base/model.py
+  # 纯 dataclass 携带 `name/flavor/model/parallelize_fn/pipelining_fn/...`,
+  # `traverse()` 委派给 `self.model.traverse()` 让 override 机制能钻进 model。
+  - torchtitan/models/base/model.py
+
+  # torchtitan 的模型不是 HF 标准模型（自研 Decoder + SPMD/DTensor 分片布局，vLLM 默认 HF 加载器加载不了），
+  # 所以必须经 `register_to_vllm` 注册自定义模型类 `TorchTitanCausalLM` 和自定义 worker `TorchTitanGPUWorker` 来加载权重；
+  # 而这条路径的 worker 继承的是 vLLM 的 CUDA 实现（`GPUModelRunner`/`GPUWorker`），依赖 CUDA graph 捕获、
+  # `cudaIpcGetMemHandle`、`cudaMalloc` 等驱动级 API—— 昇腾上这些 API 不存在，且 vllm-ascend 插件只替换 vLLM 的默认组件、
+  # 不会加载这个继承自 GPUWorker 的子类。因此 controller 配置一旦实例化，vLLM 引擎创建 worker（加载模型第一步）就在昇腾上直接失败
+  - torchtitan/rl/controller/controller.py   
+
+  # 它不调用 vLLM 的通用默认路径，而是注册了自定义模型 `TorchTitanCausalLM` 和
+  # 自定义 worker `TorchTitanGPUWorker`（vllm_registry.py:29/36），
+  # 后者直接继承 vLLM 的 `GPUModelRunner`/`GPUWorker` 并子类化 `CudagraphDispatcher`（vllm_worker.py:16-19），‘
+  # 同时依赖 CUDA graph 捕获、`cudaIpcGetMemHandle`/raw `cudaMalloc` 的自定义 
+  # all-reduce 语义和硬编码的 `torch.cuda.empty_cache()`；
+  # 这些依赖的不是 PyTorch 算子而是 **CUDA 运行时 API**—— 昇腾上 CUDA stream、CUDA graph、CUDA IPC 
+  # 句柄这些驱动级原语根本不存在（对应的是 ACL/HCCL/NPU graph 另一套机制），而 vllm-ascend 插件只替换 vLLM 的默认 worker、
+  # 不会加载这个继承自 GPUWorker 的自定义子类。
+  - torchtitan/rl/generator/vllm/model_wrapper.py
+
+  # 它把生成能力 100% 委托给 vLLM 引擎（`VLLMGeneratorActor` 多重继承 `VLLMGenerator`，
+  # 构造直接吃 `VLLMGenerator.Config`，generator.py:22/77），自身没有任何采样实现；
+  # 而 vLLM 引擎的生成主路径是 CUDA graph 捕获 + GPU worker + 按 GPU 调度的 batch 管理，
+  # 这些在昇腾上要靠 vllm-ascend 插件替换才能跑，但 torchtitan 没有走插件能接管的默认路径 —— 
+  # 所以只要 vLLM 引擎在 NPU 上起不来，这个 actor 就失败，rollout 的采样数据来源即断，RL 闭环在这里塌掉。
+  - torchtitan/rl/actors 
+
+  # 不支持原因（因果链）：v0.3.0 语言模型强制 flex attention（sdpa 被
+  # config_utils.py 显式禁用，varlen 是 CUDA FA 专属 API，NPU 无实现）——
+  # 换不了 attention；graph_trainer 又强制 torch.compile（compile.enable=True，
+  # 无 eager 回退）——关不了编译；flex 必经 inductor 生成 Triton kernel，
+  # NPU 侧由 triton-ascend 转译给 CANN bishengir 编译器，而该编译器编不出
+  # 这个 kernel（hivm.hir.store / vector loop tiling 报错在编译器二进制内部）。
+  # 两条路都堵死 → NPU 上编译不过、跑不起来。
+  # 2026-10-26 补充：graph_trainer 强制 compile 这条路还被 torch_npu 2.14.0 的
+  # lowering.make_reduction 缺 strict_sum 形参独立卡死——NPU 上任何 compiled reduction
+  # 都挂（见上面 llama3 系段落第 ① 层），所以即使 flex 的编译问题被修掉，
+  # graph_trainer 在当前 pin 上仍跑不起来。
+  # 2026-11-17：nightly 栈上 strict_sum 这层没有了（compiled reduction 能编），但
+  # flex 本身在 NPU 上仍编不过（SympifyError）→ graph_trainer 依旧 unsupported。
+  - torchtitan_recipes/tests/graph_trainer/deepseek_v3.py:graph_trainer_deepseek_v3_debugmodel
+  - torchtitan_recipes/tests/graph_trainer/qwen3.py:graph_trainer_qwen3_debugmodel
+  - torchtitan_recipes/tests/graph_trainer/muse_glimmer.py:graph_trainer_muse_glimmer_debugmodel
+  - torchtitan_recipes/tests/graph_trainer/llama3.py:graph_trainer_llama3_debugmodel
+
+
+  # ===== CUDA-only（NVIDIA 专属实现，NPU 无对应算子/库，不改源码无法运行）=====
+  # 与 flex 编译器墙（CANN 编不出 flex kernel）是两类不同根因，单列便于跟踪。
+
+  # vllm + monarch RL 链路：rl/generator/vllm/attention.py:18-30 直接 import vllm
+  # （EngineArgs/LLMEngine/FlashAttn CUDA impl），attention.py:119 读
+  # torch.cuda.get_device_capability()；rl/_env.py:21 设 PYTORCH_CUDA_ALLOC_CONF、
+  # rl/actors/monarch/system.py:49 硬编码 CUDA_VISIBLE_DEVICES，且依赖 monarch actor
+  # 多进程网格（system.py:17 from monarch.actor import ProcMesh）。scripts/rl/loss_compare.py
+  # 内部 subprocess 起 RL 训练，同样拖 vllm；torchtitan_recipes/rl/{alphabet_sort,dapo_math,
+  # search_r1}.py 三个 recipe 只服务该链路。
+  - torchtitan/rl/train.py
+  - torchtitan/rl/generate.py  # generate.py:27-31 直接 import vllm（LLMEngine/SamplingParams）
+  - torchtitan_recipes/rl/alphabet_sort.py
+  - torchtitan_recipes/rl/dapo_math.py
+  - torchtitan_recipes/rl/search_r1.py
+
+  # graph_trainer precompile 链路：precompile_main.py:95 torch.device("cuda:0")
+  # + :96 torch.cuda.set_device 硬编码；两个 .sh 是它的入口。
+  - torchtitan/experiments/graph_trainer/precompile_main.py
+  - torchtitan/experiments/graph_trainer/run_train_precompile.sh
+  - torchtitan/experiments/graph_trainer/autoresearch/scripts/run_benchmark.sh  # 注释自述 Llama3 8B FSDP=4 TP=2 bs=1 on 8xH100
+  - torchtitan/experiments/graph_trainer/precompile.py
+
+  # varlen：torch.nn.attention.varlen.varlen_attn 是 CUDA FA 专属 API，NPU 无实现。
+  # gpt_oss_debugmodel 默认 attn_backend="varlen"（models/gpt_oss/flavors.py:95）。
+  - torchtitan_recipes/tests/models/qwen3_5.py:qwen35_debugmodel_varlen_attn
+  - torchtitan_recipes/tests/models/gpt_oss.py:gpt_oss_debugmodel
+
+  # DeepEP：deep_ep CUDA 库（torchtitan/distributed/deepep/deepep.py），
+  # hybridep.py:14 直接调 cudaStreamSynchronize。
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_moe_deepep
+  - torchtitan_recipes/tests/models/deepseek_v3.py:deepseek_v3_debugmodel_hybridep
+  - torchtitan_recipes/tests/models/deepseek_v3.py:deepseek_v3_16b_hybridep
+
+  # flex_flash：走 CUDA flash attention backend。
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_debugmodel_flex_flash
+
+  # NVFP4 / MXFP8：NVIDIA Blackwell 量化（torchao），NPU 无算子。
+  - torchtitan_recipes/tests/models/llama3.py:llama3_8b_first_85_pct_layers_nvfp4
+  - torchtitan_recipes/tests/models/llama3.py:llama3_8b_mxfp8
+  - torchtitan_recipes/tests/models/llama3.py:llama3_debugmodel_nvfp4
+  - torchtitan_recipes/tests/models/llama3.py:llama3_debugmodel_first_85_pct_layers_nvfp4
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_debugmodel_nvfp4
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_debugmodel_first_85_pct_layers_nvfp4
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_8b_first_85_pct_layers_nvfp4
+  - torchtitan_recipes/tests/models/deepseek_v3.py:deepseek_v3_debugmodel_mxfp8
+  - torchtitan_recipes/models/flux.py:flux_schnell_mxfp8
+  - torchtitan_recipes/models/flux.py:flux_dev_mxfp8
+
+
+  # ===== 需要 >4 卡 =====
+
+  # 显式 8 卡：上游脚本/测试硬编码 ngpu=8 / NGPU 默认 8
+  # README 徽章「8 GPU Feature/Model Tests」，集成测试矩阵全部 ngpu=8
+  - torchtitan/experiments/graph_trainer/tests/integration_tests.py
+  - torchtitan/experiments/graph_trainer/tests/run_precompile_tests.py  # usage: --ngpu 8
+  - torchtitan/experiments/torchft/tests/integration_tests.py  # --ngpu default=8，<8 直接 gate 掉
+  - torchtitan/experiments/transformers_modeling_backend/tests/integration_tests.py
+  - torchtitan/experiments/transformers_modeling_backend/tests/run_tests.sh
+
+  # 规模 >4 卡（参数+优化器状态内存估算 >4×64GB=256GB）
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_30b_a3b  # 30B MoE ≈360GB → 8 卡
+  - torchtitan_recipes/tests/models/qwen3.py:qwen3_32b  # ≈384GB → 8 卡
+  - torchtitan_recipes/tests/models/muse_glimmer.py:muse_glimmer_30b
+  - torchtitan_recipes/tests/models/muse_glimmer.py:muse_glimmer_30b_mm
+  - torchtitan_recipes/tests/models/llama3.py:llama3_70b  # ≈840GB → 16 卡级
+  - torchtitan_recipes/tests/models/deepseek_v3.py:deepseek_v3_671b  # 8TB 级，多机
+  - torchtitan_recipes/tests/models/kimi_k2_7.py:kimi_k2_5  # 1T MoE，多机
+
+
+  # ===== __init__.py 包标记（非运行入口，仅标记包边界）=====
+  - torchtitan/__init__.py
+  - torchtitan/components/checkpointer/__init__.py
+  - torchtitan/components/optim/__init__.py
+  - torchtitan/quantization/__init__.py
+  - torchtitan/config/__init__.py
+  - torchtitan/distributed/__init__.py
+  - torchtitan/distributed/context_parallel.py
+  - torchtitan/distributed/flex_shard/__init__.py
+  - torchtitan/experiments/__init__.py
+  - torchtitan/experiments/graph_trainer/__init__.py
+  - torchtitan/experiments/graph_trainer/deepseek_v3/__init__.py
+  - torchtitan/experiments/graph_trainer/graph_pp/__init__.py
+  - torchtitan/experiments/graph_trainer/llama3/__init__.py
+  - torchtitan/experiments/graph_trainer/muse_glimmer/__init__.py
+  - torchtitan/experiments/graph_trainer/qwen3/__init__.py
+  - torchtitan/experiments/graph_trainer/tests/__init__.py
+  - torchtitan/rl/__init__.py
+  - torchtitan/rl/_env.py
+  - torchtitan_recipes/rl/__init__.py
+  - torchtitan_recipes/rl/alphabet_sort.py
+  - torchtitan_recipes/rl/dapo_math.py
+  - torchtitan_recipes/rl/search_r1.py
+  - torchtitan/rl/trainer/losses/__init__.py
+  - torchtitan/rl/observability/__init__.py
+  - torchtitan/rl/observability/metrics/__init__.py
+  - torchtitan/rl/rollout/__init__.py
+  - torchtitan/rl/routing/__init__.py
+  - torchtitan/rl/rollout/rubric.py
+  - torchtitan_recipes/tests/rl/__init__.py
+  - torchtitan/experiments/torchft/__init__.py
+  - torchtitan/experiments/torchft/config/__init__.py
+  - torchtitan/experiments/torchft/diloco/__init__.py
+  - torchtitan/experiments/torchft/llama3/__init__.py
+  - torchtitan/experiments/torchft/tests/__init__.py
+  - torchtitan/experiments/transformers_modeling_backend/__init__.py
+  - torchtitan/experiments/transformers_modeling_backend/tests/__init__.py
+  - torchtitan/components/data/__init__.py
+  - torchtitan/components/data/multimodal/__init__.py
+  - torchtitan/models/__init__.py
+  - torchtitan/models/common/__init__.py
+  - torchtitan/models/deepseek_v3/__init__.py
+  - torchtitan/models/flux/__init__.py
+  - torchtitan/models/gpt_oss/__init__.py
+  - torchtitan/models/kimi_k2_7/__init__.py
+  - torchtitan/models/llama3/__init__.py
+  - torchtitan/models/muse_glimmer/__init__.py
+  - torchtitan/models/qwen3/__init__.py
+  - torchtitan/models/qwen3_5/__init__.py
+  - torchtitan/observability/__init__.py
+  - torchtitan/observability/structured_logger/__init__.py
+  - torchtitan/ops/__init__.py
+  - torchtitan/config/transform/__init__.py
+  - torchtitan/models/base/__init__.py
+
+  # ===== upstream 自测（tests/ 目录递归扫描：pytest/unittest 单测 + torch.testing.TestCase +
+  # torchrun 数值等价测试，全部非示例入口）=====
+  # 折叠到 dir-level：35 个 test_*.py 归到 4 个目录路径，每个目录的 per-file 裁定记在下面。
+  # 未来新增 test_*.py 自动覆盖，不需要改 manifest（扫描器递归）。
+
+  # --- graph_trainer/tests/ (15 文件) ---
+  # 多数 Real-GPU-needed（Flex/CP/MoE 数值等价 + autoparallel 多卡），少量 clean-CPU。
+  # 详见 docs/Source-NPU-compat.md 与 audit trace。
+  - torchtitan/experiments/graph_trainer/tests
+
+  # --- rl/tests/ (16 文件 + integration_tests.py) ---
+  # 单文件裁定（与 docs/RL-subdirectories-architecture.md 对齐）：
+  #   clean-CPU（NPU pod 可直接 pytest，无需 GPU/monarch 真网格）：
+  #     test_metrics.py / test_intra_generator_router.py / test_rollout_utils.py /
+  #     test_weight_sync.py / test_alphabet_sort.py / test_search_r1.py /
+  #     test_dapo_math.py / test_async_controller.py / test_shutdown.py
+  #   NPU-shim-OK（要 monkeypatch monarch 或用 bare-bypass trick 旁路 __init__）：
+  #     test_inter_generator_router.py / test_engine_loop.py
+  #   Real-GPU-needed（vLLM / 4-GPU / 8-GPU，NPU 软跳过）：
+  #     test_generator.py / test_bitwise_parity.py / integration_tests.py
+  #   skip-module（pytest.skip module-level，永远不执行）：
+  #     test_train_loop.py
+  #   clean-CPU-but-torch-needed（CPU matmul，慢但能跑；CastLinear 不带 device 限定）：
+  #     test_cast_linear.py
+
+  # --- torchft/tests/ (1 文件) ---
+  # torchft 体系，Real-GPU-needed：torchft.diloco + torchft_lighthouse 未在 NPU 适配。
+  - torchtitan/experiments/torchft/tests
+
+  # --- transformers_modeling_backend/tests/ (3 文件) ---
+  # 全部 Real-GPU-needed：FlexAttention 数值等价 + CP 数值测试 + MoE 并行数值测试，均需多卡。
+  - torchtitan/experiments/transformers_modeling_backend/tests
+
+  # ===== tests 目录其余非 test_* 文件（集成测试/运行脚本/工具）=====
+  - torchtitan/experiments/graph_trainer/tests/_trainer_test_utils.py
+  - torchtitan/experiments/transformers_modeling_backend/tests/cp_pp_numerical.py  # 需 4 GPUs，self-skips
+
+
+# ===== 非 example 形态（tree-walk 误抓但不是 `--module <m> --config <func>` 入口）=====
+# 本段集中保留那些**不是 example 但被早期扫描器误收录**的路径。判定标准：
+#   1. 没有 `torchtitan_recipes/tests/models/<x>.py:<func>` 形态（无法被 `--config` 挑到）
+#   2. 不返回 `Trainer.Config`（不是 trainer pipeline 入口）
+# 退役条件（理论）：从 tree-walk 扫描器白名单里排除这些路径的目录前缀（`models/base/`、`tools/`、
+# `config/`、`rl/root`），下次就不会再被误抓。本段是留作历史轨迹 + 防再现。
+
+  # --- inference CLI（不走 trainer pipeline） ---
+  # `infer.py` 是 flux 模型的推理入口脚本，独立于 trainer，与 `torchtitan_recipes/models/flux.py`
+  # 的 dev/schnell training recipes 是两条独立路径。
+  - torchtitan/models/flux/inference/infer.py
+
+  # ===== experiments/forge:library API 而非 CLI 入口（形式不满足，不是 NPU 不通）=====
+  # example_train.py 定义 `Trainer(ForgeEngine)` 子类（继承 ForgeEngine.__init__ 的 SPMD
+  # init + 模型 build + parallelize + checkpoint + metrics 全套），但**没有 `__main__` 块**——
+  # 形式不满足：要让本仓跑得通，必须另外写一个 `__main__` 包装脚本调
+  # `Trainer(build_config())`——等于自己写 example，违反「不写 example」约束。
+  # 退役条件：上游在 ForgeEngine 提供 `__main__` 入口或独立 run_forge.py launcher。
+  
+  # --- models/base、config、tools：纯基础设施库，零 example 形态 ---
+  # 全部纯 dataclass / Protocol / utils，没有任何 `Trainer.Config` 工厂函数。
+  - torchtitan/models/base/sharding.py
+  - torchtitan/models/base/module.py
+  - torchtitan/models/base/state_dict_adapter.py
+  - torchtitan/config/loader.py
+  - torchtitan/config/configs.py
+  - torchtitan/observability/profiler.py
+  - torchtitan/tools/utils.py
+
+  # --- experiments/rl/ 根级 library：rollout types / renderer / recorder / metrics / batch_invariance ---
+  # 这些都是 `train.py:experiments.rl.controller` 直接 import 的内部模块，不是 example 入口。
+  # `torchtitan/rl/examples/{alphabet_sort,search_r1,dapo_math}/`（+ 对应的
+  # `torchtitan_recipes/rl/*.py` recipe）才是 RL 真 example。
+  - torchtitan/rl/rollout
+  - torchtitan/components/renderer.py
+  - torchtitan/rl/rollout/recorder.py
+  - torchtitan/rl/rollout/types.py
+  - torchtitan/rl/controller/metrics.py
+  - torchtitan/rl/generator/vllm/batch_invariance.py
