@@ -33,6 +33,9 @@ import os
 import shutil
 import subprocess
 import unittest
+from pathlib import Path
+
+import requests
 
 from doc_test.base import MarkdownDocTestBase
 
@@ -97,6 +100,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     }
 
     _WORK_DIR = '/root/rtp-llm-test'
+
+    # A3-only model pre-seed. The doc downloads Qwen3-0.6B with `local_dir`,
+    # and on the A3 pool hf-mirror redirects its 1.5 GB safetensors to Xet
+    # CAS, whose HEAD response carries no Content-Length - snapshot_download
+    # then refuses the file. With the files already on disk it falls back to
+    # them (and to the existing local_dir if the Hub cannot be reached at
+    # all), so the doc keeps its HuggingFace step for readers.
+    _MS_MODEL_API = 'https://modelscope.cn/api/v1/models/Qwen/Qwen3-0.6B'
+    _MODEL_DIR = '/root/rtp-llm-test/models/Qwen3-0.6B'
 
     # Ubuntu's ca-certificates-java regenerates this JVM truststore from
     # /etc/ssl/certs on every CA update, i.e. it trusts exactly what curl
@@ -222,6 +234,42 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         os.makedirs(cls._WORK_DIR, exist_ok=True)
         os.chdir(cls._WORK_DIR)
         print(f'setup: working dir {cls._WORK_DIR}')
+
+        # 5) A3-only: seed the model the doc downloads, see _MS_MODEL_API.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            cls._seed_model()
+
+    @classmethod
+    def _seed_model(cls) -> None:
+        """Download Qwen3-0.6B from the ModelScope mirror into the doc's path."""
+        listing = requests.get(
+            f'{cls._MS_MODEL_API}/repo/files',
+            params={'Revision': 'master', 'Recursive': 'true'},
+            timeout=120,
+        )
+        listing.raise_for_status()
+        files = [
+            entry['Path']
+            for entry in listing.json()['Data']['Files']
+            if entry.get('Type') == 'blob'
+        ]
+        print(f'seed: {len(files)} files from ModelScope -> {cls._MODEL_DIR}')
+        for name in files:
+            dest = Path(cls._MODEL_DIR) / name
+            if dest.is_file():
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            with requests.get(
+                f'{cls._MS_MODEL_API}/repo',
+                params={'Revision': 'master', 'FilePath': name},
+                stream=True,
+                timeout=1800,
+            ) as response:
+                response.raise_for_status()
+                with open(dest, 'wb') as handle:
+                    for chunk in response.iter_content(1 << 20):
+                        handle.write(chunk)
+            print(f'seed: {name} ({dest.stat().st_size} bytes)')
 
     # ----------------------------------------------------------
     # test entry

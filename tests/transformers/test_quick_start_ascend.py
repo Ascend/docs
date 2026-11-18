@@ -99,6 +99,13 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     @classmethod
     def prepare_environment(cls) -> None:
+        # A3 runners reach Hugging Face only through the mirror; A2 dials
+        # huggingface.co directly. Xet off on A3: its data plane lives on
+        # cas-bridge.xethub.hf.co, outside HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
         if os.path.isfile(cls._CANN_SET_ENV):
             merged = subprocess.run(
                 ['bash', '-c', f'source {cls._CANN_SET_ENV} >/dev/null 2>&1; env'],
