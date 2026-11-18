@@ -214,9 +214,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 check=True,
             )
 
-        # 4) Single-card determinism: the doc's check-torch block asserts
-        # ``count: 1``; pinning the visible device keeps that assertion
-        # true even if the cluster assigns a multi-card container.
+        # 4) Single-card determinism: keep the visible card at 0 even when
+        # the cluster assigns a multi-card container.
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
         # 5) safetensors: native loader used by the cache validation

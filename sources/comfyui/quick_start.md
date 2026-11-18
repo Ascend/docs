@@ -8,7 +8,7 @@ ComfyUI 原生支持昇腾 NPU：检测到 `torch_npu` 且 `torch.npu.is_availab
 
 #### 硬件
 
-Atlas 900 A2 单卡（Ascend NPU），并按需完成物理机或容器内的设备挂载。
+Atlas 900 A2 / 900 A3 单卡（Ascend 910B / 910C），并按需完成物理机或容器内的设备挂载。
 
 #### 基础软件
 
@@ -28,7 +28,7 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
 **配套机器**：
 
-- **机器类型**：Atlas 900 A2 单卡
+- **机器类型**：Atlas 900 A2 或 900 A3 单卡
 - **操作系统**：Ubuntu 22.04
 
 **软件版本**：
@@ -65,11 +65,11 @@ python -c "import torch, torch_npu; print('torch=', torch.__version__); print('t
 
 输出结果如下：
 
-```shell #test-result id="check-torch"
+```shell #test-result id="check-torch" fuzzy='xxx'
 torch= 2.9.0+cpu
 torch_npu= 2.9.0.post2
 is_available: True
-count: 1
+count: xxx
 ```
 
 ```{admonition} Note

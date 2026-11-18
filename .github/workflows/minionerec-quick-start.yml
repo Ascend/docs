@@ -1,20 +1,16 @@
 # MiniOneRec quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml; this
-# file only declares what varies per project: schedule, concurrency, runner,
-# container image, upstream repo, the pinned ref, the monitored doc and the
-# test entry command. The guard loop, cache I/O, state relay and publishing
-# all live in the engine - see its `workflow_call.inputs` block for the full
-# contract.
-#
-# Cache keys (quick-start-monitor-state-minionerec_*) and artifact names
-# (minionerec-quick-start-<run_id>) are derived from project=minionerec.
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation (A2/A3) and merges the per-machine result.json files into
+# one artifact; this file only declares what varies per project: schedule,
+# concurrency, runner, container image, upstream repo, the pinned ref, the
+# monitored doc and the test entry command.
 #
 # Upstream shape: MiniOneRec is research code on `main`, no release tags, so
 # fixed_ref=main - the engine resolves it to the branch tip SHA on every run,
 # which is also the monitor's change key.
 #
-# Scope: single card (910B), three stages on one 0.5B model - SFT (one epoch,
+# Scope: single card, three stages on one 0.5B model - SFT (one epoch,
 # sample=600 per sub-dataset), constrained-decoding evaluation (CC must be 0)
 # and one GRPO epoch. Upstream PR #85 ships `npu_support.py` and imports it
 # first in every entry script, so no injection or source edit is needed:
@@ -37,11 +33,11 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, 12 h apart: UTC 11:50 and 23:50
-    # (Beijing +8). All quick-start guards share this cadence; the
-    # (hour, minute) slot is staggered across the guards so the NPU
-    # runners do not all fire at the same time.
-    - cron: '50 11,23 * * *'
+    # Twice a day, 12 h apart: UTC 09:00 and 21:00 (Beijing +8).
+    # A2 and A3 legs fire together and the A3 pool runs one job at a
+    # time, so the guards take 2 h windows in sequence starting at
+    # deepspeed 00:00 UTC; this one owns 09:00.
+    - cron: '0 9,21 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run before merge. paths filter
   # avoids burning the self-hosted NPU runner on unrelated PRs.
@@ -58,14 +54,15 @@ permissions:
   contents: read
 
 jobs:
-  minionerec-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-minionerec_*),
-      # artifacts (minionerec-quick-start-<run_id>) and the test working dir.
+      # Namespaces cache keys, artifacts and the test working dir
+      # (tests/minionerec) per machine generation.
       project: minionerec
-      # Self-hosted NPU runner for the test job only; the engine pins the
-      # cache I/O jobs (restore-cache / publish-and-persist) to
+      machine_type: a2
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest. The quick start is single-card
       # (ASCEND_RT_VISIBLE_DEVICES=0).
       test_runner: '["linux-aarch64-a2-1"]'
@@ -84,9 +81,43 @@ jobs:
       # lands on Ascend/docs post-merge.
       doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/minionerec/quick_start.md'
       doc_path: https://github.com/Ascend/docs/blob/main/sources/minionerec/quick_start.md
-      # cwd is the repo root inside the `workflows` checkout (matches the
-      # engine template's `working-directory: workflows`); env contract
+      # cwd is the repo root inside the checkout; env contract
       # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
       # engine. The test subclass pins cwd to /root/minionerec-test and
       # sources CANN; every business step is in the doc.
       test_command: python -m unittest tests.minionerec.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: minionerec
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg; same CANN line as A2.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      # Cache binds for the A3 pool, same layout as the other A3 jobs: the
+      # base model comes from Hugging Face Hub and the wheels stay out of the
+      # quota-limited writable layer.
+      container_options: >-
+        --volume=/data/ci-cache/hf/minionerec:/root/.cache/huggingface
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+      timeout_minutes: 120
+      upstream_repo: AkaliKong/MiniOneRec
+      fixed_ref: main
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/minionerec/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/minionerec/quick_start.md
+      test_command: python -m unittest tests.minionerec.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: minionerec
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

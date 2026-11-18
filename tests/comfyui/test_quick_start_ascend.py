@@ -137,6 +137,16 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         ascend dual-source). Everything else installs in document order
         via the ``#test`` machinery.
         """
+        # Keep one visible card: the A3 runner exposes two.
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+        # A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. Xet off on
+        # A3: its data plane lives on cas-bridge.xethub.hf.co, outside
+        # HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
         # 0) CANN env: source set_env.sh and merge the env stream into
         # os.environ
         if os.path.isfile(cls._CANN_SET_ENV):

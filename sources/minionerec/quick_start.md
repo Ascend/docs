@@ -6,7 +6,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**，需支持 bf16。本文示例为单卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列，芯片为 Ascend **910B** / **910C**，需支持 bf16。本文示例为单卡。
 
 ### 软件
 
@@ -21,8 +21,9 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**，需支持
 
 | 项目 | 内容 |
 | --- | --- |
-| 机器 | Atlas 900 A2，Ascend 910B，单卡 |
-| 镜像 | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 机器 | Atlas 900 A2（Ascend 910B）或 Atlas 900 A3（Ascend 910C），单卡 |
+| 镜像（A2） | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 镜像（A3） | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12` |
 | CANN | 9.1.0 |
 | Python | 3.12 |
 | torch / torch_npu | 2.9.0 / 2.9.0.post2 |

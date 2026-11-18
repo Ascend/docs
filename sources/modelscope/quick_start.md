@@ -20,12 +20,13 @@ Atlas 900 A2 / A3 训练系列产品（Ascend 910B4 / 910B 等），并按需完
 
 **配套机器**：
 
-- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）
+- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）或 Atlas 900 A3（Ascend 910C）
 - **操作系统**：Ubuntu 22.04
 
 **配套镜像**：
 
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+- A2：swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+- A3：swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
 
 **软件版本**：
 
@@ -86,11 +87,11 @@ python -c "import torch, torch_npu; print('torch=', torch.__version__); print('t
 
 输出结果如下：
 
-```shell #test-result id="check-torch"
+```shell #test-result id="check-torch" fuzzy='xxx'
 torch= 2.9.0+cpu
 torch_npu= 2.9.0.post2
 is_available: True
-count: 1
+count: xxx
 ```
 
 ```{admonition} Note

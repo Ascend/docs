@@ -1,18 +1,12 @@
 # ComfyUI quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
-# concurrency, runner, container image, upstream repo, monitored doc
-# and the test entry command. The guard loop, cache I/O, state relay
-# and publishing all live in the engine. See the engine's
-# `workflow_call.inputs` block for the full input contract.
-#
-# Engine-fixed behaviours this trigger relies on (declared in the
-# engine, NOT here):
-#   * cache key prefix: monitor-state-comfyui-  (from inputs.project)
-#   * artifact name:    comfyui-quick-start-<run_id>
-#   * result.json is written by the engine and validated against
-#     schemas/result.schema.json before upload.
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation (A2/A3) and merges the per-machine result.json files into
+# one artifact; this file only declares what varies per project: schedule,
+# concurrency, runner, container image, upstream repo, monitored doc and the
+# test entry command. The guard loop, cache I/O, state relay and publishing all
+# live in the engine. See the engine's `workflow_call.inputs` block for the full
+# input contract.
 #
 # ComfyUI note: upstream auto-detects NPU (torch_npu import +
 # torch.npu.is_available() -> torch.device("npu")), so the doc's server
@@ -40,11 +34,11 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, 12 h apart: UTC 10:45 and 22:45
-    # (Beijing +8). All quick-start guards share this cadence; the
-    # (hour, minute) slot is staggered across the guards so the NPU
-    # runners do not all fire at the same time.
-    - cron: '45 10,22 * * *'
+    # Twice a day, 12 h apart: UTC 07:00 and 19:00 (Beijing +8).
+    # A2 and A3 legs fire together and the A3 pool runs one job at a
+    # time, so the guards take 2 h windows in sequence starting at
+    # deepspeed 00:00 UTC; this one owns 07:00.
+    - cron: '0 7,19 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
@@ -54,18 +48,19 @@ on:
     paths:
       - 'sources/comfyui/**'
       - 'tests/comfyui/**'
+      - '.github/workflows/comfyui-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  comfyui-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-comfyui-*), artifacts
-      # (comfyui-quick-start-<run_id>) and the test working dir
-      # (tests/comfyui).
+      # Namespaces cache keys, artifacts and the test working dir
+      # (tests/comfyui) per machine generation.
       project: comfyui
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -88,3 +83,36 @@ jobs:
       # engine. All project env prep and installs live in the test
       # subclass's prepare_environment hook.
       test_command: python -m unittest tests.comfyui.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: comfyui
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg; same CANN line as A2.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      # Cache binds for the A3 pool, same layout as the other A3 jobs:
+      # the 4.3 GB checkpoint comes from Hugging Face Hub.
+      container_options: >-
+        --volume=/data/ci-cache/hf/comfyui:/root/.cache/huggingface
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+      timeout_minutes: 120
+      upstream_repo: comfyanonymous/ComfyUI
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/comfyui/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/comfyui/quick_start.md
+      test_command: python -m unittest tests.comfyui.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: comfyui
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

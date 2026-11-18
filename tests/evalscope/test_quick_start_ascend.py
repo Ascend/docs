@@ -161,6 +161,14 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # davinci devices.
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
+        # A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. The doc
+        # pulls its datasets through the HF hub. Xet off on A3: its data
+        # plane lives on cas-bridge.xethub.hf.co, outside HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
         # torch stack probe: reuse the image's pre-installed wheels when the
         # version matches, to avoid a mismatched resolution from the cache.
         _PROBE_SCRIPT = (
