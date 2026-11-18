@@ -105,6 +105,13 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         if os.environ.get('MACHINE_TYPE') == 'a3':
             os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
             os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+            # The A3 runner exposes two cards, and the doc loads the model
+            # with device_map="auto" followed by .to(device). With two
+            # visible cards accelerate shards the model across both and the
+            # trailing .to() detaches the hooks, so the forward pass mixes
+            # npu:0 and npu:1. Keep one visible card to hold the doc's
+            # single-device assumption.
+            os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
         if os.path.isfile(cls._CANN_SET_ENV):
             merged = subprocess.run(
