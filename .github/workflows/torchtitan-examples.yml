@@ -1,0 +1,72 @@
+# torchtitan examples guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/examples-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, upstream repo, dispatch input forwarding, and matrix
+# parallelism. The guard loop (release + workflow-files monitor /
+# manifest-check / run-example matrix / validate-results /
+# save-monitor-state) lives in the engine. See examples-guards/README.md
+# for the design.
+
+name: torchtitan-examples
+
+concurrency:
+  # Three groups: schedule runs serialize (a run cancelled mid-way
+  # loses its outcome writeback, and the outcome drives the next
+  # cycle's retry); each PR serializes per number so a new push
+  # cancels the stale run instead of queueing another matrix on the
+  # NPU runners; each manual run stands alone. Group names are
+  # repository-wide, so the PR group carries the workflow name.
+  group: ${{ github.event_name == 'schedule' && 'torchtitan-examples-schedule' || (github.event_name == 'pull_request' && format('torchtitan-examples-pr-{0}', github.event.pull_request.number)) || format('manual-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  # Daily at 17:00 Beijing time (09:00 UTC). The other UTC hours are taken:
+  # ktransformers 16:00, the 18:00 group (accelerate / deepspeed / flash-linear-
+  # attention / liger-kernel / ray / roll / slime / tensordict), llama.cpp and tgi
+  # 19:00, bitsandbytes / llm-compressor / onnxruntime 20:00, ms-swift 21:00,
+  # mooncake 22:00, peft 23:00.  09:00 is the first free hour that is not
+  # adjacent to the 18:00 group, and this line is heavy (15 entries over
+  # 1 / 2 / 8 cards).
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Branch, tag, or SHA to test (empty = latest upstream release; falls back to main on API failure)
+        required: false
+        default: ''
+        type: string
+  # PR runs need no merge: GitHub executes the workflow files from the
+  # PR merge ref, so a newly added trigger and engine run on the PR
+  # that adds them. `pull_request`, not `pull_request_target`: the
+  # declared read permissions are all the engine needs. paths lists only
+  # this project's files, as the quick-start triggers do.
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'examples-guards/torchtitan/**'
+      - '.github/workflows/torchtitan-examples.yml'
+
+# Engine jobs query the GitHub Job API (validate-results); called
+# workflows run with the caller's GITHUB_TOKEN permissions.
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  torchtitan-examples:
+    uses: ./.github/workflows/examples-template.yml
+    with:
+      # Namespaces cache keys (examples-monitor-state-torchtitan_*), artifact
+      # names and the scheduling paths under examples-guards/torchtitan.
+      project: torchtitan
+      upstream_repo: pytorch/torchtitan
+      target_ref: ${{ inputs.target_ref }}
+      # 15 supported entries (torchtitan v0.4.0 recipe-based smokes:
+      # llama3 / qwen3 / deepseek_v3 / muse_glimmer debugmodels plus
+      # the qwen3 and deepseek_v3 size tiers), 3 unique runner types
+      # (a2-1 + a2-2 + a2-8); max 4 keeps the matrix from thrashing the
+      # 2-card runner when several legs queue up simultaneously.
+      max_parallel: 4
