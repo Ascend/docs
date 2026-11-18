@@ -1,6 +1,7 @@
 # transformers quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml.
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
 
 name: transformers-quick-start
 
@@ -18,11 +19,12 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, 12 h apart: UTC 08:40 and 20:40
+    # Twice a day, 12 h apart: UTC 11:00 and 23:00
     # (Beijing +8). All quick-start guards share this cadence; the
     # (hour, minute) slot is staggered across the guards so the NPU
-    # runners do not all fire at the same time.
-    - cron: '40 8,20 * * *'
+    # runners do not all fire at the same time - the A3 pool runs one
+    # job at a time, so the A3 legs sit in disjoint two-hour windows.
+    - cron: '0 11,23 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
   # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
@@ -32,18 +34,20 @@ on:
     paths:
       - 'sources/transformers/**'
       - 'tests/transformers/**'
+      - '.github/workflows/transformers-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  transformers-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-transformers-*), artifacts
-      # (transformers-quick-start-<run_id>) and the test working dir
-      # (workflows/tests/transformers).
+      # Namespaces cache keys (quick-start-monitor-state-transformers_a2_*),
+      # artifacts (transformers-quick-start-<run_id>) and the test working
+      # dir (tests/transformers).
       project: transformers
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -64,7 +68,34 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/transformers/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in the
+      # test subclass's prepare_environment hook.
       test_command: python -m unittest tests.transformers.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: transformers
+      machine_type: a3
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      timeout_minutes: 120
+      upstream_repo: huggingface/transformers
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/transformers/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/transformers/quick_start.md
+      test_command: python -m unittest tests.transformers.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: transformers
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

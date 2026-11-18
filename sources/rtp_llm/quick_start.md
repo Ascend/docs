@@ -8,7 +8,7 @@ Ascend 适配目前在上游的 `feature/ascend` 分支上，`main` 里还没有
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示例为单卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列，芯片为 Ascend **910B** / **910C**。本文示例为单卡。
 
 ### 软件
 
@@ -25,8 +25,9 @@ Atlas **800T** / **900 A2** 训练系列，芯片为 Ascend **910B**。本文示
 
 | 项目 | 内容 |
 | --- | --- |
-| 机器 | Atlas 900 A2，Ascend 910B，单卡 |
-| 镜像 | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 机器 | Atlas 900 A2（Ascend 910B）与 Atlas 900 A3（Ascend 910C），均为单卡 |
+| 镜像（A2） | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 镜像（A3） | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12` |
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
@@ -250,7 +251,10 @@ build:ascend --copt="-Wno-error=format-security"
 ```shell #test id="build"
 cd /root/rtp-llm-test/rtp-llm
 export USE_BAZEL_VERSION=6.4.0
-bazelisk build //rtp_llm:rtp_llm_whl --config=ascend --jobs=32 > /tmp/build.log 2>&1 \
+# havenask 的 anet 默认用 -mcpu=native 选指令集，A3 上汇编器不认由此推导出的 crc32cx；
+# --per_file_copt 追加在规则 copts 之后，视为给该文件显式指定架构
+bazelisk build //rtp_llm:rtp_llm_whl --config=ascend --jobs=32 \
+  --per_file_copt='aios/network/anet/crc\.cpp@-march=armv8-a+crc' > /tmp/build.log 2>&1 \
   && echo "build ok" || { tail -n 80 /tmp/build.log; exit 1; }
 ```
 

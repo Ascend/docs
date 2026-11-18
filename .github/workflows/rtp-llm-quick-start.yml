@@ -1,11 +1,12 @@
 # RTP-LLM quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml; this
-# file only declares what varies per project: schedule, concurrency, runner,
-# container image + options, upstream repo, the pinned ref, the monitored doc
-# and the test entry command. The guard loop, cache I/O, state relay and
-# publishing all live in the engine - see its `workflow_call.inputs` block for
-# the full contract.
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact;
+# this file only declares what varies per project: schedule, concurrency,
+# runner, container image + options, upstream repo, the pinned ref, the
+# monitored doc and the test entry command. The guard loop, cache I/O, state
+# relay and publishing all live in the engine - see its `workflow_call.inputs`
+# block for the full contract.
 #
 # Cache keys (quick-start-monitor-state-rtp-llm_*) and artifact names
 # (rtp-llm-quick-start-<run_id>) are derived from project=rtp-llm.
@@ -18,13 +19,13 @@
 # resolves it to the branch tip SHA on every run, which is also the monitor's
 # change key.
 #
-# Scope: single card (910B). The doc clones the branch, adapts the aarch64
-# build inputs (upstream pins x86_64 torch wheels, x86 lock direct links, x86
-# http_archive entries and a bare torch_npu in the wheel metadata), installs
-# the dependency set, builds //rtp_llm:rtp_llm_whl with bazel, installs the
-# wheel, loads the C++ engine ops, downloads Qwen3-0.6B, then starts the HTTP
-# server and issues one generation request. The bazel build is the dominant
-# cost (cold: 40-90 min), hence timeout_minutes=240.
+# Scope: single card (910B / 910C). The doc clones the branch, adapts the
+# aarch64 build inputs (upstream pins x86_64 torch wheels, x86 lock direct
+# links, x86 http_archive entries and a bare torch_npu in the wheel metadata),
+# installs the dependency set, builds //rtp_llm:rtp_llm_whl with bazel,
+# installs the wheel, loads the C++ engine ops, downloads Qwen3-0.6B, then
+# starts the HTTP server and issues one generation request. The bazel build is
+# the dominant cost (cold: 40-90 min), hence timeout_minutes=240.
 
 name: rtp-llm-quick-start
 
@@ -42,11 +43,12 @@ concurrency:
 
 on:
   schedule:
-    # Twice a day, 12 h apart: UTC 10:50 and 22:50
+    # Twice a day, 12 h apart: UTC 14:00 and 02:00
     # (Beijing +8). All quick-start guards share this cadence; the
     # (hour, minute) slot is staggered across the guards so the NPU
-    # runners do not all fire at the same time.
-    - cron: '50 10,22 * * *'
+    # runners do not all fire at the same time - the A3 pool runs one
+    # job at a time and this one holds the longest slot.
+    - cron: '0 14,2 * * *'
   workflow_dispatch:
   # PR trigger: docs/tests changes get a guard run before merge. paths filter
   # avoids burning the self-hosted NPU runner on unrelated PRs.
@@ -63,12 +65,13 @@ permissions:
   contents: read
 
 jobs:
-  rtp-llm-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-rtp-llm_*), artifacts
-      # (rtp-llm-quick-start-<run_id>) and the test working dir.
+      # Namespaces cache keys (quick-start-monitor-state-rtp-llm_a2_*),
+      # artifacts (rtp-llm-quick-start-<run_id>) and the test working dir.
       project: rtp-llm
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins the
       # cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest. The quick start is single-card
@@ -101,8 +104,38 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/rtp_llm/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches the
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. CANN env, the JVM truststore and the build toolchain live in
-      # the test subclass's prepare_environment hook; every business step is
-      # in the doc.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. CANN env, the JVM truststore and the build
+      # toolchain live in the test subclass's prepare_environment hook; every
+      # business step is in the doc.
       test_command: python -m unittest tests.rtp_llm.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: rtp-llm
+      machine_type: a3
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: >-
+        --shm-size=64g
+      timeout_minutes: 240
+      upstream_repo: alibaba/rtp-llm
+      fixed_ref: feature/ascend
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/rtp_llm/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/rtp_llm/quick_start.md
+      test_command: python -m unittest tests.rtp_llm.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: rtp-llm
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

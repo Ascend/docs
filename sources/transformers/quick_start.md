@@ -39,7 +39,8 @@ Atlas 900 A2 / A3 训练系列产品或其他兼容的 Ascend NPU，至少有一
 本文示例在下面的 Ascend 镜像中验证通过：
 
 ```text
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+A2：swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+A3：swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
 ```
 
 模型 `Qwen/Qwen2.5-1.5B-Instruct` 权重约 3 GB，下载步骤见下文「下载模型」一节。
@@ -76,7 +77,7 @@ print('count:', torch.npu.device_count())
 torch= 2.9.0+cpu
 torch_npu= 2.9.0.post2
 is_available: True
-count: 1
+count: xxx
 ```
 
 确认能看到 NPU 设备：
@@ -313,10 +314,12 @@ apt-get install -y ffmpeg
 （以下代码使用Python执行）
 
 ```python #test id="pipeline-asr"
+from huggingface_hub import hf_hub_download
 from transformers import pipeline
 
+audio = hf_hub_download("Narsil/asr_dummy", "mlk.flac", repo_type="dataset")
 transcriber = pipeline(task="automatic-speech-recognition")
-print(transcriber("https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac"))
+print(transcriber(audio))
 ```
 
 输出结果如下：
