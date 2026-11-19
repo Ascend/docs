@@ -1,0 +1,121 @@
+# opencv (zero-patch route) quick start guard - project thin trigger.
+#
+# Calls the common engine .github/workflows/quick-start-template.yml;
+# this file only declares what varies per project: schedule,
+# concurrency, runner, container image + options, upstream repo,
+# monitored doc, and the test entry command. The guard loop, cache
+# I/O, state relay and publishing all live in the engine.
+#
+# What this guard covers: the **OpenCV 4.14.0 zero-patch** route
+# (sources/opencv/quick_start_4x.md) — build OpenCV from source
+# with WITH_CANN=ON and *no* source patch, then run one CANN/NPU DNN
+# forward and diff it against a CPU reference. The doc pins 4.14.0, so
+# the release signal is not the interesting one: the doc-hash trigger
+# is (any edit to the doc re-runs the whole build + inference chain).
+#
+# Why the CANN 9.2.0 image: the doc was verified end-to-end on a 910B4
+# machine with CANN 9.2.0 (2026-11-04, 22/22 doc-test steps green,
+# 1522.6 s). CANN 9.2.0 also ships the *complete* libgraph.so in
+# <CANN>/lib64 — the trimmed device-side runtime under
+# aarch64-linux/devlib/ lacks ge::AscendString's comparison operators and
+# breaks the link; the doc asserts the complete one with an `nm` probe.
+#
+# Device mounts are explicit (not the device-plugin passthrough the
+# lighter guards rely on): the CANN cmake probe dlopen()s the ACL
+# libraries during the configure phase, and the parallel Release build
+# wants a large /dev/shm.
+
+name: opencv-quick-start
+
+concurrency:
+  # format() is load-bearing: a '||' between 'manual-' and
+  # github.run_id would short-circuit on the truthy literal and
+  # every dispatch would share one 'manual-' group.
+  group: ${{ github.event_name == 'schedule' && 'opencv-quick-start-schedule' || format('manual-{0}', github.run_id) }}
+  # cancel-in-progress: false because (1) a schedule run cancelled
+  # mid-way loses its outcome writeback - the outcome is what makes
+  # the retry mechanism work, and the 'if: always()' guard isn't
+  # enough when the container is being torn down; (2) dispatch / PR
+  # runs already live in unique groups so there's nothing to cancel.
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Twice a day, 12 h apart (UTC 02:05 and 14:05). The slot is
+    # staggered away from the other guards' crons so the NPU runners
+    # do not all fire at the same time.
+    - cron: '5 2,14 * * *'
+  workflow_dispatch:
+  # PR trigger: docs/tests changes get a guard run. paths filter avoids burning
+  # the self-hosted NPU runner on unrelated PRs. `pull_request` (not
+  # `pull_request_target`): contents: read is enough, no write-token risk.
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sources/opencv/**'
+      - 'tests/opencv/**'
+
+permissions:
+  contents: read
+
+jobs:
+  opencv-quick-start:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      # Namespaces cache keys (monitor-state-opencv-*),
+      # artifacts (opencv-quick-start-<run_id>) and the test
+      # working dir (tests/opencv).
+      project: opencv
+      # Self-hosted NPU runner for the test job only; the engine pins
+      # the cache I/O jobs (restore-cache / publish-and-persist) to
+      # GitHub-hosted ubuntu-latest. The a2-4 runner is the one the
+      # OpenCV source build uses elsewhere too: the Release build of
+      # the CANN dnn TUs needs several GB of RAM per TU.
+      test_runner: '["linux-aarch64-a2-4"]'
+      # CANN 9.2.0 + Python 3.12 base image - the environment the doc
+      # was verified on (see the header comment).
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+      # --privileged lets cmake's IPPICV download helper write into /tmp
+      # without sandbox surprises, --shm-size=64g keeps make from
+      # hitting /dev/shm pressure during the parallel compile. The
+      # CANN-side devices are mounted explicitly so cmake's
+      # `find_package(Ascend)` can dlopen the ACL libraries during the
+      # configure phase for header discovery.
+      container_options: >-
+        --privileged --shm-size=64g
+        --device=/dev/davinci0
+        --device=/dev/davinci_manager
+        --device=/dev/devmm_svm
+        --device=/dev/hisi_hdc
+        --volume=/usr/local/Ascend/driver:/usr/local/Ascend/driver:ro
+        --volume=/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro
+        --volume=/etc/ascend_install.info:/etc/ascend_install.info:ro
+      # 240 min budget. The doc body does: apt-get install build deps
+      # (aliyun mirror) + git clone opencv @ 4.14.0 + CANN library
+      # bridge (3 symlinks into <CANN>/lib64) + cmake -DWITH_CANN=ON
+      # configure (BUILD_LIST = 6 modules) + cmake --build --target
+      # install (Release -O3, no source patch) + Python binding smoke +
+      # videoio smoke (MJPG round-trip) + MobileNetV2 ONNX NPU forward
+      # (classic DNN engine, 4.14's default; first GE graph build can
+      # take ~1 min cold). 240 min leaves room for the build chain +
+      # the first-time DNN samples / IPPICV / ACL graph cache pulls.
+      timeout_minutes: 240
+      upstream_repo: opencv/opencv
+      # The doc pins the OpenCV version itself (4.14.0, no <ref>
+      # placeholder), so the engine monitors that tag's commit instead
+      # of the latest release - "latest release" would fire on every
+      # 5.x tag while the doc keeps testing 4.14.0.
+      fixed_ref: 4.14.0
+      # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
+      # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
+      # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
+      # (head SHA on a fork) 404 on doc fetch - accepted, since the content
+      # lands on Ascend/docs post-merge.
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/opencv/quick_start_4x.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/opencv/quick_start_4x.md
+      # cwd is the repo root inside the `workflows` checkout (matches
+      # engine template's `working-directory: workflows`); env contract
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
+      # engine. All project env prep and installs live in the test
+      # subclass's prepare_environment hook.
+      test_command: python -m unittest tests.opencv.test_quick_start_ascend -v 2>&1

@@ -6,3 +6,4 @@ opencv
 
    install.rst
    quick_start.rst
+   quick_start_4x.md
