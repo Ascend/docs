@@ -29,9 +29,9 @@ supported:
   #     state 照常落盘）/ data.max_length=512（fixture ~130 token，3072 默认
   #     产出相同 batch）/ 与 recipe|schema 默认重合的 batch_size=1、
   #     accumulation_steps=1、report_to=none、nproc_per_node=1。
-  #   保留（有效果的非必须项）——num_anchors=32（producer 提速，锚点数按
-  #     min(num_anchors, max_valid) 自动钳制，非必须）/ log_interval=1（1 步
-  #     训练唯一的 loss 输出行，默认 50 时无指标日志）。
+  #   保留（有效果的非必须项）——objective_options.num_anchors=32（producer
+  #     提速，锚点数按 min(num_anchors, max_valid) 自动钳制，非必须）/
+  #     log_interval=1（1 步训练唯一的 loss 输出行，默认 50 时无指标日志）。
   # 注意：offline 条目删 max_length 未单独实测（prepare_hidden_states.py 也
   # 消费该值，语义为截断上限，fixture 远短于 512/3072，推定等价），下次 CI
   # 跑 offline 腿时自然验证。=====
@@ -48,12 +48,13 @@ supported:
       - training.batch_size=1
       - training.accumulation_steps=1
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      # 锚点数压到 32：recipe 默认 num_anchors=512 是按 3.5-4B 训练稳定度调的；
-      # 1 步训练不会触发 dflash 的 loss_decay 累积，32 个 anchor 已经够
-      # producer 走完一整条采样链；锚点越少单步耗时越短（实测从 ~120s 降到 ~30s）。
+      # 锚点数压到 32：recipe 默认 objective_options.num_anchors=512 是按
+      # 3.5-4B 训练稳定度调的；1 步训练不会触发 dflash 的 loss_decay 累积，
+      # 32 个 anchor 已经够 producer 走完一整条采样链；锚点越少单步耗时越短
+      # （实测从 ~120s 降到 ~30s）。
       # 非必须（dflash_family_model.py:448 按 min(num_anchors, max_valid) 自动
       # 钳制，512 在短样本下也能跑通），留作 producer 提速。
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       # 1 步训练唯一的 loss 输出行（recipe 默认 log_interval=50 时 1 步无指标日志）。
       - training.log_interval=1
       # 关掉 tensorboard 上报：recipe 默认 report_to=tensorboard，而镜像/setup 都
@@ -95,7 +96,7 @@ supported:
       - training.batch_size=1
       - training.accumulation_steps=1
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - tracking.report_to=none
       - deployment.trainer.nproc_per_node=1
@@ -130,7 +131,7 @@ supported:
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
       - training.attention_backend=sdpa
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - tracking.report_to=none
       - deployment.trainer.nproc_per_node=1
@@ -147,7 +148,7 @@ supported:
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
       - training.attention_backend=sdpa
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - tracking.report_to=none
       - deployment.trainer.nproc_per_node=1
@@ -164,7 +165,7 @@ supported:
       - training.batch_size=1  # recipe 默认 4：1 行 fixture + drop_last=True 凑不出 batch，必须压 1
       - training.attention_backend=sdpa
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - tracking.report_to=none
       - deployment.trainer.nproc_per_node=1
@@ -214,7 +215,7 @@ supported:
       - training.batch_size=1
       - training.accumulation_steps=1
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - tracking.report_to=none
       - deployment.trainer.nproc_per_node=1
@@ -246,7 +247,7 @@ supported:
       - training.batch_size=1  # recipe 默认 2：压 1 让 1 行 fixture 稳定凑满窗口
       - training.attention_backend=sdpa
       - data.train_data_path=${FIXTURE_DIR}/sharegpt_train.jsonl
-      - training.num_anchors=32
+      - training.objective_options.num_anchors=32
       - training.log_interval=1
       - deployment.trainer.nproc_per_node=1
       - deployment.disaggregated.managed_local.trainer_cuda_visible_devices=["1"]
