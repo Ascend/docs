@@ -688,7 +688,7 @@ nohup specforge train -c "$RECIPE" \
     training.accumulation_steps=1 \
     data.max_length=512 \
     data.train_data_path="<SHAREGPT_PATH>" \
-    training.num_anchors=32 \
+    training.objective_options.num_anchors=32 \
     training.save_interval=0 \
     training.log_interval=1 \
     tracking.report_to=none \
