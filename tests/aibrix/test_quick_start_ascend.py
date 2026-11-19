@@ -152,6 +152,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             current = os.environ.get('PATH', '')
             if not current.startswith(venv_prefix + ':'):
                 os.environ['PATH'] = f'{venv_prefix}:{current}'
+        # The runner gets HTTP 400 from proxy.golang.org for
+        # klauspost/compress@v1.17.9. A pipe in GOPROXY retries the next
+        # proxy on any error; a comma only retries on 404 or 410.
+        os.environ['GOPROXY'] = (
+            'https://proxy.golang.org'
+            '|https://repo.huaweicloud.com/repository/goproxy'
+            '|https://goproxy.cn'
+            '|direct'
+        )
         print('setup: sourced CANN and ATB env')
 
         ensure_safetensors()
