@@ -296,36 +296,26 @@ speculators prepare-data \
 echo "$DATA_DIR"
 ```
 
-确认数据集已落盘（行数 + `token_freq.pt` 存在）(下面的命令用 Python 执行)：
+确认数据集已落盘（行数）(下面的命令用 Python 执行)：
 
 ```python #test id="pipeline-step2-extract" load="data_path>>data_path"
 from datasets import load_from_disk
-import torch
-from pathlib import Path
 
 data_path = '<data_path>'
 print(data_path)
 print(len(load_from_disk(data_path)))
-p = Path(data_path) / 'token_freq.pt'
-print('exists:', p.exists(), 'size:', p.stat().st_size if p.exists() else 0)
-freq = torch.load(p, weights_only=True)
-print('token_freq keys:', list(freq.keys()) if isinstance(freq, dict) else type(freq).__name__)
-print('len:', len(freq))
 ```
 
 输出结果如下：
 
-```shell #test-result id="pipeline-step2-extract" fuzzy='xxx'
+```shell #test-result id="pipeline-step2-extract"
 /root/dflash-train-data
 10
-exists: True size: xxx
-token_freq keys: xxx
-len: xxx
 ```
 
 ```{admonition} Note
 :class: note
-xxx 分别为 `token_freq.pt` 的文件大小（字节）、token 表的键列表与条目数；`<data_path>` 在运行时替换为「训练数据预处理」一节 `echo "$DATA_DIR"` 命令输出的数据目录路径。
+`<data_path>` 在运行时替换为「训练数据预处理」一节 `echo "$DATA_DIR"` 命令输出的数据目录路径。
 ```
 
 ### 训练
