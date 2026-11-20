@@ -102,7 +102,7 @@ CANN 里有两套名字相同的动态库：`<CANN>/lib64` 里是完整的，`<C
 nm -D --defined-only <CANN>/lib64/libgraph.so | grep -c '_ZNK2ge12AscendStringlt'
 ```
 
-**1** = 完整版，**0** = 裁剪版。所以给 OpenCV 的 CANN 库一律指向 `<CANN>/lib64`，**不要**指向 `devlib/...`（下一节的检查会挡住它）。
+**1** = 完整版，**0** = 裁剪版。
 
 ## 构建 OpenCV
 
@@ -135,7 +135,7 @@ git status --porcelain | wc -l
 
 ### 桥接 CANN 的库目录
 
-OpenCV 编译时按固定路径找 CANN 的库（`acllib/lib64`、`lib64`、`compiler/lib64`），CANN 里的目录名对不上，所以先建几个软链（symlink，指向别处的目录）指过去：
+OpenCV 编译时按固定路径找 CANN 的库（`acllib/lib64`、`lib64`、`compiler/lib64`），CANN 里的目录名对不上，建几个软链指过去：
 
 ```shell #test-setup
 CANN_DIR=/usr/local/Ascend/ascend-toolkit/latest
@@ -455,9 +455,7 @@ CANN/NPU backend available: True
 
 ### MobileNetV2 ONNX 推理（NPU vs CPU 对照）
 
-跑 MobileNetV2（onnx/models 的 `mobilenetv2-12`，PyTorch 导出，13,964,571 字节）：
-
-> **模型从哪来**：本文档仓库里带了一份同样的副本（`tests/opencv/fixtures/mobilenetv2-12.onnx`，看护直接用它，不用联网）；自己跑时没有这份副本，就自动从 onnx/models 下载（重试 5 次）。
+跑 MobileNetV2：
 
 ```shell #test id="dnn-cann-infer"
 set -e   # python 段失败必须让整个块失败：块里最后一条命令是 cat，它的退出码会盖掉 python 的
