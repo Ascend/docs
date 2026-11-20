@@ -1,9 +1,9 @@
 # opencv
 
-[OpenCV](https://github.com/opencv/opencv) 是开源计算机视觉库。本文在单卡昇腾 NPU 上把 **OpenCV 4.x**源码编译成带 CANN 后端的 `cv2`（`WITH_CANN=ON`），跑通：
+[OpenCV](https://github.com/opencv/opencv) 是开源计算机视觉库。本文在单卡昇腾 NPU 上把 **OpenCV 4.14** 从源码编译成带 CANN 后端的 `cv2`（编译时打开 `WITH_CANN=ON`），跑通：
 
-- **CPU 核心 API**：读图 / 写图 / 颜色空间 / 缩放 / 绘制 / 视频读写；
-- **NPU DNN 推理**：`cv2.dnn` + `DNN_BACKEND_CANN` + `DNN_TARGET_NPU`，MobileNetV2 在 npu 上跑出与 CPU 参考一致的 top-1；
+- **CPU 常用接口**：读图、写图、颜色空间转换、缩放、画图、读写视频；
+- **NPU 上跑模型**：用 `cv2.dnn` 加载 MobileNetV2，指定 CANN 后端 + NPU 设备，分类结果和 CPU 跑出来的一致（top-1 相同）；
 
 ## 前置条件
 
@@ -16,14 +16,8 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需�
 在跑本文档**之前**，你的机器上需要已经装好并可用：
 
 - 可用的 Python 环境（3.12）
-- 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)），`npu-smi info` 能列出设备
-- 可访问 GitHub（clone 源码 + 下载模型）
+- 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)），`npu-smi info` 能看到 NPU 设备
 - 编译依赖：`git` / `build-essential` / `cmake` / `pkg-config` / `zlib1g-dev` / `libjpeg-dev` / `libpng-dev` / `libtiff-dev`（见「前置安装」里的 apt 那一步）
-
-```{admonition} Note
-:class: note
-`opencv-python`（pip wheel）**不带** CANN 后端，必须从源码构建，`cv2.dnn.DNN_BACKEND_CANN` 才会链到真后端。
-```
 
 ### 本文档示例使用的版本
 
@@ -43,9 +37,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
 | Python | 3.12 |
 | CANN | 9.2.0（`/usr/local/Ascend/cann-9.2.0`） |
 | CMake / GCC | 3.22.1 / 11.4.0 |
-| OpenCV | **4.14.0**（源码，`WITH_CANN=ON`，`CMAKE_BUILD_TYPE=Release`） |
-
-本文在上述版本上于 2026-11-04 完整跑过一遍（22 个步骤全绿，1522.6 s）：零补丁是真的（`git status --porcelain` 输出 0 行），推理是真的上卡（三行 CANN 后端标记齐全 + NPU 与 CPU top-1 / 分数一致）。
+| OpenCV | 4.14.0（源码，`WITH_CANN=ON`，`CMAKE_BUILD_TYPE=Release`） |
 
 ## 前置安装
 
@@ -74,14 +66,14 @@ Python 3.12.xxx
 cmake version xxx
 ```
 
-加载 CANN 环境变量：
+把 CANN 的环境变量加载进来（后面的编译和运行都要用）：
 
 ```shell #test-setup
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 export PATH=/usr/local/sbin:$PATH
 ```
 
-确认 toolkit 根目录可访问：
+确认 CANN 装好了：
 
 ```shell #test id="check-cann-path"
 ls -d /usr/local/Ascend/ascend-toolkit/latest
@@ -93,7 +85,7 @@ ls -d /usr/local/Ascend/ascend-toolkit/latest
 /usr/local/Ascend/ascend-toolkit/latest
 ```
 
-装编译依赖（国内网络把 apt 源换成阿里云镜像）：
+装编译依赖（git / cmake / 编译器 / 图像格式的开发库）：
 
 ```shell #test-setup
 sed -i 's|http://ports.ubuntu.com/ubuntu-ports/|https://mirrors.aliyun.com/ubuntu-ports/|g' /etc/apt/sources.list
@@ -102,78 +94,58 @@ apt-get update -qq && apt-get install -y -qq git build-essential cmake pkg-confi
 
 ## CANN 库目录：别链到裁剪版运行时
 
-`<CANN>/aarch64-linux/devlib/linux/aarch64/` 里有一套同名但被裁剪过的 `.so`（`libgraph.so` 只有 198 KB，少了 `ge::AscendString` 的比较运算符）。链错目录不会在编译期报错，只会在**链接期**炸成 `undefined reference to ge::AscendString::operator<`。
+CANN 里有两套名字相同的动态库：`<CANN>/lib64` 里是完整的，`<CANN>/aarch64-linux/devlib/linux/aarch64/` 里是裁剪过的（`libgraph.so` 只有 198 KB，少了几个比较运算符）。链错了编译时不会报错，等到链接才失败：`undefined reference to ge::AscendString::operator<`。
 
-判定一眼可看：
+一条命令就能看出拿到的是哪一套：
 
 ```shell
 nm -D --defined-only <CANN>/lib64/libgraph.so | grep -c '_ZNK2ge12AscendStringlt'
 ```
 
-**1** = 完整版，**0** = 裁剪版。所以给 OpenCV 的 CANN 软链一律指向 `<CANN>/lib64`，**不要**指向 `devlib/...`（下一节的 `nm` 检查会挡住它）。
+**1** = 完整版，**0** = 裁剪版。所以给 OpenCV 的 CANN 库一律指向 `<CANN>/lib64`，**不要**指向 `devlib/...`（下一节的检查会挡住它）。
 
-## 构建 OpenCV（4.14.0，零补丁）
+## 构建 OpenCV
 
-### clone OpenCV（版本钉死 4.14.0）
+### clone OpenCV
 
-本文没有 `<ref>` 占位符 —— 版本钉死在 4.14.0。
+把源码下载到本地（只取 4.14.0 这一版）：
 
 ```shell #test-setup
 git clone --depth 1 --branch 4.14.0 https://github.com/opencv/opencv.git
 ```
 
-### 确认源码是干净的（零补丁的证据）
+### 检查源码
 
-打完补丁的树一定会有 diff；没打补丁的树 `git status` 是空的。
+确认拿到的版本是 4.14.0，而且源码一行都没动过：
 
-```shell #test id="check-source-pristine"
+```shell #test id="check-opencv-source"
 cd opencv
+git describe --tags
 git status --porcelain | wc -l
-grep -n "const std::vector<int>& shape, const std::string& name" modules/dnn/src/op_cann.hpp
 ```
 
 输出结果如下：
 
-```shell #test-result id="check-source-pristine" fuzzy='xxx'
+```shell #test-result id="check-opencv-source"
+4.14.0
 0
-xxx:        CannConstOp(const uint8_t* data, const int dtype, const std::vector<int>& shape, const std::string& name);
 ```
 
-```{admonition} Note
-:class: note
-第一行 `0` 是 `git status --porcelain` 的行数 —— 0 行 = 源码树与上游 4.14.0 逐字节相同（零补丁）。第二行的 `xxx` 是 `grep` 命中的行号。
-```
+第一行是版本号，第二行是被改动过的文件数 —— 0 说明源码和上游完全一致。
 
 ### 桥接 CANN 的库目录
 
-OpenCV 的 `OpenCVFindCANN.cmake` 在 `${CANN_INSTALL_DIR}/{acllib,lib64,compiler/lib64}/` 下找 ACL 库：
-
-| 找什么 | 期望位置 |
-| --- | --- |
-| `libascendcl.so` | `acllib/lib64/` |
-| `libacl_op_compiler.so`、`libacl_dvpp_mpi.so` | `lib64/` |
-| `libgraph.so`、`libge_compiler.so`、`libgraph_base.so` | `compiler/lib64/` |
-
-这三个位置在 CANN 里都不叫这三个名字，所以要补软链。**统一指向「完整版 CANN 库目录」**：
-
-- CANN 9.1.x：`<CANN>/lib64` 不存在，完整库目录是 `<CANN>/aarch64-linux/lib64`；
-- CANN 9.2.x：`<CANN>/lib64` 已经是指向 `aarch64-linux/lib64` 的软链（同一批库）。
-
-注意 **不要**指向 `devlib/...`（裁剪过的设备侧运行时，见上一节）。
-
-补 symlink（`acllib` / `compiler` 要先是目录，所以先 `mkdir`）：
+OpenCV 编译时按固定路径找 CANN 的库（`acllib/lib64`、`lib64`、`compiler/lib64`），CANN 里的目录名对不上，所以先建几个软链（symlink，指向别处的目录）指过去：
 
 ```shell #test-setup
 CANN_DIR=/usr/local/Ascend/ascend-toolkit/latest
-# CANN 9.1 没有 <CANN>/lib64，补一条指向 aarch64-linux/lib64 的软链；
-# CANN 9.2 已经有（本身就是 aarch64-linux/lib64 的软链），不动它。
 [ -e "$CANN_DIR/lib64" ] || ln -sfn "$CANN_DIR/aarch64-linux/lib64" "$CANN_DIR/lib64"
 mkdir -p "$CANN_DIR/acllib" "$CANN_DIR/compiler"
 ln -sfn "$CANN_DIR/lib64" "$CANN_DIR/acllib/lib64"
 ln -sfn "$CANN_DIR/lib64" "$CANN_DIR/compiler/lib64"
 ```
 
-确认三个软链都指向**完整版** lib64（最后那个 `nm` 计数是 1 = 完整版，0 = 裁剪版）：
+确认三个软链都指向**完整版** lib64（最后那个数字 1 = 完整版，0 = 裁剪版）：
 
 ```shell #test id="check-cann-lib-layout"
 CANN_DIR=/usr/local/Ascend/ascend-toolkit/latest
@@ -183,35 +155,16 @@ nm -D --defined-only "$CANN_DIR/compiler/lib64/libgraph.so" | grep -c '_ZNK2ge12
 
 输出结果如下：
 
-```shell #test-result id="check-cann-lib-layout" fuzzy='xxx'
-xxx
-xxx
-xxx
+```shell #test-result id="check-cann-lib-layout"
+.../libascendcl.so
+.../libacl_op_compiler.so
+.../libgraph.so
 1
-```
-
-```{admonition} Note
-:class: note
-前三行的 `xxx` 是三个软链的 `ls -l` 输出（目标路径随 CANN 版本不同：9.1 指 `aarch64-linux/lib64`，9.2 指 `lib64`）。最后一行 `1` 是 `ge::AscendString::operator<` 的符号数 —— **0 就说明链到了裁剪版**。
-```
-
-```{admonition} Note
-:class: note
-`ln -sfn` 到已存在的软链是「改指向」而不是「往目录里塞链接」，重复执行安全。
-
-**不想往 CANN 安装目录里写东西**（只读挂载 / 无 root）时，等价做法是把路径喂给 cmake：`-Dfound_lib_ascendcl=... -Dfound_lib_acl_op_compiler=... -Dfound_libacldvppmpi=... -Dfound_lib_graph=... -Dfound_lib_ge_compiler=... -Dfound_libgraph_base=...`（`find_library` 命中已存在的 cache 变量就不再搜目录）。本文的构建走的是软链那条路线。
 ```
 
 ### 配置并编译
 
-CANN 后端开关 `WITH_CANN=ON`（不是 `BUILD_CANN`）；`-DOPENCV_DOWNLOAD_MIRROR_ID=gitcode` 让 cmake configure 阶段走 gitcode 镜像拉 ADE / IPPICV / TBB。
-
-**两个取舍点**：
-
-- `CMAKE_BUILD_TYPE=Release` 而不是 `Debug` —— Debug 的 `-O0` 会把 CANN `all_ops.h` 里每个 op 的内联函数都落盘，dnn `.text` 撑爆 aarch64 的分支范围；
-- `-DBUILD_opencv_apps=OFF` —— `apps/model-diagnostics` 是**可执行文件**，要直接链 CANN 的 `libge_compiler.so` / `libgraph.so` / `libgraph_base.so`，而这三个库自身还有一堆没被链进来的依赖：共享库链接允许留未定义符号（`libopencv_dnn.so` 没事），可执行文件不允许 → **链接期报几百条 `undefined reference` 并让整个 `all` 目标失败**（CANN 9.2.0 实测）。
-
-安装前缀用 `/usr/local/opencv-cann-414`。
+`WITH_CANN=ON` 打开 CANN 后端；`-DOPENCV_DOWNLOAD_MIRROR_ID=gitcode` 让 cmake 去 gitcode 镜像下载编译时需要的第三方库（ADE / IPPICV / TBB）。装到 `/usr/local/opencv-cann-414`：
 
 ```shell #test id="cmake-configure"
 cd opencv
@@ -241,13 +194,6 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       .. | tee /tmp/opencv-configure.log
 ```
 
-```{admonition} Note
-:class: note
-Python 路径用 `sysconfig` 现场取，不写死版本号目录：CI 镜像是 `/usr/local/python3.12.13`，验证机是 `/usr/local/python3.12.15`，两条路径都由 `sysconfig` 给出。
-
-写死的后果不是 configure 期报错，而是**编译期**才炸：`PYTHON_INCLUDE_DIR` 指向不存在的目录时 cmake 不会校验，`make` 编 `modules/python/src2/cv2.cpp` 时才报 `fatal error: Python.h: No such file or directory`（npu-4 实测）。前面两条 `test -f` 把这个失败提前到 configure 之前并打印出实际路径。
-```
-
 输出结果如下：
 
 ```shell #test-result id="cmake-configure" fuzzy='xxx' fuzzy='...'
@@ -269,29 +215,19 @@ grep "CANN: libgraph.so is found" /tmp/opencv-configure.log
 
 输出结果如下：
 
-```shell #test-result id="check-cmake-libs" fuzzy='xxx'
--- CANN: libascendcl.so is found at xxx
--- CANN: libgraph.so is found at xxx
+```shell #test-result id="check-cmake-libs"
+-- CANN: libascendcl.so is found at ...
+-- CANN: libgraph.so is found at ...
 ```
 
-```{admonition} Note
-:class: note
-这段必须排在 configure 块**之后**：doc-test 的执行顺序 = 文档顺序，而 `/tmp/opencv-configure.log` 是上面那个 configure 块用 `tee` 写出来的。放在前面会得到 `grep: /tmp/opencv-configure.log: No such file or directory`。
-```
-
-编译 + 安装一体（`--target install`）。**并行度别开高**：`all_ops.h` 那几个 TU 每个要吃掉 3GB 上下内存，容器内存配额（cgroup limit）只有 32GB 时，`-j` 超过 6 会被 OOM killer 直接干掉 `cc1plus`。所以并行度做成可覆盖的环境变量：默认 `--parallel 2`（保守），内存富裕时可以调高（先看配额：`cat /sys/fs/cgroup/memory.max`）。
+编译并安装一步完成（`--target install`）。**并行度别开高**：CANN 的 `all_ops.h` 会让每个编译单元吃掉 3GB 上下内存，容器内存是 32GB 时 `-j` 超过 6 会被 OOM killer 干掉 `cc1plus`。所以并行度做成了可覆盖的环境变量，默认 2（保守），内存够可以调高（先看配额：`cat /sys/fs/cgroup/memory.max`）。
 
 ```shell #test-setup
 cd opencv/build
 cmake --build . --target install --parallel "${OPENCV_BUILD_JOBS:-2}"
 ```
 
-### 校验 build 产物
-
-```{admonition} Note
-:class: note
-`opencv_version` 那个小工具属于 `apps/`（上面 `-DBUILD_opencv_apps=OFF` 关掉了），所以这里直接看装出来的库。
-```
+### 检查安装结果
 
 ```shell #test id="verify-build"
 ls -l /usr/local/opencv-cann-414/lib/libopencv_core.so.4.14.0 /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0
@@ -304,9 +240,7 @@ xxx
 xxx
 ```
 
-顺便看一眼 dnn 库的实际体积 —— 这是「Release 构建能一次链接通过」的证据：
-
-> 实测（4.14.0 + gcc 11.4 + Release -O3）：dnn `.text` = **55,920,432 B（≈53.3 MiB，CANN 9.1.0）** / **56,123,568 B（≈53.5 MiB，CANN 9.2.0）**，两次独立构建逐字节相同。同一份源码 Debug(-O0) 下 `.text` 会涨到 516 MB，超出 aarch64 的 ±128 MiB 分支窗口。
+再看一眼 dnn 库有多大（Release 构建能链接通过的关键）：
 
 ```shell #test id="dnn-text-size"
 size -A /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0 | awk '$1==".text" || $1=="Total"'
@@ -321,10 +255,10 @@ Total xxx
 
 ```{admonition} Note
 :class: note
-`xxx` 是字节数。这条断言**必须只输出两行** —— `awk` 把 `.text` 与 `Total` 钉死（`grep -E` 会连带捞进 `.text.hot` 之类的段）。中间不能插一行独占的 `...`：doc-test 的 placeholder 是通配符而不是行省略。
+`xxx` 是字节数
 ```
 
-再加一条上界，把「Release 不是 Debug」这件事也钉住：
+再加一条上界，确认用的确实是 Release 而不是 Debug：
 
 ```shell #test id="dnn-text-size-bound"
 TEXT=$(size -A /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0 | awk '$1==".text"{print $2}')
@@ -338,14 +272,9 @@ test "$TEXT" -gt 0 && test "$TEXT" -lt 67108864
 text bytes: xxx
 ```
 
-```{admonition} Note
-:class: note
-上界取 64 MiB：Release 实测 56,123,568 B（CANN 9.2.0）/ 55,920,432 B（CANN 9.1.0），留 ~8 MiB 余量；而 Debug(-O0) 是 516 MB，一秒就被这条断言拦下。
-```
-
 ## OpenCV Python quickstart
 
-把 Python 指向源码版 `cv2`（带 CANN 后端）：
+刚编出来的 `cv2` 装在 `/usr/local/opencv-cann-414` 下，把它加进 `PYTHONPATH`（Python 靠这个环境变量找包）：
 
 ```shell #test-setup
 export PYTHONPATH=/usr/local/opencv-cann-414/lib/python3.12/site-packages:${PYTHONPATH:-}
@@ -485,18 +414,14 @@ readback frames: 10
 
 ## NPU 上跑一次 DNN 推理
 
-### 后端注册表：CANN/NPU 真的编进来了吗
+### 先确认 CANN 后端真的编进来了
+
+`cv2.dnn` 里既有默认的 CPU 后端，也有 CANN 后端。要用 NPU，得先把 CANN 后端编进来，查一下后端列表：
 
 ```python #test id="dnn-backend-targets"
 import cv2
 
 print('cv2 version:', cv2.__version__)
-# 「枚举存在」不能证明后端编进去了：cv2.dnn.DNN_BACKEND_CANN 是无条件暴露的
-# （opencv2/dnn/dnn.hpp 的 enum Backend 里没有 #ifdef 守卫），不带 CANN 的
-# 构建照样打印得出来。
-# 真检查看后端注册表：modules/dnn/src/registry.cpp 里只有 #ifdef HAVE_CANN
-# 才会登记 (DNN_BACKEND_CANN, DNN_TARGET_NPU)，于是
-# getAvailableTargets(CANN) 在没编 CANN 时返回空列表。
 print('OPENCV backend targets:', cv2.dnn.getAvailableTargets(cv2.dnn.DNN_BACKEND_OPENCV))
 cann_targets = cv2.dnn.getAvailableTargets(cv2.dnn.DNN_BACKEND_CANN)
 print('CANN backend targets:', cann_targets)
@@ -516,16 +441,16 @@ CANN/NPU backend available: True
 
 ```{admonition} Note
 :class: note
-`xxx` 是 `cv2.__version__`（4.14.0）。
+`xxx` 是 `cv2.__version__`。
 
-`getAvailableTargets` 返回的是**后端注册表里实际登记的 target**：`DNN_BACKEND_OPENCV` → `[0]`（`DNN_TARGET_CPU`）、`DNN_BACKEND_CANN` → `[9]`（`DNN_TARGET_NPU`）。两个数值取自 `opencv2/dnn/dnn.hpp` 的 `enum Target`（`DNN_TARGET_CPU = 0` 起数，`DNN_TARGET_NPU` 是第 10 个）。**空列表 = 这个后端根本没编进来** —— `modules/dnn/src/registry.cpp` 里 `(DNN_BACKEND_CANN, DNN_TARGET_NPU)` 的登记被 `#ifdef HAVE_CANN` 包着，不带 CANN 的构建 `getAvailableTargets(CANN)` 返回 `[]`，脚本随即退出 1。
+第一行的 `[0]` 是 CPU 后端可用设备，第二行的 `[9]` 是 CANN 后端可用设备，也就是 NPU。**如果是空列表，说明这个 `cv2` 没带 CANN 后端**，脚本会直接报错退出。
 ```
 
 ### MobileNetV2 ONNX 推理（NPU vs CPU 对照）
 
-跑 MobileNetV2（onnx/models 的 `mobilenetv2-12`，PyTorch 导出，13,964,571 bytes）：
+跑 MobileNetV2（onnx/models 的 `mobilenetv2-12`，PyTorch 导出，13,964,571 字节）：
 
-> **模型来源**：本文档仓库里带了一份同字节副本（`tests/opencv/fixtures/mobilenetv2-12.onnx`，看护直接用它，避免 GitHub raw 在国内网络的抖动）；自己跑时没有这份副本，自动回落到从 onnx/models 下载（重试 5 次）。
+> **模型从哪来**：本文档仓库里带了一份同样的副本（`tests/opencv/fixtures/mobilenetv2-12.onnx`，看护直接用它，不用联网）；自己跑时没有这份副本，就自动从 onnx/models 下载（重试 5 次）。
 
 > **不需要 `OPENCV_FORCE_DNN_ENGINE=1`**：4.14.0 的默认引擎就是 classic 引擎，`setPreferableBackend` / `setPreferableTarget` 直接生效。
 
@@ -725,39 +650,15 @@ npu/cpu time ratio: xxx
 ...
 ```
 
-预期：`output shape (1, 1000)`、`float32`；baboon.jpg 的 top-1 是 **ImageNet-1k 第 372 类（patas / hussar monkey，赤猴）**，score ≈ 0.91（NPU 实测 0.91427，CPU 对照 0.91480，分差 ≈ 0.0005）。前三行 `cann marker:` 是「这次真的上了 NPU」的硬证据（见下一节）。
+预期：`output shape (1, 1000)`、`float32`；baboon.jpg 的分类结果是 ImageNet-1k 第 372 类（patas / hussar monkey，赤猴），置信度约 0.91（NPU 0.91427，CPU 0.91480）。开头三行 `cann marker:` 是 OpenCV 自己打的日志，说明这次真的走了 NPU。
 
-脚本同时建了**两个 net 实例**喂同一份输入：一个挂 CANN 后端 + NPU target，一个不挂后端（classic 引擎 + CPU target），然后硬断言两者 **top-1 相同、top-1 分数差 ≤ 0.01、输出 shape/dtype 相同** —— 加速器算错了就直接退出 1。`npu forward ms` / `cpu forward ms` 量的是**热启** forward（不含 GE 图编译），**只作参考，脚本不对它们设阈值**。标注结果如下：
+脚本建了两个 net 实例喂同一张图：一个指定 CANN 后端 + NPU，一个用默认 CPU，然后断言两者 **top-1 相同、分数差 ≤ 0.01、输出 shape/dtype 相同** —— 算错了就直接报错退出。`npu forward ms` / `cpu forward ms` 是第二次 forward 的耗时（不含 GE 图编译），只作参考，脚本不设阈值。标注结果如下：
 
 ![NPU 推理标注结果](images/dnn-result.png)
 
-> 首次 forward 含 GE 图编译（`converting ge::Graph to OM buffer`），约 0.5~1 分钟出 `Compile success, model size = ...`；进程内二次 forward 约 1ms —— 脚本的 `npu forward ms` 量的就是这一次（第二次 forward 命中 `net_cann.cpp` 的 `if (netWasConverted && netWasAllocated) return;`，直接复用已编译的 OM）。
+> 第一次 forward 包含 GE 图编译（`converting ge::Graph to OM buffer`），要 0.5~1 分钟才出 `Compile success, model size = ...`；同一个进程里第二次 forward 只要 1 ms —— 脚本里的 `npu forward ms` 量的就是第二次。
 >
-> 实测（4.14.0 + CANN 9.2.0 / 910B4）：GE 图编译 **36.5 s**，二次 forward **1 ms**，同一份输入的 CPU 对照 **33 ms**（比值 ≈ 45×）。
-
-### 怎么证明这次真的跑在 NPU 上
-
-**top-1 = 372 本身证明不了是 NPU 算的** —— 同一份构建走默认 CPU 引擎也是 372（score 0.9148，NPU 是 0.9143）。所以脚本把 OpenCV 自己打的 CANN 后端日志抓下来，**少一行就直接退出 1**，并在结果里输出三行归一化后的 `cann marker:`（原文全部来自 `modules/dnn/src/net_cann.cpp`）：
-
-| 标记（脚本抓的原文） | 源码位置 | 证明了什么 |
-| --- | --- | --- |
-| `DNN/CANN: converting ge::Graph to OM buffer` | `net_cann.cpp:236` | 逐层转换出来的图交给了 GE，开始编 OM |
-| `Compile success, model size = ...` | `net_cann.cpp:348` | GE 图编译成功、产出了 OM 模型（**fork 之后的父进程侧**） |
-| `DNN/CANN: OM buffer size = ...` | `net_cann.cpp:238` | OM 模型被装进 `CannNet` 准备执行 |
-
-这张表证明的是「**后端确实被调用了**」；「算对了」由上面那个 CPU 对照兜住。
-
-配套的守护脚本（`tests/opencv/test_quick_start_ascend.py`）还把 **`Going back to default backend on CPU target`** 加进了 `ERROR_MARKERS`：那是 `initBackend()` 在**某一层不支持 CANN** 时打的 WARNING，打完之后直接 `return` —— **静默回落到 CPU 引擎**。这一行一旦出现，说明这次推理压根没上 NPU，守护直接判红。
-
-抓这三行日志要过三个坑，脚本里都显式处理了：
-
-1. **Release 构建默认看不到 INFO** —— Release 带 `NDEBUG` ⇒ 默认日志级别是 WARNING，而这三行全是 `CV_LOG_INFO` ⇒ 脚本里显式抬到 `LOG_LEVEL_INFO`；
-2. **日志行没法直接断言** —— 行首带时间戳和绝对编译路径，每次都不一样 ⇒ 脚本把 `fd 1` 临时改到文件，跑完只取**消息正文**做归一化；
-3. **日志行不一定落盘** —— INFO 写进 C++ 的 `std::cout`，不显式 `fflush(NULL)` 就只能靠 GE 图编译 `fork()` 出来的子进程 `exit(0)` 时顺手 flush，而那只带得出 **fork 之前** 的行，`fork` 之后父进程侧写的 `Compile success` 会整个丢掉（这行恰恰是最硬的证据）。
-
-## 注意事项
-
-- **没有 `opencv_version` 等命令行工具**：它们属于 `apps/`，而 `apps` 被 `-DBUILD_opencv_apps=OFF` 关掉了（原因见「配置并编译」一节），本文直接看装出来的库。
+> 实测（4.14.0 + CANN 9.2.0 / 910B4）：GE 图编译 **36.5 s**，二次 forward **1 ms**，同一张图 CPU 跑 **33 ms**（约 45 倍）。
 
 ## 外部链接
 
