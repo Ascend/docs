@@ -290,6 +290,8 @@ export PYTHONPATH=/usr/local/opencv-cann-414/lib/python3.12/site-packages:${PYTH
 
 ### 读图 / 写图
 
+读一张图，再写一张出来(下面的命令用 Python 执行)：
+
 ```python #test id="imread-imwrite"
 import os
 import cv2
@@ -310,6 +312,8 @@ written: True
 ```
 
 ### 颜色空间转换
+
+把彩色图转成灰度图(下面的命令用 Python 执行)：
 
 ```python #test id="cvtcolor"
 import cv2
@@ -335,6 +339,8 @@ gray shape: (512, 512) mean: xxx
 
 ### 缩放
 
+把图缩到 50×200(下面的命令用 Python 执行)：
+
 ```python #test id="resize"
 import cv2
 
@@ -355,6 +361,8 @@ OpenCV shape 是 `(rows, cols, channels)`，`resize(img, (W, H), ...)` 得 `(H, 
 ![缩放结果](images/quickstart-resize.png)
 
 ### 绘制
+
+在图上画个矩形、写行字(下面的命令用 Python 执行)：
 
 ```python #test id="draw"
 import os
@@ -381,7 +389,7 @@ written: True
 
 ### 视频读写（videoio）
 
-本文这版 `BUILD_LIST` **带了** `videoio`，所以 `cv2.VideoWriter` / `cv2.VideoCapture` 直接可用。下面写 10 帧再读回来：
+写 10 帧再读回来(下面的命令用 Python 执行)：
 
 ```python #test id="videoio"
 import cv2
@@ -415,7 +423,7 @@ readback frames: 10
 
 ### 先确认 CANN 后端真的编进来了
 
-`cv2.dnn` 里既有默认的 CPU 后端，也有 CANN 后端。要用 NPU，得先把 CANN 后端编进来，查一下后端列表：
+`cv2.dnn` 里既有默认的 CPU 后端，也有 CANN 后端。要用 NPU，得先把 CANN 后端编进来，查一下后端列表(下面的命令用 Python 执行)：
 
 ```python #test id="dnn-backend-targets"
 import cv2
@@ -450,8 +458,6 @@ CANN/NPU backend available: True
 跑 MobileNetV2（onnx/models 的 `mobilenetv2-12`，PyTorch 导出，13,964,571 字节）：
 
 > **模型从哪来**：本文档仓库里带了一份同样的副本（`tests/opencv/fixtures/mobilenetv2-12.onnx`，看护直接用它，不用联网）；自己跑时没有这份副本，就自动从 onnx/models 下载（重试 5 次）。
-
-> **不需要 `OPENCV_FORCE_DNN_ENGINE=1`**：4.14.0 的默认引擎就是 classic 引擎，`setPreferableBackend` / `setPreferableTarget` 直接生效。
 
 ```shell #test id="dnn-cann-infer"
 set -e   # python 段失败必须让整个块失败：块里最后一条命令是 cat，它的退出码会盖掉 python 的
