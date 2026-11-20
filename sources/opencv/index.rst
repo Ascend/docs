@@ -1,8 +1,3 @@
-opencv
-===========
 
-.. toctree::
-   :maxdepth: 2
-
-   install.rst
-   quick_start.rst
+.. include:: quick_start.md
+   :parser: myst_parser.sphinx_
