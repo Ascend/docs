@@ -2,8 +2,8 @@
 
 [OpenCV](https://github.com/opencv/opencv) 是开源计算机视觉库。本文在单卡昇腾 NPU 上把 **OpenCV 4.14** 从源码编译成带 CANN 后端的 `cv2`（编译时打开 `WITH_CANN=ON`），跑通：
 
-- **CPU 常用接口**：读图、写图、颜色空间转换、缩放、画图、读写视频；
-- **NPU 上跑模型**：用 `cv2.dnn` 加载 MobileNetV2，指定 CANN 后端 + NPU 设备，分类结果和 CPU 跑出来的一致（top-1 相同）；
+- **CPU 常用接口**：读图、写图、颜色空间转换、缩放、画图、读写视频。
+- **NPU 上跑模型**：用 `cv2.dnn` 加载 MobileNetV2，指定 CANN 后端 + NPU 设备，分类结果和 CPU 跑出来的一致。
 
 ## 前置条件
 
@@ -15,7 +15,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需�
 
 在跑本文档**之前**，你的机器上需要已经装好并可用：
 
-- 可用的 Python 环境（3.12）
+- 可用的 Python 环境
 - 可用的 CANN（参考[快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html)），`npu-smi info` 能看到 NPU 设备
 - 编译依赖：`git` / `build-essential` / `cmake` / `pkg-config` / `zlib1g-dev` / `libjpeg-dev` / `libpng-dev` / `libtiff-dev`（见「前置安装」里的 apt 那一步）
 
@@ -66,7 +66,7 @@ Python 3.12.xxx
 cmake version xxx
 ```
 
-把 CANN 的环境变量加载进来（后面的编译和运行都要用）：
+把 CANN 的环境变量加载进来：
 
 ```shell #test-setup
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
@@ -145,7 +145,7 @@ ln -sfn "$CANN_DIR/lib64" "$CANN_DIR/acllib/lib64"
 ln -sfn "$CANN_DIR/lib64" "$CANN_DIR/compiler/lib64"
 ```
 
-确认三个软链都指向**完整版** lib64（最后那个数字 1 = 完整版，0 = 裁剪版）：
+确认三个软链都指向**完整版** lib64：
 
 ```shell #test id="check-cann-lib-layout"
 CANN_DIR=/usr/local/Ascend/ascend-toolkit/latest
@@ -222,7 +222,7 @@ grep "CANN: libgraph.so is found" /tmp/opencv-configure.log
 -- CANN: libgraph.so is found at ...
 ```
 
-编译并安装一步完成（`--target install`）。**并行度别开高**：CANN 的 `all_ops.h` 会让每个编译单元吃掉 3GB 上下内存，容器内存是 32GB 时 `-j` 超过 6 会被 OOM killer 干掉 `cc1plus`。所以并行度做成了可覆盖的环境变量，默认 2（保守），内存够可以调高（先看配额：`cat /sys/fs/cgroup/memory.max`）。
+编译并安装一步完成（`--target install`）。**并行度别开高**：CANN 的 `all_ops.h` 会让每个编译单元吃掉 3GB 上下内存，容器内存是 32GB 时 `-j` 超过 6 会被 OOM killer 干掉 `cc1plus`。所以并行度做成了可覆盖的环境变量，默认 2，内存够可以调高（先看配额：`cat /sys/fs/cgroup/memory.max`）。
 
 ```shell #test-setup
 cd opencv/build
@@ -231,18 +231,19 @@ cmake --build . --target install --parallel "${OPENCV_BUILD_JOBS:-2}"
 
 ### 检查安装结果
 
+确认装出来的 `cv2` 能正常导入、版本是 4.14.0：
+
 ```shell #test id="verify-build"
-ls -l /usr/local/opencv-cann-414/lib/libopencv_core.so.4.14.0 /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0
+PYTHONPATH=/usr/local/opencv-cann-414/lib/python3.12/site-packages:${PYTHONPATH:-} python -c "import cv2; print('cv2', cv2.__version__)"
 ```
 
 输出结果如下：
 
-```shell #test-result id="verify-build" fuzzy='xxx'
-xxx
-xxx
+```shell #test-result id="verify-build"
+cv2 4.14.0
 ```
 
-再看一眼 dnn 库有多大（Release 构建能链接通过的关键）：
+确认 dnn 库有多大（Release 构建能链接通过的关键）：
 
 ```shell #test id="dnn-text-size"
 size -A /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0 | awk '$1==".text" || $1=="Total"'
@@ -260,7 +261,7 @@ Total xxx
 `xxx` 是字节数
 ```
 
-再加一条上界，确认用的确实是 Release 而不是 Debug：
+补充一条上界，确认用的确实是 Release 而不是 Debug：
 
 ```shell #test id="dnn-text-size-bound"
 TEXT=$(size -A /usr/local/opencv-cann-414/lib/libopencv_dnn.so.4.14.0 | awk '$1==".text"{print $2}')
@@ -276,16 +277,12 @@ text bytes: xxx
 
 ## OpenCV Python quickstart
 
-刚编出来的 `cv2` 装在 `/usr/local/opencv-cann-414` 下，把它加进 `PYTHONPATH`（Python 靠这个环境变量找包）：
+刚编出来的 `cv2` 装在 `/usr/local/opencv-cann-414` 下，把它加进 `PYTHONPATH`：
 
 ```shell #test-setup
 export PYTHONPATH=/usr/local/opencv-cann-414/lib/python3.12/site-packages:${PYTHONPATH:-}
 ```
 
-```{admonition} Note
-:class: note
-注意是 **prepend**（保留镜像 `set_env.sh` 注入的 CANN `PYTHONPATH` 条目）。GE 图编译依赖其中的 `tbe` Python 模块；整体覆盖 `PYTHONPATH` 会让 DNN CANN 后端在图编译阶段报 `There is no valid so about OpsKernelInfoStore or GraphOptimizer`（ret=0xFFFFFFFF）。
-```
 
 下面用 clone 下来的 OpenCV 仓库自带测试图 `opencv/samples/data/baboon.jpg`（512×512 狒狒）作样例输入：
 
