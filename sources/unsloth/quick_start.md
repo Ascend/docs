@@ -15,7 +15,6 @@ Atlas 900 A2 训练系列产品，单卡。
 | CANN          | toolkit 与驱动已安装，并能 `source set_env.sh`。版本按 [昇腾软件配套清单](https://www.hiascend.com/developer/download/compatibility) 选择                    |
 | Python        | 落在官方配套表给出的范围内，并满足 Unsloth 下限。当前正式版要求 Python 3.9 至 3.14                                                                                |
 | PyTorch       | `torch==2.10.0` 与 `torch_npu==2.10.0.post7`。配套表见 [CANN 与 PyTorch 配套表](https://github.com/Ascend/pytorch/blob/master/COMPATIBILITY.md) |
-| Unsloth       | 克隆上游最新 release，安装检出目录里的 `huggingfacenotorch` 扩展                                                                                       |
 | triton-ascend | 从昇腾 PyPI 安装，供 Qwen3 的 Triton 融合内核编译                                                                                                   |
 | 模型            | [Qwen/Qwen3.5-0.8B](https://huggingface.co/Qwen/Qwen3.5-0.8B)、[Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)               |
 
