@@ -163,7 +163,7 @@ lmcache <ver>...
 
 ```{admonition} Note
 :class: note
-`<ver>` 是 LMCache-Ascend 最新 Release tag 去掉前缀 `v`。PyPI 上该版本若带 post 修订，装到的版本号会带 `.post` 后缀。
+`<ver>` 是 LMCache 最新的 Release tag。
 ```
 
 
@@ -218,7 +218,7 @@ npu_available True
 
 ```{admonition} Note
 :class: note
-`<ref>` 是 LMCache-Ascend 的最新 Release 的 tag。`<ver>` 与第 5 节相同，输出版本号可以带 `.post` 后缀。
+`<ref>` 是 LMCache-Ascend 的最新 Release 的 tag。`<ver>` 是 LMCache 最新的 Release tag。
 ```
 
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
