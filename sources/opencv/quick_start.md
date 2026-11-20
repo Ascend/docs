@@ -149,16 +149,18 @@ ln -sfn "$CANN_DIR/lib64" "$CANN_DIR/compiler/lib64"
 
 ```shell #test id="check-cann-lib-layout"
 CANN_DIR=/usr/local/Ascend/ascend-toolkit/latest
-ls -l "$CANN_DIR/acllib/lib64/libascendcl.so" "$CANN_DIR/lib64/libacl_op_compiler.so" "$CANN_DIR/compiler/lib64/libgraph.so"
+test -f "$CANN_DIR/acllib/lib64/libascendcl.so" && echo "acllib/lib64/libascendcl.so ok"
+test -f "$CANN_DIR/lib64/libacl_op_compiler.so" && echo "lib64/libacl_op_compiler.so ok"
+test -f "$CANN_DIR/compiler/lib64/libgraph.so" && echo "compiler/lib64/libgraph.so ok"
 nm -D --defined-only "$CANN_DIR/compiler/lib64/libgraph.so" | grep -c '_ZNK2ge12AscendStringlt'
 ```
 
 输出结果如下：
 
 ```shell #test-result id="check-cann-lib-layout"
-.../libascendcl.so
-.../libacl_op_compiler.so
-.../libgraph.so
+acllib/lib64/libascendcl.so ok
+lib64/libacl_op_compiler.so ok
+compiler/lib64/libgraph.so ok
 1
 ```
 
