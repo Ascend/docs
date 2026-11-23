@@ -112,7 +112,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     _CONSTRAINTS_FILE = '/tmp/comfyui_npu_constraints.txt'
 
     # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source.
-    _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
+    _CLUSTER_INDEX = 'https://pypi.org/simple'
     _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
 
     # HF repo carrying the v1-5-pruned-emaonly.safetensors checkpoint

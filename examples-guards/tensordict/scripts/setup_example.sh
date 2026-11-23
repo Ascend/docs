@@ -10,17 +10,13 @@ fi
 : "${TARGET_ROOT:?TARGET_ROOT is required}"
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 
-# Use the cluster wheel cache for every install, including uv build isolation.
-export PIP_INDEX_URL="http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple"
-export PIP_TRUSTED_HOST="cache-service.nginx-pypi-cache.svc.cluster.local"
+# Keep pip and uv on their configured indexes; the runner proxy handles caching.
 export PIP_EXTRA_INDEX_URL="https://repo.huaweicloud.com/ascend/repos/pypi"
-export UV_DEFAULT_INDEX="$PIP_INDEX_URL"
-export UV_INSECURE_HOST="$PIP_TRUSTED_HOST"
-echo "dependency indexes: pip=$PIP_INDEX_URL uv=$UV_DEFAULT_INDEX"
+echo "dependency indexes: pip=${PIP_INDEX_URL:-default}"
 
 # The CANN base image may contain no PyTorch at all (examples run #1).
 # Follow this project's quick-start setup: reuse a matching pair when present,
-# otherwise install the two pinned wheels from the cluster cache + Ascend index.
+# otherwise install the two pinned wheels from the Ascend index.
 if python - <<'PY'
 try:
     import torch

@@ -47,22 +47,6 @@ source_cann() {
   source /usr/local/Ascend/ascend-toolkit/set_env.sh
 }
 
-# Hong Kong runners sit in the cluster. Point apt at the in-cluster cache
-# when that DNS name resolves; leave the image mirrors alone otherwise.
-configure_apt_cache() {
-  local host=cache-service.nginx-pypi-cache.svc.cluster.local
-  if ! getent hosts "$host" >/dev/null 2>&1; then
-    echo "setup: cluster APT cache DNS not available"
-    return
-  fi
-  if [[ ! -f /etc/apt/sources.list ]]; then
-    echo "setup: /etc/apt/sources.list missing, skipping APT cache"
-    return
-  fi
-  sed -Ei "s@(ports|archive).ubuntu.com@${host}:8081@g" /etc/apt/sources.list
-  echo "setup: pointed apt at cluster cache"
-}
-
 missing_debs() {
   local pkg
   for pkg in "${DEPS[@]}"; do
@@ -79,7 +63,6 @@ install_debs() {
     echo "setup: build packages already installed"
     return
   fi
-  configure_apt_cache
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
   # shellcheck disable=SC2086

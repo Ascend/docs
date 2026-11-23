@@ -80,15 +80,6 @@ Python 3...
 
 安装 `cmake`、`ninja` 和 NUMA 头文件。
 
-<!--
-```shell #test-setup
-if getent hosts cache-service.nginx-pypi-cache.svc.cluster.local >/dev/null 2>&1 \
-    && [ -f /etc/apt/sources.list ]; then
-  sed -Ei 's@(ports|archive).ubuntu.com@cache-service.nginx-pypi-cache.svc.cluster.local:8081@g' /etc/apt/sources.list
-fi
-```
--->
-
 ```shell #test id="install-system-prereqs"
 apt-get update
 DEBIAN_FRONTEND=noninteractive apt-get install -y cmake ninja-build libnuma-dev

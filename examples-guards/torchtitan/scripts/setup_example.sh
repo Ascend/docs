@@ -15,18 +15,10 @@ set -euo pipefail
 [[ $# -lt 1 ]] && { echo "usage: $0 <profile>" >&2; exit 2; }
 PROFILE="$1"
 
-# The examples engine ships a pip cache; fall back to the public mirrors.
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-if curl -sm 5 -o /dev/null "http://${CLUSTER_PIP_HOST}/pypi/simple/"; then
-    PIP_INDEX_URL="http://${CLUSTER_PIP_HOST}/pypi/simple"
-    PIP_EXTRA_INDEX_URL="https://mirrors.aliyun.com/pypi/simple"
-else
-    PIP_INDEX_URL="https://mirrors.aliyun.com/pypi/simple"
-    PIP_EXTRA_INDEX_URL="https://repo.huaweicloud.com/ascend/repos/pypi"
-fi
-
-export PIP_INDEX_URL PIP_EXTRA_INDEX_URL
-export PIP_TRUSTED_HOST="cache-service.nginx-pypi-cache.svc.cluster.local,mirrors.aliyun.com,repo.huaweicloud.com,pypi.org"
+# The examples engine no longer ships a pip cache; use the public mirrors.
+export PIP_INDEX_URL="https://mirrors.aliyun.com/pypi/simple"
+export PIP_EXTRA_INDEX_URL="https://repo.huaweicloud.com/ascend/repos/pypi"
+export PIP_TRUSTED_HOST="mirrors.aliyun.com,repo.huaweicloud.com,pypi.org"
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$HERE/.." && pwd)"

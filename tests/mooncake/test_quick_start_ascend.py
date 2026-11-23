@@ -47,7 +47,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
-    _APT_CACHE_HOST = 'cache-service.nginx-pypi-cache.svc.cluster.local'
     _HCCN_CONF = '/etc/hccn.conf'
     _HCCN_TOOL_CANDIDATES = (
         '/usr/local/Ascend/driver/tools/hccn_tool',
@@ -67,36 +66,6 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'GITHUB_OUTPUT',
         'GITHUB_PATH',
     })
-
-    @classmethod
-    def _configure_apt_cache(cls) -> None:
-        """Point apt at the cluster nginx cache when that DNS name resolves.
-
-        Hong Kong A2 runners are inside the cluster. coder / a laptop
-        are not; leave the image mirrors alone there.
-        """
-        probe = subprocess.run(
-            ['getent', 'hosts', cls._APT_CACHE_HOST],
-            capture_output=True,
-            check=False,
-        )
-        if probe.returncode != 0:
-            print('setup: cluster APT cache DNS not available, keeping default mirrors')
-            return
-        sources = '/etc/apt/sources.list'
-        if not os.path.isfile(sources):
-            print(f'setup: {sources} missing, skipping APT cache rewrite')
-            return
-        subprocess.run(
-            [
-                'sed',
-                '-Ei',
-                f's@(ports|archive).ubuntu.com@{cls._APT_CACHE_HOST}:8081@g',
-                sources,
-            ],
-            check=True,
-        )
-        print('setup: pointed apt at cluster cache')
 
     @classmethod
     def _npu_phy_ids(cls) -> list[int]:
@@ -274,7 +243,6 @@ echo "setup: hccn probe end"
         CANN increment from ``set_env.sh``. CI-injected names in
         ``_PRESERVE_ENV`` stay.
         """
-        cls._configure_apt_cache()
 
         if os.path.isfile(cls._CANN_SET_ENV):
             merged = subprocess.run(

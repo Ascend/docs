@@ -28,31 +28,13 @@ TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE:?GITHUB_WORKSPACE is required}"
 GITHUB_ENV="${GITHUB_ENV:?GITHUB_ENV is required}"
 
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 ASCEND_PIP_INDEX=https://repo.huaweicloud.com/ascend/repos/pypi
 ALIYUN_PIP_INDEX=https://mirrors.aliyun.com/pypi/simple/
 
-# 1) pip index: prefer the cluster cache, fall back to the Aliyun
-# mirror (same selection as the other projects' setup scripts). The uv
-# env below mirrors the proven combo from the quick-start engine
-# (UV_INDEX_STRATEGY=unsafe-best-match + UV_INSECURE_HOST for the http
-# cluster cache); uv would otherwise refuse an http index.
-if python -c "
-import os
-import urllib.error
-import urllib.request
-try:
-    urllib.request.urlopen(os.environ['CLUSTER_PIP_INDEX'], timeout=3)
-except urllib.error.HTTPError:
-    pass
-" 2>/dev/null; then
-    PIP_INDEX_URL="$CLUSTER_PIP_INDEX"
-    PIP_TRUSTED_HOST="$CLUSTER_PIP_HOST"
-else
-    PIP_INDEX_URL="$ALIYUN_PIP_INDEX"
-    unset PIP_TRUSTED_HOST
-fi
+# 1) pip index: the in-cluster cache was decommissioned, use the Aliyun
+# mirror (same fallback as the other projects' setup scripts).
+PIP_INDEX_URL="$ALIYUN_PIP_INDEX"
+unset PIP_TRUSTED_HOST
 export PIP_INDEX_URL
 export PIP_EXTRA_INDEX_URL="$ASCEND_PIP_INDEX"
 export PIP_TIMEOUT=120

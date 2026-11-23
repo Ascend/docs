@@ -25,26 +25,11 @@ export PIP_CONSTRAINT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/constrai
 ASCEND_PIP_INDEX=https://repo.huaweicloud.com/ascend/repos/pypi
 TRITON_ASCEND_INDEX=https://triton-ascend.osinfra.cn/pypi/simple
 FALLBACK_PIP_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 
 select_pip_index() {
-  # Runners live in mainland China: prefer the cluster pip cache, fall
-  # back to the Tsinghua mirror.
-  if python -c "
-import urllib.error
-import urllib.request
-try:
-    urllib.request.urlopen('${CLUSTER_PIP_INDEX}', timeout=3)
-except urllib.error.HTTPError:
-    pass
-" 2>/dev/null; then
-    export PIP_INDEX_URL="$CLUSTER_PIP_INDEX"
-    export PIP_TRUSTED_HOST="$CLUSTER_PIP_HOST"
-  else
-    export PIP_INDEX_URL="$FALLBACK_PIP_INDEX"
-    unset PIP_TRUSTED_HOST
-  fi
+  # The in-cluster pip cache was decommissioned; use the public mirror.
+  export PIP_INDEX_URL="${FALLBACK_PIP_INDEX:-${ALIYUN_PIP_INDEX:-https://mirrors.aliyun.com/pypi/simple}}"
+  unset PIP_TRUSTED_HOST
   echo "pip index: $PIP_INDEX_URL"
 }
 

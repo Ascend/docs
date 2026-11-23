@@ -205,9 +205,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         'nvidia-nvtx-cu12<0',
     )
     _CONSTRAINTS_FILE = '/tmp/fastchat_npu_constraints.txt'
-    _CLUSTER_INDEX = (
-        'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
-    )
+    _CLUSTER_INDEX = 'https://pypi.org/simple'
     _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
 
     def pre_process(self) -> str:
