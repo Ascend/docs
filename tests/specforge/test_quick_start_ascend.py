@@ -182,6 +182,32 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             check=True,
         )
 
+        # 3) A3 (Ascend 910C) needs two adjustments the A2 leg does not:
+        #
+        #    * sgl-kernel-npu ships one wheel per SoC flavour - the
+        #      release asset name carries the flavour (``-910b-`` for
+        #      910B, ``-a3-`` for 910C), so the doc's wheel name has to
+        #      follow the machine generation. Pin the CANN version too:
+        #      the doc derives it from the image's ``cann-*`` directory
+        #      name, which need not be identical across flavours.
+        #    * the doc pulls Qwen3.5-4B from the HuggingFace Hub, and A3
+        #      runners reach Hugging Face only through the mirror (direct
+        #      access returns 503); A2 dials huggingface.co directly.
+        #      Xet off on A3: its data plane lives on
+        #      cas-bridge.xethub.hf.co, outside HF_ENDPOINT, and the
+        #      redirected HEAD there carries no Content-Length -
+        #      snapshot_download refuses any file whose size it cannot
+        #      read.
+        #
+        # The visible device set is deliberately NOT narrowed: the doc
+        # asserts ``torch.npu.device_count() == 4`` (capture server on
+        # card 0, trainer on card 1, cards 2-3 for the HCCL buffers).
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('SGL_KERNEL_SOC_VER', 'a3')
+            os.environ.setdefault('SGL_KERNEL_CANN_VER', '9.1.0')
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
     # ----------------------------------------------------------
     # test entry
     # ----------------------------------------------------------
