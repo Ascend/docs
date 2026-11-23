@@ -1,7 +1,8 @@
 # diffusers quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
+# This file only declares what varies per project: schedule,
 # concurrency, runner, container image + options, upstream repo,
 # monitored doc, and the test entry command. The guard loop, cache
 # I/O, state relay and publishing all live in the engine.
@@ -68,13 +69,14 @@ permissions:
   contents: read
 
 jobs:
-  diffusers-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-diffusers-*), artifacts
-      # (diffusers-quick-start-<run_id>) and the test working dir
-      # (workflows/tests/diffusers).
+      # Namespaces cache keys (quick-start-monitor-state-diffusers-a2_*),
+      # artifacts (diffusers-quick-start-<run_id>-a2) and the test working
+      # dir (tests/diffusers).
       project: diffusers
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -97,7 +99,38 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/Diffusers/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.diffusers.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: diffusers
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc's check-torch expects
+      # `count: 2`, so the A3 pool runner must expose 2 cards - same as
+      # the A2 leg. The doc examples themselves are single-card.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: ''
+      timeout_minutes: 240
+      upstream_repo: huggingface/diffusers
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/Diffusers/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/Diffusers/quick_start.md
+      test_command: python -m unittest tests.diffusers.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: diffusers
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

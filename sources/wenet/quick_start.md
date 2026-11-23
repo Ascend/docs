@@ -22,7 +22,7 @@ WeNet 最新的正式 release（`v3.1.0`，2024-05 发布）**不含** NPU 训�
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为**单卡**。
+Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）与 Atlas **900 A3** 训练系列（Ascend **910C**）。本文示例为**单卡**，卡数由 `run_npu.sh` 按机器可见卡数自动决定。
 
 ### 软件
 
@@ -30,36 +30,36 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为*
 
 | 类别 | 最低版本 | 推荐版本 |
 | --- | --- | --- |
-| CANN | 8.0.RC2.alpha003 | latest |
+| CANN | 9.1.0 | 9.1.0 |
 | Python | 3.10 | 3.10 |
-| torch | 2.1.0 | 2.2.0 |
-| torch-npu | 2.1.0 | 2.2.0 |
-| torchaudio | 2.1.0 | 2.2.0 |
-| deepspeed | 0.13.2 | 0.14.4 |
+| torch | 2.5.1 | 2.5.1 |
+| torch-npu | 2.5.1.post1 | 2.5.1.post1 |
+| torchaudio | 2.5.1 | 2.5.1 |
+| deepspeed | 0.14.4 | 0.14.4 |
 
 此外需要提前就绪的编译工具 `git` 与音频工具 `sox`。
 
 ```{admonition} Note
 :class: note
-CANN 最低版本为 8.0.rc1，安装 CANN 时请同时安装 Kernel 算子包。
+安装 CANN 时请同时安装 Kernel 算子包。
 ```
 
 ### 本文验证环境
 
 | 组件 | 版本 |
 | --- | --- |
-| NPU | Ascend 910B4 × 1 |
-| CANN | 8.0.0 |
+| NPU | Ascend 910B4 × 1 / Ascend 910C × 1 |
+| CANN | 9.1.0 |
 | Python | 3.10 |
-| torch / torch-npu / torchaudio | 2.2.0 |
+| torch / torch-npu / torchaudio | 2.5.1（torch-npu 为 2.5.1.post1） |
 | deepspeed | 0.14.4 |
 | WeNet 源码 | `main`（仓库 `wenet-e2e/wenet`） |
 | 数据集 | aishell-1（Hugging Face `JazerJu/aishell1-full-slr33`，OpenSLR 33 原档） |
 
-本文配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:8.0.0-910b-ubuntu22.04-py3.10`。
+本文配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.10`（Ascend 910B）与
+`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.10`（Ascend 910C），均为 CANN 9.1.0 + Python 3.10。
 
-`deepspeed` 最低要求 0.13.2，但 0.16+ 在 torch 2.2.0 下会触发 `torch.library.custom_op`
-`AttributeError`，本文显式钉在 **0.14.4**。
+`requirements.txt` 只约束 `deepspeed>=0.14.0`，本文显式钉在 **0.14.4**，与官方实验脚本的默认值一致。
 
 ## 1. 加载 CANN 环境
 
@@ -103,8 +103,8 @@ print('npu count:', torch.npu.device_count())
 输出结果如下：
 
 ```shell #test-result id="check-npu"
-torch: 2.2.0
-torch_npu: 2.2.0.post2
+torch: 2.5.1
+torch_npu: 2.5.1.post1
 npu available: True
 npu count: 1
 ```
@@ -136,31 +136,29 @@ test -f examples/aishell/s0/run_npu.sh && echo "run_npu.sh ok"
 
 ## 4. 安装 WeNet 与依赖
 
-安装 WeNet 及其 NPU 依赖。`[torch-npu]` extra 已将 `torch` / `torch-npu` / `torchaudio` 钉在推荐版本
-2.2.0，并附带 `numpy<2`；`requirements.txt` 只约束 `deepspeed>=0.14.0`，为避免 pip 解析到与 torch 2.2.0
-不兼容的 0.16+，安装后显式回钉 0.14.4。
+安装 WeNet 及其 NPU 依赖。上游 `setup.py` 的 `[torch-npu]` extra 把三件套钉在 2.2.0，该版本在 Ascend 910C
+上无法计算，因此改为显式安装 2.5.1。`openai-whisper` 只发布源码包，构建它需要 setuptools 82 以下的版本，
+故先固定 setuptools，并对相关 `pip` 关闭构建隔离。
 
 ```shell #test-setup id="install"
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
+set -e
 cd wenet
-pip install -e .[torch-npu]
-pip install -r requirements.txt
-pip install "deepspeed==0.14.4"
-# train_utils.py 无条件 import deepspeed 与 tensorboardX；requirements.txt 是开发
-# 全量清单（含 flake8/clang-format/openai-whisper 等与训练无关项），aarch64 上任一包
-# 解析失败会导致整张清单未安装，且失败被命令块尾部的 rc 静默吞掉，
-# 故训练核心依赖在安装步骤显式补齐
+pip install "setuptools<82" wheel
+pip install --no-build-isolation torch==2.5.1 torch-npu==2.5.1.post1 torchaudio==2.5.1 "numpy<2"
+pip install --no-build-isolation openai-whisper==20231117
+pip install --no-build-isolation -e .
+pip install --no-build-isolation -r requirements.txt
+pip install deepspeed==0.14.4
 pip install tensorboardX
-# 依赖校验：train_utils.py 无条件 import deepspeed，缺失要到训练阶段才暴露，
-# 且训练块的 rc 会被 run_npu.sh 末尾命令掩盖，故在此显式校验（装不上立即失败）
-python -c "import deepspeed, tensorboardX; print('deepspeed', deepspeed.__version__)"
+python -c "import deepspeed, tensorboardX, importlib.metadata as m; print('wenet', m.version('wenet'), '| deepspeed', deepspeed.__version__)"
 ```
 
-安装 `sox`（`sox` 命令与 `libsox-dev` 头文件）：
+安装 `sox`（`sox` 命令与 `libsox-dev` 头文件）以及 `libgomp1`（`torchaudio` 运行期需要 `libgomp.so.1`）：
 
 ```shell #test-setup
 pip install sox
-apt-get update && apt-get install -y sox libsox-dev || true
+apt-get update && apt-get install -y sox libsox-dev libgomp1 || true
 ```
 
 ## 5. 下载数据
@@ -191,9 +189,6 @@ if [ ! -L /root/asr-data ]; then
   ln -s /root/.cache/asr-data /root/asr-data
 fi
 cd wenet/examples/aishell/s0
-# 官方下载脚本：local/download_and_untar.sh（wget）拉取 data_aishell / resource_aishell，
-# 按脚本内硬编码字节数校验归档，解压后解开 wav/ 下的内层包，最后写 .complete
-# 首次运行需完整下载并解压，耗时较长；命中 .complete 时该步骤直接返回
 # --data_url：OpenSLR 33 的 Hugging Face 镜像；去掉该参数即回落到官方 www.openslr.org
 bash run_npu.sh --stage -1 --stop_stage -1 \
   --data /root/asr-data/OpenSLR/33 \
@@ -357,14 +352,12 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 cd wenet/examples/aishell/s0
 cp conf/train_conformer.yaml conf/train_conformer_1ep.yaml
 sed -i 's/max_epoch: .*/max_epoch: 1/' conf/train_conformer_1ep.yaml
-# NPU fork-safety 适配：主进程初始化 CANN 后 fork 出的 DataLoader worker 会段
-# 错误（torch_npu 2.2 + CANN 8.0 已知问题），必须单进程读取（num_workers=0）。
-# torch 2.2 还要求 num_workers=0 时 persistent_workers=False 且
-# prefetch_factor=None，否则 DataLoader 构造直接 ValueError，一并条件化
+# NPU 上 DataLoader worker 由主进程 fork，会段错误，须单进程读取；
+# num_workers=0 时 persistent_workers 与 prefetch_factor 必须一并关闭
 sed -i 's/^num_workers=.*/num_workers=0/' run_npu.sh
 sed -i 's/persistent_workers=True/persistent_workers=args.num_workers > 0/g' "$(git rev-parse --show-toplevel)/wenet/utils/train_utils.py"
 sed -i 's/prefetch_factor=args.prefetch/prefetch_factor=args.prefetch if args.num_workers > 0 else None/g' "$(git rev-parse --show-toplevel)/wenet/utils/train_utils.py"
-# 源码改写校验：sed 路径或匹配失败时立即报错，避免被命令块尾部的 rc=0 吞掉
+# 确认三处改写均已生效（sed 匹配失败时不会报错）
 grep -q "persistent_workers=args.num_workers > 0" "$(git rev-parse --show-toplevel)/wenet/utils/train_utils.py"
 grep -q "if args.num_workers > 0 else None" "$(git rev-parse --show-toplevel)/wenet/utils/train_utils.py"
 bash run_npu.sh --stage 4 --stop_stage 4 --train_config conf/train_conformer_1ep.yaml --data /root/asr-data/OpenSLR/33

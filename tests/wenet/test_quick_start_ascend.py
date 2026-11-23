@@ -1,9 +1,9 @@
 """Quick-start test: doc under test is ``sources/wenet/quick_start.md``.
 
 End-to-end case built on top of the ``MarkdownDocTestBase`` contract:
-env check + WeNet ``main`` clone (+ ``[torch-npu]`` install) + aishell-1
-download through the upstream stage -1 script (~15.6 GB) + data prep +
-conformer training (stage 4, ``max_epoch=1``) + decode (stage 5) + jit
+env check + WeNet ``main`` clone (torch 2.5.1 stack installed explicitly) +
+aishell-1 download through the upstream stage -1 script (~15.6 GB) + data
+prep + conformer training (stage 4, ``max_epoch=1``) + decode (stage 5) + jit
 export (stage 6).
 
 Run: ``python -m unittest tests.wenet.test_quick_start_ascend -v 2>&1``
@@ -52,8 +52,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     compare against ``#test-result``.
 
     Scope: env check + WeNet clone/install + aishell-1 download and prep +
-    one conformer epoch on 910B4 + stage 5 decode of 7176 test utts +
-    stage 6 jit export. Stage -1 now runs the upstream script
+    one conformer epoch on 910B4 / 910C + stage 5 decode of the 700-utterance
+    test subset + stage 6 jit export. Stage -1 now runs the upstream script
     (``run_npu.sh`` -> ``local/download_and_untar.sh``), which downloads
     into ``/root/.cache/asr-data`` (linked from ``/root/asr-data``) on the
     shared cache disk and writes its own ``.complete`` markers, so repeat
@@ -139,7 +139,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     # CANN toolkit: source once to get ASCEND_HOME / LD_LIBRARY_PATH etc.
     # Path is tied to the container image pinned by the ``image:`` input of
-    # ``wenet-quick-start.yml`` (cann:8.0.0-910b-ubuntu22.04-py3.10).
+    # ``wenet-quick-start.yml`` (cann:9.1.0-910b-... on A2, cann:9.1.0-a3-...
+    # on A3; both are CANN 9.1.0 with the toolkit at this path).
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     # Dataset landing zone used by the doc's stage -1 fence: ``--data`` is
@@ -152,6 +153,22 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     # so an interrupted transfer heals itself on the next run.
     _DATA_CACHE = Path.home() / '.cache' / 'asr-data'
 
+    # The A3 pool mounts its own NFS cache (a different export from the A2
+    # pool's), so the aishell-1 archives the A2 leg already downloaded are not
+    # visible there; that pool also cannot reach huggingface.co, which is
+    # where the doc's stage -1 ``--data_url`` points. The archives are
+    # therefore primed from ModelScope, whose copies are byte-identical to the
+    # OpenSLR originals: ``download_and_untar.sh`` skips its own fetch when
+    # ``<part>.tgz`` already matches one of its hard-coded sizes and then only
+    # un-tars, so every command in the doc stays unchanged.
+    _ARCHIVE_SIZES = {
+        'data_aishell.tgz': 15582913665,
+        'resource_aishell.tgz': 1246920,
+    }
+    _ARCHIVE_BASE_URL = (
+        'https://modelscope.cn/datasets/OmniData/AISHELL-1/resolve/master/raw/33'
+    )
+
     @classmethod
     def prepare_environment(cls) -> None:
         """Source CANN env + write CUDA exclusion list + pin NPU card 0 +
@@ -162,10 +179,11 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         ``source set_env.sh`` only reaches the fence it sits in.
 
         The doc's ``## 4. 安装 WeNet 与依赖`` block is the single source of
-        truth for the WeNet / torch stack (``pip install -e .[torch-npu]``
-        pins torch / torch-npu / torchaudio at 2.2.0); this hook only
+        truth for the WeNet / torch stack (it installs torch / torch-npu /
+        torchaudio at 2.5.1 explicitly, because the ``[torch-npu]`` extra
+        pins 2.2.0 which cannot compute on Ascend 910C); this hook only
         handles the infrastructure bootstrap, reusing the image's
-        pre-installed 2.2 wheels when present.
+        pre-installed 2.5.1 wheels when present.
         """
         path_dirs = '/usr/local/sbin:/usr/local/bin'
         current_path = os.environ.get('PATH', '')
@@ -217,13 +235,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
         # 2) torch stack probe: reuse the image's pre-installed wheels when
-        # the version matches, to avoid a redundant 2.2 download from the
-        # cluster cache.
+        # the version matches, to avoid a redundant download from the
+        # cluster cache. 2.5.1 is the version the doc pins for both legs --
+        # torch-npu 2.2 only enumerates devices on Ascend 910C and faults on
+        # the first operator.
         _PROBE_SCRIPT = (
             'import torch, torch_npu\n'
             "raise SystemExit(0 if "
-            "torch.__version__.startswith('2.2') "
-            "and torch_npu.__version__.startswith('2.2') "
+            "torch.__version__.startswith('2.5.1') "
+            "and torch_npu.__version__.startswith('2.5.1') "
             "else 1)"
         )
         probe = subprocess.run(
@@ -257,13 +277,16 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 'setup: LD_LIBRARY_PATH='
                 f'{os.environ.get("LD_LIBRARY_PATH", "(unset)")}'
             )
-            print('setup: installing torch==2.2.0 torch-npu==2.2.0.post2')
+            print(
+                'setup: installing torch==2.5.1 torch-npu==2.5.1.post1 '
+                'torchaudio==2.5.1'
+            )
             subprocess.run(
                 [
                     'python', '-m', 'pip', 'install',
                     '--index-url', cls._CLUSTER_INDEX,
                     '--extra-index-url', cls._ASCEND_EXTRA,
-                    'torch==2.2.0', 'torch-npu==2.2.0.post2',
+                    'torch==2.5.1', 'torch-npu==2.5.1.post1', 'torchaudio==2.5.1',
                 ],
                 check=True,
             )
@@ -294,7 +317,49 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # the mismatching ones), so all this hook does is report where the
         # cache actually lives -- /root/.cache is the NFS mount, so the data
         # survives across runs without any container volume flag.
+        #
+        # On A3 the share starts empty *and* the doc's --data_url host is
+        # unreachable, so the archives are primed here first; see
+        # ``_ARCHIVE_BASE_URL``.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            cls._prime_archive_cache()
         diagnose_mount_environment(cls._DATA_CACHE)
+
+    @classmethod
+    def _prime_archive_cache(cls) -> None:
+        """Place the aishell-1 archives in the doc's data cache on A3.
+
+        The doc downloads them with the upstream script, pointed at a
+        Hugging Face mirror of OpenSLR 33, which the A3 pool cannot reach. The
+        ModelScope copies are the same bytes, so the upstream script then
+        finds files that match its hard-coded sizes and only un-tars them.
+        Sizes are checked here too: a truncated transfer or an error page is
+        removed and retried instead of being handed to ``tar``.
+        """
+        target_dir = cls._DATA_CACHE / 'OpenSLR' / '33'
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name, size in cls._ARCHIVE_SIZES.items():
+            target = target_dir / name
+            if target.is_file() and target.stat().st_size == size:
+                print(f'setup: {name} already cached ({size} bytes)')
+                continue
+            url = f'{cls._ARCHIVE_BASE_URL}/{name}'
+            print(f'setup: fetching {name} from {url}')
+            # -c resumes a partial file; --tries covers CDN hiccups.
+            subprocess.run(
+                [
+                    'wget', '-c', '--tries=3', '--timeout=60',
+                    '--progress=dot:giga', '-P', str(target_dir), url,
+                ],
+                check=False,  # the size check below is the real verdict
+            )
+            if not (target.is_file() and target.stat().st_size == size):
+                if target.exists():
+                    target.unlink()
+                raise RuntimeError(
+                    f'could not fetch {name} ({size} bytes) into {target_dir}'
+                )
+            print(f'setup: {name} ready ({size} bytes)')
 
     @classmethod
     def setUpClass(cls) -> None:
