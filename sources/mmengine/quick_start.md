@@ -29,12 +29,13 @@ MMEngine 的核心包**不声明** `torch` 依赖（它只是一层框架外壳�
 
 **配套机器**：
 
-- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）
+- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）/ Atlas 900 A3（Ascend 910C）
 - **操作系统**：Ubuntu 22.04
 
 **配套镜像**：
 
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+- A2（Ascend 910B）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`
+- A3（Ascend 910C）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`
 
 **软件版本**：
 

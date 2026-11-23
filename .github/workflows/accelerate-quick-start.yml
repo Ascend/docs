@@ -1,6 +1,7 @@
 # accelerate quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
 
 name: accelerate-quick-start
 
@@ -37,13 +38,14 @@ permissions:
   contents: read
 
 jobs:
-  accelerate-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-accelerate-*), artifacts
-      # (accelerate-quick-start-<run_id>) and the test working dir
-      # (workflows/tests/accelerate).
+      # Namespaces cache keys (quick-start-monitor-state-accelerate-a2_*),
+      # artifacts (accelerate-quick-start-<run_id>-a2) and the test working
+      # dir (tests/accelerate).
       project: accelerate
+      machine_type: a2
       # Dual-card NPU runner: the DDP training / gather_for_metrics /
       # load_checkpoint_and_dispatch sections all need 2 visible devices
       # (`accelerate launch --num_processes 2`, device_map npu:0 + npu:1).
@@ -63,7 +65,37 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/accelerate/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.accelerate.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: accelerate
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. Same dual-card requirement as the
+      # A2 leg (the doc's DDP sections need 2 visible devices), and the
+      # A3 pool runner exposes the same 2 cards.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      timeout_minutes: 60
+      upstream_repo: huggingface/accelerate
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/accelerate/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/accelerate/quick_start.md
+      test_command: python -m unittest tests.accelerate.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: accelerate
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

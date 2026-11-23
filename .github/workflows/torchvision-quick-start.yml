@@ -1,7 +1,8 @@
 # torchvision quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
+# This file only declares what varies per project: schedule,
 # concurrency, runner, container image + options, upstream repo,
 # monitored doc, and the test entry command. The guard loop, cache
 # I/O, state relay and publishing all live in the engine.
@@ -74,14 +75,15 @@ permissions:
 
 jobs:
   # Job ID rules: alphanumeric + '-' + '_' only, no dots.
-  torchvision-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-torchvision_*),
-      # artifacts (torchvision-quick-start-<run_id>) and the test
+      # Namespaces cache keys (quick-start-monitor-state-torchvision-a2_*),
+      # artifacts (torchvision-quick-start-<run_id>-a2) and the test
       # working dir (tests/torchvision in the repo root; the engine
       # sets cwd to the repo root).
       project: torchvision
+      machine_type: a2
       # Single-card NPU runner: the doc's transforms.v2 smoke path
       # runs everything on npu:0, and the doc's `torch.npu.device_count()`
       # expectation is 1. The engine pins the cache I/O jobs
@@ -114,7 +116,38 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/torchvision/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.torchvision.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: torchvision
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc's `torch.npu.device_count()`
+      # expectation is 1, but the test pins ASCEND_RT_VISIBLE_DEVICES=0,
+      # so the 2-card A3 pool runner still exposes exactly one card.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: ''
+      timeout_minutes: 90
+      upstream_repo: pytorch/vision
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/torchvision/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/torchvision/quick_start.md
+      test_command: python -m unittest tests.torchvision.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: torchvision
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
