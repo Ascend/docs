@@ -112,7 +112,9 @@ echo "${UPSTREAM_REF}"
 ```shell #test id="install-unsloth" load="upstream_ref>>ref"
 mkdir -p /root/unsloth-qs
 git clone --depth 1 --branch <ref> https://github.com/unslothai/unsloth.git /root/unsloth-qs/unsloth
-python -m pip install --no-build-isolation "/root/unsloth-qs/unsloth[huggingfacenotorch]" bitsandbytes
+python -m pip install --no-build-isolation \
+  --extra-index-url https://pypi.org/simple \
+  "/root/unsloth-qs/unsloth[huggingfacenotorch]" bitsandbytes
 python -m pip install --force-reinstall --no-deps \
   --index-url https://download.pytorch.org/whl/cpu \
   torchvision==0.25.0
