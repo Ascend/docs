@@ -176,6 +176,17 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             check=True,
         )
 
+        # 3) A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. The doc
+        # pulls the Qwen1.5-1.8B-Chat weights and the Colorist dataset
+        # through the HF hub. Xet off on A3: its data plane lives on
+        # cas-bridge.xethub.hf.co, outside HF_ENDPOINT, and the redirected
+        # HEAD there carries no Content-Length - snapshot_download refuses
+        # any file whose size it cannot read.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
     # ----------------------------------------------------------
     # test entry
     # ----------------------------------------------------------
