@@ -143,9 +143,9 @@ echo "${UPSTREAM_REF#v}"
 -->
 
 ```shell #test id="install-lmcache" load="lmcache_ver>>ver"
-NO_CUDA_EXT=1 python -m pip install --no-build-isolation lmcache==<ver> --no-deps
+NO_CUDA_EXT=1 python -m pip install --no-build-isolation "lmcache==<ver>.*" --no-deps
 python -m pip install \
-  aiofile aiofiles blake3 aiohttp msgspec numpy psutil pyyaml pyzmq \
+  aiofile aiofiles blake3 aiohttp msgspec 'numpy>=2,<2.5' psutil pyyaml pyzmq \
   redis safetensors sortedcontainers transformers huggingface_hub \
   prometheus_client py-cpuinfo cachetools cryptography fastapi \
   httpx numba uvicorn opentelemetry-api opentelemetry-sdk \
@@ -158,7 +158,7 @@ python -c "import importlib.metadata as m; print('lmcache', m.version('lmcache')
 
 ```shell #test-result id="install-lmcache" load="lmcache_ver>>ver"
 ...
-lmcache <ver>
+lmcache <ver>...
 ```
 
 ```{admonition} Note
@@ -210,7 +210,7 @@ python -c "import lmcache, lmcache_ascend, torch, torch_npu; from lmcache_ascend
 
 ```shell #test-result id="install-lmcache-ascend" load="lmcache_ver>>ver"
 ...
-lmcache <ver>
+lmcache <ver>...
 soc Ascend910B...
 c_ops_ok True
 npu_available True
@@ -218,7 +218,7 @@ npu_available True
 
 ```{admonition} Note
 :class: note
-`<ref>` 是 LMCache-Ascend 的最新 Release 的 tag；`<ver>` 是 LMCache 最新的 Release tag。
+`<ref>` 是 LMCache-Ascend 的最新 Release 的 tag。`<ver>` 是 LMCache 最新的 Release tag。
 ```
 
 `soc` 应和本机 `npu-smi info -t board` 的 Chip Name 一致。如果编译缺少 `numaif.h`，回到第 3 节执行 `apt-get install`，装上 `cmake`、`ninja-build` 和 `libnuma-dev`，然后从本节重新编译，再继续第 7 节。
