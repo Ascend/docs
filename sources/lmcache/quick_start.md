@@ -145,7 +145,7 @@ echo "${UPSTREAM_REF#v}"
 ```shell #test id="install-lmcache" load="lmcache_ver>>ver"
 NO_CUDA_EXT=1 python -m pip install --no-build-isolation "lmcache==<ver>.*" --no-deps
 python -m pip install \
-  aiofile aiofiles blake3 aiohttp msgspec numpy psutil pyyaml pyzmq \
+  aiofile aiofiles blake3 aiohttp msgspec 'numpy>=2,<2.5' psutil pyyaml pyzmq \
   redis safetensors sortedcontainers transformers huggingface_hub \
   prometheus_client py-cpuinfo cachetools cryptography fastapi \
   httpx numba uvicorn opentelemetry-api opentelemetry-sdk \
