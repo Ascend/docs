@@ -1,15 +1,16 @@
-"""Quick-start-Ascend test: doc under test is ``sources/roll/quick_start.md``.
-"""
+"""Guard sources/roll/quick_start.md on an NPU runner."""
 
 from __future__ import annotations
 
 import os
 import subprocess
 import sys
+import time
 import unittest
 from pathlib import Path
+from typing import ClassVar
 
-from doc_test.base import MarkdownDocTestBase
+from doc_test.base import MarkdownDocTestBase, TestCommand
 from doc_test.model_cache import (
     ensure_safetensors,
     purge_modelscope_corrupt,
@@ -30,6 +31,11 @@ def _e2e_enabled() -> bool:
 class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     DEFAULT_COMMAND_TIMEOUT = 1800
     USER_AGENT = 'cosdt-ci-test/quick-start'
+    # Stop at the first failed command in a document shell block.
+    _LANG_RUNNER: ClassVar[dict[str, tuple[str, ...]]] = {
+        **MarkdownDocTestBase._LANG_RUNNER,
+        'shell': ('bash', '-ec'),
+    }
     ERROR_MARKERS = (
         *MarkdownDocTestBase.ERROR_MARKERS,
         'applicaiton exception',
@@ -38,8 +44,85 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
     _TENSORBOARD_DIR = Path(
-        'output/tensorboard/roll-quick-start-npu'
+        'ROLL/output/agentic_frozen_lake_npu'
     )
+
+    def run_command(self, cmd, env, cwd, timeout, language='shell'):
+        if language == 'shell' and '-e ./vllm-ascend' in cmd:
+            # Cloning submodules and compiling Ascend operators can exceed 30 minutes.
+            timeout = max(timeout, 3600)
+        if language != 'shell' or 'examples/start_agentic_pipeline.py' not in cmd:
+            return super().run_command(cmd, env, cwd, timeout, language)
+
+        # Filesystem timestamps can lag the wall clock slightly.
+        log_cutoff = time.time() - 1
+        try:
+            rc, out, err = super().run_command(cmd, env, cwd, timeout, language)
+        except subprocess.TimeoutExpired as exc:
+            self._log_training_failure(
+                (exc.stdout or b'').decode('utf-8', errors='replace'),
+                (exc.stderr or b'').decode('utf-8', errors='replace'),
+                env, log_cutoff,
+            )
+            raise
+        if rc != 0:
+            self._log_training_failure(out, err, env, log_cutoff)
+        return rc, out, err
+
+    def _log_training_failure(self, out, err, env, log_cutoff):
+        for stream, content in (('stdout', out), ('stderr', err)):
+            if content:
+                self.log(f'ROLL training {stream} (full):\n{content.rstrip()}')
+
+        tmp = Path(env.get('RAY_TMPDIR') or env.get('TMPDIR') or '/tmp')
+        log_dir = tmp / 'ray/session_latest/logs'
+        found = False
+        for path in sorted(log_dir.glob('worker-*.err')):
+            try:
+                stat = path.stat()
+                if stat.st_mtime < log_cutoff or not stat.st_size:
+                    continue
+                with path.open('rb') as log:
+                    head = log.read(4096)
+                    log.seek(max(0, stat.st_size - 16384))
+                    tail = log.read(16384)
+            except OSError as exc:
+                self.log(f'Could not read Ray worker log {path.name}: {exc}')
+                continue
+            if any(marker in head or marker in tail for marker in (
+                b'InferWorker', b'EngineCore', b'WorkerProc',
+            )):
+                found = True
+                content = tail.decode('utf-8', errors='replace').rstrip()
+                self.log(f'Ray worker stderr ({path.name}, tail):\n{content}')
+        if not found:
+            self.log(f'No matching Ray worker stderr found under {log_dir}')
+
+    def _run_one(self, cmd, results, env, cwd, timeout, idx):
+        super()._run_one(cmd, results, env, cwd, timeout, idx)
+        if not isinstance(cmd, TestCommand) or cmd.id != 'verify-example-deps':
+            return
+
+        # Read versions before importing the extension so ABI failures also report them.
+        probe = """
+from importlib.metadata import version
+
+for package in ('torch', 'torch-npu', 'torchvision', 'torchaudio', 'tensordict', 'numpy', 'pyarrow'):
+    print(f'{package}: {version(package)}', flush=True)
+
+import pyarrow
+import torch
+import torch_npu
+
+device_count = torch.npu.device_count() if torch.npu.is_available() else 0
+print(f'Visible NPUs: {device_count}', flush=True)
+if device_count < 8:
+    raise RuntimeError(f'ROLL FrozenLake requires eight visible NPUs, found {device_count}')
+"""
+        rc, out, err = self.run_command(probe, env, cwd, 60, language='python')
+        if rc != 0:
+            raise AssertionError(f'ROLL runtime check failed (rc={rc}):\n{out}{err}')
+        self.log_block('ROLL runtime', out.splitlines())
 
     def _verify_tensorboard_events(self) -> None:
         """Require a nonempty TensorBoard event file after training."""
@@ -62,16 +145,21 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         )
 
     def pre_process(self) -> str:
-        doc = (
-            Path(__file__).resolve().parents[2]
-            / 'sources' / 'roll' / 'quick_start.md'
+        doc_path = (
+            Path(__file__).resolve().parents[2] / 'sources' / 'roll' / 'quick_start.md'
         )
-        return doc.read_text(encoding='utf-8')
+        if not doc_path.is_file():
+            raise RuntimeError(
+                f'doc not found in local checkout: {doc_path}'
+            )
+        return doc_path.read_text(encoding='utf-8')
 
     @classmethod
     def prepare_environment(cls) -> None:
+        """CANN env merge, PYTHONNOUSERSITE, PATH prefix, and
+        model-cache sanity. Dependency installs live in the doc itself
+        (that is the user path); only CI-side hygiene happens here."""
         os.environ['PYTHONNOUSERSITE'] = '1'
-        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
 
         if not os.path.isfile(cls._CANN_SET_ENV):
             raise RuntimeError(
@@ -95,7 +183,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         print('setup: sourced CANN environment')
 
         project_root = Path(__file__).resolve().parents[2] / 'sources' / 'roll'
-        os.chdir(str(project_root))
+        os.chdir(project_root)
         print(f'setup: cwd -> {project_root}')
 
         ensure_safetensors()
