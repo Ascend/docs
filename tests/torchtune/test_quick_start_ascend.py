@@ -269,6 +269,21 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         report_huggingface_state(cls._MODEL_ID)
         purge_huggingface_corrupt(resolve_huggingface_cache())
 
+        # 6) The doc asserts ``torch.npu.device_count() == 1``; the A3
+        # pool runner exposes two cards, so pin the visible device set.
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+
+        # A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. The doc
+        # pulls Qwen2.5-0.5B-Instruct through the HF hub. Xet off on A3:
+        # its data plane lives on cas-bridge.xethub.hf.co, outside
+        # HF_ENDPOINT, and the redirected HEAD there carries no
+        # Content-Length - snapshot_download refuses any file whose size
+        # it cannot read.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
     # ----------------------------------------------------------
     # test entry
     # ----------------------------------------------------------

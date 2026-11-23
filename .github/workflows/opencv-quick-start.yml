@@ -1,7 +1,8 @@
 # opencv (zero-patch route) quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
+# This file only declares what varies per project: schedule,
 # concurrency, runner, container image + options, upstream repo,
 # monitored doc, and the test entry command. The guard loop, cache
 # I/O, state relay and publishing all live in the engine.
@@ -59,13 +60,14 @@ permissions:
   contents: read
 
 jobs:
-  opencv-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-opencv-*),
-      # artifacts (opencv-quick-start-<run_id>) and the test
+      # Namespaces cache keys (quick-start-monitor-state-opencv-a2_*),
+      # artifacts (opencv-quick-start-<run_id>-a2) and the test
       # working dir (tests/opencv).
       project: opencv
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest. The a2-4 runner is the one the
@@ -119,3 +121,46 @@ jobs:
       # engine. All project env prep and installs live in the test
       # subclass's prepare_environment hook.
       test_command: python -m unittest tests.opencv.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: opencv
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The 4-card runner class is kept
+      # for the same reason as the A2 leg: the Release build of the CANN
+      # dnn TUs needs several GB of RAM per TU. Only davinci0 is
+      # mounted, so the extra cards stay idle.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-4"]'
+      # CANN 9.2.0 + Python 3.12 base image, 910C flavour. CANN 9.2.0 is
+      # required for the complete libgraph.so (see the header comment).
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-a3-ubuntu22.04-py3.12
+      container_options: >-
+        --privileged --shm-size=64g
+        --device=/dev/davinci0
+        --device=/dev/davinci_manager
+        --device=/dev/devmm_svm
+        --device=/dev/hisi_hdc
+        --volume=/usr/local/Ascend/driver:/usr/local/Ascend/driver:ro
+        --volume=/usr/local/sbin/npu-smi:/usr/local/sbin/npu-smi:ro
+        --volume=/etc/ascend_install.info:/etc/ascend_install.info:ro
+      timeout_minutes: 240
+      upstream_repo: opencv/opencv
+      fixed_ref: 4.14.0
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/opencv/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/opencv/quick_start.md
+      test_command: python -m unittest tests.opencv.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: opencv
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

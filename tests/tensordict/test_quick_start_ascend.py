@@ -205,6 +205,10 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # fuzzy mismatch against ``tensordict xxx`` rather than being
         # masked by a pre-installed copy.
 
+        # 6) The doc asserts ``torch.npu.device_count() == 1``; the A3
+        # pool runner exposes two cards, so pin the visible device set.
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+
     # ----------------------------------------------------------
     # test entry
     # ----------------------------------------------------------
