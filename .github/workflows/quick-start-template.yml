@@ -53,7 +53,7 @@ on:
         required: true
     outputs:
       result_json:
-        description: The test job's result.json (single-line JSON), empty when the test was skipped
+        description: The current or cached result.json (single-line JSON), empty when the test job failed before producing a result
         value: ${{ jobs.test.outputs.result_json }}
       trigger:
         description: How this run was started (workflow_dispatch / schedule / pull_request)
@@ -80,6 +80,7 @@ jobs:
       cache_doc_hash:        ${{ steps.read-monitor.outputs.cache_doc_hash }}
       cache_test_result:     ${{ steps.read-monitor.outputs.cache_test_result }}
       cache_test_error:      ${{ steps.read-monitor.outputs.cache_test_error }}
+      cache_result_json:     ${{ steps.read-monitor.outputs.cache_result_json }}
     steps:
       - name: Restore monitor state
         id: cache-restore
@@ -117,6 +118,9 @@ jobs:
             [ -n "${doc_hash:-}" ]        && echo "cache_doc_hash=$doc_hash" >> "$GITHUB_OUTPUT"
             [ -n "${test_result:-}" ]    && echo "cache_test_result=$test_result" >> "$GITHUB_OUTPUT"
             [ -n "${test_error:-}" ]     && echo "cache_test_error=$test_error" >> "$GITHUB_OUTPUT"
+            if [ -s .monitor-state/result.json ] && cached_result=$(jq -c . .monitor-state/result.json 2>/dev/null); then
+              printf 'cache_result_json=%s\n' "$cached_result" >> "$GITHUB_OUTPUT"
+            fi
             echo "monitor state restored: cache_last_release_id='${last_release_id:-}' cache_doc_hash='${doc_hash:-}' cache_test_result='${test_result:-}' cache_test_error='${test_error:-}'"
           else
             echo "no cache entry restored - cold start (empty monitor state)"
@@ -221,6 +225,7 @@ jobs:
         if: github.event_name == 'schedule'
         env:
           DOC_URL: ${{ env.MONITORED_DOC_URL }}
+          CACHED_RESULT_JSON: ${{ needs.restore-cache.outputs.cache_result_json }}
         run: |
           set -euo pipefail
           STATE_DIR=".monitor-state"
@@ -294,38 +299,36 @@ jobs:
           NEED_TO_TEST="false"
           REF=""
           REASON=""
-          SKIP_DOC="false"
           echo "monitor: upstream latest release id=$CURRENT_RELEASE_ID tag=$CURRENT_RELEASE_TAG (cached last_release_id=$last_release_id)"
           if [ -n "$CURRENT_RELEASE_ID" ] && [ "$last_release_id" != "$CURRENT_RELEASE_ID" ]; then
             last_release_id="$CURRENT_RELEASE_ID"
             NEED_TO_TEST="true"
             REF="$CURRENT_RELEASE_TAG"
             REASON="release"
-            SKIP_DOC="true"
             echo "monitor: release signal FIRED (id=$CURRENT_RELEASE_ID tag=$CURRENT_RELEASE_TAG)"
           else
             echo "monitor: release signal not fired (current=$CURRENT_RELEASE_ID cached=$last_release_id)"
           fi
 
-          # ----- doc signal (only if release didn't fire) -----
-          if [ "$SKIP_DOC" = "false" ]; then
-            if ! CURRENT_DOC_HASH=$(curl -fsSL --retry 3 --max-time 30 \
-                                    -H "Authorization: Bearer $GH_TOKEN" \
-                                    -H "Accept: application/vnd.github.raw" \
-                                    "$DOC_URL" \
-                                    | sha256sum | cut -d' ' -f1); then
-              echo "monitor: doc signal not fired (fetch failed; release signal, if any, still drives the cycle)"
-            elif [ "$doc_hash" != "$CURRENT_DOC_HASH" ]; then
-              doc_hash="$CURRENT_DOC_HASH"
+          # ----- doc signal -----
+          if ! CURRENT_DOC_HASH=$(curl -fsSL --retry 3 --max-time 30 \
+                                  -H "Authorization: Bearer $GH_TOKEN" \
+                                  -H "Accept: application/vnd.github.raw" \
+                                  "$DOC_URL" \
+                                  | sha256sum | cut -d' ' -f1); then
+            echo "monitor: doc signal not fired (fetch failed; release signal, if any, still drives the cycle)"
+          elif [ "$doc_hash" != "$CURRENT_DOC_HASH" ]; then
+            doc_hash="$CURRENT_DOC_HASH"
+            if [ "$NEED_TO_TEST" = "false" ]; then
               NEED_TO_TEST="true"
               REF="$CURRENT_RELEASE_TAG"
               REASON="doc"
               echo "monitor: doc signal FIRED (hash=$CURRENT_DOC_HASH)"
             else
-              echo "monitor: doc signal not fired (hash unchanged)"
+              echo "monitor: doc hash updated (release already fired)"
             fi
           else
-            echo "monitor: doc signal skipped (release already fired)"
+            echo "monitor: doc signal not fired (hash unchanged)"
           fi
 
           # ----- retry signal (lowest priority) -----
@@ -339,6 +342,20 @@ jobs:
             echo "monitor: retry signal FIRED (previous cycle test_result=failure)"
           else
             echo "monitor: retry signal not fired (need_to_test=$NEED_TO_TEST test_result=${test_result:-none})"
+          fi
+
+          # ----- cached result (only when no test is needed) -----
+          if [ "$NEED_TO_TEST" = "false" ] && [ "$test_result" = "success" ]; then
+            if cached_result=$(jq -nce --arg result "$CACHED_RESULT_JSON" \
+                '$result | fromjson | select(.job_status == "success") | .reason = "cached"' 2>/dev/null); then
+              REASON="cached"
+              printf 'result_json=%s\n' "$cached_result" >> "$GITHUB_OUTPUT"
+            else
+              NEED_TO_TEST="true"
+              REF="$CURRENT_RELEASE_TAG"
+              REASON="cache-miss"
+              echo "monitor: cached result unavailable; running the test"
+            fi
           fi
 
           # Values are single-quoted so literals like 'none' and any
@@ -573,14 +590,12 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           echo "shipped monitor state: release(id=$last_release_id) doc(hash=$doc_hash) test(result=$test_result error=$test_error)"
 
-      # need_to_test gates dispatch (always writes - manual run
-      # produces a result) and schedule (writes only when a monitor
-      # fired, so the schema's target_ref minLength:1 is never
-      # violated by a no-signal cycle).
       - name: Write result and summarize
         id: write-result
         if: |
-          !cancelled() && steps.decide.outputs.need_to_test == 'true'
+          !cancelled() &&
+          (steps.decide.outputs.need_to_test == 'true' ||
+            (steps.decide.outputs.need_to_test == 'false' && steps.monitor.outputs.result_json != ''))
         env:
           # Route upstream step outputs through env so jq / printf
           # parameter-expand them; values containing shell-meta chars
@@ -594,29 +609,34 @@ jobs:
           MACHINE_TYPE:    ${{ inputs.machine_type }}
           JOB_STATUS:      ${{ job.status }}
           UPSTREAM_SHA:    ${{ steps.decide.outputs.sha }}
+          CACHED_RESULT_JSON: ${{ steps.monitor.outputs.result_json }}
         run: |
           set -euo pipefail
           mkdir -p output
 
-          jq -n \
-            --arg trigger          "$TRIGGER" \
-            --arg reason           "$REASON" \
-            --arg target_repo      "$TARGET_REPO" \
-            --arg target_ref       "$TARGET_REF" \
-            --arg path             "$DOC_PATH" \
-            --arg image            "$IMAGE" \
-            --arg machine_type     "$MACHINE_TYPE" \
-            --arg job_status       "$JOB_STATUS" \
-            '{
-              trigger:      $trigger,
-              reason:       $reason,
-              target_repo:  $target_repo,
-              target_ref:   $target_ref,
-              path:         $path,
-              image:        $image,
-              machine_type: $machine_type,
-              job_status:   $job_status
-            }' > output/result.json
+          if [ -n "$CACHED_RESULT_JSON" ]; then
+            printf '%s\n' "$CACHED_RESULT_JSON" > output/result.json
+          else
+            jq -n \
+              --arg trigger          "$TRIGGER" \
+              --arg reason           "$REASON" \
+              --arg target_repo      "$TARGET_REPO" \
+              --arg target_ref       "$TARGET_REF" \
+              --arg path             "$DOC_PATH" \
+              --arg image            "$IMAGE" \
+              --arg machine_type     "$MACHINE_TYPE" \
+              --arg job_status       "$JOB_STATUS" \
+              '{
+                trigger:      $trigger,
+                reason:       $reason,
+                target_repo:  $target_repo,
+                target_ref:   $target_ref,
+                path:         $path,
+                image:        $image,
+                machine_type: $machine_type,
+                job_status:   $job_status
+              }' > output/result.json
+          fi
           echo "wrote $(wc -c < output/result.json) bytes:"
           cat output/result.json
           # Ship result.json across jobs via job-level outputs (channel 2).
@@ -676,8 +696,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p output
-          # Empty result_json means upstream skipped - exit cleanly so
-          # the workflow conclusion is driven by test alone.
           if [ -z "$RESULT_JSON" ]; then
             echo "no result_json from test; nothing to publish"
             exit 0
@@ -735,6 +753,9 @@ jobs:
             echo "test_result='$monitor_test_result'"
             echo "test_error='$monitor_test_error'"
           } > "$MONITOR_FILE"
+          if [ -s output/result.json ]; then
+            cp output/result.json "$STATE_DIR/result.json"
+          fi
           echo "  wrote $MONITOR_FILE (from test outputs):"
           cat "$MONITOR_FILE"
 

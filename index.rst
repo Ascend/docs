@@ -579,7 +579,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/opencv.png')"></div><h3 class="card-title">opencv</h3></div>
          <p class="card-desc">开源计算机视觉库，支持昇腾平台处理。</p>
-         <div class="card-footer"><a href="https://github.com/opencv/opencv">官方链接</a><span class="split">|</span><a href="sources/opencv/install.html">安装指南</a><span class="split">|</span><a href="sources/opencv/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/opencv/opencv">官方链接</a><span class="split">|</span><a href="sources/opencv/quick_start.html">快速上手</a></div>
       </div>
 
       <!-- stable-diffusion-webui -->
