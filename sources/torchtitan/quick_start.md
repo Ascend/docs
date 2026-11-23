@@ -32,12 +32,13 @@ CANN 最低版本为 8.0.rc1，安装 CANN 时请同时安装 Kernel 算子包�
 
 **配套机器**：
 
-- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，32 GB × 2 — CANN / 驱动预留约 2.5 GB，每张卡可用约 30 GB）
+- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，32 GB × 2 — CANN / 驱动预留约 2.5 GB，每张卡可用约 30 GB）/ Atlas 900 A3（Ascend 910C）
 - **操作系统**：Ubuntu 22.04
 
 **配套镜像**：
 
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12
+- A2（Ascend 910B）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-910b-ubuntu22.04-py3.12`
+- A3（Ascend 910C）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-a3-ubuntu22.04-py3.12`
 
 **软件版本**：
 

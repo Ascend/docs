@@ -1,12 +1,13 @@
 # torchtitan quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
+# This file only declares what varies per project: schedule,
 # concurrency, runner, container image + options, upstream repo,
 # monitored doc, and the test entry command. The guard loop, cache
 # I/O, state relay and publishing all live in the engine.
 #
-# Cache keys (quick-start-monitor-state-torchtitan_*) and artifact
+# Cache keys (quick-start-monitor-state-torchtitan-*) and artifact
 # names are derived from project=torchtitan, not from the workflow
 # name.
 #
@@ -69,14 +70,15 @@ permissions:
 
 jobs:
   # Job ID rules: alphanumeric + '-' + '_' only, no dots.
-  torchtitan-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-torchtitan_*),
-      # artifacts (torchtitan-quick-start-<run_id>) and the test
+      # Namespaces cache keys (quick-start-monitor-state-torchtitan-a2_*),
+      # artifacts (torchtitan-quick-start-<run_id>-a2) and the test
       # working dir (tests/torchtitan in the repo root; the engine
       # sets cwd to the repo root).
       project: torchtitan
+      machine_type: a2
       # Dual-card NPU runner: the doc's multi-card section really runs
       # `torchrun --nproc_per_node=2` (FSDP shard=2 + HCCL), and the
       # single-card section asserts `torch.npu.device_count() == 2`.
@@ -110,3 +112,38 @@ jobs:
       # the override equivalence checks -- unittest runs the named modules in
       # the given order, so the second module sees the installed torchtitan.
       test_command: python -m unittest tests.torchtitan.test_quick_start_ascend tests.torchtitan.test_npu_overrides -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: torchtitan
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc's multi-card section runs
+      # `torchrun --nproc_per_node=2` (FSDP shard=2 + HCCL) and the
+      # single-card section asserts `torch.npu.device_count() == 2`, so
+      # the A3 pool runner must expose 2 cards as well - the test pins
+      # ASCEND_RT_VISIBLE_DEVICES=0,1.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      # CANN 9.2.0 + Python 3.12 base image, 910C flavour. torch_npu
+      # needs CANN 9.2.0 either way (the 9.1.0 image fails with a
+      # missing libhccl.so).
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.0-a3-ubuntu22.04-py3.12
+      timeout_minutes: 180
+      upstream_repo: pytorch/torchtitan
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/torchtitan/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/torchtitan/quick_start.md
+      test_command: python -m unittest tests.torchtitan.test_quick_start_ascend tests.torchtitan.test_npu_overrides -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: torchtitan
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

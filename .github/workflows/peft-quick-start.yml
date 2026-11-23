@@ -1,6 +1,7 @@
 # peft quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
 
 name: peft-quick-start
 
@@ -37,13 +38,14 @@ permissions:
   contents: read
 
 jobs:
-  peft-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (quick-start-monitor-state-peft_*), artifacts
-      # (peft-quick-start-<run_id>) and the test working dir
+      # Namespaces cache keys (quick-start-monitor-state-peft-a2_*), artifacts
+      # (peft-quick-start-<run_id>-a2) and the test working dir
       # (tests/peft in the repo root; engine sets cwd to repo root).
       project: peft
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -67,7 +69,39 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/peft/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.peft.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: peft
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc asserts
+      # `torch.npu.device_count() == 1`, but the test pins
+      # ASCEND_RT_VISIBLE_DEVICES=0, so the 2-card A3 pool runner still
+      # exposes exactly one card.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: >-
+      timeout_minutes: 120
+      upstream_repo: huggingface/peft
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/peft/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/peft/quick_start.md
+      test_command: python -m unittest tests.peft.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: peft
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
