@@ -1,6 +1,6 @@
 # opencompass
 
-[OpenCompass](https://github.com/open-compass/opencompass) 是开源大模型评测框架。本文在单卡 910B 上对 [Qwen2-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct) 跑 `demo_gsm8k_chat_gen`。
+[OpenCompass](https://github.com/open-compass/opencompass) 是开源大模型评测框架。本文在单卡 910B / 910C 上对 [Qwen2-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct) 跑 `demo_gsm8k_chat_gen`。
 
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 准备好 CANN 与驱动。
 
@@ -8,7 +8,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文覆盖单卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**）。本文覆盖单卡。
 
 ### 软件
 
@@ -21,7 +21,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文覆盖单�
 | 模型          | [Qwen/Qwen2-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2-0.5B-Instruct)                                                                                                                                        |
 | 数据          | [GSM8K](https://github.com/openai/grade-school-math) 的 `train.jsonl` / `test.jsonl`                                                                                                                                |
 
-本文验证环境：Atlas 900 A2 PODc、Ascend 910B4、Python 3.12、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。
+本文验证环境：A2 为 Atlas 900 A2 PODc（Ascend 910B4），A3 为 Atlas 900 A3（Ascend 910C），Python 3.12。验证镜像：A2 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，A3 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 

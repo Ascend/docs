@@ -4,7 +4,8 @@ Run: ``python -m unittest tests.opencompass.test_quick_start_ascend -v 2>&1``
 
 Env (injected by the engine ``quick-start-template.yml``, triggered by
 ``opencompass-quick-start.yml``): ``MONITORED_DOC_URL``, ``UPSTREAM_REF``,
-``NPU_READY=true`` (otherwise the class is skipped).
+``NPU_READY=true`` (otherwise the class is skipped) and ``MACHINE_TYPE``
+(``a3`` routes Hugging Face through the mirror).
 """
 
 from __future__ import annotations
@@ -48,6 +49,14 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
 
     @classmethod
     def prepare_environment(cls) -> None:
+        # The A3 pool cannot reach huggingface.co directly (plain HTTPS
+        # access returns 503); A2 dials it directly. The doc pulls the
+        # model through the HF hub. Xet off on A3: its data plane lives
+        # on cas-bridge.xethub.hf.co, outside HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+
         path_dirs = '/usr/local/sbin:/usr/local/bin'
         current_path = os.environ.get('PATH', '')
         if path_dirs not in current_path:
