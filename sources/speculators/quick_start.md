@@ -44,7 +44,7 @@ swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascen
 | triton | 3.5.0（镜像预装） |
 | transformers | 5.5.4（镜像预装；speculators 透传范围 >=4.56.1,<5.15.0） |
 | modelscope | 1.39.1（镜像预装；下面步骤会钉到 1.37.0） |
-| speculators | 最新 release |
+| speculators | `main`  |
 | draft 模型 | z-lab/Qwen3-8B-DFlash-b16 |
 | verifier | Qwen/Qwen3-8B |
 
@@ -158,7 +158,7 @@ echo "${UPSTREAM_REF}"
 ```
 -->
 
-克隆 speculators 上游 release tag 源码到 `/root/speculators/` 并 editable 安装：
+克隆 speculators 上游 `main` 分支源码到 `/root/speculators/` 并 editable 安装：
 
 ```shell #test id="speculators-install-source" load="upstream_ref>>ref"
 git clone --depth 1 --branch <ref> https://github.com/vllm-project/speculators.git /root/speculators
@@ -177,7 +177,7 @@ speculators xxx
 
 ```{admonition} Note
 :class: note
-`<ref>` 替换为 Speculators 当前的最新 release 版本；xxx 表示实际安装的 speculators 版本号。
+`<ref>` 替换为 Speculators 的 `main` 分支；xxx 表示实际安装的 speculators 版本号。
 ```
 
 ## 端到端：convert → 训练数据生成 → 训练 → 部署
@@ -291,6 +291,7 @@ speculators prepare-data \
   --max-samples 10 \
   --seq-length 8192 \
   --num-preprocessing-workers 4 \
+  --no-skip-token-freq \
   --overwrite
 
 echo "$DATA_DIR"
@@ -497,15 +498,16 @@ echo "$CHECKPOINT_DIR"
 确认训练产物与训练真跑完（checkpoint 文件 + 从 train.log 提取 val loss）：
 
 ```shell #test id="pipeline-step3-train" load="checkpoint_path>>checkpoint_path"
-ls -1 <checkpoint_path>
+test -f <checkpoint_path>/config.json && echo "config.json ok"
+test -f <checkpoint_path>/model.safetensors && echo "model.safetensors ok"
 grep -oE 'val/loss_epoch=[0-9.]+' /tmp/train.log | head -1
 ```
 
 输出结果如下：
 
 ```shell #test-result id="pipeline-step3-train" fuzzy='xxx'
-config.json
-model.safetensors
+config.json ok
+model.safetensors ok
 val/loss_epoch=xxx
 ```
 
