@@ -8,7 +8,7 @@
 
 ### 硬件
 
-Atlas 800T 或 900 A2 训练系列，芯片为 Ascend 910B。本文使用两张 NPU：接收端在 0 号卡，发送端在 1 号卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**）。本文使用两张 NPU：接收端在 0 号卡，发送端在 1 号卡。
 
 ### 软件
 
@@ -23,7 +23,7 @@ Atlas 800T 或 900 A2 训练系列，芯片为 Ascend 910B。本文使用两张 
 | 设备网卡配置   | `/etc/hccn.conf` 存在。驱动安装时写入；容器里把宿主机这份文件挂进来                                                                                                          |
 
 
-本文验证环境：Atlas 900 A2、两张 Ascend 910B、Python 3.12、torch 2.12.0、torch_npu 2.12.0、mooncake-transfer-engine-npu 0.3.13.post1、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。这不是唯一支持组合。
+本文在 A2、A3 上分别验证。A2 环境：两张 Ascend 910B、Python 3.12、torch 2.12.0、torch_npu 2.12.0、mooncake-transfer-engine-npu 0.3.13.post1、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`；A3 环境：两张 Ascend 910C、镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 
