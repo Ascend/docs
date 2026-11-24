@@ -1,6 +1,10 @@
 # bitsandbytes quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation (A2/A3) and merges the per-machine result.json files into
+# one artifact; this file only declares what varies per project: schedule,
+# concurrency, runners, container images, upstream repo, monitored doc and the
+# test entry command.
 
 name: bitsandbytes-quick-start
 
@@ -32,18 +36,20 @@ on:
     paths:
       - 'sources/bitsandbytes/**'
       - 'tests/bitsandbytes/**'
+      - '.github/workflows/bitsandbytes-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  bitsandbytes-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-bitsandbytes-*), artifacts
-      # (bitsandbytes-quick-start-<run_id>) and the test working dir
-      # (workflows/tests/bitsandbytes).
+      # Namespaces cache keys (quick-start-monitor-state-bitsandbytes-a2_*),
+      # artifacts (bitsandbytes-quick-start-<run_id>) and the test working
+      # dir (tests/bitsandbytes).
       project: bitsandbytes
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -64,7 +70,40 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/bitsandbytes/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep lives in the test subclass's
-      # prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep lives in the test
+      # subclass's prepare_environment hook.
       test_command: python -m unittest tests.bitsandbytes.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: bitsandbytes
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg; single card, same as A2.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      # The A3 pool has no persisted NFS /root/.cache, so bind the pip
+      # wheel cache; torch / torch_npu wheels stay out of the
+      # quota-limited writable layer. The doc pulls no Hub model.
+      container_options: >-
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+      timeout_minutes: 90
+      upstream_repo: bitsandbytes-foundation/bitsandbytes
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/bitsandbytes/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/bitsandbytes/quick_start.md
+      test_command: python -m unittest tests.bitsandbytes.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: bitsandbytes
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
