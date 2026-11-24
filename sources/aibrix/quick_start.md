@@ -154,7 +154,7 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。版本取下面这次安装能直接装到的预编译包。随后安装 torchcodec 0.15.0。0.16 起的图像库链接 CUDA，在 CPU 构建的 torch 上导入失败。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。版本取下面这次安装能直接装到的预编译包。随后安装 `torchcodec` 0.15.0 并将 `numpy` 保持在 `>=2,<2.3`。`torchcodec` 0.16 起的图像库链接 CUDA，在 CPU 构建的 `torch` 上导入失败；`triton-ascend` 的依赖会把 `numpy` 降到 1.26.4，导致按 NumPy 2 编译的 `ml_dtypes` 导入失败。
 
 ```shell #test id="install-vllm"
 set -eu
@@ -174,7 +174,7 @@ python -m pip install --retries 3 --only-binary=vllm-ascend \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   "vllm-ascend==${ascend_ver}"
-python -m pip install --retries 3 'torchcodec==0.15.0'
+python -m pip install --retries 3 'torchcodec==0.15.0' 'numpy>=2,<2.3'
 python -m pip install --retries 3 --force-reinstall --no-deps --only-binary=triton-ascend \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend
