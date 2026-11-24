@@ -17,7 +17,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 | Python      | 满足当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | Go          | 1.22.6，与上游 `go.mod` 的 toolchain 一致，见下文安装                                              |
 | Envoy       | 官方 linux-aarch64 发行版。下文安装当前版本                                                                      |
-| vLLM-Ascend | `vllm` 与 `vllm-ascend` 均为 0.23.0，见下文安装。版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| vLLM-Ascend | 见下文安装，版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
 
 
@@ -28,7 +28,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 
 | 项目     | 内容                                                                              |
 | ------ | ------------------------------------------------------------------------------- |
-| 镜像     | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
+| 镜像     | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.1-910b-ubuntu22.04-py3.12` |
 | 设备     | 单卡 Ascend 910B                                                                  |
 | Python | 3.12，来自上面的镜像                                                                    |
 
@@ -178,7 +178,10 @@ python -m pip install --retries 3 'torchcodec==0.15.0' 'numpy>=2,<2.3'
 python -m pip install --retries 3 --force-reinstall --no-deps --only-binary=triton-ascend \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend
-python -m pip show vllm vllm-ascend triton-ascend
+python -m pip install --retries 3 --no-deps --only-binary=flash-linear-attention-npu-a2 \
+  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
+  flash-linear-attention-npu-a2
+python -m pip show vllm vllm-ascend triton-ascend flash-linear-attention-npu-a2
 ```
 
 完整输出较长，其中应包含：
@@ -190,6 +193,8 @@ Name: vllm
 Name: vllm_ascend
 ...
 Name: triton_ascend
+...
+Name: flash-linear-attention-npu-a2
 ...
 ```
 
