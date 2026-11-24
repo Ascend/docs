@@ -1,23 +1,32 @@
 # speculators quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
-# concurrency, runner, container image + options, upstream repo,
-# monitored doc, and the test entry command. The guard loop, cache
-# I/O, state relay and publishing all live in the engine.
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation (A2/A3) and merges the per-machine result.json files into
+# one artifact; this file only declares what varies per project: schedule,
+# concurrency, runners, container images + options, upstream repo, monitored
+# doc and the test entry command.
 #
-# No device mounts: the self-hosted NPU runner (`linux-aarch64-a2-1`)
-# auto-passes `/dev/davinci*` into the container via the cluster
-# device-plugin, so container_options stays empty. Same convention as
-# accelerate / peft / timm / torchtune / xtuner / specforge.
+# Two machine legs run the same doc and test:
+#   qs-a2  Atlas 900 A2 (Ascend 910B) - single-card runner
+#   qs-a3  Atlas 900 A3 (Ascend 910C) - 2-card pool, the test pins device 0
+# Both run the vllm-ascend 0.23.0 image build for their machine generation, so
+# the doc's "镜像预装" version probes hold unchanged on either leg.
 #
-# No modelscope cache bind-mount (same finding as diffusers): these
-# runners' `/root/.cache/modelscope` is already NFS-backed and persists
-# across runs, and container `--volume` isolation was verified NOT to
-# work on this runner pool. Cross-run safety comes from
-# doc_test.model_cache.purge_modelscope_corrupt (never touches
-# modelscope's ._____temp in-flight area) in the test's
+# No device mounts: the self-hosted NPU runners (`linux-aarch64-a2-1` /
+# `linux-aarch64-a3-800i-ascend-docs-fed-2`) auto-pass `/dev/davinci*` into
+# the container via the cluster device-plugin, so container_options only
+# carries the cache mounts.
+#
+# A2: no modelscope cache bind-mount (same finding as diffusers): the runner's
+# `/root/.cache/modelscope` is already NFS-backed and persists across runs, and
+# container `--volume` isolation was verified NOT to work on this runner pool.
+# Cross-run safety comes from doc_test.model_cache.purge_modelscope_corrupt
+# (never touches modelscope's ._____temp in-flight area) in the test's
 # prepare_environment.
+#
+# A3: the A3 pool has no persisted NFS `/root/.cache`, so bind the ModelScope
+# cache directory the doc's snapshot_download reads and writes (cold pull
+# ~17 GB: DFlash ~1 GB + Qwen3-8B ~16.4 GB).
 
 name: speculators-quick-start
 
@@ -49,18 +58,20 @@ on:
     paths:
       - 'sources/speculators/**'
       - 'tests/speculators/**'
+      - '.github/workflows/speculators-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  speculators-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-speculators-*), artifacts
-      # (speculators-quick-start-<run_id>) and the test working dir
-      # (tests/speculators in the repo root; engine sets cwd to repo root).
+      # Namespaces cache keys (quick-start-monitor-state-speculators-a2_*),
+      # artifacts (speculators-quick-start-<run_id>-a2) and the test working
+      # dir (tests/speculators in the repo root; engine sets cwd to repo root).
       project: speculators
+      machine_type: a2
       # Self-hosted single-card NPU runner for the test job only; the
       # engine pins the cache I/O jobs (restore-cache /
       # publish-and-persist) to GitHub-hosted ubuntu-latest.
@@ -100,7 +111,49 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/speculators/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep and installs live in the test
-      # subclass's prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep and installs live in
+      # the test subclass's prepare_environment hook.
       test_command: python -m unittest tests.speculators.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: speculators
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc asserts
+      # `torch.npu.device_count() == 1`; the test pins
+      # ASCEND_RT_VISIBLE_DEVICES=0, so the 2-card A3 pool runner still
+      # exposes exactly one card.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      # Same vllm-ascend 0.23.0 release, A3 (SOC ascend910_9391) build of the
+      # upstream image. It ships the identical vllm / vllm-ascend /
+      # triton-ascend / torch / torch_npu stack on CANN 9.1.0, so the doc's
+      # preinstalled-version probes pass unchanged. The bare :v0.23.0 tag is
+      # the A2 build (SOC ascend910b1).
+      image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0-a3
+      # A3 pool has no persisted NFS /root/.cache: bind the ModelScope cache
+      # the doc's snapshot_download reads and writes.
+      container_options: >-
+        --volume=/data/ci-cache/modelscope/speculators:/root/.cache/modelscope
+      # Same 240 min budget as A2: cold verifier download (up to ~90 min) is
+      # the long pole, and the A3 bind-mount starts empty on a fresh host.
+      timeout_minutes: 240
+      upstream_repo: vllm-project/speculators
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/speculators/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/speculators/quick_start.md
+      test_command: python -m unittest tests.speculators.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: speculators
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

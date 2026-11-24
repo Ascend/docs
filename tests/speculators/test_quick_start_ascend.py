@@ -21,6 +21,10 @@ Environment variables (injected by the quick-start engine workflow
                                   local dev machines / normal ubuntu runners
                                   have no ``/dev/davinci*`` device, and the
                                   hard run would fail on ``import torch_npu``.
+    ``MACHINE_TYPE``              ``a2`` / ``a3``. The A3 pool runner exposes
+                                  two cards, so ``prepare_environment`` pins
+                                  ``ASCEND_RT_VISIBLE_DEVICES=0`` to satisfy
+                                  the doc's ``npu_count: 1`` assertion.
 """
 
 from __future__ import annotations
@@ -136,7 +140,13 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             check=True,
         )
 
-        # 2) safetensors: speculators reads model weights via
+        # 2) The doc asserts `torch.npu.device_count() == 1`; the A3 pool
+        # runner exposes two cards, so pin the visible device set. The doc's
+        # vllm serve / torchrun blocks inherit this through the test process
+        # environment.
+        os.environ.setdefault('ASCEND_RT_VISIBLE_DEVICES', '0')
+
+        # 3) safetensors: speculators reads model weights via
         # safetensors. It's a base dep of speculators (its pyproject
         # lists ``safetensors`` as required), so it ships in once
         # ``speculators-install-source`` runs in the doc; this defensive
@@ -144,7 +154,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # any speculators code touches weight files.
         ensure_safetensors()
 
-        # 3) Cache validation: the persistent NFS-backed cache can hold
+        # 4) Cache validation: the persistent NFS-backed cache can hold
         # truncated safetensors from interrupted runs. Walk every shard
         # under each model dir and purge it on failure; modelscope will
         # re-download cleanly on next access. Implementation lives in

@@ -20,11 +20,12 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，至少 1 �
 
 ### 本文档示例使用的版本
 
-**配套机器**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1），Ubuntu 22.04
+**配套机器**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）/ Atlas 900 A3（Ascend 910C），Ubuntu 22.04
 
 **配套镜像**：
 
-swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+- A2（Ascend 910B）：`swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0`
+- A3（Ascend 910C）：`swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0-a3`
 
 镜像预装 vllm 0.23.0 + vllm-ascend 0.23.0 + triton-ascend 3.2.2 + torch 2.10.0+cpu + torch_npu 2.10.0.post4 + torchvision 0.25.0+cpu + torchaudio 2.10.0+cpu + transformers 5.5.4 + modelscope 1.39.1 + CANN 9.1.0 + Python 3.12。
 
