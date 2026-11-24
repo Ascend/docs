@@ -6,7 +6,7 @@ bitsandbytes 是 8-bit / 4-bit 量化库。本文在单卡昇腾上安装它，�
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**）。本文示例为单卡。
 
 ### 软件
 
@@ -21,7 +21,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 
 ### 本文验证环境
 
-本文在配套镜像 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` 上验证，镜像内为 CANN 9.1.0 与 Python 3.12。这不是唯一支持组合。
+本文在配套镜像上验证：A2 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`，A3 为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`。
 
 ## 1. 加载 CANN 环境
 
