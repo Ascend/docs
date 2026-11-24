@@ -1,7 +1,8 @@
 # specforge quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
-# this file only declares what varies per project: schedule,
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation and merges the two result.json files into one artifact.
+# This file only declares what varies per project: schedule,
 # concurrency, runner, container image + options, upstream repo,
 # monitored doc, and the test entry command. The guard loop, cache
 # I/O, state relay and publishing all live in the engine.
@@ -48,13 +49,14 @@ permissions:
   contents: read
 
 jobs:
-  specforge-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-specforge-*), artifacts
-      # (specforge-quick-start-<run_id>) and the test working dir
-      # (tests/specforge in the repo root; engine sets cwd to repo root).
+      # Namespaces cache keys (quick-start-monitor-state-specforge-a2_*),
+      # artifacts (specforge-quick-start-<run_id>-a2) and the test working
+      # dir (tests/specforge in the repo root; engine sets cwd to repo root).
       project: specforge
+      machine_type: a2
       # 4-card NPU runner: smoke parks the SGLang capture server on
       # card 0, the specforge trainer on card 1, and leaves cards 2-3
       # idle for HCCL buffers. A 1-card runner is too small (capture +
@@ -87,3 +89,40 @@ jobs:
       # engine. All project env prep and installs live in the test
       # subclass's prepare_environment hook.
       test_command: python -m unittest tests.specforge.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: specforge
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. The doc asserts
+      # `torch.npu.device_count() == 4` (capture server on card 0, trainer
+      # on card 1, cards 2-3 left for the HCCL buffers), so the A3 leg
+      # needs the 4-card runner class - the visible device set must NOT
+      # be narrowed.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-4"]'
+      # Standard CANN image, 910C flavour. The doc installs torch /
+      # torch_npu / SGLang itself and pulls the sgl-kernel-npu wheel
+      # whose name carries the SoC flavour (-a3- instead of -910b-);
+      # the test sets SGL_KERNEL_SOC_VER accordingly.
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      container_options: ''
+      timeout_minutes: 240
+      upstream_repo: sgl-project/SpecForge
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/specforge/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/specforge/quick_start.md
+      test_command: python -m unittest tests.specforge.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: specforge
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}

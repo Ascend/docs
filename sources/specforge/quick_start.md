@@ -18,9 +18,15 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 
 ### 本文档示例使用的版本
 
+**配套机器**：
+
+- **机器类型**：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 4）/ Atlas 900 A3（Ascend 910C）
+- **操作系统**：Ubuntu 22.04
+
 **配套镜像**：
 
-swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
+- A2（Ascend 910B）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`
+- A3（Ascend 910C）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`
 
 **软件版本**：
 
@@ -30,7 +36,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 | CANN | 9.1.0 |
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
 | sglang | 源码构建，commit `c757c4bb` |
-| sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel） |
+| sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.14 |
 | specforge | 上游 `main` |
@@ -40,7 +46,7 @@ swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
 
 ## 前置安装
 
-确认能看到 NPU 设备（应至少列出 4 张 `910B4` 且状态 OK）：
+确认能看到 NPU 设备（应至少列出 4 张卡且状态 OK）：
 
 ```shell
 npu-smi info
@@ -291,7 +297,11 @@ PY
 )
 CANN_VER=$(ls -d /usr/local/Ascend/cann-* 2>/dev/null | head -1 | sed 's/.*cann-//')
 CANN_VER="${SGL_KERNEL_CANN_VER:-$CANN_VER}"
-WHEEL="sgl-kernel-npu-${KERNEL_TAG}-torch2.10.0-${PY_TAG}-cann${CANN_VER}-910b-$(uname -m).zip"
+# sgl-kernel-npu 的 wheel 名里带 SoC 标识：910B 是 910b，910C（A3）是 a3。
+# 默认按本文验证环境（Ascend 910B）取 910b；换机器代时用
+# SGL_KERNEL_SOC_VER=a3 覆盖。
+SOC_VER="${SGL_KERNEL_SOC_VER:-910b}"
+WHEEL="sgl-kernel-npu-${KERNEL_TAG}-torch2.10.0-${PY_TAG}-cann${CANN_VER}-${SOC_VER}-$(uname -m).zip"
 cd .. && mkdir -p npu-ops && cd npu-ops
 curl -fSL --retry 5 --retry-all-errors --http1.1 -C - -o "$WHEEL" \
     "https://github.com/sgl-project/sgl-kernel-npu/releases/download/${KERNEL_TAG}/${WHEEL}" \
