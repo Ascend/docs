@@ -152,6 +152,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
             current = os.environ.get('PATH', '')
             if not current.startswith(venv_prefix + ':'):
                 os.environ['PATH'] = f'{venv_prefix}:{current}'
+        # The runner gets HTTP 400 from proxy.golang.org for
+        # klauspost/compress@v1.17.9. A pipe in GOPROXY retries the next
+        # proxy on any error; a comma only retries on 404 or 410.
+        os.environ['GOPROXY'] = (
+            'https://proxy.golang.org'
+            '|https://repo.huaweicloud.com/repository/goproxy'
+            '|https://goproxy.cn'
+            '|direct'
+        )
         print('setup: sourced CANN and ATB env')
 
         ensure_safetensors()
@@ -167,6 +176,24 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         """
         if _e2e_enabled():
             cls.prepare_environment()
+
+    def run_command(
+        self,
+        cmd: str,
+        env: dict,
+        cwd,
+        timeout: int,
+        language: str = 'shell',
+    ) -> tuple[int, str, str]:
+        rc, out, err = super().run_command(cmd, env, cwd, timeout, language)
+        if rc != 0 and 'vllm.log' in cmd:
+            log_path = (Path(cwd) if cwd else Path.cwd()) / _WORK_DIR / 'vllm.log'
+            if log_path.is_file():
+                content = log_path.read_text(encoding='utf-8', errors='replace')
+                if len(content) > 256_000:
+                    content = content[-256_000:]
+                self.log(f'vllm.log (full, {len(content)}B):\n{content.rstrip()}')
+        return rc, out, err
 
     def post_process(self) -> None:
         cleanup_aibrix_workdir(_WORK_DIR)
