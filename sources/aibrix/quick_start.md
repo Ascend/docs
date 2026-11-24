@@ -17,7 +17,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 | Python      | 满足当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | Go          | 1.22.6，与上游 `go.mod` 的 toolchain 一致，见下文安装                                              |
 | Envoy       | 官方 linux-aarch64 发行版。下文安装当前版本                                                                      |
-| vLLM-Ascend | 见下文安装，版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
+| vLLM-Ascend | `vllm` 与 `vllm-ascend` 均为 0.23.0，见下文安装。版本说明见 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) |
 | 模型          | [Qwen/Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)                    |
 
 
@@ -28,7 +28,7 @@ Atlas **800T** / **900 A2** 训练系列，Ascend **910B**。本文示例为单�
 
 | 项目     | 内容                                                                              |
 | ------ | ------------------------------------------------------------------------------- |
-| 镜像     | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.2.1-910b-ubuntu22.04-py3.12` |
+| 镜像     | `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12` |
 | 设备     | 单卡 Ascend 910B                                                                  |
 | Python | 3.12，来自上面的镜像                                                                    |
 
@@ -154,34 +154,22 @@ chmod +x .aibrix-quick-start/bin/envoy
 
 ### 3.4 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装当前带预编译包的 `vllm-ascend`，并安装同一版本号的 `vllm`。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装与 CANN 9.1.0 配套的 `vllm` 0.23.0、`vllm-ascend` 0.23.0 和 `triton-ascend` 3.2.2。
 
 ```shell #test id="install-vllm"
 set -eu
-mkdir -p .aibrix-quick-start
-python -m pip install --dry-run --no-deps --retries 3 --only-binary=vllm-ascend \
-  --extra-index-url https://download.pytorch.org/whl/cpu/ \
-  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  --report .aibrix-quick-start/vllm-ascend-report.json \
-  vllm-ascend
-ascend_ver=$(python -c 'import json; print(next(item["metadata"]["version"] for item in json.load(open(".aibrix-quick-start/vllm-ascend-report.json"))["install"] if item["metadata"]["name"].replace("_", "-")=="vllm-ascend"))')
-vllm_ver=${ascend_ver%%.post*}
-test -n "$vllm_ver"
 python -m pip install --retries 3 --only-binary=vllm \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
-  "vllm==${vllm_ver}"
+  'vllm==0.23.0'
 python -m pip install --retries 3 --only-binary=vllm-ascend \
   --extra-index-url https://download.pytorch.org/whl/cpu/ \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  "vllm-ascend==${ascend_ver}"
-python -m pip install --retries 3 'torchcodec==0.15.0' 'numpy>=2,<2.3'
+  'vllm-ascend==0.23.0'
+python -m pip install --retries 3 'numpy>=2,<2.3'
 python -m pip install --retries 3 --force-reinstall --no-deps --only-binary=triton-ascend \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  triton-ascend
-python -m pip install --retries 3 --no-deps --only-binary=flash-linear-attention-npu-a2 \
-  --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
-  flash-linear-attention-npu-a2
-python -m pip show vllm vllm-ascend triton-ascend flash-linear-attention-npu-a2
+  'triton-ascend==3.2.2'
+python -m pip show vllm vllm-ascend triton-ascend
 ```
 
 完整输出较长，其中应包含：
@@ -193,8 +181,6 @@ Name: vllm
 Name: vllm_ascend
 ...
 Name: triton_ascend
-...
-Name: flash-linear-attention-npu-a2
 ...
 ```
 
