@@ -4,14 +4,17 @@ Run: ``python -m unittest tests.whisper_cpp.test_quick_start_ascend -v 2>&1``
 
 Env (injected by the engine ``quick-start-template.yml``, triggered by
 ``whisper_cpp-quick-start.yml``): ``MONITORED_DOC_URL``, ``UPSTREAM_REF``,
-``NPU_READY=true`` (otherwise the class is skipped).
+``NPU_READY=true`` (otherwise the class is skipped) and ``MACHINE_TYPE``
+(``a3`` seeds the ggml cache from ModelScope).
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
 import subprocess
 import unittest
+from pathlib import Path
 
 from doc_test.base import MarkdownDocTestBase
 
@@ -43,6 +46,60 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
+
+    # The doc's hidden #test-setup copies this cache entry into the work
+    # dir when its checksum matches, which skips the public download block.
+    # A2's runner NFS already persists the cache; A3's bind-mounted cache
+    # starts empty and the A3 pool cannot reach huggingface.co (curl gets
+    # 503), so seed it from ModelScope. The mirror is byte-identical to
+    # ggerganov/whisper.cpp, so the doc's checksum is reused as-is.
+    _GGML_NAME = 'ggml-tiny.en.bin'
+    _GGML_SHA256 = '921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f'
+    _GGML_CACHE_DIR = Path('/root/.cache/huggingface/whisper_cpp')
+    _MODELSCOPE_GGML_URL = (
+        'https://modelscope.cn/models/cjc1887415157/whisper.cpp/'
+        f'resolve/master/{_GGML_NAME}'
+    )
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open('rb') as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    @classmethod
+    def _seed_ggml_from_modelscope(cls) -> None:
+        """Populate the ggml cache on A3 before the doc's setup runs."""
+        cached = cls._GGML_CACHE_DIR / cls._GGML_NAME
+        if cached.is_file() and cls._sha256(cached) == cls._GGML_SHA256:
+            print(f'setup: ggml cache already present at {cached}')
+            return
+
+        cls._GGML_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        partial = cached.with_name(f'{cached.name}.part')
+        print(
+            'setup: A3 cannot reach huggingface.co; seeding '
+            f'{cached} from ModelScope'
+        )
+        try:
+            subprocess.run(
+                [
+                    'curl', '-fL', '--retry', '3', '--retry-delay', '5',
+                    '--connect-timeout', '30',
+                    '-o', str(partial), cls._MODELSCOPE_GGML_URL,
+                ],
+                check=True,
+            )
+            digest = cls._sha256(partial)
+            if digest != cls._GGML_SHA256:
+                raise RuntimeError(
+                    f'ggml sha256 mismatch: {digest} != {cls._GGML_SHA256}'
+                )
+            partial.replace(cached)
+        finally:
+            partial.unlink(missing_ok=True)
 
     @classmethod
     def prepare_environment(cls) -> None:
@@ -76,6 +133,9 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         current_path = os.environ.get('PATH', '')
         if path_dirs not in current_path:
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
+
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            cls._seed_ggml_from_modelscope()
 
     @classmethod
     def setUpClass(cls) -> None:
