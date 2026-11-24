@@ -177,6 +177,24 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         if _e2e_enabled():
             cls.prepare_environment()
 
+    def run_command(
+        self,
+        cmd: str,
+        env: dict,
+        cwd,
+        timeout: int,
+        language: str = 'shell',
+    ) -> tuple[int, str, str]:
+        rc, out, err = super().run_command(cmd, env, cwd, timeout, language)
+        if rc != 0 and 'vllm.log' in cmd:
+            log_path = (Path(cwd) if cwd else Path.cwd()) / _WORK_DIR / 'vllm.log'
+            if log_path.is_file():
+                content = log_path.read_text(encoding='utf-8', errors='replace')
+                if len(content) > 256_000:
+                    content = content[-256_000:]
+                self.log(f'vllm.log (full, {len(content)}B):\n{content.rstrip()}')
+        return rc, out, err
+
     def post_process(self) -> None:
         cleanup_aibrix_workdir(_WORK_DIR)
 
