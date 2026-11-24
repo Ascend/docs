@@ -6,7 +6,7 @@ ColossalAI 是面向大模型的训练系统，用 Booster 把模型和优化器
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**），单卡。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**），单卡。
 
 ### 软件
 
@@ -20,7 +20,10 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**），单卡。
 
 ### 本文验证环境
 
-本文验证时的环境是 CANN 9.1.0 与 Python 3.12，配套镜像为 `swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`。本次按官方 CPU 轮子源解析到 `torch 2.12.0+cpu` 与 `torch_npu 2.12.0`。这不是唯一支持组合。
+本文验证时的环境是 CANN 9.1.0 与 Python 3.12，配套镜像：
+
+- A2（Ascend 910B）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12`
+- A3（Ascend 910C）：`swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12`
 
 ---
 
