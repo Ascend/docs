@@ -88,14 +88,10 @@ jobs:
       # runner must expose both cards, same as the A2 leg.
       test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
-      # ADXL reads per-NPU NIC IPs from /etc/hccn.conf; unlike the Hong
-      # Kong A2 ARC runner, the A3 pool honours --volume, so mount the
-      # host copy. The test hook still recovers the file from hccn_tool
-      # when the mount is unavailable. Bind pip's cache too: the A3
-      # pool has no persisted /root/.cache.
-      container_options: >-
-        --volume=/etc/hccn.conf:/etc/hccn.conf:ro
-        --volume=/data/ci-cache/pip:/root/.cache/pip
+      # Do not pass container_options: the A3 fed runner ignores Docker
+      # create options too. Run 45346072343 had no /etc/hccn.conf;
+      # prepare_environment recovered it from hccn_tool (2 address
+      # lines). NPUs come from the cluster device-plugin.
       timeout_minutes: 120
       upstream_repo: kvcache-ai/Mooncake
       doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/mooncake/quick_start.md'
