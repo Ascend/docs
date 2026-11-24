@@ -91,6 +91,18 @@ jobs:
       # 240 min covers worst-case cold download + pipeline + slack.
       timeout_minutes: 240
       upstream_repo: vllm-project/speculators
+      # Track the upstream `main` branch instead of the latest release:
+      # v0.9.0 (2026-10-19) predates upstream PR #1318 "fix(trainer):
+      # RuntimeError Allocator for npu is not a DeviceAllocator"
+      # (2026-10-27), and the trainer's step timer calls
+      # torch.accelerator.memory_allocated(), which raises on Ascend NPU
+      # because torch_npu registers its own NPUCachingAllocator instead of
+      # a c10::CachingDeviceAllocator. The fix is on `main` only so far;
+      # switch back to the latest release once it ships one.
+      # Side effect: the monitor's change signal is main's commit SHA, so
+      # every upstream commit re-fires this guard (same trade-off as the
+      # other fixed_ref: main guards).
+      fixed_ref: main
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
       # engine: PR head SHA on PR runs, 'main' otherwise. Same-repo PRs (head
       # SHA exists on Ascend/docs) test the PR-version of the doc; fork PRs
