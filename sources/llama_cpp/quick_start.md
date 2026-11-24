@@ -4,7 +4,7 @@
 
 ### 硬件
 
-Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文覆盖单卡与多卡。上游已验证的设备列表见 [CANN 后端 — Devices](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)。
+Atlas **800T** / **900 A2** / **900 A3** 训练系列（Ascend **910B** / **910C**）。本文覆盖单卡与多卡。上游已验证的设备列表见 [CANN 后端 — Devices](https://github.com/ggml-org/llama.cpp/blob/master/docs/backend/CANN.md)。
 
 ### 软件
 

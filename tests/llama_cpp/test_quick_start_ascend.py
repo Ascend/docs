@@ -4,14 +4,17 @@ Run: ``python -m unittest tests.llama_cpp.test_quick_start_ascend -v 2>&1``
 
 Env (injected by the engine ``quick-start-template.yml``, triggered by
 ``llama_cpp-quick-start.yml``): ``MONITORED_DOC_URL``, ``UPSTREAM_REF``,
-``NPU_READY=true`` (otherwise the class is skipped).
+``NPU_READY=true`` (otherwise the class is skipped) and ``MACHINE_TYPE``
+(``a3`` seeds the GGUF cache from ModelScope).
 """
 
 from __future__ import annotations
 
+import hashlib
 import os
 import subprocess
 import unittest
+from pathlib import Path
 
 from doc_test.base import MarkdownDocTestBase
 
@@ -43,6 +46,60 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
 
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
+
+    # The doc's hidden #test-setup copies this cache entry into the work
+    # dir when its checksum matches, which skips the public download block.
+    # A2's runner NFS already persists the cache; A3's bind-mounted cache
+    # starts empty and the A3 pool cannot reach huggingface.co (curl gets
+    # 503), so seed it from ModelScope - the same source the upstream
+    # quick-start doc uses.
+    _GGUF_NAME = 'qwen2.5-0.5b-instruct-q4_0.gguf'
+    _GGUF_SHA256 = '7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed'
+    _GGUF_CACHE_DIR = Path('/root/.cache/huggingface/llama.cpp')
+    _MODELSCOPE_GGUF_URL = (
+        'https://modelscope.cn/models/Qwen/Qwen2.5-0.5B-Instruct-GGUF/'
+        f'resolve/master/{_GGUF_NAME}'
+    )
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open('rb') as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b''):
+                digest.update(chunk)
+        return digest.hexdigest()
+
+    @classmethod
+    def _seed_gguf_from_modelscope(cls) -> None:
+        """Populate the GGUF cache on A3 before the doc's setup runs."""
+        cached = cls._GGUF_CACHE_DIR / cls._GGUF_NAME
+        if cached.is_file() and cls._sha256(cached) == cls._GGUF_SHA256:
+            print(f'setup: GGUF cache already present at {cached}')
+            return
+
+        cls._GGUF_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        partial = cached.with_name(f'{cached.name}.part')
+        print(
+            'setup: A3 cannot reach huggingface.co; seeding '
+            f'{cached} from ModelScope'
+        )
+        try:
+            subprocess.run(
+                [
+                    'curl', '-fL', '--retry', '3', '--retry-delay', '5',
+                    '--connect-timeout', '30',
+                    '-o', str(partial), cls._MODELSCOPE_GGUF_URL,
+                ],
+                check=True,
+            )
+            digest = cls._sha256(partial)
+            if digest != cls._GGUF_SHA256:
+                raise RuntimeError(
+                    f'GGUF sha256 mismatch: {digest} != {cls._GGUF_SHA256}'
+                )
+            partial.replace(cached)
+        finally:
+            partial.unlink(missing_ok=True)
 
     @classmethod
     def prepare_environment(cls) -> None:
@@ -76,6 +133,9 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         current_path = os.environ.get('PATH', '')
         if path_dirs not in current_path:
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
+
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            cls._seed_gguf_from_modelscope()
 
     @classmethod
     def setUpClass(cls) -> None:
