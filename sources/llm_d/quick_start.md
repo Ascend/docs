@@ -94,10 +94,11 @@ python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   vllm-ascend==0.23.0
+python -m pip install --retries 3 'ml_dtypes==0.5.4'
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend==3.2.2
-python -c "from importlib.metadata import version; print('vllm', version('vllm')); print('vllm-ascend', version('vllm-ascend')); print('triton-ascend', version('triton-ascend'))"
+python -c "from importlib.metadata import version; print('vllm', version('vllm')); print('vllm-ascend', version('vllm-ascend')); print('triton-ascend', version('triton-ascend')); print('ml_dtypes', version('ml_dtypes'))"
 ```
 
 完整输出较长，其中应包含：
@@ -106,6 +107,7 @@ python -c "from importlib.metadata import version; print('vllm', version('vllm')
 ...vllm 0.23.0
 vllm-ascend 0.23.0
 triton-ascend 3.2.2
+ml_dtypes 0.5.4
 ```
 
 ## 4. 构建 EPP
@@ -355,6 +357,11 @@ ok=0
 for _ in $(seq 1 480); do
   if ! kill -0 "$pid" 2>/dev/null; then
     echo 'vllm process exited' >&2
+    tail -c 8000 /root/llm-d/vllm.log >&2 || true
+    exit 1
+  fi
+  if grep -q 'Traceback (most recent call last)' /root/llm-d/vllm.log 2>/dev/null; then
+    echo 'vllm failed during startup' >&2
     tail -c 8000 /root/llm-d/vllm.log >&2 || true
     exit 1
   fi
