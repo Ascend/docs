@@ -1,6 +1,10 @@
 # opencompass quick start guard - project thin trigger.
 #
-# Calls the common engine .github/workflows/quick-start-template.yml;
+# Calls the common engine .github/workflows/quick-start-template.yml once per
+# machine generation (A2/A3) and merges the per-machine result.json files into
+# one artifact; this file only declares what varies per project: schedule,
+# concurrency, runners, container images, upstream repo, monitored doc and the
+# test entry command.
 
 name: opencompass-quick-start
 
@@ -32,18 +36,20 @@ on:
     paths:
       - 'sources/opencompass/**'
       - 'tests/opencompass/**'
+      - '.github/workflows/opencompass-quick-start.yml'
 
 permissions:
   contents: read
 
 jobs:
-  opencompass-quick-start:
+  qs-a2:
     uses: ./.github/workflows/quick-start-template.yml
     with:
-      # Namespaces cache keys (monitor-state-opencompass-*), artifacts
-      # (opencompass-quick-start-<run_id>) and the test working dir
-      # (workflows/tests/opencompass).
+      # Namespaces cache keys (quick-start-monitor-state-opencompass_a2_*),
+      # artifacts (opencompass-quick-start-<run_id>) and the test working
+      # dir (tests/opencompass).
       project: opencompass
+      machine_type: a2
       # Self-hosted NPU runner for the test job only; the engine pins
       # the cache I/O jobs (restore-cache / publish-and-persist) to
       # GitHub-hosted ubuntu-latest.
@@ -51,8 +57,7 @@ jobs:
       image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12
       # Do not add a container bind-mount for /root/.cache: the runner
       # NFS already persists that tree. Hub weights reuse the default
-      # /root/.cache/huggingface/hub; GSM8K jsonl is restored/saved
-      # under /root/.cache/huggingface/opencompass/gsm8k/.
+      # /root/.cache/huggingface/hub across runs.
       timeout_minutes: 120
       upstream_repo: open-compass/opencompass
       # Doc URL points to the upstream Ascend/docs repo. {0} is filled by the
@@ -64,7 +69,43 @@ jobs:
       doc_path: https://github.com/Ascend/docs/blob/main/sources/opencompass/quick_start.md
       # cwd is the repo root inside the `workflows` checkout (matches
       # engine template's `working-directory: workflows`); env contract
-      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY) is injected by the
-      # engine. All project env prep lives in the test subclass's
-      # prepare_environment hook.
+      # (MONITORED_DOC_URL / UPSTREAM_REF / NPU_READY / MACHINE_TYPE) is
+      # injected by the engine. All project env prep lives in the test
+      # subclass's prepare_environment hook.
       test_command: python -m unittest tests.opencompass.test_quick_start_ascend -v 2>&1
+
+  qs-a3:
+    uses: ./.github/workflows/quick-start-template.yml
+    with:
+      project: opencompass
+      machine_type: a3
+      # Atlas 900 A3 (Ascend 910C) leg. Single card, same as the A2 leg:
+      # the test pins ASCEND_RT_VISIBLE_DEVICES=0 and the model runs on
+      # npu:0.
+      test_runner: '["linux-aarch64-a3-800i-ascend-docs-fed-2"]'
+      image: swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-a3-ubuntu22.04-py3.12
+      # The A3 pool has no persisted NFS /root/.cache, so bind the HF hub
+      # cache the doc's snapshot_download reads and writes; keep pip
+      # wheels out of the quota-limited writable layer too.
+      container_options: >-
+        --volume=/data/ci-cache/hf/opencompass:/root/.cache/huggingface
+        --volume=/data/ci-cache/pip:/root/.cache/pip
+      timeout_minutes: 120
+      upstream_repo: open-compass/opencompass
+      doc_url: 'https://raw.githubusercontent.com/Ascend/docs/{0}/sources/opencompass/quick_start.md'
+      doc_path: https://github.com/Ascend/docs/blob/main/sources/opencompass/quick_start.md
+      test_command: python -m unittest tests.opencompass.test_quick_start_ascend -v 2>&1
+
+  merge:
+    needs: [qs-a2, qs-a3]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (provides the merge action)
+        uses: actions/checkout@v6
+      - name: Merge per-machine results into one artifact
+        uses: ./.github/actions/merge-quick-start-results
+        with:
+          project: opencompass
+          result_a2: ${{ needs.qs-a2.outputs.result_json }}
+          result_a3: ${{ needs.qs-a3.outputs.result_json }}
