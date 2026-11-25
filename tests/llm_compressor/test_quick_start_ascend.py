@@ -4,7 +4,8 @@ Run: ``python -m unittest tests.llm_compressor.test_quick_start_ascend -v 2>&1``
 
 Env (injected by the engine ``quick-start-template.yml``, triggered by
 ``llm_compressor-quick-start.yml``): ``MONITORED_DOC_URL``, ``UPSTREAM_REF``,
-``NPU_READY=true`` (otherwise the class is skipped).
+``NPU_READY=true`` (otherwise the class is skipped) and ``MACHINE_TYPE``
+(``a3`` routes the doc's Hub download through hf-mirror).
 """
 
 from __future__ import annotations
@@ -82,6 +83,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         current_path = os.environ.get('PATH', '')
         if path_dirs not in current_path:
             os.environ['PATH'] = f'{path_dirs}:{current_path}'
+
+        # A3 runners reach Hugging Face only through the mirror (direct
+        # access returns 503); A2 dials huggingface.co directly. The doc
+        # pulls nm-testing/tinysmokeqwen3 through the HF hub. Xet off on
+        # A3: its data plane lives on cas-bridge.xethub.hf.co, outside
+        # HF_ENDPOINT.
+        if os.environ.get('MACHINE_TYPE') == 'a3':
+            os.environ.setdefault('HF_ENDPOINT', 'https://hf-mirror.com')
+            os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
 
         ensure_safetensors()
         report_huggingface_state(cls._MODEL_ID)
