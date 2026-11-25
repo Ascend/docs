@@ -1,0 +1,47 @@
+# PIP_CONSTRAINT for the speculators example installs.
+#
+# The CI image already ships the exact stack speculators needs on Ascend:
+#   torch 2.10.0+cpu / torch_npu 2.10.0.post4 / torchvision 0.25.0 /
+#   torchaudio 2.10.0 / transformers 5.5.4 / vllm 0.23.0 (Ascend build) /
+#   vllm-ascend 0.23.0 / triton-ascend 3.2.2 / numpy 1.26.4 / CANN 9.1.0.
+#
+# Everything below exists so that installing speculators (or datasets, or
+# aiperf) cannot drag the stack onto a different line:
+#
+#   - PyPI's vllm wheels are CUDA builds: they want libcudart.so.13 and their
+#     metadata pins torch 2.11 / triton 3.6, while vllm-ascend 0.23.0 pins
+#     torch 2.10.0 / triton-ascend 3.2.2. Resolving them together fails, and
+#     overriding torch down to 2.10 makes the vllm C extension unloadable
+#     (torch.ops.vllm loses qkv_rmsnorm_rope and the engine dies at
+#     init). The image's own vllm is the only usable one - never replace it.
+#   - The CUDA metapackages have no NPU backend and would pull libcuda /
+#     libtorch_cuda.so during wheel metadata resolution.
+#   - numpy stays at 1.26.4: triton-ascend 3.2.2 requires numpy==1.26.4, and
+#     the image's pandas/scipy are built against it.
+torch==2.10.0
+torchvision==0.25.0
+torchaudio==2.10.0
+numpy==1.26.4
+vllm==0.23.0
+vllm-ascend==0.23.0
+triton-ascend==3.2.2
+transformers==5.5.4
+# pyarrow 19+ and pandas 3+ require numpy >= 2; the image's numpy is 1.26.4.
+pyarrow==18.1.0
+pandas==2.2.3
+bitsandbytes
+xformers
+flash-attn
+flash_attn
+nvidia-cublas-cu12
+nvidia-cuda-cupti-cu12
+nvidia-cuda-nvrtc-cu12
+nvidia-cuda-runtime-cu12
+nvidia-cudnn-cu12
+nvidia-cufft-cu12
+nvidia-curand-cu12
+nvidia-cusolver-cu12
+nvidia-cusparse-cu12
+nvidia-nccl-cu12
+nvidia-nvjitlink-cu12
+nvidia-nvtx-cu12

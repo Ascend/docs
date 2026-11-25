@@ -1,0 +1,145 @@
+# examples-guards/speculators/examples_manifest.yaml
+#
+# speculators（vllm-project/speculators）上游 examples 的昇腾看护清单。
+#
+# 上游 examples 目录共 17 个可执行脚本（convert / demo / evaluate / train 四类）。
+# 下面的 supported / unsupported 结论全部来自 2026-11-25 在 coder Ascend A2
+# workspace（2×910B4，CANN 9.1.0，torch 2.10.0+cpu / torch_npu 2.10.0.post4，
+# vllm 0.23.0 + vllm-ascend 0.23.0，取自 CI 镜像
+# swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0）
+# 上的逐条实测；每条 unsupported 都写明卡在哪一步、证据是什么。
+#
+# 三条通用阻断（下面多条 unsupported 共用）：
+#   (1) hidden-states 回传在长 prompt 上被截断。上游 vllm 的
+#       ExampleHiddenStatesConnector 把 hidden states 异步落盘（safetensors），
+#       客户端 speculators/hs_connectors 用 flock 等待 <path>.lock；客户端只在
+#       lock 文件「已经存在」时才等，锁文件尚未创建就直接读，于是读到写了一半的
+#       文件。实测：30 token 的 prompt 10/10 正常；200/400/800/1600 token 的
+#       prompt 分别只落 72/272/416/832 行。upstream 各 train example 的样本是
+#       345~2048 token 的真实对话 → 10/10 失败，报
+#       "Sequence length of hidden states N doesn't match num tokens M"。
+#   (2) dflash 默认走 sliding-window attention mask
+#       （speculators/models/dflash/core.py:350 _create_attention_mask），
+#       该 mask 的 torch.compile 产物在 910B4 上编译失败：
+#       triton-ascend "ub overflow, requires 3014656 bits while 1572864 bits
+#       available"（192KB UB 上限）。--draft-attn-impl sdpa 可绕开。
+#   (3) anchors 规模受显存限制：sdpa 下 max-anchors 32/256 通过
+#       （val/loss_epoch 2.229 / 2.083），1024 直接 NPU out of memory
+#       （27.82/29.49 GiB），upstream 默认 3072。
+version: 1
+
+scan:
+  # speculators 的 examples 形态：shell 脚本 + 一个 python 竞速脚本。
+  # .md 是说明文档，.json 是 kimi 的 draft layer 配置，都不是入口。
+  root: examples
+  include_extensions: ['.sh', '.py']
+
+supported:
+  # ===== demo：vllm 双开（plain vs dflash draft）逐 token 对拍 =====
+  # 2026-11-25 在 coder hdc-stable-npu-1（2×910B4）实测通过：
+  #   - plain server（卡 0）与 dflash draft server（卡 1）都起得来；
+  #   - demo_race.py 跑完输出 "TEXT IDENTICAL"，
+  #     drafter accepted 3.15 tokens/step（27% 草稿被接受），
+  #     per-position acceptance 70%/55%/40%/20%/15%/5%；
+  #   - 走看护脚本（examples-guards/speculators/scripts/run_example.sh）再跑一遍，
+  #     退出码 0，drafter 2.74 tokens/step（22%），两侧文本一致。
+  # NPU 适配（run_example.sh 在工作副本里改，不动上游 checkout）：
+  #   - CUDA_VISIBLE_DEVICES -> ASCEND_RT_VISIBLE_DEVICES（torch_npu 不认前者）；
+  #   - 去掉 --attention-backend flash_attn：CUDA 专有后端，昇腾用默认
+  #     AscendAttentionBackend；
+  #   - 加 --block-size 128：昇腾 attention kernel 的 block size 是 128，
+  #     vllm 默认 16 与之没有公共块长，plain server 直接报
+  #     "No common block size for 16."；
+  #   - 加 --enforce-eager：上游 --max-num-seqs 1 配投机解码时，cudagraph
+  #     捕获尺寸要按 (num_speculative_tokens+1)=9 取整，max=1 时无合法尺寸，
+  #     报 "No valid cudagraph sizes after rounding to multiple of 9"；
+  #   - demo_race.py 从 stdin 读 prompt，CI 喂一行 prompt 后 EOF。
+  # 上游默认 -k 8（num_speculative_tokens=8）在本环境能跑。投机侧在 NPU 上的
+  # 加速不稳定（两次实测 0.36x 与 1.88x，enforce-eager + 910B4 的 draft 开销
+  # 抵消了收益），demo 断言的是两侧文本一致，这条是稳的。
+  - path: examples/demo/demo_side_by_side.sh
+    profile: demo
+    runner: linux-aarch64-a2-2
+    image: swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/vllm-ascend/vllm-ascend:v0.23.0
+    # upstream demo 的 CLI 只认 --model/--draft/--method/--gpus/-k/--max-tokens，
+    # 剩下的昇腾适配（block-size、enforce-eager、4096 的上下文窗口）由
+    # run_example.sh 在工作副本里改，不走 overlay_args。
+    overlay_args: []
+    npu_devices: '0,1'
+    timeout_minutes: 90
+
+unsupported:
+  # ===== 上游 train 系列：hidden-states 回传在长 prompt 上被截断 =====
+  # 这 6 条 online example 的数据流完全一样（prepare-data → vllm serve 带
+  # extract_hidden_states → trainer 在线取 hidden states），卡在同一步：
+  # 样本是 345~2048 token 的真实对话，vllm 侧异步落盘的 hidden states 被
+  # 客户端读成半截，10/10 样本报
+  # "Sequence length of hidden states N doesn't match num tokens M"。
+  # 30 token 的短 prompt 能 10/10 通过，说明是长 payload 的写读竞态，不是
+  # 模型或算法问题。上游不提供更短的默认数据集，也没有可关掉异步写的开关
+  # （use_synchronization_lock 只管已存在的锁文件），所以不改上游就过不去。
+  - examples/train/dflash_qwen3_8b_ultrachat_online_5k.sh
+  - examples/train/dflash2_qwen3_8b_ultrachat_online_5k.sh
+  - examples/train/dflash_qwen3_8b_ultrachat_online_5k_bestpractices.sh
+  - examples/train/xpress_qwen3_8b_regen_online.sh
+  - examples/train/eagle3_qwen3_8b_ultrachat_online_5k.sh
+  - examples/train/dspark_qwen3_0_6b_sharegpt_online.sh
+  # ===== eagle3 offline：同一套 hidden-states 回传（generate-offline-data）=====
+  # 2026-11-25 实测 generate-offline-data 在 345~2048 token 样本上 10/10 失败，
+  # 报错同上；30 token 样本 10/10 正常。另外脚本第一步要
+  # meta-llama/Llama-3.1-8B-Instruct（HF gated），runner 池没有 HF token。
+  - examples/train/eagle3_llama3_8b_ultrachat_offline_5k.sh
+  # ===== mtp online：数据集 + 模型 =====
+  # 1) 数据集 inference-optimization/Qwen3.5-9B-responses 需要 `hf download`
+  #    （HF 仓库在 runner 池可达，但要走 HF 账号匿名下载）；2) online 取
+  #    hidden states 这条链同样截断；3) Qwen3.5-9B 的原生 MTP head 与
+  #    vllm-ascend 0.23 的 MTP 投机路径未在本环境验证过（stitch-mtp 之后还要
+  #    vllm serve 挂 mtp）。先入册 unsupported 等前两条解决。
+  - examples/train/mtp_qwen3_5_9b_gsm8k_online.sh
+
+  # ===== kimi k3 dspark：Slurm + Mooncake + 私有权重 =====
+  # 依赖 kimi-k3 权重（/mnt/shared/weights/kimi-k3，公开渠道拿不到）、
+  # MOONCAKE_MASTER、FABRIC_SUBNET（RDMA 网卡直连）、4 rank DDP、以及
+  # prepare_data.sbatch / run.sbatch 两份 Slurm 作业。CI runner 池没有
+  # Slurm、没有 mooncake、没有 RDMA fabric。
+  - examples/train/kimi_k3_dspark/launch_extractor_node.sh
+  - examples/train/kimi_k3_dspark/launch_train_node.sh
+  - examples/train/kimi_k3_dspark/prepare_data.sbatch
+  - examples/train/kimi_k3_dspark/run.sbatch
+
+  # ===== convert/eagle3：gated 依赖 =====
+  # apply_eagle3_eagle.sh 要 yuhuili/EAGLE3-LLaMA3.1-Instruct-8B（HF 可下）
+  # + meta-llama/Meta-Llama-3.1-8B-Instruct（HF gated，runner 池无 token）。
+  # 转换本身的校验是纯 CPU 加载（eagle3_converter._validate_converted_checkpoint
+  # 不碰 device），NPU 上不是阻断点；等 HF token 或换成 ModelScope 镜像
+  # （LLM-Research/Meta-Llama-3.1-8B）再入册。
+  - examples/convert/eagle3/apply_eagle3_eagle.sh
+  # ===== convert/eagle3 llama4 maverick：w4a16 量化无昇腾后端 =====
+  # RedHatAI/Llama-4-Maverick-17B-128E-Instruct-quantized.w4a16 是 weight-only
+  # int4 量化，vllm-ascend 0.23 没有对应后端；两个 17B 级权重也不是单卡 32G
+  # 能同时装下的量级。
+  - examples/convert/eagle3/apply_eagle3_llama4_maverick.sh
+
+  # ===== evaluate：vllm 0.23 没有 --per-request-spec-decode-metrics =====
+  # 2026-11-25 coder 2×910B4 实测：
+  #   - 上游脚本的 `vllm serve "$MODEL" --per-request-spec-decode-metrics summary`
+  #     在 CI 镜像的 vllm 0.23.0 上直接被 argparse 拒了：
+  #     "main.py: error: unrecognized arguments: --per-request-spec-decode-metrics
+  #     summary"（vllm 0.23 的 CLI 与源码里都没有这个开关；上游 example 是对着
+  #     vllm >= 0.29 写的，见 upstream examples/demo/README.md）。
+  #   - 去掉这个开关后，speculators 格式的 DFlash checkpoint（draft +
+  #     speculators_config + verifier）能被 vllm-ascend 0.23 正常 serve
+  #     （Application startup complete），说明服务这一半是通的；但没有
+  #     per-request 的投机解码指标，aiperf 的 acceptance 报告就没有数据，
+  #     example 的目的就落空了。
+  #   - aiperf 0.13.0 自带 spec_al_humaneval 数据集（openai/openai_humaneval
+  #     test split 164 条），但它的依赖集会把 speculators/transformers/numpy
+  #     一起带进环境，和镜像钉死的 transformers 5.5.4 / numpy 1.26.4 冲突，
+  #     要单开一个 venv 才能装。
+  # 等镜像里的 vllm 升到带这个开关的版本（或看护改用独立 venv 跑 aiperf）再入册。
+  - examples/evaluate/example_qwen3_8b_dflash_humaneval.sh
+
+  # ===== demo_race.py 是 demo_side_by_side.sh 的内部 helper =====
+  # 单独跑没有业务语义：它要求两个已经起好的 server（--left-url/--right-url），
+  # 并从 stdin 读交互式 prompt。作为 example 看护对象的是 shell 包装脚本。
+  - examples/demo/demo_race.py
