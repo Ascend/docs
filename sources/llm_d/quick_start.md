@@ -14,14 +14,11 @@ llm-d 是架在推理引擎之上的路由层。最小部署是三个进程：
 
 ## 前置条件
 
-
-
 ### 硬件
 
 Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为单卡。
 
 ### 软件
-
 
 | 类别     | 要求                                                                                                      |
 | ------ | ------------------------------------------------------------------------------------------------------- |
@@ -29,13 +26,7 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | NNAL   | 可以 `source /usr/local/Ascend/nnal/atb/set_env.sh`                                                       |
 | Python | 落在当前 CANN 镜像和 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 的范围内 |
 
-
-
-
 ### 本文验证环境
-
-下表是编写本文时跑通的组合，不是唯一支持组合。
-
 
 | 项目            | 内容                                                                              |
 | ------------- | ------------------------------------------------------------------------------- |
@@ -52,7 +43,6 @@ Atlas **800T** / **900 A2** 训练系列（Ascend **910B**）。本文示例为�
 | Envoy         | 1.33.2 linux-aarch64                                                            |
 | 模型            | [Qwen/Qwen3-0.6B](https://huggingface.co/Qwen/Qwen3-0.6B)                       |
 
-
 阅读本文前，请先按 [快速安装昇腾环境](https://ascend.github.io/docs/sources/ascend/quick_install.html) 装好 CANN、NNAL 与驱动。
 
 ## 1. 加载 CANN 与 NNAL
@@ -64,8 +54,6 @@ export PATH=/usr/local/sbin:/usr/local/bin:$PATH
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 source /usr/local/Ascend/nnal/atb/set_env.sh
 ```
-
-
 
 ## 2. 确认 NPU 在线
 
@@ -101,7 +89,7 @@ npu-smi info
 安装 `vllm`、`vllm-ascend` 和 `triton-ascend`。
 
 ```shell #test id="install"
-python -m pip install --retries 3 vllm==0.23.0
+python -m pip install --retries 3 'vllm==0.23.0' 'filelock>=3.16.1,<4.3'
 python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
@@ -332,8 +320,6 @@ mv "$guide/envoy.yaml.part" "$guide/envoy.yaml"
       model: Qwen/Qwen3-0.6B
 ```
 
-
-
 ## 7. 启动 vLLM
 
 在 0 号卡上启动 vLLM，模型与服务名都是 `Qwen/Qwen3-0.6B`。
@@ -379,7 +365,11 @@ for _ in $(seq 1 480); do
   fi
   sleep 5
 done
-[ "$ok" = 1 ]
+if [ "$ok" != 1 ]; then
+  echo 'vllm did not become ready' >&2
+  tail -c 8000 /root/llm-d/vllm.log >&2 || true
+  exit 1
+fi
 ```
 
 完整输出较长，其中应包含：
@@ -387,8 +377,6 @@ done
 ```text #test-result id="start-vllm"
 ...Qwen/Qwen3-0.6B...
 ```
-
-
 
 ## 8. 启动 EPP
 
@@ -432,7 +420,11 @@ for _ in $(seq 1 60); do
   fi
   sleep 2
 done
-[ "$ok" = 1 ]
+if [ "$ok" != 1 ]; then
+  echo 'epp did not become ready' >&2
+  tail -c 8000 /root/llm-d/epp.log >&2 || true
+  exit 1
+fi
 ```
 
 输出结果如下：
@@ -440,8 +432,6 @@ done
 ```text #test-result id="start-epp"
 # HELP llm_d_epp_info [ALPHA] General information of the current build of Inference Extension.
 ```
-
-
 
 ## 9. 启动 Envoy
 
@@ -486,7 +476,11 @@ for _ in $(seq 1 60); do
   fi
   sleep 2
 done
-[ "$ok" = 1 ]
+if [ "$ok" != 1 ]; then
+  echo 'envoy did not become ready' >&2
+  tail -c 8000 /root/llm-d/envoy.log >&2 || true
+  exit 1
+fi
 ```
 
 输出结果如下：
@@ -494,8 +488,6 @@ done
 ```shell #test-result id="start-envoy"
 LIVE
 ```
-
-
 
 ## 10. 发送请求验证
 
@@ -512,8 +504,6 @@ curl -sS http://127.0.0.1:8081/v1/completions \
 ```text #test-result id="e2e"
 ...text_completion...Qwen/Qwen3-0.6B...
 ```
-
-
 
 ## 11. 确认跑在 NPU 上
 
