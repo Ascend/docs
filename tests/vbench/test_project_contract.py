@@ -60,16 +60,22 @@ class TestVBenchContract(unittest.TestCase):
         self.assertIn("https://github.com/Ascend/VBench.git", checkout)
         self.assertLess(checkout.index("```{admonition} Note"), checkout.index('```shell #test id="checkout-vbench"'))
 
-    def test_guide_uses_native_support_and_normal_dependency_installation(self) -> None:
+    def test_guide_uses_native_support(self) -> None:
         text = DOC.read_text(encoding="utf-8")
         for obsolete in ("apply_patches.py", "git apply", "VBENCH_INSTALL_PROFILE",
                          "patches applied", "最新 release", "最新正式 release"):
             with self.subTest(obsolete=obsolete):
                 self.assertNotIn(obsolete, text)
-        self.assertIn("uv pip install --no-build-isolation", text)
-        self.assertIn('-e ./vbench-src "gdown==6.4.2"', text)
-        self.assertNotIn("--no-deps", text.split("## 安装 VBench", 1)[1].split("## 准备官方", 1)[0])
-        self.assertIn("requirements.txt", text)
+
+    def test_quick_start_installs_human_action_dependencies_before_vbench(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        install = text.split("## 安装 VBench", 1)[1].split("## 准备官方", 1)[0]
+        command = "uv pip install --no-build-isolation --no-deps -e ./vbench-src"
+        self.assertIn(command, install)
+        dependencies = install.split(command, 1)[0].split("bash scripts/install_decord.sh", 1)[1]
+        self.assertIn("uv pip install", dependencies)
+        for dependency in ("openai-clip", "opencv-python", "timm", "tqdm", "scipy", "gdown==6.4.2"):
+            self.assertIn(dependency, dependencies)
 
     def test_cli_result_does_not_require_the_removed_patch_log(self) -> None:
         text = DOC.read_text(encoding="utf-8")

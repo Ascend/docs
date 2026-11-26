@@ -153,14 +153,15 @@ echo "VBench Ascend source ready"
 ## 安装 VBench
 
 Decord 0.6.0 没有官方 Linux aarch64 wheel，使用上游源码构建 CPU 解码器。
-随后按 VBench 自身的 `requirements.txt` 正常安装依赖，沿用前面准备好的
-PyTorch-NPU 栈和版本约束；无需设置专用安装 profile。
+在前面准备好的 PyTorch-NPU 环境中，先安装 `human_action` 评测和资源准备所需的依赖，
+再安装 VBench 源码。这里对 VBench 使用 `--no-deps`，因为完整依赖会引入本例用不到的
+`transformers` 和 `tokenizers`，后者在此 Python 3.12 aarch64 环境中需要从源码构建。
 
 ```shell #test-setup
 set -euo pipefail
 bash scripts/install_decord.sh
-uv pip install --no-build-isolation \
-    -e ./vbench-src "gdown==6.4.2"
+uv pip install --no-build-isolation timm opencv-python scipy tqdm openai-clip "gdown==6.4.2"
+uv pip install --no-build-isolation --no-deps -e ./vbench-src
 vbench evaluate --help >/dev/null
 ```
 
