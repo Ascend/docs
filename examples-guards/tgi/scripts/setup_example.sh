@@ -34,7 +34,6 @@ ALIYUN_PIP_INDEX=https://mirrors.aliyun.com/pypi/simple/
 # 1) pip index: the in-cluster cache was decommissioned, use the Aliyun
 # mirror (same fallback as the other projects' setup scripts).
 PIP_INDEX_URL="$ALIYUN_PIP_INDEX"
-unset PIP_TRUSTED_HOST
 export PIP_INDEX_URL
 export PIP_EXTRA_INDEX_URL="$ASCEND_PIP_INDEX"
 export PIP_TIMEOUT=120
@@ -45,9 +44,9 @@ export UV_HTTP_TIMEOUT=120
 # Container has no venv: uv pip install must target the system Python
 # (same UV_SYSTEM_PYTHON=1 the quick-start engine sets; without it uv
 # errors "No virtual environment found"). UV_NO_CACHE=1 keeps uv's
-# own cache off the shared persistent volume - the cluster pip cache
-# is the single shared cache, uv's would be a redundant corruption
-# surface (same as the quick-start engine's proven combo).
+# own cache off the shared persistent volume - the pip wheel cache
+# below is the single shared cache, uv's would be a redundant
+# corruption surface (same as the quick-start engine's proven combo).
 export UV_SYSTEM_PYTHON=1
 export UV_NO_CACHE=1
 # Persistent-volume root (shared across the pool's runners, same disk
@@ -58,10 +57,6 @@ export UV_NO_CACHE=1
 TGI_CACHE_ROOT="${HOME}/.cache/tgi-examples"
 export PIP_CACHE_DIR="$TGI_CACHE_ROOT/pip"
 mkdir -p "$PIP_CACHE_DIR"
-if [[ -n "${PIP_TRUSTED_HOST:-}" ]]; then
-    export PIP_TRUSTED_HOST
-    export UV_INSECURE_HOST="$PIP_TRUSTED_HOST"
-fi
 echo "pip index: $PIP_INDEX_URL"
 
 # 2) CUDA exclusion list (same as the quick-start test class) so pip /
@@ -160,10 +155,6 @@ python -c "import text_generation_server; print('server import ok')"
     echo "UV_HTTP_TIMEOUT=120"
     echo "UV_CONSTRAINT=$CONSTRAINTS_FILE"
     echo "PATH=$CARGO_HOME/bin:$PATH"
-    if [[ -n "${PIP_TRUSTED_HOST:-}" ]]; then
-        echo "PIP_TRUSTED_HOST=$PIP_TRUSTED_HOST"
-        echo "UV_INSECURE_HOST=$PIP_TRUSTED_HOST"
-    fi
 } >> "$GITHUB_ENV"
 
 echo "setup tgi-serve done"
