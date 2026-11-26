@@ -35,7 +35,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 | Python | 3.12 |
 | CANN | 9.1.0 |
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
-| sglang | 源码构建，commit `c757c4bb` |
+| sglang | 源码构建，commit `c757c4bb`（与下面的 sgl-kernel-npu 配套，见「安装 SGLang」） |
 | sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.14 |
@@ -270,13 +270,29 @@ specforge checkout: xxx
 
 ## 安装 SGLang（源码构建）
 
-capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建；commit 取自上游 SpecForge CI 的 `SGLANG_COMMIT`：
+capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建。commit 与
+`sgl-kernel-npu` 的版本必须配套，理由见下面的说明，这里按本文验证过的组合钉住：
+
+- SGLang 钉在 `c757c4bb`（上游 SpecForge CI 在 2026-11-23 之前的 pin）。
+- `sgl-kernel-npu` 钉在 `2026.9.0.post12`（最后一个带 910b（A2）SoC wheel 的
+  版本）。
+
+上游在 2026-11-24 把 CI 的 `SGLANG_COMMIT` 推到 `48eaefbd` / `c19e9c7d`，
+这两个 commit 的 `sglang/srt/mem_cache/memory_pool_host.py` 会 import
+`sgl_kernel_npu.operators.mem_cache`，而这个模块只出现在 `2026.11.0.postX`
+的 `sgl-kernel-npu` 里；`2026.11.0.postX` 只出了 950 / a3 两种 SoC 的 wheel，
+910b（A2）用不了。所以两条腿（A2 / A3）都回到与 `2026.9.0.post12` 配套的
+`c757c4bb`。机器上能拿到 `2026.11.0.postX` 的 wheel（950 / a3）时，可以用
+`SGLANG_COMMIT_OVERRIDE=<40 位 commit>` 换成上游当前的 pin。
 
 ```shell #test id="sglang-install-source"
 set -euo pipefail
-SGLANG_COMMIT=$(sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' \
-    SpecForge/.github/workflows/test.yaml | head -1)
-[ -n "$SGLANG_COMMIT" ] || { echo "sglang-install: FAILED - SGLANG_COMMIT not found" >&2; exit 1; }
+SGLANG_COMMIT="${SGLANG_COMMIT_OVERRIDE:-c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0}"
+KERNEL_TAG="${SGL_KERNEL_TAG:-2026.9.0.post12}"
+# 上游 CI 当前的 pin，仅作对照打印（诊断信息走 stderr，不进 stdout 的比对）。
+SGLANG_COMMIT_UPSTREAM=$(sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' \
+    SpecForge/.github/workflows/test.yaml 2>/dev/null | head -1) || true
+echo "sglang commit: $SGLANG_COMMIT (upstream CI pin: ${SGLANG_COMMIT_UPSTREAM:-none}), sgl-kernel-npu: $KERNEL_TAG" >&2
 rm -rf sglang-src && mkdir sglang-src && cd sglang-src
 git init -q
 git remote add origin https://github.com/sgl-project/sglang.git
@@ -289,7 +305,6 @@ done
 git checkout -q FETCH_HEAD
 cd python
 mv pyproject_npu.toml pyproject.toml
-KERNEL_TAG=2026.9.0.post12
 PY_TAG=py$(python - <<'PY'
 import sys
 print(f"{sys.version_info.major}{sys.version_info.minor}")
