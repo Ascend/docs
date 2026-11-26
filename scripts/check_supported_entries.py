@@ -1,19 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the supported section of an examples manifest.
+"""Validate the supported entries of an examples manifest.
 
-The examples guard engine's manifest-check step: every supported entry
-must exist on the target checkout and carry valid scheduling params
-(path / profile / runner / image / timeout_minutes; optional
-overlay_args as a list of CLI strings and exec). Writes
-supported_matrix (the JSON array the run-example matrix expands from)
-and has_supported to GITHUB_OUTPUT when set.
+Checks each entry's path and scheduling fields, including the optional
+a3_runner/a3_image pair. Writes the original, A3, and publish matrices
+to GITHUB_OUTPUT; exits 1 after listing every problem.
 
-Deliberately does NOT scan the target tree or compute new/stale diffs:
-discovering unclassified new upstream examples is a separate
-workflow's concern - this check only validates what the engine
-schedules. Exit 1 after listing every problem found.
-
-Requires PyYAML (preinstalled on ubuntu-latest runners).
+Requires PyYAML.
 """
 from __future__ import annotations
 
@@ -21,6 +13,7 @@ import argparse
 import json
 import os
 import sys
+from collections import Counter
 from pathlib import Path, PurePosixPath
 
 import yaml
@@ -105,16 +98,64 @@ def validate(
     return entries, errors
 
 
-def write_github_output(entries: list[dict]) -> None:
+def expand_a3(entries: list[dict]) -> tuple[list[dict], list[dict], list[str]]:
+    """Keep the original matrix and build A3 rows for explicit configurations."""
+    original_matrix = list(entries)
+    a3_matrix = []
+    errors = []
+    names = Counter(entry['name'] for entry in entries)
+    for index, entry in enumerate(entries):
+        if 'a3_runner' not in entry and 'a3_image' not in entry:
+            continue
+        original = dict(entry)
+        runner = original.pop('a3_runner', None)
+        image = original.pop('a3_image', None)
+        invalid = [
+            field for field, value in [('a3_runner', runner), ('a3_image', image)]
+            if not isinstance(value, str) or not value.strip()
+        ]
+        if invalid:
+            errors.append(
+                f"{entry['path']}: a3_runner and a3_image must be specified "
+                f"together as non-empty strings; missing or invalid: {', '.join(invalid)}"
+            )
+            continue
+        name = entry['name']
+        if names[name] > 1:
+            name = f'{name} ({index + 1})'
+        original_matrix[index] = original
+        a3_matrix.append(dict(
+            original,
+            name=f'{name} [a3]',
+            machine_type='a3',
+            runner=runner.strip(),
+            image=image.strip(),
+        ))
+    return original_matrix, a3_matrix, errors
+
+
+def build_publish_matrix(
+    entries: list[dict], a3_entries: list[dict]
+) -> list[dict]:
+    """Publish one result per example; baseline rows are A2."""
+    return [dict(entry, machine_type='a2') for entry in entries] + a3_entries
+
+
+def write_github_output(entries: list[dict], a3_entries: list[dict]) -> None:
     output_path = os.environ.get('GITHUB_OUTPUT')
     if not output_path:
         return
     with open(output_path, 'a', encoding='utf-8') as handle:
-        handle.write('supported_matrix<<EOF\n')
-        handle.write(json.dumps(entries, ensure_ascii=False))
-        handle.write('\nEOF\n')
-        handle.write(
-            'has_supported={}\n'.format('true' if entries else 'false'))
+        groups = [
+            ('supported', entries),
+            ('a3', a3_entries),
+            ('publish', build_publish_matrix(entries, a3_entries)),
+        ]
+        for group, rows in groups:
+            handle.write(f'{group}_matrix<<EOF\n')
+            handle.write(json.dumps(rows, ensure_ascii=False))
+            handle.write('\nEOF\n')
+            handle.write(f'has_{group}={"true" if rows else "false"}\n')
 
 
 def main() -> None:
@@ -134,13 +175,15 @@ def main() -> None:
         Path(args.target_root),
         Path(args.manifest).resolve().parent,
     )
-    write_github_output(entries)
+    matrix, a3_matrix, a3_errors = expand_a3(entries)
+    errors.extend(a3_errors)
     if errors:
         for message in errors:
             print(message, file=sys.stderr)
         print('fix the supported section of the manifest before this '
               'pipeline can schedule examples', file=sys.stderr)
         raise SystemExit(1)
+    write_github_output(matrix, a3_matrix)
     print(f'manifest ok: {len(entries)} supported entry(ies)')
 
 
