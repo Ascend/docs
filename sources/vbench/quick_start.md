@@ -156,11 +156,14 @@ Decord 0.6.0 没有官方 Linux aarch64 wheel，使用上游源码构建 CPU 解
 在前面准备好的 PyTorch-NPU 环境中，先安装 `human_action` 评测和资源准备所需的依赖，
 再安装 VBench 源码。这里对 VBench 使用 `--no-deps`，因为完整依赖会引入本例用不到的
 `transformers` 和 `tokenizers`，后者在此 Python 3.12 aarch64 环境中需要从源码构建。
+评测模块导入的 `clip` 从 OpenAI CLIP 源码的固定提交安装。该提交使用独立的
+`packaging` 库，兼容已经移除 `pkg_resources` 的新版 `setuptools`。
 
 ```shell #test-setup
 set -euo pipefail
 bash scripts/install_decord.sh
-uv pip install --no-build-isolation timm opencv-python scipy tqdm openai-clip "gdown==6.4.2"
+uv pip install --no-build-isolation timm opencv-python scipy tqdm "gdown==6.4.2" \
+    "clip @ git+https://github.com/openai/CLIP.git@d05afc436d78f1c48dc0dbf8e5980a9d471f35f6"
 uv pip install --no-build-isolation --no-deps -e ./vbench-src
 vbench evaluate --help >/dev/null
 ```

@@ -74,8 +74,10 @@ class TestVBenchContract(unittest.TestCase):
         self.assertIn(command, install)
         dependencies = install.split(command, 1)[0].split("bash scripts/install_decord.sh", 1)[1]
         self.assertIn("uv pip install", dependencies)
-        for dependency in ("openai-clip", "opencv-python", "timm", "tqdm", "scipy", "gdown==6.4.2"):
+        for dependency in ("opencv-python", "timm", "tqdm", "scipy", "gdown==6.4.2"):
             self.assertIn(dependency, dependencies)
+        self.assertRegex(dependencies, r'"clip @ git\+https://github\.com/openai/CLIP\.git@[0-9a-f]{40}"')
+        self.assertNotIn("openai-clip", dependencies)
 
     def test_cli_result_does_not_require_the_removed_patch_log(self) -> None:
         text = DOC.read_text(encoding="utf-8")
