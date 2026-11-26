@@ -45,6 +45,10 @@ _OWNED_PROCESSES = (
     (Path('/root/llm-d/vllm.pid'), 'vllm'),
 )
 
+# Markers older than this are leftover from a dead job. A live download
+# updates the lock file, so two hours is long enough to leave it alone.
+_STALE_HUB_LOCK_S = 2 * 60 * 60
+
 
 def _cmdline_of(pid: int) -> str:
     try:
@@ -52,6 +56,38 @@ def _cmdline_of(pid: int) -> str:
     except OSError:
         return ''
     return raw.replace(b'\x00', b' ').decode('utf-8', errors='replace')
+
+
+def _release_stale_hub_locks(model_id: str) -> None:
+    """Remove old Hugging Face hub locks for one model.
+
+    ``huggingface_hub`` waits forever on a lock it cannot acquire. The
+    model cache lives on shared storage used by every runner, and a
+    marker left by a dead job blocks ``vllm serve`` for the whole ready
+    wait. Locks touched in the last two hours stay in place.
+    """
+    cache = resolve_huggingface_cache()
+    repo = 'models--' + model_id.replace('/', '--')
+    lock_dir = cache / '.locks' / repo
+    if not lock_dir.is_dir():
+        print(f'setup: no hub locks at {lock_dir}')
+        return
+    now = time.time()
+    removed = 0
+    kept = 0
+    for path in sorted(lock_dir.rglob('*')):
+        if not path.is_file():
+            continue
+        age_s = now - path.stat().st_mtime
+        if age_s < _STALE_HUB_LOCK_S:
+            kept += 1
+            continue
+        path.unlink()
+        removed += 1
+        print(f'setup: removed stale hub lock {path}')
+    print(
+        f'setup: hub locks removed={removed} kept_fresh={kept} dir={lock_dir}'
+    )
 
 
 def _stop_pid_file(pid_file: Path, needle: str, wait_s: float = 15.0) -> None:
@@ -153,6 +189,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
                 purge_huggingface_corrupt(resolve_huggingface_cache())
             except ModuleNotFoundError as exc:
                 print(f'setup: skip model cache purge ({exc})')
+            _release_stale_hub_locks(cls._MODEL_ID)
         finally:
             if prev_autoload is None:
                 os.environ.pop('TORCH_DEVICE_BACKEND_AUTOLOAD', None)
