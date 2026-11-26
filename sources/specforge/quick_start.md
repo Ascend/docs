@@ -35,14 +35,18 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 | Python | 3.12 |
 | CANN | 9.1.0 |
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
-| sglang | 源码构建，commit `c757c4bb`（与下面的 sgl-kernel-npu、capture 插件配套，见「安装 SGLang」） |
-| sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
+| sglang | 源码构建，commit `c757c4bb` |
+| sgl-kernel-npu | `2026.9.0.post12`（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.14 |
 | specforge | 上游 `main` |
-| capture 插件 | 上游 `plugins/sglang-spec-capture`，固定到 revision `8e415d4f`（与 SGLang `c757c4bb` 配套） |
+| capture 插件 | 上游 `plugins/sglang-spec-capture`，revision `8e415d4f` |
 | 模型 | [Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) |
 | 参考样例 | `examples/configs/online/disaggregated/external/qwen3.5-4b-dflash-npu.yaml` |
+
+`sglang`、`sgl-kernel-npu`、capture 插件三者的版本要配套，上表是本文验证过的
+组合；要换版本分别用 `SGLANG_COMMIT_OVERRIDE` / `SGL_KERNEL_TAG` /
+`SPECFORGE_PLUGIN_REF` 覆盖。
 
 ## 前置安装
 
@@ -270,22 +274,7 @@ specforge checkout: xxx
 
 ## 安装 SGLang（源码构建）
 
-capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建。SGLang、
-`sgl-kernel-npu`、capture 插件三者的版本要配套，本文用的是 2026-11-23 之前
-那个还能跑的组合：
-
-- SGLang：`c757c4bb`
-- `sgl-kernel-npu`：`2026.9.0.post12`（最后一个带 910b（A2）wheel 的版本）
-- capture 插件：上游 `8e415d4f`（与 `c757c4bb` 配套的那版）
-
-上游 2026-11-24 前推 `SGLANG_COMMIT` 后三者就对不上了：新 SGLang 要的
-`sgl_kernel_npu.operators.mem_cache` 和 `row_argmax` 只在 `2026.11.0.postX` 的
-sgl-kernel-npu 里（该线只有 950 / a3，没有 910b），当前插件要的
-`sglang.srt.disaggregation.mode` 在 `c757c4bb` 里也还没有。
-
-910B 上没有三者都新的组合；950 / a3 上可以跟上上游当前状态：设
-`SGLANG_COMMIT_OVERRIDE`、`SGL_KERNEL_TAG=2026.11.0.post15`、
-`SPECFORGE_PLUGIN_REF=`（空即用当前 checkout 里的插件）。
+capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建。
 
 ```shell #test id="sglang-install-source"
 set -euo pipefail
