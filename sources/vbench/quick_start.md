@@ -2,6 +2,7 @@
 
 在单张昇腾 NPU 上运行 [VBench 官方 README 的 human_action 示例](https://github.com/Vchitect/VBench#usage)，
 使用 UMT 动作识别模型评估视频是否符合给定的动作描述，并输出 JSON 结果。
+本文使用已合入 NPU 适配的 [Ascend/VBench](https://github.com/Ascend/VBench)，无需额外应用补丁。
 本例使用官方 LaVie 的 `A person is strumming guitar`（弹吉他）描述及对应的
 5 段视频，帮助你快速完成一次评测，不用于复现完整 VBench 排行榜分数。
 
@@ -21,9 +22,10 @@ Atlas 900 A2 / A3 训练系列产品，至少一张可用 Ascend NPU，驱动与
 - 建议预留至少 10 GB 可写磁盘空间。
 
 本指南使用 [workflows 的 VBench 项目](https://github.com/cosdt-ci-test/workflows/tree/abaa5c1610c57f34eeaa73208d91b6a9b1573a79/projects/vbench)
-提供的 Ascend 补丁、安装脚本和示例视频。下文固定辅助仓库提交
-`abaa5c1610c57f34eeaa73208d91b6a9b1573a79`，以便复现；VBench 本身仍按最新
-release 安装。安装脚本会安装系统依赖，建议在具备 root 权限的 Ubuntu 容器中执行；
+提供的依赖约束、Decord 安装脚本和示例视频准备工具，不使用其中的适配补丁。
+下文固定辅助仓库提交 `abaa5c1610c57f34eeaa73208d91b6a9b1573a79`，以便复现；
+VBench 本身从 Ascend 仓库的 `master` 分支获取。安装脚本会安装系统依赖，
+建议在具备 root 权限的 Ubuntu 容器中执行；
 宿主机驱动需提前配置好。
 
 ### 本文档示例使用的版本
@@ -113,14 +115,15 @@ print("torchvision:", torchvision.__version__)
 torchvision: 0.24.0...
 ```
 
-## 获取上游并应用 Ascend patch
+## 获取 Ascend VBench
 
-获取 VBench 最新正式 release 的源码并应用配套 Ascend 补丁。
+获取已包含 NPU 安装检查和单卡设备选择支持的 Ascend VBench 源码。
 
 ```{admonition} Note
 :class: note
-`<ref>` 替换为 VBench 当前最新 release 的标签，可从
-[Releases](https://github.com/Vchitect/VBench/releases) 获取。
+`<ref>` 默认填写 `master`，也可填写该分支上包含 NPU 适配的完整提交 SHA，
+以便复现。本文对应 [Ascend/VBench](https://github.com/Ascend/VBench)，
+不要使用原 Vchitect 仓库中尚未包含 NPU 适配的旧版本。
 ```
 
 <!--
@@ -129,36 +132,34 @@ printf '%s\n' "${UPSTREAM_REF:?Set UPSTREAM_REF to the upstream ref}"
 ```
 -->
 
-```shell #test id="checkout-and-patch" load="upstream_ref>>ref"
+```shell #test id="checkout-vbench" load="upstream_ref>>ref"
 set -euo pipefail
 git init vbench-src
-git -C vbench-src remote add origin https://github.com/Vchitect/VBench.git
+git -C vbench-src remote add origin https://github.com/Ascend/VBench.git
 git -C vbench-src fetch --depth 1 origin <ref>
 git -C vbench-src checkout --detach FETCH_HEAD
-python scripts/apply_patches.py vbench-src
-git -C vbench-src diff --stat
-echo "VBench Ascend patches applied"
+git -C vbench-src rev-parse HEAD
+echo "VBench Ascend source ready"
 ```
 
 输出结果如下：
 
-```text #test-result id="checkout-and-patch"
-...VBench Ascend patches applied
+```text #test-result id="checkout-vbench"
+...VBench Ascend source ready
 ```
 
-补丁为 CLI 增加 `npu:0` 设备选择和单卡启动支持，并提供本例所需的依赖集合；
-不改变官方 UMT 模型、视频预处理及评分算法。应用补丁失败时，请先确认所选
-VBench 版本与配套补丁兼容。
+直接使用仓库内的 NPU 适配代码，不修改官方 UMT 模型、视频预处理及评分算法。
 
 ## 安装 VBench
 
 Decord 0.6.0 没有官方 Linux aarch64 wheel，使用上游源码构建 CPU 解码器。
-下面仅安装 `human_action` 评测所需依赖，不安装其他评测维度的全部依赖。
+随后按 VBench 自身的 `requirements.txt` 正常安装依赖，沿用前面准备好的
+PyTorch-NPU 栈和版本约束；无需设置专用安装 profile。
 
 ```shell #test-setup
 set -euo pipefail
 bash scripts/install_decord.sh
-VBENCH_INSTALL_PROFILE=human_action uv pip install --no-build-isolation \
+uv pip install --no-build-isolation \
     -e ./vbench-src "gdown==6.4.2"
 vbench evaluate --help >/dev/null
 ```
@@ -220,7 +221,6 @@ vbench evaluate \
 输出结果如下：
 
 ```text #test-result id="human-action-cli"
-...UMT device: npu:0
 ...done
 ```
 
