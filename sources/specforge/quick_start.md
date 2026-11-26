@@ -271,37 +271,21 @@ specforge checkout: xxx
 ## 安装 SGLang（源码构建）
 
 capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建。SGLang、
-`sgl-kernel-npu` 和 capture 插件三者的版本必须配套，这里按本文验证过的组合
-钉住：
+`sgl-kernel-npu`、capture 插件三者的版本要配套，本文用的是 2026-11-23 之前
+那个还能跑的组合：
 
-- SGLang 钉在 `c757c4bb`。
-- `sgl-kernel-npu` 钉在 `2026.9.0.post12`（最后一个带 910b（A2）SoC wheel 的
-  版本）。
-- capture 插件钉在上游 `8e415d4f`（与 `c757c4bb` 配套的那一版，见下面
-  「安装 capture 插件」）。
+- SGLang：`c757c4bb`
+- `sgl-kernel-npu`：`2026.9.0.post12`（最后一个带 910b（A2）wheel 的版本）
+- capture 插件：上游 `8e415d4f`（与 `c757c4bb` 配套的那版）
 
-为什么不是跟着上游 SpecForge CI 的 `SGLANG_COMMIT` 走：上游在 2026-11-24
-把那个 pin 从 `c757c4bb` 推到了 `48eaefbd` / `c19e9c7d`，三处配套关系同时
-变了：
+上游 2026-11-24 前推 `SGLANG_COMMIT` 后三者就对不上了：新 SGLang 要的
+`sgl_kernel_npu.operators.mem_cache` 和 `row_argmax` 只在 `2026.11.0.postX` 的
+sgl-kernel-npu 里（该线只有 950 / a3，没有 910b），当前插件要的
+`sglang.srt.disaggregation.mode` 在 `c757c4bb` 里也还没有。
 
-1. **kernel 侧**：`sglang/srt/mem_cache/memory_pool_host.py` 在 NPU 分支上要
-   import `sgl_kernel_npu.operators.mem_cache`，这个模块只出现在
-   `2026.11.0.postX` 的 `sgl-kernel-npu` 里；而 `2026.11.0.postX` 只出了
-   950 / a3 两种 SoC 的 wheel，最后一个带 910b（A2）的版本是
-   `2026.9.0.post12`。
-2. **采样侧**：SGLang 在 NPU 上改用 `sgl_kernel_npu` 的 `row_argmax` 做 greedy
-   采样，而 `2026.9.0.post12` 里那个实现是坏的（launch 的参数个数对不上：
-   `TypeError: launch expects 16 arguments, got 11`），要到 `2026.11.0.post15`
-   才修 —— 同样只有 950 / a3。
-3. **插件侧**：当前上游 capture 插件 import `sglang.srt.disaggregation.mode`，
-   而 `c757c4bb` 里 `DisaggregationMode` 还在 `sglang.srt.disaggregation.utils`
-   —— 插件和 SGLang 必须成套换，不能只换一半。
-
-也就是说：910B（A2）上暂时没有能同时满足三者的组合，整套只能停在
-2026-11-23 之前的状态；950 / a3 上则可以跟上上游当前的组合（把
-`SGLANG_COMMIT_OVERRIDE` 设成上游当前的 pin、`SGL_KERNEL_TAG` 设成
-`2026.11.0.post15`、插件用当前版本）。等上游 sgl-kernel-npu 出了带 910b 的
-`2026.11.0.postX`（或更新）版本，本文就能整套换回上游当前状态。
+910B 上没有三者都新的组合；950 / a3 上可以跟上上游当前状态：设
+`SGLANG_COMMIT_OVERRIDE`、`SGL_KERNEL_TAG=2026.11.0.post15`、
+`SPECFORGE_PLUGIN_REF=`（空即用当前 checkout 里的插件）。
 
 ```shell #test id="sglang-install-source"
 set -euo pipefail
@@ -349,9 +333,8 @@ cd ../python
 printf 'torch==2.10.0\ntorchvision==0.25.0\ntorchaudio==2.10.0\n' > /tmp/torch-constraint.txt
 uv pip install -e . --constraint /tmp/torch-constraint.txt
 cd ..
-# triton-ascend 保持镜像自带的 3.2.2：2026.9.0.post12 的 kernel 就是跟它配套的
-# （kernel 里的 triton kernel 按 3.2.2 的 launch 签名编的）。SGLang 换成
-# 2026.11.0.post15 那条线之后要一起换成 triton-ascend 3.6.0。
+# triton-ascend 保持镜像自带的 3.2.2（2026.9.0.post12 的 kernel 配的就是它）；
+# 换到 2026.11.0.post15 那条线时要一起换成 3.6.0。
 if ! python - <<'PY' 2>/dev/null; then
 import triton.language.extra.cann
 PY
@@ -411,13 +394,10 @@ set -euo pipefail
 cd SpecForge
 uv pip install --no-deps .
 uv pip install --no-deps accelerate
-# capture 插件要和 SGLang 的版本配套：当前上游插件 import
-# sglang.srt.disaggregation.mode，而上面钉的 SGLang（c757c4bb）里
-# DisaggregationMode 还在 sglang.srt.disaggregation.utils —— 直接装当前插件
-# 会在 scheduler 里 import 失败（ModuleNotFoundError: No module named
-# 'sglang.srt.disaggregation.mode'）。所以插件固定取上游 2026-11-23 之前的
-# revision（与 c757c4bb 配套的那一版）；SGLang 换回上游当前 pin 时，
-# 把 SPECFORGE_PLUGIN_REF 设为空即可用当前 checkout 里的插件。
+# capture 插件要和 SGLang 成套换：当前上游插件 import
+# sglang.srt.disaggregation.mode，而上面钉的 c757c4bb 里它还在
+# disaggregation.utils。所以插件固定取与 c757c4bb 配套的那一版；
+# SPECFORGE_PLUGIN_REF 置空即用当前 checkout 里的插件。
 PLUGIN_REF="${SPECFORGE_PLUGIN_REF:-8e415d4f20cfc4c72a9632946fcc746cf353d89d}"
 if [[ -n "$PLUGIN_REF" ]]; then
     uv pip install --no-deps \
