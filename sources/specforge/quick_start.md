@@ -35,7 +35,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 | Python | 3.12 |
 | CANN | 9.1.0 |
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
-| sglang | 源码构建，commit `c757c4bb`（与下面的 sgl-kernel-npu 配套，见「安装 SGLang」） |
+| sglang | 源码构建，commit `1cf14eb1`（与下面的 sgl-kernel-npu 配套，见「安装 SGLang」） |
 | sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.14 |
@@ -273,21 +273,35 @@ specforge checkout: xxx
 capture 插件要用的扩展点任何 release wheel 都没有，所以从源码构建。commit 与
 `sgl-kernel-npu` 的版本必须配套，理由见下面的说明，这里按本文验证过的组合钉住：
 
-- SGLang 钉在 `c757c4bb`（上游 SpecForge CI 在 2026-11-23 之前的 pin）。
+- SGLang 钉在 `1cf14eb1`。
 - `sgl-kernel-npu` 钉在 `2026.9.0.post12`（最后一个带 910b（A2）SoC wheel 的
   版本）。
 
-上游在 2026-11-24 把 CI 的 `SGLANG_COMMIT` 推到 `48eaefbd` / `c19e9c7d`，
-这两个 commit 的 `sglang/srt/mem_cache/memory_pool_host.py` 会 import
-`sgl_kernel_npu.operators.mem_cache`，而这个模块只出现在 `2026.11.0.postX`
-的 `sgl-kernel-npu` 里；`2026.11.0.postX` 只出了 950 / a3 两种 SoC 的 wheel，
-910b（A2）用不了。所以两条腿（A2 / A3）都回到与 `2026.9.0.post12` 配套的
-`c757c4bb`。机器上能拿到 `2026.11.0.postX` 的 wheel（950 / a3）时，可以用
+两个约束把可用的 commit 夹在一个很窄的区间里：
+
+1. **kernel 侧**：`sglang/srt/mem_cache/memory_pool_host.py` 在 NPU 分支上要
+   import `sgl_kernel_npu.operators.mem_cache`，这个模块只出现在
+   `2026.11.0.postX` 的 `sgl-kernel-npu` 里；而 `2026.11.0.postX` 只出了
+   950 / a3 两种 SoC 的 wheel，最后一个带 910b（A2）的版本是
+   `2026.9.0.post12`。所以 910B 上只能用 `2026.9.0.post12`，SGLang 也必须
+   还是 import `sgl_kernel_npu.kvcacheio` 的那一段。
+2. **插件侧**：capture 插件（装自被测的 SpecForge checkout）需要
+   `sglang.srt.disaggregation.mode`、`sglang.srt.runtime_context` 和
+   `sglang.srt.plugins.hook_registry`。
+
+上游 SpecForge 在 2026-11-24 把 CI 的 `SGLANG_COMMIT` 推到 `48eaefbd` /
+`c19e9c7d`：这两个 commit 已经满足插件侧，但同时切到了
+`sgl_kernel_npu.operators.mem_cache`，910B 上装不了 kernel；而更早的
+`c757c4bb` 满足 kernel 侧，却没有 `disaggregation/mode`，插件在 scheduler
+里 import 失败。`1cf14eb1` 是同时满足两侧的最后一个 commit（它的下一个
+commit `f2d00315` 就切到了 `operators.mem_cache`）。
+
+机器上能拿到 `2026.11.0.postX` 的 wheel（950 / a3）时，可以用
 `SGLANG_COMMIT_OVERRIDE=<40 位 commit>` 换成上游当前的 pin。
 
 ```shell #test id="sglang-install-source"
 set -euo pipefail
-SGLANG_COMMIT="${SGLANG_COMMIT_OVERRIDE:-c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0}"
+SGLANG_COMMIT="${SGLANG_COMMIT_OVERRIDE:-1cf14eb1c1cb1fa66c1ee7253c54564b5cd35855}"
 KERNEL_TAG="${SGL_KERNEL_TAG:-2026.9.0.post12}"
 # 上游 CI 当前的 pin，仅作对照打印（诊断信息走 stderr，不进 stdout 的比对）。
 SGLANG_COMMIT_UPSTREAM=$(sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' \
