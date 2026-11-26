@@ -37,6 +37,7 @@ Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，**≥ 4 卡
 | torch / torch_npu | 2.10.0+cpu / 2.10.0.post6 |
 | sglang | 源码构建，commit `1cf14eb1`（与下面的 sgl-kernel-npu 配套，见「安装 SGLang」） |
 | sgl-kernel-npu | 2026.9.0.post12（`cann9.1.0-910b-py3.12` 的 wheel；910C 上用同 tag 的 `cann9.1.0-a3-py3.12`） |
+| triton-ascend | 3.6.0（与上面的 sgl-kernel-npu 配套；镜像自带 3.2.2，要换） |
 | huggingface_hub | 最新稳定版 |
 | mooncake-transfer-engine | 0.3.14 |
 | specforge | 上游 `main` |
@@ -345,14 +346,16 @@ cd ../python
 printf 'torch==2.10.0\ntorchvision==0.25.0\ntorchaudio==2.10.0\n' > /tmp/torch-constraint.txt
 uv pip install -e . --constraint /tmp/torch-constraint.txt
 cd ..
-if ! python - <<'PY' 2>/dev/null; then
-import triton.language.extra.cann
-PY
+# triton-ascend 的版本要跟 sgl-kernel-npu 配套：kernel wheel 里的 triton kernel
+# （例如 sgl_kernel_npu.operators.sample.row_argmax）是按 triton-ascend 3.6.0 的
+# launch 签名编的，用 3.2.2 会在采样时炸：
+#   TypeError: launch expects 16 arguments, got 11
+# 镜像自带的是 3.2.2，所以这里无条件换成 3.6.0（2026.9.0.post12 的 kernel
+# 配的就是它）。
 uv pip install --reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
     --extra-index-url https://repo.huaweicloud.com/ascend/repos/pypi \
     >/tmp/triton-install.log 2>&1 \
     || { echo "sglang-install: FAILED - install triton-ascend" >&2; exit 1; }
-fi
 python - <<'PY'
 import importlib.metadata as m
 print('sglang, version', m.version('sglang'))
