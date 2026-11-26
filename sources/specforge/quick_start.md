@@ -383,10 +383,6 @@ set -euo pipefail
 cd SpecForge
 uv pip install --no-deps .
 uv pip install --no-deps accelerate
-# capture 插件要和 SGLang 成套换：当前上游插件 import
-# sglang.srt.disaggregation.mode，而上面钉的 c757c4bb 里它还在
-# disaggregation.utils。所以插件固定取与 c757c4bb 配套的那一版；
-# SPECFORGE_PLUGIN_REF 置空即用当前 checkout 里的插件。
 PLUGIN_REF="${SPECFORGE_PLUGIN_REF:-8e415d4f20cfc4c72a9632946fcc746cf353d89d}"
 if [[ -n "$PLUGIN_REF" ]]; then
     uv pip install --no-deps \
