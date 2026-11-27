@@ -108,18 +108,13 @@ raise SystemExit(
 # wheel has them (0.5.23 still lacks them), so the image's sglang 0.5.18 is
 # replaced by a source build of the pinned commit.
 install_sglang_source() {
-  if [[ ! -f "$TARGET_ROOT/.github/workflows/test.yaml" ]]; then
-    echo "setup: FAILED - $TARGET_ROOT/.github/workflows/test.yaml missing" >&2
-    exit 1
+  local upstream_commit=""
+  if [[ -f "$TARGET_ROOT/.github/workflows/test.yaml" ]]; then
+    upstream_commit=$(sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' \
+      "$TARGET_ROOT/.github/workflows/test.yaml" | head -1)
   fi
-  local sglang_commit
-  sglang_commit=$(sed -n 's/^[[:space:]]*SGLANG_COMMIT:[[:space:]]*\([0-9a-f]\{40\}\).*/\1/p' \
-    "$TARGET_ROOT/.github/workflows/test.yaml" | head -1)
-  if [[ -z "$sglang_commit" ]]; then
-    echo "setup: FAILED - upstream SGLANG_COMMIT not found in test.yaml" >&2
-    exit 1
-  fi
-  echo "installing sglang from source at ${sglang_commit}"
+  local sglang_commit="${SGLANG_COMMIT_OVERRIDE:-c757c4bb7c55d1eb69fdb2bdc6e6fb8507acb7a0}"
+  echo "installing sglang from source at ${sglang_commit} (upstream CI pin: ${upstream_commit:-none})"
   local src="${GITHUB_WORKSPACE}/sglang-src"
   rm -rf "$src" && mkdir -p "$src"
   # HTTP/1.1 + 5 次重试：拉大仓库时偶发 HTTP2 framing / GnuTLS recv error。
@@ -147,12 +142,13 @@ install_sglang_source() {
   # new SGLang imports (sgl_kernel_npu.activation.fused_sigmoid_mul), which
   # makes the model modules fail to register ("has no SGlang implementation").
   # CANN-side custom ops from the image are reused as-is.
-  local kernel_tag="2026.9.0.post12"
+  local kernel_tag="${SGL_KERNEL_TAG:-2026.9.0.post12}"
   local py_tag="py$(python -c 'import sys; print(f"{sys.version_info.major}{sys.version_info.minor}")')"
   # CANN 版本取当前环境里的那个（sgl-kernel-npu 的 wheel 按 (torch, CANN, 设备,
   # python) 出包，写死会拼出不存在的文件名 -> 404）。上游目前只发到 CANN 9.1.0
   # 的 910b 包，可用 SGL_KERNEL_CANN_VER 覆盖。
-  local cann_ver device="910b" arch
+  local cann_ver device arch
+  device="${SGL_KERNEL_SOC_VER:-910b}"
   cann_ver=$(ls -d /usr/local/Ascend/cann-* 2>/dev/null | head -1 | sed 's/.*cann-//')
   cann_ver="${SGL_KERNEL_CANN_VER:-$cann_ver}"
   arch=$(uname -m)
@@ -174,7 +170,8 @@ PYUNZIP
   # triton must be the ascend fork: the community one has no
   # triton.language.extra.cann, so the NPU model modules fail to import.
   if ! python -c "import triton.language.extra.cann" 2>/dev/null; then
-    python -m pip install --force-reinstall --no-deps "triton-ascend==3.6.0" pybind11 \
+    python -m pip install --force-reinstall --no-deps \
+      "triton-ascend==${SGL_KERNEL_TRITON_ASCEND:-3.2.2}" pybind11 \
       --extra-index-url "$ASCEND_PIP_INDEX" >/tmp/setup-triton.log 2>&1 \
       || { echo "setup: FAILED - install triton-ascend:" >&2; tail -20 /tmp/setup-triton.log >&2; exit 1; }
   fi
@@ -189,17 +186,28 @@ PYUNZIP
   python -c "from importlib.metadata import version; print('sglang', version('sglang'), '/ sgl_kernel_npu', version('sgl_kernel_npu'))"
 }
 
-# The upstream capture plugin (specforge-sglang-capture) lives in the guarded
-# checkout; it registers itself through the sglang.srt.plugins entry point, so
-# it must be installed into the same python as SGLang.
+# The upstream capture plugin (specforge-sglang-capture) registers itself
+# through the sglang.srt.plugins entry point, so it must be installed into
+# the same python as SGLang.
 install_capture_plugin() {
-  local plugin_dir="$TARGET_ROOT/plugins/sglang-spec-capture"
-  if [[ ! -d "$plugin_dir" ]]; then
-    echo "setup: FAILED - $plugin_dir missing (upstream capture plugin)" >&2
-    exit 1
+  local plugin_ref="${SPECFORGE_PLUGIN_REF:-8e415d4f20cfc4c72a9632946fcc746cf353d89d}"
+  if [[ -n "$plugin_ref" ]]; then
+    echo "installing capture plugin from upstream ${plugin_ref}"
+    python -m pip install --no-deps \
+      "git+https://github.com/sgl-project/SpecForge.git@${plugin_ref}#subdirectory=plugins/sglang-spec-capture" \
+      >/tmp/setup-capture-plugin.log 2>&1 \
+      || { echo "setup: FAILED - pip install capture plugin (${plugin_ref}):" >&2;
+           tail -20 /tmp/setup-capture-plugin.log >&2; exit 1; }
+  else
+    local plugin_dir="$TARGET_ROOT/plugins/sglang-spec-capture"
+    if [[ ! -d "$plugin_dir" ]]; then
+      echo "setup: FAILED - $plugin_dir missing (upstream capture plugin)" >&2
+      exit 1
+    fi
+    echo "installing capture plugin from $plugin_dir"
+    python -m pip install --no-deps "$plugin_dir" >/tmp/setup-capture-plugin.log 2>&1 \
+      || { echo "setup: FAILED - pip install capture plugin:" >&2; tail -20 /tmp/setup-capture-plugin.log >&2; exit 1; }
   fi
-  python -m pip install --no-deps "$plugin_dir" >/tmp/setup-capture-plugin.log 2>&1 \
-    || { echo "setup: FAILED - pip install capture plugin:" >&2; tail -20 /tmp/setup-capture-plugin.log >&2; exit 1; }
   python -c "
 from importlib.metadata import entry_points
 eps = [e.name for e in entry_points(group='sglang.srt.plugins')]
