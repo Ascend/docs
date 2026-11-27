@@ -518,7 +518,7 @@
       <div class="project-card">
          <div class="card-top"><div class="card-icon" style="background-image: url('_static/images/Liger-Kernel.png')"></div><h3 class="card-title">Liger-Kernel</h3></div>
          <p class="card-desc">面向 LLM 训练的高效 Triton 融合算子库，v0.8.0 起支持昇腾 NPU。</p>
-         <div class="card-footer"><a href="https://github.com/linkedin/Liger-Kernel">官方链接</a><span class="split">|</span><a href="sources/liger-kernel/install.html">安装指南</a><span class="split">|</span><a href="sources/liger-kernel/quick_start.html">快速上手</a></div>
+         <div class="card-footer"><a href="https://github.com/linkedin/Liger-Kernel">官方链接</a><span class="split">|</span><a href="sources/liger-kernel/install.html">安装指南</a><span class="split">|</span><a href="sources/liger-kernel/index.html">快速上手</a></div>
       </div>
 
       <!-- flash-linear-attention -->
