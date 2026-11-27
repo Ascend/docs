@@ -26,8 +26,11 @@ Environment variables (injected by the quick-start engine workflow
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 from doc_test.base import MarkdownDocTestBase
 from doc_test.model_cache import (
@@ -49,6 +52,37 @@ def _e2e_enabled() -> bool:
     return _is_truthy(os.environ.get('NPU_READY'))
 
 
+def _install_npu_compat_shim() -> str:
+    """Install ``npu_compat.py`` as a ``sitecustomize.py`` on ``PYTHONPATH``.
+
+    upstream's DFlash metrics call ``cumprod`` on a bool tensor with an
+    explicit ``dtype``; torch_npu's NPU backend does not implement the
+    documented "cast the input to dtype first" behaviour, so ``aclnnCumprod``
+    gets DT_BOOL and fails. The shim restores the ATen semantics for that one
+    case.
+
+    The doc stays patch-free — the shim is CI-side scaffolding only (same
+    shape as the peft examples guard's ``ci_sitecustomize.py``).
+    ``sitecustomize.py`` is imported by ``site`` at interpreter startup, so
+    the ``torchrun`` workers pick it up as well; the doc-test harness copies
+    ``os.environ`` into every command's env, so the whole pipeline sees it.
+
+    Returns the shim directory (also prepended to ``PYTHONPATH``).
+    """
+    shim_dir = Path(tempfile.mkdtemp(prefix='speculators-npu-compat-'))
+    source = Path(__file__).with_name('npu_compat.py')
+    shutil.copyfile(source, shim_dir / 'npu_compat.py')
+    (shim_dir / 'sitecustomize.py').write_text(
+        'import npu_compat  # noqa: F401\n', encoding='utf-8'
+    )
+    existing = os.environ.get('PYTHONPATH', '')
+    os.environ['PYTHONPATH'] = (
+        f'{shim_dir}:{existing}' if existing else str(shim_dir)
+    )
+    print(f'setup: NPU compat shim installed at {shim_dir}')
+    return str(shim_dir)
+
+
 class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     """``quick_start.md`` end-to-end test: fetch doc -> validate
     contract -> run ``#test-setup`` / ``#test`` in order -> compare against
@@ -59,6 +93,12 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     pipeline: DFlash convert, hidden-states extraction (vllm offline
     generate) + torchrun 1-epoch draft training, vllm-ascend serve with
     the trained draft + chat completion smoke, config import check.
+
+    The training step runs under the NPU compat shim
+    (``npu_compat.py``, installed by ``prepare_environment`` as a
+    ``sitecustomize.py`` on ``PYTHONPATH``): upstream's DFlash metrics call
+    ``cumprod`` on a bool tensor, which torch_npu's NPU backend rejects
+    (``aclnnCumprod`` has no DT_BOOL kernel). See the shim's docstring.
     """
 
     # 2h per command: the cold-cache verifier download (Qwen/Qwen3-8B,
@@ -86,7 +126,8 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     _CANN_SET_ENV = '/usr/local/Ascend/ascend-toolkit/set_env.sh'
 
     # ----------------------------------------------------------
-    # prepare_environment: CANN env + uv + safetensors + modelscope cache purge
+    # prepare_environment: CANN env + uv + safetensors + modelscope cache
+    # purge + NPU compat shim
     #  (transformers / speculators are installed by the doc's
     #  `### 前置安装` / `## 安装 Speculators` blocks)
     # ----------------------------------------------------------
@@ -94,7 +135,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     @classmethod
     def prepare_environment(cls) -> None:
         """Source CANN env + install uv + safetensors
-        + purge stale modelscope cache shards.
+        + purge stale modelscope cache shards + install the NPU compat shim.
 
         The doc's ``### 前置安装`` and ``## 安装 Speculators`` sections are
         the single source of truth for which packages + versions get
@@ -150,6 +191,15 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
         # re-download cleanly on next access. Implementation lives in
         # doc_test.model_cache.
         purge_modelscope_corrupt(resolve_modelscope_cache())
+
+        # 4) NPU compat shim: upstream's DFlash metrics call cumprod on a
+        # bool tensor; torch_npu's NPU backend does not implement cumprod's
+        # documented "cast the input to dtype first" behaviour, so
+        # aclnnCumprod gets DT_BOOL and training dies in the first step.
+        # The shim is CI-side only - the doc and the upstream checkout stay
+        # untouched. Installed as sitecustomize.py on PYTHONPATH, so the
+        # torchrun workers load it too.
+        _install_npu_compat_shim()
 
     # ----------------------------------------------------------
     # test entry
