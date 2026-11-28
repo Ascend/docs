@@ -118,7 +118,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     # Cluster-internal nginx PyPI cache + Huawei Cloud ascend dual-source
     # (fallback install path; the doc's own block installs torch/torch_npu
     # from the ascend source with an explicit --index-url).
-    _CLUSTER_INDEX = 'http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple'
+    _CLUSTER_INDEX = 'https://pypi.org/simple'
     _ASCEND_EXTRA = 'https://repo.huaweicloud.com/ascend/repos/pypi'
 
     # CANN toolkit: source once to get ASCEND_HOME / LD_LIBRARY_PATH etc.
