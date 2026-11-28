@@ -37,6 +37,8 @@ MINDSPEED_URL=https://github.com/Ascend/MindSpeed.git
 MINDSPEED_COMMIT=8787b1645be11e02a8d3f285a35fdd96e6c88b87
 MCORE_BRIDGE_VERSION=1.6.5
 
+CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
+export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 export PIP_CONSTRAINT="$ROOT_DIR/constraints-npu.txt"
 # Shard-by-shard download bars flood the job log.
 export HF_HUB_DISABLE_PROGRESS_BARS=1
@@ -47,10 +49,22 @@ if [[ "$PROFILE" == megatron ]]; then
 fi
 
 select_pip_index() {
-  # The in-cluster pip cache was decommissioned; use the public mirror.
-  export PIP_INDEX_URL="${FALLBACK_PIP_INDEX:-${ALIYUN_PIP_INDEX:-https://mirrors.aliyun.com/pypi/simple}}"
-  unset PIP_TRUSTED_HOST
-  echo "pip index: $PIP_INDEX_URL"
+  # Prefer the in-cluster pip cache when it answers; otherwise leave pip on
+  # its default index. The Ascend index stays available through the
+  # engine's PIP_EXTRA_INDEX_URL.
+  if python -c "
+import os
+import urllib.error
+import urllib.request
+try:
+    urllib.request.urlopen(os.environ['CLUSTER_PIP_INDEX'], timeout=3)
+except urllib.error.HTTPError:
+    pass
+" 2>/dev/null; then
+    export PIP_INDEX_URL="$CLUSTER_PIP_INDEX"
+    export PIP_TRUSTED_HOST="$CLUSTER_PIP_HOST"
+  fi
+  echo "pip index: ${PIP_INDEX_URL:-default}"
 }
 
 verify_image_stack() {

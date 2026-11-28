@@ -87,6 +87,15 @@ Python ...
 
 安装 gcc-12、g++-12、ninja、git，以及 cmake 与 NumPy。
 
+<!--
+```shell #test-setup
+if getent hosts cache-service.nginx-pypi-cache.svc.cluster.local >/dev/null 2>&1 \
+    && [ -f /etc/apt/sources.list ]; then
+  sed -Ei 's@(ports|archive).ubuntu.com@cache-service.nginx-pypi-cache.svc.cluster.local:8081@g' /etc/apt/sources.list
+fi
+```
+-->
+
 ```shell #test id="toolchain"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
