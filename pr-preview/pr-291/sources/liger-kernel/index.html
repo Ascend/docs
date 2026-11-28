@@ -99,6 +99,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../flagscale/index.html">FlagScale</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ollama/index.html">Ollama (Ascend NPU)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../llm_d/index.html">llm-d</a></li>
@@ -120,10 +121,25 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Liger-Kernel</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html">安装指南</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html">快速上手</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#前置条件">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#硬件">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#基础软件">基础软件</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#cann">加载 CANN 环境</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ascend-npu">安装 Ascend NPU 所需依赖</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#安装-liger-kernel">安装 Liger Kernel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#用法示例">用法示例</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#patch">方式一：自动 Patch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#方式二指定模型-patch">方式二：指定模型 Patch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#方式三自行组合算子">方式三：自行组合算子</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#训练框架集成">训练框架集成</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#外部链接">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">安装指南</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../flash-linear-attention/index.html">flash-linear-attention</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
@@ -133,6 +149,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../diffsynth_studio/index.html">DiffSynth-Studio</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../evalscope/index.html">evalscope</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vbench/index.html">VBench</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
@@ -171,24 +188,223 @@
              
   <section id="liger-kernel">
 <h1>Liger-Kernel<a class="headerlink" href="#liger-kernel" title="链接到此标题。"></a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="install.html">安装指南</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="install.html#id2">昇腾环境安装</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#id3">安装依赖</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#id4">安装 Liger-Kernel</a></li>
-<li class="toctree-l2"><a class="reference internal" href="install.html#id5">验证安装</a></li>
+<p>Liger Kernel 提供面向大语言模型训练的 Triton 融合算子。它可以替换模型中的部分计算模块，以提高训练吞吐、减少显存占用。本文展示在昇腾npu使用Liger Kernel。</p>
+<section id="前置条件">
+<span id="id1"></span><h2>前置条件<a class="headerlink" href="#前置条件" title="链接到此标题。"></a></h2>
+<section id="硬件">
+<span id="id2"></span><h3>硬件<a class="headerlink" href="#硬件" title="链接到此标题。"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品，并按需完成物理机或容器内的设备挂载。</p>
+</section>
+<section id="基础软件">
+<span id="id3"></span><h3>基础软件<a class="headerlink" href="#基础软件" title="链接到此标题。"></a></h3>
+<p>在运行本文档示例之前，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">快速上手</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#patch-api">方式一：模型 Patch API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#id2">方式二：单独使用算子模块</a></li>
-<li class="toctree-l2"><a class="reference internal" href="quick_start.html#id3">训练框架集成</a></li>
-</ul>
-</li>
-</ul>
+<p>本文档示例使用 Python 3.12、CANN 9.1.0。</p>
+<p>本文档配套镜像：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>swr.cn-southwest-2.myhuaweicloud.com/base_image/ascend-ci/cann:9.1.0-910b-ubuntu22.04-py3.12
+</pre></div>
 </div>
 </section>
+</section>
+<section id="cann">
+<span id="加载-cann-环境"></span><h2>加载 CANN 环境<a class="headerlink" href="#cann" title="链接到此标题。"></a></h2>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>/usr/local/Ascend/ascend-toolkit/set_env.sh
+</pre></div>
+</div>
+</section>
+<section id="ascend-npu">
+<span id="安装-ascend-npu-所需依赖"></span><h2>安装 Ascend NPU 所需依赖<a class="headerlink" href="#ascend-npu" title="链接到此标题。"></a></h2>
+<p>安装torch、torch_npu、triton-ascend：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.9.0<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.9.0.post2<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"triton-ascend==3.2.2"</span><span class="w"> </span>--extra-index-url<span class="w"> </span>https://triton-ascend.osinfra.cn/pypi/simple
+</pre></div>
+</div>
+<p>查看安装的依赖版本，执行下面的python代码：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">triton.backends.ascend</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch version:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu version:'</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'triton-ascend version:'</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s1">'triton-ascend'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torch<span class="w"> </span>version:<span class="w"> </span><span class="m">2</span>.9.0+cpu
+torch_npu<span class="w"> </span>version:<span class="w"> </span><span class="m">2</span>.9.0.post2
+triton-ascend<span class="w"> </span>version:<span class="w"> </span><span class="m">3</span>.2.2
+</pre></div>
+</div>
+</section>
+<section id="安装-liger-kernel">
+<span id="id4"></span><h2>安装 Liger Kernel<a class="headerlink" href="#安装-liger-kernel" title="链接到此标题。"></a></h2>
+<p>安装最新发布的 Liger Kernel：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--upgrade<span class="w"> </span>liger-kernel
+</pre></div>
+</div>
+<p>查看安装的 Liger-Kernel 版本，执行下面python代码：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">liger_kernel</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'liger-kernel'</span><span class="p">,</span> <span class="n">version</span><span class="p">(</span><span class="s1">'liger-kernel'</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>liger-kernel<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示实际安装的 Liger Kernel 版本号。</p>
+</div>
+</section>
+<section id="用法示例">
+<span id="id5"></span><h2>用法示例<a class="headerlink" href="#用法示例" title="链接到此标题。"></a></h2>
+<section id="patch">
+<span id="方式一自动-patch"></span><h3>方式一：自动 Patch<a class="headerlink" href="#patch" title="链接到此标题。"></a></h3>
+<p>安装模型加载依赖：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"transformers==5.24.1"</span><span class="w"> </span><span class="s2">"modelscope==1.37.0"</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">AutoLigerKernelForCausalLM</span></code> 会在加载受支持的模型时，自动将部分模型算子替换为 Liger 的优化实现。用python执行以下代码：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modelscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoTokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">liger_kernel.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoLigerKernelForCausalLM</span>
+
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen3-0.6B'</span><span class="p">)</span>
+<span class="c1"># 加载模型时自动应用默认 Liger 算子</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoLigerKernelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu'</span><span class="p">)</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">)(</span><span class="s1">'Liger Kernel 加速模型训练。'</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s1">'pt'</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu'</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">batch</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">batch</span><span class="p">[</span><span class="s1">'input_ids'</span><span class="p">])</span><span class="o">.</span><span class="n">loss</span>
+    <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'device:'</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'loss:'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+device:<span class="w"> </span>npu
+loss:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示最后一步计算得到的训练损失。</p>
+</div>
+</section>
+<section id="方式二指定模型-patch">
+<span id="id6"></span><h3>方式二：指定模型 Patch<a class="headerlink" href="#方式二指定模型-patch" title="链接到此标题。"></a></h3>
+<p>指定模型的 Patch API 会在模型创建前替换选定的算子，控制哪些计算使用 Liger 实现、哪些保持原样。用 Python 执行以下代码：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">modelscope</span><span class="w"> </span><span class="kn">import</span> <span class="n">snapshot_download</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">AutoModelForCausalLM</span><span class="p">,</span> <span class="n">AutoTokenizer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">liger_kernel.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">apply_liger_kernel_to_qwen3</span>
+
+<span class="c1"># 加载前选择要替换的算子；两种交叉熵实现不能同时启用</span>
+<span class="n">apply_liger_kernel_to_qwen3</span><span class="p">(</span><span class="n">rope</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">rms_norm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">swiglu</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">cross_entropy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fused_linear_cross_entropy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">snapshot_download</span><span class="p">(</span><span class="s1">'Qwen/Qwen3-0.6B'</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">AutoModelForCausalLM</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu'</span><span class="p">)</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="n">model_path</span><span class="p">)(</span><span class="s1">'Liger Kernel 加速模型训练。'</span><span class="p">,</span> <span class="n">return_tensors</span><span class="o">=</span><span class="s1">'pt'</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s1">'npu'</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="o">**</span><span class="n">batch</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">batch</span><span class="p">[</span><span class="s1">'input_ids'</span><span class="p">])</span><span class="o">.</span><span class="n">loss</span>
+    <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'device:'</span><span class="p">,</span> <span class="nb">next</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">())</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'loss:'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>...
+device:<span class="w"> </span>npu
+loss:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示最后一步计算得到的训练损失。</p>
+</div>
+</section>
+<section id="方式三自行组合算子">
+<span id="id7"></span><h3>方式三：自行组合算子<a class="headerlink" href="#方式三自行组合算子" title="链接到此标题。"></a></h3>
+<p>直接使用 Liger 提供的归一化和损失模块，可以在自定义模型中组合算子并控制计算流程。用 Python 执行以下代码：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">liger_kernel.transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">LigerRMSNorm</span><span class="p">,</span> <span class="n">LigerFusedLinearCrossEntropyLoss</span>
+
+<span class="n">hidden_size</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">vocab_size</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="c1"># 直接创建 Liger 模块，自行组合计算流程</span>
+<span class="n">norm</span> <span class="o">=</span> <span class="n">LigerRMSNorm</span><span class="p">(</span><span class="n">hidden_size</span><span class="p">)</span><span class="o">.</span><span class="n">npu</span><span class="p">()</span>
+<span class="n">loss_fn</span> <span class="o">=</span> <span class="n">LigerFusedLinearCrossEntropyLoss</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'npu'</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s1">'npu'</span><span class="p">)</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">bfloat16</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">'npu'</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">([</span><span class="n">weight</span><span class="p">,</span> <span class="o">*</span><span class="n">norm</span><span class="o">.</span><span class="n">parameters</span><span class="p">()],</span> <span class="n">lr</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">x</span><span class="o">.</span><span class="n">grad</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># 将 RMSNorm 输出交给融合交叉熵，展平批次和序列维</span>
+    <span class="n">hidden</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_fn</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">hidden</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">hidden_size</span><span class="p">),</span> <span class="n">target</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">torch</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">loss</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'device:'</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'loss:'</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">loss</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>device:<span class="w"> </span>npu
+loss:<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">xxx</span></code> 表示最后一步计算得到的训练损失。</p>
+</div>
+</section>
+</section>
+<section id="训练框架集成">
+<span id="id8"></span><h2>训练框架集成<a class="headerlink" href="#训练框架集成" title="链接到此标题。"></a></h2>
+<p>Liger Kernel 已集成到多个训练框架，在 NPU 上可通过框架配置启用：</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/hiyouga/LLaMA-Factory">LLaMA-Factory</a>：训练参数中设置 <code class="docutils literal notranslate"><span class="pre">--use_liger_kernel</span> <span class="pre">true</span></code>。</p></li>
+<li><p><a class="reference external" href="https://github.com/ByteDance-Seed/VeOmni">VeOmni</a>：模型 Patch 中启用 Liger Kernel。</p></li>
+<li><p><a class="reference external" href="https://github.com/volcengine/verl">verl</a>：配置 <code class="docutils literal notranslate"><span class="pre">model.use_liger=true</span></code>。</p></li>
+</ul>
+</section>
+<section id="外部链接">
+<span id="id9"></span><h2>外部链接<a class="headerlink" href="#外部链接" title="链接到此标题。"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/linkedin/Liger-Kernel">Liger Kernel 官方仓库</a></p></li>
+<li><p><a class="reference external" href="https://linkedin.github.io/Liger-Kernel/">Liger Kernel 官方文档</a></p></li>
+</ul>
+</section>
+</section>
+<div class="toctree-wrapper compound">
+</div>
 
 
            </div>

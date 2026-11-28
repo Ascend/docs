@@ -1,8 +1,8 @@
-Liger-Kernel
-============
+.. include:: quick_start.md
+   :parser: myst_parser.sphinx_
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :hidden:
 
    install.rst
-   quick_start.rst
