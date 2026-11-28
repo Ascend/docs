@@ -93,7 +93,7 @@ Python ...
 
 ## 3. 安装 vLLM-Ascend
 
-按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装 `vllm` 0.23.0、`vllm-ascend` 0.23.0，再重装 `triton-ascend` 3.2.2。
+按 [vLLM-Ascend 安装说明](https://docs.vllm.ai/projects/ascend/en/latest/installation.html) 安装 `vllm` 0.23.0、`vllm-ascend` 0.23.0、`ml_dtypes` 0.5.4，再重装 `triton-ascend` 3.2.2。
 
 ```shell #test id="install-vllm"
 python -m pip install --retries 3 vllm==0.23.0
@@ -101,12 +101,13 @@ python -m pip install \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi/variant \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   vllm-ascend==0.23.0
+python -m pip install --retries 3 'ml_dtypes==0.5.4'
 python -m pip install --force-reinstall --no-deps \
   --extra-index-url https://mirrors.huaweicloud.com/ascend/repos/pypi \
   triton-ascend==3.2.2
 python -m pip uninstall -y flashinfer flashinfer-python flashinfer-cubin
 python -c "import importlib.metadata as m
-for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend']:
+for n in ['torch', 'torch-npu', 'vllm', 'vllm-ascend', 'ml-dtypes']:
     print(n, m.version(n))"
 ```
 
@@ -118,6 +119,7 @@ torch 2.10.0...
 torch-npu 2.10.0.post4
 vllm 0.23.0...
 vllm-ascend 0.23.0
+ml-dtypes 0.5.4
 ```
 
 ## 4. 安装 FlagScale
