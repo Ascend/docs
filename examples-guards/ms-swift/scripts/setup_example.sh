@@ -12,7 +12,7 @@
 #
 # Profiles are environment families:
 #   swift      ms-swift alone (transformers, FSDP, vllm rollouts)
-#   megatron   ms-swift plus Megatron-LM, MindSpeed and mcore-bridge
+#   megatron   ms-swift plus Megatron-LM, MegatronAdaptor, TransformerEngineNPU and mcore-bridge
 set -euo pipefail
 
 export PYTHONNOUSERSITE=1
@@ -27,15 +27,18 @@ HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT_DIR=$(cd "$HERE/.." && pwd)
 
 # The set of upstream pins for the Megatron stack
-# (docs/source_en/BestPractices/NPU-support.md): Megatron-LM v0.16.0 with
-# MindSpeed core_r0.16.0. MindSpeed is pinned to the commit its release
-# branch pointed at when this guard was written, so a push to the branch
-# cannot change what a run installs. ms-swift 4.6.0 requires
-# mcore-bridge>=1.6.3.
-MEGATRON_LM_REF=core_v0.16.0
-MINDSPEED_URL=https://github.com/Ascend/MindSpeed.git
-MINDSPEED_COMMIT=8787b1645be11e02a8d3f285a35fdd96e6c88b87
-MCORE_BRIDGE_VERSION=1.6.5
+# (docs/source_en/BestPractices/NPU-support.md in ms-swift v4.6.1):
+# Megatron-LM core_v0.18.2 with MegatronAdaptor core_r0.18.0,
+# TransformerEngineNPU main, and mcore-bridge>=1.7 (includes PR #189).
+# MindSpeed must not be installed or imported. Git repos are pinned to the
+# commits their release branches pointed at when this guard was updated, so a
+# push to a branch cannot change what a run installs.
+MEGATRON_LM_REF=core_v0.18.2
+MEGATRON_ADAPTOR_URL=https://gitcode.com/Ascend/MegatronAdaptor.git
+MEGATRON_ADAPTOR_COMMIT=9a10f40a722086dd5e630e37b7ebda087b0f8007
+TRANSFORMER_ENGINE_NPU_URL=https://gitcode.com/Ascend/TransformerEngineNPU.git
+TRANSFORMER_ENGINE_NPU_COMMIT=3d009a173257046b48cbfc89b6abc7cf353675bd
+MCORE_BRIDGE_VERSION=1.7.1
 
 CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
 export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
@@ -110,19 +113,40 @@ install_megatron_stack() {
   mkdir -p "$deps"
   git -c advice.detachedHead=false clone --depth 1 --branch "$MEGATRON_LM_REF" \
     https://github.com/NVIDIA/Megatron-LM.git "$deps/Megatron-LM"
-  git init --quiet "$deps/MindSpeed"
-  git -C "$deps/MindSpeed" fetch --quiet --depth 1 "$MINDSPEED_URL" "$MINDSPEED_COMMIT"
-  git -C "$deps/MindSpeed" checkout --quiet FETCH_HEAD
+  git init --quiet "$deps/MegatronAdaptor"
+  git -C "$deps/MegatronAdaptor" fetch --quiet --depth 1 "$MEGATRON_ADAPTOR_URL" "$MEGATRON_ADAPTOR_COMMIT"
+  git -C "$deps/MegatronAdaptor" checkout --quiet FETCH_HEAD
+  git init --quiet "$deps/TransformerEngineNPU"
+  git -C "$deps/TransformerEngineNPU" fetch --quiet --depth 1 "$TRANSFORMER_ENGINE_NPU_URL" "$TRANSFORMER_ENGINE_NPU_COMMIT"
+  git -C "$deps/TransformerEngineNPU" checkout --quiet FETCH_HEAD
   python -m pip install "mcore-bridge==${MCORE_BRIDGE_VERSION}"
-  python -m pip install -e "$deps/MindSpeed"
+  python -m pip install -e "$deps/MegatronAdaptor"
+  python -m pip install --no-build-isolation -e "$deps/TransformerEngineNPU"
   echo "MEGATRON_LM_PATH=$deps/Megatron-LM" >> "$GITHUB_ENV"
   export MEGATRON_LM_PATH="$deps/Megatron-LM"
   export PYTHONPATH="$deps/Megatron-LM${PYTHONPATH:+:$PYTHONPATH}"
   echo "PYTHONPATH=$PYTHONPATH" >> "$GITHUB_ENV"
   python -c "
-import mindspeed.megatron_adaptor
+import importlib.util
+import os
+from pathlib import Path
+import megatron_adaptor
+import megatron.core
+import transformer_engine
+import mcore_bridge
 from swift.megatron.init import init_megatron_env
+
 init_megatron_env()
+root = Path(os.environ['MEGATRON_LM_PATH']).expanduser().resolve().parent
+for module, directory in (
+    (megatron_adaptor, 'MegatronAdaptor'),
+    (megatron.core, 'Megatron-LM'),
+    (transformer_engine, 'TransformerEngineNPU'),
+):
+    source = Path(module.__file__).resolve()
+    print(module.__name__, source)
+    assert source.is_relative_to((root / directory).resolve()), source
+assert importlib.util.find_spec('mindspeed') is None
 print('Megatron-SWIFT environment ready')
 "
 }
