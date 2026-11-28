@@ -161,28 +161,15 @@ readonly MEGATRON_GITHUB_URL=https://github.com/NVIDIA/Megatron-LM.git
 
 ASCEND_PIP_INDEX=https://repo.huaweicloud.com/ascend/repos/pypi
 FALLBACK_PIP_INDEX=https://pypi.tuna.tsinghua.edu.cn/simple
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
 
 pip_ascend() {
   python -m pip install --extra-index-url "$ASCEND_PIP_INDEX" "$@"
 }
 
 select_pip_index() {
-  if python -c "
-import urllib.error
-import urllib.request
-try:
-    urllib.request.urlopen('${CLUSTER_PIP_INDEX}', timeout=3)
-except urllib.error.HTTPError:
-    pass
-" 2>/dev/null; then
-    export PIP_INDEX_URL="$CLUSTER_PIP_INDEX"
-    export PIP_TRUSTED_HOST="$CLUSTER_PIP_HOST"
-  else
-    export PIP_INDEX_URL="$FALLBACK_PIP_INDEX"
-    unset PIP_TRUSTED_HOST
-  fi
+  # The in-cluster pip cache was decommissioned; use the public mirror.
+  export PIP_INDEX_URL="${FALLBACK_PIP_INDEX:-${ALIYUN_PIP_INDEX:-https://mirrors.aliyun.com/pypi/simple}}"
+  unset PIP_TRUSTED_HOST
   echo "pip index: $PIP_INDEX_URL"
 }
 
