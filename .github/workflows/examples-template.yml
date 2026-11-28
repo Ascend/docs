@@ -544,10 +544,14 @@ jobs:
         id: download-results
         if: needs.manifest-check.outputs.has_supported == 'true'
         continue-on-error: true
-        uses: actions/download-artifact@v6
-        with:
-          pattern: ${{ inputs.project }}-examples-${{ github.run_id }}-*
-          path: example-results
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROJECT: ${{ inputs.project }}
+        run: |
+          gh run download "$GITHUB_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern "${PROJECT}-examples-${GITHUB_RUN_ID}-*" \
+            --dir example-results
 
       - name: Summarize example results
         id: summarize
