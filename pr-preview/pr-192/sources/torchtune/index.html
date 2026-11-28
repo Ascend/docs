@@ -1,0 +1,581 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="zh-CN" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>torchtune &mdash; 昇腾开源  文档</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ed31bf93" />
+      <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=7d86a446"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../_static/package_info.js?v=2b3ed588"></script>
+      <script src="../../_static/statistics.js?v=da671b53"></script>
+      <script src="../../_static/translations.js?v=beaddf03"></script>
+      <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="搜索" href="../../search.html" />
+    <link rel="next" title="Transformer Reinforcement Learning" href="../trl/index.html" />
+    <link rel="prev" title="快速开始" href="../torchtitan/quick_start.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            昇腾开源
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="搜索文档" aria-label="搜索文档" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="导航菜单">
+              <p class="caption" role="heading"><span class="caption-text">🏁 开始使用</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ascend/quick_install.html">快速安装昇腾环境</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🏗️  基础设施与框架</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../accelerate/index.html">accelerate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../deepspeed/index.html">DeepSpeed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kernels/index.html">kernels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pytorch/index.html">pytorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Ray/index.html">Ray</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../transformers/index.html">transformers</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🧠 训练与微调框架</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../axolotl/index.html">axolotl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../LLaMA-Factory/index.html">LLaMA-Factory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ms-swift/index.html">ms-swift</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../peft/index.html">peft</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roll/index.html">ROLL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchtitan/index.html">torchtitan</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">torchtune</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">前置条件</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">硬件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">基础软件</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">本文档示例使用的版本</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">前置安装</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">安装 torchtune</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uv">使用 uv 进行安装</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">从源码安装</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cli">CLI 自检</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lora-qwen2-5-0-5b">使用样例：单卡 LoRA 微调 Qwen2.5-0.5B</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id8">下载基础模型</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">准备本地样例数据</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lora">跑 3 步 LoRA 微调</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id10">验证 LoRA 适配器落盘</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">外部链接</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../trl/index.html">Transformer Reinforcement Learning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../twinkle/index.html">Twinkle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VeOmni/index.html">VeOmni</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../verl/index.html">verl</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../pyg/index.html">PyG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xtuner/index.html">xtuner</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🚀 推理与服务</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../ktransformers/index.html">KTransformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cache-dit/index.html">cache-dit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llama_cpp/index.html">llama.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../internlm/index.html">InternLM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../llm_compressor/index.html">llm-compressor</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_deploy/index.html">lmdeploy</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../onnxruntime/index.html">onnxruntime</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sentence_transformers/index.html">sentence-transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sglang/index.html">sglang</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tgi/index.html">text-generation-inference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../torchchat/index.html">torchchat</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../vllm-ascend/index.html">vLLM-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../xllm/index.html">xllm</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">⚙️ 算子开发与编程</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../triton-ascend/index.html">Triton-Ascend</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../liger-kernel/index.html">Liger-Kernel</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">🎨 多模态、应用与评测</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Diffusers/index.html">Diffusers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../lm_evaluation/index.html">lm-evaluation-harness</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../open_clip/index.html">open_clip</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencompass/index.html">opencompass</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../opencv/index.html">opencv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sd_webui/index.html">stable-diffusion-webui</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../timm/index.html">pytorch-image-models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../wenet/index.html">wenet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/index.html">whisper.cpp</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../whisper_cpp/install.html">安装指南</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../modelscope/index.html">ModelScope</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../comfyui/index.html">ComfyUI</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="移动版导航菜单" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">昇腾开源</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="页面导航">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">torchtune</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/sources/torchtune/index.rst.txt" rel="nofollow"> 查看页面源码</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="torchtune">
+<h1>torchtune<a class="headerlink" href="#torchtune" title="Link to this heading"></a></h1>
+<p>在单卡昇腾 NPU 上跑通 <a class="reference external" href="https://github.com/meta-pytorch/torchtune">torchtune</a> 的最小 LoRA 微调链路：</p>
+<ul class="simple">
+<li><p><strong>安装</strong>：<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">torchtune</span></code>（二进制）与源码安装两条路径，拿到 <code class="docutils literal notranslate"><span class="pre">tune</span></code> CLI + 内置 recipes / configs。</p></li>
+<li><p><strong>LoRA 微调</strong>：从 HuggingFace Hub 拉 <code class="docutils literal notranslate"><span class="pre">Qwen/Qwen2.5-0.5B-Instruct</span></code> 作为底座，用 <code class="docutils literal notranslate"><span class="pre">tune</span> <span class="pre">run</span> <span class="pre">lora_finetune_single_device</span></code> 配 <code class="docutils literal notranslate"><span class="pre">qwen2_5/0.5B_lora_single_device</span></code> 配置跑 3 步 LoRA 微调。</p></li>
+<li><p><strong>产物验证</strong>：检查 LoRA 适配器（<code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> + <code class="docutils literal notranslate"><span class="pre">adapter_model.pt</span></code>）落盘与 LoRA 矩阵配置。</p></li>
+</ul>
+<section id="id1">
+<h2>前置条件<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>硬件<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>Atlas 900 A2 / A3 训练系列产品或者 Ascend 950 系列产品，并按需完成物理机或容器内的设备挂载（<code class="docutils literal notranslate"><span class="pre">/dev/davinci*</span></code> 等）。</p>
+</section>
+<section id="id3">
+<h3>基础软件<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>在跑本文档<strong>之前</strong>，你的机器上需要已经装好并可用：</p>
+<ul class="simple">
+<li><p>可用的 Python 环境</p></li>
+<li><p>可用的 CANN（参考<a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">快速安装昇腾环境</a>）</p></li>
+<li><p>与上面 CANN 匹配的 <code class="docutils literal notranslate"><span class="pre">torch</span></code> + <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>，且 <code class="docutils literal notranslate"><span class="pre">torch</span></code> 能正常 <code class="docutils literal notranslate"><span class="pre">import</span></code> 并 <code class="docutils literal notranslate"><span class="pre">torch.npu.is_available()</span> <span class="pre">==</span> <span class="pre">True</span></code>（参考 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a>，按 torch ↔ torch_npu ↔ CANN 三方兼容矩阵选择版本）</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>本文档示例使用的版本<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p><strong>配套机器</strong>：</p>
+<ul class="simple">
+<li><p><strong>机器类型</strong>：Atlas 900 A2 PODc（Ascend 910B4，64 GB × 1）</p></li>
+<li><p><strong>操作系统</strong>：Ubuntu 22.04</p></li>
+</ul>
+<p><strong>配套镜像</strong>：</p>
+<p>swr.cn-south-1.myhuaweicloud.com/ascendhub/cann:9.1.0-910b-ubuntu22.04-py3.12</p>
+<p><strong>软件版本</strong>：</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>组件</p></th>
+<th class="head"><p>版本</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Python</p></td>
+<td><p>3.12</p></td>
+</tr>
+<tr class="row-odd"><td><p>CANN</p></td>
+<td><p>9.1.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torch</p></td>
+<td><p>2.11.0+cpu</p></td>
+</tr>
+<tr class="row-odd"><td><p>torch_npu</p></td>
+<td><p>2.11.0</p></td>
+</tr>
+<tr class="row-even"><td><p>torchtune</p></td>
+<td><p>最新 release 的源码/二进制</p></td>
+</tr>
+<tr class="row-odd"><td><p>huggingface_hub</p></td>
+<td><p>最新稳定版</p></td>
+</tr>
+<tr class="row-even"><td><p>torchao</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;0.16</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>模型</p></td>
+<td><p><a class="reference external" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct">Qwen/Qwen2.5-0.5B-Instruct</a></p></td>
+</tr>
+<tr class="row-even"><td><p>数据集</p></td>
+<td><p>本文自带的 50 条 alpaca 格式样例（写入 <code class="docutils literal notranslate"><span class="pre">data.json</span></code>，通过 <code class="docutils literal notranslate"><span class="pre">dataset=torchtune.datasets.alpaca_dataset</span></code> 切换到本地 JSON loader）</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="id5">
+<h2>前置安装<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p>确认能看到 NPU 设备：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>npu-smi<span class="w"> </span>info
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>+------------------------------------------------------------------------------------------------+
+| npu-smi 25.5.2                   Version: 25.5.2                                               |
++---------------------------+---------------+----------------------------------------------------+
+| NPU   Name                | Health        | Power(W)    Temp(C)           Hugepages-Usage(page)|
+| Chip                      | Bus-Id        | AICore(%)   Memory-Usage(MB)  HBM-Usage(MB)        |
++===========================+===============+====================================================+
+| 0     910B4               | OK            | 89.9        39                0    / 0             |
+| 0                         | 0000:41:00.0  | 0           0    / 0          2922 / 32768         |
++===========================+===============+====================================================+
++---------------------------+---------------+----------------------------------------------------+
+| NPU     Chip              | Process id    | Process name             | Process memory(MB)      |
++===========================+===============+====================================================+
+| No running processes found in NPU 0                                                            |
++===========================+===============+====================================================+
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">npu-smi</span></code> 不存在，请回到 <a class="reference external" href="https://ascend.github.io/docs/sources/ascend/quick_install.html">Ascend 官方快速安装指南</a> 补装驱动。</p>
+</div>
+<p>检查 Python 版本：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Python<span class="w"> </span><span class="m">3</span>.12.xxx
+</pre></div>
+</div>
+<p>对齐上游 pin 装 <code class="docutils literal notranslate"><span class="pre">torch</span></code> / <code class="docutils literal notranslate"><span class="pre">torch_npu</span></code>：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-f<span class="w"> </span>https://mirrors.aliyun.com/pytorch-wheels/cpu<span class="w"> </span><span class="nv">torch</span><span class="o">==</span><span class="m">2</span>.11.0
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--extra-index-url<span class="w"> </span>https://repo.huaweicloud.com/ascend/repos/pypi<span class="w"> </span><span class="nv">torch_npu</span><span class="o">==</span><span class="m">2</span>.11.0
+</pre></div>
+</div>
+<p>检查 torch / torch_npu 是否装好且 NPU 设备可用(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span><span class="o">,</span><span class="w"> </span><span class="nn">torch_npu</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch='</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torch_npu='</span><span class="p">,</span> <span class="n">torch_npu</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'is_available:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">is_available</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'count:'</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">npu</span><span class="o">.</span><span class="n">device_count</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">torch</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.11.0+cpu
+<span class="nv">torch_npu</span><span class="o">=</span><span class="w"> </span><span class="m">2</span>.11.0
+is_available:<span class="w"> </span>True
+count:<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>如果 <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">torch_npu</span></code> 失败，回到 <a class="reference external" href="https://gitcode.com/Ascend/pytorch">Ascend PyTorch 安装文档</a> 检查 torch / torch_npu / CANN 三方兼容矩阵。</p>
+</div>
+<p>安装 <code class="docutils literal notranslate"><span class="pre">huggingface_hub</span></code>（用于从 HuggingFace Hub 下载底座模型）+ <code class="docutils literal notranslate"><span class="pre">torchao</span></code>：</p>
+<!-- torchao 两个 API 在新版都改了位置/签名，torchtune v0.6.1 都没跟上：
+  * 0.18 起 NF4Tensor 挪到 torchao.prototype.dtypes，
+     `torchtune.modules.common_utils:19` 的 `from torchao.dtypes.nf4tensor import NF4Tensor` 炸；
+  * 0.16 起 `int4_weight_only()` 函数被 class-based 的 `Int4WeightOnlyConfig` 取代，
+     `torchtune` 内部还在用老 API。所以 pin 在最后一个两个 import 都 OK 的 0.15 系列。 -->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>huggingface_hub
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'torchao&lt;0.16'</span>
+</pre></div>
+</div>
+<p>打印安装版本(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">huggingface_hub</span><span class="o">,</span><span class="w"> </span><span class="nn">torchao</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'huggingface_hub'</span><span class="p">,</span> <span class="n">huggingface_hub</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'torchao'</span><span class="p">,</span> <span class="n">torchao</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>huggingface_hub<span class="w"> </span>xxx
+torchao<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示实际安装的版本号。</p>
+</div>
+</section>
+<section id="id6">
+<h2>安装 torchtune<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<section id="uv">
+<h3>使用 uv 进行安装<a class="headerlink" href="#uv" title="Link to this heading"></a></h3>
+<p>通过 PyPI 镜像直接装最新 release 的二进制 wheel：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://mirrors.aliyun.com/pypi/simple<span class="w"> </span>torchtune
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torchtune; print('torchtune', torchtune.__version__)"</span>
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchtune<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号。</p>
+</div>
+<!--
+```shell #test-setup
+uv pip uninstall torchtune -y
+```
+-->
+</section>
+<section id="id7">
+<h3>从源码安装<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<!-- 工作流注入的 UPSTREAM_REF（最新 release tag）通过这个隐藏的 #test-setup 捕获并注入到下方 install 命令中-->
+<!--
+```shell #test-setup store="upstream_ref"
+echo "${UPSTREAM_REF}"
+```
+-->
+<p>克隆上游仓库并 checkout 到当前 torchtune 的最新 release tag，安装并且验证：</p>
+<!--  非 editable 安装：uv 的 `pip install -e .` (PEP 660) 会把 torchtune 当
+  namespace package 加载，导致 `torchtune.__file__` 为 None，进而使
+  torchtune/_cli/cp.py:15 的 `Path(torchtune.__file__).parent.parent` 抛
+  TypeError，`tune --help` 等所有 CLI 调用都炸。新手 quick-start 不需要 hot-reload。 -->
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span><span class="w"> </span>--branch<span class="w"> </span>&lt;ref&gt;<span class="w"> </span>https://github.com/meta-pytorch/torchtune.git
+<span class="nb">cd</span><span class="w"> </span>torchtune
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"import torchtune; print('torchtune', torchtune.__version__)"</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ref&gt;</span></code> 替换为 torchtune 当前的最新 release 版本。</p>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>torchtune<span class="w"> </span>xxx
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>xxx 表示最新的版本号。</p>
+</div>
+</section>
+</section>
+<section id="cli">
+<h2>CLI 自检<a class="headerlink" href="#cli" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tune</span> <span class="pre">--help</span></code> 列出 torchtune 的子命令：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>tune<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>输出结果类似如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>tune<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">{</span>download,ls,cp,run,validate,cat<span class="o">}</span><span class="w"> </span>...
+
+Welcome<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>torchtune<span class="w"> </span>CLI!
+
+options:
+<span class="w">  </span>-h,<span class="w"> </span>--help<span class="w">            </span>show<span class="w"> </span>this<span class="w"> </span><span class="nb">help</span><span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span><span class="nb">exit</span>
+...
+</pre></div>
+</div>
+</section>
+<section id="lora-qwen2-5-0-5b">
+<h2>使用样例：单卡 LoRA 微调 Qwen2.5-0.5B<a class="headerlink" href="#lora-qwen2-5-0-5b" title="Link to this heading"></a></h2>
+<p>对应上游 <a class="reference external" href="https://pytorch.org/torchtune/0.6/tutorials/first_finetune_tutorial.html">First Finetune Tutorial</a>，在单卡昇腾 NPU 上跑通 3 步 LoRA 微调。</p>
+<section id="id8">
+<h3>下载基础模型<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<p>默认使用 <strong>HuggingFace Hub</strong> 进行模型下载：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from huggingface_hub import snapshot_download; print(snapshot_download('Qwen/Qwen2.5-0.5B-Instruct'))"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/root/.cache/huggingface/hub/models--Qwen--Qwen2.5-0.5B-Instruct/snapshots/xxxxxxxx
+</pre></div>
+</div>
+</section>
+<section id="id9">
+<h3>准备本地样例数据<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<p>本文档用 50 条 alpaca 格式的样例写到 <code class="docutils literal notranslate"><span class="pre">data.json</span></code>，再通过 <code class="docutils literal notranslate"><span class="pre">dataset=torchtune.datasets.alpaca_dataset</span></code> 切到本地 JSON 路径：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cat<span class="w"> </span>&gt;<span class="w"> </span>data.json<span class="w"> </span><span class="s">&lt;&lt;'JSON'</span>
+<span class="s">[</span>
+<span class="s">  {"instruction": "Briefly explain why the sky looks blue.", "input": "", "output": "The sky appears blue because shorter-wavelength sunlight is scattered in all directions by the gases in Earth's atmosphere."},</span>
+<span class="s">  {"instruction": "Name a prime number below ten.", "input": "", "output": "7"},</span>
+<span class="s">  {"instruction": "Translate 'hello' into Spanish.", "input": "", "output": "Hola"},</span>
+<span class="s">  {"instruction": "What is the capital of France?", "input": "", "output": "Paris"},</span>
+<span class="s">  {"instruction": "Compute 12 times 13.", "input": "", "output": "156"},</span>
+<span class="s">  {"instruction": "Who wrote 'Pride and Prejudice'?", "input": "", "output": "Jane Austen"},</span>
+<span class="s">  {"instruction": "Give a synonym for 'happy'.", "input": "", "output": "Joyful"},</span>
+<span class="s">  {"instruction": "What is the boiling point of water in Celsius?", "input": "", "output": "100"},</span>
+<span class="s">  {"instruction": "List three primary colors.", "input": "", "output": "Red, yellow, blue"},</span>
+<span class="s">  {"instruction": "Define photosynthesis in one sentence.", "input": "", "output": "Photosynthesis is the process by which plants convert light energy into chemical energy stored as glucose."},</span>
+<span class="s">  {"instruction": "What's the chemical symbol for gold?", "input": "", "output": "Au"},</span>
+<span class="s">  {"instruction": "Name a planet with rings.", "input": "", "output": "Saturn"},</span>
+<span class="s">  {"instruction": "How many continents are there?", "input": "", "output": "Seven"},</span>
+<span class="s">  {"instruction": "Translate 'thank you' into Japanese.", "input": "", "output": "ありがとう (arigatou)"},</span>
+<span class="s">  {"instruction": "What is the largest ocean on Earth?", "input": "", "output": "The Pacific Ocean"},</span>
+<span class="s">  {"instruction": "Define 'algorithm'.", "input": "", "output": "A step-by-step procedure for solving a problem or accomplishing a task."},</span>
+<span class="s">  {"instruction": "Name the first president of the United States.", "input": "", "output": "George Washington"},</span>
+<span class="s">  {"instruction": "What's 25 percent of 200?", "input": "", "output": "50"},</span>
+<span class="s">  {"instruction": "Translate 'goodbye' into German.", "input": "", "output": "Auf Wiedersehen"},</span>
+<span class="s">  {"instruction": "List the four fundamental forces of nature.", "input": "", "output": "Gravitational, electromagnetic, strong nuclear, and weak nuclear forces."},</span>
+<span class="s">  {"instruction": "What's the square root of 64?", "input": "", "output": "8"},</span>
+<span class="s">  {"instruction": "Name the author of '1984'.", "input": "", "output": "George Orwell"},</span>
+<span class="s">  {"instruction": "What is the speed of light in vacuum (m/s, approximate)?", "input": "", "output": "About 3 x 10^8 meters per second."},</span>
+<span class="s">  {"instruction": "Translate 'cat' into Italian.", "input": "", "output": "Gatto"},</span>
+<span class="s">  {"instruction": "Define 'gravity'.", "input": "", "output": "Gravity is the force by which a planet or other body draws objects toward its center."},</span>
+<span class="s">  {"instruction": "List three even numbers.", "input": "", "output": "2, 4, 6"},</span>
+<span class="s">  {"instruction": "What's H2O commonly known as?", "input": "", "output": "Water"},</span>
+<span class="s">  {"instruction": "Name the longest river in the world.", "input": "", "output": "The Nile (commonly cited) or the Amazon (by discharge volume)."},</span>
+<span class="s">  {"instruction": "Translate 'yes' into Mandarin Chinese (pinyin).", "input": "", "output": "Shi (是)"},</span>
+<span class="s">  {"instruction": "What is the periodic table?", "input": "", "output": "A tabular arrangement of chemical elements organized by atomic number."},</span>
+<span class="s">  {"instruction": "Compute 7 squared.", "input": "", "output": "49"},</span>
+<span class="s">  {"instruction": "Define 'democracy'.", "input": "", "output": "A system of government in which power is vested in the people, who exercise it directly or through elected representatives."},</span>
+<span class="s">  {"instruction": "Name the largest mammal on Earth.", "input": "", "output": "The blue whale"},</span>
+<span class="s">  {"instruction": "Translate 'red' into French.", "input": "", "output": "Rouge"},</span>
+<span class="s">  {"instruction": "What is the smallest unit of life?", "input": "", "output": "The cell"},</span>
+<span class="s">  {"instruction": "Define 'ecosystem'.", "input": "", "output": "A community of living organisms together with the nonliving components of their environment, interacting as a system."},</span>
+<span class="s">  {"instruction": "List three noble gases.", "input": "", "output": "Helium, neon, argon"},</span>
+<span class="s">  {"instruction": "What's the tallest mountain on Earth?", "input": "", "output": "Mount Everest"},</span>
+<span class="s">  {"instruction": "Translate 'house' into Korean (romanized).", "input": "", "output": "Jip (집)"},</span>
+<span class="s">  {"instruction": "What year did World War II end?", "input": "", "output": "1945"},</span>
+<span class="s">  {"instruction": "Define 'metabolism'.", "input": "", "output": "The chemical processes by which an organism maintains life, including converting food to energy."},</span>
+<span class="s">  {"instruction": "Name the gas plants take in for photosynthesis.", "input": "", "output": "Carbon dioxide (CO2)"},</span>
+<span class="s">  {"instruction": "Compute 144 divided by 12.", "input": "", "output": "12"},</span>
+<span class="s">  {"instruction": "Translate 'book' into Portuguese.", "input": "", "output": "Livro"},</span>
+<span class="s">  {"instruction": "What is the hardest natural substance?", "input": "", "output": "Diamond"},</span>
+<span class="s">  {"instruction": "Define 'protein'.", "input": "", "output": "A large biomolecule composed of amino acids, essential for the structure and function of cells."},</span>
+<span class="s">  {"instruction": "List three common programming languages.", "input": "", "output": "Python, JavaScript, C++"},</span>
+<span class="s">  {"instruction": "What's the currency of Japan?", "input": "", "output": "Japanese yen (JPY)"},</span>
+<span class="s">  {"instruction": "Name the process by which liquid becomes gas.", "input": "", "output": "Evaporation (or vaporization)"},</span>
+<span class="s">  {"instruction": "Translate 'sun' into Russian (transliterated).", "input": "", "output": "Solntse (солнце)"}</span>
+<span class="s">]</span>
+<span class="s">JSON</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/data.json"</span>
+</pre></div>
+</div>
+<p>输出结果类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/path/to/ascend_docs/data.json
+</pre></div>
+</div>
+</section>
+<section id="lora">
+<h3>跑 3 步 LoRA 微调<a class="headerlink" href="#lora" title="Link to this heading"></a></h3>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">ASCEND_RT_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span><span class="w"> </span>tune<span class="w"> </span>run<span class="w"> </span>lora_finetune_single_device<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--config<span class="w"> </span>qwen2_5/0.5B_lora_single_device<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">device</span><span class="o">=</span>npu<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>checkpointer.checkpoint_dir<span class="o">=</span><span class="s2">"&lt;model_path&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tokenizer.path<span class="o">=</span><span class="s2">"&lt;model_path&gt;/vocab.json"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>tokenizer.merges_file<span class="o">=</span><span class="s2">"&lt;model_path&gt;/merges.txt"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">dataset</span><span class="o">=</span>torchtune.datasets.alpaca_dataset<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>dataset.source<span class="o">=</span>json<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>dataset.data_files<span class="o">=</span><span class="s2">"&lt;data_path&gt;"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">metric_logger</span><span class="o">=</span>torchtune.training.metric_logging.StdoutLogger<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>~metric_logger.log_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">log_peak_memory_stats</span><span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">"</span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span><span class="s2">/output"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">max_steps_per_epoch</span><span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">epochs</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">log_every_n_steps</span><span class="o">=</span><span class="m">1</span>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;model_path&gt;</span></code> 在运行时指向「下载基础模型」一节 <code class="docutils literal notranslate"><span class="pre">snapshot_download</span></code> 命令打印的模型缓存路径；<code class="docutils literal notranslate"><span class="pre">&lt;data_path&gt;</span></code> 在运行时指向「准备本地样例数据」一节生成的 <code class="docutils literal notranslate"><span class="pre">data.json</span></code> 路径。</p>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>Step<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>loss:xxx<span class="w"> </span>lr:xxx<span class="w"> </span>tokens_per_second_per_gpu:xxx
+Step<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>loss:xxx<span class="w"> </span>lr:xxx<span class="w"> </span>tokens_per_second_per_gpu:xxx
+Step<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>loss:xxx<span class="w"> </span>lr:xxx<span class="w"> </span>tokens_per_second_per_gpu:xxx
+...
+</pre></div>
+</div>
+<p>捕获 LoRA checkpoint 目录路径供下一步验证：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ls<span class="w"> </span>-dt<span class="w"> </span><span class="si">${</span><span class="nv">PWD</span><span class="si">}</span>/output/*/<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>输出类似：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>/path/to/ascend_docs/output/epoch_0/
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>验证 LoRA 适配器落盘<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p>torchtune 默认落 <code class="docutils literal notranslate"><span class="pre">adapter_config.json</span></code> + <code class="docutils literal notranslate"><span class="pre">adapter_model.pt</span></code>（底座权重不动）：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"&lt;ckpt&gt;/adapter_config.json"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">test</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">"&lt;ckpt&gt;/adapter_model.pt"</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"adapter files present"</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>adapter<span class="w"> </span>files<span class="w"> </span>present
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;ckpt&gt;</span></code> 在运行时替换为「跑 3 步 LoRA 微调」小节落盘的 LoRA checkpoint 目录。</p>
+</div>
+<p>捕获 checkpoint 里 LoRA 矩阵的统计信息(下面的命令用 Python 执行)：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s1">'&lt;ckpt&gt;/adapter_config.json'</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'rank'</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">'r'</span><span class="p">],</span> <span class="s1">'lora_alpha'</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">'lora_alpha'</span><span class="p">],</span> <span class="s1">'targets'</span><span class="p">,</span> <span class="n">cfg</span><span class="p">[</span><span class="s1">'target_modules'</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>输出结果如下：</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rank<span class="w"> </span>...<span class="w"> </span>lora_alpha<span class="w"> </span>...<span class="w"> </span>targets<span class="w"> </span>...
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>外部链接<a class="headerlink" href="#id11" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>GitHub：<a class="reference external" href="https://github.com/meta-pytorch/torchtune">meta-pytorch/torchtune</a></p></li>
+<li><p>文档中心：<a class="reference external" href="https://pytorch.org/torchtune/">torchtune Docs</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="页脚">
+        <a href="../torchtitan/quick_start.html" class="btn btn-neutral float-left" title="快速开始" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> 上一页</a>
+        <a href="../trl/index.html" class="btn btn-neutral float-right" title="Transformer Reinforcement Learning" accesskey="n" rel="next">下一页 <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; 版权所有 2024, Ascend。</p>
+  </div>
+
+  利用 <a href="https://www.sphinx-doc.org/">Sphinx</a> 构建，使用的 
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">主题</a>
+    由 <a href="https://readthedocs.org">Read the Docs</a> 开发.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
