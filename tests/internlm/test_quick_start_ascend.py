@@ -29,9 +29,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     )
 
     _CANN_SET_ENV = "/usr/local/Ascend/ascend-toolkit/set_env.sh"
-    _CLUSTER_INDEX = (
-        "http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple"
-    )
+    _CLUSTER_INDEX = 'https://pypi.org/simple'
     _ASCEND_EXTRA = "https://repo.huaweicloud.com/ascend/repos/pypi"
     _CONSTRAINTS_FILE = Path(__file__).resolve().parent / "constraints-npu.txt"
 

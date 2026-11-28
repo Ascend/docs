@@ -18,9 +18,7 @@ class TestQuickStartAscend(MarkdownDocTestBase, unittest.TestCase):
     DEFAULT_COMMAND_TIMEOUT = 1200
     USER_AGENT = "Ascend/docs/ray-quick-start"
     _CANN_SET_ENV = "/usr/local/Ascend/ascend-toolkit/set_env.sh"
-    _CLUSTER_INDEX = (
-        "http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple"
-    )
+    _CLUSTER_INDEX = 'https://pypi.org/simple'
     _ASCEND_EXTRA = "https://repo.huaweicloud.com/ascend/repos/pypi"
     _TORCH_VERSION = "2.9.0"
     _TORCH_NPU_VERSION = "2.9.0.post2"

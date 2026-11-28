@@ -29,10 +29,8 @@ for name in ("npu",):
     print(f"Upstream [{name}] requirements: {extras[name]}")
 PY
 
-# Match Quick Start's in-cluster pip cache for every install, including build dependencies.
-export PIP_INDEX_URL="http://cache-service.nginx-pypi-cache.svc.cluster.local/pypi/simple"
-export PIP_TRUSTED_HOST="cache-service.nginx-pypi-cache.svc.cluster.local"
-echo "pip index: $PIP_INDEX_URL"
+# Keep pip on its configured index; the runner proxy handles caching.
+echo "pip index: ${PIP_INDEX_URL:-default}"
 
 # The target checkout owns both Transformers and NPU dependency ranges.
 python -m pip install -U pip setuptools wheel

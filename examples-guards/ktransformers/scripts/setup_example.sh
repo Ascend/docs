@@ -24,21 +24,8 @@ apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
   build-essential cmake git pkg-config libhwloc-dev libnuma-dev python3-dev patchelf
 
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-export CLUSTER_PIP_INDEX="http://${CLUSTER_PIP_HOST}/pypi/simple"
-if python -c "
-import os, urllib.error, urllib.request
-try:
-    urllib.request.urlopen(os.environ['CLUSTER_PIP_INDEX'], timeout=3)
-except urllib.error.HTTPError:
-    pass
-" ; then
-  export PIP_INDEX_URL="$CLUSTER_PIP_INDEX"
-  export PIP_TRUSTED_HOST="$CLUSTER_PIP_HOST"
-else
-  export PIP_INDEX_URL="https://mirrors.aliyun.com/pypi/simple/"
-  unset PIP_TRUSTED_HOST || true
-fi
+export PIP_INDEX_URL="https://mirrors.aliyun.com/pypi/simple/"
+unset PIP_TRUSTED_HOST || true
 echo "pip index: $PIP_INDEX_URL"
 
 python -m pip install -U pip setuptools wheel uv

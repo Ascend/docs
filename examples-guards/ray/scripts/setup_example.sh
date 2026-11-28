@@ -12,9 +12,6 @@ TARGET_ROOT="${TARGET_ROOT:?TARGET_ROOT is required}"
 TORCH_VERSION=2.9.0
 TORCH_NPU_VERSION=2.9.0.post2
 ASCEND_PIP_INDEX=https://repo.huaweicloud.com/ascend/repos/pypi
-CLUSTER_PIP_HOST=cache-service.nginx-pypi-cache.svc.cluster.local
-export PIP_INDEX_URL="${PIP_INDEX_URL:-http://${CLUSTER_PIP_HOST}/pypi/simple}"
-export PIP_TRUSTED_HOST="${PIP_TRUSTED_HOST:-$CLUSTER_PIP_HOST}"
 
 source_cann() {
   export PATH="/usr/local/sbin:$PATH"
